@@ -6,6 +6,7 @@ import {
   CompletionList,
   CompletionParams,
   DefinitionParams,
+  DiagnosticSeverity,
   DiagnosticTag,
   DidChangeWatchedFilesParams,
   DocumentFormattingParams,
@@ -57,6 +58,7 @@ import {
   ResolveModuleHost,
   typespecVersion,
 } from "../core/index.js";
+import { builtInLinterLibraryName, builtInLinterRule_UnusedUsing } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
@@ -96,9 +98,9 @@ import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
 import { convertDiagnosticToLsp } from "./diagnostics.js";
-import { EmitterProvider } from "./emitter-provider.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
+import { LibraryProvider } from "./lib-provider.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
@@ -134,7 +136,14 @@ export function createServer(host: ServerHost): Server {
   });
   const compilerHost = createCompilerHost();
   const npmPackageProvider = new NpmPackageProvider(compilerHost);
-  const emitterProvider = new EmitterProvider(npmPackageProvider);
+  const emitterProvider = new LibraryProvider(
+    npmPackageProvider,
+    (exports) => exports.$onEmit !== undefined,
+  );
+  const linterProvider = new LibraryProvider(
+    npmPackageProvider,
+    (exports) => exports.$linter !== undefined,
+  );
 
   const compileService = createCompileService({
     fileService,
@@ -460,7 +469,7 @@ export function createServer(host: ServerHost): Server {
 
     compileService.notifyChange(change.document);
   }
-  async function reportDiagnostics({ program, document }: CompileResult) {
+  async function reportDiagnostics({ program, document, optionsFromConfig }: CompileResult) {
     if (isTspConfigFile(document)) return undefined;
 
     currentDiagnosticIndex.clear();
@@ -488,8 +497,21 @@ export function createServer(host: ServerHost): Server {
             href: each.url,
           };
         }
+        const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
+        } else if (each.code === unusedUsingRule) {
+          // Unused or unnecessary code. Diagnostics with this tag are rendered faded out, so no extra work needed from IDE side
+          // https://vscode-api.js.org/enums/vscode.DiagnosticTag.html#google_vignette
+          // https://learn.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.languageserver.protocol.diagnostictag?view=visualstudiosdk-2022
+          diagnostic.tags = [DiagnosticTag.Unnecessary];
+          if (
+            optionsFromConfig.linterRuleSet?.enable?.[unusedUsingRule] === undefined &&
+            optionsFromConfig.linterRuleSet?.disable?.[unusedUsingRule] === undefined
+          ) {
+            // if the unused using is not configured by user explicitly, report it as hint by default
+            diagnostic.severity = DiagnosticSeverity.Hint;
+          }
         }
         diagnostic.data = { id: diagnosticIdCounter++ };
         const diagnostics = diagnosticMap.get(diagDocument);
@@ -789,7 +811,9 @@ export function createServer(host: ServerHost): Server {
       if (doc) {
         const items = await provideTspconfigCompletionItems(doc, params.position, {
           fileService,
+          compilerHost,
           emitterProvider,
+          linterProvider,
           log,
         });
         return CompletionList.create(items);

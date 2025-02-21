@@ -2,15 +2,16 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 export { configurationFileName, tspOutputFileName } from "./constants.js";
-export * from "./emitter.js";
+export { $onEmit, writeCodeModel } from "./emitter.js";
+export { createModel } from "./lib/client-model-builder.js";
 export { createDiagnostic, getTracer, reportDiagnostic } from "./lib/lib.js";
-export { LoggerLevel } from "./lib/log-level.js";
+export { LoggerLevel } from "./lib/logger-level.js";
 export { Logger } from "./lib/logger.js";
 export {
-  NetEmitterOptions,
-  NetEmitterOptionsSchema,
+  CSharpEmitterOptions,
+  CSharpEmitterOptionsSchema,
   defaultOptions,
   resolveOptions,
-  resolveOutputFolder,
 } from "./options.js";
 export { setSDKContextOptions } from "./sdk-context-options.js";
+export { CSharpEmitterContext } from "./sdk-context.js";

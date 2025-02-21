@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { ModelProperty, Type, compilerAssert } from "@typespec/compiler";
+import { ModelProperty, NoTarget, Type, compilerAssert } from "@typespec/compiler";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -29,6 +29,11 @@ import { HttpContext } from "../index.js";
 import { module as routerHelpers } from "../../../generated-defs/helpers/router.js";
 import { reportDiagnostic } from "../../lib.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
+import { emitMultipart, emitMultipartLegacy } from "./multipart.js";
+
+import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
+import { module as httpHelpers } from "../../../generated-defs/helpers/http.js";
+import { requiresJsonSerialization } from "../../common/serialization/json.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
 
@@ -43,17 +48,25 @@ export function emitRawServer(ctx: HttpContext, operationsModule: Module): Modul
   const serverRawModule = createModule("server-raw", operationsModule);
 
   serverRawModule.imports.push({
-    binder: "* as http",
-    from: "node:http",
-  });
-
-  serverRawModule.imports.push({
     binder: ["HttpContext"],
     from: routerHelpers,
   });
 
+  const isHttpResponder = ctx.gensym("isHttpResponder");
+  const httpResponderSym = ctx.gensym("httpResponderSymbol");
+
+  serverRawModule.imports.push({
+    binder: [`isHttpResponder as ${isHttpResponder}`, `HTTP_RESPONDER as ${httpResponderSym}`],
+    from: httpHelpers,
+  });
+
   for (const operation of ctx.httpService.operations) {
-    serverRawModule.declarations.push([...emitRawServerOperation(ctx, operation, serverRawModule)]);
+    serverRawModule.declarations.push([
+      ...emitRawServerOperation(ctx, operation, serverRawModule, {
+        isHttpResponder,
+        httpResponderSym,
+      }),
+    ]);
   }
 
   return serverRawModule;
@@ -69,6 +82,7 @@ function* emitRawServerOperation(
   ctx: HttpContext,
   operation: HttpOperation,
   module: Module,
+  responderNames: Pick<Names, "isHttpResponder" | "httpResponderSym">,
 ): Iterable<string> {
   const op = operation.operation;
   const operationNameCase = parseCase(op.name);
@@ -89,11 +103,17 @@ function* emitRawServerOperation(
 
   const functionName = keywordSafe(containerNameCase.snakeCase + "_" + operationNameCase.snakeCase);
 
+  const names: Names = {
+    ctx: ctx.gensym("ctx"),
+    result: ctx.gensym("result"),
+    operations: ctx.gensym("operations"),
+    queryParams: ctx.gensym("queryParams"),
+    ...responderNames,
+  };
+
   yield `export async function ${functionName}(`;
-  yield `  ctx: HttpContext,`;
-  yield `  request: http.IncomingMessage,`;
-  yield `  response: http.ServerResponse,`;
-  yield `  operations: ${containerNameCase.pascalCase},`;
+  yield `  ${names.ctx}: HttpContext,`;
+  yield `  ${names.operations}: ${containerNameCase.pascalCase},`;
 
   for (const pathParam of pathParameters) {
     yield `  ${parseCase(pathParam.param.name).camelCase}: string,`;
@@ -114,7 +134,7 @@ function* emitRawServerOperation(
       parameter.param.type.kind === "ModelProperty" ? parameter.param.type : parameter.param;
     switch (parameter.type) {
       case "header":
-        yield* indent(emitHeaderParamBinding(ctx, parameter));
+        yield* indent(emitHeaderParamBinding(ctx, operation, names, parameter));
         break;
       case "cookie":
         throw new UnimplementedError("cookie parameters");
@@ -136,12 +156,12 @@ function* emitRawServerOperation(
   }
 
   if (queryParams.length > 0) {
-    yield `  const __query_params = new URLSearchParams(request.url!.split("?", 1)[1] ?? "");`;
+    yield `  const ${names.queryParams} = new URLSearchParams(${names.ctx}.request.url!.split("?", 2)[1] ?? "");`;
     yield "";
   }
 
   for (const qp of queryParams) {
-    yield* indent(emitQueryParamBinding(ctx, qp));
+    yield* indent(emitQueryParamBinding(ctx, operation, names, qp));
   }
 
   const bodyFields = new Map<string, Type>(
@@ -156,16 +176,15 @@ function* emitRawServerOperation(
     const body = operation.parameters.body;
 
     if (body.contentTypes.length > 1) {
-      throw new UnimplementedError("dynamic request content type");
+      reportDiagnostic(ctx.program, {
+        code: "dynamic-request-content-type",
+        target: operation.operation,
+      });
     }
 
     const contentType = body.contentTypes[0] ?? DEFAULT_CONTENT_TYPE;
 
     const defaultBodyTypeName = operationNameCase.pascalCase + "RequestBody";
-
-    if (body.bodyKind === "multipart") {
-      throw new UnimplementedError(`new form of multipart requests`);
-    }
 
     const bodyNameCase = parseCase(body.property?.name ?? defaultBodyTypeName);
 
@@ -177,10 +196,22 @@ function* emitRawServerOperation(
       { altName: defaultBodyTypeName },
     );
 
-    bodyName = bodyNameCase.camelCase;
+    bodyName = ctx.gensym(bodyNameCase.camelCase);
 
-    yield `  if (!request.headers["content-type"]?.startsWith(${JSON.stringify(contentType)})) {`;
-    yield `    throw new Error(\`Invalid Request: expected content-type '${contentType}' but got '\${request.headers["content-type"]?.split(";", 2)[0]}'.\`)`;
+    module.imports.push({ binder: ["parseHeaderValueParameters"], from: headerHelpers });
+
+    const contentTypeHeader = ctx.gensym("contentType");
+
+    yield `  const ${contentTypeHeader} = parseHeaderValueParameters(${names.ctx}.request.headers["content-type"] as string | undefined);`;
+
+    yield `  if (${contentTypeHeader}?.value !== ${JSON.stringify(contentType)}) {`;
+
+    yield `    return ${names.ctx}.errorHandlers.onInvalidRequest(`;
+    yield `      ${names.ctx},`;
+    yield `      ${JSON.stringify(operation.path)},`;
+    yield `      \`unexpected "content-type": '\${${contentTypeHeader}?.value}', expected '${JSON.stringify(contentType)}'\``;
+    yield `    );`;
+
     yield "  }";
     yield "";
 
@@ -190,52 +221,43 @@ function* emitRawServerOperation(
         requireSerialization(ctx, body.type as SerializableType, "application/json");
         yield `  const ${bodyName} = await new Promise(function parse${bodyNameCase.pascalCase}(resolve, reject) {`;
         yield `    const chunks: Array<Buffer> = [];`;
-        yield `    request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
-        yield `    request.on("end", function finalize() {`;
-        yield `      resolve(JSON.parse(Buffer.concat(chunks).toString()));`;
+        yield `    ${names.ctx}.request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
+        yield `    ${names.ctx}.request.on("end", function finalize() {`;
+        yield `      try {`;
+        yield `        const body = Buffer.concat(chunks).toString();`;
+
+        let value: string;
+
+        if (requiresJsonSerialization(ctx, body.type)) {
+          value = `${bodyTypeName}.fromJsonObject(JSON.parse(body))`;
+        } else {
+          value = `JSON.parse(body)`;
+        }
+
+        yield `        resolve(${value});`;
+        yield `      } catch {`;
+        yield `        ${names.ctx}.errorHandlers.onInvalidRequest(`;
+        yield `          ${names.ctx},`;
+        yield `          ${JSON.stringify(operation.path)},`;
+        yield `          "invalid JSON in request body",`;
+        yield `        );`;
+        yield `        reject();`;
+        yield `      }`;
         yield `    });`;
+        yield `    ${names.ctx}.request.on("error", reject);`;
         yield `  }) as ${bodyTypeName};`;
         yield "";
 
         break;
       }
       case "multipart/form-data":
-        yield `const ${bodyName} = await new Promise(function parse${bodyNameCase.pascalCase}MultipartRequest(resolve, reject) {`;
-        yield `  const boundary = request.headers["content-type"]?.split(";").find((s) => s.includes("boundary="))?.split("=", 2)[1];`;
-        yield `  if (!boundary) {`;
-        yield `      return reject("Invalid request: missing boundary in content-type.");`;
-        yield `  }`;
-        yield "";
-        yield `  const chunks: Array<Buffer> = [];`;
-        yield `  request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
-        yield `  request.on("end", function finalize() {`;
-        yield `    const text = Buffer.concat(chunks).toString();`;
-        yield `    const parts = text.split(boundary).slice(1, -1);`;
-        yield `    const fields: { [k: string]: any } = {};`;
-        yield "";
-        yield `    for (const part of parts) {`;
-        yield `      const [headerText, body] = part.split("\\r\\n\\r\\n", 2);`;
-        yield "      const headers = Object.fromEntries(";
-        yield `        headerText.split("\\r\\n").map((line) => line.split(": ", 2))`;
-        yield "      ) as { [k: string]: string };";
-        yield `      const name = headers["Content-Disposition"].split("name=\\"")[1].split("\\"")[0];`;
-        yield `      const contentType = headers["Content-Type"] ?? "text/plain";`;
-        yield "";
-        yield `      switch (contentType) {`;
-        yield `        case "application/json":`;
-        yield `          fields[name] = JSON.parse(body);`;
-        yield `          break;`;
-        yield `        case "application/octet-stream":`;
-        yield `          fields[name] = Buffer.from(body, "utf-8");`;
-        yield `          break;`;
-        yield `        default:`;
-        yield `          fields[name] = body;`;
-        yield `      }`;
-        yield `    }`;
-        yield "";
-        yield `    resolve(fields as ${bodyTypeName});`;
-        yield `  });`;
-        yield `}) as ${bodyTypeName};`;
+        if (body.bodyKind === "multipart") {
+          yield* indent(
+            emitMultipart(ctx, module, operation, body, names.ctx, bodyName, bodyTypeName),
+          );
+        } else {
+          yield* indent(emitMultipartLegacy(names.ctx, bodyName, bodyTypeName));
+        }
         break;
       default:
         throw new UnimplementedError(`request deserialization for content-type: '${contentType}'`);
@@ -253,8 +275,11 @@ function* emitRawServerOperation(
     let paramBaseExpression;
     const paramNameCase = parseCase(param.name);
     const isBodyField = bodyFields.has(param.name) && bodyFields.get(param.name) === param.type;
+    const isBodyExact = operation.parameters.body?.property === param;
     if (isBodyField) {
       paramBaseExpression = `${bodyName}.${paramNameCase.camelCase}`;
+    } else if (isBodyExact) {
+      paramBaseExpression = bodyName!;
     } else {
       const resolvedParameter = param.type.kind === "ModelProperty" ? param.type : param;
 
@@ -283,16 +308,37 @@ function* emitRawServerOperation(
     );
   }
 
-  yield `  const result = await operations.${operationNameCase.camelCase}(ctx, `;
-  yield* indent(indent(paramLines));
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  yield `  );`, yield "";
+  const returnType = emitTypeReference(ctx, op.returnType, NoTarget, module, {
+    altName: operationNameCase.pascalCase + "Result",
+  });
 
-  yield* indent(emitResultProcessing(ctx, op.returnType, module));
+  yield `  let ${names.result}: ${returnType};`;
+  yield "";
+  yield `  try {`;
+  yield `    ${names.result} = await ${names.operations}.${operationNameCase.camelCase}(${names.ctx}, `;
+  yield* indent(indent(indent(paramLines)));
+  yield `    );`;
+  yield "  } catch(e) {";
+  yield `    if (${names.isHttpResponder}(e)) {`;
+  yield `      return e[${names.httpResponderSym}](${names.ctx});`;
+  yield `    } else throw e;`;
+  yield `  }`;
+  yield "";
+
+  yield* indent(emitResultProcessing(ctx, names, op.returnType, module));
 
   yield "}";
 
   yield "";
+}
+
+interface Names {
+  ctx: string;
+  result: string;
+  operations: string;
+  queryParams: string;
+  isHttpResponder: string;
+  httpResponderSym: string;
 }
 
 /**
@@ -304,20 +350,25 @@ function* emitRawServerOperation(
  * @param t - The return type of the operation.
  * @param module - The module that the result processing code will be written to.
  */
-function* emitResultProcessing(ctx: HttpContext, t: Type, module: Module): Iterable<string> {
+function* emitResultProcessing(
+  ctx: HttpContext,
+  names: Names,
+  t: Type,
+  module: Module,
+): Iterable<string> {
   if (t.kind !== "Union") {
     // Single target type
-    yield* emitResultProcessingForType(ctx, t, module);
+    yield* emitResultProcessingForType(ctx, names, t, module);
   } else {
     const codeTree = differentiateUnion(ctx, t);
 
     yield* writeCodeTree(ctx, codeTree, {
-      subject: "result",
+      subject: names.result,
       referenceModelProperty(p) {
-        return "result." + parseCase(p.name).camelCase;
+        return names.result + "." + parseCase(p.name).camelCase;
       },
       // We mapped the output directly in the code tree input, so we can just return it.
-      renderResult: (t) => emitResultProcessingForType(ctx, t, module),
+      renderResult: (t) => emitResultProcessingForType(ctx, names, t, module),
     });
   }
 }
@@ -331,9 +382,34 @@ function* emitResultProcessing(ctx: HttpContext, t: Type, module: Module): Itera
  */
 function* emitResultProcessingForType(
   ctx: HttpContext,
+  names: Names,
   target: Type,
   module: Module,
 ): Iterable<string> {
+  if (target.kind === "Intrinsic") {
+    switch (target.name) {
+      case "void":
+        yield `${names.ctx}.response.statusCode = 204;`;
+        yield `${names.ctx}.response.end();`;
+        return;
+      case "null":
+        yield `${names.ctx}.response.statusCode = 200;`;
+        yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+        yield `${names.ctx}.response.end("null");`;
+        return;
+      case "unknown":
+        yield `${names.ctx}.response.statusCode = 200;`;
+        yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+        yield `${names.ctx}.response.end(JSON.stringify(${names.result}));`;
+        return;
+      case "never":
+        yield `return ${names.ctx}.errorHandlers.onInternalError(${names.ctx}, "Internal server error.");`;
+        return;
+      default:
+        throw new UnimplementedError(`result processing for intrinsic type '${target.name}'`);
+    }
+  }
+
   if (target.kind !== "Model") {
     throw new UnimplementedError(`result processing for type kind '${target.kind}'`);
   }
@@ -343,8 +419,8 @@ function* emitResultProcessingForType(
   for (const property of target.properties.values()) {
     if (isHeader(ctx.program, property)) {
       const headerName = getHeaderFieldName(ctx.program, property);
-      yield `response.setHeader(${JSON.stringify(headerName.toLowerCase())}, result.${parseCase(property.name).camelCase});`;
-      if (!body) yield `delete (result as any).${parseCase(property.name).camelCase};`;
+      yield `${names.ctx}.response.setHeader(${JSON.stringify(headerName.toLowerCase())}, ${names.result}.${parseCase(property.name).camelCase});`;
+      if (!body) yield `delete (${names.result} as any).${parseCase(property.name).camelCase};`;
     } else if (isStatusCode(ctx.program, property)) {
       if (isUnspeakable(property.name)) {
         if (!isValueLiteralType(property.type)) {
@@ -360,10 +436,10 @@ function* emitResultProcessingForType(
 
         compilerAssert(property.type.kind === "Number", "Status code must be a number.");
 
-        yield `response.statusCode = ${property.type.valueAsString};`;
+        yield `${names.ctx}.response.statusCode = ${property.type.valueAsString};`;
       } else {
-        yield `response.statusCode = result.${parseCase(property.name).camelCase};`;
-        if (!body) yield `delete (result as any).${parseCase(property.name).camelCase};`;
+        yield `${names.ctx}.response.statusCode = ${names.result}.${parseCase(property.name).camelCase};`;
+        if (!body) yield `delete (${names.result} as any).${parseCase(property.name).camelCase};`;
       }
     }
   }
@@ -378,27 +454,33 @@ function* emitResultProcessingForType(
     const bodyCase = parseCase(body.name);
     const serializationRequired = isSerializationRequired(ctx, body.type, "application/json");
     requireSerialization(ctx, body.type, "application/json");
+
+    yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
     if (serializationRequired) {
       const typeReference = emitTypeReference(ctx, body.type, body, module, {
         requireDeclaration: true,
       });
-      yield `response.end(JSON.stringify(${typeReference}.toJsonObject(result.${bodyCase.camelCase})))`;
+      yield `${names.ctx}.response.end(JSON.stringify(${typeReference}.toJsonObject(${names.result}.${bodyCase.camelCase})))`;
     } else {
-      yield `response.end(JSON.stringify(result.${bodyCase.camelCase}));`;
+      yield `${names.ctx}.response.end(JSON.stringify(${names.result}.${bodyCase.camelCase}));`;
     }
   } else {
     if (allMetadataIsRemoved) {
-      yield `response.end();`;
+      yield `${names.ctx}.response.end();`;
     } else {
       const serializationRequired = isSerializationRequired(ctx, target, "application/json");
       requireSerialization(ctx, target, "application/json");
+
+      yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
       if (serializationRequired) {
         const typeReference = emitTypeReference(ctx, target, target, module, {
           requireDeclaration: true,
         });
-        yield `response.end(JSON.stringify(${typeReference}.toJsonObject(result as ${typeReference})));`;
+        yield `${names.ctx}.response.end(JSON.stringify(${typeReference}.toJsonObject(${names.result} as ${typeReference})));`;
       } else {
-        yield `response.end(JSON.stringify(result));`;
+        yield `${names.ctx}.response.end(JSON.stringify(${names.result}));`;
       }
     }
   }
@@ -414,9 +496,12 @@ function* emitResultProcessingForType(
  */
 function* emitHeaderParamBinding(
   ctx: HttpContext,
+  operation: HttpOperation,
+  names: Names,
   parameter: Extract<HttpOperationParameter, { type: "header" }>,
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
+  const headerName = parameter.name.toLowerCase();
 
   // See https://nodejs.org/api/http.html#messageheaders
   // Apparently, only set-cookie can be an array.
@@ -424,12 +509,12 @@ function* emitHeaderParamBinding(
 
   const assertion = canBeArrayType ? "" : " as string | undefined";
 
-  yield `const ${nameCase.camelCase} = request.headers[${JSON.stringify(parameter.name)}]${assertion};`;
+  yield `const ${nameCase.camelCase} = ${names.ctx}.request.headers[${JSON.stringify(headerName)}]${assertion};`;
 
   if (!parameter.param.optional) {
     yield `if (${nameCase.camelCase} === undefined) {`;
     // prettier-ignore
-    yield `  throw new Error("Invalid request: missing required header '${parameter.name}'.");`;
+    yield `  return ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required header '${headerName}'");`;
     yield "}";
     yield "";
   }
@@ -445,17 +530,18 @@ function* emitHeaderParamBinding(
  */
 function* emitQueryParamBinding(
   ctx: HttpContext,
+  operation: HttpOperation,
+  names: Names,
   parameter: Extract<HttpOperationParameter, { type: "query" }>,
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
 
   // UrlSearchParams annoyingly returns null for missing parameters instead of undefined.
-  yield `const ${nameCase.camelCase} = __query_params.get(${JSON.stringify(parameter.name)}) ?? undefined;`;
+  yield `const ${nameCase.camelCase} = ${names.queryParams}.get(${JSON.stringify(parameter.name)}) ?? undefined;`;
 
   if (!parameter.param.optional) {
     yield `if (!${nameCase.camelCase}) {`;
-    // prettier-ignore
-    yield `  throw new Error("Invalid request: missing required query parameter '${parameter.name}'.");`;
+    yield `  return ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required query parameter '${parameter.name}'");`;
     yield "}";
     yield "";
   }

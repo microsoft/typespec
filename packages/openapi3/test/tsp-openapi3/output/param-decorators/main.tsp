@@ -18,22 +18,6 @@ model Thing {
   @format("UUID") id: string;
 }
 
-/**
- * The request has succeeded.
- */
-model Operations_getThing200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Thing;
-}
-
-/**
- * The request has succeeded.
- */
-model Operations_putThing200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Thing;
-}
-
 @route("/thing/{name}") @get op Operations_getThing(
   @pattern("^[a-zA-Z0-9-]{3,24}$")
   @format("UUID")
@@ -44,12 +28,12 @@ model Operations_putThing200ApplicationJsonResponse {
   @maxValue(10)
   @query(#{ explode: true })
   count: int32,
-): Operations_getThing200ApplicationJsonResponse;
+): Thing;
 
 @route("/thing/{name}") @put op Operations_putThing(
   ...Parameters.NameParameter,
-  @bodyRoot body: Thing,
-): Operations_putThing200ApplicationJsonResponse;
+  @body body: Thing,
+): Thing;
 
 namespace Parameters {
   model NameParameter {

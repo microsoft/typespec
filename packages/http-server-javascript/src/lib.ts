@@ -27,7 +27,7 @@ const EmitterOptionsSchema: JSONSchemaType<JsEmitterOptions> = {
 };
 
 export const $lib = createTypeSpecLibrary({
-  name: "tsp-js",
+  name: "@typespec/http-server-javascript",
   requireImports: [],
   emitter: {
     options: EmitterOptionsSchema,
@@ -105,6 +105,21 @@ export const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: paramMessage`Name ${"name"} conflicts with a prior declaration and must be unique.`,
+      },
+    },
+    "dynamic-request-content-type": {
+      severity: "error",
+      messages: {
+        default: "Operation has multiple possible content-type values and cannot be emitted.",
+      },
+    },
+    "openapi3-document-not-generated": {
+      severity: "warning",
+      messages: {
+        unable:
+          "@typespec/openapi3 is installed, but the OpenAPI 3 document could not be generated.",
+        versioned:
+          "An OpenAPI3 document could not be generated for this service because versioned services are not yet supported by the HTTP server emitter for JavaScript.",
       },
     },
   },

@@ -2,26 +2,32 @@
 // Licensed under the MIT license.
 
 import {
+  compilerAssert,
   Enum,
   Interface,
+  isArrayModelType,
+  isRecordModelType,
+  listServices,
   Model,
   Namespace,
+  NoTarget,
   Program,
   Scalar,
   Service,
   Type,
   Union,
   UnionVariant,
-  compilerAssert,
-  isArrayModelType,
-  isRecordModelType,
 } from "@typespec/compiler";
 import { emitDeclaration } from "./common/declaration.js";
 import { createOrGetModuleForNamespace } from "./common/namespace.js";
 import { SerializableType } from "./common/serialization/index.js";
 import { emitUnion } from "./common/union.js";
-import { JsEmitterOptions } from "./lib.js";
-import { OnceQueue } from "./util/once-queue.js";
+import { JsEmitterOptions, reportDiagnostic } from "./lib.js";
+import { parseCase } from "./util/case.js";
+import { UnimplementedError } from "./util/error.js";
+import { createOnceQueue, OnceQueue } from "./util/once-queue.js";
+
+import { createModule as initializeHelperModule } from "../generated-defs/helpers/index.js";
 
 export type DeclarationType = Model | Enum | Union | Interface | Scalar;
 
@@ -95,6 +101,16 @@ export interface JsContext {
   rootModule: Module;
 
   /**
+   * The parent of the generated module.
+   */
+  srcModule: Module;
+
+  /**
+   * The module that contains all generated code.
+   */
+  generatedModule: Module;
+
+  /**
    * A map relating each namespace to the module that contains its declarations.
    *
    * @see createOrGetModuleForNamespace
@@ -117,6 +133,87 @@ export interface JsContext {
    * A map of all types that require serialization code to the formats they require.
    */
   serializations: OnceQueue<SerializableType>;
+
+  gensym: (name: string) => string;
+}
+
+export async function createInitialContext(
+  program: Program,
+  options: JsEmitterOptions,
+): Promise<JsContext | undefined> {
+  const services = listServices(program);
+
+  if (services.length === 0) {
+    reportDiagnostic(program, {
+      code: "no-services-in-program",
+      target: NoTarget,
+      messageId: "default",
+    });
+    return undefined;
+  } else if (services.length > 1) {
+    throw new UnimplementedError("multiple service definitions per program.");
+  }
+
+  const [service] = services;
+
+  const serviceModuleName = parseCase(service.type.name).snakeCase;
+
+  const rootCursor = createPathCursor();
+
+  const globalNamespace = program.getGlobalNamespaceType();
+
+  // Root module for emit.
+  const rootModule: Module = {
+    name: serviceModuleName,
+    cursor: rootCursor,
+
+    imports: [],
+    declarations: [],
+  };
+
+  const srcModule = createModule("src", rootModule);
+
+  const generatedModule = createModule("generated", srcModule);
+
+  // This has the side effect of setting the `module` property of all helpers.
+  // Don't do anything with the emitter code before this is called.
+  await initializeHelperModule(generatedModule);
+
+  // Module for all models, including synthetic and all.
+  const modelsModule: Module = createModule("models", generatedModule);
+
+  // Module for all types in all namespaces.
+  const allModule: Module = createModule("all", modelsModule, globalNamespace);
+
+  // Module for all synthetic (named ad-hoc) types.
+  const syntheticModule: Module = createModule("synthetic", modelsModule);
+
+  const jsCtx: JsContext = {
+    program,
+    options,
+    globalNamespace,
+    service,
+
+    typeQueue: createOnceQueue(),
+    synthetics: [],
+    syntheticNames: new Map(),
+
+    rootModule,
+    srcModule,
+    generatedModule,
+    namespaceModules: new Map([[globalNamespace, allModule]]),
+    syntheticModule,
+    modelsModule,
+    globalNamespaceModule: allModule,
+
+    serializations: createOnceQueue(),
+
+    gensym: (name) => {
+      return gensym(jsCtx, name);
+    },
+  };
+
+  return jsCtx;
 }
 
 /**
@@ -242,9 +339,10 @@ export function createModule(name: string, parent: Module, namespace?: Namespace
  *
  * - A string beginning with `* as` followed by the name of the binding, which
  *   imports all exports from the module as a single object.
+ * - A binding name, which imports the default export of the module.
  * - An array of strings, each of which is a named import from the module.
  */
-export type ImportBinder = `* as ${string}` | string[];
+export type ImportBinder = string | string[];
 
 /**
  * An object representing a ECMAScript module import declaration.
@@ -383,4 +481,17 @@ function getCommonPrefix(a: string[], b: string[]): string[] {
   }
 
   return prefix;
+}
+
+const SYM_TAB = new WeakMap<Program, { idx: number }>();
+
+export function gensym(ctx: JsContext, name: string): string {
+  let symTab = SYM_TAB.get(ctx.program);
+
+  if (symTab === undefined) {
+    symTab = { idx: 0 };
+    SYM_TAB.set(ctx.program, symTab);
+  }
+
+  return `__${name}_${symTab.idx++}`;
 }

@@ -72,11 +72,14 @@ function resolveUnions(program: Program, value: ObjectValue, type: Type): Type |
   if (type.kind !== "Union") {
     return type;
   }
+  const exactValueType = program.checker.getValueExactType(value);
   for (const variant of type.variants.values()) {
     if (
       ignoreDiagnostics(
         program.checker.isTypeAssignableTo(
-          value.type.projectionBase ?? value.type,
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
+          exactValueType ?? value.type.projectionBase ?? value.type,
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
           variant.type.projectionBase ?? variant.type,
           value,
         ),

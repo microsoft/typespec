@@ -29,58 +29,6 @@ model Error {
   message: string;
 }
 
-/**
- * A paged array of pets
- */
-model listPets200ApplicationJsonResponse {
-  /**
-   * A link to the next page of responses
-   */
-  @header("x-next") xNext?: string;
-
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pets;
-}
-
-/**
- * unexpected error
- */
-@defaultResponse
-model listPetsDefaultApplicationJsonResponse {
-  @bodyRoot body: Error;
-}
-
-/**
- * Null response
- */
-model createPets201Response {
-  @statusCode statusCode: 201;
-}
-
-/**
- * unexpected error
- */
-@defaultResponse
-model createPetsDefaultApplicationJsonResponse {
-  @bodyRoot body: Error;
-}
-
-/**
- * Expected response to a valid request
- */
-model showPetById200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet;
-}
-
-/**
- * unexpected error
- */
-@defaultResponse
-model showPetByIdDefaultApplicationJsonResponse {
-  @bodyRoot body: Error;
-}
-
 @tag("pets")
 @route("/pets")
 @get
@@ -90,13 +38,23 @@ op listPets(
    * How many items to return at one time (max 100)
    */
   @query(#{ explode: true }) limit?: int32,
-): listPets200ApplicationJsonResponse | listPetsDefaultApplicationJsonResponse;
+): {
+  /**
+   * A link to the next page of responses
+   */
+  @header("x-next") xNext?: string;
+
+  @body body: Pets;
+} | GeneratedHelpers.DefaultResponse<Description = "unexpected error", Body = Error>;
 
 @tag("pets")
 @route("/pets")
 @post
 @summary("Create a pet")
-op createPets(): createPets201Response | createPetsDefaultApplicationJsonResponse;
+op createPets(): CreatedResponse | GeneratedHelpers.DefaultResponse<
+  Description = "unexpected error",
+  Body = Error
+>;
 
 @tag("pets")
 @route("/pets/{petId}")
@@ -107,4 +65,17 @@ op showPetById(
    * The id of the pet to retrieve
    */
   @path petId: string,
-): showPetById200ApplicationJsonResponse | showPetByIdDefaultApplicationJsonResponse;
+): Pet | GeneratedHelpers.DefaultResponse<Description = "unexpected error", Body = Error>;
+
+namespace GeneratedHelpers {
+  @doc(Description)
+  @error
+  model DefaultResponse<
+    Description extends valueof string = "",
+    Body = void,
+    Headers extends {} = {}
+  > {
+    @body body: Body;
+    ...Headers;
+  }
+}

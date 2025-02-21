@@ -18,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.postprocessor.Postproce
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,6 +44,7 @@ import org.yaml.snakeyaml.representer.Representer;
 public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String DEFAULT_OUTPUT_DIR = "http-client-generator-test/tsp-output/";
+    // private static final String DEFAULT_OUTPUT_DIR = "http-client-generator-clientcore-test/tsp-output/";
 
     private static Yaml yaml = null;
 
@@ -113,6 +115,16 @@ public class Main {
         // XML include POM
         javaPackage.getXmlFiles()
             .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
+
+        // properties file
+        if (JavaSettings.getInstance().isFluentLite()) {
+            String artifactId = FluentUtils.getArtifactId();
+            if (!CoreUtils.isNullOrEmpty(artifactId)) {
+                fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
+                    "version=${project.version}\n", null);
+            }
+        }
+
         // Others
         javaPackage.getTextFiles()
             .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
@@ -211,7 +223,7 @@ public class Main {
                     options.setOutputDir(options.getOutputDir() + "/");
                 }
             } catch (IOException e) {
-                LOGGER.info("Read emitter options failed, emitter options json: {}", emitterOptionsJson);
+                LOGGER.warn("Read emitter options failed, emitter options json: {}", emitterOptionsJson);
             }
         }
 

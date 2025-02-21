@@ -4,6 +4,7 @@
 export { getLifecycleVisibilityEnum } from "./lifecycle.js";
 
 export {
+  VisibilityFilter,
   addVisibilityModifiers,
   clearVisibilityModifiersForClass,
   getVisibility,

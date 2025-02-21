@@ -9,13 +9,27 @@
   "plugins": [
     "./packages/prettier-plugin-typespec/dist/index.js",
     "./node_modules/prettier-plugin-organize-imports/index.js",
-    "prettier-plugin-astro"
+    "@alloy-js/prettier-plugin-alloy",
+    "prettier-plugin-astro",
+    "prettier-plugin-sh"
   ],
   "overrides": [
     {
       "files": "*.tsp",
       "options": {
         "parser": "typespec"
+      }
+    },
+    {
+      "files": ["packages/http-client/**/*.tsx"],
+      "options": {
+        "parser": "alloy-ts"
+      }
+    },
+    {
+      "files": ["packages/emitter-framework/**/*.tsx"],
+      "options": {
+        "parser": "alloy-ts"
       }
     },
     {

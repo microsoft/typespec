@@ -72,7 +72,7 @@ describe("compiler: projected-names", () => {
         @test expireAt: int32;
       }
 
-      #suppress "projections-are-experimental"
+      #suppress "deprecated"
       projection Foo#v {
         to {
           self::properties::forEach((p) => {
@@ -103,7 +103,7 @@ describe("compiler: projected-names", () => {
         @projectedName("json", "jsonRenamedProperty") @test renamedProperty: string;
       }
 
-      #suppress "projections-are-experimental"
+      #suppress "deprecated"
       projection Foo#v {
         to {
             self::renameProperty("expireAt", "actualNameAtThisVersion");

@@ -1,28 +1,12 @@
-import { NoTarget, Program, Type } from "@typespec/compiler";
+import { Diagnostic, Program, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-
-export function logError(program: Program, msg: string) {
-  trace(program, msg);
-  program.reportDiagnostic({
-    code: "http-client-java",
-    severity: "error",
-    message: msg,
-    target: NoTarget,
-  });
-}
-
-export function logWarning(program: Program, msg: string) {
-  trace(program, msg);
-  program.reportDiagnostic({
-    code: "http-client-java",
-    severity: "warning",
-    message: msg,
-    target: NoTarget,
-  });
-}
 
 export function trace(program: Program, msg: string) {
   program.trace("http-client-java", msg);
+}
+
+export function isStableApiVersion(version: string): boolean {
+  return !version.toLowerCase().includes("preview");
 }
 
 export function pascalCase(name: string): string {
@@ -70,6 +54,26 @@ export type SpawnReturns = {
   stderr: string;
 };
 
+export class SpawnError extends Error {
+  stdout: string;
+  stderr: string;
+
+  constructor(message: string, stdout: string, stderr: string) {
+    super(message);
+    this.stdout = stdout;
+    this.stderr = stderr;
+  }
+}
+
+export class DiagnosticError extends Error {
+  diagnostic: Diagnostic;
+
+  constructor(diagnostic: Diagnostic) {
+    super(diagnostic.message);
+    this.diagnostic = diagnostic;
+  }
+}
+
 export async function spawnAsync(
   command: string,
   args: readonly string[],
@@ -103,7 +107,11 @@ export async function spawnAsync(
     childProcess.on("exit", (code, signal) => {
       if (code !== 0) {
         if (code) {
-          error = new Error(`${command} ended with code '${code}'.`);
+          error = new SpawnError(
+            `${command} ended with code '${code}'.`,
+            stdout.join(""),
+            stderr.join(""),
+          );
         } else {
           error = new Error(`${command} terminated by signal '${signal}'.`);
         }

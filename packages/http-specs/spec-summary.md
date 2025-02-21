@@ -1661,6 +1661,160 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseBody
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body`
+
+Test case for using continuation token as pagination. Continuation token is passed in the request header and response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "nextToken": "page2"
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body
+
+Expected header:
+token=page2
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseHeader
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header`
+
+Test case for using continuation token as pagination. Continuation token is passed in the request header and response header.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ]
+}
+```
+
+Expected response header:
+next-token=page2
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header
+
+Expected request header:
+token=page2
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseBody
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body`
+
+Test case for using continuation token as pagination. Continuation token is passed in the request query and response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "nextToken": "page2"
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?token=page2
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseHeader
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header`
+
+Test case for using continuation token as pagination. Continuation token is passed in the request query and response header.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ]
+}
+```
+
+Expected response header:
+next-token=page2
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?token=page2
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Pageable_ServerDrivenPagination_link
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/link`
@@ -1679,9 +1833,7 @@ Two requests need to be tested.
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ],
-  "links": {
-    "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage"
-  }
+  "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage"
 }
 ```
 
@@ -2084,6 +2236,40 @@ Expected request body:
 </SimpleModel>
 ```
 
+### Response_StatusCodeRange_errorResponseStatusCode404
+
+- Endpoint: `get /response/status-code-range/error-response-status-code-404`
+
+Test case for range of status code in error response.
+
+Verify that the result of the API is an error/exception in client, and the error response can be de-serialized to NotFoundError model (instead of Standard4XXError model).
+
+Expected status code 404 and response body:
+
+```json
+{
+  "code": "not-found",
+  "resourceId": "resource1"
+}
+```
+
+### Response_StatusCodeRange_errorResponseStatusCodeInRange
+
+- Endpoint: `get /response/status-code-range/error-response-status-code-in-range`
+
+Test case for range of status code in error response.
+
+Verify that the result of the API is an error/exception in client, and the error response can be de-serialized to ErrorInRange model (instead of DefaultError model).
+
+Expected status code 494 and response body:
+
+```json
+{
+  "code": "request-header-too-large",
+  "message": "Request header too large"
+}
+```
+
 ### Routes_fixed
 
 - Endpoint: `get /routes/fixed`
@@ -2120,7 +2306,7 @@ Expected path: /routes/path/explicit/a
 
 Test label expansion with explode: true when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/label/explode/array.a.b
+Expected path: /routes/path/label/explode/array.a.b
 
 ### Routes_PathParameters_LabelExpansion_Explode_primitive
 
@@ -2128,7 +2314,7 @@ Expected path: /routes/label/explode/array.a.b
 
 Test label expansion with explode: true when passed a primitive value.
 Param value: "a"
-Expected path: /routes/label/explode/primitive.a
+Expected path: /routes/path/label/explode/primitive.a
 
 ### Routes_PathParameters_LabelExpansion_Explode_record
 
@@ -2136,7 +2322,7 @@ Expected path: /routes/label/explode/primitive.a
 
 Test label expansion with explode: true when passed a record value.
 Param value: {a: 1, b: 2}
-Expected path: /routes/label/explode/record.a=1.b=2
+Expected path: /routes/path/label/explode/record.a=1.b=2
 
 ### Routes_PathParameters_LabelExpansion_Standard_array
 
@@ -2144,7 +2330,7 @@ Expected path: /routes/label/explode/record.a=1.b=2
 
 Test label expansion with explode: false when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/label/standard/array.a,b
+Expected path: /routes/path/label/standard/array.a,b
 
 ### Routes_PathParameters_LabelExpansion_Standard_primitive
 
@@ -2152,7 +2338,7 @@ Expected path: /routes/label/standard/array.a,b
 
 Test label expansion with explode: false when passed a primitive value.
 Param value: "a"
-Expected path: /routes/label/standard/primitive.a
+Expected path: /routes/path/label/standard/primitive.a
 
 ### Routes_PathParameters_LabelExpansion_Standard_record
 
@@ -2160,7 +2346,7 @@ Expected path: /routes/label/standard/primitive.a
 
 Test label expansion with explode: false when passed a record value.
 Param value: {a: 1, b: 2}
-Expected path: /routes/label/standard/record.a,1,b,2
+Expected path: /routes/path/label/standard/record.a,1,b,2
 
 ### Routes_PathParameters_MatrixExpansion_Explode_array
 
@@ -2168,7 +2354,7 @@ Expected path: /routes/label/standard/record.a,1,b,2
 
 Test matrix expansion with explode: true when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/matrix/explode/array;a.b
+Expected path: /routes/path/matrix/explode/array;param=a;param=b
 
 ### Routes_PathParameters_MatrixExpansion_Explode_primitive
 
@@ -2176,7 +2362,7 @@ Expected path: /routes/matrix/explode/array;a.b
 
 Test matrix expansion with explode: true when passed a primitive value.
 Param value: "a"
-Expected path: /routes/matrix/explode/primitive;a
+Expected path: /routes/path/matrix/explode/primitive;param=a
 
 ### Routes_PathParameters_MatrixExpansion_Explode_record
 
@@ -2184,7 +2370,7 @@ Expected path: /routes/matrix/explode/primitive;a
 
 Test matrix expansion with explode: true when passed a record value.
 Param value: {a: 1, b: 2}
-Expected path: /routes/matrix/explode/record;a=1;b=2
+Expected path: /routes/path/matrix/explode/record;a=1;b=2
 
 ### Routes_PathParameters_MatrixExpansion_Standard_array
 
@@ -2192,7 +2378,7 @@ Expected path: /routes/matrix/explode/record;a=1;b=2
 
 Test matrix expansion with explode: false when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/matrix/standard/array;a,b
+Expected path: /routes/path/matrix/standard/array;param=a;param=b
 
 ### Routes_PathParameters_MatrixExpansion_Standard_primitive
 
@@ -2200,7 +2386,7 @@ Expected path: /routes/matrix/standard/array;a,b
 
 Test matrix expansion with explode: false when passed a primitive value.
 Param value: "a"
-Expected path: /routes/matrix/standard/primitive;a
+Expected path: /routes/path/matrix/standard/primitive;param=a
 
 ### Routes_PathParameters_MatrixExpansion_Standard_record
 
@@ -2208,7 +2394,7 @@ Expected path: /routes/matrix/standard/primitive;a
 
 Test matrix expansion with explode: false when passed a record value.
 Param value: {a: 1, b: 2}
-Expected path: /routes/matrix/standard/record;a,1,b,2
+Expected path: /routes/path/matrix/standard/record;a=1;b=2
 
 ### Routes_PathParameters_PathExpansion_Explode_array
 
@@ -2216,7 +2402,7 @@ Expected path: /routes/matrix/standard/record;a,1,b,2
 
 Test path expansion with explode: true when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/path/explode/array/a/b
+Expected path: /routes/path/path/explode/array/a/b
 
 ### Routes_PathParameters_PathExpansion_Explode_primitive
 
@@ -2224,7 +2410,7 @@ Expected path: /routes/path/explode/array/a/b
 
 Test path expansion with explode: true when passed a primitive value.
 Param value: "a"
-Expected path: /routes/path/explode/primitive/a
+Expected path: /routes/path/path/explode/primitive/a
 
 ### Routes_PathParameters_PathExpansion_Explode_record
 
@@ -2232,7 +2418,7 @@ Expected path: /routes/path/explode/primitive/a
 
 Test path expansion with explode: true when passed a record value.
 Param value: {a: 1, b: 2}
-Expected path: /routes/path/explode/record/a=1/b=2
+Expected path: /routes/path/path/explode/record/a=1/b=2
 
 ### Routes_PathParameters_PathExpansion_Standard_array
 
@@ -2240,7 +2426,7 @@ Expected path: /routes/path/explode/record/a=1/b=2
 
 Test path expansion with explode: false when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/path/standard/array/a,b
+Expected path: /routes/path/path/standard/array/a,b
 
 ### Routes_PathParameters_PathExpansion_Standard_primitive
 
@@ -2248,7 +2434,7 @@ Expected path: /routes/path/standard/array/a,b
 
 Test path expansion with explode: false when passed a primitive value.
 Param value: "a"
-Expected path: /routes/path/standard/primitive/a
+Expected path: /routes/path/path/standard/primitive/a
 
 ### Routes_PathParameters_PathExpansion_Standard_record
 
@@ -2256,7 +2442,7 @@ Expected path: /routes/path/standard/primitive/a
 
 Test path expansion with explode: false when passed a record value.
 Param value: {a: 1, b: 2}
-Expected path: /routes/path/standard/record/a,1,b,2
+Expected path: /routes/path/path/standard/record/a,1,b,2
 
 ### Routes_PathParameters_ReservedExpansion_annotation
 
@@ -2280,7 +2466,7 @@ Expected path: "/routes/path/reserved-expansion/template/foo/bar%20baz"
 
 Test simple expansion with explode: true when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/simple/explode/arraya.b
+Expected path: /routes/path/simple/explode/arraya.b
 
 ### Routes_PathParameters_SimpleExpansion_Explode_primitive
 
@@ -2288,7 +2474,7 @@ Expected path: /routes/simple/explode/arraya.b
 
 Test simple expansion with explode: true when passed a primitive value.
 Param value: "a"
-Expected path: /routes/simple/explode/primitivea
+Expected path: /routes/path/simple/explode/primitivea
 
 ### Routes_PathParameters_SimpleExpansion_Explode_record
 
@@ -2296,7 +2482,7 @@ Expected path: /routes/simple/explode/primitivea
 
 Test simple expansion with explode: true when passed a record value.
 Param value: {a: 1, b: 2}
-Expected path: /routes/simple/explode/recorda=1,b=2
+Expected path: /routes/path/simple/explode/recorda=1,b=2
 
 ### Routes_PathParameters_SimpleExpansion_Standard_array
 
@@ -2304,7 +2490,7 @@ Expected path: /routes/simple/explode/recorda=1,b=2
 
 Test simple expansion with explode: false when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/simple/standard/arraya,b
+Expected path: /routes/path/simple/standard/arraya,b
 
 ### Routes_PathParameters_SimpleExpansion_Standard_primitive
 
@@ -2312,7 +2498,7 @@ Expected path: /routes/simple/standard/arraya,b
 
 Test simple expansion with explode: false when passed a primitive value.
 Param value: "a"
-Expected path: /routes/simple/standard/primitivea
+Expected path: /routes/path/simple/standard/primitivea
 
 ### Routes_PathParameters_SimpleExpansion_Standard_record
 
@@ -2320,7 +2506,7 @@ Expected path: /routes/simple/standard/primitivea
 
 Test simple expansion with explode: false when passed a record value.
 Param value: {a: 1, b: 2}
-Expected path: /routes/simple/standard/recorda,1,b,2
+Expected path: /routes/path/simple/standard/recorda,1,b,2
 
 ### Routes_PathParameters_templateOnly
 

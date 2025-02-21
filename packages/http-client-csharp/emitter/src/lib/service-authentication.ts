@@ -7,11 +7,13 @@ import {
   SdkHttpOperation,
   SdkPackage,
 } from "@azure-tools/typespec-client-generator-core";
+import { NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
+import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputAuth } from "../type/input-auth.js";
-import { Logger } from "./logger.js";
 
 export function processServiceAuthentication(
+  sdkContext: CSharpEmitterContext,
   sdkPackage: SdkPackage<SdkHttpOperation>,
 ): InputAuth | undefined {
   let authClientParameter: SdkCredentialParameter | undefined = undefined;
@@ -27,12 +29,27 @@ export function processServiceAuthentication(
   if (!authClientParameter) {
     return undefined;
   }
-  if (authClientParameter.type.kind === "credential") {
-    return processAuthType(authClientParameter.type);
-  }
+
   const inputAuth: InputAuth = {};
+
+  if (authClientParameter.type.kind === "credential") {
+    const auth = processAuthType(sdkContext, authClientParameter.type);
+    if (!auth && authClientParameter.type.scheme.type !== "noAuth") {
+      sdkContext.logger.reportDiagnostic({
+        code: "unsupported-auth",
+        messageId: "onlyUnsupportedAuthProvided",
+        target: authClientParameter.type.__raw ?? NoTarget,
+      });
+
+      return inputAuth;
+    }
+    return auth;
+  }
+
+  let containsNoAuth = false;
   for (const authType of authClientParameter.type.variantTypes) {
-    const auth = processAuthType(authType);
+    containsNoAuth = containsNoAuth || authType.scheme.type === "noAuth";
+    const auth = processAuthType(sdkContext, authType);
     if (auth?.ApiKey) {
       inputAuth.ApiKey = auth.ApiKey;
     }
@@ -40,44 +57,77 @@ export function processServiceAuthentication(
       inputAuth.OAuth2 = auth.OAuth2;
     }
   }
+
+  if (containsNoAuth && !inputAuth.ApiKey && !inputAuth.OAuth2) {
+    return undefined;
+  }
+
+  if (!inputAuth?.ApiKey && !inputAuth?.OAuth2) {
+    sdkContext.logger.reportDiagnostic({
+      code: "unsupported-auth",
+      messageId: "onlyUnsupportedAuthProvided",
+      target: authClientParameter.type.__raw ?? NoTarget,
+    });
+  }
+
   return inputAuth;
 }
 
-function processAuthType(credentialType: SdkCredentialType): InputAuth | undefined {
+function processAuthType(
+  sdkContext: CSharpEmitterContext,
+  credentialType: SdkCredentialType,
+): InputAuth | undefined {
   const scheme = credentialType.scheme;
   switch (scheme.type) {
     case "apiKey":
-      return { ApiKey: { Name: scheme.name } } as InputAuth;
+      if (scheme.in !== "header") {
+        sdkContext.logger.reportDiagnostic({
+          code: "unsupported-auth",
+          format: {
+            message: `Only header is supported for ApiKey authentication. ${scheme.in} is not supported.`,
+          },
+          target: credentialType.__raw ?? NoTarget,
+        });
+        return undefined;
+      }
+      return { ApiKey: { Name: scheme.name, In: scheme.in } } as InputAuth;
     case "oauth2":
       return processOAuth2(scheme);
-    case "http":
-      {
-        const schemeOrApiKeyPrefix = scheme.scheme;
-        switch (schemeOrApiKeyPrefix) {
-          case "basic":
-            Logger.getInstance().warn(
-              `${schemeOrApiKeyPrefix} auth method is currently not supported.`,
-            );
-            return undefined;
-          case "bearer":
-            return {
-              ApiKey: {
-                Name: "Authorization",
-                Prefix: "Bearer",
-              },
-            } as InputAuth;
-          default:
-            return {
-              ApiKey: {
-                Name: "Authorization",
-                Prefix: schemeOrApiKeyPrefix,
-              },
-            } as InputAuth;
-        }
+    case "http": {
+      const schemeOrApiKeyPrefix = scheme.scheme;
+      switch (schemeOrApiKeyPrefix) {
+        case "basic":
+          sdkContext.logger.reportDiagnostic({
+            code: "unsupported-auth",
+            format: { message: `${schemeOrApiKeyPrefix} auth method is currently not supported.` },
+            target: credentialType.__raw ?? NoTarget,
+          });
+          return undefined;
+        case "bearer":
+          return {
+            ApiKey: {
+              Name: "Authorization",
+              In: "header",
+              Prefix: "Bearer",
+            },
+          };
+        default:
+          return {
+            ApiKey: {
+              Name: "Authorization",
+              In: "header",
+              Prefix: schemeOrApiKeyPrefix,
+            },
+          };
       }
-      break;
+    }
     default:
-      throw new Error(`un-supported authentication scheme ${scheme.type}`);
+      sdkContext.logger.reportDiagnostic({
+        code: "unsupported-auth",
+        format: { message: `un-supported authentication scheme ${scheme.type}` },
+        target: credentialType.__raw ?? NoTarget,
+      });
+      return undefined;
   }
 }
 

@@ -1,6 +1,7 @@
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
+export type OpenAPIVersion = "3.0.0" | "3.1.0";
 export interface OpenAPI3EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON.
@@ -37,6 +38,16 @@ export interface OpenAPI3EmitterOptions {
   "output-file"?: string;
 
   /**
+   * The Open API specification versions to emit.
+   * If more than one version is specified, then the output file
+   * will be created inside a directory matching each specification version.
+   *
+   * @default ["v3.0"]
+   * @internal
+   */
+  "openapi-versions"?: OpenAPIVersion[];
+
+  /**
    * Set the newline character for emitting files.
    * @default lf
    */
@@ -62,6 +73,13 @@ export interface OpenAPI3EmitterOptions {
    * @default "int64"
    */
   "safeint-strategy"?: "double-int" | "int64";
+
+  /**
+   * If true, then for models emitted as object schemas we default `additionalProperties` to false for
+   * OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.
+   * @default false
+   */
+  "seal-object-schemas"?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -104,6 +122,18 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "  - `openapi.Org1.Service2.v1.1.yaml`    ",
       ].join("\n"),
     },
+    "openapi-versions": {
+      type: "array",
+      items: {
+        type: "string",
+        enum: ["3.0.0", "3.1.0"],
+        nullable: true,
+        description: "The versions of OpenAPI to emit. Defaults to `[3.0.0]`",
+      },
+      nullable: true,
+      uniqueItems: true,
+      minItems: 1,
+    },
     "new-line": {
       type: "string",
       enum: ["crlf", "lf"],
@@ -136,6 +166,16 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         " - `int64`: Will produce `type: integer, format: int64`",
         "",
         "Default: `int64`",
+      ].join("\n"),
+    },
+    "seal-object-schemas": {
+      type: "boolean",
+      nullable: true,
+      default: false,
+      description: [
+        "If true, then for models emitted as object schemas we default `additionalProperties` to false for",
+        "OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.",
+        "Default: `false`",
       ].join("\n"),
     },
   },

@@ -125,6 +125,7 @@ export class SpecCoverageOperations {
         const body = await blob.blobBody;
         const content = await body?.text();
         const report = content ? JSON.parse(content) : undefined;
+
         return {
           generatorMetadata: {
             version: blob.metadata?.generatorversion,

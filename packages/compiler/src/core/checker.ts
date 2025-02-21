@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
-import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-object-literal.codefix.js";
-import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
+import {
+  createModelToObjectValueCodeFix,
+  createTupleToArrayValueCodeFix,
+} from "./compiler-code-fixes/convert-to-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -335,6 +338,7 @@ const TypeInstantiationMap = class
 
 export function createChecker(program: Program, resolver: NameResolver): Checker {
   const stdTypes: Partial<StdTypes> = {};
+  const indeterminateEntities = new WeakMap<Type, IndeterminateEntity>();
   const docFromCommentForSym = new Map<Sym, string>();
   const referenceSymCache = new WeakMap<
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
@@ -2928,12 +2932,30 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     } else if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       let base = resolver.getNodeLinks(identifier.parent.base).resolvedSymbol;
+
       if (base) {
         if (base.flags & SymbolFlags.Alias) {
           base = getAliasedSymbol(base, undefined);
         }
+
         if (base) {
-          addCompletions(base.exports ?? base.members);
+          if (identifier.parent.selector === "::") {
+            if (base?.node === undefined && base?.declarations && base.declarations.length > 0) {
+              // Process meta properties separately, such as `::parameters`, `::returnType`
+              const nodeModels = base?.declarations[0];
+              if (nodeModels.kind === SyntaxKind.OperationStatement) {
+                const operation = nodeModels as OperationStatementNode;
+                addCompletion("parameters", operation.symbol);
+                addCompletion("returnType", operation.symbol);
+              }
+            } else if (base?.node?.kind === SyntaxKind.ModelProperty) {
+              // Process meta properties separately, such as `::type`
+              const metaProperty = base.node as ModelPropertyNode;
+              addCompletion("type", metaProperty.symbol);
+            }
+          } else {
+            addCompletions(base.exports ?? base.members);
+          }
         }
       }
     } else {
@@ -3369,10 +3391,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function createIndeterminateEntity(type: IndeterminateEntity["type"]): IndeterminateEntity {
-    return {
+    const existing = indeterminateEntities.get(type);
+    if (existing) {
+      return existing;
+    }
+    const entity: IndeterminateEntity = {
       entityKind: "Indeterminate",
       type,
     };
+
+    indeterminateEntities.set(type, entity);
+    return entity;
   }
   function stringifyTypeForTemplate(type: Type): string | undefined {
     switch (type.kind) {
@@ -3427,24 +3456,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkStringLiteral(str: StringLiteralNode): IndeterminateEntity {
-    return {
-      entityKind: "Indeterminate",
-      type: getLiteralType(str),
-    };
+    return createIndeterminateEntity(getLiteralType(str));
   }
 
   function checkNumericLiteral(num: NumericLiteralNode): IndeterminateEntity {
-    return {
-      entityKind: "Indeterminate",
-      type: getLiteralType(num),
-    };
+    return createIndeterminateEntity(getLiteralType(num));
   }
 
   function checkBooleanLiteral(bool: BooleanLiteralNode): IndeterminateEntity {
-    return {
-      entityKind: "Indeterminate",
-      type: getLiteralType(bool),
-    };
+    return createIndeterminateEntity(getLiteralType(bool));
   }
 
   function checkProgram() {
@@ -4756,7 +4776,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const defaultValue = checkDefaultValue(prop.default, type.type);
         if (defaultValue !== null) {
           type.defaultValue = defaultValue;
-          // eslint-disable-next-line @typescript-eslint/no-deprecated
           type.default = checkLegacyDefault(prop.default);
         }
       }
@@ -6090,7 +6109,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     processedProjections.add(node);
     reportCheckerDiagnostic(
-      createDiagnostic({ code: "projections-are-experimental", target: node }),
+      createDiagnostic({
+        code: "deprecated",
+        format: { message: "Projection are deprecated and will be removed in next version" },
+        target: node,
+      }),
     );
 
     let type;

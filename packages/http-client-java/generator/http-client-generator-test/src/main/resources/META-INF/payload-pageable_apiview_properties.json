@@ -3,13 +3,9 @@
   "CrossLanguageDefinitionId": {
     "payload.pageable.PageableAsyncClient": "Payload.Pageable.ServerDrivenPagination",
     "payload.pageable.PageableAsyncClient.link": "Payload.Pageable.ServerDrivenPagination.link",
-    "payload.pageable.PageableAsyncClient.linkWithResponse": "Payload.Pageable.ServerDrivenPagination.link",
     "payload.pageable.PageableClient": "Payload.Pageable.ServerDrivenPagination",
     "payload.pageable.PageableClient.link": "Payload.Pageable.ServerDrivenPagination.link",
-    "payload.pageable.PageableClient.linkWithResponse": "Payload.Pageable.ServerDrivenPagination.link",
     "payload.pageable.PageableClientBuilder": "Payload.Pageable",
-    "payload.pageable.models.Pet": "Payload.Pageable.Pet",
-    "payload.pageable.serverdrivenpagination.models.LinkResponse": "Payload.Pageable.ServerDrivenPagination.link.Response.anonymous",
-    "payload.pageable.serverdrivenpagination.models.LinkResponseLinks": "Payload.Pageable.ServerDrivenPagination.link.Response.links.anonymous"
+    "payload.pageable.models.Pet": "Payload.Pageable.Pet"
   }
 }

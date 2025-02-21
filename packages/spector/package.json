@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spector",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.7",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
   "exports": {
     ".": {
@@ -35,19 +35,19 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure/identity": "~4.4.1",
+    "@azure/identity": "~4.6.0",
     "@types/js-yaml": "^4.0.5",
     "@typespec/compiler": "workspace:~",
-    "@typespec/versioning": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/rest": "workspace:~",
     "@typespec/spec-api": "workspace:~",
     "@typespec/spec-coverage-sdk": "workspace:~",
+    "@typespec/versioning": "workspace:~",
     "ajv": "~8.17.1",
-    "axios": "^1.7.5",
+    "axios": "^1.7.9",
     "body-parser": "^1.20.3",
     "deep-equal": "^2.2.0",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "express-promise-router": "^4.1.1",
     "form-data": "^4.0.1",
     "globby": "~14.0.2",
@@ -58,7 +58,7 @@
     "node-fetch": "^3.3.1",
     "picocolors": "~1.1.1",
     "source-map-support": "~0.5.21",
-    "winston": "^3.15.0",
+    "winston": "^3.17.0",
     "xml2js": "^0.6.2",
     "yargs": "~17.7.2"
   },
@@ -68,12 +68,12 @@
     "@types/express": "^5.0.0",
     "@types/morgan": "^1.9.4",
     "@types/multer": "^1.4.10",
-    "@types/node": "~22.7.9",
-    "@types/node-fetch": "^2.6.3",
+    "@types/node": "~22.10.10",
+    "@types/node-fetch": "^2.6.12",
     "@types/xml2js": "^0.4.11",
     "@types/yargs": "~17.0.33",
     "@typespec/tspd": "workspace:~",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.3"
+    "typescript": "~5.7.3"
   }
 }

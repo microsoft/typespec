@@ -1,5 +1,23 @@
 # Change Log - @typespec/http
 
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5340](https://github.com/microsoft/typespec/pull/5340) Add Experimental Typekit helpers for `@typespec/http`
+
+
+## 0.64.0
+
+### Features
+
+- [#5153](https://github.com/microsoft/typespec/pull/5153) Adds getStreamMetadata JS API to simplify getting stream metadata from operation parameters and responses.
+
+
 ## 0.63.0
 
 ### Bug Fixes

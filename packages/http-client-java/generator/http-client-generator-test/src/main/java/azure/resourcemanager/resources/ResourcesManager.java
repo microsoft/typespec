@@ -5,10 +5,14 @@
 package azure.resourcemanager.resources;
 
 import azure.resourcemanager.resources.fluent.ResourcesClient;
+import azure.resourcemanager.resources.implementation.ExtensionsResourcesImpl;
+import azure.resourcemanager.resources.implementation.LocationResourcesImpl;
 import azure.resourcemanager.resources.implementation.NestedsImpl;
 import azure.resourcemanager.resources.implementation.ResourcesClientBuilder;
 import azure.resourcemanager.resources.implementation.SingletonsImpl;
 import azure.resourcemanager.resources.implementation.TopLevelsImpl;
+import azure.resourcemanager.resources.models.ExtensionsResources;
+import azure.resourcemanager.resources.models.LocationResources;
 import azure.resourcemanager.resources.models.Nesteds;
 import azure.resourcemanager.resources.models.Singletons;
 import azure.resourcemanager.resources.models.TopLevels;
@@ -30,11 +34,13 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.core.util.Configuration;
+import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -48,6 +54,10 @@ public final class ResourcesManager {
     private Nesteds nesteds;
 
     private Singletons singletons;
+
+    private ExtensionsResources extensionsResources;
+
+    private LocationResources locationResources;
 
     private final ResourcesClient clientObject;
 
@@ -101,6 +111,9 @@ public final class ResourcesManager {
      */
     public static final class Configurable {
         private static final ClientLogger LOGGER = new ClientLogger(Configurable.class);
+        private static final String SDK_VERSION = "version";
+        private static final Map<String, String> PROPERTIES
+            = CoreUtils.getProperties("azure-resourcemanager-resources-generated.properties");
 
         private HttpClient httpClient;
         private HttpLogOptions httpLogOptions;
@@ -208,12 +221,14 @@ public final class ResourcesManager {
             Objects.requireNonNull(credential, "'credential' cannot be null.");
             Objects.requireNonNull(profile, "'profile' cannot be null.");
 
+            String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, "UnknownVersion");
+
             StringBuilder userAgentBuilder = new StringBuilder();
             userAgentBuilder.append("azsdk-java")
                 .append("-")
                 .append("azure.resourcemanager.resources")
                 .append("/")
-                .append("1.0.0-beta.1");
+                .append(clientVersion);
             if (!Configuration.getGlobalConfiguration().get("AZURE_TELEMETRY_DISABLED", false)) {
                 userAgentBuilder.append(" (")
                     .append(Configuration.getGlobalConfiguration().get("java.version"))
@@ -293,6 +308,30 @@ public final class ResourcesManager {
             this.singletons = new SingletonsImpl(clientObject.getSingletons(), this);
         }
         return singletons;
+    }
+
+    /**
+     * Gets the resource collection API of ExtensionsResources. It manages ExtensionsResource.
+     * 
+     * @return Resource collection API of ExtensionsResources.
+     */
+    public ExtensionsResources extensionsResources() {
+        if (this.extensionsResources == null) {
+            this.extensionsResources = new ExtensionsResourcesImpl(clientObject.getExtensionsResources(), this);
+        }
+        return extensionsResources;
+    }
+
+    /**
+     * Gets the resource collection API of LocationResources. It manages LocationResource.
+     * 
+     * @return Resource collection API of LocationResources.
+     */
+    public LocationResources locationResources() {
+        if (this.locationResources == null) {
+            this.locationResources = new LocationResourcesImpl(clientObject.getLocationResources(), this);
+        }
+        return locationResources;
     }
 
     /**

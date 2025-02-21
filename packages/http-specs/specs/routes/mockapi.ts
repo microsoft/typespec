@@ -61,76 +61,76 @@ Scenarios.Routes_PathParameters_ReservedExpansion_annotation = createTests(
   "/routes/path/reserved-expansion/annotation/foo/bar%20baz",
 );
 Scenarios.Routes_PathParameters_SimpleExpansion_Standard_primitive = createTests(
-  "/routes/simple/standard/primitivea",
+  "/routes/path/simple/standard/primitivea",
 );
 Scenarios.Routes_PathParameters_SimpleExpansion_Standard_array = createTests(
-  "/routes/simple/standard/arraya,b",
+  "/routes/path/simple/standard/arraya,b",
 );
 Scenarios.Routes_PathParameters_SimpleExpansion_Standard_record = createTests(
-  "/routes/simple/standard/recorda,1,b,2",
+  "/routes/path/simple/standard/recorda,1,b,2",
 );
 Scenarios.Routes_PathParameters_SimpleExpansion_Explode_primitive = createTests(
-  "/routes/simple/standard/primitivea",
+  "/routes/path/simple/explode/primitivea",
 );
 Scenarios.Routes_PathParameters_SimpleExpansion_Explode_array = createTests(
-  "/routes/simple/standard/arraya,b",
+  "/routes/path/simple/explode/arraya,b",
 );
 Scenarios.Routes_PathParameters_SimpleExpansion_Explode_record = createTests(
-  "/routes/simple/standard/recorda=1,b=2",
+  "/routes/path/simple/explode/recorda=1,b=2",
 );
 Scenarios.Routes_PathParameters_PathExpansion_Standard_primitive = createTests(
-  "/routes/path/standard/primitive/a",
+  "/routes/path/path/standard/primitive/a",
 );
 Scenarios.Routes_PathParameters_PathExpansion_Standard_array = createTests(
-  "/routes/path/standard/array/a,b",
+  "/routes/path/path/standard/array/a,b",
 );
 Scenarios.Routes_PathParameters_PathExpansion_Standard_record = createTests(
-  "/routes/path/standard/record/a,1,b,2",
+  "/routes/path/path/standard/record/a,1,b,2",
 );
 Scenarios.Routes_PathParameters_PathExpansion_Explode_primitive = createTests(
-  "/routes/path/standard/primitive/a",
+  "/routes/path/path/explode/primitive/a",
 );
 Scenarios.Routes_PathParameters_PathExpansion_Explode_array = createTests(
-  "/routes/path/standard/array/a/b",
+  "/routes/path/path/explode/array/a/b",
 );
 Scenarios.Routes_PathParameters_PathExpansion_Explode_record = createTests(
-  "/routes/path/standard/record/a=1/b=2",
+  "/routes/path/path/explode/record/a=1/b=2",
 );
 Scenarios.Routes_PathParameters_LabelExpansion_Standard_primitive = createTests(
-  "/routes/label/standard/primitive.a",
+  "/routes/path/label/standard/primitive.a",
 );
 Scenarios.Routes_PathParameters_LabelExpansion_Standard_array = createTests(
-  "/routes/label/standard/array.a,b",
+  "/routes/path/label/standard/array.a,b",
 );
 Scenarios.Routes_PathParameters_LabelExpansion_Standard_record = createTests(
-  "/routes/label/standard/record.a,1,b,2",
+  "/routes/path/label/standard/record.a,1,b,2",
 );
 Scenarios.Routes_PathParameters_LabelExpansion_Explode_primitive = createTests(
-  "/routes/label/standard/primitive.a",
+  "/routes/path/label/explode/primitive.a",
 );
 Scenarios.Routes_PathParameters_LabelExpansion_Explode_array = createTests(
-  "/routes/label/standard/array.a.b",
+  "/routes/path/label/explode/array.a.b",
 );
 Scenarios.Routes_PathParameters_LabelExpansion_Explode_record = createTests(
-  "/routes/label/standard/record.a=1.b=2",
+  "/routes/path/label/explode/record.a=1.b=2",
 );
 Scenarios.Routes_PathParameters_MatrixExpansion_Standard_primitive = createTests(
-  "/routes/matrix/standard/primitive;a",
+  "/routes/path/matrix/standard/primitive;param=a",
 );
 Scenarios.Routes_PathParameters_MatrixExpansion_Standard_array = createTests(
-  "/routes/matrix/standard/array;a,b",
+  "/routes/path/matrix/standard/array;param=a,b",
 );
 Scenarios.Routes_PathParameters_MatrixExpansion_Standard_record = createTests(
-  "/routes/matrix/standard/record;a,1,b,2",
+  "/routes/path/matrix/standard/record;param=a,1,b,2",
 );
 Scenarios.Routes_PathParameters_MatrixExpansion_Explode_primitive = createTests(
-  "/routes/matrix/standard/primitive;a",
+  "/routes/path/matrix/explode/primitive;param=a",
 );
 Scenarios.Routes_PathParameters_MatrixExpansion_Explode_array = createTests(
-  "/routes/matrix/standard/array;a;b",
+  "/routes/path/matrix/explode/array;param=a;param=b",
 );
 Scenarios.Routes_PathParameters_MatrixExpansion_Explode_record = createTests(
-  "/routes/matrix/standard/record;a=1;b=2",
+  "/routes/path/matrix/explode/record;a=1;b=2",
 );
 Scenarios.Routes_QueryParameters_templateOnly = createTests("/routes/query/template-only?param=a");
 Scenarios.Routes_QueryParameters_explicit = createTests("/routes/query/explicit?param=a");

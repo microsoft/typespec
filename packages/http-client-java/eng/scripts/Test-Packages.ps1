@@ -20,6 +20,9 @@ Invoke-LoggedCommand "mvn -version"
 Push-Location $packageRoot
 try {
     if ($UnitTests) {
+        Invoke-LoggedCommand "npm run test"
+        Write-Host "Emitter unit tests passed"
+
         Write-Host "Current PATH: $env:PATH"
         Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
         $env:JAVA_HOME = $env:JAVA_HOME_21_X64
@@ -36,12 +39,28 @@ try {
             try {
                 & ./Setup.ps1
                 & ./Spector-Tests.ps1
-                Set-Location $packageRoot
-                Write-Host "Spector tests passed"
+                if ($LASTEXITCODE -ne 0) {
+                    exit $LASTEXITCODE
+                }
             }
             finally {
                 Pop-Location
             }
+
+            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test'
+            Push-Location $generatorTestDir
+            try {
+                & ./Setup.ps1
+                & ./Spector-Tests.ps1
+                if ($LASTEXITCODE -ne 0) {
+                    exit $LASTEXITCODE
+                }
+            }
+            finally {
+                Pop-Location
+            }
+
+            Write-Host "Spector tests passed"
         } 
         catch {
             Write-Error "Spector tests failed: $_"
@@ -52,7 +71,7 @@ try {
             if (!(Test-Path $coverageReportDir)) {
                 New-Item -ItemType Directory -Path $coverageReportDir
 
-                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-test/tsp-spector-coverage-java-standard.json'
+                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-clientcore-test/tsp-spector-coverage-java-standard.json'
                 $targetFile = Join-Path $coverageReportDir 'tsp-spector-coverage-java-standard.json'
                 Copy-Item $sourceFile -Destination $targetFile
             }

@@ -16,6 +16,9 @@ export async function createModule(parent: Module): Promise<Module> {
   };
 
   // Child modules
+  await import("./header.js").then((m) => m.createModule(module));
+  await import("./http.js").then((m) => m.createModule(module));
+  await import("./multipart.js").then((m) => m.createModule(module));
   await import("./router.js").then((m) => m.createModule(module));
 
   parent.declarations.push(module);

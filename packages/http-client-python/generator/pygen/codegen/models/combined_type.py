@@ -8,6 +8,7 @@ import re
 from .imports import FileImport, ImportType, TypingSection
 from .base import BaseType
 from .model_type import ModelType
+from .utils import NamespaceType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -30,9 +31,9 @@ class CombinedType(BaseType):
         self.types = types  # the types that this type is combining
         self.name = yaml_data.get("name")
         self._is_union_of_literals = all(i.type == "constant" for i in self.types)
+        self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         """The tag recognized by 'msrest' as a serialization/deserialization.
 
         'str', 'int', 'float', 'bool' or
@@ -45,16 +46,17 @@ class CombinedType(BaseType):
         """
         if not all(t for t in self.types if t.type == "constant"):
             raise ValueError("Shouldn't get serialization type of a combinedtype")
-        return self.types[0].serialization_type
+        return self.types[0].serialization_type(**kwargs)
 
     @property
     def client_default_value(self) -> Any:
         return self.yaml_data.get("clientDefaultValue")
 
     def description(self, *, is_operation_file: bool) -> str:
-        if len(self.types) == 2:
-            return f"Is either a {self.types[0].type_description} type or a {self.types[1].type_description} type."
-        return f"Is one of the following types: {', '.join([t.type_description for t in self.types])}"
+        type_descriptions = list({t.type_description: None for t in self.types}.keys())
+        if len(type_descriptions) == 2:
+            return f"Is either a {type_descriptions[0]} type or a {type_descriptions[1]} type."
+        return f"Is one of the following types: {', '.join(t for t in type_descriptions)}"
 
     def docstring_text(self, **kwargs: Any) -> str:
         return " or ".join(t.docstring_text(**kwargs) for t in self.types)
@@ -112,9 +114,11 @@ class CombinedType(BaseType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        if self.name and not kwargs.get("is_types_file"):
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        if self.name and serialize_namespace_type != NamespaceType.TYPES_FILE:
             file_import.add_submodule_import(
-                kwargs.pop("relative_path"),
+                self.code_model.get_relative_import_path(serialize_namespace),
                 "_types",
                 ImportType.LOCAL,
                 TypingSection.TYPING,

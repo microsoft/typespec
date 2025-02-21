@@ -51,6 +51,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   },
   "authentication/http/custom": {
     "package-name": "authentication-http-custom",
+    "package-pprint-name": "Authentication Http Custom",
   },
   "authentication/union": {
     "package-name": "authentication-union",
@@ -123,20 +124,44 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "client/structure/two-operation-group": {
     "package-name": "client-structure-twooperationgroup",
   },
+  "client/namespace": {
+    "enable-typespec-namespace": "true",
+  },
 };
 
 function toPosix(dir: string): string {
   return dir.replace(/\\/g, "/");
 }
 
-function getEmitterOption(spec: string): Record<string, string>[] {
+function getEmitterOption(spec: string, flavor: string): Record<string, string>[] {
   const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
   const relativeSpec = toPosix(relative(specDir, spec));
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
     ? relativeSpec
     : dirname(relativeSpec);
-  const result = EMITTER_OPTIONS[key] || [{}];
-  return Array.isArray(result) ? result : [result];
+  const emitter_options = EMITTER_OPTIONS[key] || [{}];
+  const result = Array.isArray(emitter_options) ? emitter_options : [emitter_options];
+
+  function updateOptions(options: Record<string, string>): void {
+    if (options["package-name"] && options["enable-typespec-namespace"] === undefined) {
+      options["enable-typespec-namespace"] = "false";
+    }
+  }
+
+  // when package name is different with typespec namespace, disable typespec namespace
+  if (flavor !== "azure") {
+    for (const options of result) {
+      if (Array.isArray(options)) {
+        for (const option of options) {
+          updateOptions(option);
+        }
+      } else {
+        updateOptions(options);
+      }
+    }
+  }
+
+  return result;
 }
 
 // Function to execute CLI commands asynchronously
@@ -195,6 +220,9 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
         // after fix test generation for nested operation group, remove this check
         if (mainTspRelativePath.includes("client-operation-group")) return;
 
+        // after https://github.com/Azure/autorest.python/issues/3043 fixed, remove this check
+        if (mainTspRelativePath.includes("azure/client-generator-core/api-version")) return;
+
         const hasMainTsp = await promises
           .access(mainTspPath)
           .then(() => true)
@@ -245,7 +273,7 @@ function addOptions(
   flags: RegenerateFlags,
 ): EmitterConfig[] {
   const emitterConfigs: EmitterConfig[] = [];
-  for (const config of getEmitterOption(spec)) {
+  for (const config of getEmitterOption(spec, flags.flavor)) {
     const options: Record<string, string> = { ...config };
     if (flags.pyodide) {
       options["use-pyodide"] = "true";
@@ -268,7 +296,7 @@ function addOptions(
     }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
     const configs = Object.entries(options).flatMap(([k, v]) => {
-      return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${v}`;
+      return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${typeof v === "string" && v.indexOf(" ") > -1 ? `"${v}"` : v}`;
     });
     emitterConfigs.push({
       optionsStr: configs.join(" "),
