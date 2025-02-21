@@ -5,10 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "Swagger Petstore",
-})
-@info({
+@service(#{ title: "Swagger Petstore" })
+@info(#{
   version: "1.0.0",
   license: {
     name: "MIT",

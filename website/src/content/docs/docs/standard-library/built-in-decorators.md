@@ -1175,14 +1175,14 @@ namespace PetStore;
 ##### Setting service title
 
 ```typespec
-@service({title: "Pet store"})
+@service(#{title: "Pet store"})
 namespace PetStore;
 ```
 
 ##### Setting service version
 
 ```typespec
-@service({version: "1.0"})
+@service(#{version: "1.0"})
 namespace PetStore;
 ```
 

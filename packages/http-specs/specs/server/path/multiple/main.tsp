@@ -8,9 +8,7 @@ using TypeSpec.Versioning;
 using TypeSpec.Rest;
 
 @versioned(Versions)
-@service({
-  title: "ServerPathMultiple",
-})
+@service(#{ title: "ServerPathMultiple" })
 @server(
   "{endpoint}/server/path/multiple/{apiVersion}",
   "Test server with path parameters.",

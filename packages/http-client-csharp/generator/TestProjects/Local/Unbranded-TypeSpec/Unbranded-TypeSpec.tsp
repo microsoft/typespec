@@ -4,9 +4,7 @@ import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
 @versioned(Versions)
-@service({
-  title: "hello world",
-})
+@service(#{ title: "hello world" })
 @doc("This is a sample typespec project.")
 @server(
   "{unbrandedTypeSpecUrl}",

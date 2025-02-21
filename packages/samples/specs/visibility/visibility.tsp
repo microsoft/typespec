@@ -4,9 +4,7 @@ import "@typespec/rest";
 using TypeSpec.Http;
 using TypeSpec.Rest;
 
-@service({
-  title: "Visibility sample",
-})
+@service(#{ title: "Visibility sample" })
 namespace VisibilitySample;
 
 model Person {

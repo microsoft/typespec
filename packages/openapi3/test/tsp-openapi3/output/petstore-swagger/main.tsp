@@ -15,10 +15,8 @@ using OpenAPI;
  * - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
  * - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
  */
-@service({
-  title: "Swagger Petstore - OpenAPI 3.0",
-})
-@info({
+@service(#{ title: "Swagger Petstore - OpenAPI 3.0" })
+@info(#{
   version: "1.0.20-SNAPSHOT",
   contact: {
     email: "apiteam@swagger.io",
