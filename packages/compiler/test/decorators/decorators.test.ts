@@ -826,7 +826,7 @@ describe("compiler: built-in decorators", () => {
       deepStrictEqual(properties, ["pickMe", "pickMeToo"]);
     });
 
-    it("picks model inherited property when given a string literal", async () => {
+    it("picks model inherited property", async () => {
       const { TestModel } = await runner.compile(
         `
         model ParentModel {
