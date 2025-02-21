@@ -42,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString("name", ref name)
-                    || reader.TryReadString("clientNamespace", ref @namespace)
+                    || reader.TryReadString("namespace", ref @namespace)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("access", ref accessibility)
                     || reader.TryReadString("deprecation", ref deprecated)
