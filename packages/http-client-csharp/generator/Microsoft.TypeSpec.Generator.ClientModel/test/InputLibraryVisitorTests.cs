@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
     public class InputLibraryVisitorTests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private Mock<ClientModelPlugin> _mockPlugin;
+        private Mock<ScmCodeModelPlugin> _mockPlugin;
         private Mock<ScmLibraryVisitor> _mockVisitor;
         private Mock<InputLibrary> _mockInputLibrary;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -25,7 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             _mockInputLibrary = new Mock<InputLibrary>();
             _mockPlugin = MockHelpers.LoadMockPlugin(
                 createInputLibrary: () => _mockInputLibrary.Object,
-                createClientCore: inputClient => new ClientProvider(inputClient));
+                createClientCore: inputClient => new ClientProvider(inputClient),
+                packageName: "Sample");
             _mockVisitor = new Mock<ScmLibraryVisitor> { CallBase = true };
         }
 

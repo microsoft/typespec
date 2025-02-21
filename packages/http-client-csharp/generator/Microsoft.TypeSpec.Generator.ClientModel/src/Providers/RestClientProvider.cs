@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 $"Create{operation.Name.ToCleanName()}Request",
                 null,
                 MethodSignatureModifiers.Internal,
-                ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
+                ScmCodeModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                 null,
                 [.. parameters, options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
@@ -147,14 +147,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var classifierNameSuffix = string.Join(string.Empty, statusCodes);
                     var classifierBackingField = new FieldProvider(
                         FieldModifiers.Private | FieldModifiers.Static,
-                        ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
+                        ScmCodeModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                         $"_pipelineMessageClassifier{classifierNameSuffix}",
                         this);
 
                     var classifierProperty = new PropertyProvider(
                         null,
                         MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
-                        ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
+                        ScmCodeModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                         classifierBackingField.Name.Substring(1).ToCleanName(),
                         new ExpressionPropertyBody(
                             classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)))),
@@ -298,14 +298,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     changeTrackingCollectionDeclaration = Declare(
                         "changeTrackingDictionary",
-                        ClientModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(parameterType.Arguments),
+                        ScmCodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(parameterType.Arguments),
                         out changeTrackingReference);
                 }
                 else
                 {
                     changeTrackingCollectionDeclaration = Declare(
                         "changeTrackingList",
-                        ClientModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(parameterType
+                        ScmCodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(parameterType
                             .Arguments),
                         out changeTrackingReference);
                 }
@@ -400,16 +400,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression valueExpression)
         {
-            type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
+            type = ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             if (inputParam.Kind == InputOperationParameterKind.Constant && !(operation.IsMultipartFormData && inputParam.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
-                format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
+                format = ScmCodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
             }
             else if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
             {
                 valueExpression = parameterProvider.DefaultValue!;
-                format = ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
+                format = ScmCodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
             }
             else
             {
@@ -459,9 +459,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     null,
                     null);
 
-                var paramProvider = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParameter).ToPublicInputParameter();
+                var paramProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateParameter(inputParameter).ToPublicInputParameter();
                 paramProvider.DefaultValue = !inputParameter.IsRequired ? Default : null;
-                paramProvider.SpreadSource = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+                paramProvider.SpreadSource = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
 
                 builtParameters[index++] = paramProvider;
             }
@@ -524,7 +524,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 var spreadInputModel = inputParam.Kind == InputOperationParameterKind.Spread ? GetSpreadParameterModel(inputParam) : null;
 
-                ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam).ToPublicInputParameter();
+                ParameterProvider? parameter = ScmCodeModelPlugin.Instance.TypeFactory.CreateParameter(inputParam).ToPublicInputParameter();
 
                 if (methodType is MethodType.Protocol or MethodType.CreateRequest)
                 {

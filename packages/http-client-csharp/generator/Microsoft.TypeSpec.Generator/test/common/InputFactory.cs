@@ -163,7 +163,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         public static InputModelType Model(
             string name,
-            string clientNamespace = "Sample.Models",
+            string @namespace = "Sample.Models",
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
             IEnumerable<InputModelProperty>? properties = null,
@@ -177,7 +177,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
             return new InputModelType(
                 name,
-                clientNamespace,
+                @namespace,
                 name,
                 access,
                 null,
