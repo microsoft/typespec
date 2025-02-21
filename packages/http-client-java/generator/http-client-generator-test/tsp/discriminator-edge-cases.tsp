@@ -6,7 +6,9 @@ using TypeSpec.Http;
 using Azure.Core;
 using Azure.ClientGenerator.Core;
 
-@service(#{ title: "DiscriminatorEdgeCases" })
+@service({
+  title: "DiscriminatorEdgeCases",
+})
 namespace TspTest.DiscriminatorEdgeCases;
 
 model ParentWithRequiredProperty {

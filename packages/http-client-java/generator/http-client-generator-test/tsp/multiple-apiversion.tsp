@@ -10,7 +10,9 @@ using Azure.Core.Foundations;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service(#{ title: "MultipleApiVersion" })
+@service({
+  title: "MultipleApiVersion",
+})
 @versioned(TspTest.MultipleApiVersion.Versions)
 @Azure.ClientGenerator.Core.client({
   name: "FirstClient",
@@ -47,7 +49,9 @@ namespace TspTest.MultipleApiVersion {
   }
 }
 
-@service(#{ title: "MultipleApiVersion2" })
+@service({
+  title: "MultipleApiVersion2",
+})
 @versioned(TspTest.MultipleApiVersion2.Versions)
 @Azure.ClientGenerator.Core.client({
   name: "SecondClient",
@@ -84,7 +88,9 @@ namespace TspTest.MultipleApiVersion2 {
   }
 }
 
-@service(#{ title: "MultipleApiVersion3" })
+@service({
+  title: "MultipleApiVersion3",
+})
 @versioned(TspTest.MultipleApiVersion3.Versions)
 @Azure.ClientGenerator.Core.client({
   name: "NoApiVersionClient",

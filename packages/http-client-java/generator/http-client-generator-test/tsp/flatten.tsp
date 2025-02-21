@@ -6,7 +6,9 @@ using TypeSpec.Http;
 using TypeSpec.Versioning;
 using Azure.ClientGenerator.Core;
 
-@service(#{ title: "Flatten" })
+@service({
+  title: "Flatten",
+})
 @server(
   "{endpoint}/openai",
   "Flatten",

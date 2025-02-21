@@ -4,7 +4,9 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
-@service(#{ title: "Builtin" })
+@service({
+  title: "Builtin",
+})
 namespace TspTest.Builtin;
 
 model Builtin {

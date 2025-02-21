@@ -10,7 +10,9 @@ using Azure.Core.Foundations;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service(#{ title: "ProtocolAndConvenient" })
+@service({
+  title: "ProtocolAndConvenient",
+})
 @versioned(ApiVersions)
 namespace TspTest.ProtocolAndConvenient;
 

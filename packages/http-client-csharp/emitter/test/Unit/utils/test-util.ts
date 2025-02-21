@@ -50,7 +50,7 @@ export async function typeSpecCompile(
   const namespace = `
     @versioned(Versions)
     ${authDecorator}
-    @service(#{
+    @service({
       title: "Azure Csharp emitter Testing",
     })
 

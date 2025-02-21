@@ -7,7 +7,9 @@ using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.Core.Traits;
 
-@service(#{ title: "SpecialHeaders" })
+@service({
+  title: "SpecialHeaders",
+})
 @versioned(ApiVersions)
 namespace TspTest.SpecialHeaders;
 

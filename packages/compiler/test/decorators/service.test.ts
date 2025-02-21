@@ -71,8 +71,8 @@ describe("compiler: service", () => {
 
   it("customize service version", async () => {
     const { S } = await runner.compile(`
+      #suppress "deprecated" "test"
       @test @service(#{
-        #suppress "deprecated" "test"
         version: "1.2.3"
       }) namespace S {}
 

@@ -2,7 +2,9 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service(#{ title: "Optional" })
+@service({
+  title: "Optional",
+})
 namespace TspTest.Optional;
 
 model Optional {

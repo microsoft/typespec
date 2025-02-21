@@ -9,7 +9,9 @@ using Azure.ClientGenerator.Core;
 
 @summary("summary of Naming")
 @doc("description of Naming")
-@service(#{ title: "Naming" })
+@service({
+  title: "Naming",
+})
 namespace TspTest.Naming;
 
 @summary("summary of Response")

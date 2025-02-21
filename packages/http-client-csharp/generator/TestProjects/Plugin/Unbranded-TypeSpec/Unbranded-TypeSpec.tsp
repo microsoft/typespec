@@ -3,7 +3,10 @@ import "@typespec/http";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
-@service(#{ title: "hello world", version: "0.1.0" })
+@service({
+  title: "hello world",
+  version: "0.1.0",
+})
 @doc("This is a sample typespec project.")
 @server(
   "{unbrandedTypeSpecUrl}",

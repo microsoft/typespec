@@ -9,7 +9,9 @@ using Azure.Core;
 using Azure.Core.Foundations;
 using Azure.Core.Traits;
 
-@service(#{ title: "Versioning" })
+@service({
+  title: "Versioning",
+})
 @versioned(ApiVersions)
 namespace TspTest.Versioning;
 

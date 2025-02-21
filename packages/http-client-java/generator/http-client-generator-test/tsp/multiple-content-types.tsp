@@ -5,7 +5,9 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
-@service(#{ title: "MultiContentTypes" })
+@service({
+  title: "MultiContentTypes",
+})
 namespace TspTest.MultiContentTypes;
 
 model Resource {
