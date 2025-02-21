@@ -85,7 +85,9 @@ function walkThroughNodes(yamlMap: Record<string, any>): Record<string, any> {
       if (seen.has(current!)) {
           continue;
       }
-      seen.add(current!);
+      if (current !== undefined && current !== null) {
+        seen.add(current);
+      }
 
       if (Array.isArray(current)) {
           for (let i = 0; i < current.length; i++) {
