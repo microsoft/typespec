@@ -75,13 +75,6 @@ async function createPythonSdkContext<TServiceOperation extends SdkServiceOperat
   };
 }
 
-function arrayWalkThroughNodes(item: any) {
-  if (item !== undefined && typeof item === "object") {
-    return walkThroughNodes(item);
-  }
-  return item;
-}
-
 function walkThroughNodes(yamlMap: Record<string, any>): Record<string, any> {
   const stack = [yamlMap];
   const seen = new WeakSet();
