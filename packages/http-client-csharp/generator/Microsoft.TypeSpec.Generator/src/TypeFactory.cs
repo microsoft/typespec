@@ -21,8 +21,8 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputModelType, ModelProvider?>? _csharpToModelProvider;
         private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider => _csharpToModelProvider ??= [];
 
-        private Dictionary<EnumCacheKey, TypeProvider?>? _enumCache;
-        private Dictionary<EnumCacheKey, TypeProvider?> EnumCache => _enumCache ??= [];
+        private Dictionary<EnumCacheKey, EnumProvider?>? _enumCache;
+        private Dictionary<EnumCacheKey, EnumProvider?> EnumCache => _enumCache ??= [];
 
         private Dictionary<InputType, CSharpType?>? _typeCache;
         private Dictionary<InputType, CSharpType?> TypeCache => _typeCache ??= [];
@@ -150,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var visitor in Visitors)
             {
-                modelProvider = visitor.Visit(model, modelProvider);
+                modelProvider = visitor.PreVisitModel(model, modelProvider);
             }
 
             CSharpToModelProvider.Add(model, modelProvider);
@@ -175,14 +175,14 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var visitor in Visitors)
             {
-                enumProvider = visitor.Visit(enumType, enumProvider);
+                enumProvider = visitor.PreVisitEnum(enumType, enumProvider);
             }
 
             EnumCache.Add(enumCacheKey, enumProvider);
             return enumProvider;
         }
 
-        protected virtual TypeProvider? CreateEnumCore(InputEnumType enumType, TypeProvider? declaringType)
+        protected virtual EnumProvider? CreateEnumCore(InputEnumType enumType, TypeProvider? declaringType)
             => EnumProvider.Create(enumType, declaringType);
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="property">The input model property.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <returns>An instance of <see cref="PropertyProvider"/>.</returns>
-        private PropertyProvider? CreatePropertyCore(InputModelProperty property, TypeProvider enclosingType)
+        protected virtual PropertyProvider? CreatePropertyCore(InputModelProperty property, TypeProvider enclosingType)
         {
             PropertyProvider.TryCreate(property, enclosingType, out var propertyProvider);
             if (Visitors.Count == 0)
@@ -226,7 +226,7 @@ namespace Microsoft.TypeSpec.Generator
             }
             foreach (var visitor in Visitors)
             {
-                propertyProvider = visitor.Visit(property, propertyProvider);
+                propertyProvider = visitor.PreVisitProperty(property, propertyProvider);
             }
             return propertyProvider;
         }

@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator
             var types = new List<TypeProvider>();
             foreach (var typeProvider in library.TypeProviders)
             {
-                var type = VisitType(typeProvider);
+                var type = VisitTypeCore(typeProvider);
                 if (type != null)
                 {
                     types.Add(type);
@@ -32,15 +32,15 @@ namespace Microsoft.TypeSpec.Generator
             library.TypeProviders = types;
         }
 
-        private TypeProvider? VisitType(TypeProvider typeProvider)
+        private TypeProvider? VisitTypeCore(TypeProvider typeProvider)
         {
-            var type = Visit(typeProvider);
+            var type = VisitType(typeProvider);
             if (type != null)
             {
                 var methods = new List<MethodProvider>();
                 foreach (var methodProvider in typeProvider.Methods)
                 {
-                    var method = Visit(methodProvider);
+                    var method = VisitMethod(methodProvider);
                     if (method != null)
                     {
                         methods.Add(method);
@@ -50,7 +50,7 @@ namespace Microsoft.TypeSpec.Generator
                 var constructors = new List<ConstructorProvider>();
                 foreach (var constructorProvider in typeProvider.Constructors)
                 {
-                    var constructor = Visit(constructorProvider);
+                    var constructor = VisitConstructor(constructorProvider);
                     if (constructor != null)
                     {
                         constructors.Add(constructor);
@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator
                 var properties = new List<PropertyProvider>();
                 foreach (var propertyProvider in typeProvider.Properties)
                 {
-                    var property = Visit(propertyProvider);
+                    var property = VisitProperty(propertyProvider);
                     if (property != null)
                     {
                         properties.Add(property);
@@ -70,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator
                 var fields = new List<FieldProvider>();
                 foreach (var fieldProvider in typeProvider.Fields)
                 {
-                    var field = Visit(fieldProvider);
+                    var field = VisitField(fieldProvider);
                     if (field != null)
                     {
                         fields.Add(field);
@@ -98,50 +98,54 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 type.Update(methods, constructors, properties, fields, serializations, nestedTypes);
-                type = PostVisit(type);
+                type = PostVisitType(type);
             }
             return type;
         }
 
         /// <summary>
         /// Visits an <see cref="InputModelType"/> and the converted <see cref="ModelProvider"/> and returns a possibly modified version of the <see cref="ModelProvider"/>.
+        /// This method is called prior to returning the newly created <see cref="ModelProvider"/> from <see cref="TypeFactory.CreateModel"/>.
         /// </summary>
         /// <param name="model">The original input model.</param>
         /// <param name="type">The current conversion.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="ModelProvider"/>.</returns>
-        protected internal virtual ModelProvider? Visit(InputModelType model, ModelProvider? type)
+        protected internal virtual ModelProvider? PreVisitModel(InputModelType model, ModelProvider? type)
         {
             return type;
         }
 
         /// <summary>
         /// Visits an <see cref="InputModelProperty"/> and the converted <see cref="PropertyProvider"/> and returns a possibly modified version of the <see cref="PropertyProvider"/>.
+        /// This method is called prior to returning the newly created <see cref="PropertyProvider"/> from <see cref="TypeFactory.CreateProperty"/>.
         /// </summary>
         /// <param name="property">The original input model property.</param>
         /// <param name="propertyProvider">The current conversion.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="PropertyProvider"/>.</returns>
-        protected internal virtual PropertyProvider? Visit(InputModelProperty property, PropertyProvider? propertyProvider)
+        protected internal virtual PropertyProvider? PreVisitProperty(InputModelProperty property, PropertyProvider? propertyProvider)
         {
             return propertyProvider;
         }
 
         /// <summary>
-        /// Visits an <see cref="InputEnumType"/> and the converted <see cref="TypeProvider"/> and returns a possibly modified version of the <see cref="TypeProvider"/>.
+        /// Visits an <see cref="InputEnumType"/> and the converted <see cref="EnumProvider"/> and returns a possibly modified version of the <see cref="TypeProvider"/>.
+        /// This method is called prior to returning the newly created <see cref="EnumProvider"/> from <see cref="TypeFactory.CreateEnum"/>.
         /// </summary>
         /// <param name="enumType">The original input enum.</param>
         /// <param name="type">The current conversion.</param>
-        /// <returns>Null if it should be removed otherwise the modified version of the <see cref="TypeProvider"/>.</returns>
-        protected internal virtual TypeProvider? Visit(InputEnumType enumType, TypeProvider? type)
+        /// <returns>Null if it should be removed otherwise the modified version of the <see cref="EnumProvider"/>.</returns>
+        protected internal virtual EnumProvider? PreVisitEnum(InputEnumType enumType, EnumProvider? type)
         {
             return type;
         }
 
         /// <summary>
-        /// Visits a <see cref="TypeProvider"/> and returns a possibly modified version of it.
+        /// Visits a <see cref="TypeProvider"/> and returns a possibly modified version of it. This method is called before visiting the
+        /// type provider's members.
         /// </summary>
         /// <param name="type">The original <see cref="TypeProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="TypeProvider"/>.</returns>
-        protected virtual TypeProvider? Visit(TypeProvider type)
+        protected virtual TypeProvider? VisitType(TypeProvider type)
         {
             return type;
         }
@@ -151,7 +155,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="type">The original <see cref="TypeProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="TypeProvider"/>.</returns>
-        protected virtual TypeProvider? PostVisit(TypeProvider type)
+        protected virtual TypeProvider? PostVisitType(TypeProvider type)
         {
             return type;
         }
@@ -161,7 +165,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="constructor">The original <see cref="ConstructorProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="ConstructorProvider"/>.</returns>
-        protected virtual ConstructorProvider? Visit(ConstructorProvider constructor)
+        protected virtual ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
         {
             return constructor;
         }
@@ -171,7 +175,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="method">The original <see cref="MethodProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="MethodProvider"/>.</returns>
-        protected virtual MethodProvider? Visit(MethodProvider method)
+        protected virtual MethodProvider? VisitMethod(MethodProvider method)
         {
             return method;
         }
@@ -181,7 +185,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="property">The original <see cref="PropertyProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="PropertyProvider"/>.</returns>
-        protected virtual PropertyProvider? Visit(PropertyProvider property)
+        protected virtual PropertyProvider? VisitProperty(PropertyProvider property)
         {
             return property;
         }
@@ -191,7 +195,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="field">The original <see cref="FieldProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="FieldProvider"/>.</returns>
-        protected virtual FieldProvider? Visit(FieldProvider field)
+        protected virtual FieldProvider? VisitField(FieldProvider field)
         {
             return field;
         }
