@@ -9,13 +9,31 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
+import { InputOperation } from "./input-operation.js";
 
-interface InputTypeBase {
+export interface InputClientType extends DecoratedType {
+  kind: "client";
+  name: string;
+  namespace: string;
+  doc?: string;
+  summary?: string;
+  // clientInitialization: TODO;
+  operations: InputOperation[];
+  apiVersions: string[];
+  crossLanguageDefinitionId: string;
+  parent?: InputClientType;
+  children?: InputClientType[];
+}
+
+interface DecoratedType {
+  decorators?: DecoratorInfo[];
+}
+
+interface InputTypeBase extends DecoratedType {
   kind: string;
   summary?: string;
   doc?: string;
   deprecation?: string;
-  decorators?: DecoratorInfo[];
 }
 
 export type InputType =
