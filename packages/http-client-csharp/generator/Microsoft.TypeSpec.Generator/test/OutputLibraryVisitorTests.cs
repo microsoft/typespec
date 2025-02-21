@@ -4,6 +4,7 @@
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -94,6 +95,24 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<FieldProvider>("VisitField", Times.Once(), mockFieldProvider.Object);
+        }
+
+        [Test]
+        public void VisitsSerializationProviderMembers()
+        {
+            var mockSerializationProvider = new Mock<TypeProvider>();
+            _mockTypeProvider.Protected().Setup<TypeProvider[]>("BuildSerializationProviders")
+                .Returns([mockSerializationProvider.Object]);
+            var sig = new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []);
+            var mockMethodProvider = new Mock<MethodProvider>(MockBehavior.Default, sig, MethodBodyStatement.Empty, mockSerializationProvider.Object, new XmlDocProvider());
+            mockSerializationProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
+                .Returns([mockMethodProvider.Object]);
+
+            _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
+
+            _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
+            _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), mockSerializationProvider.Object);
+            _mockVisitor.Protected().Verify<MethodProvider>("VisitMethod", Times.Once(), mockMethodProvider.Object);
         }
 
         [Test]

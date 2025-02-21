@@ -80,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator
                 var serializations = new List<TypeProvider>();
                 foreach (var serializationProvider in typeProvider.SerializationProviders)
                 {
-                    var serialization = VisitType(serializationProvider);
+                    var serialization = VisitTypeCore(serializationProvider);
                     if (serialization != null)
                     {
                         serializations.Add(serialization);
