@@ -80,6 +80,8 @@ model AdditionalInfo {
 
   /** The license information for the exposed API. */
   license?: License;
+
+  ...Record<unknown>;
 }
 
 /** Contact information for the exposed API. */

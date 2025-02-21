@@ -1,7 +1,6 @@
-import type { ServiceDecorator , ServiceOptions } from "../../generated-defs/TypeSpec.js";
+import type { ServiceDecorator, ServiceOptions } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
-import { Type, getTypeName, reportDeprecated } from "../core/index.js";
-import { reportDiagnostic } from "../core/messages.js";
+import { reportDeprecated } from "../core/index.js";
 import type { Program } from "../core/program.js";
 import { DecoratorContext, Namespace } from "../core/types.js";
 import { Realm } from "../experimental/realm.js";
@@ -73,20 +72,11 @@ export const $service: ServiceDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, target, $service);
 
-  if (options && options.kind !== "Model") {
-    reportDiagnostic(context.program, {
-      code: "invalid-argument",
-      format: { value: options.kind, expected: "Model" },
-      target: context.getArgumentTarget(0)!,
-    });
-    return;
-  }
-  const versionProp = options.version;
-  if (options.version) {
+  if (options?.version) {
     reportDeprecated(
       context.program,
       "version: property is deprecated in @service. If wanting to describe a service versioning you can use the `@typespec/versioning` library. If wanting to describe the project version you can use the package.json version.",
-      versionProp,
+      context.getArgumentTarget(0)!,
     );
   }
 

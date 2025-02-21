@@ -14,6 +14,11 @@ import type {
   UnionVariant,
 } from "../src/core/index.js";
 
+export interface ServiceOptions {
+  readonly title?: string;
+  readonly version?: string;
+}
+
 export interface ExampleOptions {
   readonly title?: string;
   readonly description?: string;
@@ -216,19 +221,19 @@ export type DeprecatedDecorator = (
  * ```
  * @example Setting service title
  * ```typespec
- * @service(#{title: "Pet store"})
+ * @service({title: "Pet store"})
  * namespace PetStore;
  * ```
  * @example Setting service version
  * ```typespec
- * @service(#{version: "1.0"})
+ * @service({version: "1.0"})
  * namespace PetStore;
  * ```
  */
 export type ServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  options?: Type,
+  options?: ServiceOptions,
 ) => void;
 
 /**

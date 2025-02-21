@@ -1,9 +1,30 @@
 import type { DecoratorContext, Model, Namespace, Operation, Type } from "@typespec/compiler";
 
+export interface AdditionalInfo {
+  readonly [key: string]: unknown;
+  readonly title?: string;
+  readonly summary?: string;
+  readonly version?: string;
+  readonly termsOfService?: string;
+  readonly contact?: Contact;
+  readonly license?: License;
+}
+
 export interface TagMetadata {
   readonly [key: string]: unknown;
   readonly description?: string;
   readonly externalDocs?: ExternalDocs;
+}
+
+export interface Contact {
+  readonly name?: string;
+  readonly url?: string;
+  readonly email?: string;
+}
+
+export interface License {
+  readonly name: string;
+  readonly url?: string;
 }
 
 export interface ExternalDocs {
@@ -88,7 +109,7 @@ export type ExternalDocsDecorator = (
 export type InfoDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  additionalInfo: Type,
+  additionalInfo: AdditionalInfo,
 ) => void;
 
 /**
