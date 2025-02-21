@@ -192,7 +192,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<TypeProvider>? _serializationProviders;
 
-        public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+        public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
         private IReadOnlyList<AttributeStatement>? _attributes;
         public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
@@ -509,8 +509,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
                 // we ignore nullability for reference types as these are generated the same regardless of nullability
-                // TODO - switch to using CSharpType.Equals once https://github.com/microsoft/typespec/issues/4624 is fixed.
-                if (BuildTypeOrMethodName(parameterType.Name) != signature.Parameters[i].Type.Name ||
+                if (parameterType.FullyQualifiedName != signature.Parameters[i].Type.FullyQualifiedName ||
                     (parameterType.IsValueType && parameterType.IsNullable != signature.Parameters[i].Type.IsNullable))
                 {
                     return false;
@@ -522,26 +521,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
         {
-            if (customMethod.Parameters.Count != method.Parameters.Count || BuildTypeOrMethodName(customMethod.Name) != method.Name)
+            if (customMethod.Parameters.Count != method.Parameters.Count || customMethod.Name != method.Name)
             {
                 return false;
             }
 
             for (int i = 0; i < customMethod.Parameters.Count; i++)
             {
-                if (BuildTypeOrMethodName(customMethod.Parameters[i].Type.Name) != method.Parameters[i].Type.Name)
+                // The namespace may not be available for generated types as they are not yet generated
+                // so Roslyn will not have the namespace information.
+                if (string.IsNullOrEmpty(customMethod.Parameters[i].Type.Namespace))
                 {
-                    return false;
+                    if (customMethod.Parameters[i].Type.Name != method.Parameters[i].Type.Name)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (customMethod.Parameters[i].Type.FullyQualifiedName != method.Parameters[i].Type.FullyQualifiedName)
+                    {
+                        return false;
+                    }
                 }
             }
 
             return true;
-        }
-
-        private static string BuildTypeOrMethodName(string fullyQualifiedName)
-        {
-            var parts = fullyQualifiedName.Split('.');
-            return parts[^1];
         }
 
         private static void ValidateArguments(TypeProvider type, AttributeData attributeData)

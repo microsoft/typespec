@@ -417,6 +417,12 @@ function typespecTypeToJsonInternal(
       }
       return [result, []];
     }
+    case "StringTemplate":
+      if (typespecType.stringValue) {
+        return [typespecType.stringValue, []];
+      }
+    // By design
+    // eslint-disable-next-line no-fallthrough
     default:
       const diagnostic =
         path.length === 0

@@ -276,7 +276,7 @@ namespace PathParameters {
       @scenarioDoc("""
         Test matrix expansion with explode: false when passed a primitive value.
             Param value: "a"
-            Expected path: /routes/path/matrix/standard/primitive;a
+            Expected path: /routes/path/matrix/standard/primitive;param=a
         """)
       @route("primitive{;param}")
       op primitive(param: string): void;
@@ -285,7 +285,7 @@ namespace PathParameters {
       @scenarioDoc("""
         Test matrix expansion with explode: false when passed an array value.
             Param value: ["a","b"]
-            Expected path: /routes/path/matrix/standard/array;a,b
+            Expected path: /routes/path/matrix/standard/array;param=a;param=b
         """)
       @route("array{;param}")
       op array(param: string[]): void;
@@ -294,7 +294,7 @@ namespace PathParameters {
       @scenarioDoc("""
         Test matrix expansion with explode: false when passed a record value.
             Param value: {a: 1, b: 2}
-            Expected path: /routes/path/matrix/standard/record;a,1,b,2
+            Expected path: /routes/path/matrix/standard/record;a=1;b=2
         """)
       @route("record{;param}")
       op record(param: Record<int32>): void;
@@ -306,7 +306,7 @@ namespace PathParameters {
       @scenarioDoc("""
         Test matrix expansion with explode: true when passed a primitive value.
             Param value: "a"
-            Expected path: /routes/path/matrix/explode/primitive;a
+            Expected path: /routes/path/matrix/explode/primitive;param=a
         """)
       @route("primitive{;param*}")
       op primitive(param: string): void;
@@ -315,7 +315,7 @@ namespace PathParameters {
       @scenarioDoc("""
         Test matrix expansion with explode: true when passed an array value.
             Param value: ["a","b"]
-            Expected path: /routes/path/matrix/explode/array;a.b
+            Expected path: /routes/path/matrix/explode/array;param=a;param=b
         """)
       @route("array{;param*}")
       op array(param: string[]): void;

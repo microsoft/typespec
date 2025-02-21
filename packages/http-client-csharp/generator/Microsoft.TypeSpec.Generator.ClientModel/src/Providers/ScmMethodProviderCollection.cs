@@ -102,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType);
             // XmlDocs will be null if the method isn't public
-            convenienceMethod.XmlDocs?.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+            convenienceMethod.XmlDocs?.Exceptions.Add(new(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
             return convenienceMethod;
         }
 
@@ -432,8 +432,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             MethodBodyStatement[] methodBody =
             [
-                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. requiredParameters, ..optionalParameters, requestOptionsParameter]), out var message),
-                Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type))),
+                UsingDeclare("message", ScmCodeModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. requiredParameters, ..optionalParameters, requestOptionsParameter]), out var message),
+                Return(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type))),
             ];
 
             var protocolMethod =
@@ -443,7 +443,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (protocolMethod.XmlDocs != null)
             {
                 protocolMethod.XmlDocs?.Exceptions.Add(
-                    new(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                    new(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
                 List<XmlDocStatement> listItems =
                 [
                     new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
@@ -457,17 +457,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static CSharpType? GetResponseType(IReadOnlyList<OperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)
         {
             responseBodyType = null;
-            var returnType = isConvenience ? GetConvenienceReturnType(responses, out responseBodyType) : ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType;
+            var returnType = isConvenience ? GetConvenienceReturnType(responses, out responseBodyType) : ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType;
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
 
         private static CSharpType GetConvenienceReturnType(IReadOnlyList<OperationResponse> responses, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            responseBodyType = response?.BodyType is null ? null : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
+            responseBodyType = response?.BodyType is null ? null : ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
             return response is null || responseBodyType is null
-                ? ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType
-                : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
+                ? ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType
+                : new CSharpType(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
         }
 
         private bool ShouldAddOptionalRequestOptionsParameter()
