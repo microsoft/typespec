@@ -15,10 +15,14 @@ export async function showOpenApi3(
 ) {
   const selectedFile = uri?.fsPath ?? vscode.window.activeTextEditor?.document.uri.fsPath;
   if (!selectedFile || !selectedFile.endsWith(".tsp")) {
-    logger.error("Please select a Typespec file", [], {
-      showOutput: true,
-      showPopup: true,
-    });
+    logger.error(
+      "Please select a Typespec file",
+      selectedFile ? [`Currently '${selectedFile}' is selected`] : [],
+      {
+        showOutput: true,
+        showPopup: true,
+      },
+    );
     return;
   }
 
