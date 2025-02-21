@@ -18,7 +18,8 @@
     "optionalLiteralInt": 456,
     "optionalLiteralFloat": 4.56,
     "optionalLiteralBool": false,
-    "optionalNullableList": []
+    "optionalNullableList": [],
+    "requiredNullableString": null
   },
   "intExtensibleEnum": 1,
   "intExtensibleEnumCollection": [1, 3],

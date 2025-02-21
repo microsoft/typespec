@@ -2,7 +2,7 @@
   "name": "Example Thing",
   "requiredUnion": "mockUnion",
   "requiredBadDescription": "This is a description with potentially problematic characters like < or >.",
-  "requiredNullableList": [1, 2, 3],
+  "requiredNullableList": null,
   "requiredLiteralString": "accept",
   "requiredLiteralInt": 123,
   "requiredLiteralFloat": 1.23,
@@ -11,7 +11,6 @@
   "optionalLiteralInt": 456,
   "optionalLiteralFloat": 4.56,
   "optionalLiteralBool": false,
-  "optionalNullableList": [],
   "requiredNullableString": null,
   "extra": "stuff"
 }
