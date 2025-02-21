@@ -26,7 +26,6 @@ import {
   getAddedOn,
   getClientNamespace,
   getImplementation,
-  md2Rst,
 } from "./utils.js";
 
 export const typesMap = new Map<SdkType, Record<string, any>>();
@@ -141,7 +140,7 @@ function emitMultiPartFile<TServiceOperation extends SdkServiceOperation>(
   }
   return getSimpleTypeResult({
     type: type.kind,
-    description: md2Rst((type.type.summary ? type.type.summary : type.type.doc) ?? ""),
+    description: type.type.summary ? type.type.summary : type.type.doc,
   });
 }
 
@@ -245,7 +244,7 @@ function emitProperty<TServiceOperation extends SdkServiceOperation>(
     wireName: property.serializationOptions.json?.name ?? property.name,
     type: getType(context, sourceType),
     optional: property.optional,
-    description: md2Rst((property.summary ? property.summary : property.doc) ?? ""),
+    description: property.summary ? property.summary : property.doc,
     addedOn: getAddedOn(context, property),
     visibility: visibilityMapping(property.visibility),
     isDiscriminator: property.discriminator,
@@ -283,7 +282,7 @@ function emitModel<TServiceOperation extends SdkServiceOperation>(
   const newValue = {
     type: type.kind,
     name: type.name,
-    description: md2Rst((type.summary ? type.summary : type.doc) ?? ""),
+    description: type.summary ? type.summary : type.doc,
     parents: parents,
     discriminatorValue: type.discriminatorValue,
     discriminatedSubtypes: {} as Record<string, Record<string, any>>,
@@ -355,7 +354,7 @@ function emitEnum<TServiceOperation extends SdkServiceOperation>(
   const newValue = {
     name: name,
     snakeCaseName: camelToSnakeCase(name),
-    description: md2Rst((type.summary ? type.summary : type.doc) ?? `Type of ${name}`),
+    description: (type.summary ? type.summary : type.doc) ?? `Type of ${name}`,
     internal: type.access === "internal",
     type: type.kind,
     valueType: emitBuiltInType(type.valueType),
@@ -385,7 +384,7 @@ function emitEnumMember(
   return {
     name: enumName(type.name),
     value: type.value,
-    description: md2Rst((type.summary ? type.summary : type.doc) ?? ""),
+    description: type.summary ? type.summary : type.doc,
     enumType,
     type: type.kind,
     valueType: enumType["valueType"],
@@ -475,7 +474,7 @@ function emitUnion<TServiceOperation extends SdkServiceOperation>(
   return getSimpleTypeResult({
     name: type.isGeneratedName ? undefined : type.name,
     snakeCaseName: type.isGeneratedName ? undefined : camelToSnakeCase(type.name),
-    description: md2Rst(type.isGeneratedName ? "" : `Type of ${type.name}`),
+    description: type.isGeneratedName ? "" : `Type of ${type.name}`,
     internal: true,
     type: "combined",
     types: type.variantTypes.map((x) => getType(context, x)),

@@ -36,7 +36,6 @@ import {
   emitParamBase,
   getClientNamespace,
   getImplementation,
-  md2Rst,
   removeUnderscoresFromNamespace,
 } from "./utils.js";
 
@@ -256,7 +255,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   }
   return {
     name: client.name,
-    description: md2Rst((client.summary ? client.summary : client.doc) ?? ""),
+    description: (client.summary ? client.summary : client.doc) ?? "",
     parameters,
     operationGroups,
     url,

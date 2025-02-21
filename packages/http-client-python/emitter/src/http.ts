@@ -29,7 +29,6 @@ import {
   getImplementation,
   isAbstract,
   isAzureCoreErrorResponse,
-  md2Rst,
 } from "./utils.js";
 
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
@@ -57,8 +56,8 @@ export function emitBasicHttpMethod(
       ...emitHttpOperation(context, rootClient, operationGroupName, method.operation, method),
       abstract: isAbstract(method),
       name: camelToSnakeCase(method.name),
-      description: md2Rst(method.doc ?? ""),
-      summary: md2Rst(method.summary),
+      description: method.doc ?? "",
+      summary: method.summary,
     },
   ];
 }
@@ -75,8 +74,8 @@ function emitInitialLroHttpMethod(
     isLroInitialOperation: true,
     wantTracing: false,
     exposeStreamKeyword: false,
-    description: md2Rst(method.doc ?? ""),
-    summary: md2Rst(method.summary),
+    description: method.doc ?? "",
+    summary: method.summary,
   };
 }
 
@@ -92,8 +91,8 @@ function addLroInformation(
     discriminator: "lro",
     initialOperation: emitInitialLroHttpMethod(context, rootClient, method, operationGroupName),
     exposeStreamKeyword: false,
-    description: md2Rst(method.doc ?? ""),
-    summary: md2Rst(method.summary),
+    description: method.doc ?? "",
+    summary: method.summary,
   };
 }
 
@@ -129,8 +128,8 @@ function addPagingInformation(
     itemName,
     continuationTokenName,
     itemType,
-    description: md2Rst(method.doc ?? ""),
-    summary: md2Rst(method.summary),
+    description: method.doc ?? "",
+    summary: method.summary,
   };
 }
 
@@ -245,7 +244,7 @@ function emitFlattenedParameter(
     clientDefaultValue: null,
     clientName: property.clientName,
     delimiter: null,
-    description: md2Rst(property.description),
+    description: property.description,
     implementation: "Method",
     inDocstring: true,
     inFlattenedBody: true,
