@@ -471,6 +471,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Object value may only specify known properties, and '${"propertyName"}' does not exist in type '${"type"}'.`,
+      typeMissingProperty: paramMessage`Property '${"propertyName"}' does not exist in type '${"type"}'.`,
     },
   },
   "extends-interface": {

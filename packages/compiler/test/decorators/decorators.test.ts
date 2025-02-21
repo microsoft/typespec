@@ -826,6 +826,27 @@ describe("compiler: built-in decorators", () => {
       deepStrictEqual(properties, ["pickMe", "pickMeToo"]);
     });
 
+    it("picks model inherited property when given a string literal", async () => {
+      const { TestModel } = await runner.compile(
+        `
+        model ParentModel {
+          pickMe: string;
+        }
+
+        model OriginalModel extends ParentModel {
+          pickMeToo: string;
+          notMe: string;
+        }
+
+        @test
+        model TestModel is PickProperties<OriginalModel, "pickMe"> {
+        }`,
+      );
+
+      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      deepStrictEqual(properties, ["pickMe"]);
+    });
+
     it("emits diagnostics if any given key is not a property of a model", async () => {
       const diagnostics = await runner.diagnose(
         `
@@ -843,7 +864,9 @@ describe("compiler: built-in decorators", () => {
         {
           code: "unexpected-property",
           message:
-            "Object value may only specify known properties, and 'notMee' does not exist in type 'OriginalModel'.",
+            "Property 'notMee' does not exist in type 'OriginalModel'.",
+          pos: 190,
+          end: 198,
         },
       ]);
     });

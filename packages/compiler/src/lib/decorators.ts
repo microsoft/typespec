@@ -79,6 +79,7 @@ import {
   Enum,
   EnumValue,
   Interface,
+  IndeterminateEntity,
   Model,
   ModelProperty,
   Namespace,
@@ -948,16 +949,25 @@ export const $withPickedProperties: WithPickedPropertiesDecorator = (
 
 function validatePropertyName(context: DecoratorContext, target: Model, name: string) {
   const source = target.templateMapper?.args[0] as Model;
-  if (source && !source.properties?.has(name)) {
+  const entity = target.templateMapper?.args[1];
+  if (source && entity && !target.properties.has(name)) {
     reportDiagnostic(context.program, {
       code: "unexpected-property",
       format: {
         propertyName: name,
         type: getTypeName(source),
       },
-      target: context.decoratorTarget,
+      messageId: 'typeMissingProperty',
+      target: getExactDiagnosticTarget(entity, name),
     });
   }
+}
+
+function getExactDiagnosticTarget(entity: Type | Value | IndeterminateEntity, name: string): DiagnosticTarget {
+  if('kind' in entity && entity.kind === 'Union') {
+    return entity.node.options.find((option) => 'value' in option && option.value === name) ?? entity;
+  }
+  return entity;
 }
 
 // -- @withoutDefaultValues decorator ----------------------
