@@ -11,7 +11,7 @@ export function generateServiceInformation(serviceInfo: TypeSpecServiceInfo): st
     @service(#{
       title: "${name}"
     })
-    @info(${JSON.stringify(info)})
+    @info(${toTspValues(info)})
     `);
 
   if (doc) {
@@ -21,4 +21,19 @@ export function generateServiceInformation(serviceInfo: TypeSpecServiceInfo): st
   definitions.push(`namespace ${generateNamespaceName(name)};`);
 
   return definitions.join("\n");
+}
+
+function toTspValues(object: Record<string, unknown>): string {
+  const content = Object.entries(object)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => {
+      if (typeof value === "string") {
+        return `${key}: "${value}"`;
+      }
+
+      return `${key}: ${JSON.stringify(value)}`;
+    })
+    .join(", ");
+
+  return `#{${content}}`;
 }

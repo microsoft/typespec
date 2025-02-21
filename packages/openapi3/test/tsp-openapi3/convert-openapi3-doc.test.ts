@@ -31,12 +31,8 @@ it("should convert an OpenAPI3 document to a formatted TypeSpec program", async 
       using Http;
       using OpenAPI;
 
-      @service(#{
-        title: "Test Service",
-      })
-      @info(#{
-        version: "1.0.0",
-      })
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
       namespace TestService;
 
       scalar Foo extends string;

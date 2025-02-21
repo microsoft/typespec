@@ -18,8 +18,8 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
   it("set the service version with @service", async () => {
     const res = await openApiFor(
       `
+      #suppress "deprecated" "For test"
       @service(#{
-        #suppress "deprecated" "For test"
         version: "1.2.3-test"
       })
       namespace Foo {
@@ -64,12 +64,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       @service
       @info(#{
         termsOfService: "http://example.com/terms/",
-        contact: {
+        contact: #{
           name: "API Support",
           url: "http://www.example.com/support",
           email: "support@example.com"
         },
-        license: {
+        license: #{
           name: "Apache 2.0",
           url: "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
