@@ -116,7 +116,7 @@
       "explorer/context": [
         {
           "command": "typespec.importFromOpenApi3",
-          "group": "typespec@2"
+          "group": "typespec@3"
         },
         {
           "command": "typespec.generateCode",
@@ -126,7 +126,7 @@
         {
           "command": "typespec.showOpenApi3",
           "when": "resourceLangId == typespec",
-          "group": "typespec@1"
+          "group": "typespec@2"
         }
       ],
       "editor/context": [
@@ -138,7 +138,7 @@
         {
           "command": "typespec.showOpenApi3",
           "when": "resourceLangId == typespec",
-          "group": "typespec@1"
+          "group": "typespec@2"
         }
       ]
     },
