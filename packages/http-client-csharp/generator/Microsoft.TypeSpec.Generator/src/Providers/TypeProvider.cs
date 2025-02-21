@@ -79,26 +79,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected string? _deprecated;
 
         /// <summary>
-        /// Gets and sets the relative file path where the generated file will be stored.
+        /// Gets the relative file path where the generated file will be stored.
         /// This path is relative to the project's root directory.
         /// </summary>
-        public string RelativeFilePath
-        {
-            get => _relativeFilePath ??= BuildRelativeFilePath();
-            set
-            {
-                _relativeFilePath = value;
-            }
-        }
+        public string RelativeFilePath => _relativeFilePath ??= BuildRelativeFilePath();
 
         private string? _relativeFilePath;
 
-        public string Name =>
-            _type is not null
-            ? _type.Name
-            : _name ??= CustomCodeView?.Name ?? BuildName();
-
-        private string? _name;
+        public string Name => Type.Name;
 
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
@@ -116,12 +104,29 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private set => _deprecated = value;
         }
 
+        private string? _name;
         private CSharpType? _type;
-        public CSharpType Type => _type ??= new(
-            this,
-            CustomCodeView?.BuildNamespace() ?? BuildNamespace(),
-            GetTypeArguments(),
-            GetBaseType());
+        private CSharpType[]? _arguments;
+        public CSharpType Type => _type ??=
+            new(
+                _name ??= CustomCodeView?.Name ?? BuildName(),
+                CustomCodeView?.BuildNamespace() ?? BuildNamespace(),
+                this is EnumProvider ||
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum),
+                false,
+                DeclaringTypeProvider?.Type,
+                _arguments ??= GetTypeArguments(),
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && _arguments.All(t => t.IsPublic),
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
+                GetBaseType(),
+                IsEnum ? EnumUnderlyingType.FrameworkType : null);
+            //new (
+            //_name ??= CustomCodeView?.Name ?? BuildName(),
+            //this,
+            //CustomCodeView?.BuildNamespace() ?? BuildNamespace(),
+            //,
+            //GetBaseType());
 
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
@@ -130,17 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private TypeSignatureModifiers? _declarationModifiers;
 
-        /// <summary>
-        /// Gets and sets the declaration modifiers for the type.
-        /// </summary>
-        public TypeSignatureModifiers DeclarationModifiers
-        {
-            get => _declarationModifiers ??= BuildDeclarationModifiersInternal();
-            set
-            {
-                _declarationModifiers = value;
-            }
-        }
+        public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= BuildDeclarationModifiersInternal();
 
         protected virtual TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.None;
 

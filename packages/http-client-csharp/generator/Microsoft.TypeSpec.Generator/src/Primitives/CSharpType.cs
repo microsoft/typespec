@@ -133,27 +133,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         }
 
         internal CSharpType(
-            TypeProvider implementation,
-            string providerNamespace,
-            IReadOnlyList<CSharpType> arguments,
-            CSharpType? baseType)
-            : this(
-                  implementation.Name,
-                  providerNamespace,
-                  implementation is EnumProvider ||
-                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
-                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum),
-                  false,
-                  implementation.DeclaringTypeProvider?.Type,
-                  arguments,
-                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && arguments.All(t => t.IsPublic),
-                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
-                  baseType,
-                  implementation.IsEnum? implementation.EnumUnderlyingType.FrameworkType : null)
-        {
-        }
-
-        internal CSharpType(
             string name,
             string ns,
             bool isValueType,
@@ -182,13 +161,13 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             _underlyingType = underlyingEnumType;
         }
 
-        public string Namespace { get; set; }
+        public string Namespace { get; private set; }
 
         /// <summary>
         /// Gets or sets the name of the type.
         /// </summary>
-        public string Name { get; set; }
-        internal string FullyQualifiedName { get; private init; }
+        public string Name { get; private set; }
+        internal string FullyQualifiedName { get; private set; }
         public CSharpType? DeclaringType { get; private init; }
         public bool IsValueType { get; private init; }
         public bool IsEnum => _underlyingType is not null;
@@ -669,6 +648,25 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
 
             return returnType;
+        }
+
+        /// <summary>
+        /// Update the instance with given parameters.
+        /// </summary>
+        /// <param name="name">Name of the <see cref="CSharpType"/></param>
+        /// <param name="namespace">Namespace of the <see cref="CSharpType"/></param>
+        public void Update(string? name = null, string? @namespace = null)
+        {
+            if (name != null)
+            {
+                Name = name;
+                FullyQualifiedName = $"{Namespace}.{name}";
+            }
+            if (@namespace != null)
+            {
+                Namespace = @namespace;
+                FullyQualifiedName = $"{@namespace}.{name}";
+            }
         }
     }
 }
