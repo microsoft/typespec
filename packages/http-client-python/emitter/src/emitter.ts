@@ -195,9 +195,14 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
         execSync(command, { stdio: [process.stdin, process.stdout] });
       }
     } catch (error: any) {
-      const errStackStart = "========================================= error stack start ================================================";
-      const errStackEnd = "========================================= error stack end ================================================";
-      const errStack = traceIsEnabled(context) && error.stack ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}` : "";
+      const errStackStart =
+        "========================================= error stack start ================================================";
+      const errStackEnd =
+        "========================================= error stack end ================================================";
+      const errStack =
+        traceIsEnabled(context) && error.stack
+          ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}`
+          : "";
       reportDiagnostic(program, {
         code: "unknown-error",
         target: NoTarget,
