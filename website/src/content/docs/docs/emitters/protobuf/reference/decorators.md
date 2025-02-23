@@ -148,7 +148,7 @@ None
 
 ### `@stream` {#@TypeSpec.Protobuf.stream}
 
-Set the streaming mode of an operation. See [StreamMode](../data-types/#TypeSpec.Protobuf.StreamMode) for more information.
+Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.Protobuf.StreamMode) for more information.
 
 ```typespec
 @TypeSpec.Protobuf.stream(mode: TypeSpec.Protobuf.StreamMode)
