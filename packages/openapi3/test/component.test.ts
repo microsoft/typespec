@@ -4,9 +4,9 @@ import { OpenAPI3Document } from "../src/types.js";
 import { worksFor } from "./works-for.js";
 
 interface DiagnosticCheck {
-  invalidKey: string;
-  declarationKey: string;
-  prefix: "#/components/schemas/" | "#/components/parameters/";
+  expectedDiagInvalidKey: string;
+  expectedDeclKey: string;
+  expectedPrefix: "#/components/schemas/" | "#/components/parameters/";
 }
 
 interface Case {
@@ -33,9 +33,9 @@ const testCases: Case[] = [
 
     diagChecks: [
       {
-        invalidKey: "foo-/inva*li\td",
-        declarationKey: "foo-_inva_li_d",
-        prefix: "#/components/schemas/",
+        expectedDiagInvalidKey: "foo-/inva*li\td",
+        expectedDeclKey: "foo-_inva_li_d",
+        expectedPrefix: "#/components/schemas/",
       },
     ],
     refChecks: (doc) => {
@@ -58,9 +58,9 @@ const testCases: Case[] = [
     }`,
     diagChecks: [
       {
-        invalidKey: "Zoo.para/invalid",
-        declarationKey: "Zoo.para_invalid",
-        prefix: "#/components/parameters/",
+        expectedDiagInvalidKey: "Zoo.para/invalid",
+        expectedDeclKey: "Zoo.para_invalid",
+        expectedPrefix: "#/components/parameters/",
       },
     ],
     refChecks: (doc) => {
@@ -84,9 +84,9 @@ const testCases: Case[] = [
     }`,
     diagChecks: [
       {
-        invalidKey: "Nested/Model",
-        declarationKey: "Nested_Model",
-        prefix: "#/components/schemas/",
+        expectedDiagInvalidKey: "Nested/Model",
+        expectedDeclKey: "Nested_Model",
+        expectedPrefix: "#/components/schemas/",
       },
     ],
   },
@@ -106,14 +106,14 @@ const testCases: Case[] = [
     }`,
     diagChecks: [
       {
-        invalidKey: "Nested/Model",
-        declarationKey: "Nested_Model",
-        prefix: "#/components/schemas/",
+        expectedDiagInvalidKey: "Nested/Model",
+        expectedDeclKey: "Nested_Model",
+        expectedPrefix: "#/components/schemas/",
       },
       {
-        invalidKey: "MMM.b/b",
-        declarationKey: "MMM.b_b",
-        prefix: "#/components/parameters/",
+        expectedDiagInvalidKey: "MMM.b/b",
+        expectedDeclKey: "MMM.b_b",
+        expectedPrefix: "#/components/parameters/",
       },
     ],
     refChecks: (doc) => {
@@ -135,16 +135,16 @@ worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
         // check diagnostics
         expectDiagnostics(
           diag,
-          c.diagChecks.map((d) => createExpectedDiagnostic(d.invalidKey)),
+          c.diagChecks.map((d) => createExpectedDiagnostic(d.expectedDiagInvalidKey)),
         );
         for (const [i, d] of c.diagChecks.entries()) {
           const target = diag[i].target as any;
           expect(target).toHaveProperty("kind");
-          expect(target.kind).toBe(prefixToKindMap[d.prefix]);
+          expect(target.kind).toBe(prefixToKindMap[d.expectedPrefix]);
           // check generated doc
-          const componentField = getComponentField(doc, d.prefix);
+          const componentField = getComponentField(doc, d.expectedPrefix);
           expect(componentField).toBeDefined();
-          expect(componentField).toHaveProperty(d.declarationKey);
+          expect(componentField).toHaveProperty(d.expectedDeclKey);
         }
         // check ref
         if (c.refChecks) c.refChecks(doc);
