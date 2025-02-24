@@ -670,7 +670,6 @@
        "BodyType": {
         "$ref": "71"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -679,7 +678,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/string/non-null",
      "BufferResponse": true,
@@ -732,7 +730,6 @@
        "BodyType": {
         "$ref": "71"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -741,7 +738,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/string/null",
      "BufferResponse": true,
@@ -809,13 +805,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/string/non-null",
      "RequestMediaTypes": [
@@ -886,13 +880,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/string/null",
      "RequestMediaTypes": [
@@ -993,7 +985,6 @@
        "BodyType": {
         "$ref": "61"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1002,7 +993,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/bytes/non-null",
      "BufferResponse": true,
@@ -1055,7 +1045,6 @@
        "BodyType": {
         "$ref": "61"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1064,7 +1053,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/bytes/null",
      "BufferResponse": true,
@@ -1132,13 +1120,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/bytes/non-null",
      "RequestMediaTypes": [
@@ -1209,13 +1195,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/bytes/null",
      "RequestMediaTypes": [
@@ -1316,7 +1300,6 @@
        "BodyType": {
         "$ref": "50"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1325,7 +1308,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/datetime/non-null",
      "BufferResponse": true,
@@ -1378,7 +1360,6 @@
        "BodyType": {
         "$ref": "50"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1387,7 +1368,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/datetime/null",
      "BufferResponse": true,
@@ -1455,13 +1435,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/datetime/non-null",
      "RequestMediaTypes": [
@@ -1532,13 +1510,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/datetime/null",
      "RequestMediaTypes": [
@@ -1639,7 +1615,6 @@
        "BodyType": {
         "$ref": "39"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1648,7 +1623,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/duration/non-null",
      "BufferResponse": true,
@@ -1701,7 +1675,6 @@
        "BodyType": {
         "$ref": "39"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1710,7 +1683,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/duration/null",
      "BufferResponse": true,
@@ -1778,13 +1750,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/duration/non-null",
      "RequestMediaTypes": [
@@ -1855,13 +1825,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/duration/null",
      "RequestMediaTypes": [
@@ -1962,7 +1930,6 @@
        "BodyType": {
         "$ref": "28"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1971,7 +1938,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/bytes/non-null",
      "BufferResponse": true,
@@ -2024,7 +1990,6 @@
        "BodyType": {
         "$ref": "28"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2033,7 +1998,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/bytes/null",
      "BufferResponse": true,
@@ -2101,13 +2065,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/bytes/non-null",
      "RequestMediaTypes": [
@@ -2178,13 +2140,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/bytes/null",
      "RequestMediaTypes": [
@@ -2285,7 +2245,6 @@
        "BodyType": {
         "$ref": "13"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2294,7 +2253,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/model/non-null",
      "BufferResponse": true,
@@ -2347,7 +2305,6 @@
        "BodyType": {
         "$ref": "13"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2356,7 +2313,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/model/null",
      "BufferResponse": true,
@@ -2424,13 +2380,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/model/non-null",
      "RequestMediaTypes": [
@@ -2501,13 +2455,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/model/null",
      "RequestMediaTypes": [
@@ -2608,7 +2560,6 @@
        "BodyType": {
         "$ref": "2"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2617,7 +2568,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/string/non-null",
      "BufferResponse": true,
@@ -2670,7 +2620,6 @@
        "BodyType": {
         "$ref": "2"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2679,7 +2628,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/string/null",
      "BufferResponse": true,
@@ -2747,13 +2695,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/string/non-null",
      "RequestMediaTypes": [
@@ -2824,13 +2770,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PATCH",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/nullable/collections/string/null",
      "RequestMediaTypes": [

@@ -232,7 +232,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 parameters is null ? [] : [.. parameters],
                 responses is null ? [OperationResponse()] : [.. responses],
                 httpMethod,
-                BodyMediaType.Json,
                 uri,
                 path,
                 null,
@@ -250,7 +249,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return new OperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
-                BodyMediaType.Json,
                 [],
                 false,
                 ["application/json"]);

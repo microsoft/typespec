@@ -1807,7 +1807,6 @@
        "BodyType": {
         "$ref": "203"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1816,7 +1815,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/strings-only",
      "BufferResponse": true,
@@ -1883,13 +1881,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/strings-only",
      "RequestMediaTypes": [
@@ -1990,7 +1986,6 @@
        "BodyType": {
         "$ref": "195"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1999,7 +1994,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-extensible",
      "BufferResponse": true,
@@ -2066,13 +2060,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-extensible",
      "RequestMediaTypes": [
@@ -2173,7 +2165,6 @@
        "BodyType": {
         "$ref": "187"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2182,7 +2173,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-extensible-named",
      "BufferResponse": true,
@@ -2249,13 +2239,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-extensible-named",
      "RequestMediaTypes": [
@@ -2356,7 +2344,6 @@
        "BodyType": {
         "$ref": "179"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2365,7 +2352,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/ints-only",
      "BufferResponse": true,
@@ -2432,13 +2418,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/ints-only",
      "RequestMediaTypes": [
@@ -2539,7 +2523,6 @@
        "BodyType": {
         "$ref": "171"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2548,7 +2531,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/floats-only",
      "BufferResponse": true,
@@ -2615,13 +2597,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/floats-only",
      "RequestMediaTypes": [
@@ -2722,7 +2702,6 @@
        "BodyType": {
         "$ref": "157"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2731,7 +2710,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/models-only",
      "BufferResponse": true,
@@ -2798,13 +2776,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/models-only",
      "RequestMediaTypes": [
@@ -2905,7 +2881,6 @@
        "BodyType": {
         "$ref": "142"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2914,7 +2889,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/enums-only",
      "BufferResponse": true,
@@ -2981,13 +2955,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/enums-only",
      "RequestMediaTypes": [
@@ -3088,7 +3060,6 @@
        "BodyType": {
         "$ref": "119"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3097,7 +3068,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-and-array",
      "BufferResponse": true,
@@ -3164,13 +3134,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-and-array",
      "RequestMediaTypes": [
@@ -3271,7 +3239,6 @@
        "BodyType": {
         "$ref": "89"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3280,7 +3247,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/mixed-literals",
      "BufferResponse": true,
@@ -3347,13 +3313,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/mixed-literals",
      "RequestMediaTypes": [
@@ -3454,7 +3418,6 @@
        "BodyType": {
         "$ref": "54"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3463,7 +3426,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/mixed-types",
      "BufferResponse": true,
@@ -3530,13 +3492,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/mixed-types",
      "RequestMediaTypes": [

@@ -115,13 +115,11 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Text",
      "Uri": "{endpoint}",
      "Path": "/payload/media-type/string-body/sendAsText",
      "RequestMediaTypes": [
@@ -180,7 +178,6 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "22",
@@ -208,7 +205,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/payload/media-type/string-body/getAsText",
      "BufferResponse": true,
@@ -278,13 +274,11 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Text",
      "Uri": "{endpoint}",
      "Path": "/payload/media-type/string-body/sendAsJson",
      "RequestMediaTypes": [
@@ -343,7 +337,6 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "38",
@@ -371,7 +364,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/payload/media-type/string-body/getAsJson",
      "BufferResponse": true,

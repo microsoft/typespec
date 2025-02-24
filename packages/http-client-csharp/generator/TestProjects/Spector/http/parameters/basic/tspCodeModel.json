@@ -188,13 +188,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/parameters/basic/explicit-body/simple",
      "RequestMediaTypes": [
@@ -309,13 +307,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/parameters/basic/implicit-body/simple",
      "RequestMediaTypes": [

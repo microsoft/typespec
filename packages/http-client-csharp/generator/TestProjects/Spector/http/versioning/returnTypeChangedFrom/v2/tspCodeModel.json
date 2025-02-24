@@ -168,7 +168,6 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -177,7 +176,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Text",
      "Uri": "{endpoint}/versioning/return-type-changed-from/api-version:{version}",
      "Path": "/test",
      "RequestMediaTypes": [

@@ -101,7 +101,6 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -110,7 +109,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/string",
      "BufferResponse": true,
@@ -183,13 +181,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Text",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/string",
      "RequestMediaTypes": [
@@ -294,7 +290,6 @@
         "crossLanguageDefinitionId": "TypeSpec.boolean",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -303,7 +298,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/boolean",
      "BufferResponse": true,
@@ -376,13 +370,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/boolean",
      "RequestMediaTypes": [
@@ -487,7 +479,6 @@
         "crossLanguageDefinitionId": "",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -496,7 +487,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/unknown",
      "BufferResponse": true,
@@ -569,13 +559,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/unknown",
      "RequestMediaTypes": [
@@ -680,7 +668,6 @@
         "crossLanguageDefinitionId": "TypeSpec.decimal",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -689,7 +676,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/response_body",
      "BufferResponse": true,
@@ -760,13 +746,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/resquest_body",
      "RequestMediaTypes": [
@@ -812,13 +796,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/request_parameter",
      "BufferResponse": true,
@@ -920,7 +902,6 @@
         "crossLanguageDefinitionId": "TypeSpec.decimal128",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -929,7 +910,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/response_body",
      "BufferResponse": true,
@@ -1000,13 +980,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/resquest_body",
      "RequestMediaTypes": [
@@ -1052,13 +1030,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/request_parameter",
      "BufferResponse": true,
@@ -1167,7 +1143,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1176,7 +1151,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/prepare_verify",
      "BufferResponse": true,
@@ -1247,13 +1221,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/verify",
      "RequestMediaTypes": [
@@ -1365,7 +1337,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1374,7 +1345,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/prepare_verify",
      "BufferResponse": true,
@@ -1445,13 +1415,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/verify",
      "RequestMediaTypes": [

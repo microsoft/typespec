@@ -257,7 +257,6 @@
        "BodyType": {
         "$ref": "2"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -266,7 +265,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/numeric/property/safeint",
      "RequestMediaTypes": [
@@ -366,7 +364,6 @@
        "BodyType": {
         "$ref": "7"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -375,7 +372,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/numeric/property/uint32",
      "RequestMediaTypes": [
@@ -475,7 +471,6 @@
        "BodyType": {
         "$ref": "12"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -484,7 +479,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/numeric/property/uint8",
      "RequestMediaTypes": [
