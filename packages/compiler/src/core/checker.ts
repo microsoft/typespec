@@ -930,6 +930,26 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     mapper?: TypeMapper,
     valueConstraint?: CheckValueConstraint | undefined,
   ): Type | Value | IndeterminateEntity | null {
+    const ret = checkNodeWorker(node, mapper, valueConstraint);
+    /* check if the template parameter is used or not. */
+    if ("templateParameters" in node) {
+      for (const templateParameter of node.templateParameters) {
+        if (node.kind === SyntaxKind.ModelStatement) {
+          if (!usedTemplateParameterDeclarationNodes.has(templateParameter)) {
+            resolver.setUnusedTemplateParameterDeclarationNode(templateParameter);
+          }
+        }
+      }
+    }
+
+    return ret;
+  }
+
+  function checkNodeWorker(
+    node: Node,
+    mapper?: TypeMapper,
+    valueConstraint?: CheckValueConstraint | undefined,
+  ): Type | Value | IndeterminateEntity | null {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
         return checkModel(node, mapper);
@@ -3684,15 +3704,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     lateBindMemberContainer(type);
     lateBindMembers(type);
-
-    /* check if the template parameter is used or not. */
-    for (const templateParameter of node.templateParameters) {
-      if (node.kind === SyntaxKind.ModelStatement) {
-        if (!usedTemplateParameterDeclarationNodes.has(templateParameter)) {
-          resolver.setUnusedTemplateParameterDeclarationNode(templateParameter);
-        }
-      }
-    }
     return type;
   }
 
