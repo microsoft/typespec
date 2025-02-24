@@ -163,8 +163,6 @@ export function isBytesKeptRaw(program: Program, type: Type) {
 export function ensureValidComponentFixedFieldKey(
   program: Program,
   type: Type,
-  getEntityKey: () => string | undefined,
-  setEntityKey: (newKey: string) => void,
   getDeclarationKey: () => string,
   setDeclarationKey: (newKey: string) => void,
 ): void {
@@ -173,11 +171,6 @@ export function ensureValidComponentFixedFieldKey(
   reportInvalidKey(program, type, oldDeclarationKey);
   const newDeclarationKey = createValidKey(oldDeclarationKey);
   setDeclarationKey(newDeclarationKey);
-  const oldEntityKey = getEntityKey();
-  if (oldEntityKey) {
-    const newEntityKey = createValidKey(oldEntityKey);
-    setEntityKey(newEntityKey);
-  }
 }
 
 function isValidComponentFixedFieldKey(key: string) {

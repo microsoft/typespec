@@ -1574,8 +1574,6 @@ function createOAPIEmitter(
       ensureValidComponentFixedFieldKey(
         program,
         property,
-        () => undefined,
-        (_) => {},
         () => key,
         (newKey) => {
           root.components!.parameters![newKey] = { ...param };
