@@ -2,8 +2,6 @@
 title: Pagination
 ---
 
-# Pagination
-
 TypeSpec provide built-in support for some of the common pagination pattern used.
 
 Pagination can be categorized into two types:
