@@ -41,7 +41,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (i == publicDerivedModels.Count - 1)
                     {
-                        derivedClassesDescription += $"and <see cref=\"{publicDerivedModels[i].Name}\"/>.";
+                        derivedClassesDescription += $"{(i > 0 ? "and " : "")}<see cref=\"{publicDerivedModels[i].Name}\"/>.";
                     }
                     else
                     {
