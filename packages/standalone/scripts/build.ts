@@ -89,6 +89,7 @@ async function buildWithNodeSea() {
       if (signToolPath) {
         execFileSync(signToolPath, [`remove`, `/s`, exePath]);
       } else {
+        console.log("Ignore signtool removal on windows, missing.");
         if (process.env.CI) {
           throw new Error("Cannot find signtool.exe in CI");
         }
