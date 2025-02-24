@@ -15,7 +15,7 @@ TypeSpec is a language and toolset developed by Microsoft for defining data mode
 
 TypeSpec is used to define the **interface** of your API, which clients will use to interact with resources provided by your service. This includes specifying the operations, request and response models, and error handling mechanisms. The actual API logic is implemented in the backend service, which processes the requests and communicates with the database.
 
-Before we start writing TypeSpec code, we need to set up our development environment. For detailed instructions on setting up your environment, please refer to the [Installation Guide](../../introduction/installation.md).
+Before we start writing TypeSpec code, we need to set up our development environment. For detailed instructions on setting up your environment, please refer to the [Installation Guide](../../../).
 
 ### Summary of Setup and Installation
 
@@ -77,14 +77,14 @@ using TypeSpec.Http;
 
 In this example:
 
-- `import` statement brings in the [TypeSpec HTTP library](../../libraries/http/reference/), which provides the decorators and models we'll be using to define our REST API.
+- `import` statement brings in the [TypeSpec HTTP library](../../../libraries/http/reference/), which provides the decorators and models we'll be using to define our REST API.
 - `using` statement makes the imported library available in the current namespace, allowing us to use its features and decorators.
 
 **NOTE: Your generated project file likely already has these import/using statements, plus import/using for the `@typespec/openapi3` library. The `@typespec/openapi3` library is necessary for emitting the OpenAPI specification file but is not required for creating our Pet Store API in TypeSpec. Remove them from your `main.tsp` file so your code matches the example above.**
 
 ## Defining a REST Service
 
-A REST service in TypeSpec is defined using the [`@service`](../../standard-library/built-in-decorators#@service) decorator. This decorator allows you to specify metadata about your service, such as its title. Additionally, you can use the [`@server`](../../libraries/http/reference/decorators#@TypeSpec.Http.server) decorator to define the server endpoint where your service will be hosted.
+A REST service in TypeSpec is defined using the [`@service`](../../../standard-library/built-in-decorators/#@service) decorator. This decorator allows you to specify metadata about your service, such as its title. Additionally, you can use the [`@server`](../../../libraries/http/reference/decorators/#@TypeSpec.Http.server) decorator to define the server endpoint where your service will be hosted.
 
 ### Example: Defining a Service with a Title and Server Endpoint
 
@@ -185,7 +185,7 @@ In this example:
 
 ### Example: Adding Validation Annotations
 
-We can add [validation](../../language-basics/values#validation) annotations to our model properties to enforce certain constraints:
+We can add [validation](../../../language-basics/values/#validation) annotations to our model properties to enforce certain constraints:
 
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";

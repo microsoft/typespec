@@ -27,8 +27,7 @@ model LightWidget extends WidgetBase {
   kind: WidgetKind.Light;
 }
 
-@discriminator("kind")
-@oneOf
+@discriminated
 union Widget {
   heavy: HeavyWidget,
   light: LightWidget,

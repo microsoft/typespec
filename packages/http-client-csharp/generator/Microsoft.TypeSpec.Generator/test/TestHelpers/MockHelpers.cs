@@ -83,7 +83,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             if (createEnumCore != null)
             {
-                mockTypeFactory.Protected().Setup<TypeProvider?>("CreateEnumCore", ItExpr.IsAny<InputEnumType>(), ItExpr.IsAny<TypeProvider?>()).Returns((InputEnumType inputEnum, TypeProvider? type) => createEnumCore.Invoke(inputEnum, type));
+                mockTypeFactory.Protected().Setup<EnumProvider?>("CreateEnumCore", ItExpr.IsAny<InputEnumType>(), ItExpr.IsAny<TypeProvider?>()).Returns((InputEnumType inputEnum, TypeProvider? type) => createEnumCore.Invoke(inputEnum, type));
             }
 
             if (createOutputLibrary != null)

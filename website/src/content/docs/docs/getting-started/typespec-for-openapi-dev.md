@@ -232,7 +232,7 @@ The fields in an OpenAPI operation object are specified with the following TypeS
 | `responses`               | `op` return type(s)                        | see [Responses Object](#responses-object)                                    |
 | `callbacks`               |                                            | Not currently supported.                                                     |
 | `deprecated`              | `#deprecated` directive                    |                                                                              |
-| `security`                |                                            | see [Security Schemes Object](#securityDefinitions--securitySchemes-Object). |
+| `security`                |                                            | see [Security Schemes Object](#securitydefinitions--securityschemes-object). |
 | `servers`                 | `@server` decorator                        | Can be specified multiple times.                                             |
 
 ### Tags
@@ -791,7 +791,7 @@ In TypeSpec this information is specified with [decorators on the namespace][typ
 | `license`            | `@info`               |                             |
 | `contact`            | `@info`               |                             |
 
-[typespec-service-metadata]: https://typespec.io/docs/libraries/http/#service-definition-and-metadata
+[typespec-service-metadata]: https://typespec.io/docs/libraries/http/reference/decorators/
 
 ```typespec
 /** The Contoso Widget Service provides access to the Contoso Widget API. */

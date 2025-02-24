@@ -188,13 +188,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             {
                 // Parameter type doesn't match
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [new ParameterProvider("param1", $"", typeof(bool))]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
@@ -203,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         ]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
@@ -211,7 +211,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         ]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
@@ -240,19 +240,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var constructors = new[]
             {
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         []),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [new ParameterProvider("param1", $"", typeof(bool))]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
@@ -261,7 +261,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         ]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
