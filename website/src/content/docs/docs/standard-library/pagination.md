@@ -110,10 +110,10 @@ It is possible to use server driven pagination on top of client driven paginatio
 
 ## Handling of additional parameters
 
-A paged operation can offers additional parameters that are not used as paging control parameters like a filter parameter for example.
-The expectation is those would be carried over to the next page requests with the exception of the link cases(next, prev, first and last links) where each protocol might have a different interpretation of what the link exactly represent. The link may encode parameters such as query parameters in HTTP. In such cases those parameters must be passed.
+A paged operation can offer additional parameters that are not used as paging control parameters like a filter parameter for example.
+The expectation is those would be carried over to the next page requests with the exception of the link cases(next, prev, first and last links) where each protocol might have a different interpretation of what the link exactly represents. The link may encode parameters such as query parameters in HTTP. In such cases those parameters must be passed.
 
-For example for HTTP links are expected to be opaque and contain all the necessary information for the next page URL. This means that query and path parameters are expected to already have been included in the link. On the other hand any header parameters are expected to be resent in the next request as those cannot be represented in the link.
+For example, HTTP links are expected to be opaque and contain all the necessary information for the next page URL. This means that query and path parameters are expected to already have been included in the link. On the other hand, any header parameters are expected to be resent in the next request as those cannot be represented in the link.
 
 ### Examples
 
