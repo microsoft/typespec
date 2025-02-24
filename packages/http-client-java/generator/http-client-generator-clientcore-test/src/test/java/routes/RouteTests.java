@@ -3,7 +3,7 @@
 
 package routes;
 
-import io.clientcore.core.http.models.HttpInstrumentationOptions;
+import io.clientcore.core.http.pipeline.HttpInstrumentationOptions;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -79,7 +79,7 @@ public class RouteTests {
     public void buildQueryParametersQueryContinuationExplode() {
         var client = new RoutesClientBuilder()
             .httpInstrumentationOptions(new HttpInstrumentationOptions()
-                .setHttpLogLevel(HttpInstrumentationOptions.HttpLogDetailLevel.BODY_AND_HEADERS)
+                .setHttpLogLevel(HttpInstrumentationOptions.HttpLogLevel.BODY_AND_HEADERS)
                 .setAllowedQueryParamNames(Set.of("fixed", "param")))
             .buildQueryParametersQueryContinuationExplodeClient();
 

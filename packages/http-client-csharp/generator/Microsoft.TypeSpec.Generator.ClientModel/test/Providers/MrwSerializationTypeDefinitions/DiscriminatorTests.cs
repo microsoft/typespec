@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void UnknownVariantIJsonModelTShouldBeBase()
         {
             MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel, _dogModel]);
-            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var outputLibrary = ScmCodeModelPlugin.Instance.OutputLibrary;
             var unknownModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownPet");
             Assert.IsNotNull(unknownModel);
             var serialization = unknownModel!.SerializationProviders.FirstOrDefault();
@@ -54,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void BaseSerializationContainsSwitchStatement()
         {
             MockHelpers.LoadMockPlugin();
-            var baseModel = ClientModelPlugin.Instance.TypeFactory.CreateModel(_baseModel);
+            var baseModel = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(_baseModel);
             Assert.IsNotNull(baseModel);
             var serialization = baseModel!.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
@@ -77,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void UnknownVariantJsonCreateCoreShouldReturnDeserializeBase()
         {
             MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel, _dogModel]);
-            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var outputLibrary = ScmCodeModelPlugin.Instance.OutputLibrary;
             var unknownModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownPet");
             Assert.IsNotNull(unknownModel);
             var serialization = unknownModel!.SerializationProviders.FirstOrDefault();
@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void UnknownVariantPersistableCreateCoreShouldReturnDeserializeBase()
         {
             MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel, _dogModel]);
-            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var outputLibrary = ScmCodeModelPlugin.Instance.OutputLibrary;
             var unknownModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownPet");
             Assert.IsNotNull(unknownModel);
             var serialization = unknownModel!.SerializationProviders.FirstOrDefault();
@@ -109,7 +109,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void BaseShouldHaveProxyAttribute()
         {
             MockHelpers.LoadMockPlugin();
-            var baseModel = ClientModelPlugin.Instance.TypeFactory.CreateModel(_baseModel);
+            var baseModel = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(_baseModel);
             Assert.IsNotNull(baseModel);
             var serialization = baseModel!.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
@@ -121,7 +121,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void DerivedShouldNotHaveProxyAttribute()
         {
             MockHelpers.LoadMockPlugin();
-            var catModel = ClientModelPlugin.Instance.TypeFactory.CreateModel(_catModel);
+            var catModel = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(_catModel);
             Assert.IsNotNull(catModel);
             var serialization = catModel!.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
@@ -133,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void UnknownVariantDeserializeShouldUseBaseProperties()
         {
             MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel, _dogModel]);
-            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var outputLibrary = ScmCodeModelPlugin.Instance.OutputLibrary;
             var unknownModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownPet");
             Assert.IsNotNull(unknownModel);
             var serialization = unknownModel!.SerializationProviders.FirstOrDefault();
@@ -151,7 +151,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void UnknownVariantShouldPassKindToBase()
         {
             MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel, _dogModel]);
-            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var outputLibrary = ScmCodeModelPlugin.Instance.OutputLibrary;
             var unknownModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownPet");
             Assert.IsNotNull(unknownModel);
             Assert.IsNotNull(unknownModel!.FullConstructor.Signature.Initializer);
@@ -162,7 +162,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void DerivedShouldPassLiteralForKindToBase()
         {
             MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel, _dogModel]);
-            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var outputLibrary = ScmCodeModelPlugin.Instance.OutputLibrary;
             var catModel = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "Cat");
             Assert.IsNotNull(catModel);
             var publicCtor = catModel!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
@@ -192,7 +192,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "tree", treeModel } });
 
             MockHelpers.LoadMockPlugin(inputModels: () => [baseModel, treeModel]);
-            var baseModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+            var baseModelProvider = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
                 .FirstOrDefault(t => t.Name == "Plant");
             Assert.IsNotNull(baseModelProvider);
 
@@ -206,7 +206,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void TestBuildJsonModelCreateMethodProperlyCastsForDiscriminatedType()
         {
             MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel]);
-            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var outputLibrary = ScmCodeModelPlugin.Instance.OutputLibrary;
             var model = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "Cat");
             Assert.IsNotNull(model);
 
@@ -234,7 +234,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void TestBuildJsonModelCreateMethodProperlyDoesNotCastForUnknown()
         {
             MockHelpers.LoadMockPlugin(inputModels: () => [_baseModel, _catModel]);
-            var outputLibrary = ClientModelPlugin.Instance.OutputLibrary;
+            var outputLibrary = ScmCodeModelPlugin.Instance.OutputLibrary;
             var model = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownPet");
             Assert.IsNotNull(model);
 
@@ -285,11 +285,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "tree", treeModel } });
 
             MockHelpers.LoadMockPlugin(inputModels: () => [baseModel, treeModel, oakTreeModel]);
-            var baseModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+            var baseModelProvider = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
                 .FirstOrDefault(t => t.Name == "Plant");
-            var treeModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+            var treeModelProvider = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
                 .FirstOrDefault(t => t.Name == "Tree");
-            var oakTreeModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+            var oakTreeModelProvider = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
                 .FirstOrDefault(t => t.Name == "OakTree");
             Assert.IsNotNull(baseModelProvider);
             Assert.IsNotNull(treeModelProvider);

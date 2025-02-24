@@ -73,7 +73,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                             new ParameterProvider("param1", $"", new CSharpType(typeof(string), isNullable: true))
                         ]),
                     Snippet.ThrowExpression(Snippet.Null), client),
-
+                new MethodProvider(new MethodSignature(
+                        "Method6",
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        null,
+                        $"",
+                        [
+                            new ParameterProvider("param1", $"", new FooTypeProvider("Sample").Type)
+                        ]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
+                new MethodProvider(new MethodSignature(
+                        "Method7",
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        null,
+                        $"",
+                        [
+                            new ParameterProvider("param1", $"", new FooTypeProvider("BarNamespace").Type)
+                        ]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
             };
             client.MethodProviders = methods;
 
@@ -135,15 +154,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         [
                             new ParameterProvider("param1", $"", typeof(string)),
                             new ParameterProvider("param2", $"", typeof(int?))]),
-                    Snippet.ThrowExpression(Snippet.Null), client)
-
+                    Snippet.ThrowExpression(Snippet.Null), client),
+                new MethodProvider(new MethodSignature(
+                        "Method5",
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        null,
+                        $"",
+                        [
+                            new ParameterProvider("param1", $"", new FooTypeProvider("BarNamespace").Type)
+                        ]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
             };
             client.MethodProviders = methods;
 
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            Assert.AreEqual(4, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
+            Assert.AreEqual(5, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Methods.Count);
         }
 
         [Test]
@@ -160,21 +188,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             {
                 // Parameter type doesn't match
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [new ParameterProvider("param1", $"", typeof(bool))]),
                     Snippet.ThrowExpression(Snippet.Null), client),
-                // Number of parameters doesn't match
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
                             new ParameterProvider("param1", $"", typeof(bool)),
                             new ParameterProvider("param2", $"", typeof(int)),
                         ]),
-                    Snippet.ThrowExpression(Snippet.Null), client)
+                    Snippet.ThrowExpression(Snippet.Null), client),
+                new ConstructorProvider(new ConstructorSignature(
+                        client.Type,
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        [
+                            new ParameterProvider("param1", $"", new FooTypeProvider("Sample").Type)
+                        ]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
+                new ConstructorProvider(new ConstructorSignature(
+                        client.Type,
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        [
+                            new ParameterProvider("param1", $"", new FooTypeProvider("BarNamespace").Type)
+                        ]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
             };
             client.ConstructorProviders = constructors;
 
@@ -197,33 +240,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var constructors = new[]
             {
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         []),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [new ParameterProvider("param1", $"", typeof(bool))]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
                             new ParameterProvider("param1", $"", typeof(bool)),
                             new ParameterProvider("param2", $"", typeof(int)),
                         ]),
-                    Snippet.ThrowExpression(Snippet.Null), client)
+                    Snippet.ThrowExpression(Snippet.Null), client),
+                new ConstructorProvider(new ConstructorSignature(
+                        client.Type,
+                        $"",
+                        MethodSignatureModifiers.Public,
+                        [
+                            new ParameterProvider("param1", $"", new FooTypeProvider("BarNamespace").Type)
+                        ]),
+                    Snippet.ThrowExpression(Snippet.Null), client),
             };
             client.ConstructorProviders = constructors;
 
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            Assert.AreEqual(3, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Constructors.Count);
+            Assert.AreEqual(4, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Constructors.Count);
         }
 
         [Test]
@@ -284,6 +335,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             protected override MethodProvider[] BuildMethods() => MethodProviders;
 
             protected override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
+        }
+
+        private class FooTypeProvider : TypeProvider
+        {
+            private readonly string _namespace;
+            public FooTypeProvider(string ns)
+            {
+               _namespace = ns;
+            }
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName() => "Foo";
+
+            protected override string BuildNamespace() => _namespace;
         }
     }
 }

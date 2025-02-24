@@ -236,7 +236,9 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
-                        return String.format("%1$s.toObject(Base64Url.class).decodedBytes()", invocationExpression);
+                        return String.format(
+                            "%1$s.toObject(" + ClassType.BASE_64_URL.getName() + ".class).decodedBytes()",
+                            invocationExpression);
                     } else {
                         return String.format("%1$s.toObject(byte[].class)", invocationExpression);
                     }

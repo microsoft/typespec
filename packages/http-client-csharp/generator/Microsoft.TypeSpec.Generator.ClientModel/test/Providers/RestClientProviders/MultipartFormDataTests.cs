@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
             var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
             MockHelpers.LoadMockPlugin(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
-            var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             var restClient = client!.RestClient;
             Assert.IsNotNull(restClient);
