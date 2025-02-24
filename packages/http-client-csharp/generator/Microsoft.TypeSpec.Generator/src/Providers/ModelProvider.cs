@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // add discriminated subtypes
             foreach (var subtype in _inputModel.DiscriminatedSubtypes)
             {
-                var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(subtype.Value);
+                var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(subtype.Value) as ModelProvider;
                 if (model != null)
                 {
                     derivedModels.Add(model);
@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // add derived models
             foreach (var derivedModel in _inputModel.DerivedModels)
             {
-                var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedModel);
+                var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedModel) as ModelProvider;
                 if (model != null)
                 {
                     derivedModels.Add(model);
@@ -76,7 +76,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return [.. derivedModels];
         }
-        internal override TypeProvider? BaseTypeProvider => BaseModelProvider;
+
+        internal override TypeProvider? BaseTypeProvider
+        {
+            get
+            {
+                if (_baseTypeProvider?.Value is ModelProvider modelProvider)
+                {
+                    return modelProvider;
+                }
+                else if (_baseTypeProvider?.Value is SystemObjectProvider systemObjectProvider)
+                {
+                    return systemObjectProvider;
+                }
+
+                return null;
+            }
+        }
 
         public ModelProvider? BaseModelProvider
             => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
@@ -93,7 +109,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? GetBaseType()
         {
-            return BaseModelProvider?.Type;
+            return BaseTypeProvider?.Type;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()

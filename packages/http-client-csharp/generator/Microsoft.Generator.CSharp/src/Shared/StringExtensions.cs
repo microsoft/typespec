@@ -8,13 +8,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis.CSharp;
 
-<<<<<<<< HEAD:packages/http-client-csharp/generator/Microsoft.Generator.CSharp.Input/src/Utilities/StringExtensions.cs
-namespace Microsoft.Generator.CSharp.Input
-========
-namespace Microsoft.TypeSpec.Generator
->>>>>>>> origin/main:packages/http-client-csharp/generator/Microsoft.TypeSpec.Generator/src/Shared/StringExtensions.cs
+namespace Microsoft.Generator.CSharp
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         private static bool IsWordSeparator(char c) => !SyntaxFacts.IsIdentifierPartCharacter(c) || c == '_';
         private static readonly Regex HumanizedCamelCaseRegex = new Regex(@"([A-Z])", RegexOptions.Compiled);
@@ -209,23 +205,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return SyntaxFacts.IsKeywordKind(kind);
-        }
-
-        [return: NotNullIfNotNull(nameof(name))]
-        public static string ToXmlDocIdentifierName(this string name)
-        {
-            var span = name.AsSpan();
-            if (span.Length == 0)
-            {
-                return name;
-            }
-
-            if (name[0] != '@')
-            {
-                return name;
-            }
-
-            return span[1..].ToString();
         }
 
         public static string ToApiVersionMemberName(this string version)
