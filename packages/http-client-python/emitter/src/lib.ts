@@ -60,7 +60,7 @@ const libDef = {
     "unknown-error": {
       severity: "error",
       messages: {
-        default: paramMessage`Can't generate Python client code from this TypeSpec, please run this command again with "--trace http-client-python" to get exception stack, then open an issue on https://github.com/microsoft/typespec'.\n${"stack"}`,
+        default: paramMessage`Can't generate Python client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec'.\n${"stack"}`,
       },
     },
     "invalid-models-mode": {
