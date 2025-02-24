@@ -41,4 +41,4 @@ pnpm run serve
 pnpm change version --only "@typespec/http-specs"
 ```
 
-Push the changes in branch named after the patternn `publish/xyz`. Once merged, the package will be auto-release.
+Push the changes in branch named after the patternn `publish/xyz`. Once merged, the package will be auto-released.
