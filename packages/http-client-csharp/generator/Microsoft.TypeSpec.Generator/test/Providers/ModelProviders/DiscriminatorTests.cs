@@ -91,10 +91,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // Base model description should reference derived models
             Assert.IsNotNull(baseModel.XmlDocs.Summary);
-            var summary = baseModel.XmlDocs.Summary!.ToDisplayString();
-            Assert.IsTrue(summary.Contains("Cat"));
-            Assert.IsTrue(summary.Contains("Dog"));
-            Assert.IsFalse(summary.Contains("Unknown"));
+            Assert.AreEqual("""
+                            /// <summary>
+                            /// pet description
+                            /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Cat"/>, <see cref="Dog"/>, and <see cref="AnotherAnimal"/>.
+                            /// </summary>
+
+                            """,
+                baseModel.XmlDocs.Summary!.ToDisplayString());
         }
 
         [Test]
