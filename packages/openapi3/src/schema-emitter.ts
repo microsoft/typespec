@@ -492,7 +492,6 @@ export class OpenAPI3SchemaEmitterBase<
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
     const schema = this.unionSchema(union);
     let baseName = getOpenAPITypeName(this.emitter.getProgram(), union, this.#typeNameOptions());
-
     return this.#createDeclaration(union, baseName, schema);
   }
 
@@ -575,7 +574,7 @@ export class OpenAPI3SchemaEmitterBase<
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<Schema> {
     const isStd = isStdType(this.emitter.getProgram(), scalar);
     const schema = this.#getSchemaForScalar(scalar);
-    let baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
+    const baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
 
     // Don't create a declaration for std types
     return isStd
