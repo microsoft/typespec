@@ -13,7 +13,7 @@ model HasBytes {
 
 model BytesBody<ContentType> {
   @body body: bytes;
-  @header contentType: ContentType;
+  @header("content-type") contentType: ContentType;
 }
 
 @route("/test")

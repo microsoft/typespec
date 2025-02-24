@@ -242,11 +242,11 @@ it("generates numeric constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<int>( MinValue = 100, MaxValue = 1000)]",
+      "[NumericConstraint<int>( MinValue = 100, MaxValue = 1000)]",
       "public int? Int32Prop { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<UInt32>( MaxValue = 5000)]",
+      "[NumericConstraint<UInt32>( MaxValue = 5000)]",
       "public UInt32? Uint32Prop { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<float>( MinValue = 0, MinValueExclusive = true)]",
+      "[NumericConstraint<float>( MinValue = 0, MinValueExclusive = true)]",
       "public float? F32Prop { get; set; }",
     ],
   );
@@ -269,7 +269,7 @@ it("generates string constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.StringConstraint( MinLength = 3, MaxLength = 72)]",
+      "[StringConstraint( MinLength = 3, MaxLength = 72)]",
       "public string StringProp { get; set; }",
     ],
   );
@@ -491,9 +491,9 @@ it("generates standard scalar array  constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MinItems = 1, MaxItems = 10)]",
+      "[ArrayConstraint( MinItems = 1, MaxItems = 10)]",
       "public SByte[] ArrSbyteProp { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MaxItems = 10)]",
+      "[ArrayConstraint( MaxItems = 10)]",
       "public Byte[] ArrByteProp { get; set; }",
     ],
   );
@@ -504,7 +504,11 @@ it("handles enum, complex type properties, and circular references", async () =>
     runner,
     `
       /** A simple enum */
-      enum Bar { /** one */ One, /** two */Two, /** three */ Three}
+      enum SimpleBar { /** one */ One, /** two */Two, /** three */ Three}
+      /** A named enum */
+      enum ComplexBar {/** one */ One: "first", /** two */Two: "second", /** three */ Three: "third"}
+      /** An escaped enum */
+      enum EscapedBar {/** one */ One:"2023-02-01-preview", /** two */Two:"2024-02-01-preview", /** three */ Three:"2025-02-01"}
       /** A model with a circular references */
       model Baz {
         /** Mutually circular with Foo */
@@ -515,7 +519,7 @@ it("handles enum, complex type properties, and circular references", async () =>
       /** A simple test model*/
       model Foo {
         /** enum */
-        barProp?: Bar;
+        barProp?: SimpleBar;
         /** circular */
         bazProp?: Baz;
       }
@@ -525,11 +529,43 @@ it("handles enum, complex type properties, and circular references", async () =>
         "Foo.cs",
         [
           "public partial class Foo",
-          `public Bar? BarProp { get; set; }`,
+          `public SimpleBar? BarProp { get; set; }`,
           `public Baz BazProp { get; set; }`,
         ],
       ],
-      ["Bar.cs", ["public enum Bar"]],
+      [
+        "SimpleBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum SimpleBar",
+          "One",
+          "Two",
+          "Three",
+        ],
+      ],
+      [
+        "ComplexBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum ComplexBar",
+          `[JsonStringEnumMemberName("first")]`,
+          "One",
+          `[JsonStringEnumMemberName("second")]`,
+          "Two",
+          `[JsonStringEnumMemberName("third")]`,
+          "Three",
+        ],
+      ],
+      [
+        "EscapedBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum EscapedBar",
+          `[JsonStringEnumMemberName("2023-02-01-preview")]`,
+          `[JsonStringEnumMemberName("2024-02-01-preview")]`,
+          `[JsonStringEnumMemberName("2025-02-01")]`,
+        ],
+      ],
       [
         "Baz.cs",
         [
@@ -812,7 +848,8 @@ it("Handles empty body 2xx as void", async () => {
         "MyServiceOperationsController.cs",
         [
           "public partial class MyServiceOperationsController: ControllerBase",
-          "public virtual async Task<IActionResult> Foo(Toy body)",
+          "public virtual async Task<IActionResult> Foo(MyServiceOperationsFooRequest body)",
+          ".FooAsync(body.Id, body.PetId, body.Name)",
         ],
       ],
       ["Toy.cs", ["public partial class Toy"]],
@@ -1086,18 +1123,10 @@ it("handles implicit request body models correctly", async () => {
       `,
     [
       [
-        "Model0.cs",
-        [
-          "public partial class Model0",
-          "public int? IntProp { get; set; }",
-          "public string[] ArrayProp { get; set; }",
-        ],
-      ],
-      [
         "ContosoOperationsController.cs",
         [
-          `public virtual async Task<IActionResult> Foo(Model0 body)`,
-          ".FooAsync(body?.IntProp, body?.ArrayProp)",
+          `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
+          ".FooAsync(body.IntProp, body.ArrayProp)",
         ],
       ],
       ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
@@ -1299,6 +1328,88 @@ model FileAttachmentMultipartRequest {
       ["IInitializer.cs", ["public interface IInitializer"]],
       ["Initializer.cs", ["public class Initializer : IInitializer"]],
       ["ContosoOperations.cs", ["public class ContosoOperations : IContosoOperations"]],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("Handles spread parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+    model Widget {
+      @path id: string;
+      @query kind?: string;
+      color: string;
+    }
+
+    @route("/widgets")
+
+    @post op create(...Widget) : Widget;
+
+    `,
+    [
+      [
+        "IContosoOperations.cs",
+        ["Task<Widget> CreateAsync( string id, string color, string? kind);"],
+      ],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public Task<Widget> CreateAsync( string id, string color, string? kind)",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          `public virtual async Task<IActionResult> Create(string id, ContosoOperationsCreateRequest body, [FromQuery(Name="kind")] string? kind)`,
+          ".CreateAsync(id, body.Color, kind)",
+        ],
+      ],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("Handles bodyRoot parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+    model Widget {
+      @visibility("update", "read")
+      @path id: string;
+      @query kind?: string;
+      color: string;
+    }
+
+    @route("/widgets")
+
+    @post op create(@bodyRoot body: Widget) : Widget;
+
+    `,
+    [
+      //["Widget.cs", ["[FromQuery]"]],
+      ["IContosoOperations.cs", ["Task<Widget> CreateAsync( Widget body);"]],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public Task<Widget> CreateAsync( Widget body)",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [`public virtual async Task<IActionResult> Create(Widget body)`, ".CreateAsync(body)"],
+      ],
       [
         "MockRegistration.cs",
         ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
