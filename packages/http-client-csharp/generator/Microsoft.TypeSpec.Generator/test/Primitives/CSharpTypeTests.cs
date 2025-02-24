@@ -49,8 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         public void FullyQualifiedNamePopulatedForTypeProviders()
         {
             var provider = new TestTypeProvider();
-            var type = new CSharpType(provider, "TestNamespace", [], null);
-            Assert.AreEqual("TestNamespace.TestName", type.FullyQualifiedName);
+            Assert.AreEqual("Test.TestName", provider.Type.FullyQualifiedName);
         }
 
         [TestCase(typeof(int))]
