@@ -1018,6 +1018,12 @@ export class CodeModelBuilder {
             }
           }
 
+          op.responses?.forEach((r) => {
+            if (r instanceof SchemaResponse) {
+              this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+            }
+          });
+
           op.extensions = op.extensions ?? {};
           op.extensions["x-ms-pageable"] = {
             itemName: itemSerializedName,
