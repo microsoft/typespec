@@ -10,9 +10,11 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
     public sealed class Emitter : IDisposable
     {
         private const string BasicNotificationFormat = @"{{""method"":{0},""params"":{1}}}";
+        private const string Trace = "trace";
+        private const string Diagnostic = "diagnostic";
 
         private static Emitter? _emitter;
-        private bool _disposedValue;
+        private bool _disposed;
 
         private readonly StreamWriter _writer;
 
@@ -34,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         public void Info(string message)
         {
-            SendNotification("trace", new
+            SendNotification(Trace, new
             {
                 level = "info",
                 message = message,
@@ -43,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         public void Debug(string message)
         {
-            SendNotification("trace", new
+            SendNotification(Trace, new
             {
                 level = "debug",
                 message = message,
@@ -52,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         public void Verbose(string message)
         {
-            SendNotification("trace", new
+            SendNotification(Trace, new
             {
                 level = "verbose",
                 message = message,
@@ -63,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         {
             if (targetCrossLanguageDefinitionId != null)
             {
-                SendNotification("diagnostic", new
+                SendNotification(Diagnostic, new
                 {
                     code = code,
                     message = message,
@@ -72,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
             }
             else
             {
-                SendNotification("diagnostic", new
+                SendNotification(Diagnostic, new
                 {
                     code = code,
                     message = message,
@@ -82,14 +84,14 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         private void Dispose(bool disposing)
         {
-            if (!_disposedValue)
+            if (!_disposed)
             {
                 if (disposing)
                 {
                     _writer.Dispose();
                 }
 
-                _disposedValue = true;
+                _disposed = true;
             }
         }
 

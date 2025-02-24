@@ -31,7 +31,8 @@ namespace Microsoft.TypeSpec.Generator
 
         private static async Task<int> Run(CommandLineOptions options, GeneratorRunner runner)
         {
-            var emitter = Emitter.Instance;
+            using var emitter = Emitter.Instance;
+
             if (options.ShouldDebug)
             {
                 emitter.Debug("Attempting to attach debugger..");
@@ -48,8 +49,6 @@ namespace Microsoft.TypeSpec.Generator
                 Console.Error.WriteLine(e.StackTrace);
                 return 1;
             }
-
-            ((IDisposable)emitter).Dispose();
 
             return 0;
         }
