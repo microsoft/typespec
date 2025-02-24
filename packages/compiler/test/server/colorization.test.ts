@@ -918,6 +918,26 @@ function testColorization(description: string, tokenize: Tokenize) {
         ]);
       });
 
+      it("decorators on escaped members", async () => {
+        const tokens = await tokenize("enum Direction { @foo `Val 123`, @foo(123) `456 after`}");
+        deepStrictEqual(tokens, [
+          Token.keywords.enum,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("foo"),
+          Token.identifiers.variable("`Val 123`"),
+          Token.punctuation.comma,
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("foo"),
+          Token.punctuation.openParen,
+          Token.literals.numeric("123"),
+          Token.punctuation.closeParen,
+          Token.identifiers.variable("`456 after`"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
       it("enum with string values", async () => {
         const tokens = await tokenize(`enum Direction { up: "Up", down: "Down"}`);
         deepStrictEqual(tokens, [
