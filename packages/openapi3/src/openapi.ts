@@ -1571,19 +1571,13 @@ function createOAPIEmitter(
       );
       root.components!.parameters![key] = { ...param };
 
-      ensureValidComponentFixedFieldKey(
-        program,
-        property,
-        () => key,
-        (newKey) => {
-          root.components!.parameters![newKey] = { ...param };
-          delete root.components?.parameters![key];
-          for (const key of Object.keys(param)) {
-            delete param[key];
-          }
-          param.$ref = "#/components/parameters/" + newKey;
-        },
-      );
+      const validKey = ensureValidComponentFixedFieldKey(program, property, key);
+      root.components!.parameters![validKey] = { ...param };
+      delete root.components?.parameters![key];
+      for (const key of Object.keys(param)) {
+        delete param[key];
+      }
+      param.$ref = "#/components/parameters/" + validKey;
     }
   }
 

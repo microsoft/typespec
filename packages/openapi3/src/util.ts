@@ -163,14 +163,11 @@ export function isBytesKeptRaw(program: Program, type: Type) {
 export function ensureValidComponentFixedFieldKey(
   program: Program,
   type: Type,
-  getDeclarationKey: () => string,
-  setDeclarationKey: (newKey: string) => void,
-): void {
-  const oldDeclarationKey = getDeclarationKey();
-  if (isValidComponentFixedFieldKey(oldDeclarationKey)) return;
-  reportInvalidKey(program, type, oldDeclarationKey);
-  const newDeclarationKey = createValidKey(oldDeclarationKey);
-  setDeclarationKey(newDeclarationKey);
+  oldKey: string,
+): string {
+  if (isValidComponentFixedFieldKey(oldKey)) return oldKey;
+  reportInvalidKey(program, type, oldKey);
+  return createValidKey(oldKey);
 }
 
 function isValidComponentFixedFieldKey(key: string) {

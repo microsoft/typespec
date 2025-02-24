@@ -717,12 +717,7 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   #createDeclaration(type: Type, name: string, schema: ObjectBuilder<any>) {
-    ensureValidComponentFixedFieldKey(
-      this.emitter.getProgram(),
-      type,
-      () => name,
-      (newKey) => (name = newKey),
-    );
+    name = ensureValidComponentFixedFieldKey(this.emitter.getProgram(), type, name);
 
     const refUrl = getRef(this.emitter.getProgram(), type);
     if (refUrl) {
