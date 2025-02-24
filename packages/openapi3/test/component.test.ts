@@ -7,6 +7,7 @@ interface DiagnosticCheck {
   expectedDiagInvalidKey: string;
   expectedDeclKey: string;
   expectedPrefix: "#/components/schemas/" | "#/components/parameters/";
+  kind: "Model" | "ModelProperty" | "Union";
 }
 
 interface Case {
@@ -15,11 +16,6 @@ interface Case {
   diagChecks: DiagnosticCheck[];
   refChecks?: (doc: any) => void;
 }
-
-const prefixToKindMap = {
-  ["#/components/schemas/"]: "Model",
-  ["#/components/parameters/"]: "ModelProperty",
-};
 
 const testCases: Case[] = [
   {
@@ -36,6 +32,7 @@ const testCases: Case[] = [
         expectedDiagInvalidKey: "foo-/inva*li\td",
         expectedDeclKey: "foo-_inva_li_d",
         expectedPrefix: "#/components/schemas/",
+        kind: "Model",
       },
     ],
     refChecks: (doc) => {
@@ -61,6 +58,7 @@ const testCases: Case[] = [
         expectedDiagInvalidKey: "Zoo.para/invalid",
         expectedDeclKey: "Zoo.para_invalid",
         expectedPrefix: "#/components/parameters/",
+        kind: "ModelProperty",
       },
     ],
     refChecks: (doc) => {
@@ -87,6 +85,7 @@ const testCases: Case[] = [
         expectedDiagInvalidKey: "Nested/Model",
         expectedDeclKey: "Nested_Model",
         expectedPrefix: "#/components/schemas/",
+        kind: "Model",
       },
     ],
   },
@@ -109,11 +108,13 @@ const testCases: Case[] = [
         expectedDiagInvalidKey: "Nested/Model",
         expectedDeclKey: "Nested_Model",
         expectedPrefix: "#/components/schemas/",
+        kind: "Model",
       },
       {
         expectedDiagInvalidKey: "MMM.b/b",
         expectedDeclKey: "MMM.b_b",
         expectedPrefix: "#/components/parameters/",
+        kind: "ModelProperty",
       },
     ],
     refChecks: (doc) => {
@@ -123,6 +124,92 @@ const testCases: Case[] = [
       expect(doc.paths["/"].post.parameters[0].$ref).toBe("#/components/parameters/MMM.b_b");
     },
   },
+  {
+    title: "Basic discriminator case",
+    code: `
+    @service
+    namespace NS {
+      @discriminator("kind")
+      union \`Pe/t\` {
+        cat: \`C/at\`,
+        dog: \`Do/g\`,
+      }
+
+      model \`C/at\` {
+        kind: "cat";
+        meow: boolean;
+      }
+      model \`Do/g\` {
+        kind: "dog";
+        bark: boolean;
+      }
+
+      op f(p: \`Pe/t\`): void;
+    }`,
+    diagChecks: [
+      {
+        expectedDiagInvalidKey: "C/at",
+        expectedDeclKey: "C_at",
+        expectedPrefix: "#/components/schemas/",
+        kind: "Model",
+      },
+      {
+        expectedDiagInvalidKey: "Do/g",
+        expectedDeclKey: "Do_g",
+        expectedPrefix: "#/components/schemas/",
+        kind: "Model",
+      },
+      {
+        expectedDiagInvalidKey: "Pe/t",
+        expectedDeclKey: "Pe_t",
+        expectedPrefix: "#/components/schemas/",
+        kind: "Union",
+      },
+    ],
+  },
+  {
+    title: "Basic extend case",
+    code: `
+    @service
+    namespace NS {
+      @discriminator("kind")
+      union \`Pe/t\` {
+        cat: \`C/at\`,
+        dog: \`Do/g\`,
+      }
+
+      model \`C/at\` {
+        kind: "cat";
+        meow: boolean;
+      }
+      model \`Do/g\` {
+        kind: "dog";
+        bark: boolean;
+      }
+
+      op f(p: \`Pe/t\`): void;
+    }`,
+    diagChecks: [
+      {
+        expectedDiagInvalidKey: "C/at",
+        expectedDeclKey: "C_at",
+        expectedPrefix: "#/components/schemas/",
+        kind: "Model",
+      },
+      {
+        expectedDiagInvalidKey: "Do/g",
+        expectedDeclKey: "Do_g",
+        expectedPrefix: "#/components/schemas/",
+        kind: "Model",
+      },
+      {
+        expectedDiagInvalidKey: "Pe/t",
+        expectedDeclKey: "Pe_t",
+        expectedPrefix: "#/components/schemas/",
+        kind: "Union",
+      },
+    ],
+  }
 ];
 
 worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
@@ -140,7 +227,7 @@ worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
         for (const [i, d] of c.diagChecks.entries()) {
           const target = diag[i].target as any;
           expect(target).toHaveProperty("kind");
-          expect(target.kind).toBe(prefixToKindMap[d.expectedPrefix]);
+          expect(target.kind).toBe(d.kind);
           // check generated doc
           const componentField = getComponentField(doc, d.expectedPrefix);
           expect(componentField).toBeDefined();
