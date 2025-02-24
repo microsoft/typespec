@@ -1,5 +1,4 @@
 import { ResultCode } from "../types.js";
-import { isWhitespaceStringOrUndefined } from "../utils.js";
 
 export enum TelemetryEventName {
   StartExtension = "start-extension",
@@ -15,6 +14,7 @@ export class OperationDetailProperties {
   error = "error";
   emitterPackage = "emitterPackage";
   compilerLocation = "compilerLocation";
+  compilerVersion = "compilerVersion";
 }
 
 export interface TelemetryEventBase {
@@ -31,30 +31,8 @@ export interface OperationTelemetryEvent extends TelemetryEventBase {
 
 export interface OperationDetailTelemetryEvent
   extends TelemetryEventBase,
-    Partial<Record<keyof OperationDetailProperties, string>> {}
-
-/**
- * Create a operation telemetry event with following default values.
- * Please make sure the default values are updated properly as needed
- *     activityId: a new random guid will be generated if not provided
- *     eventName: the event name provided
- *     startTime: set to the current time
- *     endTime: undefined
- *     result: undefined
- *     lastStep: undefined
- */
-export function createOperationTelemetryEvent(
-  eventName: TelemetryEventName,
-  activityId?: string,
-): OperationTelemetryEvent {
-  return {
-    activityId: isWhitespaceStringOrUndefined(activityId) ? generateActivityId() : activityId!,
-    eventName: eventName,
-    startTime: new Date(),
-    endTime: undefined,
-    result: undefined,
-    lastStep: undefined,
-  };
+    Partial<Record<keyof OperationDetailProperties, string>> {
+  eventName: TelemetryEventName.OperationDetail;
 }
 
 export function generateActivityId() {

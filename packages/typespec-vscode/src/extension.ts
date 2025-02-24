@@ -210,9 +210,14 @@ async function recreateLSPClient(
   client = await TspLanguageClient.create(activityId, context, outputChannel);
   await oldClient?.stop();
   await client.start(activityId);
-  return client.state === State.Running
-    ? { code: ResultCode.Success, value: client }
-    : { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
+  if (client.state === State.Running) {
+    telemetryClient.logOperationDetailTelemetry(activityId, {
+      compilerVersion: client.initializeResult?.serverInfo?.version ?? "< 0.64.0",
+    });
+    return { code: ResultCode.Success, value: client };
+  } else {
+    return { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
+  }
 }
 
 function showStartUpMessages(stateManager: ExtensionStateManager) {

@@ -92,7 +92,6 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
               },
             );
           }
-          tel.lastStep = "Importing from OpenAPI";
           return result.code;
         },
       );
@@ -110,6 +109,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
         } else {
           const result = await tryInstallOpenApi3Locally(packageJson, packageJsonFolder);
           if (result.code === ResultCode.Success) {
+            tel.lastStep = "Install openapi3 locally and import";
             return tryImport(sourceFile, targetFolder, false /*globalScope*/);
           } else {
             tel.lastStep = "Install OpenAPI3 locally";
@@ -139,7 +139,6 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
             logger.info(
               `Found ${TSP_OPENAPI3_PACKAGE} in package.json but not installed, try to confirm to install it by 'npm install'`,
             );
-            tel.lastStep = "Install local OpenAPI3 by 'npm install'";
             return await tryExecuteWithUi(
               {
                 name: `Confirm and try to install OpenAPI3 package by 'npm install'`,
@@ -188,7 +187,6 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
           logger.info(
             `Cannot find ${TSP_OPENAPI3_PACKAGE} in package.json, try to confirm to install it by 'npm install ${TSP_OPENAPI3_PACKAGE}'`,
           );
-          tel.lastStep = "Install local OpenAPI3 by 'npm install ${TSP_OPENAPI3_PACKAGE}'";
           return tryExecuteWithUi(
             {
               name: `Confirm and try to install OpenAPI3 package by 'npm install ${TSP_OPENAPI3_PACKAGE}'`,
@@ -271,7 +269,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
         targetFolder: string,
         isGlobal: boolean,
       ): Promise<Result<ExecOutput>> {
-        return await tryExecuteWithUi(
+        const result = await tryExecuteWithUi(
           {
             name: "Importing OpenAPI to TypeSpec",
             progress: {
@@ -282,14 +280,12 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
           },
           async () => {
             if (isGlobal) {
-              tel.lastStep = "Import using global openapi3";
               return await spawnExecutionAndLogToOutput(
                 TSP_OPENAPI3_COMMAND,
                 [sourceFile, "--output-dir", `${targetFolder}`],
                 targetFolder,
               );
             } else {
-              tel.lastStep = "Import using local openapi3";
               return await spawnExecutionAndLogToOutput(
                 "npx",
                 [TSP_OPENAPI3_COMMAND, sourceFile, "--output-dir", `${targetFolder}`],
@@ -298,19 +294,24 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
             }
           },
         );
+        if (result.code === ResultCode.Fail) {
+          telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+            error: `Error when importing OpenAPI to TypeSpec: ${result.details}`,
+          });
+        }
+        return result;
       }
 
       async function importUsingGlobalOpenApi3(
         sourceFile: string,
         targetFolder: string,
       ): Promise<Result<ExecOutput>> {
-        tel.lastStep = "Try to import using global openapi3";
+        tel.lastStep = "Import using global openapi3";
         const firstTry = await tryImport(sourceFile, targetFolder, true /* isGlobal */);
         if (firstTry.code === ResultCode.Fail && isExecOutputCmdNotFound(firstTry.details)) {
           logger.info(
             `${TSP_OPENAPI3_COMMAND} failed because the command is not found. Try to prompt user to install it and import again.`,
           );
-          tel.lastStep = "install OpenAPI3 globally";
           const installResult = await tryExecuteWithUi(
             {
               name: `Install ${TSP_OPENAPI3_PACKAGE} globally`,
@@ -338,9 +339,10 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
             },
           );
           if (installResult.code === ResultCode.Success) {
-            tel.lastStep = "Import using global openapi3";
+            tel.lastStep = "Install openapi3 globally and import again";
             return await tryImport(sourceFile, targetFolder, true /* isGlobal */);
           } else {
+            tel.lastStep = "Install openapi3 globally";
             return installResult;
           }
         } else {

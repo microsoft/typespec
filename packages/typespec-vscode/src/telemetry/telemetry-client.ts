@@ -4,8 +4,8 @@ import logger from "../log/logger.js";
 import { ResultCode } from "../types.js";
 import { isWhitespaceStringOrUndefined } from "../utils.js";
 import {
-  createOperationTelemetryEvent,
   emptyActivityId,
+  generateActivityId,
   OperationDetailProperties,
   OperationDetailTelemetryEvent,
   OperationTelemetryEvent,
@@ -59,16 +59,18 @@ class TelemetryClient {
 
   public async doOperationWithTelemetry<T>(
     eventName: TelemetryEventName,
+    /**
+     * The result will be set automatically if the return type is ResultCode or Result<T>
+     * Otherwise, you can set the result manually by setting the opTelemetryEvent.result
+     */
     operation: (
       opTelemetryEvent: OperationTelemetryEvent,
-      /**
-       * Call this function to send the telemetry event if you don't want to wait until the end of the operation for some reason
-       */
+      /** Call this function to send the telemetry event if you don't want to wait until the end of the operation for some reason*/
       sendTelemetryEvent: (result: ResultCode) => void,
     ) => Promise<T>,
     activityId?: string,
   ): Promise<T> {
-    const opTelemetryEvent = createOperationTelemetryEvent(eventName, activityId);
+    const opTelemetryEvent = this.createOperationTelemetryEvent(eventName, activityId);
     let eventSent = false;
     const sendTelemetryEvent = (result?: ResultCode) => {
       if (!eventSent) {
@@ -82,13 +84,11 @@ class TelemetryClient {
     };
     try {
       const result = await operation(opTelemetryEvent, (result) => sendTelemetryEvent(result));
-      const isResultCode = (v: any) => Object.values(ResultCode).includes(v as ResultCode);
       if (result) {
+        const isResultCode = (v: any) => Object.values(ResultCode).includes(v as ResultCode);
         if (isResultCode(result)) {
-          // TODO: test
           opTelemetryEvent.result ??= result as ResultCode;
         } else if (typeof result === "object" && "code" in result && isResultCode(result.code)) {
-          // TODO: test
           opTelemetryEvent.result ??= result.code as ResultCode;
         }
       }
@@ -137,19 +137,28 @@ class TelemetryClient {
   }
 
   /**
-   * Use this method to send error to telemetry.
-   * IMPORTANT: make sure to:
-   *   - Collect as *little* telemetry as possible.
-   *   - Do not include any personal or sensitive information.
-   * Detail guidance can be found at: https://code.visualstudio.com/api/extension-guides/telemetry
+   * Create a operation telemetry event with following default values.
+   * Please make sure the default values are updated properly as needed
+   *     activityId: a new random guid will be generated if not provided
+   *     eventName: the event name provided
+   *     startTime: set to the current time
+   *     endTime: undefined
+   *     result: undefined
+   *     lastStep: undefined
    */
-  // public logError(error: string, activityId?: string) {
-  //   this.sendErrorEvent(TelemetryEventName.Error, {
-  //     activityId: isWhitespaceStringOrUndefined(activityId) ? emptyActivityId : activityId!,
-  //     timestamp: new Date().toISOString(),
-  //     error: error,
-  //   });
-  // }
+  private createOperationTelemetryEvent(
+    eventName: TelemetryEventName,
+    activityId?: string,
+  ): OperationTelemetryEvent {
+    return {
+      activityId: isWhitespaceStringOrUndefined(activityId) ? generateActivityId() : activityId!,
+      eventName: eventName,
+      startTime: new Date(),
+      endTime: undefined,
+      result: undefined,
+      lastStep: undefined,
+    };
+  }
 
   private logErrorWhenLoggingTelemetry(error: any) {
     if (this._logTelemetryErrorCount++ < this.MAX_LOG_TELEMETRY_ERROR) {
