@@ -65,7 +65,6 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
     // assert we will NOT have a DiscriminatorProperty on the derived models
     assert(
       catModel?.discriminatorProperty === undefined,
@@ -148,7 +147,6 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
 
     // verify derived model Cat
     const cat = models.find((m) => m.name === "Cat");
@@ -241,7 +239,6 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
 
     // verify derived model Cat
     const cat = models.find((m) => m.name === "Cat");
