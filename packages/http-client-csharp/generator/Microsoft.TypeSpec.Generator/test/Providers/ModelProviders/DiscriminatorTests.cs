@@ -88,6 +88,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(_baseModel);
             Assert.IsNotNull(baseModel);
             Assert.IsTrue(baseModel!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+
+            // Base model description should reference derived models
+            Assert.IsNotNull(baseModel.XmlDocs.Summary);
+            var summary = baseModel.XmlDocs.Summary!.ToDisplayString();
+            Assert.IsTrue(summary.Contains("Cat"));
+            Assert.IsTrue(summary.Contains("Dog"));
+            Assert.IsFalse(summary.Contains("Unknown"));
         }
 
         [Test]
