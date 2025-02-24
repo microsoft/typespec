@@ -812,7 +812,6 @@ function createOAPIEmitter(
       parameters: getEndpointParameters(parameters.parameters, visibility),
       responses: getResponses(operation, operation.responses, examples),
     };
-
     const currentTags = getAllTags(program, op);
     if (currentTags) {
       oai3Operation.tags = currentTags;
@@ -1577,7 +1576,7 @@ function createOAPIEmitter(
       for (const key of Object.keys(param)) {
         delete param[key];
       }
-      param.$ref = "#/components/parameters/" + validKey;
+      param.$ref = "#/components/parameters/" + encodeURIComponent(validKey);
     }
   }
 
