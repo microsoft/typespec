@@ -1454,7 +1454,7 @@ function createOAPIEmitter(
   ): { style?: string; explode?: boolean } | undefined {
     switch (parameter.type) {
       case "header":
-        return mapHeaderParameterFormat(parameter);
+        return getHeaderParameterAttributes(parameter);
       case "cookie":
         // style and explode options are omitted from cookies
         // https://github.com/microsoft/typespec/pull/4761#discussion_r1803365689
@@ -1541,17 +1541,24 @@ function createOAPIEmitter(
     }
   }
 
-  function mapHeaderParameterFormat(
+  function getHeaderParameterAttributes(
     parameter: HeaderFieldOptions & {
       param: ModelProperty;
     },
-  ): { style?: string; explode?: boolean } | undefined {
+  ) {
+    const attributes: { style?: "simple"; explode?: boolean } = {};
+    if (parameter.explode) {
+      // The default for headers is false, so only need to specify when true https://spec.openapis.org/oas/v3.0.4.html#fixed-fields-for-use-with-schema-0
+      attributes.explode = true;
+    }
+
     switch (parameter.format) {
       case undefined:
-        return {};
+        return attributes;
       case "csv":
       case "simple":
-        return { style: "simple" };
+        attributes.style = "simple";
+        break;
       default:
         diagnostics.add(
           createDiagnostic({
@@ -1565,6 +1572,7 @@ function createOAPIEmitter(
         );
         return undefined;
     }
+    return attributes;
   }
 
   function validateComponentFixedFieldKey(type: Type, name: string) {

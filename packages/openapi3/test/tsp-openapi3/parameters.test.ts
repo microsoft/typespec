@@ -3,7 +3,11 @@ import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/tes
 import { ok } from "assert";
 import { assert, describe, expect, it } from "vitest";
 import { expectDecorators } from "./utils/expect.js";
-import { compileForOpenAPI3, tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
+import {
+  compileForOpenAPI3,
+  renderTypeSpecForOpenAPI3,
+  tspForOpenAPI3,
+} from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level parameters", () => {
   it.each(["query", "header", "path"] as const)(`Supports location: %s`, async (location) => {
@@ -364,6 +368,108 @@ describe("header", () => {
     const fooProperty = Foo.properties.get("foo");
     assert(fooProperty, "foo property not found");
     expectDecorators(fooProperty.decorators, [{ name: "header", args: [{ format: "simple" }] }]);
+  });
+
+  it(`sets explode: true when it is explicitly set`, async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      paths: {
+        "/": {
+          get: {
+            operationId: "foo",
+            parameters: [
+              {
+                name: "custom",
+                in: "header",
+                explode: true,
+                schema: { type: "object", properties: { id: { type: "string" } } },
+              },
+            ],
+            responses: {
+              "200": { description: "test response" },
+            },
+          },
+        },
+      },
+    });
+
+    expect(tsp).toMatchInlineSnapshot(`
+      "import "@typespec/http";
+      import "@typespec/openapi";
+      import "@typespec/openapi3";
+
+      using Http;
+      using OpenAPI;
+
+      @service({
+        title: "Test Service",
+      })
+      @info({
+        version: "1.0.0",
+      })
+      namespace TestService;
+
+      @route("/") @get op foo(
+        @header(#{ explode: true }) custom?: {
+          id?: string;
+        },
+      ): OkResponse;
+      "
+    `);
+  });
+
+  it(`does not set explode when it is falsey`, async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      paths: {
+        "/": {
+          get: {
+            operationId: "foo",
+            parameters: [
+              {
+                name: "custom1",
+                in: "header",
+                schema: { type: "object", properties: { id: { type: "string" } } },
+              },
+              {
+                name: "custom2",
+                in: "header",
+                schema: { type: "object", properties: { id: { type: "string" } } },
+                explode: false,
+              },
+            ],
+            responses: {
+              "200": { description: "test response" },
+            },
+          },
+        },
+      },
+    });
+
+    expect(tsp).toMatchInlineSnapshot(`
+      "import "@typespec/http";
+      import "@typespec/openapi";
+      import "@typespec/openapi3";
+
+      using Http;
+      using OpenAPI;
+
+      @service({
+        title: "Test Service",
+      })
+      @info({
+        version: "1.0.0",
+      })
+      namespace TestService;
+
+      @route("/") @get op foo(
+        @header custom1?: {
+          id?: string;
+        },
+        @header custom2?: {
+          id?: string;
+        },
+      ): OkResponse;
+      "
+    `);
   });
 });
 

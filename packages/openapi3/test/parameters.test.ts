@@ -180,19 +180,69 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
     });
 
+    it("create a header param respecting the explode option", async () => {
+      const res = await openApiFor(
+        `
+      op test(
+        @header(#{name: "$explodeTrue", explode: true}) expTrue: { foo: string },
+        @header(#{name: "$explodeFalse", explode: false}) expFalse: { foo: string },
+        @header(#{name: "$explodeDefault"}) expDefault: { foo: string },
+      ): void;
+      `,
+      );
+      const params = res.paths["/"].get.parameters;
+      deepStrictEqual(params[0], {
+        in: "header",
+        name: "$explodeTrue",
+        explode: true,
+        schema: {
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
+          },
+        },
+        required: true,
+      });
+      deepStrictEqual(params[1], {
+        in: "header",
+        name: "$explodeFalse",
+        required: true,
+        schema: {
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
+          },
+        },
+      });
+      deepStrictEqual(params[2], {
+        in: "header",
+        name: "$explodeDefault",
+        schema: {
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
+          },
+        },
+        required: true,
+      });
+    });
+
     it("create a header param of array type", async () => {
       const res = await openApiFor(
         `
       op test(
-        @header({name: "$csv", format: "csv"}) csvs: string[],
+        @header(#{name: "$csv", format: "csv"}) csvs: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$multi", format: "multi"}) multis: string[],
+        @header(#{name: "$multi", format: "multi"}) multis: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$tsv", format: "tsv"}) tsvs: string[],
+        @header(#{name: "$tsv", format: "tsv"}) tsvs: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$ssv", format: "ssv"}) ssvs: string[],
+        @header(#{name: "$ssv", format: "ssv"}) ssvs: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$pipes", format: "pipes"}) pipes: string[]
+        @header(#{name: "$pipes", format: "pipes"}) pipes: string[]
       ): void;
       `,
       );
