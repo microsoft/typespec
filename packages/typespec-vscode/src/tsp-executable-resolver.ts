@@ -80,7 +80,7 @@ export async function resolveTypeSpecServer(
   if (serverPath) {
     logger.info(`Server path loaded from TypeSpec extension configuration: ${serverPath}`);
     telemetryClient.logOperationDetailTelemetry(activityId, {
-      compilerLocation: "configured-compiler",
+      compilerLocation: "compiler-configured-by-setting",
     });
   } else {
     logger.info(

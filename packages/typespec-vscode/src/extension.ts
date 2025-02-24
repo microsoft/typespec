@@ -92,9 +92,7 @@ export async function activate(context: ExtensionContext) {
                 if (client && client.state === State.Running) {
                   tel.lastStep = "Restart LSP client";
                   await client.restart();
-                  return client.state === State.Running
-                    ? { code: ResultCode.Success, value: client }
-                    : { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
+                  return { code: ResultCode.Success, value: client };
                 } else {
                   logger.info(
                     "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
