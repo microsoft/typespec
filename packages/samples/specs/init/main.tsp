@@ -7,7 +7,7 @@ using TypeSpec.Http;
 namespace DemoService;
 
 model Widget {
-  @visibility("read", "update")
+  @visibility(Lifecycle.Read, Lifecycle.Update)
   @path
   id: string;
 
