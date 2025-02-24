@@ -79,10 +79,6 @@ async function createPythonSdkContext<TServiceOperation extends SdkServiceOperat
   };
 }
 
-function traceIsEnabled(context: EmitContext<PythonEmitterOptions>): boolean {
-  return (context.program.compilerOptions.trace?.join("") ?? "").includes("http-client-python");
-}
-
 export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const program = context.program;
   const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context);
@@ -199,10 +195,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
         "========================================= error stack start ================================================";
       const errStackEnd =
         "========================================= error stack end ================================================";
-      const errStack =
-        traceIsEnabled(context) && error.stack
-          ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}`
-          : "";
+      const errStack = error.stack ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}` : "";
       reportDiagnostic(program, {
         code: "unknown-error",
         target: NoTarget,
