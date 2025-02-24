@@ -44,10 +44,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;
 
-        // TODO - Implement BuildMethods, etc as needed
         protected override ConstructorProvider[] BuildConstructors()
         {
             return [.. _generatedTypeProvider.Constructors, .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
+        }
+
+        protected override MethodProvider[] BuildMethods()
+        {
+            return [.. _generatedTypeProvider.Methods, .. _generatedTypeProvider.CustomCodeView?.Methods ?? []];
         }
 
         protected override PropertyProvider[] BuildProperties()
