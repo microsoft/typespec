@@ -9,6 +9,7 @@ if (!newKey) {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const targetPackageJsonFile = path.resolve(__dirname, "../package.json");
+  console.log(`Updating package.json at ${targetPackageJsonFile}`);
   const packageJson = JSON.parse(fs.readFileSync(targetPackageJsonFile, "utf8"));
   const oldKey = packageJson.telemetryKey;
 
