@@ -1,33 +1,33 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Generator.CSharp;
-using Microsoft.Generator.CSharp.ClientModel;
-using Microsoft.Generator.CSharp.ClientModel.Providers;
-using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Primitives;
-using Microsoft.Generator.CSharp.Providers;
+using Microsoft.TypeSpec.Generator.ClientModel;
+using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Providers;
 using SamplePlugin.Providers;
 
 namespace SamplePlugin
 {
     public class SamplePluginLibraryLibraryVisitor : ScmLibraryVisitor
     {
-        protected override MethodProvider Visit(TypeProvider typeProvider, MethodProvider methodProvider)
+        protected override MethodProvider? Visit(MethodProvider method)
         {
-            if (methodProvider is not ScmMethodProvider)
+            if (method is not ScmMethodProvider)
             {
-                return methodProvider;
+                return method;
             }
 
-            methodProvider.Signature.Update(name: $"Foo{methodProvider.Signature.Name}");
-            return methodProvider;
+            Emitter.Instance.Info($"Visiting method {method.Signature.Name} in type {method.EnclosingType.Type}");
+            method.Signature.Update(name: $"Foo{method.Signature.Name}");
+            return method;
         }
 
-        protected override PropertyProvider Visit(InputModelProperty property, PropertyProvider? propertyProvider)
-        {
-            return new SamplePluginPropertyProvider(property);
-        }
+        //protected override PropertyProvider? Visit(PropertyProvider property)
+        //{
+        //    return new SamplePluginPropertyProvider(property, property.EnclosingType);
+        //}
 
         protected override MethodProviderCollection Visit(InputOperation operation,
             TypeProvider enclosingType,
