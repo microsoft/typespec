@@ -34,3 +34,11 @@ This will start the server using the mock apis. When writing a mock api use this
 ```bash
 pnpm run serve
 ```
+
+#### Update version for release
+
+```bash
+pnpm change version --only "@typespec/http-specs"
+```
+
+Push the changes in branch named after the patternn `publish/xyz`. Once merged, the package will be auto-release.
