@@ -1521,6 +1521,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     mapper: TypeMapper | undefined,
     instantiateTemplates = true,
   ): Type | Value | IndeterminateEntity | null {
+    const entity = checkTypeOrValueReferenceSymbolWorker(sym, node, mapper, instantiateTemplates);
+
+    if (entity !== null && isType(entity) && entity.kind === "TemplateParameter") {
+      usedTemplateParameterDeclarationNodes.add(entity.node);
+    }
+    return entity;
+  }
+
+  function checkTypeOrValueReferenceSymbolWorker(
+    sym: Sym,
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+    mapper: TypeMapper | undefined,
+    instantiateTemplates = true,
+  ): Type | Value | IndeterminateEntity | null {
     if (sym.flags & SymbolFlags.Const) {
       return getValueForNode(sym.declarations[0], mapper);
     }
@@ -1867,9 +1881,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // The type `A | never` is just `A`
       if (type === neverType) {
         continue;
-      }
-      if (type.kind === "TemplateParameter") {
-        usedTemplateParameterDeclarationNodes.add(type.node);
       }
       if (type.kind === "Union" && type.expression) {
         for (const [name, variant] of type.variants) {
@@ -3560,14 +3571,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (mapper === undefined) {
       for (const templateParameter of node.templateParameters) {
         checkTemplateParameterDeclaration(templateParameter, undefined);
-        /* current we only check unused template parameter for model template.
-         *  TODO: We should add more check for other template types in the future.
-         */
-        if (node.kind === SyntaxKind.ModelStatement) {
-          if (!usedTemplateParameterDeclarationNodes.has(templateParameter)) {
-            resolver.setUnusedTemplateParameterDeclarationNode(templateParameter);
-          }
-        }
       }
     }
   }
@@ -3590,6 +3593,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
+    checkTemplateDeclaration(node, mapper);
 
     const decorators: DecoratorApplication[] = [];
     const type: Model = createType({
@@ -3681,7 +3685,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     lateBindMemberContainer(type);
     lateBindMembers(type);
 
-    checkTemplateDeclaration(node, mapper);
+    /* check if the template parameter is used or not. */
+    for (const templateParameter of node.templateParameters) {
+      if (node.kind === SyntaxKind.ModelStatement) {
+        if (!usedTemplateParameterDeclarationNodes.has(templateParameter)) {
+          resolver.setUnusedTemplateParameterDeclarationNode(templateParameter);
+        }
+      }
+    }
     return type;
   }
 
@@ -4353,7 +4364,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     if (isType(entity)) {
       if (entity.kind === "TemplateParameter") {
-        usedTemplateParameterDeclarationNodes.add(entity.node);
         if (entity.constraint === undefined || entity.constraint.type !== undefined) {
           // means this template constraint will accept values
           reportCheckerDiagnostic(
@@ -4601,13 +4611,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
-    if (heritageType.kind === "Model") {
-      for (const arg of heritageType.templateMapper?.args ?? []) {
-        if ("kind" in arg && arg.kind === "TemplateParameter") {
-          usedTemplateParameterDeclarationNodes.add(arg.node);
-        }
-      }
-    }
     if (heritageType.kind !== "Model") {
       reportCheckerDiagnostic(createDiagnostic({ code: "extend-model", target: heritageRef }));
       return undefined;
@@ -4674,12 +4677,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return;
     }
 
-    for (const arg of isType.templateMapper?.args ?? []) {
-      if ("kind" in arg && arg.kind === "TemplateParameter") {
-        usedTemplateParameterDeclarationNodes.add(arg.node);
-      }
-    }
-
     if (isType.name === "") {
       reportCheckerDiagnostic(
         createDiagnostic({ code: "is-model", messageId: "modelExpression", target: isExpr }),
@@ -4698,9 +4695,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): [ModelProperty[], ModelIndexer | undefined] {
     const targetType = getTypeForNode(targetNode, mapper);
 
-    if (targetType.kind === "TemplateParameter") {
-      usedTemplateParameterDeclarationNodes.add(targetType.node);
-    }
     if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
       return [[], undefined];
     }
@@ -4817,9 +4811,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    if (type.type.kind === "TemplateParameter") {
-      usedTemplateParameterDeclarationNodes.add(type.type.node);
-    }
     type.decorators = checkDecorators(type, prop, mapper);
     const parentTemplate = getParentTemplateNode(prop);
     linkMapper(type, mapper);
@@ -5257,12 +5248,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     for (const decNode of decoratorNodes) {
       const decorator = checkDecoratorApplication(targetType, decNode, mapper);
       if (decorator) {
-        /* check template parameters */
-        for (const arg of decorator.args) {
-          if ("kind" in arg.value && arg.value.kind === "TemplateParameter") {
-            usedTemplateParameterDeclarationNodes.add(arg.value.node);
-          }
-        }
         decorators.unshift(decorator);
       }
     }
@@ -5759,9 +5744,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const name = variantNode.id ? variantNode.id.sv : Symbol("name");
     const type = getTypeForNode(variantNode.value, mapper);
-    if (type.kind === "TemplateParameter") {
-      usedTemplateParameterDeclarationNodes.add(type.node);
-    }
     const variantType: UnionVariant = createType({
       kind: "UnionVariant",
       name,
