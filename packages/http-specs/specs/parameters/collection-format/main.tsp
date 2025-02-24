@@ -84,9 +84,7 @@ namespace Header {
   @route("/csv")
   op csv(
     @doc("Possible values for colors are [blue,red,green]")
-    @header({
-      format: "csv",
-    })
+    @header(#{ format: "csv" })
     colors: string[],
   ): NoContentResponse;
 }

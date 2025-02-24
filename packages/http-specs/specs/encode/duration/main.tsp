@@ -274,9 +274,7 @@ namespace Header {
     Expected header `duration: [P40D,P50D]`
     """)
   op iso8601Array(
-    @header({
-      format: "csv",
-    })
+    @header(#{ format: "csv" })
     duration: Iso8601Duration[],
   ): NoContentResponse;
 

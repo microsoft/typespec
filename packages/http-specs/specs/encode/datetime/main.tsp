@@ -269,9 +269,7 @@ namespace Header {
     value=1686566864,1686734256
     """)
   op unixTimestampArray(
-    @header({
-      format: "csv",
-    })
+    @header(#{ format: "csv" })
     value: unixTimestampDatetime[],
   ): NoContentResponse;
 }

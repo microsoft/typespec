@@ -292,6 +292,19 @@ export type RouteProducer = (
 export interface HeaderFieldOptions {
   type: "header";
   name: string;
+
+  /**
+   * Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   *
+   *  | Style  | Explode | Primitive value = 5 | Array = [3, 4, 5] | Object = {"role": "admin", "firstName": "Alex"} |
+   *  | ------ | ------- | ------------------- | ----------------- | ----------------------------------------------- |
+   *  | simple | false   | `id=5`              | `3,4,5`           | `role,admin,firstName,Alex`                     |
+   *  | simple | true    | `id=5`              | `3,4,5`           | `role=admin,firstName=Alex`                     |
+   *
+   */
+
+  explode?: boolean;
+
   /**
    * The string format of the array. "csv" and "simple" are used interchangeably, as are
    * "multi" and "form".
