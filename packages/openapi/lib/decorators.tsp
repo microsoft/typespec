@@ -94,6 +94,8 @@ model Contact {
 
   /** The email address of the contact person/organization. MUST be in the format of an email address. */
   email?: string;
+
+  ...Record<unknown>;
 }
 
 /** License information for the exposed API. */
@@ -103,6 +105,8 @@ model License {
 
   /** A URL to the license used for the API. MUST be in the format of a URL. */
   url?: url;
+
+  ...Record<unknown>;
 }
 
 /**

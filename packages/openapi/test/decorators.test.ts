@@ -155,10 +155,10 @@ describe("openapi: decorators", () => {
   describe("@info", () => {
     describe("emit diagnostics when passing extension key not starting with `x-` in additionalInfo", () => {
       it.each([
-        ["root", `{ foo:"Bar" }`],
-        ["license", `{ license:{ name: "Apache 2.0", foo:"Bar"} }`],
-        ["contact", `{ contact:{ foo:"Bar"} }`],
-        ["complex", `{ contact:{ "x-custom": "string" }, foo:"Bar" }`],
+        ["root", `#{ foo: "Bar" }`],
+        ["license", `#{ license: #{ name: "Apache 2.0", foo:"Bar"} }`],
+        ["contact", `#{ contact: #{ foo:"Bar"} }`],
+        ["complex", `#{ contact: #{ \`x-custom\`: "string" }, foo:"Bar" }`],
       ])("%s", async (_, code) => {
         const diagnostics = await runner.diagnose(`
         @info(${code})
@@ -174,8 +174,8 @@ describe("openapi: decorators", () => {
       it("multiple", async () => {
         const diagnostics = await runner.diagnose(`
           @info(#{
-            license:{ name: "Apache 2.0", foo1:"Bar"}, 
-            contact:{ "x-custom": "string", foo2:"Bar" }, 
+            license: #{ name: "Apache 2.0", foo1:"Bar"}, 
+            contact: #{ \`x-custom\`: "string", foo2:"Bar" }, 
             foo3:"Bar" 
           })
           @test namespace Service;
@@ -272,10 +272,9 @@ describe("openapi: decorators", () => {
 
     it("resolveInfo() merge with data from @service and @summary", async () => {
       const { Service } = (await runner.compile(`
+        #suppress "deprecated" "Test"
         @service(#{ 
           title: "Service API", 
-          
-          #suppress "deprecated" "Test"
           version: "2.0.0" 
         })
         @summary("My summary")
