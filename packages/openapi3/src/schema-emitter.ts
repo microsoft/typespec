@@ -76,12 +76,12 @@ import {
   OpenAPISchema3_1,
 } from "./types.js";
 import {
+  ensureValidComponentFixedFieldKey,
   getDefaultValue,
   includeDerivedModel,
   isBytesKeptRaw,
   isStdType,
-} from "./utils/basic-util.js";
-import { validateComponentFixedFieldKey } from "./utils/component-key-util.js";
+} from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
 
@@ -189,7 +189,17 @@ export class OpenAPI3SchemaEmitterBase<
 
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
     const isMultipart = this.getContentType().startsWith("multipart/");
-    const name = isMultipart ? baseName + "MultiPart" : baseName;
+    let name = isMultipart ? baseName + "MultiPart" : baseName;
+
+    ensureValidComponentFixedFieldKey(
+      program,
+      model,
+      () => model.name,
+      (newKey) => (model.name = newKey),
+      () => name,
+      (newKey) => (name = newKey),
+    );
+
     return this.#createDeclaration(model, name, this.applyConstraints(model, schema as any));
   }
 
@@ -462,7 +472,17 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
-    const baseName = getOpenAPITypeName(this.emitter.getProgram(), en, this.#typeNameOptions());
+    let baseName = getOpenAPITypeName(this.emitter.getProgram(), en, this.#typeNameOptions());
+
+    ensureValidComponentFixedFieldKey(
+      this.emitter.getProgram(),
+      en,
+      () => en.name,
+      (newKey) => (en.name = newKey),
+      () => baseName,
+      (newKey) => (baseName = newKey),
+    );
+
     return this.#createDeclaration(en, baseName, new ObjectBuilder(this.enumSchema(en)));
   }
 
@@ -489,7 +509,19 @@ export class OpenAPI3SchemaEmitterBase<
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
     const schema = this.unionSchema(union);
-    const baseName = getOpenAPITypeName(this.emitter.getProgram(), union, this.#typeNameOptions());
+    let baseName = getOpenAPITypeName(this.emitter.getProgram(), union, this.#typeNameOptions());
+
+    ensureValidComponentFixedFieldKey(
+      this.emitter.getProgram(),
+      union,
+      () => union.name,
+      (newKey) => {
+        if (union.name) union.name = newKey;
+      },
+      () => baseName,
+      (newKey) => (baseName = newKey),
+    );
+
     return this.#createDeclaration(union, baseName, schema);
   }
 
@@ -572,7 +604,16 @@ export class OpenAPI3SchemaEmitterBase<
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<Schema> {
     const isStd = isStdType(this.emitter.getProgram(), scalar);
     const schema = this.#getSchemaForScalar(scalar);
-    const baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
+    let baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
+
+    ensureValidComponentFixedFieldKey(
+      this.emitter.getProgram(),
+      scalar,
+      () => scalar.name,
+      (newKey) => (scalar.name = newKey),
+      () => baseName,
+      (newKey) => (baseName = newKey),
+    );
 
     // Don't create a declaration for std types
     return isStd
@@ -746,9 +787,6 @@ export class OpenAPI3SchemaEmitterBase<
       Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true])),
     );
 
-    if (type.kind === "Model") {
-      validateComponentFixedFieldKey(this.emitter.getProgram(), type, fullName);
-    }
     return decl;
   }
 

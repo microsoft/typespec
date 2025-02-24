@@ -14,6 +14,7 @@ import {
   Value,
 } from "@typespec/compiler";
 import { HttpOperation } from "@typespec/http";
+import { createDiagnostic } from "./lib.js";
 /**
  * Checks if two objects are deeply equal.
  *
@@ -157,4 +158,44 @@ export function getDefaultValue(
 
 export function isBytesKeptRaw(program: Program, type: Type) {
   return type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined;
+}
+
+export function ensureValidComponentFixedFieldKey(
+  program: Program,
+  type: Type,
+  getEntityKey: () => string | undefined,
+  setEntityKey: (newKey: string) => void,
+  getDeclarationKey: () => string,
+  setDeclarationKey: (newKey: string) => void,
+): void {
+  const oldDeclarationKey = getDeclarationKey();
+  if (isValidComponentFixedFieldKey(oldDeclarationKey)) return;
+  reportInvalidKey(program, type, oldDeclarationKey);
+  const newDeclarationKey = createValidKey(oldDeclarationKey);
+  setDeclarationKey(newDeclarationKey);
+  const oldEntityKey = getEntityKey();
+  if (oldEntityKey) {
+    const newEntityKey = createValidKey(oldEntityKey);
+    setEntityKey(newEntityKey);
+  }
+}
+
+function isValidComponentFixedFieldKey(key: string) {
+  const validPattern = /^[a-zA-Z0-9.\-_]+$/;
+  return validPattern.test(key);
+}
+
+function reportInvalidKey(program: Program, type: Type, key: string) {
+  const diagnostic = createDiagnostic({
+    code: "invalid-component-fixed-field-key",
+    format: {
+      value: key,
+    },
+    target: type,
+  });
+  return program.reportDiagnostic(diagnostic);
+}
+
+function createValidKey(invalidKey: string): string {
+  return invalidKey.replace(/[^a-zA-Z0-9.\-_]/g, "_");
 }

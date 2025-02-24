@@ -3,135 +3,164 @@ import { describe, expect, it } from "vitest";
 import { OpenAPI3Document } from "../src/types.js";
 import { worksFor } from "./works-for.js";
 
+interface DiagnosticCheck {
+  invalidKey: string;
+  declarationKey: string;
+  prefix: "#/components/schemas/" | "#/components/parameters/";
+}
+
 interface Case {
   title: string;
   code: string;
-  invalidKey: string;
-  validKey: string;
-  typeName: string;
-  kind: Kind;
+  diagChecks: DiagnosticCheck[];
+  refChecks?: (doc: any) => void;
 }
 
-enum Kind {
-  Model,
-  Parameter,
-}
-
-const kindMap = {
-  [Kind.Model]: "Model",
-  [Kind.Parameter]: "ModelProperty",
+const prefixToKindMap = {
+  ["#/components/schemas/"]: "Model",
+  ["#/components/parameters/"]: "ModelProperty",
 };
 
-const prefixMap = {
-  [Kind.Model]: "#/components/schemas",
-  [Kind.Parameter]: "#/components/parameters",
-};
+const testCases: Case[] = [
+  {
+    title: "Basic model case",
+    code: `
+    @service
+    namespace Ns1Valid {
+      model \`foo-/inva*li\td\` {}
+      op f(p: \`foo-/inva*li\td\`): void;
+    }`,
+
+    diagChecks: [
+      {
+        invalidKey: "foo-/inva*li\td",
+        declarationKey: "foo-_inva_li_d",
+        prefix: "#/components/schemas/",
+      },
+    ],
+    refChecks: (doc) => {
+      expect(
+        doc.paths["/"].post.requestBody.content["application/json"].schema.properties.p.$ref,
+      ).toBe("#/components/schemas/foo-_inva_li_d");
+    },
+  },
+  {
+    title: "Basic parameter case",
+    code: `
+    @service
+    namespace Ns {
+      model Zoo {
+        @query
+        \`para/invalid\`: string;
+        b: string;
+      }
+      op f(...Zoo): string;
+    }`,
+    diagChecks: [
+      {
+        invalidKey: "Zoo.para/invalid",
+        declarationKey: "Zoo.para_invalid",
+        prefix: "#/components/parameters/",
+      },
+    ],
+    refChecks: (doc) => {
+      expect(doc.paths["/"].post.parameters[0].$ref).toBe(
+        "#/components/parameters/Zoo.para_invalid",
+      );
+    },
+  },
+  {
+    title: "Nested model case",
+    code: `
+    @service
+    namespace Ns1Valid {
+      model \`Nested/Model\` {
+          a: string;
+      }
+      model MMM {
+        b: \`Nested/Model\`;
+      }
+      op f(p: MMM): void;
+    }`,
+    diagChecks: [
+      {
+        invalidKey: "Nested/Model",
+        declarationKey: "Nested_Model",
+        prefix: "#/components/schemas/",
+      },
+    ],
+  },
+  {
+    title: "Nested parameter case",
+    code: `
+    @service
+    namespace NS {
+      model \`Nested/Model\` {
+        a: string;
+      }
+      model MMM {
+        @query \`b/b\`: \`Nested/Model\`;
+        d: string;
+      }
+      op f(...MMM): void;
+    }`,
+    diagChecks: [
+      {
+        invalidKey: "Nested/Model",
+        declarationKey: "Nested_Model",
+        prefix: "#/components/schemas/",
+      },
+      {
+        invalidKey: "MMM.b/b",
+        declarationKey: "MMM.b_b",
+        prefix: "#/components/parameters/",
+      },
+    ],
+    refChecks: (doc) => {
+      expect(doc.components.parameters["MMM.b_b"].schema.$ref).toBe(
+        "#/components/schemas/Nested_Model",
+      );
+      expect(doc.paths["/"].post.parameters[0].$ref).toBe("#/components/parameters/MMM.b_b");
+    },
+  },
+];
 
 worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
   describe("Invalid component key", () => {
-    it.each([
-      {
-        title: "Basic model case",
-        code: `
-        @service
-        namespace Ns1Valid {
-          model \`foo-/inva*li\td\` {}
-          op f(p: \`foo-/inva*li\td\`): void;
-        }`,
-        invalidKey: "foo-/inva*li\td",
-        validKey: "foo-_inva_li_d",
-        typeName: "foo-/inva*li\td",
-        kind: Kind.Model,
-      },
-      {
-        title: "Nested model case",
-        code: `
-        @service
-        namespace NsOut {
-          namespace NsNested {
-            model \`foo/invalid\` {}
-             op f(p: \`foo/invalid\`): void;
-          }
-        }`,
-        invalidKey: "NsNested.foo/invalid",
-        validKey: "NsNested.foo_invalid",
-        typeName: "foo/invalid",
-        kind: Kind.Model,
-      },
-      {
-        title: "Basic parameter case",
-        code: `
-        @service
-        namespace Ns {
-          model Zoo {
-            @query
-            \`para/invalid\`: string;
-            b: string;
-          }
-          op f(...Zoo): string;
-        }`,
-        invalidKey: "Zoo.para/invalid",
-        validKey: "Zoo.para_invalid",
-        typeName: "para/invalid",
-        kind: Kind.Parameter,
-      },
-      {
-        title: "Nested parameter case",
-        code: `
-        @service
-        namespace Ns {
-          namespace NsNest {
-            model Zoo {
-              @query
-              \`para/invalid\`: string;
-              b: string;
-            }
-            op f(...Zoo): string;
-          }
-        }`,
-        invalidKey: "NsNest.Zoo.para/invalid",
-        validKey: "NsNest.Zoo.para_invalid",
-        typeName: "para/invalid",
-        kind: Kind.Parameter,
-      },
-    ])("$title should report diagnostics and replace by valid key", async (c: Case) => {
-      const [doc, diag] = await specHelpers.emitOpenApiWithDiagnostics(c.code);
+    it.each(testCases)(
+      "$title should report diagnostics and replace by valid key",
+      async (c: Case) => {
+        const [doc, diag] = await specHelpers.emitOpenApiWithDiagnostics(c.code);
 
-      // check diagnostics
-      expectDiagnostics(diag, [createExpectedDiagnostic(c.invalidKey)]);
-      const target = diag[0].target as any;
-      expect(target).toHaveProperty("kind");
-      expect(target.kind).toBe(kindMap[c.kind]);
-      expect(target.name).toBe(c.typeName);
-
-      // check generated doc
-      const componentField = getComponentField(doc, c.kind);
-      expect(componentField).toBeDefined();
-      expect(componentField).not.toHaveProperty(c.invalidKey);
-      expect(componentField).toHaveProperty(c.validKey);
-
-      // check ref
-      switch (c.kind) {
-        case Kind.Model:
-          expect(
-            (doc as any).paths["/"].post.requestBody.content["application/json"].schema.properties.p.$ref,
-          ).toBe(`${prefixMap[c.kind]}/${c.validKey}`);
-          break;
-        case Kind.Parameter:
-          expect((doc as any).paths["/"].post.parameters![0].$ref).toBe(
-            `${prefixMap[c.kind]}/${c.validKey}`,
-          );
-          break;
-      }
-    });
+        // check diagnostics
+        expectDiagnostics(
+          diag,
+          c.diagChecks.map((d) => createExpectedDiagnostic(d.invalidKey)),
+        );
+        for (const [i, d] of c.diagChecks.entries()) {
+          const target = diag[i].target as any;
+          expect(target).toHaveProperty("kind");
+          expect(target.kind).toBe(prefixToKindMap[d.prefix]);
+          // check generated doc
+          const componentField = getComponentField(doc, d.prefix);
+          expect(componentField).toBeDefined();
+          expect(componentField).toHaveProperty(d.declarationKey);
+        }
+        // check ref
+        if (c.refChecks) c.refChecks(doc);
+      },
+    );
   });
 });
 
-function getComponentField(doc: OpenAPI3Document, kind: Kind) {
+function getComponentField(
+  doc: OpenAPI3Document,
+  kind: "#/components/schemas/" | "#/components/parameters/",
+) {
   switch (kind) {
-    case Kind.Model:
+    case "#/components/schemas/":
       return doc.components?.schemas;
-    case Kind.Parameter:
+    case "#/components/parameters/":
       return doc.components?.parameters;
   }
 }

@@ -114,17 +114,12 @@ import {
 } from "./types.js";
 import {
   deepEquals,
+  ensureValidComponentFixedFieldKey,
   getDefaultValue,
   isBytesKeptRaw,
   isSharedHttpOperation,
   SharedHttpOperation,
-} from "./utils/basic-util.js";
-import {
-  getComponentFixedFieldKeyContext,
-  setUpComponentFixedFieldKeyContext,
-  updateToValidRefs,
-  validateComponentFixedFieldKey,
-} from "./utils/component-key-util.js";
+} from "./util.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 import { resolveXmlModule, XmlModule } from "./xml-module.js";
 
@@ -277,8 +272,6 @@ function createOAPIEmitter(
       return name !== serviceNamespaceName;
     },
   };
-
-  const reportedDiagnostics = new Map<string, Diagnostic>();
 
   return { emitOpenAPI, getOpenAPI };
 
@@ -647,7 +640,6 @@ function createOAPIEmitter(
     version?: string,
   ): Promise<[SupportedOpenAPIDocuments, Readonly<Diagnostic[]>] | undefined> {
     try {
-      setUpComponentFixedFieldKeyContext(program);
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       const auth = (serviceAuth = resolveAuthentication(httpService));
 
@@ -682,16 +674,6 @@ function createOAPIEmitter(
           }
         }
       }
-
-      const diagnosticsForComponentKeys = getComponentFixedFieldKeyContext(program).diagnostics;
-      for (const [key, diagnostic] of diagnosticsForComponentKeys) {
-        if (reportedDiagnostics.has(key)) continue;
-        reportedDiagnostics.set(key, diagnostic);
-        program.reportDiagnostic(diagnostic);
-      }
-
-      updateToValidRefs(program, root);
-
       return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
@@ -1587,13 +1569,23 @@ function createOAPIEmitter(
         root.components!.parameters!,
         typeNameOptions,
       );
-      validateComponentFixedFieldKey(program, property, key);
       root.components!.parameters![key] = { ...param };
-      for (const key of Object.keys(param)) {
-        delete param[key];
-      }
 
-      param.$ref = "#/components/parameters/" + key;
+      ensureValidComponentFixedFieldKey(
+        program,
+        property,
+        () => undefined,
+        (_) => {},
+        () => key,
+        (newKey) => {
+          root.components!.parameters![newKey] = { ...param };
+          delete root.components?.parameters![key];
+          for (const key of Object.keys(param)) {
+            delete param[key];
+          }
+          param.$ref = "#/components/parameters/" + newKey;
+        },
+      );
     }
   }
 
