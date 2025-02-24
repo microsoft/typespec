@@ -222,7 +222,7 @@ export interface Checker {
     projection: ProjectionNode,
     args?: (Type | string | number | boolean)[],
   ): Type;
-  resolveIdentifier(node: IdentifierNode): Sym[] | undefined;
+  resolveRelatedSymbols(node: IdentifierNode): Sym[] | undefined;
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
   createType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T,
@@ -408,7 +408,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getGlobalNamespaceNode,
     getMergedSymbol,
     cloneType,
-    resolveIdentifier,
+    resolveRelatedSymbols,
     resolveCompletions,
     evalProjection,
     project,
@@ -2541,7 +2541,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return resolver.getSymbolLinks(s);
   }
 
-  function resolveIdentifier(id: IdentifierNode, mapper?: TypeMapper): Sym[] | undefined {
+  function resolveRelatedSymbols(id: IdentifierNode, mapper?: TypeMapper): Sym[] | undefined {
     let sym: Sym | undefined;
     const { node, kind } = getIdentifierContext(id);
 
@@ -2849,7 +2849,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return undefined;
       }
 
-      const decSym = program.checker.resolveIdentifier(
+      const decSym = program.checker.resolveRelatedSymbols(
         decNode.target.kind === SyntaxKind.MemberExpression ? decNode.target.id : decNode.target,
       );
       if (!decSym || decSym.length <= 0) {

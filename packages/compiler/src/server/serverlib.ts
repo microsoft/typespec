@@ -518,7 +518,7 @@ export function createServer(host: ServerHost): Server {
 
     const id = getNodeAtPosition(script, document.offsetAt(params.position));
     const sym =
-      id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+      id?.kind === SyntaxKind.Identifier ? program.checker.resolveRelatedSymbols(id) : undefined;
 
     const markdown: MarkupContent = {
       kind: MarkupKind.Markdown,
@@ -559,7 +559,7 @@ export function createServer(host: ServerHost): Server {
     node: TypeReferenceNode,
     argumentIndex: number,
   ): SignatureHelp | undefined {
-    const sym = program.checker.resolveIdentifier(
+    const sym = program.checker.resolveRelatedSymbols(
       node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
     if (!sym || sym.length <= 0) {
@@ -612,7 +612,7 @@ export function createServer(host: ServerHost): Server {
     node: DecoratorExpressionNode | AugmentDecoratorStatementNode,
     argumentIndex: number,
   ): SignatureHelp | undefined {
-    const sym = program.checker.resolveIdentifier(
+    const sym = program.checker.resolveRelatedSymbols(
       node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
     if (!sym || sym.length <= 0) {
@@ -749,7 +749,7 @@ export function createServer(host: ServerHost): Server {
     const node = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
     switch (node?.kind) {
       case SyntaxKind.Identifier:
-        const sym = result.program.checker.resolveIdentifier(node);
+        const sym = result.program.checker.resolveRelatedSymbols(node);
         return getLocations(sym && sym.length > 0 ? sym[0].declarations : undefined);
       case SyntaxKind.StringLiteral:
         if (node.parent?.kind === SyntaxKind.ImportStatement) {
@@ -888,7 +888,7 @@ export function createServer(host: ServerHost): Server {
       return [];
     }
 
-    const sym = program.checker.resolveIdentifier(id);
+    const sym = program.checker.resolveRelatedSymbols(id);
     if (!sym || sym.length <= 0) {
       return [id];
     }
@@ -897,7 +897,7 @@ export function createServer(host: ServerHost): Server {
     for (const searchFile of searchFiles) {
       visitChildren(searchFile, function visit(node) {
         if (node.kind === SyntaxKind.Identifier) {
-          const s = program.checker.resolveIdentifier(node);
+          const s = program.checker.resolveRelatedSymbols(node);
           if (!s || s.length <= 0) {
             return;
           }
