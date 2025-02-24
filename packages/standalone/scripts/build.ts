@@ -86,7 +86,13 @@ async function buildWithNodeSea() {
       execa`codesign --remove-signature ${exePath}`;
     } else if (process.platform === "win32") {
       const signToolPath = await findSigntool();
-      execFileSync(signToolPath, [`remove`, `/s`, exePath]);
+      if (signToolPath) {
+        execFileSync(signToolPath, [`remove`, `/s`, exePath]);
+      } else {
+        if (process.env.CI) {
+          throw new Error("Cannot find signtool.exe in CI");
+        }
+      }
     }
   });
   await action(`Creating blob ${seaConfigPath}`, async () => {
@@ -133,18 +139,22 @@ async function action(message: string, callback: () => Promise<any>) {
 }
 
 async function findSigntool() {
-  const base = "C:/Program Files (x86)/Windows Kits/10/bin/";
+  try {
+    const base = "C:/Program Files (x86)/Windows Kits/10/bin/";
 
-  const files = await readdir(base);
-  console.log("Installed", files);
-  const latest = files
-    .filter((f) => f.startsWith("1"))
-    .sort()
-    .reverse()[0];
+    const files = await readdir(base);
+    console.log("Installed", files);
+    const latest = files
+      .filter((f) => f.startsWith("1"))
+      .sort()
+      .reverse()[0];
 
-  const resolved = join(base, latest, "x64/signtool.exe");
-  console.log("Picking latest", latest);
-  console.log("Signtool path: ", resolved);
+    const resolved = join(base, latest, "x64/signtool.exe");
+    console.log("Picking latest", latest);
+    console.log("Signtool path: ", resolved);
 
-  return resolved;
+    return resolved;
+  } catch {
+    return undefined;
+  }
 }
