@@ -4,7 +4,7 @@ title: Discriminated Types
 
 TypeSpec allows for the expression of unions and inheritance. However, when transmitting types over the network, many languages require a mechanism to distinguish between different union variants or models within an inheritance hierarchy.
 
-To facilitate this, TypeSpec offers the [`@discriminator` decorator](./built-in-decorators#@discriminator).
+To facilitate this, TypeSpec offers the [`@discriminator` decorator](../built-in-decorators/#@discriminator).
 
 ### Implementing Polymorphism
 
