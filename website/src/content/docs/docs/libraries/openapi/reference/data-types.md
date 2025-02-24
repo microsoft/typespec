@@ -34,11 +34,12 @@ model TypeSpec.OpenAPI.Contact
 
 #### Properties
 
-| Name   | Type     | Description                                                                                      |
-| ------ | -------- | ------------------------------------------------------------------------------------------------ |
-| name?  | `string` | The identifying name of the contact person/organization.                                         |
-| url?   | `url`    | The URL pointing to the contact information. MUST be in the format of a URL.                     |
-| email? | `string` | The email address of the contact person/organization. MUST be in the format of an email address. |
+| Name   | Type      | Description                                                                                      |
+| ------ | --------- | ------------------------------------------------------------------------------------------------ |
+| name?  | `string`  | The identifying name of the contact person/organization.                                         |
+| url?   | `url`     | The URL pointing to the contact information. MUST be in the format of a URL.                     |
+| email? | `string`  | The email address of the contact person/organization. MUST be in the format of an email address. |
+|        | `unknown` | Additional properties                                                                            |
 
 ### `ExternalDocs` {#TypeSpec.OpenAPI.ExternalDocs}
 
@@ -66,10 +67,11 @@ model TypeSpec.OpenAPI.License
 
 #### Properties
 
-| Name | Type     | Description                                                            |
-| ---- | -------- | ---------------------------------------------------------------------- |
-| name | `string` | The license name used for the API.                                     |
-| url? | `url`    | A URL to the license used for the API. MUST be in the format of a URL. |
+| Name | Type      | Description                                                            |
+| ---- | --------- | ---------------------------------------------------------------------- |
+| name | `string`  | The license name used for the API.                                     |
+| url? | `url`     | A URL to the license used for the API. MUST be in the format of a URL. |
+|      | `unknown` | Additional properties                                                  |
 
 ### `TagMetadata` {#TypeSpec.OpenAPI.TagMetadata}
 

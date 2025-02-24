@@ -17,12 +17,14 @@ export interface TagMetadata {
 }
 
 export interface Contact {
+  readonly [key: string]: unknown;
   readonly name?: string;
   readonly url?: string;
   readonly email?: string;
 }
 
 export interface License {
+  readonly [key: string]: unknown;
   readonly name: string;
   readonly url?: string;
 }
