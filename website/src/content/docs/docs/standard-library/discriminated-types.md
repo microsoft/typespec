@@ -4,7 +4,114 @@ title: Discriminated Types
 
 TypeSpec allows for the expression of unions and inheritance. However, when transmitting types over the network, many languages require a mechanism to distinguish between different union variants or models within an inheritance hierarchy.
 
-To facilitate this, TypeSpec offers the [`@discriminator` decorator](./built-in-decorators#@discriminator).
+To facilitate this, TypeSpec offers the [`@discriminator` decorator](../built-in-decorators/#@discriminator).
+
+### Implementing Discriminated Unions
+
+Unions can be marked as discriminated using the `@discriminated` decorator. This discriminator will assume the variant name is the discriminator value.
+
+#### Default serialization
+
+```typespec
+@discriminated
+union Pet {
+  cat: Cat,
+  dog: Dog,
+}
+```
+
+Serialize as
+
+```json
+{
+  "kind": "cat",
+  "value": {
+    "name": "Whiskers",
+    "meow": true
+  }
+},
+{
+  "kind": "dog",
+  "value": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
+
+#### Customize properties names
+
+```typespec
+@discriminated(#{ discriminatorPropertyName: "dataKind", envelopePropertyName: "data" })
+union Pet {
+  cat: Cat,
+  dog: Dog,
+}
+
+model Cat {
+  name: string;
+  meow: int32;
+}
+
+model Dog {
+  name: string;
+  bark: string;
+}
+```
+
+serialize as
+
+```json
+{
+  "dataKind": "cat",
+  "data": {
+    "name": "Whiskers",
+    "meow": true
+  }
+},
+{
+  "dataKind": "dog",
+  "data": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
+
+### Inject discriminator inline
+
+```tsp
+@discriminated(#{ envelope: false })
+union Pet {
+  cat: Cat,
+  dog: Dog,
+}
+
+model Cat {
+  name: string;
+  meow: boolean;
+}
+
+model Dog {
+  name: string;
+  bark: boolean;
+}
+```
+
+serialize as
+
+```json
+{
+  "kind": "cat",
+  "name": "Whiskers",
+  "meow": true
+}
+{
+  "kind": "dog",
+  "name": "Rex",
+  "bark": false
+}
+```
 
 ### Implementing Polymorphism
 
@@ -78,26 +185,6 @@ model Bengal extends Cat {
 }
 
 model Dog extends Pet {
-  kind: "dog";
-  bark: string;
-}
-```
-
-### Implementing Unions
-
-```typespec
-@discriminator("kind")
-union Pet {
-  cat: Cat,
-  dog: Dog,
-}
-
-model Cat {
-  kind: "cat";
-  meow: int32;
-}
-
-model Dog {
   kind: "dog";
   bark: string;
 }
