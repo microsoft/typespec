@@ -463,6 +463,7 @@ interface SpreadRecordUnion
     > {}
 
 // ****************** spread record of discriminated unions **************************
+#suppress "deprecated" "Legacy to replace with @discriminated(#{envelope: none})"
 @discriminator("kind")
 union WidgetData {
   kind0: WidgetData0,
