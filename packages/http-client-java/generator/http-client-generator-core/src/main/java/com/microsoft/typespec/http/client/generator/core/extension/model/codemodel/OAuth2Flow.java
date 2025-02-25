@@ -10,7 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.base.util.Jso
 import java.io.IOException;
 import java.util.List;
 
-public final class OAuth2Flow implements JsonSerializable<Scheme> {
+public final class OAuth2Flow implements JsonSerializable<OAuth2Flow> {
 
     public static final class OAuth2Scope implements JsonSerializable<OAuth2Scope> {
         private String value;
