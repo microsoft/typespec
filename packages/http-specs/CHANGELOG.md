@@ -1,5 +1,32 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.10
+
+### Bug Fixes
+
+- [#6013](https://github.com/microsoft/typespec/pull/6013) Fixed paths in the specs/routes.
+
+### Features
+
+- [#6038](https://github.com/microsoft/typespec/pull/6038) Add test case for continuationtoken paging
+
+
+## 0.1.0-alpha.9
+
+### Bug Fixes
+
+- [#5717](https://github.com/microsoft/typespec/pull/5717) Fixed paths in the specs/routes.
+- [#5875](https://github.com/microsoft/typespec/pull/5875) Upgrade to new `@visibility` syntax
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5577](https://github.com/microsoft/typespec/pull/5577) Add test case on status code range
+
+
 ## 0.1.0-alpha.8
 
 ### Bug Fixes

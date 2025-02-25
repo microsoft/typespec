@@ -3,45 +3,45 @@
 
 import {
   SdkClientType,
-  SdkContext,
   SdkEndpointParameter,
   SdkEndpointType,
   SdkHttpOperation,
   SdkServiceMethod,
-  SdkType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
-import { NetEmitterOptions } from "../options.js";
+import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
+import { InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { reportDiagnostic } from "./lib.js";
 import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 
-export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
+/**
+ * Creates the code model from the SDK context.
+ * @param sdkContext - The SDK context
+ * @returns The code model
+ * @beta
+ */
+export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
-  const sdkTypeMap: SdkTypeMap = {
-    types: new Map<SdkType, InputType>(),
-    models: new Map<string, InputModelType>(),
-    enums: new Map<string, InputEnumType>(),
-  };
-
-  navigateModels(sdkContext, sdkTypeMap);
+  navigateModels(sdkContext);
 
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
 
   const rootClients = sdkPackage.clients.filter((c) => c.initialization.access === "public");
   if (rootClients.length === 0) {
-    reportDiagnostic(sdkContext.program, { code: "no-root-client", format: {}, target: NoTarget });
+    sdkContext.logger.reportDiagnostic({
+      code: "no-root-client",
+      format: {},
+      target: NoTarget,
+    });
     return {} as CodeModel;
   }
 
@@ -50,15 +50,15 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
       : rootClients[0].apiVersions;
 
-  // this is a set tracking the bad namespace segments
   const inputClients: InputClient[] = [];
-  fromSdkClients(sdkContext, rootClients, inputClients, []);
+  fromSdkClients(rootClients, inputClients, []);
 
   const clientModel: CodeModel = {
+    // rootNamespace is really coalescing the `package-name` option and the first namespace found.
     Name: sdkPackage.rootNamespace,
     ApiVersions: rootApiVersions,
-    Enums: Array.from(sdkTypeMap.enums.values()),
-    Models: Array.from(sdkTypeMap.models.values()),
+    Enums: Array.from(sdkContext.__typeCache.enums.values()),
+    Models: Array.from(sdkContext.__typeCache.models.values()),
     Clients: inputClients,
     Auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
@@ -66,25 +66,23 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   return clientModel;
 
   function fromSdkClients(
-    sdkContext: SdkContext<NetEmitterOptions>,
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
   ) {
     for (const client of clients) {
-      const inputClient = fromSdkClient(sdkContext, client, parentClientNames);
+      const inputClient = fromSdkClient(client, parentClientNames);
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(sdkContext, subClients, inputClients, parentClientNames);
+      fromSdkClients(subClients, inputClients, parentClientNames);
       parentClientNames.pop();
     }
   }
 
   function fromSdkClient(
-    sdkContext: SdkContext<NetEmitterOptions>,
     client: SdkClientType<SdkHttpOperation>,
     parentNames: string[],
   ): InputClient {
@@ -101,7 +99,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       // we report diagnostics when the last segment of the namespace is the same as the client name
       // because in our design, a sub namespace will be generated as a sub client with exact the same name as the namespace
       // in csharp, this will cause a conflict between the namespace and the class name
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "client-namespace-conflict",
         format: { clientNamespace: client.clientNamespace, clientName },
         target: client.__raw.type ?? NoTarget,
@@ -117,11 +115,10 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
         .filter((m) => m.kind !== "clientaccessor")
         .map((m) =>
           fromSdkServiceMethod(
+            sdkContext,
             m as SdkServiceMethod<SdkHttpOperation>,
             uri,
             rootApiVersions,
-            sdkContext,
-            sdkTypeMap,
           ),
         ),
       Protocol: {},
@@ -158,8 +155,14 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       .replace("https://", "")
       .replace("http://", "")
       .split("/")[0];
-    if (!/^\{\w+\}$/.test(endpointExpr))
-      throw new Error(`Unsupported server url "${type.serverUrl}"`);
+    if (!/^\{\w+\}$/.test(endpointExpr)) {
+      sdkContext.logger.reportDiagnostic({
+        code: "unsupported-endpoint-url",
+        format: { endpoint: type.serverUrl },
+        target: NoTarget,
+      });
+      return [];
+    }
     const endpointVariableName = endpointExpr.substring(1, endpointExpr.length - 1);
 
     const parameters: InputParameter[] = [];
@@ -171,7 +174,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             name: "url",
             crossLanguageDefinitionId: "TypeSpec.url",
           }
-        : fromSdkType(parameter.type, sdkContext, sdkTypeMap); // TODO: consolidate with converter.fromSdkEndpointType
+        : fromSdkType(sdkContext, parameter.type); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,
@@ -188,7 +191,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
         SkipUrlEncoding: false,
         Explode: false,
         Kind: InputOperationParameterKind.Client,
-        DefaultValue: getParameterDefaultValue(parameter.clientDefaultValue, parameterType),
+        DefaultValue: getParameterDefaultValue(
+          sdkContext,
+          parameter.clientDefaultValue,
+          parameterType,
+        ),
       });
     }
     return parameters;

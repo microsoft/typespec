@@ -14,6 +14,7 @@ import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
+import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
@@ -65,16 +66,27 @@ function addDefaultOptions(sdkContext: SdkContext) {
 async function createPythonSdkContext<TServiceOperation extends SdkServiceOperation>(
   context: EmitContext<PythonEmitterOptions>,
 ): Promise<PythonSdkContext<TServiceOperation>> {
+  const sdkContext = await createSdkContext<PythonEmitterOptions, TServiceOperation>(
+    context,
+    "@azure-tools/typespec-python",
+  );
+  context.program.reportDiagnostics(sdkContext.diagnostics);
   return {
-    ...(await createSdkContext<PythonEmitterOptions, TServiceOperation>(
-      context,
-      "@azure-tools/typespec-python",
-    )),
+    ...sdkContext,
     __endpointPathParameters: [],
   };
 }
 
+function cleanAllCache() {
+  typesMap.clear();
+  simpleTypesMap.clear();
+  disableGenerationMap.clear();
+}
+
 export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
+  // clean all cache to make sure emitter could work in watch mode
+  cleanAllCache();
+
   const program = context.program;
   const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context);
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");

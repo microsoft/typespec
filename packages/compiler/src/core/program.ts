@@ -20,7 +20,12 @@ import { compilerAssert } from "./diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
-import { createLinter, resolveLinterDefinition } from "./linter.js";
+import {
+  builtInLinterLibraryName,
+  createBuiltInLinterLibrary,
+  createLinter,
+  resolveLinterDefinition,
+} from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
@@ -68,14 +73,17 @@ import {
   TypeSpecScriptNode,
 } from "./types.js";
 
+/** @deprecated */
 export interface ProjectedProgram extends Program {
   projector: Projector;
 }
 
+/** @deprecated use Mutators instead */
 export function projectProgram(
   program: Program,
   projections: ProjectionApplication[],
   startNode?: Type,
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
 ): ProjectedProgram {
   return createProjector(program, projections, startNode);
 }
@@ -227,13 +235,15 @@ export async function compile(
   oldProgram = undefined;
   setCurrentProgram(program);
 
+  const resolver = createResolver(program);
+  resolver.resolveProgram();
+
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
+  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary(resolver));
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
-  const resolver = createResolver(program);
-  resolver.resolveProgram();
   program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
 

@@ -47,6 +47,9 @@ export class ProcessingCache<In, Out> {
     this.results.set(original, result);
     return result;
   }
+  get(original: In) {
+    return this.results.get(original);
+  }
   process(original: In | undefined, ...args: Array<any>): Out | undefined {
     if (original) {
       const result: Out = this.results.get(original) || this.transform(original, ...args);
