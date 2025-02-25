@@ -1047,67 +1047,69 @@ export class CodeModelBuilder {
           let continuationTokenParameter: Parameter | undefined;
           let continuationTokenResponseProperty: Property[] | undefined;
           let continuationTokenResponseHeader: HttpHeader | undefined;
-          const continuationTokenParameterSegment = getLastSegment(
-            sdkMethod.pagingMetadata.continuationTokenParameterSegments,
-          );
-          const continuationTokenResponseSegment = getLastSegment(
-            sdkMethod.pagingMetadata.continuationTokenResponseSegments,
-          );
-          if (continuationTokenParameterSegment) {
-            // for now, continuationToken is either request query or header parameter
-            const parameter = getHttpOperationParameter(
-              sdkMethod,
-              continuationTokenParameterSegment,
+          if (!this.isBranded()) {
+            const continuationTokenParameterSegment = getLastSegment(
+              sdkMethod.pagingMetadata.continuationTokenParameterSegments,
             );
-            if (parameter && op.parameters) {
-              for (const param of op.parameters) {
-                if (param.protocol.http?.in === parameter.kind) {
-                  continuationTokenParameter = param;
-                  break;
+            const continuationTokenResponseSegment = getLastSegment(
+              sdkMethod.pagingMetadata.continuationTokenResponseSegments,
+            );
+            if (continuationTokenParameterSegment) {
+              // for now, continuationToken is either request query or header parameter
+              const parameter = getHttpOperationParameter(
+                sdkMethod,
+                continuationTokenParameterSegment,
+              );
+              if (parameter && op.parameters) {
+                for (const param of op.parameters) {
+                  if (param.protocol.http?.in === parameter.kind) {
+                    continuationTokenParameter = param;
+                    break;
+                  }
                 }
               }
             }
-          }
-          if (continuationTokenResponseSegment && op.responses) {
-            if (continuationTokenResponseSegment?.kind === "header") {
-              // continuationToken is response header
-              for (const response of op.responses) {
-                if (response instanceof SchemaResponse && response.protocol.http) {
-                  for (const header of response.protocol.http.headers) {
-                    if (
-                      header.header.toLowerCase() ===
-                      continuationTokenResponseSegment.serializedName.toLowerCase()
-                    ) {
-                      continuationTokenResponseHeader = header;
-                      break;
+            if (continuationTokenResponseSegment && op.responses) {
+              if (continuationTokenResponseSegment?.kind === "header") {
+                // continuationToken is response header
+                for (const response of op.responses) {
+                  if (response instanceof SchemaResponse && response.protocol.http) {
+                    for (const header of response.protocol.http.headers) {
+                      if (
+                        header.header.toLowerCase() ===
+                        continuationTokenResponseSegment.serializedName.toLowerCase()
+                      ) {
+                        continuationTokenResponseHeader = header;
+                        break;
+                      }
                     }
                   }
-                }
-                if (continuationTokenResponseHeader) {
-                  break;
-                }
-              }
-            } else if (continuationTokenResponseSegment?.kind === "property") {
-              // continuationToken is response body property
-              // TODO: the property could be nested
-              for (const response of op.responses) {
-                if (
-                  response instanceof SchemaResponse &&
-                  response.schema instanceof ObjectSchema &&
-                  response.schema.properties
-                ) {
-                  for (const property of response.schema.properties) {
-                    if (
-                      property.serializedName ===
-                      getPropertySerializedName(continuationTokenResponseSegment)
-                    ) {
-                      continuationTokenResponseProperty = [property];
-                      break;
-                    }
+                  if (continuationTokenResponseHeader) {
+                    break;
                   }
                 }
-                if (continuationTokenResponseProperty) {
-                  break;
+              } else if (continuationTokenResponseSegment?.kind === "property") {
+                // continuationToken is response body property
+                // TODO: the property could be nested
+                for (const response of op.responses) {
+                  if (
+                    response instanceof SchemaResponse &&
+                    response.schema instanceof ObjectSchema &&
+                    response.schema.properties
+                  ) {
+                    for (const property of response.schema.properties) {
+                      if (
+                        property.serializedName ===
+                        getPropertySerializedName(continuationTokenResponseSegment)
+                      ) {
+                        continuationTokenResponseProperty = [property];
+                        break;
+                      }
+                    }
+                  }
+                  if (continuationTokenResponseProperty) {
+                    break;
+                  }
                 }
               }
             }
