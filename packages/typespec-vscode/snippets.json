@@ -26,7 +26,7 @@
   },
   "Union": {
     "prefix": "union",
-    "body": "union ${1:Name} {\n  ${2:variant1}: ${3:identifier1},\n  ${4:variant2}: ${0:identifier2},\n}",
+    "body": "union ${1:Name} {\n  ${2:variantName1}: ${3:variant1},\n  ${4:variantName2}: ${0:variant2},\n}",
     "description": "Named union definition"
   }
 }
