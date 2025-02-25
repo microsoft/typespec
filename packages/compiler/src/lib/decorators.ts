@@ -2,6 +2,8 @@
 // TODO: remove after projection removal
 import type {
   DeprecatedDecorator,
+  DiscriminatedDecorator,
+  DiscriminatedOptions,
   DiscriminatorDecorator,
   DocDecorator,
   EncodeDecorator,
@@ -65,6 +67,7 @@ import {
   getMinLengthAsNumeric,
   getMinValueAsNumeric,
   getMinValueExclusiveAsNumeric,
+  setDiscriminatedOptions,
   setDiscriminator,
   setDocData,
   setMaxItems,
@@ -1259,6 +1262,22 @@ function validateRange(
   return true;
 }
 
+export const discriminatedDecorator: DiscriminatedDecorator = (
+  context: DecoratorContext,
+  entity: Union,
+  options: DiscriminatedOptions = {},
+) => {
+  setDiscriminatedOptions(context.program, entity, {
+    envelope: "object",
+    discriminatorPropertyName: "kind",
+    envelopePropertyName: "value",
+    ...options,
+  });
+
+  const [_, diagnostics] = getDiscriminatedUnion(context.program, entity);
+  context.program.reportDiagnostics(diagnostics);
+};
+
 export const $discriminator: DiscriminatorDecorator = (
   context: DecoratorContext,
   entity: Model | Union,
@@ -1267,6 +1286,11 @@ export const $discriminator: DiscriminatorDecorator = (
   const discriminator: Discriminator = { propertyName };
 
   if (entity.kind === "Union") {
+    reportDeprecated(
+      context.program,
+      "@discriminator on union is deprecated. Use `@discriminated` instead. `@discriminated(#{envelope: false})` for the exact equivalent.",
+      context.decoratorTarget,
+    );
     // we can validate discriminator up front for unions. Models are validated in the accessor as we might not have the reference to all derived types at this time.
     const [, diagnostics] = getDiscriminatedUnion(entity, discriminator);
     if (diagnostics.length > 0) {
