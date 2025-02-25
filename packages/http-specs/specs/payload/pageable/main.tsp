@@ -60,17 +60,16 @@ namespace ServerDrivenPagination {
 
   @route("/continuationtoken")
   namespace ContinuationToken {
-
     @scenarioDoc("""
       Test case for using continuation token as pagination. Continuation token is passed in the request query and response body.
       
       Two requests need to be tested.
       1. Initial request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar
-
+      
       Expected header:
       foo=foo
-
+      
       Expected response body:
       ```json
       { "pets": [
@@ -112,7 +111,7 @@ namespace ServerDrivenPagination {
       
       Expected header:
       foo=foo
-
+      
       Expected response body:
       ```json
       { "pets": [
@@ -196,10 +195,10 @@ namespace ServerDrivenPagination {
       Two requests need to be tested.
       1. Initial request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
-
+      
       Expected header:
       foo=foo
-
+      
       Expected response body:
       ```json
       { "pets": [
