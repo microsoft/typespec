@@ -1313,7 +1313,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new ConstructorProvider(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", accessibility, Array.Empty<ParameterProvider>()),
-                bodyStatements: new MethodBodyStatement(),
+                bodyStatements: MethodBodyStatement.Empty,
                 this);
         }
 
@@ -1464,50 +1464,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool propertyIsNullable,
             MethodBodyStatement writePropertySerializationStatement)
         {
-            // Create the first conditional statement to check if the property is defined
-            if (propertyIsNullable)
+            // Non-nullable value types can be serialized directly
+            if (IsNonNullableValueType(propertyType))
             {
-                writePropertySerializationStatement = CheckPropertyIsInitialized(
-                propertyType,
-                wireInfo,
-                propertyIsRequired,
-                propertyExpression,
-                writePropertySerializationStatement);
+                return writePropertySerializationStatement;
             }
 
-            // Directly return the statement if the property is required or a non-nullable value type that is not JsonElement
-            if (IsRequiredOrNonNullableValueType(propertyType, propertyIsRequired))
+            // Required properties that are not nullable can be serialized directly
+            if (propertyIsRequired && !propertyIsNullable)
             {
                 return writePropertySerializationStatement;
             }
 
             // Conditionally serialize based on whether the property is a collection or a single value
-            return CreateConditionalSerializationStatement(propertyType, propertyExpression, propertyIsReadOnly, writePropertySerializationStatement);
-        }
-
-        private IfElseStatement CheckPropertyIsInitialized(
-            CSharpType propertyType,
-            PropertyWireInformation wireInfo,
-            bool isPropRequired,
-            MemberExpression propertyMemberExpression,
-            MethodBodyStatement writePropertySerializationStatement)
-        {
-            ScopedApi<bool> propertyIsInitialized;
-
-            if (propertyType.IsCollection && !propertyType.IsReadOnlyMemory && isPropRequired)
-            {
-                propertyIsInitialized = propertyMemberExpression.NotEqual(Null)
-                    .And(OptionalSnippets.IsCollectionDefined(propertyMemberExpression));
-            }
-            else
-            {
-                propertyIsInitialized = propertyMemberExpression.NotEqual(Null);
-            }
-
-            return new IfElseStatement(
-                propertyIsInitialized,
-                writePropertySerializationStatement,
-                _utf8JsonWriterSnippet.WriteNull(wireInfo.SerializedName.ToVariableName()));
+            return CreateConditionalSerializationStatement(
+                propertyType,
+                propertyExpression,
+                propertyIsReadOnly,
+                propertyIsNullable,
+                propertyIsRequired,
+                wireInfo.SerializedName,
+                writePropertySerializationStatement);
         }
 
         /// <summary>
@@ -1764,19 +1741,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return expression.As(new CSharpType(typeof(IEnumerable<>), itemType));
         }
 
-        private static bool IsRequiredOrNonNullableValueType(CSharpType propertyType, bool isRequired)
-            => isRequired || (!propertyType.IsNullable && propertyType.IsValueType && !propertyType.Equals(typeof(JsonElement)));
+        private static bool IsNonNullableValueType(CSharpType propertyType)
+            => propertyType is { IsNullable: false, IsValueType: true } && !propertyType.Equals(typeof(JsonElement));
 
-        private IfStatement CreateConditionalSerializationStatement(
+        private MethodBodyStatement CreateConditionalSerializationStatement(
             CSharpType propertyType,
             MemberExpression propertyMemberExpression,
             bool isReadOnly,
+            bool isNullable,
+            bool isRequired,
+            string serializedName,
             MethodBodyStatement writePropertySerializationStatement)
         {
-            var isDefinedCondition = propertyType.IsCollection && !propertyType.IsReadOnlyMemory
+            var isDefinedCondition = propertyType is { IsCollection: true, IsReadOnlyMemory: false }
                 ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression)
                 : OptionalSnippets.IsDefined(propertyMemberExpression);
             var condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
+
+            if (isRequired && isNullable)
+            {
+                return new IfElseStatement(
+                    condition,
+                    writePropertySerializationStatement,
+                    _utf8JsonWriterSnippet.WriteNull(serializedName));
+            }
 
             return new IfStatement(condition) { writePropertySerializationStatement };
         }
