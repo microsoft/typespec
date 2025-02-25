@@ -19,7 +19,7 @@ import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js
 import { compilerAssert } from "./diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
-import { initializeSpinner, setChildLogPrefix, stopSpinner } from "./helpers/progress-logger.js";
+import { actionWithProgressSpinner, setChildLogPrefix } from "./helpers/progress-logger.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import {
   builtInLinterLibraryName,
@@ -33,7 +33,12 @@ import { createDiagnostic } from "./messages.js";
 import { createResolver } from "./name-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
-import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
+import {
+  getDirectoryPath,
+  getRelativePathFromDirectory,
+  joinPaths,
+  resolvePath,
+} from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
   SourceLoader,
@@ -152,7 +157,28 @@ export async function compile(
   mainFile: string,
   options: CompilerOptions = {},
   oldProgram?: Program, // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
-): Promise<Program> {
+) {
+  const { program, shouldEmit } = await actionWithProgressSpinner(
+    () => runCompiler(host, mainFile, options, oldProgram),
+    "Compiling...",
+  );
+
+  // Emitter stage
+  if (shouldEmit) {
+    for (const emitter of program.emitters) {
+      await emit(emitter, options, program);
+    }
+  }
+
+  return program;
+}
+
+export async function runCompiler(
+  host: CompilerHost,
+  mainFile: string,
+  options: CompilerOptions = {},
+  oldProgram?: Program,
+): Promise<{ program: Program; shouldEmit: boolean }> {
   const validateCbs: Validator[] = [];
   const stateMaps = new Map<symbol, StateMap>();
   const stateSets = new Map<symbol, StateSet>();
@@ -206,7 +232,7 @@ export async function compile(
   const binder = createBinder(program);
 
   if (resolvedMain === undefined) {
-    return program;
+    return { program, shouldEmit: false };
   }
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
@@ -229,7 +255,7 @@ export async function compile(
     mapEquals(oldProgram.sourceFiles, program.sourceFiles) &&
     deepEquals(oldProgram.compilerOptions, program.compilerOptions)
   ) {
-    return oldProgram;
+    return { program: oldProgram, shouldEmit: false };
   }
 
   // let GC reclaim old program, we do not reuse it beyond this point.
@@ -245,37 +271,28 @@ export async function compile(
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
-  initializeSpinner("Checker...");
   program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
-  stopSpinner();
 
   if (!continueToNextStage) {
-    return program;
+    return { program, shouldEmit: false };
   }
 
-  initializeSpinner("Validation...");
   // onValidate stage
   await runValidators();
 
   validateRequiredImports();
 
   await validateLoadedLibraries();
-  stopSpinner();
 
   if (!continueToNextStage) {
-    return program;
+    return { program, shouldEmit: false };
   }
 
   // Linter stage
   program.reportDiagnostics(linter.lint());
 
-  // Emitter stage
-  for (const instance of emitters) {
-    await runEmitter(instance);
-  }
-
-  return program;
+  return { program, shouldEmit: true };
 
   /**
    * Validate the libraries loaded during the compilation process are compatible.
@@ -575,40 +592,6 @@ export async function compile(
     }
 
     return metadata;
-  }
-
-  /**
-   * @param emitter Emitter ref to run
-   */
-  async function runEmitter(emitter: EmitterRef) {
-    const emitterName = emitter.metadata.name ?? "";
-    initializeSpinner(emitterName);
-    const context: EmitContext<any> = {
-      program,
-      emitterOutputDir: emitter.emitterOutputDir,
-      options: emitter.options,
-      getAssetEmitter(TypeEmitterClass) {
-        return createAssetEmitter(program, TypeEmitterClass, this);
-      },
-    };
-
-    let outputRelativePath = "";
-    if (options.listOutputs) {
-      outputRelativePath = `/`;
-      setChildLogPrefix(outputRelativePath);
-    }
-
-    try {
-      await emitter.emitFunction(context);
-    } catch (error: unknown) {
-      throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
-    }
-
-    if (options.listOutputs) {
-      stopSpinner(`✓ ${emitterName}\t${outputRelativePath}`, true);
-    } else {
-      stopSpinner(`✓ ${emitterName}`);
-    }
   }
 
   async function runValidators() {
@@ -931,4 +914,39 @@ function resolveOptions(options: CompilerOptions): CompilerOptions {
     outputDir,
     outputPath: outputDir,
   };
+}
+
+async function emit(emitter: EmitterRef, options: CompilerOptions = {}, program: Program) {
+  const emitterName = emitter.metadata.name ?? "";
+  let outputRelativePath = "";
+  if (options.listOutputs) {
+    outputRelativePath = `./${getRelativePathFromDirectory(program.projectRoot, emitter.emitterOutputDir, false)}/`;
+    setChildLogPrefix(outputRelativePath);
+  }
+
+  await actionWithProgressSpinner(
+    () => runEmitter(emitter, options, program),
+    emitterName,
+    `✓ ${emitterName}\t${outputRelativePath}`,
+    options.listOutputs,
+  );
+}
+
+/**
+ * @param emitter Emitter ref to run
+ */
+async function runEmitter(emitter: EmitterRef, options: CompilerOptions = {}, program: Program) {
+  const context: EmitContext<any> = {
+    program,
+    emitterOutputDir: emitter.emitterOutputDir,
+    options: emitter.options,
+    getAssetEmitter(TypeEmitterClass) {
+      return createAssetEmitter(program, TypeEmitterClass, this);
+    },
+  };
+  try {
+    await emitter.emitFunction(context);
+  } catch (error: unknown) {
+    throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
+  }
 }

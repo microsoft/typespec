@@ -1,6 +1,5 @@
 import { logDiagnostics } from "../../../diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
-import { stopSpinner } from "../../../helpers/progress-logger.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
 import { Program, compile as compileProgram } from "../../../program.js";
@@ -64,7 +63,6 @@ async function compileOnce(
   const cliOptions = await getCompilerOptionsOrExit(host, entrypoint, args);
   try {
     const program = await compileProgram(host, entrypoint, cliOptions);
-    stopSpinner();
     logProgramResult(host, program);
     if (program.hasError()) {
       process.exit(1);
