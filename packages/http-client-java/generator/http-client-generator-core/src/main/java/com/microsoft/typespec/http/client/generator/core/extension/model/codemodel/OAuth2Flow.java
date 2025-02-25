@@ -12,7 +12,7 @@ import java.util.List;
 
 public final class OAuth2Flow implements JsonSerializable<Scheme> {
 
-    public static final class OAuth2Scope implements JsonSerializable<Scheme> {
+    public static final class OAuth2Scope implements JsonSerializable<OAuth2Scope> {
         private String value;
         private String description;
 
