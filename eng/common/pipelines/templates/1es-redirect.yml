@@ -41,8 +41,8 @@ extends:
       psscriptanalyzer:
         compiled: true
         break: true
-      binskim:
-        analyzeTargetGlob: +:file|**/*.dll;+:file|**/*.exe;-:f|**/tsp.exe # Flag issue with node binary which we can't fix https://github.com/nodejs/node/issues/42100
+      ${{ if parameters.BinSkimSettings }}:
+        binskim: ${{ parameters.BinSkimSettings }}
 
     stages:
       - ${{ each stage in parameters.stages }}:
