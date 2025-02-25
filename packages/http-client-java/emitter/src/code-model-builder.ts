@@ -1063,8 +1063,17 @@ export class CodeModelBuilder {
               if (parameter && op.parameters) {
                 for (const param of op.parameters) {
                   if (param.protocol.http?.in === parameter.kind) {
-                    continuationTokenParameter = param;
-                    break;
+                    if (
+                      parameter.kind === "header" &&
+                      param.language.default.serializedName.toLowerCase() ===
+                        parameter.serializedName.toLowerCase()
+                    ) {
+                      continuationTokenParameter = param;
+                      break;
+                    } else if (param.language.default.serializedName === parameter.serializedName) {
+                      continuationTokenParameter = param;
+                      break;
+                    }
                   }
                 }
               }
