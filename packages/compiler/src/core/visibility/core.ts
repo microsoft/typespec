@@ -148,13 +148,14 @@ const [getDefaultModifiers, setDefaultModifiers] = useStateMap<Enum, Set<EnumMem
 function getDefaultModifierSetForClass(program: Program, visibilityClass: Enum): Set<EnumMember> {
   const cached = getDefaultModifiers(program, visibilityClass);
 
-  if (cached) return cached;
+  if (cached) return new Set(cached);
 
   const defaultModifierSet = new Set<EnumMember>(visibilityClass.members.values());
 
   setDefaultModifiers(program, visibilityClass, defaultModifierSet);
 
-  return defaultModifierSet;
+  // Explicitly clone the set again to prevent accidental modification of the default set.
+  return new Set(defaultModifierSet);
 }
 
 /**
