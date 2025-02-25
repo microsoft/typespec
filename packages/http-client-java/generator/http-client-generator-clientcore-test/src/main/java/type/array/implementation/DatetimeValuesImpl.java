@@ -47,7 +47,11 @@ public final class DatetimeValuesImpl {
      */
     @ServiceInterface(name = "ArrayClientDatetimeV", host = "{endpoint}")
     public interface DatetimeValuesService {
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/type/array/datetime", expectedStatusCodes = { 200 })
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/type/array/datetime",
+            expectedStatusCodes = { 200 },
+            returnValueWireType = OffsetDateTime.class)
         @UnexpectedResponseExceptionDetail
         Response<List<OffsetDateTime>> getSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, RequestOptions requestOptions);
