@@ -12,8 +12,6 @@ pr:
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
-    BinSkimSettings:
-      targetPathExclusionPattern: "tsp.exe" # Flag issue with node binary which we can't fix https://github.com/nodejs/node/issues/42100
     stages:
       - stage: InitStage
         displayName: Initialize
