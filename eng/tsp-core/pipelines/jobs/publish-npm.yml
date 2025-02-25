@@ -41,7 +41,7 @@ jobs:
             Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]true"
           } else {
             Write-Output "Setting PublishHttpSpecs variable to false."
-            Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]false"
+            Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]true"
           }
         displayName: "Check if @typespec/http-specs was published"
 
