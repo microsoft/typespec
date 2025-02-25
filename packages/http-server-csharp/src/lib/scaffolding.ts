@@ -135,15 +135,27 @@ namespace ${mock.namespace}
     /// Or replace it with another implementation, and register that implementation 
     /// in the dependency injection container
     /// </summary>
-    /// <param name="initializer">The initializer class, registered with dependency injection</param>
     public class ${mock.className} : ${mock.interfaceName}
     {
-        public ${mock.className}(IInitializer initializer)
+        /// <summary>
+        /// The controller constructor, using the dependency injection container to satisfy the paramters.
+        /// </summary>
+        /// <param name="initializer">The initializer class, registered with dependency injection</param>
+        /// <param name="accessor">The accessor for the HttpContext, allows your implementation to 
+        /// get properties of the incoming request and to set properties of the outgoing response.</param>"
+        public ${mock.className}(IInitializer initializer, IHttpContextAccessor accessor)
         {
             _initializer = initializer;
+            HttpContextAccessor = accessor;
         }
 
         private IInitializer _initializer;
+
+        /// <summary>
+        /// Use this property in your implementation to access properties of the incoming HttpRequest 
+        /// and to set properties of the outgoing HttpResponse
+        /// </summary>
+        public IHttpContextAccessor HttpContextAccessor { get; }
 
 ${methods.join("\n\n")}
     }
@@ -177,6 +189,7 @@ namespace TypeSpec.Helpers
     {
         public static void Register(WebApplicationBuilder builder)
         {
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IJsonSerializationProvider, JsonSerializationProvider>();
             // Used for mock implementation only. Remove once business logic interfaces are implemented.
             builder.Services.AddSingleton<IDictionary<Type, object?>>(new Dictionary<Type, object?>());

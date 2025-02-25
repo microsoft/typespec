@@ -1330,7 +1330,11 @@ model FileAttachmentMultipartRequest {
       ["ContosoOperations.cs", ["public class ContosoOperations : IContosoOperations"]],
       [
         "MockRegistration.cs",
-        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+        [
+          "public static class MockRegistration",
+          "<IContosoOperations, ContosoOperations>()",
+          "builder.Services.AddHttpContextAccessor();",
+        ],
       ],
       ["Program.cs", ["MockRegistration"]],
     ],
@@ -1361,6 +1365,10 @@ it("Handles spread parameters", async () => {
         "ContosoOperations.cs",
         [
           "public class ContosoOperations : IContosoOperations",
+          "public ContosoOperations(IInitializer initializer, IHttpContextAccessor accessor)",
+          "_initializer = initializer;",
+          "HttpContextAccessor = accessor;",
+          "public IHttpContextAccessor HttpContextAccessor { get; }",
           "public Task<Widget> CreateAsync( string id, string color, string? kind)",
         ],
       ],
