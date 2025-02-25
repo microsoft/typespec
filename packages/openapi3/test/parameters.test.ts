@@ -234,14 +234,19 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       const res = await openApiFor(
         `
       op test(
+        #suppress "deprecated" "test"
         @header(#{name: "$csv", format: "csv"}) csvs: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
+        #suppress "deprecated" "test"
         @header(#{name: "$multi", format: "multi"}) multis: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
+        #suppress "deprecated" "test"
         @header(#{name: "$tsv", format: "tsv"}) tsvs: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
+        #suppress "deprecated" "test"
         @header(#{name: "$ssv", format: "ssv"}) ssvs: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
+        #suppress "deprecated" "test"
         @header(#{name: "$pipes", format: "pipes"}) pipes: string[]
       ): void;
       `,

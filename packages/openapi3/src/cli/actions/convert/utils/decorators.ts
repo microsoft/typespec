@@ -114,24 +114,12 @@ function getNormalizedQueryOptions({
   return queryOptions;
 }
 
-type HeaderOptions = { explode?: boolean; format?: string };
-
-function getHeaderArgs({ explode, style }: OpenAPI3Parameter): TSValue | undefined {
-  const headerOptions: HeaderOptions = {};
-  if (style === "simple") {
-    headerOptions.format = "simple";
-  }
+function getHeaderArgs({ explode }: OpenAPI3Parameter): TSValue | undefined {
   if (explode === true) {
-    headerOptions.explode = true;
+    return createTSValue(`#{ explode: true }`);
   }
 
-  if (!Object.keys(headerOptions).length) {
-    return;
-  }
-
-  return createTSValue(
-    `#{${Object.entries(headerOptions).map(([key, value]) => `${key}: ${JSON.stringify(value)}`)}}`,
-  );
+  return;
 }
 
 export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpecDecorator[] {

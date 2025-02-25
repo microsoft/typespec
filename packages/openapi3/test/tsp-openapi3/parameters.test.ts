@@ -312,64 +312,6 @@ describe("converts top-level parameters", () => {
 });
 
 describe("header", () => {
-  it(`sets no args if style is not set`, async () => {
-    const serviceNamespace = await tspForOpenAPI3({
-      parameters: {
-        Foo: {
-          name: "foo",
-          in: "header",
-          schema: {
-            type: "string",
-          },
-        },
-      },
-    });
-
-    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-    assert(parametersNamespace, "Parameters namespace not found");
-
-    const models = parametersNamespace.models;
-
-    /* model Foo { @header foo: string, } */
-    const Foo = models.get("Foo");
-    assert(Foo, "Foo model not found");
-    expect(Foo.properties.size).toBe(1);
-    const fooProperty = Foo.properties.get("foo");
-    assert(fooProperty, "foo property not found");
-    expectDecorators(fooProperty.decorators, [{ name: "header" }]);
-  });
-
-  it(`sets format to 'simple' when style is set to 'simple'`, async () => {
-    const serviceNamespace = await tspForOpenAPI3({
-      parameters: {
-        Foo: {
-          name: "foo",
-          in: "header",
-          schema: {
-            type: "array",
-            items: {
-              type: "string",
-            },
-          },
-          style: "simple",
-        },
-      },
-    });
-
-    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-    assert(parametersNamespace, "Parameters namespace not found");
-
-    const models = parametersNamespace.models;
-
-    /* model Foo { @header({ format: "simple" }) foo: string[], } */
-    const Foo = models.get("Foo");
-    assert(Foo, "Foo model not found");
-    expect(Foo.properties.size).toBe(1);
-    const fooProperty = Foo.properties.get("foo");
-    assert(fooProperty, "foo property not found");
-    expectDecorators(fooProperty.decorators, [{ name: "header", args: [{ format: "simple" }] }]);
-  });
-
   it(`sets explode: true when it is explicitly set`, async () => {
     const tsp = await renderTypeSpecForOpenAPI3({
       paths: {
