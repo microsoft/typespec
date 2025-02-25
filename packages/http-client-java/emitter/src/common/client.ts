@@ -81,6 +81,7 @@ export interface EncodedSchema {
 
 export class PageableContinuationToken {
   parameter: Parameter;
+  // responseProperty and responseHeader is mutally exclusive
   responseProperty?: Property[];
   responseHeader?: HttpHeader;
 
