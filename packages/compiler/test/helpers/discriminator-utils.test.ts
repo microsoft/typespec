@@ -305,6 +305,7 @@ describe("compiler: discriminator", () => {
   describe("union based", () => {
     it("find variants from direct derived types", async () => {
       const { Pet, Cat, Dog } = (await runner.compile(`
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         @test union Pet {
           cat: Cat;
@@ -328,6 +329,7 @@ describe("compiler: discriminator", () => {
 
     it("errors if discriminator property is not a string-like type", async () => {
       const diagnostics = await runner.diagnose(`
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         union Pet { cat: Cat }
 
@@ -344,6 +346,7 @@ describe("compiler: discriminator", () => {
 
     it("errors if discriminator property is optional", async () => {
       const diagnostics = await runner.diagnose(`
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         union Pet { cat: Cat }
 
@@ -360,6 +363,7 @@ describe("compiler: discriminator", () => {
 
     it("errors if discriminator value are duplicated", async () => {
       const diagnostics = await runner.diagnose(`
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         union Pet { cat: Cat, lion: Lion }
 
@@ -386,6 +390,7 @@ describe("compiler: discriminator", () => {
 
     it("errors if discriminator property is missing", async () => {
       const { pos: catPos, source } = extractCursor(`
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         union Pet { ┆cat: Cat }
 

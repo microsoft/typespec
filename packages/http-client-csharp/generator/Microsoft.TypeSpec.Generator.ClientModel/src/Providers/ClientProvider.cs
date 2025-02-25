@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -48,6 +49,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private Lazy<ParameterProvider?> ClientOptionsParameter { get; }
 
+        protected override FormattableString Description { get; }
+
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ClientProvider()
@@ -63,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = new Lazy<ClientOptionsProvider?>(() => _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null);
             ClientOptionsParameter = new Lazy<ParameterProvider?>(() => ClientOptions.Value != null ? ScmKnownParameters.ClientOptions(ClientOptions.Value.Type) : null);
+            Description = DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
 
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;

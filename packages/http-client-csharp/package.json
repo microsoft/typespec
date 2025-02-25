@@ -17,9 +17,9 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/emitter/index.js",
+  "main": "dist/emitter/src/index.js",
   "exports": {
-    ".": "./dist/emitter/index.js"
+    ".": "./dist/emitter/src/index.js"
   },
   "scripts": {
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
@@ -40,7 +40,8 @@
     "extract-api": "npx api-extractor run --local --verbose"
   },
   "files": [
-    "dist/**"
+    "dist/emitter/src/**",
+    "dist/generator/**"
   ],
   "dependencies": {
     "@typespec/http-client-csharp": "file:",
