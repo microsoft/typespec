@@ -23,14 +23,14 @@ const testCases: Case[] = [
     code: `
     @service
     namespace Ns1Valid {
-      model \`foo-/inva*li\td\` {}
-      op f(p: \`foo-/inva*li\td\`): void;
+      model \`foo-/invalid*\td\` {}
+      op f(p: \`foo-/invalid*\td\`): void;
     }`,
 
     diagChecks: [
       {
-        expectedDiagInvalidKey: "foo-/inva*li\td",
-        expectedDeclKey: "foo-_inva_li_d",
+        expectedDiagInvalidKey: "foo-/invalid*\td",
+        expectedDeclKey: "foo-_invalid__d",
         expectedPrefix: "#/components/schemas/",
         kind: "Model",
       },
@@ -38,7 +38,7 @@ const testCases: Case[] = [
     refChecks: (doc) => {
       expect(
         doc.paths["/"].post.requestBody.content["application/json"].schema.properties.p.$ref,
-      ).toBe("#/components/schemas/foo-_inva_li_d");
+      ).toBe("#/components/schemas/foo-_invalid__d");
     },
   },
   {

@@ -235,7 +235,7 @@ export class OpenAPI3SchemaEmitterBase<
 
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
     const isMultipart = this.getContentType().startsWith("multipart/");
-    let name = isMultipart ? baseName + "MultiPart" : baseName;
+    const name = isMultipart ? baseName + "MultiPart" : baseName;
 
     return this.#createDeclaration(model, name, this.applyConstraints(model, schema as any));
   }
@@ -507,7 +507,7 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
-    let baseName = getOpenAPITypeName(this.emitter.getProgram(), en, this.#typeNameOptions());
+    const baseName = getOpenAPITypeName(this.emitter.getProgram(), en, this.#typeNameOptions());
 
     return this.#createDeclaration(en, baseName, new ObjectBuilder(this.enumSchema(en)));
   }
@@ -535,7 +535,7 @@ export class OpenAPI3SchemaEmitterBase<
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
     const schema = this.unionSchema(union);
-    let baseName = getOpenAPITypeName(this.emitter.getProgram(), union, this.#typeNameOptions());
+    const baseName = getOpenAPITypeName(this.emitter.getProgram(), union, this.#typeNameOptions());
     return this.#createDeclaration(union, baseName, schema);
   }
 
