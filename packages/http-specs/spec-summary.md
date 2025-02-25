@@ -1751,6 +1751,49 @@ Expected response body:
 }
 ```
 
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseBody
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body`
+
+Test case for using continuation token as pagination. Continuation token is passed in the request query and response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "nextToken": "page2"
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar&token=page2
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseHeader
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header`

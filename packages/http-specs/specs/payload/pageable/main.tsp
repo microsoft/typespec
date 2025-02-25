@@ -60,6 +60,7 @@ namespace ServerDrivenPagination {
 
   @route("/continuationtoken")
   namespace ContinuationToken {
+    @scenario
     @scenarioDoc("""
       Test case for using continuation token as pagination. Continuation token is passed in the request query and response body.
       
