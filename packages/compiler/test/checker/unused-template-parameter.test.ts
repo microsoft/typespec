@@ -82,6 +82,19 @@ describe("compiler: unused template parameter in model template", () => {
     strictEqual(diagnostics.length, 0);
   });
 
+  it("no unused template parameter diagnose when the template parameter used in property whose type is Tuple", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model A<T, B> {
+          tupleProp: [T, B];
+        }
+      `,
+    );
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
+    strictEqual(diagnostics.length, 0);
+  });
+
   it("no unused template parameter diagnose when the template parameter used in decorator", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -108,6 +121,32 @@ describe("compiler: unused template parameter in model template", () => {
           prop:T;
         }
         model IsModel<T> is A<T>;
+      `,
+    );
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
+    strictEqual(diagnostics.length, 0);
+  });
+
+  it("no unused template parameter diagnose when there is a property whose type is template type with the parameter", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model Bar<T> {}
+        model useTemplateModelModel<T>{
+          prop: Bar<T>;
+        }
+      `,
+    );
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
+    strictEqual(diagnostics.length, 0);
+  });
+
+  it("no unused template parameter diagnose when the template parameter used in base scalar", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        scalar Bar<T> {}
+        model IsModel<T> is Bar<T>;
       `,
     );
     const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
