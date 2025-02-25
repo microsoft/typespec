@@ -15,7 +15,7 @@ pipelines:
         credscan:
           lastModifiedDate: 2024-09-10
         binskim:
-          lastModifiedDate: 2024-09-10
+          lastModifiedDate: 2025-02-25
   3226:
     retail:
       source:
