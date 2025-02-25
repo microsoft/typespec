@@ -125,11 +125,11 @@ const testCases: Case[] = [
     },
   },
   {
-    title: "Basic discriminator case",
+    title: "Basic discriminated case",
     code: `
     @service
     namespace NS {
-      @discriminator("kind")
+      @discriminated("kind")
       union \`Pe/t\` {
         cat: \`C/at\`,
         dog: \`Do/g\`,
@@ -173,32 +173,21 @@ const testCases: Case[] = [
     @service
     namespace NS {
       @discriminator("kind")
-      union \`Pe/t\` {
-        cat: \`C/at\`,
-        dog: \`Do/g\`,
-      }
-
-      model \`C/at\` {
-        kind: "cat";
-        meow: boolean;
-      }
-      model \`Do/g\` {
-        kind: "dog";
-        bark: boolean;
-      }
-
+      model \`Pe/t\`{ kind: string }
+      model \`C*at\` extends \`Pe/t\` {kind: "cat", meow: boolean}
+      model \`D*og\` extends \`Pe/t\`  {kind: "dog", bark: boolean}
       op f(p: \`Pe/t\`): void;
     }`,
     diagChecks: [
       {
-        expectedDiagInvalidKey: "C/at",
+        expectedDiagInvalidKey: "C*at",
         expectedDeclKey: "C_at",
         expectedPrefix: "#/components/schemas/",
         kind: "Model",
       },
       {
-        expectedDiagInvalidKey: "Do/g",
-        expectedDeclKey: "Do_g",
+        expectedDiagInvalidKey: "D*og",
+        expectedDeclKey: "D_og",
         expectedPrefix: "#/components/schemas/",
         kind: "Model",
       },
@@ -206,7 +195,7 @@ const testCases: Case[] = [
         expectedDiagInvalidKey: "Pe/t",
         expectedDeclKey: "Pe_t",
         expectedPrefix: "#/components/schemas/",
-        kind: "Union",
+        kind: "Model",
       },
     ],
   },
