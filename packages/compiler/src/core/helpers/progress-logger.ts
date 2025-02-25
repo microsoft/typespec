@@ -44,6 +44,7 @@ export async function actionWithProgressSpinner<T>(
       clearInterval(interval);
       stopSpinner(finishMessage, printChildMessage);
     } else if (finishMessage) {
+      // eslint-disable-next-line no-console
       console.log(finishMessage);
     }
   }
