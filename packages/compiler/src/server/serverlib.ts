@@ -345,71 +345,109 @@ export function createServer(host: ServerHost): Server {
 
   async function updateImportsOnFileChange(changes: FileEvent[]): Promise<void> {
     const tspChanges = changes.filter((change) => change.uri.endsWith(".tsp"));
-    let newFilePath = "";
-    let oldFilePath = "";
+    const filePathChangedMap = new Map<string, string>();
 
-    for (const change of tspChanges) {
-      // type 1: created, type 3: deleted
-      // Modify file name or move the file to a new location,
-      // the original file is marked as delete, and the new file is marked as Create
-      if (change.type === 1) {
-        newFilePath = await fileService.getPath({ uri: change.uri });
-      } else if (change.type === 3) {
-        oldFilePath = change.uri;
+    if (tspChanges.length === 0 || tspChanges.length % 2 !== 0) {
+      log({
+        level: "warning",
+        message: `No file changes found in the file event list: ${JSON.stringify(tspChanges)}`,
+      });
+      return;
+    }
+
+    // type 1: created, type 3: deleted
+    // Modify file name or move the file to a new location,
+    // the original file is marked as delete, and the new file is marked as Create
+    if (tspChanges.length === 2) {
+      // Only one file is renamed or moved
+      const oldFilePath = tspChanges.find((c) => c.type === 3);
+      const newFilePath = tspChanges.find((c) => c.type === 1);
+      if (oldFilePath && newFilePath) {
+        filePathChangedMap.set(
+          await fileService.getPath({ uri: oldFilePath.uri }),
+          await fileService.getPath({ uri: newFilePath.uri }),
+        );
+      }
+    } else {
+      for (const change of tspChanges) {
+        if (change.type === 1) {
+          const newFilePath = await fileService.getPath({ uri: change.uri });
+          const fileName = getBaseFileName(newFilePath);
+          const oldChange = tspChanges.find((c) => c.type === 3 && c.uri.endsWith(fileName));
+          if (oldChange) {
+            const oldFilePath = await fileService.getPath({ uri: oldChange.uri });
+            filePathChangedMap.set(oldFilePath, newFilePath);
+          }
+        }
       }
     }
 
-    if (!oldFilePath || !newFilePath) {
+    if (filePathChangedMap.size === 0) {
+      log({
+        level: "warning",
+        message: `It should be possible to form key-value pairs in the file event list: ${JSON.stringify(tspChanges)}`,
+      });
       return;
     }
 
-    // Diagnostic information in the program can be obtained only through the compilation of the main.tsp file without opening any tsp file.
-    const mainFile = await compileService.getMainFileForDocument(newFilePath);
+    const firstFilePath = filePathChangedMap.values().next().value!;
+    const mainFile = await compileService.getMainFileForDocument(firstFilePath);
     const result = await compileService.compile({ uri: fileService.getURL(mainFile) });
     if (!result) {
+      log({
+        level: "warning",
+        message: `The main tsp file '${mainFile}' does not have any diagnostics.`,
+      });
       return;
     }
 
-    const oldFileName = getBaseFileName(oldFilePath);
-    for (const diagnostic of result.program.diagnostics) {
-      if (diagnostic.code !== "import-not-found") continue;
+    for (const [oldFilePath, newFilePath] of filePathChangedMap) {
+      for (const diagnostic of result.program.diagnostics) {
+        if (diagnostic.code !== "import-not-found") continue;
 
-      const target = diagnostic.target as Node;
-      if (
-        target.kind !== SyntaxKind.ImportStatement ||
-        !target.path.value.endsWith(oldFileName) ||
-        !target.parent
-      )
-        continue;
+        const target = diagnostic.target as Node;
+        if (target.kind === SyntaxKind.ImportStatement && target.parent) {
+          const filePath = target.parent.file.path;
+          const oldFileImpVal = getRelativePath(filePath, oldFilePath);
+          if (oldFileImpVal && target.path.value === oldFileImpVal) {
+            const targetPath = target.path;
+            const changeImpLineAndOffset = target.parent.file.getLineAndCharacterOfPosition(
+              targetPath.pos,
+            );
 
-      const filePath = target.parent.file.path;
-      const targetPath = target.path;
-      const targetVal = targetPath.value;
-      const changeImpLineAndOffset = target.parent.file.getLineAndCharacterOfPosition(
-        targetPath.pos,
-      );
+            const replaceText = getRelativePath(filePath, newFilePath);
+            if (!replaceText) {
+              log({
+                level: "warning",
+                message: `Unable to get the relative path of the imported content '${target.path.value}' through '${filePath}' and '${newFilePath}`,
+              });
+              continue;
+            }
 
-      const replaceText = getRelativePath(filePath, newFilePath);
-      if (!replaceText) continue;
+            log({
+              level: "info",
+              message: `The imports content '${target.path.value}' needs to be modified in tsp file '${filePath}' to '${replaceText}'`,
+            });
 
-      log({
-        level: "info",
-        message: `The imports content '${targetVal}' needs to be modified in tsp file '${filePath}' to '${replaceText}'`,
-      });
-
-      const vsEdits = [
-        TextEdit.replace(
-          Range.create(
-            Position.create(changeImpLineAndOffset.line, changeImpLineAndOffset.character + 1),
-            Position.create(
-              changeImpLineAndOffset.line,
-              changeImpLineAndOffset.character + targetVal.length + 1,
-            ),
-          ),
-          replaceText,
-        ),
-      ];
-      await host.applyEdit({ changes: { [fileService.getURL(filePath)]: vsEdits } });
+            const vsEdits = [
+              TextEdit.replace(
+                Range.create(
+                  Position.create(
+                    changeImpLineAndOffset.line,
+                    changeImpLineAndOffset.character + 1,
+                  ),
+                  Position.create(
+                    changeImpLineAndOffset.line,
+                    changeImpLineAndOffset.character + target.path.value.length + 1,
+                  ),
+                ),
+                replaceText,
+              ),
+            ];
+            await host.applyEdit({ changes: { [fileService.getURL(filePath)]: vsEdits } });
+          }
+        }
+      }
     }
   }
 

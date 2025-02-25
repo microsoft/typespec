@@ -151,8 +151,7 @@ export interface SemanticToken {
 export type CustomRequestName =
   | "typespec/getInitProjectContext"
   | "typespec/initProject"
-  | "typespec/validateInitProjectTemplate"
-  | "typespec/updateImportsOnFileMovedOrRenamed";
+  | "typespec/validateInitProjectTemplate";
 
 export interface ServerCustomCapacities {
   getInitProjectContext?: boolean;
