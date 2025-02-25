@@ -74,6 +74,16 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         return self.responses[0].get_pager(async_mode)
 
     @property
+    def next_link_name(self) -> Optional[str]:
+        wire_name = self.yaml_data.get("nextLinkName")
+        if not wire_name:
+            # That's an ok scenario, it just means no next page possible
+            return None
+        if self.code_model.options["models_mode"] == "msrest":
+            return self._get_attr_name(wire_name)
+        return wire_name
+
+    @property
     def continuation_token_name(self) -> Optional[str]:
         wire_name = self.yaml_data.get("continuationTokenName")
         if not wire_name:

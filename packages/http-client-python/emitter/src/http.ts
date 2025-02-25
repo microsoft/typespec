@@ -10,6 +10,7 @@ import {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
+  SdkModelPropertyType,
   SdkPagingServiceMethod,
   SdkPathParameter,
   SdkQueryParameter,
@@ -43,6 +44,17 @@ function arrayToRecord(examples: SdkHttpOperationExample[] | undefined): Record<
     }
   }
   return result;
+}
+
+function getPropertyNameFromSegments(segments: SdkModelPropertyType[] | undefined): string {
+  if (!segments) return "";
+  const result = [];
+  for (const segment of segments) {
+    if (segment.kind === "property") {
+      result.push(segment.serializationOptions.json?.name ?? "");
+    }
+  }
+  return result.join(".");
 }
 
 export function emitBasicHttpMethod(
@@ -109,14 +121,8 @@ function addPagingInformation(
   }
   const itemType = getType(context, method.response.type!);
   const base = emitHttpOperation(context, rootClient, operationGroupName, method.operation, method);
-  const itemName = getPropertyWireName(
-    method.operation.responses[0].type,
-    method.response.resultPath,
-  );
-  const continuationTokenName = getPropertyWireName(
-    method.operation.responses[0].type,
-    method.nextLinkPath,
-  );
+  const itemName = getPropertyNameFromSegments(method.response.resultSegments);
+  const nextLinkName = getPropertyNameFromSegments(method.pagingMetadata.nextLinkSegments);
   base.responses.forEach((resp: Record<string, any>) => {
     resp.type = itemType;
   });
@@ -126,21 +132,11 @@ function addPagingInformation(
     discriminator: "paging",
     exposeStreamKeyword: false,
     itemName,
-    continuationTokenName,
+    nextLinkName,
     itemType,
     description: method.doc ?? "",
     summary: method.summary,
   };
-}
-
-function getPropertyWireName(type: SdkType | undefined, path?: string) {
-  if (!path || !type || type.kind !== "model") return path;
-  for (const property of type.properties) {
-    if (property.name === path) {
-      return (property as SdkBodyModelPropertyType).serializedName;
-    }
-  }
-  return path;
 }
 
 export function emitLroHttpMethod(
@@ -387,7 +383,7 @@ function emitHttpResponse(
     type,
     contentTypes: response.contentTypes,
     defaultContentType: response.defaultContentType ?? "application/json",
-    resultProperty: method?.response.resultPath,
+    resultProperty: getPropertyNameFromSegments(method?.response.resultSegments),
   };
 }
 

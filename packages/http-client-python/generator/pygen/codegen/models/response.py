@@ -61,10 +61,8 @@ class Response(BaseModel):
 
     @property
     def result_property(self) -> str:
-        field = self.yaml_data.get("resultProperty")
-        if field:
-            return f'.get("{field}")'
-        return ""
+        fields = self.yaml_data.get("resultProperty") or "" 
+        return "".join([f'.get("{field}", {{}})' for field in fields.split(".")])
 
     def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
         if self.type:

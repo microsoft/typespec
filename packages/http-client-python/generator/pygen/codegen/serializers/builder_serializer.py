@@ -1328,7 +1328,11 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         else:
             retval.append(f"    deserialized = {deserialized}")
         item_name = builder.item_name
-        access = f".{item_name}" if self.code_model.options["models_mode"] == "msrest" else f'["{item_name}"]'
+        if self.code_model.options["models_mode"] == "msrest":
+            access = f".{item_name}"
+        else:
+            item_name_array = item_name.split(".")
+            access = "".join([f'.get("{i}", {{}})' for i in item_name_array[:-1]]) + f'.get("{item_name_array[-1]}", [])'
         list_of_elem_deserialized = ""
         if self.code_model.options["models_mode"] == "dpg":
             item_type = builder.item_type.type_annotation(
@@ -1341,13 +1345,13 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         retval.append("    if cls:")
         retval.append("        list_of_elem = cls(list_of_elem) # type: ignore")
 
-        continuation_token_name = builder.continuation_token_name
-        if not continuation_token_name:
+        next_link_name = builder.next_link_name
+        if not next_link_name:
             cont_token_property = "None"
         elif self.code_model.options["models_mode"] == "msrest":
-            cont_token_property = f"deserialized.{continuation_token_name} or None"
+            cont_token_property = f"deserialized.{next_link_name} or None"
         else:
-            cont_token_property = f'deserialized.get("{continuation_token_name}") or None'
+            cont_token_property = f'deserialized.get("{next_link_name}") or None'
         list_type = "AsyncList" if self.async_mode else "iter"
         retval.append(f"    return {cont_token_property}, {list_type}(list_of_elem)")
         return retval
