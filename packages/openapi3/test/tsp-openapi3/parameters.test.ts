@@ -417,7 +417,7 @@ describe("header", () => {
     `);
   });
 
-  it(`does not set explode when it is falsey`, async () => {
+  it(`does not set explode when it is false or undefined`, async () => {
     const tsp = await renderTypeSpecForOpenAPI3({
       paths: {
         "/": {
