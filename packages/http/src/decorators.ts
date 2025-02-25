@@ -82,6 +82,11 @@ export const $header: HeaderDecorator = (
       }
       const format = headerNameOrOptions.format;
       if (format) {
+        reportDeprecated(
+          context.program,
+          "The `format` option of `@header` decorator is deprecated. Use `explode: true` instead of `form` and `multi`. `csv` or `simple` is the default now.",
+          entity,
+        );
         if (
           format === "csv" ||
           format === "tsv" ||
@@ -98,16 +103,6 @@ export const $header: HeaderDecorator = (
         options.explode = true;
       }
     }
-  }
-  if (
-    entity.type.kind === "Model" &&
-    isArrayModelType(context.program, entity.type) &&
-    options.format === undefined
-  ) {
-    reportDiagnostic(context.program, {
-      code: "header-format-required",
-      target: context.decoratorTarget,
-    });
   }
   context.program.stateMap(HttpStateKeys.header).set(entity, options);
 };

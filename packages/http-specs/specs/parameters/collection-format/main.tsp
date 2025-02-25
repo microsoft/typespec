@@ -83,6 +83,7 @@ namespace Header {
     """)
   @route("/csv")
   op csv(
+    #suppress "deprecated" "Deprecated in next release"
     @doc("Possible values for colors are [blue,red,green]")
     @header(#{ format: "csv" })
     colors: string[],

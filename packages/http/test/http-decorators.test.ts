@@ -103,17 +103,6 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when header is not specifing format but is an array", async () => {
-      const diagnostics = await runner.diagnose(`
-          op test(@header MyHeader: string[]): string;
-        `);
-
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/http/header-format-required",
-        message: `A format must be specified for @header when type is an array. e.g. @header({format: "csv"})`,
-      });
-    });
-
     it("generate header name from property name", async () => {
       const { MyHeader } = await runner.compile(`
           op test(@test @header MyHeader: string): string;
@@ -143,15 +132,14 @@ describe("http: decorators", () => {
       strictEqual(getHeaderFieldName(runner.program, SingleString), "x-single-string");
     });
 
-    it("specify format and explode", async () => {
+    it("specify explode", async () => {
       const { MyHeader } = await runner.compile(`
-        @put op test(@test @header(#{format: "simple", explode: true }) MyHeader: string): string;
+        @put op test(@test @header(#{ explode: true }) MyHeader: string): string;
       `);
 
       deepStrictEqual(getHeaderFieldOptions(runner.program, MyHeader), {
         type: "header",
         name: "my-header",
-        format: "simple",
         explode: true,
       });
       strictEqual(getHeaderFieldName(runner.program, MyHeader), "my-header");

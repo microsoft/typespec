@@ -24,6 +24,7 @@ model HeaderOptions {
 
   /**
    * Determines the format of the array if type array is used.
+   * **DEPRECATED**: use explode: true instead of `csv` or `@encode`
    */
   format?: "csv" | "multi" | "tsv" | "ssv" | "pipes" | "simple" | "form";
 }

@@ -157,6 +157,7 @@ describe("HttpRequest Get Parameters", () => {
     const { createFoo } = (await runner.compile(`
       @test model Foo {
         @path(#{allowReserved: true}) id: string;
+        # suppress "deprecated" "Test"
         @header(#{format: "csv"}) requestId: string[];
         @query(#{explode: true}) data: string[];
       }
