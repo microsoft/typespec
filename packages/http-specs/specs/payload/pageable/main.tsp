@@ -64,10 +64,11 @@ namespace ServerDrivenPagination {
       Test case for using continuation token as pagination. Continuation token is passed in the request query and response body.
       
       Two requests need to be tested.
+      
       1. Initial request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar
       
-      Expected header:
+      Expected request header:
       foo=foo
       
       Expected response body:
@@ -82,6 +83,9 @@ namespace ServerDrivenPagination {
       
       2. Next page request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar&token=page2
+      
+      Expected request header:
+      foo=foo
       
       Expected response body:
       ```json
@@ -106,10 +110,11 @@ namespace ServerDrivenPagination {
       Test case for using continuation token as pagination. Continuation token is passed in the request header and response body.
       
       Two requests need to be tested.
+      
       1. Initial request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body?bar=bar      
       
-      Expected header:
+      Expected request header:
       foo=foo
       
       Expected response body:
@@ -121,11 +126,13 @@ namespace ServerDrivenPagination {
         "nextToken": "page2"
       }
       ```
+      
       2. Next page request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body?bar=bar
       
-      Expected header:
+      Expected request header:
       token=page2
+      foo=foo
       
       Expected response body:
       ```json
@@ -150,10 +157,11 @@ namespace ServerDrivenPagination {
       Test case for using continuation token as pagination. Continuation token is passed in the request query and response header.
       
       Two requests need to be tested.
+      
       1. Initial request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar
       
-      Expected header:
+      Expected request header:
       foo=foo
       
       Expected response body:
@@ -170,6 +178,10 @@ namespace ServerDrivenPagination {
       
       2. Next page request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar&token=page2
+      
+      Expected request header:
+      foo=foo
+      
       Expected response body:
       ```json
       { "pets": [
@@ -196,7 +208,7 @@ namespace ServerDrivenPagination {
       1. Initial request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
       
-      Expected header:
+      Expected request header:
       foo=foo
       
       Expected response body:
@@ -216,6 +228,7 @@ namespace ServerDrivenPagination {
       
       Expected request header:
       token=page2
+      foo=foo
       
       Expected response body:
       ```json

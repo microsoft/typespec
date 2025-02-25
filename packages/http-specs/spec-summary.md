@@ -1672,7 +1672,7 @@ Two requests need to be tested.
 1. Initial request:
    Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body?bar=bar
 
-Expected header:
+Expected request header:
 foo=foo
 
 Expected response body:
@@ -1690,8 +1690,9 @@ Expected response body:
 2. Next page request:
    Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body?bar=bar
 
-Expected header:
+Expected request header:
 token=page2
+foo=foo
 
 Expected response body:
 
@@ -1715,7 +1716,7 @@ Two requests need to be tested.
 1. Initial request:
    Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
 
-Expected header:
+Expected request header:
 foo=foo
 
 Expected response body:
@@ -1737,6 +1738,7 @@ next-token=page2
 
 Expected request header:
 token=page2
+foo=foo
 
 Expected response body:
 
@@ -1760,7 +1762,7 @@ Two requests need to be tested.
 1. Initial request:
    Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar
 
-Expected header:
+Expected request header:
 foo=foo
 
 Expected response body:
@@ -1779,7 +1781,11 @@ next-token=page2
 
 2. Next page request:
    Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar&token=page2
-   Expected response body:
+
+Expected request header:
+foo=foo
+
+Expected response body:
 
 ```json
 {
