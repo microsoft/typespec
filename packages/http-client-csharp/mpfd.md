@@ -9,7 +9,6 @@
 3. [User Scenarios](#user-scenarios)
 4. [System ClientModel Updates](#system-clientmodel-updates)
 5. [Emitter Updates](#proposed-emitter-updates)
-   - [Pass through TCGC `multipartOptions` for model properties](#pass-through-tcgc-multipartoptions-for-model-properties)
 6. [Follow-Ups](#Follow-ups)
 
 ## Motivation
@@ -1533,7 +1532,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
 #else
     private static readonly Random _random = new();
 
-    private static string CreateBoundary()
+    internal static string CreateBoundary()
     {
         Span<char> chars = stackalloc char[BoundaryLength];
 
@@ -1642,80 +1641,41 @@ public interface IPersistableStreamModel<out T> : IPersistableModel<T>
 }
 ```
 
+#### Usage Examples
+
+##### Serialize into a MemoryStream
+
+```csharp
+ var id = "123";
+ await using var imageStream = File.OpenRead(SampleJpgPath);
+
+ var profileImage = new MultiPartFile(imageStream, "profileImage.jpg");
+ var request = new MultiPartRequest(id, profileImage);
+
+ using var customStream = new MemoryStream();
+// serialize into the memoryStream
+ ModelReaderWriter.Write(request, customStream, ModelSerializationExtensions.WireOptions);
+
+// .. user can then convert the stream to BinaryContent to pass to the protocol method
+```
+
+##### Serialize into a FileStream
+
+```csharp
+ var id = "123";
+ await using var imageStream = File.OpenRead(SampleJpgPath);
+
+ var profileImage = new MultiPartFile(imageStream, "profileImage.jpg");
+ var request = new MultiPartRequest(id, profileImage);
+
+ using (var fileToWrite = File.OpenWrite(SampleWriteablePath))
+ {
+     ModelReaderWriter.Write(request, fileToWrite, ModelSerializationExtensions.WireOptions);
+ }
+
+```
+
 ## Proposed Emitter Updates
-
-This section covers the proposed updates to the emitter to support generating the proposed convenience layer.
-
-### Pass through TCGC `multipartOptions` for model properties
-
-TCGC provides an API that captures the options for a multipart part within a [model property](https://github.com/microsoft/TypeSpec/blob/main/packages/http-client-csharp/emitter/src/type/input-type.ts#L101). The [multipartOptions](https://github.com/Azure/typespec-azure/blob/main/packages/typespec-client-generator-core/src/interfaces.ts#L485) can be captured for parts within a request model, detailing the information about each part.
-
-The TCGC API contains the following:
-
-| Property            | Type                    | Description                                                                                       |
-|---------------------|-------------------------|---------------------------------------------------------------------------------------------------|
-| isFilePart          | `bool`                  | Whether this part is for a file.                                                                  |
-| isMulti             | `bool`                  | Whether this part should be serialized as multiple parts with the same wire name.                                                                  |
-| defaultContentTypes | `string[]`              | Default content-types calculated by TypeSpec compiler. |
-
-The emitter's `InputModelProperty` interface can be updated to include the options:
-
-```ts
-export interface InputModelProperty extends InputTypeBase {
-  kind: "property";
-  name: string;
-  serializedName: string;
-  type: InputType;
-  optional: boolean;
-  readOnly: boolean;
-  discriminator: boolean;
-  crossLanguageDefinitionId: string;
-  flatten: boolean;
-  multipartOptions?: MultipartOptions;
-}
-```
-
-#### Example Emitted Code Model
-
-```tsp
-
-model MultiPartRequest {
-  id: string;
-  profileImage: bytes;
-}
-
-@post
-@route("/parts")
-op basic(
-  @header contentType: "multipart/form-data",
-  @body body: MultiPartRequest,
-): NoContentResponse;
-```
-
-The `MultiPartRequest` model properties would contain the following emitted `multipartOptions` properties:
-
-```json
-{
-  "properties": [
-    {
-      "name": "id",
-      "multipartOptions": {
-        "isFilePart": false,
-        "isMulti": false,
-        "defaultContentTypes": []
-      }
-    },
-    {
-      "name": "profileImage",
-      "multipartOptions": {
-        "isFilePart": true,
-        "isMulti": false,
-        "defaultContentTypes": []
-      }
-    },
-  ]
-}
-```
 
 ### Error Handling
 

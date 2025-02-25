@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    internal partial class AnonymousModelRequest : IPersistableModelWithStream<AnonymousModelRequest>
+    internal partial class AnonymousModelRequest : IPersistableStreamModel<AnonymousModelRequest>
     {
         private string _boundary;
         private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
@@ -28,7 +28,7 @@ namespace Payload.MultiPart.Models
             }
         }
 
-        void IPersistableModelWithStream<AnonymousModelRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
+        void IPersistableStreamModel<AnonymousModelRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
         protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<AnonymousModelRequest>)this).GetFormatFromOptions(options) : options.Format;

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class ComplexHttpPartsModelRequest : IPersistableModelWithStream<ComplexHttpPartsModelRequest>
+    public partial class ComplexHttpPartsModelRequest : IPersistableStreamModel<ComplexHttpPartsModelRequest>
     {
         private string _boundary;
         private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
@@ -26,7 +26,7 @@ namespace Payload.MultiPart.Models
             }
         }
 
-        void IPersistableModelWithStream<ComplexHttpPartsModelRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
+        void IPersistableStreamModel<ComplexHttpPartsModelRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
         protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ComplexHttpPartsModelRequest>)this).GetFormatFromOptions(options) : options.Format;

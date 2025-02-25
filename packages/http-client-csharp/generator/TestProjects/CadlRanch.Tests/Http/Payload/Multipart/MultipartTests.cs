@@ -20,6 +20,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
     {
         private string SamplePngPath = Path.Combine(CadlRanchServer.GetSpecDirectory(), "assets", "image.png");
         private string SampleJpgPath = Path.Combine(CadlRanchServer.GetSpecDirectory(), "assets", "image.jpg");
+        private string SampleWriteablePath = Path.Combine(CadlRanchServer.GetSpecDirectory(), "assets", "model.txt");
 
         [CadlRanchTest]
         public Task BasicProtocol() => Test(async (host) =>
@@ -127,6 +128,29 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
 
             var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(BinaryContent.Create(customStream), contentType.ToString());
 
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [Test]
+        public Task BasicMRWRequestSerializeToFileStream() => Test(async (host) =>
+        {
+            var id = "123";
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+
+            // using stream
+            var profileImage = new MultiPartFile(imageStream, "profileImage.jpg");
+            var request = new MultiPartRequest(id, profileImage);
+
+            // get the content type
+            var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType"));
+            using (var fileToWrite = File.OpenWrite(SampleWriteablePath))
+            {
+                ModelReaderWriter.Write(request, fileToWrite, ModelSerializationExtensions.WireOptions);
+            }
+
+            // read the file and check the contents
+            using var fileToRead = File.OpenRead(SampleWriteablePath);
+            var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(BinaryContent.Create(fileToRead), contentType.ToString());
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
