@@ -45,5 +45,9 @@ public class PageableTests {
                 .flatMap(page -> page.getValue().stream())
                 .map(Pet::getId)
                 .collect(Collectors.toList()));
+
+        // expect throws if input unsupported PagingOptions param
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> tokenClient.requestQueryResponseHeader().streamByPage(new PagingOptions().setPageSize(4L)).count());
     }
 }
