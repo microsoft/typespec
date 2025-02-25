@@ -59,10 +59,10 @@ import {
   typespecVersion,
 } from "../core/index.js";
 import {
-  builtInLinterLibraryName,
   builtInLinterRule_UnusedTemplateParameter,
   builtInLinterRule_UnusedUsing,
-} from "../core/linter.js";
+} from "../core/linter-rules.js";
+import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";

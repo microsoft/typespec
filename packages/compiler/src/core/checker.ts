@@ -300,6 +300,9 @@ export interface Checker {
   /** @internal */
   getTypeOrValueForNode(node: Node): Type | Value | null;
 
+  /** @internal */
+  getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean>;
+
   readonly errorType: ErrorType;
   readonly voidType: VoidType;
   readonly neverType: NeverType;
@@ -402,9 +405,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   let evalContext: EvalContext | undefined = undefined;
 
   /**
-   * Tracking the template parameters that are used.
+   * Tracking the template parameters used or not.
    */
-  const usedTemplateParameterDeclarationNodes = new Set<TemplateParameterDeclarationNode>();
+  const templateParameterUsageMap = new Map<TemplateParameterDeclarationNode, boolean>();
 
   const checker: Checker = {
     getTypeForNode,
@@ -438,6 +441,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueForNode,
     getTypeOrValueForNode,
     getValueExactType,
+    getTemplateParameterUsageMap,
     isTypeAssignableTo: undefined!,
   };
   const relation = createTypeRelationChecker(program, checker);
@@ -445,6 +449,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   const projectionMembers = createProjectionMembers(checker);
   return checker;
+
+  function getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean> {
+    return templateParameterUsageMap;
+  }
 
   function wrapInstantiationDiagnostic(
     diagnostic: Diagnostic,
@@ -930,26 +938,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     mapper?: TypeMapper,
     valueConstraint?: CheckValueConstraint | undefined,
   ): Type | Value | IndeterminateEntity | null {
-    const ret = checkNodeWorker(node, mapper, valueConstraint);
-    /* check if the template parameter is used or not. */
-    if ("templateParameters" in node) {
-      for (const templateParameter of node.templateParameters) {
-        if (node.kind === SyntaxKind.ModelStatement) {
-          if (!usedTemplateParameterDeclarationNodes.has(templateParameter)) {
-            resolver.setUnusedTemplateParameterDeclarationNode(templateParameter);
-          }
-        }
-      }
-    }
-
-    return ret;
-  }
-
-  function checkNodeWorker(
-    node: Node,
-    mapper?: TypeMapper,
-    valueConstraint?: CheckValueConstraint | undefined,
-  ): Type | Value | IndeterminateEntity | null {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
         return checkModel(node, mapper);
@@ -1090,6 +1078,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const parentNode = node.parent!;
     const grandParentNode = parentNode.parent;
     const links = getSymbolLinks(node.symbol);
+
+    if (!templateParameterUsageMap.has(node)) {
+      templateParameterUsageMap.set(node, false);
+    }
 
     if (pendingResolutions.has(getNodeSym(node), ResolutionKind.Constraint)) {
       if (mapper === undefined) {
@@ -1544,7 +1536,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const entity = checkTypeOrValueReferenceSymbolWorker(sym, node, mapper, instantiateTemplates);
 
     if (entity !== null && isType(entity) && entity.kind === "TemplateParameter") {
-      usedTemplateParameterDeclarationNodes.add(entity.node);
+      templateParameterUsageMap.set(entity.node, true);
     }
     return entity;
   }

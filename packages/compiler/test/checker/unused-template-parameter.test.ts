@@ -4,27 +4,24 @@ import { CompilerOptions } from "../../src/index.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { TestHost } from "../../src/testing/types.js";
 
-describe("compiler: unused template parameter in model template", () => {
-  let testHost: TestHost;
+let testHost: TestHost;
 
-  beforeEach(async () => {
-    testHost = await createTestHost();
-  });
+beforeEach(async () => {
+  testHost = await createTestHost();
+});
 
-  const diagnoseWithUnusedTemplateParameter = async (
-    main: string,
-    options: CompilerOptions = {},
-  ) => {
-    return testHost.diagnose(main, {
-      ...options,
-      linterRuleSet: {
-        enable: {
-          "@typespec/compiler/unused-template-parameter": true,
-        },
+const diagnoseWithUnusedTemplateParameter = async (main: string, options: CompilerOptions = {}) => {
+  return testHost.diagnose(main, {
+    ...options,
+    linterRuleSet: {
+      enable: {
+        "@typespec/compiler/unused-template-parameter": true,
       },
-    });
-  };
+    },
+  });
+};
 
+describe("compiler: unused template parameter in model template", () => {
   it("report unused template parameter", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -131,7 +128,9 @@ describe("compiler: unused template parameter in model template", () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
-        model Bar<T> {}
+        model Bar<T> {
+          prop: T;
+        }
         model useTemplateModelModel<T>{
           prop: Bar<T>;
         }
@@ -141,12 +140,17 @@ describe("compiler: unused template parameter in model template", () => {
     strictEqual(diagnostics.length, 0);
   });
 
-  it("no unused template parameter diagnose when the template parameter used in base scalar", async () => {
+  it("no unused template parameter diagnose when the template parameter used in scalar", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
-        scalar Bar<T> {}
-        model IsModel<T> is Bar<T>;
+      @doc(T)  
+      scalar Bar<T extends valueof string>;
+
+      model Foo<A, B extends valueof string> {
+        a: A;
+        usedInScalar: Bar<B>;
+      }
       `,
     );
     const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
@@ -179,6 +183,111 @@ describe("compiler: unused template parameter in model template", () => {
           is A<Type> {
           contentType: typeof ContentType;
         }
+      `,
+    );
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
+    strictEqual(diagnostics.length, 0);
+  });
+});
+
+describe("compiler: unused template parameter in operation template", () => {
+  it("report unused template parameter", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        op templateOperation<T> (): void;
+      `,
+    );
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "@typespec/compiler/unused-template-parameter");
+    strictEqual(
+      diagnostics[0].message,
+      "Templates should use all specified parameters, and parameter 'T' does not exist in type 'templateOperation'. Consider removing this parameter.",
+    );
+  });
+
+  it("no unused template parameter diagnose when there is a parameter whose type is this template parameter", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        op templateOperation<T> (t: T): void;
+      `,
+    );
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
+    strictEqual(diagnostics.length, 0);
+  });
+
+  it("no unused template parameter diagnose when the response whose type is this template parameter", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        op templateOperation<T> (): T;
+      `,
+    );
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
+    strictEqual(diagnostics.length, 0);
+  });
+});
+
+describe("compiler: unused template parameter in interface template", () => {
+  it("report unused template parameter", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      interface templateInterface<T> {
+        op test(): void;
+      }
+      `,
+    );
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "@typespec/compiler/unused-template-parameter");
+    strictEqual(
+      diagnostics[0].message,
+      "Templates should use all specified parameters, and parameter 'T' does not exist in type 'templateInterface'. Consider removing this parameter.",
+    );
+  });
+
+  it("no unused template parameter diagnose when there is an operation which uses this template parameter", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        interface templateInterface<T> {
+          op test(): T;
+        }
+      `,
+    );
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
+    strictEqual(diagnostics.length, 0);
+  });
+});
+
+describe("compiler: unused template parameter in alias template", () => {
+  it("report unused template parameter", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      alias ResourceValue<T> = string;
+      `,
+    );
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
+    strictEqual(diagnostics.length, 1);
+    strictEqual(diagnostics[0].code, "@typespec/compiler/unused-template-parameter");
+    strictEqual(
+      diagnostics[0].message,
+      "Templates should use all specified parameters, and parameter 'T' does not exist in type 'ResourceValue'. Consider removing this parameter.",
+    );
+  });
+
+  it("no unused template parameter diagnose when there is a property or decorator which uses this template parameter", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        alias TakesValue<StringType extends string, StringValue extends valueof string> = {
+          @doc(StringValue)
+          property: StringType;
+        };
       `,
     );
     const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");

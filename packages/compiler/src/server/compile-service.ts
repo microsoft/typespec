@@ -20,10 +20,10 @@ import {
   parse,
 } from "../core/index.js";
 import {
-  builtInLinterLibraryName,
   builtInLinterRule_UnusedTemplateParameter,
   builtInLinterRule_UnusedUsing,
-} from "../core/linter.js";
+} from "../core/linter-rules.js";
+import { builtInLinterLibraryName } from "../core/linter.js";
 import { compile as compileProgram } from "../core/program.js";
 import { doIO, loadFile, resolveTspMain } from "../utils/misc.js";
 import { serverOptions } from "./constants.js";
