@@ -42,7 +42,7 @@ extends:
         compiled: true
         break: true
       binskim:
-        targetPathExclusionPattern: +:file|**/*.dll;+:file|**/*.exe;-:f|**/tsp.exe # Flag issue with node binary which we can't fix https://github.com/nodejs/node/issues/42100
+        targetPathExclusionPattern: +:file|**\*.dll;+:file|**\*.exe;-:f|**\tsp.exe # Flag issue with node binary which we can't fix https://github.com/nodejs/node/issues/42100
 
     stages:
       - ${{ each stage in parameters.stages }}:
