@@ -1000,63 +1000,114 @@ export class CodeModelBuilder {
       for (const response of responses) {
         const bodyType = response.type;
         if (bodyType && bodyType.kind === "model") {
-          let itemSerializedName: string | undefined = undefined;
-          let nextLinkSerializedName: string | undefined = undefined;
-
-          const itemSegments = sdkMethod.response.resultSegments;
-          const nextLinkSegments = sdkMethod.pagingMetadata.nextLinkSegments;
-
-          // TODO: in future the property could be nested, so that the "itemSegments" or "nextLinkSegments" would contain more than 1 element
-          if (itemSegments) {
-            // "itemsSegments" should exist for "paging"/"lropaging"
-            const lastSegment = itemSegments[itemSegments.length - 1];
-            if (lastSegment.kind === "property") {
-              itemSerializedName = getPropertySerializedName(lastSegment);
-            }
-          }
-          if (nextLinkSegments) {
-            const lastSegment = nextLinkSegments[nextLinkSegments.length - 1];
-            if (lastSegment.kind === "property") {
-              nextLinkSerializedName = getPropertySerializedName(lastSegment);
-            }
-          }
-
           op.responses?.forEach((r) => {
             if (r instanceof SchemaResponse) {
               this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
             }
           });
 
-          // test code
+          function getLastPropertySegment(
+            segments: SdkModelPropertyType[] | undefined,
+          ): SdkBodyModelPropertyType | undefined {
+            if (segments) {
+              const lastSegment = segments[segments.length - 1];
+              if (lastSegment.kind === "property") {
+                return lastSegment;
+              }
+            }
+            return undefined;
+          }
+          function getLastSegment(
+            segments: SdkModelPropertyType[] | undefined,
+          ): SdkModelPropertyType | undefined {
+            if (segments) {
+              return segments[segments.length - 1];
+            }
+            return undefined;
+          }
+          function getLastSegmentSerializedName(
+            segments: SdkModelPropertyType[] | undefined,
+          ): string | undefined {
+            const lastSegment = getLastPropertySegment(segments);
+            return lastSegment ? getPropertySerializedName(lastSegment) : undefined;
+          }
+
+          // TODO: in future the property could be nested, so that the "itemSegments" or "nextLinkSegments" would contain more than 1 element
+          // item/result
+          // "itemsSegments" should exist for "paging"/"lropaging"
+          const itemSerializedName = getLastSegmentSerializedName(
+            sdkMethod.response.resultSegments,
+          );
+          // nextLink
+          const nextLinkSerializedName = getLastSegmentSerializedName(
+            sdkMethod.pagingMetadata.nextLinkSegments,
+          );
+
+          // continuationToken
           let continuationTokenParameter: Parameter | undefined;
           let continuationTokenResponseProperty: Property[] | undefined;
           let continuationTokenResponseHeader: HttpHeader | undefined;
-          if (op.parameters) {
-            for (const param of op.parameters) {
-              if (param.language.default.serializedName.toLowerCase().includes("token")) {
-                continuationTokenParameter = param;
-                break;
+          const continuationTokenParameterSegment = getLastSegment(
+            sdkMethod.pagingMetadata.continuationTokenParameterSegments,
+          );
+          const continuationTokenResponseSegment = getLastSegment(
+            sdkMethod.pagingMetadata.continuationTokenResponseSegments,
+          );
+          if (continuationTokenParameterSegment) {
+            // for now, continuationToken is either request query or header parameter
+            const parameter = getHttpOperationParameter(
+              sdkMethod,
+              continuationTokenParameterSegment,
+            );
+            if (parameter && op.parameters) {
+              for (const param of op.parameters) {
+                if (param.protocol.http?.in === parameter.kind) {
+                  continuationTokenParameter = param;
+                  break;
+                }
               }
             }
           }
-          if (op.responses) {
-            for (const response of op.responses) {
-              if (response instanceof SchemaResponse) {
-                if (response.schema instanceof ObjectSchema && response.schema.properties) {
-                  for (const p of response.schema.properties) {
-                    if (p.serializedName.toLowerCase().includes("token")) {
-                      continuationTokenResponseProperty = [p];
+          if (continuationTokenResponseSegment && op.responses) {
+            if (continuationTokenResponseSegment?.kind === "header") {
+              // continuationToken is response header
+              for (const response of op.responses) {
+                if (response instanceof SchemaResponse && response.protocol.http) {
+                  for (const header of response.protocol.http.headers) {
+                    if (
+                      header.header.toLowerCase() ===
+                      continuationTokenResponseSegment.serializedName.toLowerCase()
+                    ) {
+                      continuationTokenResponseHeader = header;
                       break;
                     }
                   }
                 }
-                if (response.protocol.http) {
-                  for (const h of response.protocol.http.headers) {
-                    if (h.header.toLowerCase().includes("token")) {
-                      continuationTokenResponseHeader = h;
+                if (continuationTokenResponseHeader) {
+                  break;
+                }
+              }
+            } else if (continuationTokenResponseSegment?.kind === "property") {
+              // continuationToken is response body property
+              // TODO: the property could be nested
+              for (const response of op.responses) {
+                if (
+                  response instanceof SchemaResponse &&
+                  response.schema instanceof ObjectSchema &&
+                  response.schema.properties
+                ) {
+                  for (const property of response.schema.properties) {
+                    if (
+                      property.serializedName ===
+                      getPropertySerializedName(continuationTokenResponseSegment)
+                    ) {
+                      continuationTokenResponseProperty = [property];
                       break;
                     }
                   }
+                }
+                if (continuationTokenResponseProperty) {
+                  break;
                 }
               }
             }
