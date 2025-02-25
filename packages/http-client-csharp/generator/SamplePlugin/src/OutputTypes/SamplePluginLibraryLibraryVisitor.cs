@@ -12,7 +12,7 @@ namespace SamplePlugin
 {
     public class SamplePluginLibraryLibraryVisitor : ScmLibraryVisitor
     {
-        protected override MethodProvider? Visit(MethodProvider method)
+        protected override MethodProvider? VisitMethod(MethodProvider method)
         {
             if (method is not ScmMethodProvider)
             {
