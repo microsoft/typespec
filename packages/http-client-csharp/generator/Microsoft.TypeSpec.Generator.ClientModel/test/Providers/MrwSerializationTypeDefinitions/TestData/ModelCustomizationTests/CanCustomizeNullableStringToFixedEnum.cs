@@ -30,15 +30,8 @@ namespace Sample.Models
             {
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
             }
-            if ((Prop1 != null))
-            {
-                writer.WritePropertyName("prop1"u8);
-                writer.WriteStringValue(Prop1.ToSerialString());
-            }
-            else
-            {
-                writer.WriteNull("prop1"u8);
-            }
+            writer.WritePropertyName("prop1"u8);
+            writer.WriteStringValue(Prop1.ToSerialString());
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
                 foreach (var item in _additionalBinaryDataProperties)
