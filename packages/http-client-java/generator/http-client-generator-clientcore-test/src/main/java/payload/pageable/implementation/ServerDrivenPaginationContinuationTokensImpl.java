@@ -302,7 +302,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<RequestQueryResponseHeaderResponse> res
             = service.requestQueryResponseHeaderSync(this.client.getEndpoint(), accept, requestOptions);
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getPets(), null, null, null, null, null);
+            res.getValue().getPets(), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null,
+            null, null);
     }
 
     /**
@@ -392,7 +393,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<RequestHeaderResponseHeaderResponse> res
             = service.requestHeaderResponseHeaderSync(this.client.getEndpoint(), accept, requestOptions);
         return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
-            res.getValue().getPets(), null, null, null, null, null);
+            res.getValue().getPets(), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")), null, null,
+            null, null);
     }
 
     /**

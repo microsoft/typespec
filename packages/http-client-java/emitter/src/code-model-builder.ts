@@ -1079,7 +1079,7 @@ export class CodeModelBuilder {
               }
             }
             if (continuationTokenResponseSegment && op.responses) {
-              if (continuationTokenResponseSegment?.kind === "header") {
+              if (continuationTokenResponseSegment?.kind === "responseheader") {
                 // continuationToken is response header
                 for (const response of op.responses) {
                   if (response instanceof SchemaResponse && response.protocol.http) {
