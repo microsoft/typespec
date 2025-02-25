@@ -35,6 +35,7 @@ import {
   $withPickedProperties,
   $withoutDefaultValues,
   $withoutOmittedProperties,
+  discriminatedDecorator,
 } from "./decorators.js";
 import {
   continuationTokenDecorator,
@@ -96,6 +97,7 @@ export const $decorators = {
     overload: $overload,
     projectedName: $projectedName,
     encodedName: $encodedName,
+    discriminated: discriminatedDecorator,
     discriminator: $discriminator,
     example: $example,
     opExample: $opExample,
