@@ -52,8 +52,8 @@ jobs:
       - task: AzureCLI@2
         displayName: Upload scenario manifest
         condition: eq(variables['PublishHttpSpecs'], 'true')
-        workingDirectory: packages/http-specs
         inputs:
+          workingDirectory: packages/http-specs
           azureSubscription: "TypeSpec Storage"
           scriptType: "bash"
           scriptLocation: "inlineScript"
