@@ -8,6 +8,7 @@ import {
   SourceFile,
 } from "@typespec/compiler/emitter-framework";
 import { HttpStatusCodeRange } from "@typespec/http";
+import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
 
 export const HelperNamespace: string = "TypeSpec.Helpers.JsonConverters";
 
@@ -297,4 +298,17 @@ export class LibrarySourceFile {
   source: SourceFile<string>;
   emitted: EmittedSourceFile;
   path: string;
+}
+
+export interface CSharpOperationParameter {
+  name: string;
+  typeName: EmitterOutput<string>;
+  optional: boolean;
+  httpParameterKind: HttpRequestParameterKind;
+  httpParameterName?: string;
+  callName: string;
+  isExplicitBody: boolean;
+  nullable: boolean;
+  operationKind: "Http" | "BusinessLogic" | "All";
+  defaultValue?: string | boolean;
 }
