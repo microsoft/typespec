@@ -45,7 +45,7 @@ jobs:
           }
         displayName: "Check if @typespec/http-specs was published"
 
-      - script: pnpm build --filter '@typespec/http-specs...'
+      - script: pnpm -r build --filter '@typespec/http-specs...'
         condition: eq(variables['PublishHttpSpecs'], 'true')
         displayName: Build spector
 
