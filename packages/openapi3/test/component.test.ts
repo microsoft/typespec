@@ -209,7 +209,30 @@ const testCases: Case[] = [
         kind: "Union",
       },
     ],
-  }
+  },
+  {
+    title: "Basic generic case",
+    code: `
+    @service
+    namespace NS {
+      model Foo<T> {x: T;}
+      model \`x/x/x\` {a: string}
+      op read(x: \`x/x/x\`): Foo<int32>;
+    }`,
+    diagChecks: [
+      {
+        expectedDiagInvalidKey: "x/x/x",
+        expectedDeclKey: "x_x_x",
+        expectedPrefix: "#/components/schemas/",
+        kind: "Model",
+      },
+    ],
+    refChecks: (doc) => {
+      expect(
+        doc.paths["/"].post.requestBody.content["application/json"].schema.properties.x.$ref,
+      ).toBe("#/components/schemas/x_x_x");
+    },
+  },
 ];
 
 worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
