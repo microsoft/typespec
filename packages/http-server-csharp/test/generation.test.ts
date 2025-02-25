@@ -1385,7 +1385,7 @@ it("Handles bodyRoot parameters", async () => {
     await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
     `
     model Widget {
-      @visibility("update", "read")
+      @visibility(Lifecycle.Update, Lifecycle.Read)
       @path id: string;
       @query kind?: string;
       color: string;
