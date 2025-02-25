@@ -1,8 +1,7 @@
 import { ok } from "assert";
 import { SpawnOptions, spawn } from "child_process";
 import { rm } from "fs/promises";
-import { dirname } from "path";
-import { resolve } from "path/posix";
+import { dirname, resolve } from "pathe";
 import { fileURLToPath } from "url";
 import { beforeAll, describe, it } from "vitest";
 import { NodeHost } from "../../src/index.js";
@@ -89,7 +88,9 @@ describe("Init templates e2e tests", () => {
       directory: targetFolder,
       checkCommand: async (command: string, args: string[] = [], options: SpawnOptions = {}) => {
         const xplatCmd = process.platform === "win32" ? `${command}.cmd` : command;
+        const shell = process.platform === "win32" ? true : options.shell;
         const result = await execAsync(xplatCmd, args, {
+          shell,
           ...options,
           cwd: targetFolder,
         });
