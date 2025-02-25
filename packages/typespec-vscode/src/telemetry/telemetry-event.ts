@@ -10,12 +10,6 @@ export enum TelemetryEventName {
   ServerPathSettingChanged = "server-path-changed",
   OperationDetail = "operation-detail",
 }
-export class OperationDetailProperties {
-  error = "error";
-  emitterPackage = "emitterPackage";
-  compilerLocation = "compilerLocation";
-  compilerVersion = "compilerVersion";
-}
 
 export interface TelemetryEventBase {
   activityId: string;
@@ -29,10 +23,11 @@ export interface OperationTelemetryEvent extends TelemetryEventBase {
   lastStep?: string;
 }
 
-export interface OperationDetailTelemetryEvent
-  extends TelemetryEventBase,
-    Partial<Record<keyof OperationDetailProperties, string>> {
-  eventName: TelemetryEventName.OperationDetail;
+export enum OperationDetailPropertyName {
+  error,
+  emitterPackage,
+  compilerLocation,
+  compilerVersion,
 }
 
 export function generateActivityId() {

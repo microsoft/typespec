@@ -6,8 +6,7 @@ import { isWhitespaceStringOrUndefined } from "../utils.js";
 import {
   emptyActivityId,
   generateActivityId,
-  OperationDetailProperties,
-  OperationDetailTelemetryEvent,
+  OperationDetailPropertyName,
   OperationTelemetryEvent,
   TelemetryEventName,
 } from "./telemetry-event.js";
@@ -117,11 +116,10 @@ class TelemetryClient {
 
   public logOperationDetailTelemetry(
     activityId: string,
-    detail: Partial<Record<keyof OperationDetailProperties, string>>,
+    detail: Partial<Record<keyof typeof OperationDetailPropertyName, string>>,
   ) {
-    const data: OperationDetailTelemetryEvent = {
+    const data = {
       activityId: activityId,
-      eventName: TelemetryEventName.OperationDetail,
       ...detail,
     };
 
