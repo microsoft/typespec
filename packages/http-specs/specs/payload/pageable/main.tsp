@@ -15,6 +15,11 @@ model Pet {
   name: string;
 }
 
+alias HeaderAndQuery = {
+  @header foo?: string;
+  @query bar?: string;
+};
+
 @route("/server-driven-pagination")
 namespace ServerDrivenPagination {
   @scenario
@@ -55,13 +60,17 @@ namespace ServerDrivenPagination {
 
   @route("/continuationtoken")
   namespace ContinuationToken {
-    @scenario
+
     @scenarioDoc("""
       Test case for using continuation token as pagination. Continuation token is passed in the request query and response body.
       
       Two requests need to be tested.
       1. Initial request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar
+
+      Expected header:
+      foo=foo
+
       Expected response body:
       ```json
       { "pets": [
@@ -73,7 +82,7 @@ namespace ServerDrivenPagination {
       ```
       
       2. Next page request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?token=page2
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar&token=page2
       
       Expected response body:
       ```json
@@ -86,7 +95,7 @@ namespace ServerDrivenPagination {
       """)
     @route("/request-query-response-body")
     @list
-    op requestQueryResponseBody(@continuationToken @query token?: string): {
+    op requestQueryResponseBody(@continuationToken @query token?: string, ...HeaderAndQuery): {
       @pageItems
       pets: Pet[];
 
@@ -99,8 +108,11 @@ namespace ServerDrivenPagination {
       
       Two requests need to be tested.
       1. Initial request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body      
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body?bar=bar      
       
+      Expected header:
+      foo=foo
+
       Expected response body:
       ```json
       { "pets": [
@@ -111,7 +123,7 @@ namespace ServerDrivenPagination {
       }
       ```
       2. Next page request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body?bar=bar
       
       Expected header:
       token=page2
@@ -127,7 +139,7 @@ namespace ServerDrivenPagination {
       """)
     @route("/request-header-response-body")
     @list
-    op requestHeaderResponseBody(@continuationToken @header token?: string): {
+    op requestHeaderResponseBody(@continuationToken @header token?: string, ...HeaderAndQuery): {
       @pageItems
       pets: Pet[];
 
@@ -140,7 +152,11 @@ namespace ServerDrivenPagination {
       
       Two requests need to be tested.
       1. Initial request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar
+      
+      Expected header:
+      foo=foo
+      
       Expected response body:
       ```json
       { "pets": [
@@ -154,7 +170,7 @@ namespace ServerDrivenPagination {
       next-token=page2
       
       2. Next page request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?token=page2
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar&token=page2
       Expected response body:
       ```json
       { "pets": [
@@ -166,7 +182,7 @@ namespace ServerDrivenPagination {
       """)
     @route("/request-query-response-header")
     @list
-    op requestQueryResponseHeader(@continuationToken @query token?: string): {
+    op requestQueryResponseHeader(@continuationToken @query token?: string, ...HeaderAndQuery): {
       @pageItems
       pets: Pet[];
 
@@ -179,7 +195,11 @@ namespace ServerDrivenPagination {
       
       Two requests need to be tested.
       1. Initial request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
+
+      Expected header:
+      foo=foo
+
       Expected response body:
       ```json
       { "pets": [
@@ -193,7 +213,7 @@ namespace ServerDrivenPagination {
       next-token=page2
       
       2. Next page request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
       
       Expected request header:
       token=page2
@@ -209,7 +229,7 @@ namespace ServerDrivenPagination {
       """)
     @route("/request-header-response-header")
     @list
-    op requestHeaderResponseHeader(@continuationToken @header token?: string): {
+    op requestHeaderResponseHeader(@continuationToken @header token?: string, ...HeaderAndQuery): {
       @pageItems
       pets: Pet[];
 
