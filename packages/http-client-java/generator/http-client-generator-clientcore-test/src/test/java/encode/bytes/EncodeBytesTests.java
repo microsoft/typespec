@@ -82,8 +82,7 @@ public class EncodeBytesTests {
 //        bytes = responseClient.base64();
 //        Assertions.assertArrayEquals(DATA, bytes);
 
-        // array lengths differ
-//        bytes = responseClient.base64url();
-//        Assertions.assertArrayEquals(DATA, bytes);
+        bytes = responseClient.base64url();
+        Assertions.assertArrayEquals(DATA, bytes);
     }
 }
