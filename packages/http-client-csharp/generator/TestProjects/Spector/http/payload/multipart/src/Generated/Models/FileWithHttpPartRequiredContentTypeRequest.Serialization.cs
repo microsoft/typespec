@@ -4,7 +4,7 @@
 
 namespace Payload.MultiPart.Models
 {
-    public partial class FileWithHttpPartRequiredContentTypeRequest : IPersistableModelWithStream<FileWithHttpPartRequiredContentTypeRequest>
+    public partial class FileWithHttpPartRequiredContentTypeRequest : IPersistableStreamModel<FileWithHttpPartRequiredContentTypeRequest>
     {
         private string _boundary;
         private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
@@ -24,7 +24,7 @@ namespace Payload.MultiPart.Models
             }
         }
 
-        void IPersistableModelWithStream<FileWithHttpPartRequiredContentTypeRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
+        void IPersistableStreamModel<FileWithHttpPartRequiredContentTypeRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
         protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<FileWithHttpPartRequiredContentTypeRequest>)this).GetFormatFromOptions(options) : options.Format;
