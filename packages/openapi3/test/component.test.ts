@@ -129,7 +129,7 @@ const testCases: Case[] = [
     code: `
     @service
     namespace NS {
-      @discriminated("kind")
+      @discriminated()
       union \`Pe/t\` {
         cat: \`C/at\`,
         dog: \`Do/g\`,
@@ -154,8 +154,20 @@ const testCases: Case[] = [
         kind: "Model",
       },
       {
+        expectedDiagInvalidKey: "Pe/tCat",
+        expectedDeclKey: "Pe_tCat",
+        expectedPrefix: "#/components/schemas/",
+        kind: "Model",
+      },
+      {
         expectedDiagInvalidKey: "Do/g",
         expectedDeclKey: "Do_g",
+        expectedPrefix: "#/components/schemas/",
+        kind: "Model",
+      },
+      {
+        expectedDiagInvalidKey: "Pe/tDog",
+        expectedDeclKey: "Pe_tDog",
         expectedPrefix: "#/components/schemas/",
         kind: "Model",
       },
