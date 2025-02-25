@@ -11,6 +11,7 @@ import {
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
+import { getDiscriminatedUnion } from "../../../../compiler/dist/src/core/helpers/discriminator-utils.js";
 import { reportDiagnostic } from "../../lib.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import {
@@ -54,7 +55,7 @@ interface DiscriminateExpressionProps {
 }
 
 function DiscriminateExpression(props: DiscriminateExpressionProps) {
-  const discriminatedUnion = $.type.getDiscriminatedUnion(props.type)!;
+  const [discriminatedUnion] = getDiscriminatedUnion(props.type, props.discriminator)!;
 
   const discriminatorRef = `item.${props.discriminator.propertyName}`;
 
@@ -68,7 +69,7 @@ function DiscriminateExpression(props: DiscriminateExpressionProps) {
     (name, variant) => {
       return code`
     if( ${discriminatorRef} === ${JSON.stringify(name)}) {
-      return ${<TypeTransformCall type={variant.type} target={props.target} castInput itemPath={["item"]}/>}
+      return ${<TypeTransformCall type={variant} target={props.target} castInput itemPath={["item"]}/>}
     }
     `;
     },

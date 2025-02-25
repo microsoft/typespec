@@ -55,6 +55,7 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
@@ -141,28 +142,41 @@ export class OpenAPI3SchemaEmitterBase<
     return patch;
   }
 
-  applyDiscriminator(type: Model | Union, schema: Schema): void {
+  applyDiscriminator(type: Union | Model, schema: Schema): void {
     const program = this.emitter.getProgram();
     const discriminator = getDiscriminator(program, type);
     if (discriminator) {
       // the decorator validates that all the variants will be a model type
       // with the discriminator field present.
       schema.discriminator = { ...discriminator };
-      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(type, discriminator));
+      const discriminatedUnion = ignoreDiagnostics(
+        // TODO: get rid of before 1.0-rc
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
+        getDiscriminatedUnion(type, discriminator),
+      );
       if (discriminatedUnion.variants.size > 0) {
-        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion);
+        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion.variants);
       }
     }
   }
 
-  applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
-    if (!model.indexer) return;
-    const indexerType = model.indexer.value;
-    const isSealed = isNeverType(indexerType);
+  shouldSealSchema(model: Model): boolean {
+    // when an indexer is not present, we might be able to seal it
+    if (!model.indexer) {
+      const derivedModels = model.derivedModels.filter(includeDerivedModel);
+      return !!this._options.sealObjectSchemas && !derivedModels.length;
+    }
 
-    // if the indexer type is 'never' and the model extends another model,
-    // then we need redefine any baseModel properties
-    if (isSealed) {
+    return isNeverType(model.indexer.value);
+  }
+
+  applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
+    const shouldSeal = this.shouldSealSchema(model);
+    if (!shouldSeal && !model.indexer) return;
+
+    // if the schema is 'sealed' the model extends another model,
+    // then we need to redefine any baseModel properties
+    if (shouldSeal) {
       const props = new ObjectBuilder(schema.properties ?? {});
       let baseModel = model.baseModel;
       while (baseModel) {
@@ -183,9 +197,9 @@ export class OpenAPI3SchemaEmitterBase<
       }
     }
 
-    const additionalPropertiesSchema = isSealed
+    const additionalPropertiesSchema = shouldSeal
       ? { not: {} }
-      : this.emitter.emitTypeReference(indexerType);
+      : this.emitter.emitTypeReference(model.indexer!.value);
     schema.set("additionalProperties", additionalPropertiesSchema);
   }
 
@@ -523,9 +537,62 @@ export class OpenAPI3SchemaEmitterBase<
     throw new Error("Method not implemented.");
   }
 
-  getDiscriminatorMapping(union: DiscriminatedUnion) {
+  discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<Schema> {
+    let schema: any;
+    if (union.options.envelope === "none") {
+      const items = new ArrayBuilder();
+      for (const variant of union.variants.values()) {
+        items.push(this.emitter.emitTypeReference(variant));
+      }
+      schema = {
+        type: "object",
+        oneOf: items,
+        discriminator: {
+          propertyName: union.options.discriminatorPropertyName,
+          mapping: this.getDiscriminatorMapping(union.variants),
+        },
+      };
+    } else {
+      const envelopeVariants = new Map<string, Model>();
+
+      for (const [name, variant] of union.variants) {
+        const envelopeModel = $.model.create({
+          name: union.type.name + capitalize(name),
+          properties: {
+            [union.options.discriminatorPropertyName]: $.modelProperty.create({
+              name: union.options.discriminatorPropertyName,
+              type: $.literal.createString(name),
+            }),
+            [union.options.envelopePropertyName]: $.modelProperty.create({
+              name: union.options.envelopePropertyName,
+              type: variant,
+            }),
+          },
+        });
+
+        envelopeVariants.set(name, envelopeModel);
+      }
+
+      const items = new ArrayBuilder();
+      for (const variant of envelopeVariants.values()) {
+        items.push(this.emitter.emitTypeReference(variant));
+      }
+      schema = {
+        type: "object",
+        oneOf: items,
+        discriminator: {
+          propertyName: union.options.discriminatorPropertyName,
+          mapping: this.getDiscriminatorMapping(envelopeVariants),
+        },
+      };
+    }
+
+    return this.applyConstraints(union.type, schema);
+  }
+
+  getDiscriminatorMapping(variants: Map<string, Type>) {
     const mapping: Record<string, string> | undefined = {};
-    for (const [key, model] of union.variants.entries()) {
+    for (const [key, model] of variants.entries()) {
       const ref = this.emitter.emitTypeReference(model);
       compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
       mapping[key] = (ref.value as any).$ref;
@@ -800,3 +867,10 @@ export const Builders = {
     return builder;
   },
 } as const;
+
+/**
+ * Simple utility function to capitalize a string.
+ */
+function capitalize<S extends string>(s: S) {
+  return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
+}

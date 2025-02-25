@@ -19,6 +19,7 @@ import {
   joinPaths,
   parse,
 } from "../core/index.js";
+import { builtInLinterLibraryName, builtInLinterRule_UnusedUsing } from "../core/linter.js";
 import { compile as compileProgram } from "../core/program.js";
 import { doIO, loadFile, resolveTspMain } from "../utils/misc.js";
 import { serverOptions } from "./constants.js";
@@ -107,6 +108,17 @@ export function createCompileService({
       ...optionsFromConfig,
       ...serverOptions,
     };
+    // add linter rule for unused using if user didn't configure it explicitly
+    const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
+    if (
+      options.linterRuleSet?.enable?.[unusedUsingRule] === undefined &&
+      options.linterRuleSet?.disable?.[unusedUsingRule] === undefined
+    ) {
+      options.linterRuleSet ??= {};
+      options.linterRuleSet.enable ??= {};
+      options.linterRuleSet.enable[unusedUsingRule] = true;
+    }
+
     log({ level: "debug", message: `compiler options resolved`, detail: options });
 
     if (!fileService.upToDate(document)) {
@@ -142,7 +154,7 @@ export function createCompileService({
       const script = program.sourceFiles.get(resolvedPath);
       compilerAssert(script, "Failed to get script.");
 
-      const result: CompileResult = { program, document: doc, script };
+      const result: CompileResult = { program, document: doc, script, optionsFromConfig };
       notify("compileEnd", result);
       return result;
     } catch (err: any) {
@@ -180,13 +192,13 @@ export function createCompileService({
     }
 
     const cached = await fileSystemCache.get(configPath);
+    const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
     if (cached?.data) {
-      return cached.data;
+      return deepCopy(cached.data);
     }
 
     const config = await loadTypeSpecConfigFile(compilerHost, configPath);
-    await fileSystemCache.setData(configPath, config);
-    return config;
+    return deepCopy(config);
   }
 
   async function getScript(

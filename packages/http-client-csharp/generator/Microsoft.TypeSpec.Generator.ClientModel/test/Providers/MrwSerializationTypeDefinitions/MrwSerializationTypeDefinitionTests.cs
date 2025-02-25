@@ -30,7 +30,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
         internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
         {
-            var model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+            var model = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             var serializations = model!.SerializationProviders;
 
             Assert.AreEqual(1, serializations.Count);
@@ -575,6 +575,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var methodBody = deserializationMethod?.BodyStatements;
             Assert.IsNotNull(methodBody);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void SerializedNameIsUsed(bool isRequired)
+        {
+            var property = InputFactory.Property("mockProperty", new InputNullableType(InputPrimitiveType.Int32), isRequired: isRequired, wireName: "mock_wire_name");
+            var inputModel = InputFactory.Model("mockInputModel", properties: [property]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var serializationMethod = serialization.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
+            var methodBody = serializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(isRequired.ToString()), methodBody);
         }
 
         [Test]
