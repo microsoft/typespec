@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 
 public class PageableTests {
 
-    private final PageableClient client = new PageableClientBuilder().buildPageableClient();
+    private final ServerDrivenPaginationClient client = new PageableClientBuilder().buildServerDrivenPaginationClient();
 
     @Test
-    public void test() {
+    public void testNextLink() {
         PagedIterable<Pet> pagedIterable = client.link();
 
         Assertions.assertEquals(4, pagedIterable.stream().count());
