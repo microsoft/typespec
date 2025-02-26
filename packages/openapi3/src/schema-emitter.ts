@@ -76,7 +76,13 @@ import {
   OpenAPI3SchemaProperty,
   OpenAPISchema3_1,
 } from "./types.js";
-import { getDefaultValue, includeDerivedModel, isBytesKeptRaw, isStdType } from "./util.js";
+import {
+  ensureValidComponentFixedFieldKey,
+  getDefaultValue,
+  includeDerivedModel,
+  isBytesKeptRaw,
+  isStdType,
+} from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
 
@@ -230,6 +236,7 @@ export class OpenAPI3SchemaEmitterBase<
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
     const isMultipart = this.getContentType().startsWith("multipart/");
     const name = isMultipart ? baseName + "MultiPart" : baseName;
+
     return this.#createDeclaration(model, name, this.applyConstraints(model, schema as any));
   }
 
@@ -501,6 +508,7 @@ export class OpenAPI3SchemaEmitterBase<
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
     const baseName = getOpenAPITypeName(this.emitter.getProgram(), en, this.#typeNameOptions());
+
     return this.#createDeclaration(en, baseName, new ObjectBuilder(this.enumSchema(en)));
   }
 
@@ -805,6 +813,11 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   #createDeclaration(type: Type, name: string, schema: ObjectBuilder<any>) {
+    const skipNameValidation = type.kind === "Model" && type.templateMapper !== undefined;
+    if (!skipNameValidation) {
+      name = ensureValidComponentFixedFieldKey(this.emitter.getProgram(), type, name);
+    }
+
     const refUrl = getRef(this.emitter.getProgram(), type);
     if (refUrl) {
       return {
@@ -835,6 +848,7 @@ export class OpenAPI3SchemaEmitterBase<
       fullName,
       Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true])),
     );
+
     return decl;
   }
 

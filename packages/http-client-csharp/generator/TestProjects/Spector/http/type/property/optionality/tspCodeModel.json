@@ -51,7 +51,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "",
+   "namespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -105,7 +105,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "",
+   "namespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -159,7 +159,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "",
+   "namespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -192,7 +192,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "doc": "The FloatLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
@@ -226,7 +226,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "doc": "The IntLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
@@ -260,7 +260,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "doc": "The StringLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
@@ -273,7 +273,7 @@
    "$id": "29",
    "kind": "model",
    "name": "RequiredAndOptionalProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with required and optional properties",
@@ -339,7 +339,7 @@
    "$id": "38",
    "kind": "model",
    "name": "UnionFloatLiteralProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with union of float literal property",
@@ -374,7 +374,7 @@
    "$id": "42",
    "kind": "model",
    "name": "UnionIntLiteralProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with union of int literal property",
@@ -409,7 +409,7 @@
    "$id": "46",
    "kind": "model",
    "name": "UnionStringLiteralProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with union of string literal property",
@@ -444,7 +444,7 @@
    "$id": "50",
    "kind": "model",
    "name": "BooleanLiteralProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with boolean literal property",
@@ -489,7 +489,7 @@
    "$id": "56",
    "kind": "model",
    "name": "FloatLiteralProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with float literal property",
@@ -530,7 +530,7 @@
    "$id": "61",
    "kind": "model",
    "name": "IntLiteralProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with int literal property",
@@ -571,7 +571,7 @@
    "$id": "66",
    "kind": "model",
    "name": "StringLiteralProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with string literal property",
@@ -612,7 +612,7 @@
    "$id": "71",
    "kind": "model",
    "name": "CollectionsModelProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with collection models properties",
@@ -632,7 +632,7 @@
        "$id": "74",
        "kind": "model",
        "name": "StringProperty",
-       "clientNamespace": "Type.Property.Optional",
+       "namespace": "Type.Property.Optional",
        "crossLanguageDefinitionId": "Type.Property.Optional.StringProperty",
        "usage": "Input,Output,Json",
        "doc": "Template type for testing models with optional property. Pass in the type of the property you are looking for",
@@ -693,7 +693,7 @@
    "$id": "81",
    "kind": "model",
    "name": "CollectionsByteProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByteProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with collection bytes properties",
@@ -740,7 +740,7 @@
    "$id": "87",
    "kind": "model",
    "name": "PlainTimeProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with a plainTime property",
@@ -779,7 +779,7 @@
    "$id": "92",
    "kind": "model",
    "name": "PlainDateProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with a plainDate property",
@@ -818,7 +818,7 @@
    "$id": "97",
    "kind": "model",
    "name": "DurationProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.DurationProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with a duration property",
@@ -865,7 +865,7 @@
    "$id": "103",
    "kind": "model",
    "name": "DatetimeProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty",
    "usage": "Input,Output,Json",
    "doc": "Model with a datetime property",
@@ -912,7 +912,7 @@
    "$id": "109",
    "kind": "model",
    "name": "BytesProperty",
-   "clientNamespace": "Type.Property.Optional",
+   "namespace": "Type.Property.Optional",
    "crossLanguageDefinitionId": "Type.Property.Optional.BytesProperty",
    "usage": "Input,Output,Json",
    "doc": "Template type for testing models with optional property. Pass in the type of the property you are looking for",
@@ -953,7 +953,7 @@
   {
    "$id": "114",
    "Name": "OptionalClient",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Doc": "Illustrates models with optional properties.",
    "Operations": [],
    "Protocol": {
@@ -997,7 +997,7 @@
   {
    "$id": "120",
    "Name": "String",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "121",
@@ -1320,7 +1320,7 @@
   {
    "$id": "148",
    "Name": "Bytes",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "149",
@@ -1643,7 +1643,7 @@
   {
    "$id": "176",
    "Name": "Datetime",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "177",
@@ -1966,7 +1966,7 @@
   {
    "$id": "204",
    "Name": "Duration",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "205",
@@ -2289,7 +2289,7 @@
   {
    "$id": "232",
    "Name": "PlainDate",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "233",
@@ -2612,7 +2612,7 @@
   {
    "$id": "260",
    "Name": "PlainTime",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "261",
@@ -2935,7 +2935,7 @@
   {
    "$id": "288",
    "Name": "CollectionsByte",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "289",
@@ -3258,7 +3258,7 @@
   {
    "$id": "316",
    "Name": "CollectionsModel",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "317",
@@ -3581,7 +3581,7 @@
   {
    "$id": "344",
    "Name": "StringLiteral",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "345",
@@ -3904,7 +3904,7 @@
   {
    "$id": "372",
    "Name": "IntLiteral",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "373",
@@ -4227,7 +4227,7 @@
   {
    "$id": "400",
    "Name": "FloatLiteral",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "401",
@@ -4550,7 +4550,7 @@
   {
    "$id": "428",
    "Name": "BooleanLiteral",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "429",
@@ -4873,7 +4873,7 @@
   {
    "$id": "456",
    "Name": "UnionStringLiteral",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "457",
@@ -5196,7 +5196,7 @@
   {
    "$id": "484",
    "Name": "UnionIntLiteral",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "485",
@@ -5519,7 +5519,7 @@
   {
    "$id": "512",
    "Name": "UnionFloatLiteral",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "513",
@@ -5842,7 +5842,7 @@
   {
    "$id": "540",
    "Name": "RequiredAndOptional",
-   "ClientNamespace": "Type.Property.Optional",
+   "Namespace": "Type.Property.Optional",
    "Doc": "Test optional and required properties",
    "Operations": [
     {
