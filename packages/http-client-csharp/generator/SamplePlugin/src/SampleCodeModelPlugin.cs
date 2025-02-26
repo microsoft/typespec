@@ -12,11 +12,9 @@ namespace SamplePlugin
     [method: ImportingConstructor]
     public class SampleCodeModelPlugin(GeneratorContext context) : ScmCodeModelPlugin(context)
     {
-        public override ScmTypeFactory TypeFactory { get; } = new SampleTypeFactory();
-
         public override void Configure()
         {
-            AddVisitor(new SamplePluginLibraryLibraryVisitor());
+            AddVisitor(new SamplePluginLibraryVisitor());
         }
     }
 }

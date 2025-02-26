@@ -10,7 +10,7 @@ using SamplePlugin.Providers;
 
 namespace SamplePlugin
 {
-    public class SamplePluginLibraryLibraryVisitor : ScmLibraryVisitor
+    public class SamplePluginLibraryVisitor : ScmLibraryVisitor
     {
         protected override MethodProvider? VisitMethod(MethodProvider method)
         {
@@ -24,10 +24,14 @@ namespace SamplePlugin
             return method;
         }
 
-        //protected override PropertyProvider? Visit(PropertyProvider property)
-        //{
-        //    return new SamplePluginPropertyProvider(property, property.EnclosingType);
-        //}
+        protected override PropertyProvider? PreVisitProperty(InputModelProperty property, PropertyProvider? propertyProvider)
+        {
+            if (propertyProvider is not null)
+            {
+                return new SamplePluginPropertyProvider(property, propertyProvider.EnclosingType);
+            }
+            return null;
+        }
 
         protected override MethodProviderCollection Visit(InputOperation operation,
             TypeProvider enclosingType,
