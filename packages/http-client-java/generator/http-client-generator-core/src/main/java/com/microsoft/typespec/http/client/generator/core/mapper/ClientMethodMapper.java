@@ -407,7 +407,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
 
                     if (JavaSettings.getInstance().isSyncStackEnabled() && !proxyMethodUsesFluxByteBuffer) {
-                        // WithResponseAsync, with required and optional parameters
+                        // WithResponseSync, with required and optional parameters
                         methods.add(builder
                             .returnValue(createSimpleSyncRestResponseReturnValue(operation,
                                 returnTypeHolder.syncReturnWithResponse, returnTypeHolder.syncReturnType))
@@ -419,7 +419,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             .proxyMethod(proxyMethod.toSync())
                             .build());
 
-                        builder.methodVisibility(simpleSyncMethodVisibilityWithContext);
+                        if (settings.isFluent()) {
+                            // fluent + sync stack only needs LRO simple rest response with Context for implementation
+                            builder.methodVisibility(NOT_VISIBLE);
+                        } else {
+                            builder.methodVisibility(simpleSyncMethodVisibilityWithContext);
+                        }
                         addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
 
                         // reset builder
