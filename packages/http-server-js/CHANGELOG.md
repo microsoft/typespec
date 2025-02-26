@@ -1,4 +1,4 @@
-# Changelog - @typespec/http-server-javascript
+# Changelog - @typespec/http-server-js
 
 ## 0.58.0-alpha.9
 

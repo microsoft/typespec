@@ -11,14 +11,14 @@ toc_max_heading_level: 3
 1. Via the command line
 
 ```bash
-tsp compile . --emit=@typespec/http-server-javascript
+tsp compile . --emit=@typespec/http-server-js
 ```
 
 2. Via the config
 
 ```yaml
 emit:
-  - "@typespec/http-server-javascript"
+  - "@typespec/http-server-js"
 ```
 
 ## Emitter options

@@ -64,7 +64,7 @@ function getDefaultTsConfig(standalone: boolean) {
     },
     include: standalone
       ? ["src/**/*.ts"]
-      : ["src/**/*.ts", "tsp-output/@typespec/http-server-javascript/**/*.ts"],
+      : ["src/**/*.ts", "tsp-output/@typespec/http-server-js/**/*.ts"],
   } as const;
 }
 
@@ -187,7 +187,7 @@ export async function scaffold(options: ScaffoldingOptions) {
   // resolve the options from the config using the schema.
 
   const emitterOutputDirTemplate =
-    config.options?.["@typespec/http-server-javascript"]?.["emitter-output-dir"];
+    config.options?.["@typespec/http-server-js"]?.["emitter-output-dir"];
   const defaultOutputDir = path.resolve(path.dirname(projectYamlPath), "tsp-output");
 
   const emitterOutputDir = emitterOutputDirTemplate.replace("{output-dir}", defaultOutputDir);
@@ -196,7 +196,7 @@ export async function scaffold(options: ScaffoldingOptions) {
   const tsConfigOutputPath = path.resolve(baseOutputDir, COMMON_PATHS.tsConfigJson);
 
   const expressOptions: PackageJsonExpressOptions = {
-    isExpress: !!config.options?.["@typespec/http-server-javascript"]?.express,
+    isExpress: !!config.options?.["@typespec/http-server-js"]?.express,
     openApi3: undefined,
   };
 
@@ -265,7 +265,7 @@ export async function scaffold(options: ScaffoldingOptions) {
   indexModule.imports.push({
     binder: ["create" + routerName],
     from: options["no-standalone"]
-      ? "../tsp-output/@typespec/http-server-javascript/src/generated/http/router.js"
+      ? "../tsp-output/@typespec/http-server-js/src/generated/http/router.js"
       : "./generated/http/router.js",
   });
 
@@ -392,7 +392,7 @@ export async function scaffold(options: ScaffoldingOptions) {
           ...backout.slice(1),
           "tsp-output",
           "@typespec",
-          "http-server-javascript",
+          "http-server-js",
           ..._import.from.cursor.path.slice(0, -1),
           ...(targetIsIndex ? [modulePrincipalName, "index.js"] : [`${modulePrincipalName}.js`]),
         ].join("/");
