@@ -7,9 +7,7 @@ import {
   SdkDictionaryExampleValue,
   SdkExampleValue,
   SdkHttpOperationExample,
-  SdkHttpParameter,
   SdkHttpParameterExampleValue,
-  SdkHttpResponse,
   SdkHttpResponseExampleValue,
   SdkModelExampleValue,
   SdkNullExampleValue,
@@ -34,7 +32,6 @@ import {
   InputUnknownExampleValue,
   OperationResponseExample,
 } from "../type/input-examples.js";
-import { InputParameter } from "../type/input-parameter.js";
 import {
   InputArrayType,
   InputDictionaryType,
@@ -43,14 +40,12 @@ import {
   InputPrimitiveType,
   InputUnionType,
 } from "../type/input-type.js";
-import { OperationResponse } from "../type/operation-response.js";
+import { fromSdkHttpOperationResponse } from "./operation-converter.js";
 import { fromSdkType } from "./type-converter.js";
 
 export function fromSdkHttpExamples(
   sdkContext: CSharpEmitterContext,
   examples: SdkHttpOperationExample[],
-  parameterMap: Map<SdkHttpParameter, InputParameter>,
-  responseMap: Map<SdkHttpResponse, OperationResponse>,
 ): InputHttpOperationExample[] {
   return examples.map((example) => fromSdkHttpExample(example));
 
@@ -61,7 +56,7 @@ export function fromSdkHttpExamples(
       description: example.description,
       filePath: example.filePath,
       parameters: example.parameters.map((p) => fromSdkParameterExample(p)),
-      responses: fromSdkOperationResponses(example.responses),
+      responses: example.responses.map((r) => fromSdkOperationResponse(r)),
     };
   }
 
@@ -69,28 +64,18 @@ export function fromSdkHttpExamples(
     parameter: SdkHttpParameterExampleValue,
   ): InputParameterExampleValue {
     return {
-      parameter: parameterMap.get(parameter.parameter)!,
+      parameter: sdkContext.__typeCache.parameters.get(parameter.parameter)!,
       value: fromSdkExample(parameter.value),
     };
   }
 
-  function fromSdkOperationResponses(
-    responses: SdkHttpResponseExampleValue[],
-  ): OperationResponseExample[] {
-    const result: OperationResponseExample[] = [];
-    for (const response of responses) {
-      result.push(fromSdkOperationResponse(response));
-    }
-    return result;
-  }
-
   function fromSdkOperationResponse(
-    response: SdkHttpResponseExampleValue,
+    responseValue: SdkHttpResponseExampleValue,
   ): OperationResponseExample {
     return {
-      response: responseMap.get(response.response)!,
-      statusCode: response.statusCode,
-      bodyValue: response.bodyValue ? fromSdkExample(response.bodyValue) : undefined,
+      response: fromSdkHttpOperationResponse(sdkContext, responseValue.response),
+      statusCode: responseValue.statusCode,
+      bodyValue: responseValue.bodyValue ? fromSdkExample(responseValue.bodyValue) : undefined,
     };
   }
 
