@@ -8,7 +8,7 @@
   {
    "$id": "2",
    "Name": "NotVersionedClient",
-   "ClientNamespace": "Server.Versions.NotVersioned",
+   "Namespace": "Server.Versions.NotVersioned",
    "Doc": "Illustrates not-versioned server.",
    "Operations": [
     {
