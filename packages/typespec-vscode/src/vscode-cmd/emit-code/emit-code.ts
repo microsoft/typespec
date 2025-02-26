@@ -2,14 +2,20 @@ import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
-import { isScalar, isSeq, parseDocument } from "yaml";
+import { isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../../typespec-utils.js";
-import { ExecOutput, isFile, spawnExecutionAndLogToOutput } from "../../utils.js";
+import {
+  ExecOutput,
+  isFile,
+  spawnExecutionAndLogToOutput,
+  tryParseYaml,
+  tryReadFile,
+} from "../../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import {
   Emitter,
@@ -136,6 +142,7 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
 
   if (emitters.length === 0) {
     logger.info("No emitter. Generating skipped.");
+    return;
   }
   const baseDir = getDirectoryPath(mainTspFile);
 
@@ -305,12 +312,14 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
   /*Config emitter output dir and emit in tspconfig.yaml. */
   const defaultEmitOutputDirInConfig = `{output-dir}/{emitter-name}`;
   const tspConfigFile = path.join(baseDir, TspConfigFileName);
-  let configYaml = parseDocument(""); //generate a empty yaml
+  let configYaml = tryParseYaml("") ?? {}; //generate a empty yaml
   if (await isFile(tspConfigFile)) {
-    const content = await readFile(tspConfigFile);
-    configYaml = parseDocument(content.toString());
+    const content = await tryReadFile(tspConfigFile);
+    if (content) {
+      configYaml = tryParseYaml(content.toString()) ?? configYaml;
+    }
   }
-  // let outputDirs = defaultEmitOutputDirInConfig;
+
   const generations: {
     emitter: Emitter;
     outputDir: string;
@@ -478,10 +487,10 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
   logger.info(`Generate from entrypoint file: ${tspProjectFile}`);
   const baseDir = getDirectoryPath(tspProjectFile);
   const tspConfigFile = path.join(baseDir, TspConfigFileName);
-  let configYaml = parseDocument(""); //generate a empty yaml
+  let configYaml = tryParseYaml(""); //generate a empty yaml
   if (await isFile(tspConfigFile)) {
     const content = await readFile(tspConfigFile);
-    configYaml = parseDocument(content.toString());
+    configYaml = tryParseYaml(content.toString()) ?? configYaml;
   }
 
   let existingEmitters;
