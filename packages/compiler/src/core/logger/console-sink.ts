@@ -1,4 +1,5 @@
 import { codeFrameColumns } from "@babel/code-frame";
+import isUnicodeSupported from "is-unicode-supported";
 import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
@@ -132,14 +133,43 @@ function getLineAndColumn(location: SourceLocation): RealLocation {
   return result;
 }
 
-async function trackAction<T>(asyncAction: () => Promise<T>, log: ProcessedLog): Promise<T> {
-  // eslint-disable-next-line no-console
-  console.log(log.message);
+export async function trackAction<T>(asyncAction: () => Promise<T>, log: ProcessedLog): Promise<T> {
+  const isTTY = process.stdout?.isTTY && !process.env.CI;
+  let interval;
+  if (isTTY) {
+    const spinner = createSpinner();
+
+    interval = setInterval(() => {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+      process.stdout.write(`\r${spinner()} ${log.message}`);
+    }, 200);
+  }
 
   try {
     return await asyncAction();
   } finally {
-    // eslint-disable-next-line no-console
-    getChildLogs().forEach((message) => console.log(message));
+    if (interval) {
+      clearInterval(interval);
+      clearLastLine();
+      getChildLogs().forEach((message) => process.stdout.write(`${message}\n`));
+    }
   }
 }
+
+function clearLastLine(): void {
+  process.stdout.write("\r\x1b[K");
+}
+
+function createSpinner(): () => string {
+  let index = 0;
+
+  return () => {
+    index = ++index % spinnerFrames.length;
+    return spinnerFrames[index];
+  };
+}
+
+export const spinnerFrames = isUnicodeSupported()
+  ? ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+  : ["-", "\\", "|", "/"];
