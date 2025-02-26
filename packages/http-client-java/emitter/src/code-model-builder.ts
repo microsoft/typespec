@@ -324,6 +324,7 @@ export class CodeModelBuilder {
                 scheme.flows.forEach((it) =>
                   oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
                 );
+                (oauth2Scheme as any).flows = scheme.flows;
                 securitySchemes.push(oauth2Scheme);
               } else {
                 // there is no TokenCredential in clientcore, hence use Bearer Authentication directly
