@@ -296,10 +296,7 @@ async function selectAndGetOpenApi3Content(
       selectedOpenApi3OutputFiles.set(mainTspFile, selected.path);
       return parseOpenApi3File(selected.path);
     } else {
-      logger.info("No OpenAPI3 file selected", [], {
-        showOutput: true,
-        showPopup: true,
-      });
+      logger.info("No OpenAPI3 file selected");
       return;
     }
   }
