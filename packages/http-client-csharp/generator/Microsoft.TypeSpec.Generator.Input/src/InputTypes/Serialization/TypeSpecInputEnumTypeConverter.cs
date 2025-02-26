@@ -61,10 +61,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             name = name ?? throw new JsonException("Enum must have name");
-            if (summary is null && doc is null)
-            {
-                Console.Error.WriteLine($"[Warn]: Enum '{name}' must have either a summary or doc");
-            }
 
             if (usageString != null)
             {

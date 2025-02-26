@@ -16,6 +16,7 @@ export interface CSharpEmitterContext extends SdkContext<CSharpEmitterOptions> {
 }
 
 export interface SdkTypeMap {
+  crossLanguageDefinitionIds: Map<string, SdkType>;
   types: Map<SdkType, InputType>;
   models: Map<string, InputModelType>;
   enums: Map<string, InputEnumType>;

@@ -122,6 +122,12 @@ function updateSdkTypeReferences(
   inputType: InputType,
 ) {
   sdkContext.__typeCache.types.set(sdkType, inputType);
+  if ("crossLanguageDefinitionId" in sdkType) {
+    sdkContext.__typeCache.crossLanguageDefinitionIds.set(
+      sdkType.crossLanguageDefinitionId,
+      sdkType,
+    );
+  }
 }
 
 export function fromSdkModelType(
