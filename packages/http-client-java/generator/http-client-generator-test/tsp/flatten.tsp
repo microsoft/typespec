@@ -117,7 +117,7 @@ interface FlattenOp {
     @query id: string,
 
     @encodedName("application/json", "file_id")
-    @projectedName("client", "fileIdentifier")
+    @clientName("fileIdentifier")
     fileId: string,
   ): OkResponse;
 
