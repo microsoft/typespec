@@ -1,4 +1,7 @@
-import { getDiscriminatedUnion } from "../../../core/helpers/discriminator-utils.js";
+import {
+  DiscriminatedUnion,
+  getDiscriminatedUnion,
+} from "../../../core/helpers/discriminator-utils.js";
 import { getLocationContext } from "../../../core/index.js";
 import {
   Discriminator,
@@ -66,7 +69,7 @@ export interface TypeTypekit {
    * Resolves a discriminated union for the given model or union.
    * @param type Model or Union to resolve the discriminated union for.
    */
-  getDiscriminatedUnion(type: Model | Union): Union | undefined;
+  getDiscriminatedUnion(type: Union): DiscriminatedUnion | undefined;
   /**
    * Resolves the discriminator for a discriminated union. Returns undefined if the type is not a discriminated union.
    * @param type
@@ -238,20 +241,8 @@ defineKit<TypekitExtension>({
       return getDiscriminator(this.program, type);
     },
     getDiscriminatedUnion(type) {
-      const discriminator = getDiscriminator(this.program, type);
-
-      if (!discriminator) {
-        return undefined;
-      }
-
-      const [union] = getDiscriminatedUnion(type, discriminator);
-      const variants = Array.from(union.variants.entries()).map(([k, v]) =>
-        this.unionVariant.create({ name: k, type: v }),
-      );
-      return this.union.create({
-        name: union.propertyName,
-        variants,
-      });
+      const [union] = getDiscriminatedUnion(this.program, type);
+      return union;
     },
     maxValue(type) {
       return getMaxValue(this.program, type);
