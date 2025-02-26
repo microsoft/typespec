@@ -69,7 +69,7 @@ const libDef = {
         default: paramMessage`Invalid value '${"inValidValue"}' for 'models-mode' of tspconfig.yaml and expected values are 'dpg'/'none'.`,
       },
     },
-    "no-python-installed": {
+    "pyodide-flag-conflict": {
       severity: "error",
       messages: {
         default:

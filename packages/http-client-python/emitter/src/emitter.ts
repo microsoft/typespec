@@ -188,7 +188,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
           venvPath = path.join(venvPath, "Scripts", "python.exe");
         } else {
           reportDiagnostic(program, {
-            code: "no-python-installed",
+            code: "pyodide-flag-conflict",
             target: NoTarget,
           });
         }
