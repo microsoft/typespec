@@ -46,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputClient.Name), ref name)
-                    || reader.TryReadString("ClientNamespace", ref @namespace)
+                    || reader.TryReadString("Namespace", ref @namespace)
                     || reader.TryReadString("Summary", ref summary)
                     || reader.TryReadString("Doc", ref doc)
                     || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
@@ -81,13 +81,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             return client;
         }
 
-        private static string GetLastSegment(string clientNamespace)
+        private static string GetLastSegment(string @namespace)
         {
-            var span = clientNamespace.AsSpan();
+            var span = @namespace.AsSpan();
             var index = span.LastIndexOf('.');
             if (index == -1)
             {
-                return clientNamespace;
+                return @namespace;
             }
 
             return span.Slice(index + 1).ToString();
