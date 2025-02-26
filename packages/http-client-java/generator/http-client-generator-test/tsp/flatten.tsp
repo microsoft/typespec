@@ -106,6 +106,7 @@ interface FlattenOp {
   @post
   send(
     @query id: string,
+    @query maxpagesize?: int32,
     @query constantQueryParam: "constant",
     ...Request,
     ...ApiVersionParameter,
