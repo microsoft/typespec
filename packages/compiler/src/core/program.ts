@@ -19,7 +19,7 @@ import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js
 import { compilerAssert } from "./diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
-import { setChildLogPrefix } from "./helpers/logger-child-utils.js";
+import { addChildLog, setChildLogPrefix } from "./helpers/logger-child-utils.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import {
   builtInLinterLibraryName,
@@ -159,11 +159,16 @@ export async function compile(
   oldProgram?: Program, // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ) {
   const logger = createLogger({ sink: host.logSink });
-  const { program, shouldEmit } = await logger.trackAction(
-    () => runCompiler(host, mainFile, options, oldProgram),
-    { level: "trace", message: "Compiling..." },
-    false,
-  );
+
+  let program, shouldEmit;
+  if (logger.trackAction) {
+    ({ program, shouldEmit } = await logger.trackAction(
+      () => runCompiler(host, mainFile, options, oldProgram),
+      { level: "trace", message: "Compiling..." },
+    ));
+  } else {
+    ({ program, shouldEmit } = await runCompiler(host, mainFile, options, oldProgram));
+  }
 
   // Emitter stage
   if (shouldEmit) {
@@ -920,20 +925,21 @@ function resolveOptions(options: CompilerOptions): CompilerOptions {
 
 async function emit(emitter: EmitterRef, options: CompilerOptions = {}, program: Program) {
   const emitterName = emitter.metadata.name ?? "";
-  let outputRelativePath = "";
-  if (options.listFiles) {
-    outputRelativePath = `./${getRelativePathFromDirectory(program.projectRoot, emitter.emitterOutputDir, false)}/`;
-    setChildLogPrefix(outputRelativePath);
-  }
+  const outputRelativePath = options.listFiles
+    ? `./${getRelativePathFromDirectory(program.projectRoot, emitter.emitterOutputDir, false)}/`
+    : "";
+  addChildLog(`✓ ${emitterName}\t${outputRelativePath}`);
+  setChildLogPrefix(outputRelativePath);
 
   const logger = createLogger({ sink: program.host.logSink });
-
-  await logger.trackAction(
-    () => runEmitter(emitter, options, program),
-    { level: "trace", message: emitterName },
-    options.listFiles ?? false,
-    { level: "trace", message: `✓ ${emitterName}\t${outputRelativePath}` },
-  );
+  if (logger.trackAction) {
+    await logger.trackAction(() => runEmitter(emitter, options, program), {
+      level: "trace",
+      message: emitterName,
+    });
+  } else {
+    await runEmitter(emitter, options, program);
+  }
 }
 
 /**

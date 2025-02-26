@@ -31,8 +31,7 @@ export function createLogger(options: LoggerOptions): Logger {
     trace: (message) => log({ level: "trace", message }),
     warn: (message) => log({ level: "warning", message }),
     error: (message) => log({ level: "error", message }),
-    trackAction: (action, startLog, logChildLogs, endLog) =>
-      trackAction(action, startLog, logChildLogs, endLog),
+    trackAction: (action, log) => trackAction(action, log),
   };
 }
 
@@ -45,12 +44,7 @@ function processLog(log: LogInfo): ProcessedLog {
   };
 }
 
-export async function trackAction<T>(
-  asyncAction: () => Promise<T>,
-  startLog: LogInfo,
-  logChildLogs: boolean = false,
-  endLog?: LogInfo,
-): Promise<T> {
+export async function trackAction<T>(asyncAction: () => Promise<T>, log: LogInfo): Promise<T> {
   const isTTY = process.stdout?.isTTY && !process.env.CI;
   let interval;
   if (isTTY) {
@@ -59,7 +53,7 @@ export async function trackAction<T>(
     interval = setInterval(() => {
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`\r${spinner()} ${startLog.message}`);
+      process.stdout.write(`\r${spinner()} ${log.message}`);
     }, 200);
   }
 
@@ -69,13 +63,7 @@ export async function trackAction<T>(
     if (interval) {
       clearInterval(interval);
       clearLastLine();
-    }
-    if (endLog) {
-      process.stdout.write(`${endLog.message}\n`);
-    }
-    if (logChildLogs) {
-      const childLogs = getChildLogs();
-      childLogs.forEach((message) => process.stdout.write(`${message}\n`));
+      getChildLogs().forEach((message) => process.stdout.write(`${message}\n`));
     }
   }
 }

@@ -1457,7 +1457,7 @@ interface SymbolDescriptor {
 
 function createProgramShim(): Program {
   return {
-    tracer: createTracer(createLogger({ sink: { log: () => {}, trackAction: async (x) => x() } })),
+    tracer: createTracer(createLogger({ sink: { log: () => {} } })),
     reportDuplicateSymbols() {},
     onValidate() {},
     sourceFiles: new Map(),

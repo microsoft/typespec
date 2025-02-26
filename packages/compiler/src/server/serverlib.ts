@@ -1090,12 +1090,7 @@ export function createServer(host: ServerHost): Server {
           };
           host.log(sLog);
         },
-        trackAction: async (
-          asyncAction: () => Promise<any>,
-          startMessage: ProcessedLog,
-          printChildMessage: boolean,
-          finishMessage?: ProcessedLog,
-        ) => {
+        trackAction: async (asyncAction: () => Promise<any>, startMessage: ProcessedLog) => {
           host.log({
             level: startMessage.level,
             message: formatLog(startMessage, { excludeLogLevel: true }),
@@ -1104,21 +1099,12 @@ export function createServer(host: ServerHost): Server {
           try {
             return await asyncAction();
           } finally {
-            if (finishMessage) {
+            getChildLogs().forEach((log) =>
               host.log({
-                level: finishMessage.level,
-                message: formatLog(finishMessage, { excludeLogLevel: true }),
-              });
-            }
-
-            if (printChildMessage) {
-              getChildLogs().forEach((log) =>
-                host.log({
-                  level: "warning",
-                  message: log,
-                }),
-              );
-            }
+                level: "info",
+                message: log,
+              }),
+            );
           }
         },
       },

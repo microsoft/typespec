@@ -22,8 +22,7 @@ export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
 
   return {
     log,
-    trackAction: (action, startLog, logChildLogs, endLog) =>
-      trackAction(action, startLog, logChildLogs, endLog),
+    trackAction: (action, log) => trackAction(action, log),
   };
 }
 
@@ -133,27 +132,14 @@ function getLineAndColumn(location: SourceLocation): RealLocation {
   return result;
 }
 
-async function trackAction<T>(
-  asyncAction: () => Promise<T>,
-  startLog: ProcessedLog,
-  logChildLogs: boolean = false,
-  endLog?: ProcessedLog,
-): Promise<T> {
+async function trackAction<T>(asyncAction: () => Promise<T>, log: ProcessedLog): Promise<T> {
   // eslint-disable-next-line no-console
-  console.log(startLog.message);
+  console.log(log.message);
 
   try {
     return await asyncAction();
   } finally {
-    if (endLog) {
-      // eslint-disable-next-line no-console
-      console.log(endLog);
-    }
-
-    if (logChildLogs) {
-      const childLogs = getChildLogs();
-      // eslint-disable-next-line no-console
-      childLogs.forEach((message) => console.log(message));
-    }
+    // eslint-disable-next-line no-console
+    getChildLogs().forEach((message) => console.log(message));
   }
 }

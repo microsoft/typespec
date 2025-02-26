@@ -558,7 +558,7 @@ function assertBindings(path: string, table: SymbolTable, descriptor: BindTest, 
 
 function createProgramShim(): Program {
   return {
-    tracer: createTracer(createLogger({ sink: { log: () => {}, trackAction: async (x) => x() } })),
+    tracer: createTracer(createLogger({ sink: { log: () => {} } })),
     reportDuplicateSymbols() {},
     onValidate() {},
   } as any;

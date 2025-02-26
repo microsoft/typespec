@@ -12,5 +12,5 @@ export function getChildLogs(): string[] {
 }
 
 export function addChildLog(message: string): void {
-  logMessages.push(`\t${childLogPrefix}${message}`);
+  logMessages.push(`${childLogPrefix ? `\t${childLogPrefix}` : ""}${message}`);
 }

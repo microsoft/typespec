@@ -11,8 +11,7 @@ export function createConsoleSink(options: any): LogSink {
 
   return {
     log,
-    trackAction: (action, startLog, logChildLogs, endLog) =>
-      trackAction(action, startLog, logChildLogs, endLog),
+    trackAction: (action, log) => trackAction(action, log),
   };
 }
 
@@ -20,26 +19,15 @@ export function formatLog(log: ProcessedLog): string {
   return JSON.stringify(log);
 }
 
-async function trackAction<T>(
-  asyncAction: () => Promise<T>,
-  startLog: ProcessedLog,
-  logChildLogs: boolean = false,
-  endLog?: ProcessedLog,
-): Promise<T> {
+async function trackAction<T>(asyncAction: () => Promise<T>, log: ProcessedLog): Promise<T> {
   // eslint-disable-next-line no-console
-  console.log(startLog.message);
+  console.log(log.message);
 
   try {
     return await asyncAction();
   } finally {
-    if (endLog) {
-      // eslint-disable-next-line no-console
-      console.log(endLog.message);
-    }
-    if (logChildLogs) {
-      const childLogs = getChildLogs();
-      // eslint-disable-next-line no-console
-      childLogs.forEach((message) => console.log(message));
-    }
+    const childLogs = getChildLogs();
+    // eslint-disable-next-line no-console
+    childLogs.forEach((message) => console.log(message));
   }
 }
