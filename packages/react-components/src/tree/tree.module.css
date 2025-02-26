@@ -25,12 +25,14 @@
 
 .tree-row .caret {
   width: 16px;
+  flex: 0 0 16px;
   display: flex;
   align-items: center;
 }
 
 .tree-row .icon {
   width: 16px;
+  flex: 0 0 16px;
   display: flex;
   align-items: center;
 }
