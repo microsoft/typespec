@@ -2889,6 +2889,12 @@ export interface RelatedSourceLocation {
 
 export interface LogSink {
   log(log: ProcessedLog): void;
+  trackAction<T>(
+    asyncAction: () => Promise<T>,
+    startLog: ProcessedLog,
+    logChildLogs: boolean,
+    endLog?: ProcessedLog,
+  ): Promise<T>;
 }
 
 export interface Logger {
@@ -2896,6 +2902,12 @@ export interface Logger {
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
+  trackAction<T>(
+    asyncAction: () => Promise<T>,
+    startLog: LogInfo,
+    logChildLogs: boolean,
+    endLog?: LogInfo,
+  ): Promise<T>;
 }
 
 export interface TracerOptions {

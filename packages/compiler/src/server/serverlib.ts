@@ -50,6 +50,7 @@ import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
+import { getChildLogs } from "../core/helpers/logger-child-utils.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import {
   NoTarget,
@@ -1088,6 +1089,37 @@ export function createServer(host: ServerHost): Server {
             message: msg,
           };
           host.log(sLog);
+        },
+        trackAction: async (
+          asyncAction: () => Promise<any>,
+          startMessage: ProcessedLog,
+          printChildMessage: boolean,
+          finishMessage?: ProcessedLog,
+        ) => {
+          host.log({
+            level: startMessage.level,
+            message: formatLog(startMessage, { excludeLogLevel: true }),
+          });
+
+          try {
+            return await asyncAction();
+          } finally {
+            if (finishMessage) {
+              host.log({
+                level: finishMessage.level,
+                message: formatLog(finishMessage, { excludeLogLevel: true }),
+              });
+            }
+
+            if (printChildMessage) {
+              getChildLogs().forEach((log) =>
+                host.log({
+                  level: "warning",
+                  message: log,
+                }),
+              );
+            }
+          }
         },
       },
     };

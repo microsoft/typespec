@@ -166,7 +166,7 @@ describe("cli", () => {
     });
   });
 
-  it("log outputs paths with --list-outputs flag", async () => {
+  it("log outputs paths with --list-files flag", async () => {
     const { stdout } = await execCliSuccess(
       [
         "compile",
@@ -175,7 +175,7 @@ describe("cli", () => {
         "./emitter.js",
         "--option",
         "test-emitter.text=foo",
-        "--list-outputs",
+        "--list-files",
       ],
       {
         cwd: getScenarioDir("with-emitter"),
@@ -184,7 +184,7 @@ describe("cli", () => {
     expect(stdout).toContain("✓ test-emitter\t./tsp-output/test-emitter/");
   });
 
-  it("doesn't log outputs paths when there is not --list-outputs flag", async () => {
+  it("doesn't log outputs paths when there is not --list-files flag", async () => {
     const { stdout } = await execCliSuccess(
       ["compile", ".", "--emit", "./emitter.js", "--option", "test-emitter.text=foo"],
       {

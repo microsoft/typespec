@@ -2,6 +2,7 @@ import { codeFrameColumns } from "@babel/code-frame";
 import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
+import { getChildLogs } from "../helpers/logger-child-utils.js";
 import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
 import { supportsHyperlink } from "./support-hyperlinks.js";
 
@@ -21,6 +22,8 @@ export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
 
   return {
     log,
+    trackAction: (action, startLog, logChildLogs, endLog) =>
+      trackAction(action, startLog, logChildLogs, endLog),
   };
 }
 
@@ -128,4 +131,29 @@ function getLineAndColumn(location: SourceLocation): RealLocation {
     result.end = { line: end.line + 1, column: end.character + 1 };
   }
   return result;
+}
+
+async function trackAction<T>(
+  asyncAction: () => Promise<T>,
+  startLog: ProcessedLog,
+  logChildLogs: boolean = false,
+  endLog?: ProcessedLog,
+): Promise<T> {
+  // eslint-disable-next-line no-console
+  console.log(startLog.message);
+
+  try {
+    return await asyncAction();
+  } finally {
+    if (endLog) {
+      // eslint-disable-next-line no-console
+      console.log(endLog);
+    }
+
+    if (logChildLogs) {
+      const childLogs = getChildLogs();
+      // eslint-disable-next-line no-console
+      childLogs.forEach((message) => console.log(message));
+    }
+  }
 }

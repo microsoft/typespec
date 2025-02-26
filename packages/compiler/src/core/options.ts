@@ -28,7 +28,7 @@ export interface CompilerOptions {
   /**
    * List emitted outputs and their paths.
    */
-  listOutputs?: boolean;
+  listFiles?: boolean;
 
   /**
    * Emitter options.
