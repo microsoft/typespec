@@ -2097,10 +2097,6 @@ importers:
         version: link:../typespec-vscode
 
   packages/typespec-vscode:
-    dependencies:
-      swagger-ui-dist:
-        specifier: ^5.18.2
-        version: 5.18.2
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ~28.0.2
@@ -2156,6 +2152,9 @@ importers:
       semver:
         specifier: ^7.6.3
         version: 7.6.3
+      swagger-ui-dist:
+        specifier: ^5.18.2
+        version: 5.18.2
       typescript:
         specifier: ~5.7.3
         version: 5.7.3
