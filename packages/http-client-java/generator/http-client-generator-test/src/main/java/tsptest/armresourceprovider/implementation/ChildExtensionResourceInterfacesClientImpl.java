@@ -28,6 +28,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.management.polling.PollResult;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
 import com.azure.core.util.logging.ClientLogger;
@@ -109,7 +110,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         @Put("/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}")
         @ExpectedResponses({ 200, 201 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<Flux<ByteBuffer>> createOrUpdateSync(@HostParam("endpoint") String endpoint,
+        Response<BinaryData> createOrUpdateSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion,
             @PathParam(value = "resourceUri", encoded = true) String resourceUri,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
@@ -154,7 +155,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         @Delete("/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}")
         @ExpectedResponses({ 200, 202, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<Flux<ByteBuffer>> deleteSync(@HostParam("endpoint") String endpoint,
+        Response<BinaryData> deleteSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion,
             @PathParam(value = "resourceUri", encoded = true) String resourceUri,
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
@@ -462,9 +463,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @return extensionResource of Top Level Arm Resource along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<ChildExtensionResourceInner> createOrUpdateWithResponse(String resourceUri,
-        String topLevelArmResourceName, String childExtensionResourceName, ChildExtensionResourceInner resource,
-        Context context) {
+    private Response<BinaryData> createOrUpdateWithResponse(String resourceUri, String topLevelArmResourceName,
+        String childExtensionResourceName, ChildExtensionResourceInner resource, Context context) {
         if (this.client.getEndpoint() == null) {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException(
@@ -931,10 +931,10 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
+     * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> deleteWithResponse(String resourceUri, String topLevelArmResourceName,
+    private Response<BinaryData> deleteWithResponse(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName, Context context) {
         if (this.client.getEndpoint() == null) {
             throw LOGGER.atError()

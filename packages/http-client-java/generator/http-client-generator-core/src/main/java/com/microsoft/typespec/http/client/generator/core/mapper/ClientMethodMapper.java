@@ -421,7 +421,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                         if (settings.isFluent()) {
                             // fluent + sync stack only needs LRO simple rest response with Context for implementation
-                            builder.methodVisibility(NOT_VISIBLE);
+                            builder.methodVisibility(NOT_VISIBLE)
+                                .returnValue(createSimpleSyncRestResponseReturnValue(
+                                    operation, createSyncReturnWithResponseType(ClassType.BINARY_DATA, operation,
+                                        isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored()),
+                                    ClassType.BINARY_DATA));
                         } else {
                             builder.methodVisibility(simpleSyncMethodVisibilityWithContext);
                         }

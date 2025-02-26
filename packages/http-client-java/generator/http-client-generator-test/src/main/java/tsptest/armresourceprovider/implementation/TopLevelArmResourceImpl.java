@@ -4,7 +4,6 @@
 
 package tsptest.armresourceprovider.implementation;
 
-import com.azure.core.http.rest.Response;
 import com.azure.core.management.Region;
 import com.azure.core.management.SystemData;
 import com.azure.core.util.Context;
@@ -177,11 +176,6 @@ public final class TopLevelArmResourceImpl
             .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourceName, context)
             .getValue();
         return this;
-    }
-
-    public Response<Result> actionWithResponse(Context context) {
-        return serviceManager.topLevelArmResourceInterfaces()
-            .actionWithResponse(resourceGroupName, topLevelArmResourceName, context);
     }
 
     public Result action() {

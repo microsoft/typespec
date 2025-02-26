@@ -55,23 +55,6 @@ public interface ChildResourcesInterfacesClient {
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
      * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return subresource of Top Level Arm Resource along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<ChildResourceInner> createOrUpdateWithResponse(String resourceGroupName, String topLevelArmResourceName,
-        String childResourceName, ChildResourceInner resource, Context context);
-
-    /**
-     * Create a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param resource Resource create parameters.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -170,22 +153,6 @@ public interface ChildResourcesInterfacesClient {
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourceName,
-        String childResourceName, Context context);
-
-    /**
-     * Delete a ChildResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -266,22 +233,6 @@ public interface ChildResourcesInterfacesClient {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     PagedIterable<ChildResourceInner> listByTopLevelArmResource(String resourceGroupName,
         String topLevelArmResourceName, Context context);
-
-    /**
-     * A long-running resource action.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourceName arm resource name for path.
-     * @param childResourceName ChildResources.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> actionWithoutBodyWithResponse(String resourceGroupName, String topLevelArmResourceName,
-        String childResourceName, Context context);
 
     /**
      * A long-running resource action.

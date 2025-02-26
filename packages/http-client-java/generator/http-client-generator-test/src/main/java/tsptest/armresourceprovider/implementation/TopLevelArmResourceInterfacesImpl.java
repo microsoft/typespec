@@ -51,11 +51,6 @@ public final class TopLevelArmResourceInterfacesImpl implements TopLevelArmResou
         }
     }
 
-    public Response<Void> deleteByResourceGroupWithResponse(String resourceGroupName, String topLevelArmResourceName,
-        Context context) {
-        return this.serviceClient().deleteWithResponse(resourceGroupName, topLevelArmResourceName, context);
-    }
-
     public void deleteByResourceGroup(String resourceGroupName, String topLevelArmResourceName) {
         this.serviceClient().delete(resourceGroupName, topLevelArmResourceName);
     }
@@ -83,18 +78,6 @@ public final class TopLevelArmResourceInterfacesImpl implements TopLevelArmResou
     public PagedIterable<TopLevelArmResource> list(Context context) {
         PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().list(context);
         return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
-    }
-
-    public Response<Result> actionWithResponse(String resourceGroupName, String topLevelArmResourceName,
-        Context context) {
-        Response<ResultInner> inner
-            = this.serviceClient().actionWithResponse(resourceGroupName, topLevelArmResourceName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new ResultImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
     }
 
     public Result action(String resourceGroupName, String topLevelArmResourceName) {

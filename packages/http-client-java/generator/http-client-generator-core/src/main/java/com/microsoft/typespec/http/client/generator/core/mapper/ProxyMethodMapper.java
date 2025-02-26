@@ -401,7 +401,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             && settings.isFluent()
             && (operation.getExtensions().getXmsPageable() == null
                 || !(operation.getExtensions().getXmsPageable().getNextOperation() == operation))) {
-            // LRO in fluent uses Flux<ByteBuffer> for PollerFactory in azure-core-management
+            // LRO in fluent uses Flux<ByteBuffer> for PollerFactory in azure-core-management for async
             return createBinaryContentAsyncReturnType();
         } else if (SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
             // SchemaResponse

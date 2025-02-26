@@ -50,12 +50,6 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
         }
     }
 
-    public Response<Void> deleteWithResponse(String resourceUri, String topLevelArmResourceName,
-        String childExtensionResourceName, Context context) {
-        return this.serviceClient()
-            .deleteWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
-    }
-
     public void delete(String resourceUri, String topLevelArmResourceName, String childExtensionResourceName) {
         this.serviceClient().delete(resourceUri, topLevelArmResourceName, childExtensionResourceName);
     }

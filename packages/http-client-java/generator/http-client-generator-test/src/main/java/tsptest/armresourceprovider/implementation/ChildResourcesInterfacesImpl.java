@@ -49,12 +49,6 @@ public final class ChildResourcesInterfacesImpl implements ChildResourcesInterfa
         }
     }
 
-    public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourceName,
-        String childResourceName, Context context) {
-        return this.serviceClient()
-            .deleteWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, context);
-    }
-
     public void delete(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
         this.serviceClient().delete(resourceGroupName, topLevelArmResourceName, childResourceName);
     }
@@ -76,12 +70,6 @@ public final class ChildResourcesInterfacesImpl implements ChildResourcesInterfa
         PagedIterable<ChildResourceInner> inner
             = this.serviceClient().listByTopLevelArmResource(resourceGroupName, topLevelArmResourceName, context);
         return ResourceManagerUtils.mapPage(inner, inner1 -> new ChildResourceImpl(inner1, this.manager()));
-    }
-
-    public Response<Void> actionWithoutBodyWithResponse(String resourceGroupName, String topLevelArmResourceName,
-        String childResourceName, Context context) {
-        return this.serviceClient()
-            .actionWithoutBodyWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, context);
     }
 
     public void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {

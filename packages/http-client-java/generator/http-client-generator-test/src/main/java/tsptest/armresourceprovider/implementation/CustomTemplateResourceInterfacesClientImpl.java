@@ -21,6 +21,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.management.polling.PollResult;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
 import com.azure.core.util.logging.ClientLogger;
@@ -79,7 +80,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
         @Put("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}")
         @ExpectedResponses({ 200, 201 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<Flux<ByteBuffer>> createOrUpdateSync(@HostParam("endpoint") String endpoint,
+        Response<BinaryData> createOrUpdateSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName, @HeaderParam("If-Match") String ifMatch,
             @HeaderParam("If-None-Match") String ifNoneMatch,
@@ -100,7 +101,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
         @Patch("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}")
         @ExpectedResponses({ 200, 202 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<Flux<ByteBuffer>> updateLongRunningSync(@HostParam("endpoint") String endpoint,
+        Response<BinaryData> updateLongRunningSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("customTemplateResourceName") String customTemplateResourceName,
@@ -227,9 +228,8 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<CustomTemplateResourceInner> createOrUpdateWithResponse(String resourceGroupName,
-        String customTemplateResourceName, CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch,
-        Context context) {
+    private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String customTemplateResourceName,
+        CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch, Context context) {
         if (this.client.getEndpoint() == null) {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException(
@@ -602,7 +602,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<CustomTemplateResourceInner> updateLongRunningWithResponse(String resourceGroupName,
+    private Response<BinaryData> updateLongRunningWithResponse(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourcePatch properties, Context context) {
         if (this.client.getEndpoint() == null) {
             throw LOGGER.atError()
