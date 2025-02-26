@@ -13,10 +13,10 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
- * The RunObjectLastError model.
+ * The RunObjectLastError1 model.
  */
 @Immutable
-public final class RunObjectLastError implements JsonSerializable<RunObjectLastError> {
+public final class RunObjectLastError1 implements JsonSerializable<RunObjectLastError1> {
     /*
      * The code property.
      */
@@ -24,12 +24,12 @@ public final class RunObjectLastError implements JsonSerializable<RunObjectLastE
     private final RunObjectLastErrorCode code;
 
     /**
-     * Creates an instance of RunObjectLastError class.
+     * Creates an instance of RunObjectLastError1 class.
      * 
      * @param code the code value to set.
      */
     @Generated
-    private RunObjectLastError(RunObjectLastErrorCode code) {
+    private RunObjectLastError1(RunObjectLastErrorCode code) {
         this.code = code;
     }
 
@@ -55,16 +55,16 @@ public final class RunObjectLastError implements JsonSerializable<RunObjectLastE
     }
 
     /**
-     * Reads an instance of RunObjectLastError from the JsonReader.
+     * Reads an instance of RunObjectLastError1 from the JsonReader.
      * 
      * @param jsonReader The JsonReader being read.
-     * @return An instance of RunObjectLastError if the JsonReader was pointing to an instance of it, or null if it was
+     * @return An instance of RunObjectLastError1 if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
-     * @throws IOException If an error occurs while reading the RunObjectLastError.
+     * @throws IOException If an error occurs while reading the RunObjectLastError1.
      */
     @Generated
-    public static RunObjectLastError fromJson(JsonReader jsonReader) throws IOException {
+    public static RunObjectLastError1 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             RunObjectLastErrorCode code = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
@@ -77,7 +77,7 @@ public final class RunObjectLastError implements JsonSerializable<RunObjectLastE
                     reader.skipChildren();
                 }
             }
-            return new RunObjectLastError(code);
+            return new RunObjectLastError1(code);
         });
     }
 }
