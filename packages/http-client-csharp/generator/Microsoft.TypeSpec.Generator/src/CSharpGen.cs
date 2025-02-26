@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 
@@ -34,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator
             // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
 
             List<Task> generateAttributeTasks = new();
-            foreach (var attributeProvider in GetCustomCodeAttributeProviders())
+            foreach (var attributeProvider in CodeModelPlugin.Instance.CustomCodeAttributeProviders)
             {
                 var writer = CodeModelPlugin.Instance.GetWriter(attributeProvider);
                 generateAttributeTasks.Add(workspace.AddGeneratedFile(writer.Write()));
@@ -85,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
                 var filename = Path.Combine(outputPath, file.Name);
-                Console.WriteLine($"Writing {Path.GetFullPath(filename)}");
+                Emitter.Instance.Info($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
                 await File.WriteAllTextAsync(filename, file.Text);
             }
@@ -95,14 +96,6 @@ namespace Microsoft.TypeSpec.Generator
             {
                 await CodeModelPlugin.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
-        }
-
-        private static IEnumerable<TypeProvider> GetCustomCodeAttributeProviders()
-        {
-            yield return new CodeGenTypeAttributeDefinition();
-            yield return new CodeGenMemberAttributeDefinition();
-            yield return new CodeGenSuppressAttributeDefinition();
-            yield return new CodeGenSerializationAttributeDefinition();
         }
 
         /// <summary>

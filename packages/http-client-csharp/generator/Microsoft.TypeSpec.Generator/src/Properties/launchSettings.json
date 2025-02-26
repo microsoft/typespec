@@ -120,6 +120,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-response-status-code-range": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/response/status-code-range -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-routes": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/routes -p StubLibraryPlugin",
       "commandName": "Executable",
@@ -321,7 +326,7 @@
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
     "Unbranded-TypeSpec": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -p ClientModelPlugin",
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -p ScmCodeModelPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     }

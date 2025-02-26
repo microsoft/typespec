@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Resiliency.ServiceDriven
+namespace Resiliency.SrvDriven.V2
 {
     [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct), AllowMultiple = true, Inherited = true)]
     internal partial class CodeGenSerializationAttribute : Attribute

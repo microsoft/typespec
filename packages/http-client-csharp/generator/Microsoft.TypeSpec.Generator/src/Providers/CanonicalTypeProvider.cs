@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => _generatedTypeProvider.Name;
 
-        protected override string BuildNamespace() => _generatedTypeProvider.Namespace;
+        protected override string BuildNamespace() => _generatedTypeProvider.Type.Namespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 
@@ -44,10 +44,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;
 
-        // TODO - Implement BuildMethods, etc as needed
         protected override ConstructorProvider[] BuildConstructors()
         {
             return [.. _generatedTypeProvider.Constructors, .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
+        }
+
+        protected override MethodProvider[] BuildMethods()
+        {
+            return [.. _generatedTypeProvider.Methods, .. _generatedTypeProvider.CustomCodeView?.Methods ?? []];
         }
 
         protected override PropertyProvider[] BuildProperties()

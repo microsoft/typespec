@@ -1,6 +1,6 @@
 {
  "$id": "1",
- "Name": "Versioning.ReturnTypeChangedFrom",
+ "Name": "Versioning.ReturnTypeChangedFrom.V1",
  "ApiVersions": [
   "v1"
  ],
@@ -37,7 +37,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.ReturnTypeChangedFrom",
+   "namespace": "Versioning.ReturnTypeChangedFrom",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -50,7 +50,7 @@
   {
    "$id": "6",
    "Name": "ReturnTypeChangedFromClient",
-   "ClientNamespace": "Versioning.ReturnTypeChangedFrom",
+   "Namespace": "Versioning.ReturnTypeChangedFrom",
    "Doc": "Test for the `@returnTypeChangedFrom` decorator.",
    "Operations": [
     {

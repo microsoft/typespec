@@ -1,6 +1,6 @@
 {
  "$id": "1",
- "Name": "Versioning.MadeOptional",
+ "Name": "Versioning.MadeOptional.V1",
  "ApiVersions": [
   "v1"
  ],
@@ -37,7 +37,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.MadeOptional",
+   "namespace": "Versioning.MadeOptional",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -50,7 +50,7 @@
    "$id": "6",
    "kind": "model",
    "name": "TestModel",
-   "clientNamespace": "Versioning.MadeOptional",
+   "namespace": "Versioning.MadeOptional",
    "crossLanguageDefinitionId": "Versioning.MadeOptional.TestModel",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -114,7 +114,7 @@
   {
    "$id": "15",
    "Name": "MadeOptionalClient",
-   "ClientNamespace": "Versioning.MadeOptional",
+   "Namespace": "Versioning.MadeOptional",
    "Doc": "Test for the `@madeOptional` decorator.",
    "Operations": [
     {

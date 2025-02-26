@@ -2,9 +2,9 @@
 
 package parameters.collectionformat;
 
-import io.clientcore.core.annotation.Metadata;
-import io.clientcore.core.annotation.ServiceClient;
-import io.clientcore.core.http.exception.HttpResponseException;
+import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.ServiceClient;
+import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
 import java.util.List;

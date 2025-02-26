@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using RemovedV2::Versioning.Removed;
+using RemovedV2::Versioning.Removed.V2;
 
 namespace TestProjects.Spector.Tests.Http.Versioning.Removed.V2
 {

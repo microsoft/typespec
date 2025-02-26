@@ -2,8 +2,13 @@
 
 package type.union;
 
-import io.clientcore.core.annotation.Metadata;
-import io.clientcore.core.util.ExpandableEnum;
+import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonToken;
+import io.clientcore.core.serialization.json.JsonWriter;
+import io.clientcore.core.utils.ExpandableEnum;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -14,7 +19,8 @@ import java.util.function.Function;
 /**
  * Defines values for StringExtensibleNamedUnion.
  */
-public final class StringExtensibleNamedUnion implements ExpandableEnum<String> {
+public final class StringExtensibleNamedUnion
+    implements ExpandableEnum<String>, JsonSerializable<StringExtensibleNamedUnion> {
     private static final Map<String, StringExtensibleNamedUnion> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, StringExtensibleNamedUnion> NEW_INSTANCE = StringExtensibleNamedUnion::new;
@@ -71,6 +77,37 @@ public final class StringExtensibleNamedUnion implements ExpandableEnum<String> 
     @Override
     public String getValue() {
         return this.value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Metadata(generated = true)
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        return jsonWriter.writeString(getValue());
+    }
+
+    /**
+     * Reads an instance of StringExtensibleNamedUnion from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of StringExtensibleNamedUnion if the JsonReader was pointing to an instance of it, or null if
+     * the JsonReader was pointing to JSON null.
+     * @throws IOException If an error occurs while reading the StringExtensibleNamedUnion.
+     * @throws IllegalStateException If unexpected JSON token is found.
+     */
+    @Metadata(generated = true)
+    public static StringExtensibleNamedUnion fromJson(JsonReader jsonReader) throws IOException {
+        JsonToken nextToken = jsonReader.nextToken();
+        if (nextToken == JsonToken.NULL) {
+            return null;
+        }
+        if (nextToken != JsonToken.STRING) {
+            throw new IllegalStateException(
+                String.format("Unexpected JSON token for %s deserialization: %s", JsonToken.STRING, nextToken));
+        }
+        return StringExtensibleNamedUnion.fromValue(jsonReader.getString());
     }
 
     @Metadata(generated = true)
