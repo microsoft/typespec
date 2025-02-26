@@ -10,7 +10,7 @@ jobs:
         parameters:
           useDotNet: true
 
-      - script: pnpm run update-telemetry-key $(vscode-telemetry-key)
+      - script: pnpm run update-telemetry-key $(vscode.telemetryKey)
         workingDirectory: $(Build.SourcesDirectory)/packages/typespec-vscode
 
       - template: /eng/tsp-core/pipelines/templates/build.yml
