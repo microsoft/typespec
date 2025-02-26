@@ -93,7 +93,6 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
     };
   };
 
-  /* filter out already existing emitters. */
   const registerEmitters = getRegisterEmitters(codeType.emitterKind);
   const all: EmitQuickPickItem[] = [...registerEmitters].map((e) => toQuickPickItem(e));
 
@@ -130,6 +129,7 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
     kind: selectedEmitter.emitterKind,
   };
 }
+
 async function doEmit(mainTspFile: string, emitters: Emitter[]) {
   if (!mainTspFile || !(await isFile(mainTspFile))) {
     logger.error(
@@ -567,7 +567,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       kind: vscode.QuickPickItemKind.Separator,
       info: undefined,
       label: "multiple selection",
-      description: "Configure another emitter for code generation",
+      description: "Select multiple configured emitters for code generation",
       package: "",
       fromConfig: false,
       picked: false,
@@ -586,7 +586,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     const separatorItem = {
       kind: vscode.QuickPickItemKind.Separator,
       info: undefined,
-      description: "Configure another emitter for code generation",
+      description: "Choose another emitter for code generation",
       package: "",
       fromConfig: false,
       picked: false,
@@ -599,7 +599,6 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       package: "",
       kind: vscode.QuickPickItemKind.Default,
       iconPath: new vscode.ThemeIcon("settings-gear"),
-      disabled: true,
     };
 
     const allPickItems = [];
@@ -618,11 +617,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     existingEmittersSelector.placeholder = "Select emitters for code generation";
     existingEmittersSelector.ignoreFocusOut = true;
 
-    // existingEmittersSelector.buttons = [configureEmitterButton];
     existingEmittersSelector.show();
-    existingEmittersSelector.onDidChangeSelection((selectedItems) => {
-      logger.debug(`You selected: ${selectedItems.map((item) => item.label).join(", ")}`);
-    });
 
     const selectedExistingEmitters = await new Promise<EmitQuickPickItem[]>((resolve) => {
       existingEmittersSelector.onDidAccept(async () => {
