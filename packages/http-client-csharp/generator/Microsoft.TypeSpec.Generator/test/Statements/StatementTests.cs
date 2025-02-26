@@ -41,7 +41,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             var condition = True;
             var increment = ValueExpression.Empty;
             var forStatement = new ForStatement(assignment, condition, increment);
-            var statementToAdd = new MethodBodyStatement();
+            var statementToAdd = MethodBodyStatement.Empty;
 
             forStatement.Add(statementToAdd);
 
@@ -73,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         public void ForeachStatementWithAddMethod()
         {
             var foreachStatement = new ForeachStatement(new CSharpType(typeof(int)), "item", ValueExpression.Empty, isAsync: false, out var itemReference);
-            var statementToAdd = new MethodBodyStatement();
+            var statementToAdd = MethodBodyStatement.Empty;
 
             foreachStatement.Add(statementToAdd);
 
@@ -98,7 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         public void IfStatementWithAddMethod()
         {
             var ifStatement = new IfStatement(True);
-            var statementToAdd = new MethodBodyStatement();
+            var statementToAdd = MethodBodyStatement.Empty;
 
             ifStatement.Add(statementToAdd);
 
@@ -139,7 +139,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         public void IfElseStatementWithIfAndElse()
         {
             var condition = True;
-            var elseStatement = new MethodBodyStatement();
+            var elseStatement = MethodBodyStatement.Empty;
 
             var ifElseStatement = new IfElseStatement(new IfStatement(condition), elseStatement);
 
@@ -153,8 +153,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         public void IfElseStatementWithConditionAndStatements()
         {
             var condition = True;
-            var ifStatement = new MethodBodyStatement();
-            var elseStatement = new MethodBodyStatement();
+            var ifStatement = MethodBodyStatement.Empty;
+            var elseStatement = MethodBodyStatement.Empty;
 
             var ifElseStatement = new IfElseStatement(condition, ifStatement, elseStatement);
 
@@ -170,7 +170,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             var matchExpression = ValueExpression.Empty;
             var switchStatement = new SwitchStatement(matchExpression);
 
-            var caseStatement = new MethodBodyStatement();
+            var caseStatement = MethodBodyStatement.Empty;
             var switchCase = new SwitchCaseStatement(ValueExpression.Empty, caseStatement);
 
             switchStatement.Add(switchCase);
@@ -187,8 +187,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
 
             var caseStatements = new List<SwitchCaseStatement>
             {
-                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement()),
-                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement())
+                new SwitchCaseStatement(ValueExpression.Empty, MethodBodyStatement.Empty),
+                new SwitchCaseStatement(ValueExpression.Empty, MethodBodyStatement.Empty)
             };
 
             foreach (var switchCase in caseStatements)
@@ -207,8 +207,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
 
             var caseStatements = new List<SwitchCaseStatement>
             {
-                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement()),
-                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement())
+                new SwitchCaseStatement(ValueExpression.Empty, MethodBodyStatement.Empty),
+                new SwitchCaseStatement(ValueExpression.Empty, MethodBodyStatement.Empty)
             };
 
             foreach (var switchCase in caseStatements)
@@ -271,6 +271,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             var switchStatement = new SwitchStatement(variableFoo);
             var usingStatement = new UsingScopeStatement(null, new CodeWriterDeclaration("x"), New.Instance(typeof(MemoryStream)))
             {
+                new SingleLineCommentStatement("some comment explaining the return"),
                 Return(variableFoo)
             };
 
@@ -545,6 +546,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
                 statement2
             };
             Assert.AreEqual(expectedOrder, result);
+        }
+
+        [Test]
+        public void SingleLineCommentStatement()
+        {
+            var comment = new SingleLineCommentStatement("This is a comment");
+            Assert.AreEqual("// This is a comment\n", comment.ToDisplayString());
         }
     }
 }

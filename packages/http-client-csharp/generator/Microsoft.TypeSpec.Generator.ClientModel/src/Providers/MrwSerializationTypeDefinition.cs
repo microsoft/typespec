@@ -1313,7 +1313,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new ConstructorProvider(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", accessibility, Array.Empty<ParameterProvider>()),
-                bodyStatements: new MethodBodyStatement(),
+                bodyStatements: MethodBodyStatement.Empty,
                 this);
         }
 
