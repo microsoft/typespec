@@ -324,6 +324,7 @@ export class CodeModelBuilder {
                 scheme.flows.forEach((it) =>
                   oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
                 );
+                (oauth2Scheme as any).flows = scheme.flows;
                 securitySchemes.push(oauth2Scheme);
               } else {
                 // there is no TokenCredential in clientcore, hence use Bearer Authentication directly
@@ -997,37 +998,30 @@ export class CodeModelBuilder {
       for (const response of responses) {
         const bodyType = response.type;
         if (bodyType && bodyType.kind === "model") {
-          const itemClientName = sdkMethod.response.resultPath;
-          const nextLinkClientName = sdkMethod.nextLinkPath;
-
           let itemSerializedName: string | undefined = undefined;
           let nextLinkSerializedName: string | undefined = undefined;
+
+          const itemSegments = sdkMethod.response.resultSegments;
+          const nextLinkSegments = sdkMethod.pagingMetadata.nextLinkSegments;
+
+          // TODO: in future the property could be nested, so that the "itemSegments" or "nextLinkSegments" would contain more than 1 element
+          if (itemSegments) {
+            // "itemsSegments" should exist for "paging"/"lropaging"
+            const lastSegment = itemSegments[itemSegments.length - 1];
+            if (lastSegment.kind === "property") {
+              itemSerializedName = getPropertySerializedName(lastSegment);
+            }
+          }
+          if (nextLinkSegments) {
+            const lastSegment = nextLinkSegments[nextLinkSegments.length - 1];
+            if (lastSegment.kind === "property") {
+              nextLinkSerializedName = getPropertySerializedName(lastSegment);
+            }
+          }
 
           op.responses?.forEach((r) => {
             if (r instanceof SchemaResponse) {
               this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
-
-              // find serializedName for items and nextLink
-              if (r.schema instanceof ObjectSchema) {
-                r.schema.properties?.forEach((p) => {
-                  if (
-                    itemClientName &&
-                    !itemSerializedName &&
-                    p.serializedName &&
-                    p.language.default.name === itemClientName
-                  ) {
-                    itemSerializedName = p.serializedName;
-                  }
-                  if (
-                    nextLinkClientName &&
-                    !nextLinkSerializedName &&
-                    p.serializedName &&
-                    p.language.default.name === nextLinkClientName
-                  ) {
-                    nextLinkSerializedName = p.serializedName;
-                  }
-                });
-              }
             }
           });
 
@@ -1099,12 +1093,16 @@ export class CodeModelBuilder {
           useNewPollStrategy &&
           lroMetadata.finalStep &&
           lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
-          lroMetadata.finalResponse.resultSegments &&
-          lroMetadata.finalResponse.resultSegments[0].kind === "property"
+          lroMetadata.finalResponse.resultSegments
         ) {
-          finalResultPropertySerializedName = getPropertySerializedName(
-            lroMetadata.finalResponse.resultSegments[0],
-          );
+          // TODO: in future the property could be nested, so that the "resultSegments" would contain more than 1 element
+          const lastSegment =
+            lroMetadata.finalResponse.resultSegments[
+              lroMetadata.finalResponse.resultSegments.length - 1
+            ];
+          if (lastSegment.kind === "property") {
+            finalResultPropertySerializedName = getPropertySerializedName(lastSegment);
+          }
         }
       }
 

@@ -58,7 +58,7 @@
           "name": "entity.name.tag.tsp"
         }
       },
-      "end": "(?=[_$[:alpha:]])|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=([_$[:alpha:]]|`))|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -141,7 +141,7 @@
           "name": "entity.name.tag.tsp"
         }
       },
-      "end": "(?=[_$[:alpha:]])|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=([_$[:alpha:]]|`))|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -737,7 +737,7 @@
     },
     "namespace-name": {
       "name": "meta.namespace-name.typespec",
-      "begin": "(?=[_$[:alpha:]])",
+      "begin": "(?=([_$[:alpha:]]|`))",
       "end": "((?=\\{)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
       "patterns": [
         {

@@ -90,7 +90,7 @@ Add the following step
 
 ```yaml
 - task: AzureCLI@2
-  displayName: Upload scenario manifest
+  displayName: Upload scenario coverage
   inputs:
     azureSubscription: "Typespec Storage"
     scriptType: "bash"

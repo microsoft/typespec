@@ -14,7 +14,9 @@ import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
+import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
 import { md2Rst, removeUnderscoresFromNamespace } from "./utils.js";
+
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
   if (specifiedModelsMode) {
@@ -113,7 +115,16 @@ function walkThroughNodes(yamlMap: Record<string, any>): Record<string, any> {
   return yamlMap;
 }
 
+function cleanAllCache() {
+  typesMap.clear();
+  simpleTypesMap.clear();
+  disableGenerationMap.clear();
+}
+
 export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
+  // clean all cache to make sure emitter could work in watch mode
+  cleanAllCache();
+
   const program = context.program;
   const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context);
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
