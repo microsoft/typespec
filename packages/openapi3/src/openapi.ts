@@ -710,10 +710,10 @@ function createOAPIEmitter(
   }
 
   function computeSharedOperationId(shared: SharedHttpOperation) {
-    const operaionIds = shared.operations.map((op) => resolveOperationId(program, op.operation));
-    const uniqueOpIds = new Set<string>(operaionIds);
+    const operationIds = shared.operations.map((op) => resolveOperationId(program, op.operation));
+    const uniqueOpIds = new Set<string>(operationIds);
     if (uniqueOpIds.size === 1) return uniqueOpIds.values().next().value;
-    return operaionIds.join("_");
+    return operationIds.join("_");
   }
 
   function getOperationOrSharedOperation(operation: HttpOperation | SharedHttpOperation):
