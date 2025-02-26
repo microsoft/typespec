@@ -349,12 +349,7 @@ public class ClientMethodExampleWriter {
             }
             node = ModelExampleUtil.parseNode(type, wireType, methodParameterValue);
         } else {
-            if (methodParameter.getProxyMethodParameter() == null) {
-                // the client method parameter from a flattened request body would have no corresponding proxy method parameter
-                node = null;
-            } else {
-                node = ModelExampleUtil.parseNodeFromParameter(proxyMethodExample, methodParameter);
-            }
+            node = ModelExampleUtil.parseNodeFromParameter(proxyMethodExample, methodParameter);
         }
         return node;
     }
