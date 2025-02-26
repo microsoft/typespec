@@ -58,10 +58,6 @@ import {
   ResolveModuleHost,
   typespecVersion,
 } from "../core/index.js";
-import {
-  builtInLinterRule_UnusedTemplateParameter,
-  builtInLinterRule_UnusedUsing,
-} from "../core/linter-rules.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
@@ -126,6 +122,8 @@ import {
   ServerSourceFile,
   ServerWorkspaceFolder,
 } from "./types.js";
+import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
+import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 
 export function createServer(host: ServerHost): Server {
   const fileService = createFileService({ serverHost: host });

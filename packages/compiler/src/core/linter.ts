@@ -1,10 +1,8 @@
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
-import {
-  createUnusedTemplateParameterLinterRule,
-  createUnusedUsingLinterRule,
-} from "./linter-rules.js";
+import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
+import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
 import { createDiagnostic } from "./messages.js";
 import { NameResolver } from "./name-resolver.js";
 import type { Program } from "./program.js";
