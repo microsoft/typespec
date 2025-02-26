@@ -93,7 +93,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
     const clientName = getClientName(client, parentNames);
     // see if this namespace is a sub-namespace of an existing bad namespace
-    const segments = client.clientNamespace.split(".");
+    const segments = client.namespace.split(".");
     const lastSegment = segments[segments.length - 1];
     if (lastSegment === clientName) {
       // we report diagnostics when the last segment of the namespace is the same as the client name
@@ -101,14 +101,14 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       // in csharp, this will cause a conflict between the namespace and the class name
       sdkContext.logger.reportDiagnostic({
         code: "client-namespace-conflict",
-        format: { clientNamespace: client.clientNamespace, clientName },
+        format: { namespace: client.namespace, clientName },
         target: client.__raw.type ?? NoTarget,
       });
     }
 
     return {
       Name: clientName,
-      ClientNamespace: client.clientNamespace,
+      Namespace: client.namespace,
       Summary: client.summary,
       Doc: client.doc,
       Operations: client.methods

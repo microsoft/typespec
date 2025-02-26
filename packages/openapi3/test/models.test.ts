@@ -1,3 +1,4 @@
+import { DiagnosticTarget } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
@@ -123,6 +124,13 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
           code: "@typespec/openapi3/invalid-component-fixed-field-key",
         },
       ]);
+      diagnostics.forEach((d) => {
+        const diagnosticTarget = d.target as DiagnosticTarget;
+        strictEqual(
+          diagnosticTarget && "kind" in diagnosticTarget && diagnosticTarget.kind === "Model",
+          true,
+        );
+      });
     });
   });
 

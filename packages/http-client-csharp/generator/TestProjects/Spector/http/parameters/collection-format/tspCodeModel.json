@@ -8,7 +8,7 @@
   {
    "$id": "2",
    "Name": "CollectionFormatClient",
-   "ClientNamespace": "Parameters.CollectionFormat",
+   "Namespace": "Parameters.CollectionFormat",
    "Doc": "Test for collectionFormat.",
    "Operations": [],
    "Protocol": {
@@ -52,7 +52,7 @@
   {
    "$id": "8",
    "Name": "Query",
-   "ClientNamespace": "Parameters.CollectionFormat.Query",
+   "Namespace": "Parameters.CollectionFormat.Query",
    "Operations": [
     {
      "$id": "9",
@@ -386,7 +386,7 @@
   {
    "$id": "39",
    "Name": "Header",
-   "ClientNamespace": "Parameters.CollectionFormat.Header",
+   "Namespace": "Parameters.CollectionFormat.Header",
    "Operations": [
     {
      "$id": "40",
