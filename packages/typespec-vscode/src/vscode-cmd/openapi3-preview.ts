@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import logger from "../log/logger.js";
 import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
 import { TspLanguageClient } from "../tsp-language-client.js";
+import { TraverseMainTspFileInWorkspace } from "../typespec-utils.js";
 import { createTempDir, parseJsonFromFile, throttle } from "../utils.js";
 
 const TITLE = "Preview in OpenAPI3";
@@ -39,11 +40,9 @@ export async function showOpenApi3(
 }
 
 async function getMainTspFile(): Promise<string | undefined> {
-  const files = await vscode.workspace.findFiles("**/main.tsp").then((uris) => {
-    return uris.filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"));
-  });
+  const filePath = await TraverseMainTspFileInWorkspace();
 
-  switch (files.length) {
+  switch (filePath.length) {
     case 0:
       logger.error("No 'main.tsp' file found in the workspace.", [], {
         showOutput: true,
@@ -51,15 +50,12 @@ async function getMainTspFile(): Promise<string | undefined> {
       });
       return undefined;
     case 1:
-      return files[0].fsPath;
+      return filePath[0];
     default:
-      return await vscode.window.showQuickPick(
-        files.map((file) => file.fsPath),
-        {
-          title: TITLE,
-          placeHolder: "Select the 'main.tsp' file",
-        },
-      );
+      return await vscode.window.showQuickPick(filePath, {
+        title: TITLE,
+        placeHolder: "Select the 'main.tsp' file",
+      });
   }
 }
 
