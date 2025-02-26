@@ -36,8 +36,7 @@
     "sync-labels": "tsx ./eng/common/scripts/labels/sync-labels.ts  --config ./eng/common/config/labels.ts",
     "validate-scenarios": "pnpm -r --filter=@typespec/http-specs run validate-scenarios",
     "validate-mock-apis": "pnpm -r --filter=@typespec/http-specs run validate-mock-apis",
-    "generate-scenarios-summary": "pnpm -r --filter=@typespec/http-specs run generate-scenarios-summary",
-    "upload-manifest": "pnpm -r --filter=@typespec/http-specs run upload-manifest"
+    "generate-scenarios-summary": "pnpm -r --filter=@typespec/http-specs run generate-scenarios-summary"
   },
   "devDependencies": {
     "@alloy-js/prettier-plugin-alloy": "^0.1.0",
