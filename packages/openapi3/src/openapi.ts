@@ -1577,7 +1577,6 @@ function createOAPIEmitter(
       );
       const validKey = ensureValidComponentFixedFieldKey(program, property, key);
       root.components!.parameters![validKey] = { ...param };
-      if (validKey !== key) delete root.components?.parameters![key];
       for (const key of Object.keys(param)) {
         delete param[key];
       }
