@@ -179,6 +179,12 @@ export interface LoadedTemplate {
   readonly file: SourceFile;
 }
 async function downloadTemplates(host: CompilerHost, url: string): Promise<LoadedTemplate> {
+  warning(
+    `Downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.`,
+  );
+  if (!confirm("Continue")) {
+    process.exit(1);
+  }
   let file: SourceFile;
   try {
     file = await readUrlOrPath(host, url);
