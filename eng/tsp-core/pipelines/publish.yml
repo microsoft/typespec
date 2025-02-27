@@ -30,90 +30,90 @@ extends:
 
         jobs:
           - template: /eng/tsp-core/pipelines/jobs/build-for-publish.yml@self
-      #    - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli-all.yml@self
+          - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli-all.yml@self
 
-      # - stage: publish_npm
-      #   displayName: Publish Npm Packages
-      #   dependsOn: build
+      - stage: publish_npm
+        displayName: Publish Npm Packages
+        dependsOn: build
 
-      #   pool:
-      #     name: $(LINUXPOOL)
-      #     image: $(LINUXVMIMAGE)
-      #     os: linux
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
 
-      #   jobs:
-      #     - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
-      #       parameters:
-      #         artifactName: npm-packages-stable
-      #         tag: latest
-      #         publishGithubRelease: true
+        jobs:
+          - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
+            parameters:
+              artifactName: npm-packages-stable
+              tag: latest
+              publishGithubRelease: true
 
-      #     - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
-      #       parameters:
-      #         artifactName: npm-packages-next
-      #         tag: next
+          - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
+            parameters:
+              artifactName: npm-packages-next
+              tag: next
 
-      # - stage: publish_vscode
-      #   displayName: Publish VSCode extension
-      #   dependsOn: build
-      #   jobs:
-      #     - template: /eng/tsp-core/pipelines/jobs/publish-vscode.yml
+      - stage: publish_vscode
+        displayName: Publish VSCode extension
+        dependsOn: build
+        jobs:
+          - template: /eng/tsp-core/pipelines/jobs/publish-vscode.yml
 
-      # - stage: publish_vs
-      #   displayName: Publish VS extension
-      #   dependsOn: build
-      #   jobs:
-      #     - template: /eng/tsp-core/pipelines/jobs/publish-vs.yml
+      - stage: publish_vs
+        displayName: Publish VS extension
+        dependsOn: build
+        jobs:
+          - template: /eng/tsp-core/pipelines/jobs/publish-vs.yml
 
-      # - template: /eng/tsp-core/pipelines/stages/sign-publish-tsp-cli.yml@self
+      - template: /eng/tsp-core/pipelines/stages/sign-publish-tsp-cli.yml@self
 
-      # - stage: docker
-      #   displayName: Docker
-      #   dependsOn: []
-      #   jobs:
-      #     - job: docker
-      #       displayName: Build and publish
-      #       variables:
-      #         imageName: "azsdkengsys.azurecr.io/typespec"
-      #       pool:
-      #         name: $(LINUXPOOL)
-      #         image: $(LINUXVMIMAGE)
-      #         os: linux
-      #       steps:
-      #         - task: Docker@1
-      #           displayName: login
-      #           inputs:
-      #             azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
-      #             azureContainerRegistry: azsdkengsys.azurecr.io
-      #             command: login
+      - stage: docker
+        displayName: Docker
+        dependsOn: []
+        jobs:
+          - job: docker
+            displayName: Build and publish
+            variables:
+              imageName: "azsdkengsys.azurecr.io/typespec"
+            pool:
+              name: $(LINUXPOOL)
+              image: $(LINUXVMIMAGE)
+              os: linux
+            steps:
+              - task: Docker@1
+                displayName: login
+                inputs:
+                  azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
+                  azureContainerRegistry: azsdkengsys.azurecr.io
+                  command: login
 
-      #         - script: |
-      #             docker build -f ./docker/Dockerfile \
-      #               -t $(imageName):latest \
-      #               -t $(imageName):alpine \
-      #               .
-      #           displayName: "Build"
-      #         - script: docker push $(imageName) --all-tags
-      #           displayName: "Push"
+              - script: |
+                  docker build -f ./docker/Dockerfile \
+                    -t $(imageName):latest \
+                    -t $(imageName):alpine \
+                    .
+                displayName: "Build"
+              - script: docker push $(imageName) --all-tags
+                displayName: "Push"
 
-      # - stage: validate_manifest
-      #   displayName: Validate Manifest
-      #   dependsOn: build
-      #   jobs:
-      #     - job: validate_manifest
-      #       displayName: Validate Manifest
-      #       pool:
-      #         name: $(WINDOWSPOOL)
-      #         image: $(WINDOWSVMIMAGE)
-      #         os: windows
-      #       variables:
-      #         TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
-      #       steps:
-      #         - template: /eng/tsp-core/pipelines/templates/install.yml
-      #         - template: /eng/tsp-core/pipelines/templates/build.yml
+      - stage: validate_manifest
+        displayName: Validate Manifest
+        dependsOn: build
+        jobs:
+          - job: validate_manifest
+            displayName: Validate Manifest
+            pool:
+              name: $(WINDOWSPOOL)
+              image: $(WINDOWSVMIMAGE)
+              os: windows
+            variables:
+              TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+            steps:
+              - template: /eng/tsp-core/pipelines/templates/install.yml
+              - template: /eng/tsp-core/pipelines/templates/build.yml
 
-      #         - script: pnpm run validate-scenarios --debug
-      #           displayName: Validate Scenarios
+              - script: pnpm run validate-scenarios --debug
+                displayName: Validate Scenarios
 
-      #         - script: pnpm run validate-mock-apis --debug
-      #           displayName: Validate mock apis
+              - script: pnpm run validate-mock-apis --debug
+                displayName: Validate mock apis
