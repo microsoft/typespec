@@ -30,3 +30,8 @@ extends:
           LanguageShortName: "python"
           CadlRanchName: "@typespec/http-client-python"
           EnableCadlRanchReport: false
+      - script:
+          pnpm chronus version --prerelease --only @typespec/http-client-python
+          git add $(Build.SourcesDirectory)/packages/http-client-python
+          git checkout -- $(Build.SourcesDirectory)
+        displayName: Bump version for dev release of Python client
