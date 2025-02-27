@@ -6,7 +6,7 @@ using System;
 
 namespace Versioning.Removed.V1
 {
-    [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct))]
+    [AttributeUsage((AttributeTargets.Class | AttributeTargets.Enum | AttributeTargets.Struct))]
     internal partial class CodeGenTypeAttribute : Attribute
     {
         public CodeGenTypeAttribute(string originalName)

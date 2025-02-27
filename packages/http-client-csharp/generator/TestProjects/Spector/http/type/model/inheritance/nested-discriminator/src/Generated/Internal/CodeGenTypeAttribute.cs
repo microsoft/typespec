@@ -6,7 +6,7 @@ using System;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
-    [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct))]
+    [AttributeUsage((AttributeTargets.Class | AttributeTargets.Enum | AttributeTargets.Struct))]
     internal partial class CodeGenTypeAttribute : Attribute
     {
         public CodeGenTypeAttribute(string originalName)
