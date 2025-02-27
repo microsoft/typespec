@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AndSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BinarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
@@ -208,6 +209,13 @@ public class Transformer {
                     }
                     renameOdataParameterNames(request);
                     deduplicateParameterNames(request);
+                }
+
+                if (operation.getConvenienceApi() != null
+                    && !CoreUtils.isNullOrEmpty(operation.getConvenienceApi().getRequests())) {
+                    for (Request request : operation.getConvenienceApi().getRequests()) {
+                        renameOdataParameterNames(request);
+                    }
                 }
 
                 if (operation.getExtensions() != null && operation.getExtensions().getXmsPageable() != null) {
