@@ -102,7 +102,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Client.Structure.Service",
+   "namespace": "Client.Structure.Service",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input",
@@ -114,7 +114,7 @@
   {
    "$id": "14",
    "Name": "RenamedOperationClient",
-   "ClientNamespace": "Client.Structure.RenamedOperation",
+   "Namespace": "Client.Structure.RenamedOperation",
    "Operations": [
     {
      "$id": "15",
@@ -241,7 +241,7 @@
   {
    "$id": "25",
    "Name": "Group",
-   "ClientNamespace": "Client.Structure.RenamedOperation",
+   "Namespace": "Client.Structure.RenamedOperation",
    "Operations": [
     {
      "$id": "26",

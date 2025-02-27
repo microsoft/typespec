@@ -45,10 +45,15 @@ jobs:
           }
         displayName: "Check if @typespec/http-specs was published"
 
+      - script: pnpm -r --filter '@typespec/http-specs...' build
+        condition: eq(variables['PublishHttpSpecs'], 'true')
+        displayName: Build spector
+
       - task: AzureCLI@2
         displayName: Upload scenario manifest
         condition: eq(variables['PublishHttpSpecs'], 'true')
         inputs:
+          workingDirectory: packages/http-specs
           azureSubscription: "TypeSpec Storage"
           scriptType: "bash"
           scriptLocation: "inlineScript"

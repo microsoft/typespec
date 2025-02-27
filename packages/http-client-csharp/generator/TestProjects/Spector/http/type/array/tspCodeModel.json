@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "InnerModel",
-   "clientNamespace": "Type.Array",
+   "namespace": "Type.Array",
    "crossLanguageDefinitionId": "Type.Array.InnerModel",
    "usage": "Input,Output,Json",
    "doc": "Array inner model",
@@ -77,7 +77,7 @@
   {
    "$id": "11",
    "Name": "ArrayClient",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Illustrates various types of arrays.",
    "Operations": [],
    "Protocol": {
@@ -121,7 +121,7 @@
   {
    "$id": "17",
    "Name": "Int32Value",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of int32 values",
    "Operations": [
     {
@@ -322,7 +322,7 @@
   {
    "$id": "38",
    "Name": "Int64Value",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of int64 values",
    "Operations": [
     {
@@ -523,7 +523,7 @@
   {
    "$id": "59",
    "Name": "BooleanValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of boolean values",
    "Operations": [
     {
@@ -724,7 +724,7 @@
   {
    "$id": "80",
    "Name": "StringValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of string values",
    "Operations": [
     {
@@ -925,7 +925,7 @@
   {
    "$id": "101",
    "Name": "Float32Value",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of float values",
    "Operations": [
     {
@@ -1126,7 +1126,7 @@
   {
    "$id": "122",
    "Name": "DatetimeValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of datetime values",
    "Operations": [
     {
@@ -1343,7 +1343,7 @@
   {
    "$id": "145",
    "Name": "DurationValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of duration values",
    "Operations": [
     {
@@ -1560,7 +1560,7 @@
   {
    "$id": "168",
    "Name": "UnknownValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of unknown values",
    "Operations": [
     {
@@ -1761,7 +1761,7 @@
   {
    "$id": "189",
    "Name": "ModelValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of model values",
    "Operations": [
     {
@@ -1954,7 +1954,7 @@
   {
    "$id": "208",
    "Name": "NullableFloatValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of nullable float values",
    "Operations": [
     {
@@ -2011,7 +2011,7 @@
           "crossLanguageDefinitionId": "TypeSpec.float32",
           "decorators": []
          },
-         "clientNamespace": ""
+         "namespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2156,7 +2156,7 @@
   {
    "$id": "229",
    "Name": "NullableInt32Value",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of nullable int32 values",
    "Operations": [
     {
@@ -2213,7 +2213,7 @@
           "crossLanguageDefinitionId": "TypeSpec.int32",
           "decorators": []
          },
-         "clientNamespace": ""
+         "namespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2358,7 +2358,7 @@
   {
    "$id": "250",
    "Name": "NullableBooleanValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of nullable boolean values",
    "Operations": [
     {
@@ -2415,7 +2415,7 @@
           "crossLanguageDefinitionId": "TypeSpec.boolean",
           "decorators": []
          },
-         "clientNamespace": ""
+         "namespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2560,7 +2560,7 @@
   {
    "$id": "271",
    "Name": "NullableStringValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of nullable string values",
    "Operations": [
     {
@@ -2617,7 +2617,7 @@
           "crossLanguageDefinitionId": "TypeSpec.string",
           "decorators": []
          },
-         "clientNamespace": ""
+         "namespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2762,7 +2762,7 @@
   {
    "$id": "292",
    "Name": "NullableModelValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of nullable model values",
    "Operations": [
     {
@@ -2815,7 +2815,7 @@
          "type": {
           "$ref": "2"
          },
-         "clientNamespace": ""
+         "namespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []

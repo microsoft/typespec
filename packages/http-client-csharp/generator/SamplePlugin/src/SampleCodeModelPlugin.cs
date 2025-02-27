@@ -14,7 +14,7 @@ namespace SamplePlugin
     {
         public override void Configure()
         {
-            AddVisitor(new SamplePluginLibraryLibraryVisitor());
+            AddVisitor(new SamplePluginLibraryVisitor());
         }
     }
 }

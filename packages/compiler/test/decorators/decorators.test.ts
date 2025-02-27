@@ -1,6 +1,15 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
-import { Model, ModelProperty, Namespace, Operation, Scalar, isSecret } from "../../src/index.js";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
+  Scalar,
+  Union,
+  getDiscriminatedUnion,
+  isSecret,
+} from "../../src/index.js";
 import {
   getDoc,
   getEncode,
@@ -1185,9 +1194,106 @@ describe("compiler: built-in decorators", () => {
     });
   });
 
-  describe("@discriminator on unions", () => {
+  describe("@discriminated", () => {
+    it("error if more than one unnamed variant", async () => {
+      const diagnostics = await runner.diagnose(`
+        @discriminated
+        union Foo {
+          "A",
+          "B"
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-discriminated-union-variant",
+        message: `Discriminated union only allow a single default variant(Without a variant name).`,
+      });
+    });
+
+    it("error if using no envelope and variant name mismatch with property", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          kind: "a-kind",
+        }
+        @discriminated(#{envelope: "none"})
+        union Foo {
+          a: A;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-discriminated-union-variant",
+        message: `Variant "a" explicitly defines the discriminator property "kind" but the value "a-kind" do not match the variant name "a".`,
+      });
+    });
+
+    async function getTestDiscriminatedUnion(code: string) {
+      const { Foo } = (await runner.compile(code)) as { Foo: Union };
+
+      return getDiscriminatedUnion(runner.program, Foo)[0]!;
+    }
+
+    it("discriminated by default", async () => {
+      const union = await getTestDiscriminatedUnion(`
+        @test @discriminated
+        union Foo {
+        }
+      `);
+
+      expect(union?.options).toEqual({
+        envelope: "object",
+        discriminatorPropertyName: "kind",
+        envelopePropertyName: "value",
+      });
+    });
+
+    it("change discriminator", async () => {
+      const union = await getTestDiscriminatedUnion(`
+        @test @discriminated(#{discriminatorPropertyName: "dataKind"})
+        union Foo {
+        }
+      `);
+
+      expect(union?.options).toEqual({
+        envelope: "object",
+        discriminatorPropertyName: "dataKind",
+        envelopePropertyName: "value",
+      });
+    });
+
+    it("change envelopePropertyName", async () => {
+      const union = await getTestDiscriminatedUnion(`
+        @test @discriminated(#{envelopePropertyName: "data"})
+        union Foo {
+        }
+      `);
+
+      expect(union?.options).toEqual({
+        envelope: "object",
+        discriminatorPropertyName: "kind",
+        envelopePropertyName: "data",
+      });
+    });
+
+    it("set envelope: none", async () => {
+      const union = await getTestDiscriminatedUnion(`
+        @test @discriminated(#{envelope: "none"})
+        union Foo {
+        }
+      `);
+
+      expect(union?.options).toEqual({
+        envelope: "none",
+        discriminatorPropertyName: "kind",
+        envelopePropertyName: "value",
+      });
+    });
+  });
+
+  describe("@discriminator on unions (LEGACY)", () => {
     it("requires variants to be models", async () => {
       const diagnostics = await runner.diagnose(`
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         union Foo {
           a: "hi"
@@ -1206,6 +1312,7 @@ describe("compiler: built-in decorators", () => {
         model A {
 
         }
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         union Foo {
           a: A
@@ -1226,6 +1333,7 @@ describe("compiler: built-in decorators", () => {
           kind: string,
         }
 
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         union Foo {
           a: A

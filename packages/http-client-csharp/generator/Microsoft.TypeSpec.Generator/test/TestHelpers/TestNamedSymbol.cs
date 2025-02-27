@@ -91,6 +91,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
                         MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, typeof(Task<int>), null,
                         [intParam]),
                     Throw(New.Instance(typeof(NotImplementedException))),
+                    this),
+                // explicit interface implementation
+                new MethodProvider(
+                    new MethodSignature("DisposeAsync", $"",
+                        MethodSignatureModifiers.Async, typeof(ValueTask), null,
+                        [],
+                        ExplicitInterface: new CSharpType(typeof(IAsyncDisposable))),
+                    Throw(New.Instance(typeof(NotImplementedException))),
                     this)
             ];
         }

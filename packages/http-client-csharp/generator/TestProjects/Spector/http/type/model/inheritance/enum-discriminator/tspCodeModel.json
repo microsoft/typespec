@@ -35,7 +35,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "namespace": "Type.Model.Inheritance.EnumDiscriminator",
    "doc": "extensible enum type for discriminator",
    "isFixed": false,
    "isFlags": false,
@@ -74,7 +74,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "namespace": "Type.Model.Inheritance.EnumDiscriminator",
    "doc": "fixed enum type for discriminator",
    "isFixed": true,
    "isFlags": false,
@@ -87,7 +87,7 @@
    "$id": "10",
    "kind": "model",
    "name": "Dog",
-   "clientNamespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "namespace": "Type.Model.Inheritance.EnumDiscriminator",
    "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Dog",
    "usage": "Input,Output,Json",
    "doc": "Test extensible enum type for discriminator",
@@ -153,7 +153,7 @@
      "$id": "19",
      "kind": "model",
      "name": "Golden",
-     "clientNamespace": "Type.Model.Inheritance.EnumDiscriminator",
+     "namespace": "Type.Model.Inheritance.EnumDiscriminator",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Golden",
      "usage": "Input,Output,Json",
      "doc": "Golden dog model",
@@ -207,7 +207,7 @@
    "$id": "25",
    "kind": "model",
    "name": "Snake",
-   "clientNamespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "namespace": "Type.Model.Inheritance.EnumDiscriminator",
    "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Snake",
    "usage": "Input,Output,Json",
    "doc": "Test fixed enum type for discriminator",
@@ -273,7 +273,7 @@
      "$id": "34",
      "kind": "model",
      "name": "Cobra",
-     "clientNamespace": "Type.Model.Inheritance.EnumDiscriminator",
+     "namespace": "Type.Model.Inheritance.EnumDiscriminator",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator.Cobra",
      "usage": "Input,Output,Json",
      "doc": "Cobra model",
@@ -328,7 +328,7 @@
   {
    "$id": "40",
    "Name": "EnumDiscriminatorClient",
-   "ClientNamespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "Namespace": "Type.Model.Inheritance.EnumDiscriminator",
    "Doc": "Illustrates inheritance with enum discriminator.",
    "Operations": [
     {

@@ -143,7 +143,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Type.Enum.Extensible",
+   "namespace": "Type.Enum.Extensible",
    "doc": "Days of the week",
    "isFixed": false,
    "isFlags": false,
@@ -156,7 +156,7 @@
   {
    "$id": "18",
    "Name": "ExtensibleClient",
-   "ClientNamespace": "Type.Enum.Extensible",
+   "Namespace": "Type.Enum.Extensible",
    "Operations": [],
    "Protocol": {
     "$id": "19"
@@ -199,7 +199,7 @@
   {
    "$id": "24",
    "Name": "String",
-   "ClientNamespace": "Type.Enum.Extensible",
+   "Namespace": "Type.Enum.Extensible",
    "Operations": [
     {
      "$id": "25",
