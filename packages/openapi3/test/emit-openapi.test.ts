@@ -1,7 +1,5 @@
 import { resolveVirtualPath } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
-import { EmitterOptions } from "../../compiler/src/config/types.js";
-import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { worksFor } from "./works-for.js";
 
 describe("Scalar formats of serialized document in YAML", () => {
@@ -119,7 +117,7 @@ describe("Scalar formats of serialized document in YAML", () => {
         expectedOutputFiles: [resolveVirtualPath("AAA.yaml"), resolveVirtualPath("BBB.yaml")],
       },
     ])("$description", async (c: ServiceNameCase) => {
-      const options: OpenAPI3EmitterOptions & EmitterOptions = {
+      const options = {
         "output-file": c.outputFilePattern,
         "emitter-output-dir": "{output-dir}",
       };
