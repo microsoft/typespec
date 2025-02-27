@@ -41,7 +41,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         reportDiagnostic(program, {
           code: "unknown-error",
           format: {
-            errorMessage: `The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec and include all the diagnostic information in your submission.\nStack: error.stack`,
+            errorMessage: `The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission.\nStack: error.stack`,
           },
           target: NoTarget,
         });
@@ -118,7 +118,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
           reportDiagnostic(program, {
             code: "unknown-error",
             format: {
-              errorMessage: `The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec and include all the diagnostic information in your submission.\nOutput: ${error.stdout}\nError: ${error.stderr}`,
+              errorMessage: `The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission.\nOutput: ${error.stdout}\nError: ${error.stderr}`,
             },
             target: NoTarget,
           });
