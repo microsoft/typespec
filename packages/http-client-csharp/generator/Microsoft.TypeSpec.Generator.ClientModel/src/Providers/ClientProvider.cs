@@ -165,7 +165,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // figure out if this namespace has been changed for this client
             if (!StringExtensions.IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
             {
-                Emitter.Instance.ReportDiagnostic(namespaceConflictCode, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
+                ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(namespaceConflictCode, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
             }
             return ns;
         }

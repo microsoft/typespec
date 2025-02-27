@@ -13,17 +13,14 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         private const string Trace = "trace";
         private const string Diagnostic = "diagnostic";
 
-        private static Emitter? _emitter;
         private bool _disposed;
 
-        private readonly TextWriter _writer;
+        private readonly StreamWriter _writer;
 
-        internal Emitter()
+        internal Emitter(Stream stream)
         {
-            _writer = Console.Out;
+            _writer = new StreamWriter(stream) { AutoFlush = true };
         }
-
-        public static Emitter Instance => _emitter ??= new Emitter();
 
         private void SendNotification(string method, object content)
         {

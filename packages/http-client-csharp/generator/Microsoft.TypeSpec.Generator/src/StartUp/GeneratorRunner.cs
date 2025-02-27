@@ -2,15 +2,16 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator
 {
     internal class GeneratorRunner
     {
-        public async Task RunAsync(CommandLineOptions options)
+        public async Task RunAsync(Emitter emitter, CommandLineOptions options)
         {
             PluginHandler pluginHandler = new();
-            pluginHandler.LoadPlugin(options);
+            pluginHandler.LoadPlugin(emitter, options);
 
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();

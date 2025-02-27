@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator
 {
     internal class PluginHandler
     {
-        public void LoadPlugin(CommandLineOptions options)
+        public void LoadPlugin(Emitter emitter, CommandLineOptions options)
         {
             using DirectoryCatalog directoryCatalog = new(AppContext.BaseDirectory);
             using CompositionContainer container = new(directoryCatalog);
@@ -18,10 +19,10 @@ namespace Microsoft.TypeSpec.Generator
             container.ComposeExportedValue(new GeneratorContext(Configuration.Load(options.OutputDirectory)));
             container.ComposeParts(this);
 
-            SelectPlugin(options);
+            SelectPlugin(emitter, options);
         }
 
-        internal void SelectPlugin(CommandLineOptions options)
+        internal void SelectPlugin(Emitter emitter, CommandLineOptions options)
         {
             bool loaded = false;
             foreach (var plugin in Plugins!)
@@ -30,6 +31,7 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     CodeModelPlugin.Instance = plugin.Value;
                     CodeModelPlugin.Instance.IsNewProject = options.IsNewProject;
+                    CodeModelPlugin.Instance.Emitter = emitter;
                     loaded = true;
                     CodeModelPlugin.Instance.Configure();
                     break;

@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private static async Task<int> Run(CommandLineOptions options, GeneratorRunner runner)
         {
-            using var emitter = Emitter.Instance;
+            using var emitter = new Emitter(Console.OpenStandardOutput());
 
             if (options.ShouldDebug)
             {
@@ -41,7 +41,7 @@ namespace Microsoft.TypeSpec.Generator
 
             try
             {
-                await runner.RunAsync(options);
+                await runner.RunAsync(emitter, options);
             }
             catch (Exception e)
             {

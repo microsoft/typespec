@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             };
             CommandLineOptions options = new() { PluginName = "MockPlugin" };
 
-            Assert.DoesNotThrow(() => pluginHandler.SelectPlugin(options));
+            Assert.DoesNotThrow(() => pluginHandler.SelectPlugin(null!, options));
             mockPlugin.Verify(p => p.Configure(), Times.Once);
         }
 
@@ -41,7 +41,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             };
             CommandLineOptions options = new() { PluginName = "NonExistentPlugin" };
 
-            Assert.Throws<System.InvalidOperationException>(() => pluginHandler.SelectPlugin(options));
+            Assert.Throws<System.InvalidOperationException>(() => pluginHandler.SelectPlugin(null!, options));
             mockPlugin.Verify(p => p.Configure(), Times.Never);
         }
     }

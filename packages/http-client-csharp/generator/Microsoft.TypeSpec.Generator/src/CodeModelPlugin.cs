@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -46,6 +47,7 @@ namespace Microsoft.TypeSpec.Generator
             Configuration = context.Configuration;
             _inputLibrary = new InputLibrary(Configuration.OutputDirectory);
             TypeFactory = new TypeFactory();
+            Emitter = null!;
         }
 
         // for mocking
@@ -57,6 +59,8 @@ namespace Microsoft.TypeSpec.Generator
 
         internal bool IsNewProject { get; set; }
         private InputLibrary _inputLibrary;
+
+        public virtual Emitter Emitter { get; internal set; }
 
         // Extensibility points to be implemented by a plugin
         public virtual TypeFactory TypeFactory { get; }
