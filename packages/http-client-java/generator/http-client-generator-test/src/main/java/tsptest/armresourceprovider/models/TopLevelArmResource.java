@@ -183,8 +183,7 @@ public interface TopLevelArmResource {
          * The stage of the TopLevelArmResource definition which contains all the minimum required properties for the
          * resource to be created, but also allows for any other optional properties to be specified.
          */
-        interface WithCreate extends WithTags, WithUserName,
-            WithUserNames, WithAccuserName, WithStartTimeStamp {
+        interface WithCreate extends WithTags, WithUserName, WithUserNames, WithAccuserName, WithStartTimeStamp {
             /**
              * Executes the create request.
              * 

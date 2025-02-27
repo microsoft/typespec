@@ -511,6 +511,15 @@ public class ClientMethod {
                 ClassType.BINARY_DATA.addImportsTo(imports, false);
                 ClassType.HTTP_REQUEST.addImportsTo(imports, false);
             }
+
+            // sync-stack, pageable lro
+            if (type == ClientMethodType.PagingSyncSinglePage
+                && settings.isSyncStackEnabled()
+                && settings.isFluent()
+                && proxyMethod != null
+                && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType())) {
+                ClassType.SYNC_POLLER_FACTORY.addImportsTo(imports, false);
+            }
         }
     }
 
