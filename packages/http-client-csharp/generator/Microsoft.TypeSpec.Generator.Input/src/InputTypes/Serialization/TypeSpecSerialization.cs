@@ -4,13 +4,14 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AutoRest.CSharp.Common.Input;
+using Microsoft.TypeSpec.Generator.Input.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
     public static class TypeSpecSerialization
     {
         internal const string InvalidNamespaceSegmentsKey = "InvalidNamespaceSegments";
-        public static InputNamespace? Deserialize(string json)
+        public static InputNamespace? Deserialize(string json, Emitter emitter)
         {
             var referenceHandler = new TypeSpecReferenceHandler();
             var options = new JsonSerializerOptions
@@ -31,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new TypeSpecInputConstantConverter(referenceHandler),
                     new TypeSpecInputLiteralTypeConverter(referenceHandler),
                     new TypeSpecInputUnionTypeConverter(referenceHandler),
-                    new TypeSpecInputClientConverter(referenceHandler),
+                    new TypeSpecInputClientConverter(referenceHandler, emitter),
                     new TypeSpecInputOperationConverter(referenceHandler),
                     new TypeSpecInputParameterConverter(referenceHandler),
                     new TypeSpecInputPrimitiveTypeConverter(referenceHandler),

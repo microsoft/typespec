@@ -5,15 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.TypeSpec.Generator.Input.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class TypeSpecInputClientConverter : JsonConverter<InputClient>
     {
+        private const string namespaceConflictCode = "client-namespace-conflict";
+
+        private readonly Emitter _emitter;
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public TypeSpecInputClientConverter(TypeSpecReferenceHandler referenceHandler)
+        public TypeSpecInputClientConverter(TypeSpecReferenceHandler referenceHandler, Emitter emitter)
         {
+            _emitter = emitter;
             _referenceHandler = referenceHandler;
         }
 
@@ -23,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public override void Write(Utf8JsonWriter writer, InputClient value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputClient? CreateInputClient(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        private InputClient? CreateInputClient(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             if (id == null)
             {
@@ -42,6 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputParameter>? parameters = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             string? parent = null;
+            string? crossLanguageDefinitionId = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -52,7 +58,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
                     || reader.TryReadWithConverter(nameof(InputClient.Parameters), options, ref parameters)
                     || reader.TryReadString(nameof(InputClient.Parent), ref parent)
-                    || reader.TryReadWithConverter(nameof(InputClient.Decorators), options, ref decorators);
+                    || reader.TryReadWithConverter(nameof(InputClient.Decorators), options, ref decorators)
+                    || reader.TryReadString("CrossLanguageDefinitionId", ref crossLanguageDefinitionId);
 
                 if (!isKnownProperty)
                 {
@@ -62,16 +69,20 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             client.Name = name ?? throw new JsonException("InputClient must have name");
             client.Namespace = @namespace ?? string.Empty;
+            client.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             client.Summary = summary;
             client.Doc = doc;
-            client.Operations = operations ?? Array.Empty<InputOperation>();
-            client.Parameters = parameters ?? Array.Empty<InputParameter>();
+            client.Operations = operations ?? [];
+            client.Parameters = parameters ?? [];
             client.Parent = parent;
             client.Decorators = decorators ?? [];
 
-            if (GetLastSegment(client.Namespace) == client.Name)
+            var lastSegment = GetLastSegment(client.Namespace);
+            if (lastSegment == client.Name)
             {
                 // invalid namespace segment found
+                // report the diagnostic
+                _emitter.ReportDiagnostic(namespaceConflictCode, $"namespace {client.Namespace} conflicts with client {client.Name}, please use `@clientName` to specify a different name for the client.", crossLanguageDefinitionId);
                 // check if the list is already there
                 // get the list out
                 var invalidNamespaceSegments = (List<string>)resolver.ResolveReference(TypeSpecSerialization.InvalidNamespaceSegmentsKey);

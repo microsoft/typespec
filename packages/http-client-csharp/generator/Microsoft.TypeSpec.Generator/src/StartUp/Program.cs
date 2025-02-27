@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using CommandLine;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Input.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator
 {

@@ -93,6 +93,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
     const clientName = getClientName(client, parentNames);
 
+    sdkContext.__typeCache.crossLanguageDefinitionIds.set(client.crossLanguageDefinitionId, client.__raw.type);
     return {
       Name: clientName,
       Namespace: client.namespace,
@@ -112,6 +113,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
       Parameters: clientParameters,
       Decorators: client.decorators,
+      CrossLanguageDefinitionId: client.crossLanguageDefinitionId,
     };
   }
 

@@ -6,8 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
-using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Input.EmitterRpc;
 using Microsoft.TypeSpec.Generator.SourceInput;
 
 namespace Microsoft.TypeSpec.Generator
