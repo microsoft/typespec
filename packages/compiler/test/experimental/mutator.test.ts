@@ -389,3 +389,37 @@ it("mutate sourceProperty in operation", async () => {
     MutatedSpread.properties.get("prop")!,
   );
 });
+it("mutate sourceProperty alternative ref", async () => {
+  const code = `
+    @test model Spread {
+      prop: string;
+    }
+    op foo(...Spread): void;
+
+    op bar(ref: Spread): void;
+  `;
+
+  await runner.compile(code);
+  const mutator: Mutator = {
+    name: "test",
+    Model: { mutate: (clone) => {} },
+    Operation: { mutate: (clone) => {} },
+  };
+  const { type } = mutateSubgraphWithNamespace(
+    runner.program,
+    [mutator],
+    runner.program.getGlobalNamespaceType(),
+  );
+  strictEqual(type.kind, "Namespace");
+  const MutatedSpread = type.models.get("Spread")!;
+  const MutatedFoo = type.operations.get("foo")!;
+  const MutatedBar = type.operations.get("bar")!;
+  expectTypeEquals(
+    MutatedFoo.parameters.properties.get("prop")?.sourceProperty,
+    MutatedSpread.properties.get("prop")!,
+  );
+  expectTypeEquals(
+    MutatedFoo.parameters.properties.get("prop")?.sourceProperty!.model,
+    MutatedBar.parameters.properties.get("ref")!.type,
+  );
+});
