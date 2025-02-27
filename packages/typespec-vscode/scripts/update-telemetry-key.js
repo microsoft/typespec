@@ -11,7 +11,9 @@ if (!newKey) {
   const targetPackageJsonFile = path.resolve(__dirname, "../package.json");
   console.log(`Updating package.json at ${targetPackageJsonFile}`);
   const packageJson = JSON.parse(fs.readFileSync(targetPackageJsonFile, "utf8"));
+  console.log(`original package.json: \n` + JSON.stringify(packageJson, null, 2));
   const oldKey = packageJson.telemetryKey;
+  console.log(`Original telemetry key: ${oldKey}`);
 
   const getLastSegOfKey = (key) => key.substring(Math.max(0, newKey.length - 12));
 
@@ -19,6 +21,8 @@ if (!newKey) {
     `Updating telemetry key from ...${getLastSegOfKey(oldKey)} to ...${getLastSegOfKey(newKey)}`,
   );
   packageJson.telemetryKey = newKey;
+
+  console.log(`package.json updated to: \n` + JSON.stringify(packageJson, null, 2));
 
   fs.writeFileSync(targetPackageJsonFile, JSON.stringify(packageJson, null, 2));
 
