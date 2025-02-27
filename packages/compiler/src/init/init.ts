@@ -182,7 +182,7 @@ async function downloadTemplates(host: CompilerHost, url: string): Promise<Loade
   warning(
     `Downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.`,
   );
-  if (!confirm("Continue")) {
+  if (!(await confirm("Continue"))) {
     process.exit(1);
   }
   let file: SourceFile;
