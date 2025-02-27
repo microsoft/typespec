@@ -45,13 +45,13 @@ class TelemetryClient {
     let key: string | undefined = pkgJson.telemetryKey;
     if (!isValidKey(key)) {
       logger.debug(
-        "Telemetry key is not provided in package.json, try to use environment variable VSCODE_TELEMETRY_KEY",
+        "Telemetry key is not provided in package.json, try to use environment variable TYPESPEC_VSCODE_TELEMETRY_KEY",
       );
-      key = process.env.VSCODE_TELEMETRY_KEY;
+      key = process.env.TYPESPEC_VSCODE_TELEMETRY_KEY;
     }
     if (!isValidKey(key)) {
       logger.debug(
-        "Telemetry key is not provided in package.json or environment variable VSCODE_TELEMETRY_KEY",
+        "Telemetry key is not provided in package.json or environment variable TYPESPEC_VSCODE_TELEMETRY_KEY",
       );
       return undefined;
     }
