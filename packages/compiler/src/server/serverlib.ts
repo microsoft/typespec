@@ -58,7 +58,9 @@ import {
   ResolveModuleHost,
   typespecVersion,
 } from "../core/index.js";
-import { builtInLinterLibraryName, builtInLinterRule_UnusedUsing } from "../core/linter.js";
+import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
+import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
+import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
@@ -498,6 +500,7 @@ export function createServer(host: ServerHost): Server {
           };
         }
         const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
+        const unusedTemlateParameterRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedTemplateParameter}`;
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
         } else if (each.code === unusedUsingRule) {
@@ -510,6 +513,18 @@ export function createServer(host: ServerHost): Server {
             optionsFromConfig.linterRuleSet?.disable?.[unusedUsingRule] === undefined
           ) {
             // if the unused using is not configured by user explicitly, report it as hint by default
+            diagnostic.severity = DiagnosticSeverity.Hint;
+          }
+        } else if (each.code === unusedTemlateParameterRule) {
+          // Unused or unnecessary code. Diagnostics with this tag are rendered faded out, so no extra work needed from IDE side
+          // https://vscode-api.js.org/enums/vscode.DiagnosticTag.html#google_vignette
+          // https://learn.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.languageserver.protocol.diagnostictag?view=visualstudiosdk-2022
+          diagnostic.tags = [DiagnosticTag.Unnecessary];
+          if (
+            optionsFromConfig.linterRuleSet?.enable?.[unusedTemlateParameterRule] === undefined &&
+            optionsFromConfig.linterRuleSet?.disable?.[unusedTemlateParameterRule] === undefined
+          ) {
+            // if the unused template parameter is not configured by user explicitly, report it as hint by default
             diagnostic.severity = DiagnosticSeverity.Hint;
           }
         }
