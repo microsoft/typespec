@@ -10,6 +10,10 @@ jobs:
         parameters:
           useDotNet: true
 
+      - script: pnpm run update-telemetry-key $(vscode.telemetryKey)
+        workingDirectory: $(Build.SourcesDirectory)/packages/typespec-vscode
+        displayName: Update vscode telemetry key
+
       - template: /eng/tsp-core/pipelines/templates/build.yml
 
       - script: pnpm run test:ci

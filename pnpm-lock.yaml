@@ -2113,6 +2113,9 @@ importers:
       '@rollup/plugin-commonjs':
         specifier: ~28.0.2
         version: 28.0.2(rollup@4.31.0)
+      '@rollup/plugin-json':
+        specifier: ~6.1.0
+        version: 6.1.0(rollup@4.31.0)
       '@rollup/plugin-node-resolve':
         specifier: ~16.0.0
         version: 16.0.0(rollup@4.31.0)
@@ -2143,6 +2146,9 @@ importers:
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
+      '@vscode/extension-telemetry':
+        specifier: ^0.6.2
+        version: 0.6.2(tslib@2.8.1)
       '@vscode/test-web':
         specifier: ^0.0.65
         version: 0.0.65
@@ -4900,12 +4906,29 @@ packages:
   '@mermaid-js/parser@0.3.0':
     resolution: {integrity: sha512-HsvL6zgE5sUPGgkIDlmAWR1HTNHz2Iy11BAWPTa4Jjabkpguy4Ze2gzfLrg6pdRuBvFwgUYyxiaNqZwrEEXepA==}
 
+  '@microsoft/1ds-core-js@3.2.18':
+    resolution: {integrity: sha512-ytlFv3dfb8OGqvbZP8tSIlNvn3QNYxdsF0k6ikRMWSr6CmBxBi1sliaxc2Q5KuYOuaeWkd8WRm25Rx/UtHcyMg==}
+
+  '@microsoft/1ds-post-js@3.2.18':
+    resolution: {integrity: sha512-Tzjcja4SMyws3UP58kD2edFPNb7BJtx5uCgwf/PWXwDyfbUY1/crsTQdEyR98wy/vorvLDZdQlcL++VMChfYnQ==}
+
   '@microsoft/api-extractor-model@7.30.2':
     resolution: {integrity: sha512-3/t2F+WhkJgBzSNwlkTIL0tBgUoBqDqL66pT+nh2mPbM0NIDGVGtpqbGWPgHIzn/mn7kGS/Ep8D8po58e8UUIw==}
 
   '@microsoft/api-extractor@7.49.1':
     resolution: {integrity: sha512-jRTR/XbQF2kb+dYn8hfYSicOGA99+Fo00GrsdMwdfE3eIgLtKdH6Qa2M3wZV9S2XmbgCaGX1OdPtYctbfu5jQg==}
     hasBin: true
+
+  '@microsoft/applicationinsights-core-js@2.8.18':
+    resolution: {integrity: sha512-yPHRZFLpnEO0uSgFPM1BLMRRwjoten9YBbn4pJRbCT4PigLnj748knmWsMwXIdcehtkRTYz78kPYa/LWP7nvmA==}
+    peerDependencies:
+      tslib: '*'
+
+  '@microsoft/applicationinsights-shims@2.0.2':
+    resolution: {integrity: sha512-PoHEgsnmcqruLNHZ/amACqdJ6YYQpED0KSRe6J7gIJTtpZC1FfFU9b1fmDKDKtFoUSrPzEh1qzO3kmRZP0betg==}
+
+  '@microsoft/dynamicproto-js@1.1.11':
+    resolution: {integrity: sha512-gNw9z9LbqLV+WadZ6/MMrWwO3e0LuoUH1wve/1iPsBNbgqeVCiB0EZFNNj2lysxS2gkqoF9hmyVaG3MoM1BkxA==}
 
   '@microsoft/tsdoc-config@0.17.1':
     resolution: {integrity: sha512-UtjIFe0C6oYgTnad4q1QP4qXwLhe6tIpNTRStJ2RZEPIkqQPREAwE5spzVxsdn9UaEMUqhh0AqSx3X4nWAKXWw==}
@@ -6396,6 +6419,10 @@ packages:
 
   '@vscode/emmet-helper@2.11.0':
     resolution: {integrity: sha512-QLxjQR3imPZPQltfbWRnHU6JecWTF1QSWhx3GAKQpslx7y3Dp6sIIXhKjiUJ/BR9FX8PVthjr9PD6pNwOJfAzw==}
+
+  '@vscode/extension-telemetry@0.6.2':
+    resolution: {integrity: sha512-yb/wxLuaaCRcBAZtDCjNYSisAXz3FWsSqAha5nhHcYxx2ZPdQdWuZqVXGKq0ZpHVndBWWtK6XqtpCN2/HB4S1w==}
+    engines: {vscode: ^1.60.0}
 
   '@vscode/l10n@0.0.18':
     resolution: {integrity: sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ==}
@@ -16871,6 +16898,22 @@ snapshots:
     dependencies:
       langium: 3.0.0
 
+  '@microsoft/1ds-core-js@3.2.18(tslib@2.8.1)':
+    dependencies:
+      '@microsoft/applicationinsights-core-js': 2.8.18(tslib@2.8.1)
+      '@microsoft/applicationinsights-shims': 2.0.2
+      '@microsoft/dynamicproto-js': 1.1.11
+    transitivePeerDependencies:
+      - tslib
+
+  '@microsoft/1ds-post-js@3.2.18(tslib@2.8.1)':
+    dependencies:
+      '@microsoft/1ds-core-js': 3.2.18(tslib@2.8.1)
+      '@microsoft/applicationinsights-shims': 2.0.2
+      '@microsoft/dynamicproto-js': 1.1.11
+    transitivePeerDependencies:
+      - tslib
+
   '@microsoft/api-extractor-model@7.30.2(@types/node@22.10.10)':
     dependencies:
       '@microsoft/tsdoc': 0.15.1
@@ -16896,6 +16939,16 @@ snapshots:
       typescript: 5.7.2
     transitivePeerDependencies:
       - '@types/node'
+
+  '@microsoft/applicationinsights-core-js@2.8.18(tslib@2.8.1)':
+    dependencies:
+      '@microsoft/applicationinsights-shims': 2.0.2
+      '@microsoft/dynamicproto-js': 1.1.11
+      tslib: 2.8.1
+
+  '@microsoft/applicationinsights-shims@2.0.2': {}
+
+  '@microsoft/dynamicproto-js@1.1.11': {}
 
   '@microsoft/tsdoc-config@0.17.1':
     dependencies:
@@ -18783,6 +18836,13 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.17.5
       vscode-uri: 3.0.8
+
+  '@vscode/extension-telemetry@0.6.2(tslib@2.8.1)':
+    dependencies:
+      '@microsoft/1ds-core-js': 3.2.18(tslib@2.8.1)
+      '@microsoft/1ds-post-js': 3.2.18(tslib@2.8.1)
+    transitivePeerDependencies:
+      - tslib
 
   '@vscode/l10n@0.0.18': {}
 
