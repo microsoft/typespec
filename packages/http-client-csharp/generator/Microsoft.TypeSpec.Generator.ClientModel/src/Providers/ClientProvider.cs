@@ -151,10 +151,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string namespaceConflictCode = "client-namespace-conflict";
 
         private string? _namespace;
-        protected override string BuildNamespace()
-        {
-            return _namespace ??= BuildNamespaceCore();
-        }
+        protected override string BuildNamespace() => _namespace ??= BuildNamespaceCore();
 
         private string BuildNamespaceCore()
         {
@@ -166,37 +163,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var ns = ScmCodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
 
             // figure out if this namespace has been changed for this client
-            if (!IsLastSegmentTheSame(ns, _inputClient.Namespace))
+            if (!StringExtensions.IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
             {
                 Emitter.Instance.ReportDiagnostic(namespaceConflictCode, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
             }
             return ns;
-        }
-
-        internal static bool IsLastSegmentTheSame(string left, string right)
-        {
-            // finish this via Span API
-            var leftSpan = left.AsSpan();
-            var rightSpan = right.AsSpan();
-            var count = Math.Min(leftSpan.Length, rightSpan.Length);
-            for (int i = 1; i <= count; i++)
-            {
-                var lc = leftSpan[^i];
-                var rc = rightSpan[^i];
-                // check if each char is the same from the right-most side
-                // if both of them are dot, we finished scanning the last segment - and if we could be here, meaning all of them are the same, return true.
-                if (lc == '.' && rc == '.')
-                {
-                    return true;
-                }
-                // if these are different - there is one different character, return false.
-                if (lc != rc)
-                {
-                    return false;
-                }
-            }
-
-            return leftSpan.Length == rightSpan.Length;
         }
 
         private IReadOnlyList<ParameterProvider> GetSubClientInternalConstructorParameters()

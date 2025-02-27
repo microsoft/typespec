@@ -16,11 +16,11 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         private static Emitter? _emitter;
         private bool _disposed;
 
-        private readonly StreamWriter _writer;
+        private readonly TextWriter _writer;
 
-        private Emitter()
+        internal Emitter()
         {
-            _writer = new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true };
+            _writer = Console.Out;
         }
 
         public static Emitter Instance => _emitter ??= new Emitter();
@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
             var paramsContent = JsonSerializer.Serialize(content);
             var message = string.Format(BasicNotificationFormat, AsStringLiteral(method), paramsContent);
             _writer.WriteLine(message);
+            _writer.Flush();
         }
 
         private static string AsStringLiteral(string input) => $"\"{input}\"";
