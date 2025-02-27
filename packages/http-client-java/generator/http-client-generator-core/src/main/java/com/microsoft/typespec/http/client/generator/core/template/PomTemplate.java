@@ -78,17 +78,17 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
 
             projectBlock.line();
 
-            projectBlock.block("licenses", licensesBlock -> {
-                licensesBlock.block("license", licenseBlock -> {
-                    licenseBlock.tag("name", "The MIT License (MIT)");
-                    licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
-                    licenseBlock.tag("distribution", "repo");
-                });
-            });
-
-            projectBlock.line();
-
             if (branded) {
+                projectBlock.block("licenses", licensesBlock -> {
+                    licensesBlock.block("license", licenseBlock -> {
+                        licenseBlock.tag("name", "The MIT License (MIT)");
+                        licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
+                        licenseBlock.tag("distribution", "repo");
+                    });
+                });
+
+                projectBlock.line();
+
                 projectBlock.block("scm", scmBlock -> {
                     scmBlock.tag("url", "https://github.com/Azure/azure-sdk-for-java");
                     scmBlock.tag("connection", "scm:git:git@github.com:Azure/azure-sdk-for-java.git");
