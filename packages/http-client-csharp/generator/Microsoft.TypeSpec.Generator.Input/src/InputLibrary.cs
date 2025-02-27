@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using Microsoft.TypeSpec.Generator.Input.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
@@ -12,7 +11,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         private const string CodeModelInputFileName = "tspCodeModel.json";
 
         private readonly string _codeModelPath;
-        private readonly Emitter _emitter;
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -21,16 +19,15 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
         }
 
-        public InputLibrary(string codeModelPath, Emitter emitter)
+        public InputLibrary(string codeModelPath)
         {
             _codeModelPath = codeModelPath;
-            _emitter = emitter;
         }
 
         private InputNamespace? _inputNamespace;
-        public virtual InputNamespace InputNamespace => _inputNamespace ??= Load(_codeModelPath, _emitter);
+        public virtual InputNamespace InputNamespace => _inputNamespace ??= Load(_codeModelPath);
 
-        internal InputNamespace Load(string outputDirectory, Emitter emitter)
+        internal InputNamespace Load(string outputDirectory)
         {
             var codeModelFile = Path.Combine(outputDirectory, CodeModelInputFileName);
             if (!File.Exists(codeModelFile))
@@ -40,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             // Read and deserialize tspCodeModel.json
             var json = File.ReadAllText(codeModelFile);
-            return TypeSpecSerialization.Deserialize(json, emitter) ?? throw new InvalidOperationException($"Deserializing {codeModelFile} has failed.");
+            return TypeSpecSerialization.Deserialize(json) ?? throw new InvalidOperationException($"Deserializing {codeModelFile} has failed.");
         }
 
         private bool? _hasMultipartFormDataOperation;

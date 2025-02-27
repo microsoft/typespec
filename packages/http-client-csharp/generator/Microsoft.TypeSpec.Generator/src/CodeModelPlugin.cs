@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Input.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
@@ -45,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator
         public CodeModelPlugin(GeneratorContext context)
         {
             Configuration = context.Configuration;
-            _inputLibrary = new InputLibrary(Configuration.OutputDirectory, Emitter.Instance);
+            _inputLibrary = new InputLibrary(Configuration.OutputDirectory);
             TypeFactory = new TypeFactory();
         }
 

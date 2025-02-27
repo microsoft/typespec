@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -147,9 +148,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _subClients = new(GetSubClients);
         }
 
-        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputClient.Namespace) ?
-            base.BuildNamespace() :
-            ScmCodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
+        private const string namespaceConflictCode = "client-namespace-conflict";
+
+        private string? _namespace;
+        protected override string BuildNamespace()
+        {
+            return _namespace ??= BuildNamespaceCore();
+        }
+
+        private string BuildNamespaceCore()
+        {
+            // if namespace is empty, we fallback to the root namespace
+            if (string.IsNullOrEmpty(_inputClient.Namespace))
+            {
+                return base.BuildNamespace();
+            }
+            var ns = ScmCodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
+
+            // figure out if this namespace has been changed for this client
+            if (!IsLastSegmentTheSame(ns, _inputClient.Namespace))
+            {
+                Emitter.Instance.ReportDiagnostic(namespaceConflictCode, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
+            }
+            return ns;
+        }
+
+        internal static bool IsLastSegmentTheSame(string left, string right)
+        {
+            // finish this via Span API
+            var leftSpan = left.AsSpan();
+            var rightSpan = right.AsSpan();
+            var count = Math.Min(leftSpan.Length, rightSpan.Length);
+            for (int i = 1; i <= count; i++)
+            {
+                var lc = leftSpan[^i];
+                var rc = rightSpan[^i];
+                // check if each char is the same from the right-most side
+                // if both of them are dot, we finished scanning the last segment - and if we could be here, meaning all of them are the same, return true.
+                if (lc == '.' && rc == '.')
+                {
+                    return true;
+                }
+                // if these are different - there is one different character, return false.
+                if (lc != rc)
+                {
+                    return false;
+                }
+            }
+
+            return leftSpan.Length == rightSpan.Length;
+        }
 
         private IReadOnlyList<ParameterProvider> GetSubClientInternalConstructorParameters()
         {

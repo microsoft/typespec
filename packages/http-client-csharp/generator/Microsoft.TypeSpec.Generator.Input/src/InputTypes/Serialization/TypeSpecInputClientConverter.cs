@@ -5,20 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.TypeSpec.Generator.Input.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class TypeSpecInputClientConverter : JsonConverter<InputClient>
     {
-        private const string namespaceConflictCode = "client-namespace-conflict";
-
-        private readonly Emitter _emitter;
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public TypeSpecInputClientConverter(TypeSpecReferenceHandler referenceHandler, Emitter emitter)
+        public TypeSpecInputClientConverter(TypeSpecReferenceHandler referenceHandler)
         {
-            _emitter = emitter;
             _referenceHandler = referenceHandler;
         }
 
@@ -80,11 +75,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             var lastSegment = GetLastSegment(client.Namespace);
             if (lastSegment == client.Name)
             {
-                // invalid namespace segment found
-                // report the diagnostic
-                _emitter.ReportDiagnostic(namespaceConflictCode, $"namespace {client.Namespace} conflicts with client {client.Name}, please use `@clientName` to specify a different name for the client.", crossLanguageDefinitionId);
-                // check if the list is already there
-                // get the list out
+                // invalid namespace segment found, add it into the list
                 var invalidNamespaceSegments = (List<string>)resolver.ResolveReference(TypeSpecSerialization.InvalidNamespaceSegmentsKey);
                 invalidNamespaceSegments.Add(client.Name);
             }

@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 
-namespace Microsoft.TypeSpec.Generator.Input.EmitterRpc
+namespace Microsoft.TypeSpec.Generator.EmitterRpc
 {
     public sealed class Emitter : IDisposable
     {
