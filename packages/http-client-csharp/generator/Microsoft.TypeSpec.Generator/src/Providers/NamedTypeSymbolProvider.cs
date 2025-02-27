@@ -177,14 +177,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
 
                 var modifiers = GetAccessModifier(methodSymbol.DeclaredAccessibility);
+
+                // We want the simple name for the method, not the full name which matches the behavior for generated types
+                var format = new SymbolDisplayFormat(
+                    memberOptions: SymbolDisplayMemberOptions.None,
+                    kindOptions: SymbolDisplayKindOptions.None);
+
                 AddAdditionalModifiers(methodSymbol, ref modifiers);
+                var explicitInterface = methodSymbol.ExplicitInterfaceImplementations.FirstOrDefault();
                 var signature = new MethodSignature(
-                    methodSymbol.Name,
+                    methodSymbol.ToDisplayString(format),
                     GetSymbolXmlDoc(methodSymbol, "summary"),
-                    modifiers,
+                    // remove private modifier for explicit interface implementations
+                    explicitInterface != null ? modifiers & ~MethodSignatureModifiers.Private : modifiers,
                     GetNullableCSharpType(methodSymbol.ReturnType),
                     GetSymbolXmlDoc(methodSymbol, "returns"),
-                    [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))]);
+                    [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
+                    ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType());
 
                 methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));
             }
@@ -212,6 +221,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (methodSymbol.IsOverride)
             {
                 modifiers |= MethodSignatureModifiers.Override;
+            }
+            if (methodSymbol.IsAsync)
+            {
+                modifiers |= MethodSignatureModifiers.Async;
             }
         }
 
