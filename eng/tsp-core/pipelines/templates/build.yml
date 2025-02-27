@@ -1,5 +1,9 @@
 # Template building all packages with parallelism.
 
 steps:
+  - script: pnpm run update-telemetry-key $(vscode.telemetryKey)
+    workingDirectory: $(Build.SourcesDirectory)/packages/typespec-vscode
+    displayName: Update vscode telemetry key
+
   - script: pnpm run build
     displayName: Build
