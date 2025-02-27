@@ -1,6 +1,6 @@
 import type { StarlightUserConfig } from "@astrojs/starlight/types";
 import { readdir, stat } from "fs/promises";
-import { join, parse, resolve } from "path/posix";
+import { join, parse, resolve } from "pathe";
 
 export type StarlightSidebarUserConfig = StarlightUserConfig["sidebar"];
 

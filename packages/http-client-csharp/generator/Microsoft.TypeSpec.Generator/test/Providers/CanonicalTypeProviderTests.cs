@@ -116,9 +116,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // - public virtual Task Method2(float floatParam)
             var methods = _typeProvider.CanonicalView.Methods;
 
-            Assert.AreEqual(3, methods.Count);
+            Assert.AreEqual(4, methods.Count);
             Assert.AreEqual(2, _typeProvider.Methods.Count);
-            Assert.AreEqual(1, _typeProvider.CustomCodeView!.Methods.Count);
+            Assert.AreEqual(2, _typeProvider.CustomCodeView!.Methods.Count);
 
             // the first should be public virtual Task<string> Method1(string strParam)
             var first = methods[0].Signature;
@@ -146,6 +146,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(1, third.Parameters.Count);
             Assert.AreEqual("intParam", third.Parameters[0].Name);
             Assert.AreEqual(new CSharpType(typeof(int)), third.Parameters[0].Type);
+
+            // the fourth should be ValueTask DisposeAsync()
+            var fourth = methods[3].Signature;
+            Assert.AreEqual("DisposeAsync", fourth.Name);
+            Assert.AreEqual("global::System.IAsyncDisposable.DisposeAsync", fourth.FullMethodName);
+            Assert.AreEqual(MethodSignatureModifiers.Async, fourth.Modifiers);
+            Assert.AreEqual(new CSharpType(typeof(ValueTask)), fourth.ReturnType);
+            Assert.AreEqual(0, fourth.Parameters.Count);
         }
 
 
