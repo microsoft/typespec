@@ -2,10 +2,10 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { SdkContext, SdkType } from "@azure-tools/typespec-client-generator-core";
+import { Type } from "@typespec/compiler";
 import { Logger } from "./lib/logger.js";
 import { CSharpEmitterOptions } from "./options.js";
 import { InputEnumType, InputModelType, InputType } from "./type/input-type.js";
-import { Type } from "@typespec/compiler";
 
 /**
  * The emitter context for the CSharp emitter.

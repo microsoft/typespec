@@ -93,7 +93,10 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
     const clientName = getClientName(client, parentNames);
 
-    sdkContext.__typeCache.crossLanguageDefinitionIds.set(client.crossLanguageDefinitionId, client.__raw.type);
+    sdkContext.__typeCache.crossLanguageDefinitionIds.set(
+      client.crossLanguageDefinitionId,
+      client.__raw.type,
+    );
     return {
       Name: clientName,
       Namespace: client.namespace,
