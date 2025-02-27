@@ -116,6 +116,13 @@ describe("Scalar formats of serialized document in YAML", () => {
         outputFilePattern: "{service-name-if-multiple}.yaml",
         expectedOutputFiles: [resolveVirtualPath("AAA.yaml"), resolveVirtualPath("BBB.yaml")],
       },
+      // fixed name cases
+      {
+        description: "fixed name for one service",
+        code: "@service namespace AAA { model M {a: string} }",
+        outputFilePattern: "fixed-name.yaml",
+        expectedOutputFiles: [resolveVirtualPath("fixed-name.yaml")],
+      },
     ])("$description", async (c: ServiceNameCase) => {
       const options = {
         "output-file": c.outputFilePattern,
