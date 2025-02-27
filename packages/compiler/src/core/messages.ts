@@ -1047,6 +1047,10 @@ const diagnostics = {
     messages: {
       default:
         "Operation visibility constraints with no arguments are deprecated and will become an error in TypeSpec version 1.0-rc.",
+      returnType:
+        "Return type visibility constraints with no arguments are deprecated and will become an error in TypeSpec version 1.0-rc.",
+      parameter:
+        "Parameter visibility constraints with no arguments are deprecated and will become an error in TypeSpec version 1.0-rc. To disable effective PATCH optionality, use @patch(#{ implicitOptionality: false }) instead.",
     },
   },
   // #endregion
