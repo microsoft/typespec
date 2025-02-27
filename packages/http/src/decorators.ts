@@ -96,6 +96,7 @@ export const $header: HeaderDecorator = (
           format === "form" ||
           format === "multi"
         ) {
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
           options.format = format;
         }
       }
