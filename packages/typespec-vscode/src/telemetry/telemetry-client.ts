@@ -44,6 +44,9 @@ class TelemetryClient {
       key = process.env.VSCODE_TELEMETRY_KEY;
     }
     if (!key || key === EmptyGuid) {
+      logger.debug(
+        "Telemetry key is not provided in package.json or environment variable VSCODE_TELEMETRY_KEY",
+      );
       return undefined;
     }
     return `InstrumentationKey=${pkgJson.telemetryKey}`;
