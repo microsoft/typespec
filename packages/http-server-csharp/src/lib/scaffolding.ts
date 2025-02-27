@@ -95,13 +95,15 @@ function getReturnStatement(returnType: CSharpType): string {
   if (returnType.isValueType) {
     return `return Task.FromResult<${returnType.getTypeReference()}>(default);`;
   }
-  if (returnType.name.endsWith("[]")) {
+  if (returnType.isCollection) {
     return `return Task.FromResult<${returnType.getTypeReference()}>([]);`;
   }
   if (returnType.name === "string") {
     return `return Task.FromResult("");`;
-  } else {
+  } else if (returnType.isClass) {
     return `return Task.FromResult(_initializer.Initialize<${returnType.getTypeReference()}>());`;
+  } else {
+    return `throw new NotImplementedException();`;
   }
 }
 function getBusinessLogicImplementation(mock: BusinessLogicImplementation): string {
@@ -429,6 +431,10 @@ namespace TypeSpec.Helpers
             if ( (genericType != null))
             {
                 return Initialize(genericType);
+            }
+            if (type.IsEnum)
+            {
+              return CacheAndReturn(type, Enum.GetValues(type).GetValue(0));
             }
             return new object();
         }
