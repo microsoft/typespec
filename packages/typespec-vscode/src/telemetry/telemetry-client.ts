@@ -24,32 +24,38 @@ class TelemetryClient {
   }
 
   private initClient() {
-    const cs = this.getConnectionString();
-    if (!cs) {
+    const key = this.getTelemetryKey();
+    if (!key) {
       this.logErrorWhenLoggingTelemetry(
         "Skip initializing telemetry client because no telemetry key is provided",
       );
       this._client = undefined;
     } else {
-      this._client = new (TelemetryReporter as any)(cs);
+      this._client = new (TelemetryReporter as any)(
+        `${pkgJson.publisher}.${pkgJson.name}`,
+        pkgJson.version,
+        key,
+        true /*first party*/,
+      );
     }
   }
 
-  private getConnectionString(): string | undefined {
+  private getTelemetryKey(): string | undefined {
+    const isValidKey = (key: string | undefined) => key && key !== EmptyGuid;
     let key: string | undefined = pkgJson.telemetryKey;
-    if (!key || key === EmptyGuid) {
+    if (!isValidKey(key)) {
       logger.debug(
         "Telemetry key is not provided in package.json, try to use environment variable VSCODE_TELEMETRY_KEY",
       );
       key = process.env.VSCODE_TELEMETRY_KEY;
     }
-    if (!key || key === EmptyGuid) {
+    if (!isValidKey(key)) {
       logger.debug(
         "Telemetry key is not provided in package.json or environment variable VSCODE_TELEMETRY_KEY",
       );
       return undefined;
     }
-    return `InstrumentationKey=${pkgJson.telemetryKey}`;
+    return key;
   }
 
   public async flush() {
