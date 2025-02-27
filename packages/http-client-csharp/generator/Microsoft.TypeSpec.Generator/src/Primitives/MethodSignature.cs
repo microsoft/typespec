@@ -36,6 +36,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// </summary>
         public FormattableString GetCRef() => $"{Name}({Parameters.GetTypesFormattable()})";
 
-        public string FullMethodName => ExplicitInterface != null ? $"{ExplicitInterface}.{Name}" : Name;
+        internal string FullMethodName => ExplicitInterface != null ? $"{ExplicitInterface}.{Name}" : Name;
     }
 }
