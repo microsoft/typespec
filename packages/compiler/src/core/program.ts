@@ -959,6 +959,7 @@ async function runEmitter(emitter: EmitterRef, program: Program) {
 function logEmittedFilesPath(projectRoot: string, emitterOutputDir: string) {
   const relativePathForEmittedFiles = `./${getRelativePathFromDirectory(projectRoot, emitterOutputDir, false)}/`;
   flushEmittedFilesPaths().forEach((message) =>
+    // eslint-disable-next-line no-console
     console.log(`\t${relativePathForEmittedFiles}${message}`),
   );
 }

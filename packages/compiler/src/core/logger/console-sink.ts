@@ -16,15 +16,18 @@ export interface ConsoleSinkOptions extends FormatLogOptions {}
 
 export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
   function log(data: ProcessedLog) {
+    const isTTY = process.stdout?.isTTY && !process.env.CI;
+    if (isTTY) {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+    }
     // eslint-disable-next-line no-console
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
     console.log(formatLog(data, options));
   }
 
   return {
     log,
-    trackAction: (action, log, completededLog) => trackAction(action, log, completededLog),
+    trackAction: (action, log, completedLog) => trackAction(action, log, completedLog),
   };
 }
 
