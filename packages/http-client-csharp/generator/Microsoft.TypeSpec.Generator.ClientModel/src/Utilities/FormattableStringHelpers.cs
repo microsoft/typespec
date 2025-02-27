@@ -10,8 +10,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 {
     internal static class FormattableStringHelpers
     {
-        private static readonly Regex ContentTypeRegex = new Regex(@"(application|audio|font|example|image|message|model|multipart|text|video|x-(?:[0-9A-Za-z!#$%&'*+.^_`|~-]+))\/([0-9A-Za-z!#$%&'*.^_`|~-]+)\s*(?:\+([0-9A-Za-z!#$%&'*.^_`|~-]+))?\s*(?:;.\s*(\S*))?", RegexOptions.Compiled);
-
         public static FormattableString Empty => $"";
 
         [return: NotNullIfNotNull(nameof(s))]
