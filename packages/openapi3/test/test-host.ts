@@ -12,7 +12,8 @@ import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
 import { ok } from "assert";
-import { parse } from "yaml";
+import { parse as yamlParse } from "yaml";
+import { EmitterOptions } from "../../compiler/src/config/types.js";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3TestLibrary } from "../src/testing/index.js";
 import { OpenAPI3Document } from "../src/types.js";
@@ -77,8 +78,41 @@ export async function emitOpenApiWithDiagnostics(
   });
   const content = runner.fs.get(outputFile);
   ok(content, "Expected to have found openapi output");
-  const doc = fileType === "json" ? JSON.parse(content) : parse(content);
+  const doc = fileType === "json" ? JSON.parse(content) : yamlParse(content);
   return [doc, diagnostics, content];
+}
+
+export async function emitOpenApi(
+  code: string,
+  options: OpenAPI3EmitterOptions & EmitterOptions = {},
+): Promise<
+  [
+    readonly Diagnostic[],
+    (outputFile: string) => string | undefined,
+    (outputFile: string) => OpenAPI3Document | undefined,
+  ]
+> {
+  const runner = await createOpenAPITestRunner();
+  const fileType = options["file-type"] || "yaml";
+  const diagnostics = await runner.diagnose(code, {
+    noEmit: false,
+    emit: ["@typespec/openapi3"],
+    options: {
+      "@typespec/openapi3": options,
+    },
+  });
+  return [diagnostics, load, parse];
+
+  function load(outputFile: string): string | undefined {
+    const absoluteOutputFile = resolveVirtualPath(outputFile);
+    return runner.fs.get(absoluteOutputFile);
+  }
+
+  function parse(outputFile: string): OpenAPI3Document | undefined {
+    const content = load(outputFile);
+    if (!content) return;
+    return fileType === "json" ? JSON.parse(content) : yamlParse(content);
+  }
 }
 
 export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterOptions = {}) {

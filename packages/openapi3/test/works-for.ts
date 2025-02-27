@@ -3,6 +3,7 @@ import { OpenAPIVersion } from "../src/lib.js";
 import {
   checkFor,
   diagnoseOpenApiFor,
+  emitOpenApi,
   emitOpenApiWithDiagnostics,
   oapiForModel,
   openApiFor,
@@ -24,6 +25,7 @@ export type SpecHelper = {
   checkFor: typeof checkFor;
   diagnoseOpenApiFor: typeof diagnoseOpenApiFor;
   emitOpenApiWithDiagnostics: typeof emitOpenApiWithDiagnostics;
+  emitOpenApi: typeof emitOpenApi;
   objectSchemaIndexer: ObjectSchemaIndexer;
 };
 
@@ -45,6 +47,8 @@ function createSpecHelpers(version: OpenAPIVersion): SpecHelper {
     emitOpenApiWithDiagnostics: (
       ...[code, options]: Parameters<typeof emitOpenApiWithDiagnostics>
     ) => emitOpenApiWithDiagnostics(code, { ...options, "openapi-versions": [version] }),
+    emitOpenApi: (...[code, options]: Parameters<typeof emitOpenApi>) =>
+      emitOpenApi(code, { ...options, "openapi-versions": [version] }),
     objectSchemaIndexer: version === "3.0.0" ? "additionalProperties" : "unevaluatedProperties",
   };
 }
