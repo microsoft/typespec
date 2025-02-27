@@ -1090,10 +1090,10 @@ export function createServer(host: ServerHost): Server {
           };
           host.log(sLog);
         },
-        trackAction: async (asyncAction: () => Promise<any>, startMessage: ProcessedLog) => {
+        trackAction: async (asyncAction: () => Promise<any>, startMessage: string) => {
           host.log({
-            level: startMessage.level,
-            message: formatLog(startMessage, { excludeLogLevel: true }),
+            level: "info",
+            message: startMessage,
           });
 
           try {

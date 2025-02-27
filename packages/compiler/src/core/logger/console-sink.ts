@@ -3,7 +3,6 @@ import isUnicodeSupported from "is-unicode-supported";
 import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
-import { getChildLogs } from "../helpers/logger-child-utils.js";
 import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
 import { supportsHyperlink } from "./support-hyperlinks.js";
 
@@ -18,6 +17,8 @@ export interface ConsoleSinkOptions extends FormatLogOptions {}
 export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
   function log(data: ProcessedLog) {
     // eslint-disable-next-line no-console
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
     console.log(formatLog(data, options));
   }
 
@@ -133,7 +134,7 @@ function getLineAndColumn(location: SourceLocation): RealLocation {
   return result;
 }
 
-export async function trackAction<T>(asyncAction: () => Promise<T>, log: ProcessedLog): Promise<T> {
+export async function trackAction<T>(asyncAction: () => Promise<T>, log: string): Promise<T> {
   const isTTY = process.stdout?.isTTY && !process.env.CI;
   let interval;
   if (isTTY) {
@@ -142,7 +143,7 @@ export async function trackAction<T>(asyncAction: () => Promise<T>, log: Process
     interval = setInterval(() => {
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`\r${spinner()} ${log.message}`);
+      process.stdout.write(`\r${spinner()} ${log}`);
     }, 200);
   }
 
@@ -152,7 +153,7 @@ export async function trackAction<T>(asyncAction: () => Promise<T>, log: Process
     if (interval) {
       clearInterval(interval);
       clearLastLine();
-      getChildLogs().forEach((message) => process.stdout.write(`${message}\n`));
+      process.stdout.write(`✓ ${log}\n`);
     }
   }
 }

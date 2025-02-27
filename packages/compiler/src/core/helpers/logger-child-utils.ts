@@ -5,6 +5,10 @@ export function setChildLogPrefix(message: string): void {
   childLogPrefix = message;
 }
 
+export function getChildLogPrefix(): string {
+  return childLogPrefix;
+}
+
 export function getChildLogs(): string[] {
   childLogPrefix = "";
   const childLogs = logMessages.splice(0, logMessages.length);

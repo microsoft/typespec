@@ -1,4 +1,3 @@
-import { addChildLog } from "./helpers/logger-child-utils.js";
 import { getDirectoryPath, getRelativePathFromDirectory } from "./path-utils.js";
 import type { Program } from "./program.js";
 
@@ -9,6 +8,10 @@ export interface EmitFileOptions {
   newLine?: NewLine;
 }
 
+const emittedFilesPaths: string[] = [];
+export function flushEmittedFilesPaths(): string[] {
+  return emittedFilesPaths.splice(0, emittedFilesPaths.length);
+}
 /**
  * Helper to emit a file.
  * @param program TypeSpec Program
@@ -23,9 +26,7 @@ export async function emitFile(program: Program, options: EmitFileOptions): Prom
       ? options.content.replace(/(\r\n|\n|\r)/gm, "\r\n")
       : options.content;
 
-  if (program.compilerOptions.listFiles) {
-    addChildLog(getRelativePathFromDirectory(outputFolder, options.path, true));
-  }
+  emittedFilesPaths.push(getRelativePathFromDirectory(outputFolder, options.path, true));
 
   return await program.host.writeFile(options.path, content);
 }

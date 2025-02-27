@@ -19,9 +19,9 @@ export function formatLog(log: ProcessedLog): string {
   return JSON.stringify(log);
 }
 
-async function trackAction<T>(asyncAction: () => Promise<T>, log: ProcessedLog): Promise<T> {
+async function trackAction<T>(asyncAction: () => Promise<T>, log: string): Promise<T> {
   // eslint-disable-next-line no-console
-  console.log(log.message);
+  console.log(log);
 
   try {
     return await asyncAction();

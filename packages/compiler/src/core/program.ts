@@ -17,9 +17,9 @@ import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
+import { flushEmittedFilesPaths } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
-import { addChildLog, setChildLogPrefix } from "./helpers/logger-child-utils.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import {
   builtInLinterLibraryName,
@@ -159,24 +159,23 @@ export async function compile(
   oldProgram?: Program, // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ) {
   const logger = createLogger({ sink: host.logSink });
+  const { program, shouldAbort } = await logger.trackAction(
+    () => runCompiler(host, mainFile, options, oldProgram),
+    "Compiling",
+  );
 
-  let program, shouldEmit;
-  if (logger.trackAction) {
-    ({ program, shouldEmit } = await logger.trackAction(
-      () => runCompiler(host, mainFile, options, oldProgram),
-      { level: "trace", message: "Compiling..." },
-    ));
-  } else {
-    ({ program, shouldEmit } = await runCompiler(host, mainFile, options, oldProgram));
+  if (shouldAbort) {
+    return program;
   }
 
   // Emitter stage
-  if (shouldEmit) {
-    for (const emitter of program.emitters) {
-      await emit(emitter, options, program);
+  for (const emitter of program.emitters) {
+    await emit(emitter, options, program);
+
+    if (options.listFiles) {
+      logEmittedFilesPath(program, emitter.emitterOutputDir);
     }
   }
-
   return program;
 }
 
@@ -185,7 +184,7 @@ export async function runCompiler(
   mainFile: string,
   options: CompilerOptions = {},
   oldProgram?: Program,
-): Promise<{ program: Program; shouldEmit: boolean }> {
+): Promise<{ program: Program; shouldAbort: boolean }> {
   const validateCbs: Validator[] = [];
   const stateMaps = new Map<symbol, StateMap>();
   const stateSets = new Map<symbol, StateSet>();
@@ -239,7 +238,7 @@ export async function runCompiler(
   const binder = createBinder(program);
 
   if (resolvedMain === undefined) {
-    return { program, shouldEmit: false };
+    return { program, shouldAbort: true };
   }
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
@@ -262,7 +261,7 @@ export async function runCompiler(
     mapEquals(oldProgram.sourceFiles, program.sourceFiles) &&
     deepEquals(oldProgram.compilerOptions, program.compilerOptions)
   ) {
-    return { program: oldProgram, shouldEmit: false };
+    return { program: oldProgram, shouldAbort: true };
   }
 
   // let GC reclaim old program, we do not reuse it beyond this point.
@@ -282,7 +281,7 @@ export async function runCompiler(
   program.checker.checkProgram();
 
   if (!continueToNextStage) {
-    return { program, shouldEmit: false };
+    return { program, shouldAbort: true };
   }
 
   // onValidate stage
@@ -293,13 +292,13 @@ export async function runCompiler(
   await validateLoadedLibraries();
 
   if (!continueToNextStage) {
-    return { program, shouldEmit: false };
+    return { program, shouldAbort: true };
   }
 
   // Linter stage
   program.reportDiagnostics(linter.lint());
 
-  return { program, shouldEmit: true };
+  return { program, shouldAbort: false };
 
   /**
    * Validate the libraries loaded during the compilation process are compatible.
@@ -925,27 +924,15 @@ function resolveOptions(options: CompilerOptions): CompilerOptions {
 
 async function emit(emitter: EmitterRef, options: CompilerOptions = {}, program: Program) {
   const emitterName = emitter.metadata.name ?? "";
-  const outputRelativePath = options.listFiles
-    ? `./${getRelativePathFromDirectory(program.projectRoot, emitter.emitterOutputDir, false)}/`
-    : "";
-  addChildLog(`✓ ${emitterName}\t${outputRelativePath}`);
-  setChildLogPrefix(outputRelativePath);
 
   const logger = createLogger({ sink: program.host.logSink });
-  if (logger.trackAction) {
-    await logger.trackAction(() => runEmitter(emitter, options, program), {
-      level: "trace",
-      message: emitterName,
-    });
-  } else {
-    await runEmitter(emitter, options, program);
-  }
+  await logger.trackAction(() => runEmitter(emitter, program), emitterName);
 }
 
 /**
  * @param emitter Emitter ref to run
  */
-async function runEmitter(emitter: EmitterRef, options: CompilerOptions = {}, program: Program) {
+async function runEmitter(emitter: EmitterRef, program: Program) {
   const context: EmitContext<any> = {
     program,
     emitterOutputDir: emitter.emitterOutputDir,
@@ -959,4 +946,9 @@ async function runEmitter(emitter: EmitterRef, options: CompilerOptions = {}, pr
   } catch (error: unknown) {
     throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
   }
+}
+
+function logEmittedFilesPath(program: Program, emitterOutputDir: string) {
+  const outputRelativePath = `./${getRelativePathFromDirectory(program.projectRoot, emitterOutputDir, false)}/`;
+  flushEmittedFilesPaths().forEach((message) => console.log(`\t${outputRelativePath}${message}`));
 }
