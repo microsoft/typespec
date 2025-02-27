@@ -162,6 +162,7 @@ export async function compile(
   const { program, shouldAbort } = await logger.trackAction(
     () => runCompiler(host, mainFile, options, oldProgram),
     "Compiling...",
+    "Compiling",
   );
 
   if (shouldAbort) {
@@ -170,10 +171,10 @@ export async function compile(
 
   // Emitter stage
   for (const emitter of program.emitters) {
-    await emit(emitter, options, program);
+    await emit(emitter, program, options);
 
     if (options.listFiles) {
-      logEmittedFilesPath(program, emitter.emitterOutputDir);
+      logEmittedFilesPath(program.projectRoot, emitter.emitterOutputDir);
     }
   }
   return program;
@@ -922,11 +923,18 @@ function resolveOptions(options: CompilerOptions): CompilerOptions {
   };
 }
 
-async function emit(emitter: EmitterRef, program: Program) {
+async function emit(emitter: EmitterRef, program: Program, options: CompilerOptions = {}) {
   const emitterName = emitter.metadata.name ?? "";
+  const relativePathForEmittedFiles = options.listFiles
+    ? `./${getRelativePathFromDirectory(program.projectRoot, emitter.emitterOutputDir, false)}/`
+    : "";
 
   const logger = createLogger({ sink: program.host.logSink });
-  await logger.trackAction(() => runEmitter(emitter, program), emitterName);
+  await logger.trackAction(
+    () => runEmitter(emitter, program),
+    `Running ${emitterName}...`,
+    `${emitterName}\t${relativePathForEmittedFiles}`,
+  );
 }
 
 /**
@@ -948,7 +956,9 @@ async function runEmitter(emitter: EmitterRef, program: Program) {
   }
 }
 
-function logEmittedFilesPath(program: Program, emitterOutputDir: string) {
-  const outputRelativePath = `./${getRelativePathFromDirectory(program.projectRoot, emitterOutputDir, false)}/`;
-  flushEmittedFilesPaths().forEach((message) => console.log(`\t${outputRelativePath}${message}`));
+function logEmittedFilesPath(projectRoot: string, emitterOutputDir: string) {
+  const relativePathForEmittedFiles = `./${getRelativePathFromDirectory(projectRoot, emitterOutputDir, false)}/`;
+  flushEmittedFilesPaths().forEach((message) =>
+    console.log(`\t${relativePathForEmittedFiles}${message}`),
+  );
 }

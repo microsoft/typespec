@@ -50,7 +50,6 @@ import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
-import { getChildLogs } from "../core/helpers/logger-child-utils.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import {
   NoTarget,
@@ -1099,12 +1098,10 @@ export function createServer(host: ServerHost): Server {
           try {
             return await asyncAction();
           } finally {
-            getChildLogs().forEach((log) =>
-              host.log({
-                level: "info",
-                message: log,
-              }),
-            );
+            host.log({
+              level: "info",
+              message: `✓ ${log}`,
+            });
           }
         },
       },
