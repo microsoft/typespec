@@ -21,7 +21,7 @@ export interface Widget {
 }
 ```
 
-# Should generate a model with a porperty wich is a dictionary of an array
+# Should generate a model with a property which is a dictionary of an array
 
 ## TypeSpec
 

@@ -1,6 +1,6 @@
 # Should generate inline models
 
-When a model property's type is defined as an anonymous model, the TypeScript emittew should generate the model definition inline, matching the spec closely.
+When a model property's type is defined as an anonymous model, the TypeScript emitter should generate the model definition inline, matching the spec closely.
 
 ## Typespec
 

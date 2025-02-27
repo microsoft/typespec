@@ -1,4 +1,4 @@
-# Should generate a model with a porperty with array
+# Should generate a model with a property with array
 
 ## TypeSpec
 

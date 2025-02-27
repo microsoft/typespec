@@ -1,6 +1,6 @@
 # Emits multiple top level clients
 
-Verifies that the emitter can handle correctly when there are 2 root namespaces, translating these into 2 separatec lients
+Verifies that the emitter can handle correctly when there are 2 root namespaces, translating these into 2 separate clients
 
 ## TypeSpec
 
