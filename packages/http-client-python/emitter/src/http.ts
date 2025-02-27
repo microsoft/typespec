@@ -28,6 +28,7 @@ import {
   getImplementation,
   isAbstract,
   isAzureCoreErrorResponse,
+  isContinuationToken,
 } from "./utils.js";
 
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
@@ -42,17 +43,6 @@ function arrayToRecord(examples: SdkHttpOperationExample[] | undefined): Record<
     }
   }
   return result;
-}
-
-function getPropertyNameFromSegments(segments: SdkModelPropertyType[] | undefined): string {
-  if (segments === undefined) return "";
-  const result = [];
-  for (const segment of segments) {
-    if (segment.kind === "property") {
-      result.push(segment.serializationOptions.json?.name ?? "");
-    }
-  }
-  return result.join(".");
 }
 
 export function emitBasicHttpMethod(
@@ -106,19 +96,57 @@ function addLroInformation(
   };
 }
 
-function buildContinuationToken(segments: SdkModelPropertyType[] | undefined): Record<string, any> {
+function getPropertyNameFromSegments(
+  segments: SdkModelPropertyType[] | undefined,
+  method?: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+): string {
+  if (segments === undefined) return "";
+  if (segments.length === 0) return "";
+
+  if (segments[0].kind === "property") {
+    const result = [];
+    for (const segment of segments) {
+      if (segment.kind === "property") {
+        result.push(segment.serializationOptions.json?.name ?? "");
+      }
+    }
+    return result.join(".");
+  } else if (method) {
+    for (const parameter of method.operation.parameters) {
+      if (isContinuationToken(parameter, method)) {
+        return parameter.serializedName;
+      }
+    }
+  }
+
+  throw new Error("Cannot find property name from segments");
+}
+
+function getPositionFromSegments(
+  segments: SdkModelPropertyType[],
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+): string {
+  if (segments[0].kind === "property") {
+    return "body";
+  }
+  for (const parameter of method.operation.parameters) {
+    if (isContinuationToken(parameter, method)) {
+      return parameter.kind;
+    }
+  }
+
+  throw new Error("Cannot find position for continuation token");
+}
+
+function buildContinuationToken(
+  segments: SdkModelPropertyType[] | undefined,
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+): Record<string, any> {
   if (segments === undefined) return {};
   if (segments.length === 0) return {};
-  const wireName = getPropertyNameFromSegments(segments);
-  let position;
-  if (segments[0].kind === "header") {
-    position = "header";
-  } else if (segments[0].kind === "query") {
-    position = "query";
-  } else {
-    position = "body";
-  }
-  return {wireName, position};
+  const wireName = getPropertyNameFromSegments(segments, method);
+  const position = getPositionFromSegments(segments, method);
+  return { wireName, position };
 }
 
 function addPagingInformation(
@@ -149,8 +177,14 @@ function addPagingInformation(
     itemType,
     description: method.doc ?? "",
     summary: method.summary,
-    continuationTokenRequest: buildContinuationToken(method.pagingMetadata.continuationTokenParameterSegments),
-    continuationTokenResponse: buildContinuationToken(method.pagingMetadata.continuationTokenResponseSegments),
+    continuationTokenRequest: buildContinuationToken(
+      method.pagingMetadata.continuationTokenParameterSegments,
+      method,
+    ),
+    continuationTokenResponse: buildContinuationToken(
+      method.pagingMetadata.continuationTokenResponseSegments,
+      method,
+    ),
   };
 }
 

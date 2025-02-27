@@ -1332,7 +1332,9 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             access = f".{item_name}"
         else:
             item_name_array = item_name.split(".")
-            access = "".join([f'.get("{i}", {{}})' for i in item_name_array[:-1]]) + f'.get("{item_name_array[-1]}", [])'
+            access = (
+                "".join([f'.get("{i}", {{}})' for i in item_name_array[:-1]]) + f'.get("{item_name_array[-1]}", [])'
+            )
         list_of_elem_deserialized = ""
         if self.code_model.options["models_mode"] == "dpg":
             item_type = builder.item_type.type_annotation(
