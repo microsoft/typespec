@@ -33,6 +33,7 @@
     "@expressive-code/core": "^0.40.1",
     "@typespec/playground": "workspace:~",
     "astro-expressive-code": "^0.40.1",
+    "pathe": "^2.0.2",
     "react": "~18.3.1",
     "typescript": "~5.7.3"
   }

@@ -53,7 +53,7 @@ export function fromSdkType(
       retVar = {
         kind: "nullable",
         type: inputType,
-        clientNamespace: sdkType.clientNamespace,
+        namespace: sdkType.namespace,
       };
       break;
     case "model":
@@ -122,6 +122,12 @@ function updateSdkTypeReferences(
   inputType: InputType,
 ) {
   sdkContext.__typeCache.types.set(sdkType, inputType);
+  if ("crossLanguageDefinitionId" in sdkType) {
+    sdkContext.__typeCache.crossLanguageDefinitionIds.set(
+      sdkType.crossLanguageDefinitionId,
+      sdkType,
+    );
+  }
 }
 
 export function fromSdkModelType(
@@ -134,7 +140,7 @@ export function fromSdkModelType(
     inputModelType = {
       kind: "model",
       name: modelTypeName,
-      clientNamespace: modelType.clientNamespace,
+      namespace: modelType.namespace,
       crossLanguageDefinitionId: modelType.crossLanguageDefinitionId,
       access: getAccessOverride(sdkContext, modelType.__raw as Model),
       usage: modelType.usage,
@@ -157,9 +163,9 @@ export function fromSdkModelType(
         continue;
       }
       const ourProperty = fromSdkModelProperty(sdkContext, property, {
-        ModelName: modelTypeName,
-        Usage: modelType.usage,
-        ClientNamespace: modelType.clientNamespace,
+        modelName: modelTypeName,
+        usage: modelType.usage,
+        namespace: modelType.namespace,
       } as LiteralTypeContext);
       propertiesDict.set(property, ourProperty);
     }
@@ -198,7 +204,7 @@ export function fromSdkModelType(
     }
 
     const serializedName = property.serializedName;
-    literalTypeContext.PropertyName = serializedName;
+    literalTypeContext.propertyName = serializedName;
 
     const modelProperty: InputModelProperty = {
       kind: property.kind,
@@ -240,7 +246,7 @@ export function fromSdkEnumType(
       valueType: fromSdkBuiltInType(sdkContext, enumType.valueType),
       values: values,
       access: getAccessOverride(sdkContext, enumType.__raw as any),
-      clientNamespace: enumType.clientNamespace,
+      namespace: enumType.namespace,
       deprecation: enumType.deprecation,
       summary: enumType.summary,
       doc: enumType.doc,
@@ -330,7 +336,7 @@ function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): I
     kind: "union",
     name: union.name,
     variantTypes: variantTypes,
-    clientNamespace: union.clientNamespace,
+    namespace: union.namespace,
     decorators: union.decorators,
   };
 }
@@ -355,7 +361,7 @@ function fromSdkConstantType(
     constantType: SdkConstantType,
     literalTypeContext: LiteralTypeContext,
   ) {
-    const enumName = `${literalTypeContext.ModelName}_${literalTypeContext.PropertyName}`;
+    const enumName = `${literalTypeContext.modelName}_${literalTypeContext.propertyName}`;
     const enumValueName = constantType.value === null ? "Null" : constantType.value.toString();
     const values: InputEnumTypeValue[] = [];
     const enumType: InputEnumType = {
@@ -365,11 +371,11 @@ function fromSdkConstantType(
       values: values,
       crossLanguageDefinitionId: "",
       access: undefined,
-      clientNamespace: literalTypeContext.ClientNamespace,
+      namespace: literalTypeContext.namespace,
       doc: `The ${enumName}`,
       isFixed: false,
       isFlags: false,
-      usage: literalTypeContext.Usage,
+      usage: literalTypeContext.usage,
       decorators: constantType.decorators,
     };
 

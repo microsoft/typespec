@@ -1,5 +1,5 @@
 import { rejects } from "assert";
-import { resolve } from "path";
+import { normalize, resolve } from "path";
 import { describe, it } from "vitest";
 import { NodeHost, Program, compile, resolvePath } from "../../../src/core/index.js";
 import { CompilerOptions } from "../../../src/core/options.js";
@@ -67,7 +67,7 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "js-error",
-        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js' imported from ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`,
+        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${normalize(`${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js`)}' imported from ${normalize(`${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`)}`,
       });
     });
 
@@ -77,7 +77,7 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "js-error",
-        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js' imported from ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`,
+        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${normalize(`${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js`)}' imported from ${normalize(`${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`)}`,
       });
     });
 

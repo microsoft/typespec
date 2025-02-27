@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -93,6 +94,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                             new ParameterProvider("param1", $"", new FooTypeProvider("BarNamespace").Type)
                         ]),
                     Snippet.ThrowExpression(Snippet.Null), client),
+                new MethodProvider(new MethodSignature(
+                    "Method8",
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    null,
+                    $"",
+                    [],
+                    ExplicitInterface: new CSharpType(typeof(IAsyncDisposable))),
+                    Snippet.ThrowExpression(Snippet.Null), client)
             };
             client.MethodProviders = methods;
 
@@ -188,13 +198,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             {
                 // Parameter type doesn't match
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [new ParameterProvider("param1", $"", typeof(bool))]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
@@ -203,7 +213,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         ]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
@@ -211,7 +221,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         ]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
@@ -240,19 +250,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var constructors = new[]
             {
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         []),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [new ParameterProvider("param1", $"", typeof(bool))]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
@@ -261,7 +271,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         ]),
                     Snippet.ThrowExpression(Snippet.Null), client),
                 new ConstructorProvider(new ConstructorSignature(
-                        new CSharpType(client, "Samples", [typeof(int)], null),
+                        client.Type,
                         $"",
                         MethodSignatureModifiers.Public,
                         [
