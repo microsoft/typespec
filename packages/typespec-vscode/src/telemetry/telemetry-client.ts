@@ -1,5 +1,6 @@
 import TelemetryReporter from "@vscode/extension-telemetry";
 import pkgJson from "../../package.json" assert { type: "json" };
+import { EmptyGuid } from "../const.js";
 import logger from "../log/logger.js";
 import { ResultCode } from "../types.js";
 import { isWhitespaceStringOrUndefined } from "../utils.js";
@@ -19,17 +20,38 @@ class TelemetryClient {
   private _logTelemetryErrorCount = 0;
 
   constructor() {
-    this._client = new (TelemetryReporter as any)(this.getConnectionString());
+    this.initClient();
   }
 
-  private getConnectionString() {
+  private initClient() {
+    const cs = this.getConnectionString();
+    if (!cs) {
+      this.logErrorWhenLoggingTelemetry(
+        "Skip initializing telemetry client because no telemetry key is provided",
+      );
+      this._client = undefined;
+    } else {
+      this._client = new (TelemetryReporter as any)(cs);
+    }
+  }
+
+  private getConnectionString(): string | undefined {
+    let key: string | undefined = pkgJson.telemetryKey;
+    if (!key || key === EmptyGuid) {
+      // try to check environment variable VSCODE_TELEMETRY_KEY if the key is not provided in package.json
+      key = process.env.VSCODE_TELEMETRY_KEY;
+    }
+    if (!key || key === EmptyGuid) {
+      return undefined;
+    }
     return `InstrumentationKey=${pkgJson.telemetryKey}`;
   }
 
   public async flush() {
     // flush function is not exposed by the telemetry client, so we leverage dispose to trigger the flush and recreate the client
     await this._client?.dispose();
-    this._client = new (TelemetryReporter as any)(this.getConnectionString());
+    this._client = undefined;
+    this.initClient();
   }
 
   private sendEvent(

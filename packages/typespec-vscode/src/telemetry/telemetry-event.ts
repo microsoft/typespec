@@ -1,3 +1,4 @@
+import { EmptyGuid } from "../const.js";
 import { ResultCode } from "../types.js";
 
 export enum TelemetryEventName {
@@ -26,6 +27,8 @@ export interface OperationTelemetryEvent extends TelemetryEventBase {
 export enum OperationDetailPropertyName {
   error,
   emitterPackage,
+  emitterVersion,
+  emitResult,
   compilerLocation,
   compilerVersion,
 }
@@ -34,4 +37,4 @@ export function generateActivityId() {
   return crypto.randomUUID();
 }
 
-export const emptyActivityId = "00000000-0000-0000-0000-000000000000";
+export const emptyActivityId = EmptyGuid;

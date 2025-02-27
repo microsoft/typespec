@@ -36,7 +36,7 @@
     "workspaceContains:**/tspconfig.yaml"
   ],
   "icon": "./icons/logo.png",
-  "telemetryKey": "19cdc7e5-ff34-485f-b2cb-9538638cba7c",
+  "telemetryKey": "00000000-0000-0000-0000-000000000000",
   "contributes": {
     "viewsWelcome": [
       {
