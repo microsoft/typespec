@@ -27,7 +27,6 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
             var paramsContent = JsonSerializer.Serialize(content);
             var message = string.Format(BasicNotificationFormat, AsStringLiteral(method), paramsContent);
             _writer.WriteLine(message);
-            _writer.Flush();
         }
 
         private static string AsStringLiteral(string input) => $"\"{input}\"";
