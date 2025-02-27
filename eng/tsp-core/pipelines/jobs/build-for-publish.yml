@@ -73,22 +73,22 @@ jobs:
 
     templateContext:
       outputs:
-        - output: pipelineArtifact
-          path: $(Build.ArtifactStagingDirectory)/npm-packages-stable
-          artifact: npm-packages-stable
-          displayName: Publish npm stable packages(.tgz) as pipeline artifacts
+        # - output: pipelineArtifact
+        #   path: $(Build.ArtifactStagingDirectory)/npm-packages-stable
+        #   artifact: npm-packages-stable
+        #   displayName: Publish npm stable packages(.tgz) as pipeline artifacts
 
-        - output: pipelineArtifact
-          path: $(Build.ArtifactStagingDirectory)/npm-packages-next
-          artifact: npm-packages-next
-          displayName: Publish npm next packages(.tgz) as pipeline artifacts
+        # - output: pipelineArtifact
+        #   path: $(Build.ArtifactStagingDirectory)/npm-packages-next
+        #   artifact: npm-packages-next
+        #   displayName: Publish npm next packages(.tgz) as pipeline artifacts
 
         - output: pipelineArtifact
           path: $(Build.ArtifactStagingDirectory)/vscode-extension
           artifact: vscode-extension-unsigned
           displayName: Publish VSCode extension(.vsix) as pipeline artifacts
 
-        - output: pipelineArtifact
-          path: $(Build.ArtifactStagingDirectory)/vs-extension
-          artifact: vs-extension-unsigned
-          displayName: Publish VS extension(.vsix) as pipeline artifacts
+        # - output: pipelineArtifact
+        #   path: $(Build.ArtifactStagingDirectory)/vs-extension
+        #   artifact: vs-extension-unsigned
+        #   displayName: Publish VS extension(.vsix) as pipeline artifacts

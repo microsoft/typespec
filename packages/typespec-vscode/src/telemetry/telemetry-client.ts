@@ -38,7 +38,9 @@ class TelemetryClient {
   private getConnectionString(): string | undefined {
     let key: string | undefined = pkgJson.telemetryKey;
     if (!key || key === EmptyGuid) {
-      // try to check environment variable VSCODE_TELEMETRY_KEY if the key is not provided in package.json
+      logger.debug(
+        "Telemetry key is not provided in package.json, try to use environment variable VSCODE_TELEMETRY_KEY",
+      );
       key = process.env.VSCODE_TELEMETRY_KEY;
     }
     if (!key || key === EmptyGuid) {
