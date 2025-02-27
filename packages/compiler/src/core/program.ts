@@ -299,7 +299,7 @@ export async function runCompiler(
   // Linter stage
   program.reportDiagnostics(linter.lint());
 
-  return { program, shouldEmit: true };
+  return { program, shouldEmit: !options.noEmit };
 
   /**
    * Validate the libraries loaded during the compilation process are compatible.
