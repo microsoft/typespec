@@ -161,7 +161,7 @@ export async function compile(
   const logger = createLogger({ sink: host.logSink });
   const { program, shouldAbort } = await logger.trackAction(
     () => runCompiler(host, mainFile, options, oldProgram),
-    "Compiling",
+    "Compiling...",
   );
 
   if (shouldAbort) {
@@ -922,7 +922,7 @@ function resolveOptions(options: CompilerOptions): CompilerOptions {
   };
 }
 
-async function emit(emitter: EmitterRef, options: CompilerOptions = {}, program: Program) {
+async function emit(emitter: EmitterRef, program: Program) {
   const emitterName = emitter.metadata.name ?? "";
 
   const logger = createLogger({ sink: program.host.logSink });
