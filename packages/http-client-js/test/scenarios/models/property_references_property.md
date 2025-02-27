@@ -1,4 +1,4 @@
-# Should emit a model property which type is a reference to another Model Propery
+# Should emit a model property which type is a reference to another Model Property
 
 This way of referencing a model property ends up with a ModelProperty which type is a ModelProperty. This test makes sure we can handle that.
 

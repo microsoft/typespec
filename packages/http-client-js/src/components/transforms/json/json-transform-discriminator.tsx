@@ -29,10 +29,8 @@ export function JsonTransformDiscriminator(props: JsonTransformDiscriminatorProp
 
   let propertyName: string | undefined = discriminatedUnion?.options.discriminatorPropertyName;
   if (!discriminatedUnion && props.discriminator) {
-    discriminatedUnion = ignoreDiagnostics(
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      getDiscriminatedUnion(props.type, props.discriminator),
-    );
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(props.type, props.discriminator));
     propertyName = props.discriminator.propertyName;
   }
 

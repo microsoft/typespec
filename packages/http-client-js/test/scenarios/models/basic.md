@@ -106,7 +106,7 @@ export interface Widget {
 }
 ```
 
-The framework utomatically resolves the name conflict.
+The framework automatically resolves the name conflict.
 
 ```ts src/models/models.ts interface Widget_2
 export interface Widget_2 {

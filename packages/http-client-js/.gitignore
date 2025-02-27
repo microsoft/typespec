@@ -1,3 +1,4 @@
 test/e2e/generated
 dist-test
 .copilot
+tsp-spector-coverage-javascript-standard.json

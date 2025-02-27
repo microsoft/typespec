@@ -41,7 +41,7 @@
   "dependencies": {
     "@alloy-js/core": "^0.5.0",
     "@alloy-js/typescript": "^0.5.0",
-    "prettier": "^3.4.2"
+    "prettier": "~3.4.2"
   },
   "devDependencies": {
     "@alloy-js/babel-preset": "^0.1.1",
@@ -58,22 +58,22 @@
     "@typespec/spector": "workspace:~",
     "@typespec/ts-http-runtime": "0.1.0",
     "@typespec/versioning": "workspace:~",
-    "@vitest/ui": "^3.0.4",
+    "@vitest/ui": "^3.0.3",
     "chalk": "^2.4.2",
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "execa": "^9.5.2",
     "fs-extra": "^11.2.0",
-    "globby": "^14.0.2",
+    "globby": "~14.0.2",
     "inquirer": "^12.2.0",
     "listr2": "^8.2.5",
-    "ora": "^8.2.0",
+    "ora": "^8.1.1",
     "p-limit": "^6.2.0",
     "ts-morph": "^23.0.0",
     "typescript": "~5.7.3",
     "uri-template": "^2.0.0",
     "vitest": "^3.0.5",
-    "yargs": "^17.7.2",
-    "change-case": "^5.4.4"
+    "yargs": "~17.7.2",
+    "change-case": "~5.4.4"
   }
 }
