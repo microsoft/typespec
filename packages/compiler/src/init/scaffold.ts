@@ -29,11 +29,6 @@ export interface ScaffoldingConfig {
   directory: string;
 
   /**
-   * folder name where the project should be initialized.
-   */
-  folderName: string;
-
-  /**
    * Name of the project.
    */
   name: string;
@@ -49,7 +44,7 @@ export interface ScaffoldingConfig {
   includeGitignore: boolean;
 
   /**
-   * Custom parameters provided in the tempalates.
+   * Custom parameters provided in the templates.
    */
   parameters: Record<string, any>;
 
@@ -76,7 +71,6 @@ export function makeScaffoldingConfig(
     baseUri: config.baseUri ?? ".",
     name: config.name ?? "",
     directory: config.directory ?? "",
-    folderName: config.folderName ?? "",
     parameters: config.parameters ?? {},
     includeGitignore: config.includeGitignore ?? true,
     emitters: config.emitters ?? {},
