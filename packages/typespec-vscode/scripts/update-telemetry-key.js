@@ -22,9 +22,10 @@ if (!newKey) {
   );
   packageJson.telemetryKey = newKey;
 
-  console.log(`package.json updated to: \n` + JSON.stringify(packageJson, null, 2));
-
   fs.writeFileSync(targetPackageJsonFile, JSON.stringify(packageJson, null, 2));
+
+  const newPackageJsonString = fs.readFileSync(targetPackageJsonFile, "utf8");
+  console.log(`package.json updated to: \n` + JSON.stringify(newPackageJsonString, null, 2));
 
   console.log("package.json updated successfully");
 }
