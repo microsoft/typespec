@@ -5225,6 +5225,34 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           target: node.targetType,
         }),
       );
+    } else if (
+      links.finalSymbol?.flags &&
+      ~links.finalSymbol.flags & SymbolFlags.Declaration &&
+      ~links.finalSymbol.flags & SymbolFlags.Member
+    ) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "augment-decorator-target",
+          messageId:
+            links.finalSymbol.flags & SymbolFlags.Model
+              ? "noModelExpression"
+              : links.finalSymbol.flags & SymbolFlags.Union
+                ? "noUnionExpression"
+                : "default",
+          target: node.targetType,
+        }),
+      );
+    } else if (links.finalSymbol?.flags && links.finalSymbol.flags & SymbolFlags.Alias) {
+      const aliasNode: AliasStatementNode = getSymNode(links.finalSymbol) as AliasStatementNode;
+
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "augment-decorator-target",
+          messageId:
+            aliasNode.value.kind === SyntaxKind.UnionExpression ? "noUnionExpression" : "default",
+          target: node.targetType,
+        }),
+      );
     }
 
     // If this was used to get a type this is invalid, only used for validation.

@@ -160,7 +160,9 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: `Augment decorator first argument must be a type reference.`,
-      noInstance: `Cannot reference template instances`,
+      noInstance: `Cannot reference template instances.`,
+      noModelExpression: `Cannot augment model expressions.`,
+      noUnionExpression: `Cannot augment union expressions.`,
     },
   },
   "duplicate-decorator": {
