@@ -160,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 isRequired,
                 isReadOnly,
                 isDiscriminator,
-                new(json: new(wireName ?? name.ToVariableName())));
+                new(json: wireName != null ? new InputJsonSerializationOptions(wireName) : null));
         }
 
         public static InputModelType Model(
