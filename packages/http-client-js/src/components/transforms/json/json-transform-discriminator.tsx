@@ -25,11 +25,9 @@ export function JsonTransformDiscriminator(props: JsonTransformDiscriminatorProp
   )
     ? $.type.getDiscriminatedUnion(props.type)
     : undefined;
-  // $.type.getDiscriminatedUnion(props.type)!;
 
   let propertyName: string | undefined = discriminatedUnion?.options.discriminatorPropertyName;
   if (!discriminatedUnion && props.discriminator) {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(props.type, props.discriminator));
     propertyName = props.discriminator.propertyName;
   }
