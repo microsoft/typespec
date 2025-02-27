@@ -149,6 +149,7 @@ type ParamBase = {
   inOverload: boolean;
   isApiVersion: boolean;
   type: Record<string, any>;
+  isContinuationToken: boolean;
 };
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
@@ -165,9 +166,20 @@ export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
   return type.apiVersions[0];
 }
 
+function isContinuationToken<TServiceOperation extends SdkServiceOperation>(parameter: SdkParameter | SdkHttpParameter, method?: SdkServiceMethod<TServiceOperation>): boolean {
+  const parameterSegments = method && method.kind === "paging" ? method.pagingMetadata.continuationTokenParameterSegments : undefined;
+  const responseSegments = method && method.kind === "paging" ? method.pagingMetadata.continuationTokenResponseSegments : undefined;
+  if (parameterSegments && parameterSegments.length > 0 && responseSegments && responseSegments.length > 0 && (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body")) {
+      return parameterSegments[-1] === parameter.correspondingMethodParams[-1] || responseSegments[-1] === parameter.correspondingMethodParams[-1];
+    }
+
+    return false;
+}
+
 export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   parameter: SdkParameter | SdkHttpParameter,
+  method?: SdkServiceMethod<TServiceOperation>,
 ): ParamBase {
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
@@ -186,6 +198,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     clientName: camelToSnakeCase(parameter.name),
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
+    isContinuationToken: isContinuationToken(parameter, method),
     type,
   };
 }

@@ -58,6 +58,8 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.override_success_response_to_200 = override_success_response_to_200
         self.pager_sync: str = yaml_data.get("pagerSync") or f"{self.code_model.core_library}.paging.ItemPaged"
         self.pager_async: str = yaml_data.get("pagerAsync") or f"{self.code_model.core_library}.paging.AsyncItemPaged"
+        self.continuation_token_request: Dict[str, Any] = yaml_data.get("continuationTokenRequest", {})
+        self.continuation_token_response: Dict[str, Any] = yaml_data.get("continuationTokenResponse", {})
 
     def _get_attr_name(self, wire_name: str) -> str:
         response_type = self.responses[0].type
@@ -162,6 +164,9 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             file_import.merge(self.item_type.imports(**kwargs))
             if self.default_error_deserialization or self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
+        if self.continuation_token_response and self.continuation_token_request:
+            file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
+            file_import.define_mypy_type("_Unset: Any", "object()")
         return file_import
 
 

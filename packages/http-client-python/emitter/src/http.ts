@@ -1,6 +1,5 @@
 import {
   SdkBasicServiceMethod,
-  SdkBodyModelPropertyType,
   SdkBodyParameter,
   SdkClientType,
   SdkHeaderParameter,
@@ -16,7 +15,6 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
-  SdkType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { HttpStatusCodeRange } from "@typespec/http";
@@ -47,7 +45,7 @@ function arrayToRecord(examples: SdkHttpOperationExample[] | undefined): Record<
 }
 
 function getPropertyNameFromSegments(segments: SdkModelPropertyType[] | undefined): string {
-  if (!segments) return "";
+  if (segments === undefined) return "";
   const result = [];
   for (const segment of segments) {
     if (segment.kind === "property") {
@@ -108,6 +106,21 @@ function addLroInformation(
   };
 }
 
+function buildContinuationToken(segments: SdkModelPropertyType[] | undefined): Record<string, any> {
+  if (segments === undefined) return {};
+  if (segments.length === 0) return {};
+  const wireName = getPropertyNameFromSegments(segments);
+  let position;
+  if (segments[0].kind === "header") {
+    position = "header";
+  } else if (segments[0].kind === "query") {
+    position = "query";
+  } else {
+    position = "body";
+  }
+  return {wireName, position};
+}
+
 function addPagingInformation(
   context: PythonSdkContext<SdkHttpOperation>,
   rootClient: SdkClientType<SdkHttpOperation>,
@@ -136,6 +149,8 @@ function addPagingInformation(
     itemType,
     description: method.doc ?? "",
     summary: method.summary,
+    continuationTokenRequest: buildContinuationToken(method.pagingMetadata.continuationTokenParameterSegments),
+    continuationTokenResponse: buildContinuationToken(method.pagingMetadata.continuationTokenResponseSegments),
   };
 }
 
@@ -188,7 +203,7 @@ function emitHttpOperation(
   const result = {
     url: operation.path,
     method: operation.verb.toUpperCase(),
-    parameters: emitHttpParameters(context, rootClient, operation),
+    parameters: emitHttpParameters(context, rootClient, operation, method),
     bodyParameter: emitHttpBodyParameter(context, operation.bodyParam),
     responses,
     exceptions,
@@ -273,8 +288,9 @@ function emitHttpPathParameter(
 function emitHttpHeaderParameter(
   context: PythonSdkContext<SdkHttpOperation>,
   parameter: SdkHeaderParameter,
+  method: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any> {
-  const base = emitParamBase(context, parameter);
+  const base = emitParamBase(context, parameter, method);
   const [delimiter, explode] = getDelimiterAndExplode(parameter);
   let clientDefaultValue = parameter.clientDefaultValue;
   if (isContentTypeParameter(parameter)) {
@@ -298,8 +314,9 @@ function emitHttpHeaderParameter(
 function emitHttpQueryParameter(
   context: PythonSdkContext<SdkHttpOperation>,
   parameter: SdkQueryParameter,
+  method: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any> {
-  const base = emitParamBase(context, parameter);
+  const base = emitParamBase(context, parameter, method);
   const [delimiter, explode] = getDelimiterAndExplode(parameter);
   return {
     ...base,
@@ -316,15 +333,16 @@ function emitHttpParameters(
   context: PythonSdkContext<SdkHttpOperation>,
   rootClient: SdkClientType<SdkHttpOperation>,
   operation: SdkHttpOperation,
+  method: SdkServiceMethod<SdkHttpOperation>,
 ): Record<string, any>[] {
   const parameters: Record<string, any>[] = [...context.__endpointPathParameters];
   for (const parameter of operation.parameters) {
     switch (parameter.kind) {
       case "header":
-        parameters.push(emitHttpHeaderParameter(context, parameter));
+        parameters.push(emitHttpHeaderParameter(context, parameter, method));
         break;
       case "query":
-        parameters.push(emitHttpQueryParameter(context, parameter));
+        parameters.push(emitHttpQueryParameter(context, parameter, method));
         break;
       case "path":
         parameters.push(emitHttpPathParameter(context, parameter));
