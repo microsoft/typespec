@@ -136,6 +136,9 @@ importers:
       astro-expressive-code:
         specifier: ^0.40.1
         version: 0.40.1(astro@5.1.8(@azure/identity@4.6.0)(@azure/storage-blob@12.26.0)(@types/node@22.10.10)(jiti@1.21.6)(rollup@4.34.6)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0))
+      pathe:
+        specifier: ^2.0.2
+        version: 2.0.2
       react:
         specifier: ~18.3.1
         version: 18.3.1
@@ -377,6 +380,9 @@ importers:
       grammarkdown:
         specifier: ~3.3.2
         version: 3.3.2
+      pathe:
+        specifier: ^2.0.2
+        version: 2.0.2
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
@@ -849,6 +855,9 @@ importers:
       '@pnpm/find-workspace-packages':
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.2.0)
+      cross-spawn:
+        specifier: ^7.0.6
+        version: 7.0.6
       cspell:
         specifier: ^8.17.2
         version: 8.17.2
@@ -862,6 +871,9 @@ importers:
         specifier: ~17.7.2
         version: 17.7.2
     devDependencies:
+      '@types/cross-spawn':
+        specifier: ~6.0.6
+        version: 6.0.6
       '@types/node':
         specifier: ~22.10.10
         version: 22.10.10
@@ -2284,6 +2296,9 @@ importers:
       es-module-shims:
         specifier: ~2.0.5
         version: 2.0.5
+      pathe:
+        specifier: ^2.0.2
+        version: 2.0.2
       prism-react-renderer:
         specifier: ^2.4.0
         version: 2.4.0(react@18.3.1)

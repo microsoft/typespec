@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "SafeintAsStringProperty",
-   "clientNamespace": "Encode.Numeric.Property",
+   "namespace": "Encode.Numeric.Property",
    "crossLanguageDefinitionId": "Encode.Numeric.Property.SafeintAsStringProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -46,7 +46,7 @@
    "$id": "7",
    "kind": "model",
    "name": "Uint32AsStringProperty",
-   "clientNamespace": "Encode.Numeric.Property",
+   "namespace": "Encode.Numeric.Property",
    "crossLanguageDefinitionId": "Encode.Numeric.Property.Uint32AsStringProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -84,7 +84,7 @@
    "$id": "12",
    "kind": "model",
    "name": "Uint8AsStringProperty",
-   "clientNamespace": "Encode.Numeric.Property",
+   "namespace": "Encode.Numeric.Property",
    "crossLanguageDefinitionId": "Encode.Numeric.Property.Uint8AsStringProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -123,7 +123,7 @@
   {
    "$id": "17",
    "Name": "NumericClient",
-   "ClientNamespace": "Encode.Numeric",
+   "Namespace": "Encode.Numeric",
    "Doc": "Test for encode decorator on integer.",
    "Operations": [],
    "Protocol": {
@@ -167,7 +167,7 @@
   {
    "$id": "23",
    "Name": "Property",
-   "ClientNamespace": "Encode.Numeric.Property",
+   "Namespace": "Encode.Numeric.Property",
    "Operations": [
     {
      "$id": "24",

@@ -1,4 +1,102 @@
+import { NoTarget, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
+import { CSharpEmitterContext } from "../sdk-context.js";
+
+export async function execCSharpGenerator(
+  context: CSharpEmitterContext,
+  options: {
+    generatorPath: string;
+    outputFolder: string;
+    pluginName: string;
+    newProject: boolean;
+    debug: boolean;
+  },
+): Promise<{ exitCode: number; stderr: string; proc: any }> {
+  const command = "dotnet";
+  const args = [
+    "--roll-forward",
+    "Major",
+    options.generatorPath,
+    options.outputFolder,
+    "-p",
+    options.pluginName,
+  ];
+  if (options.newProject) {
+    args.push("--new-project");
+  }
+  if (options.debug) {
+    args.push("--debug");
+  }
+  context.logger.info(`${command} ${args.join(" ")}`);
+
+  const child = spawn(command, args, { stdio: "pipe" });
+
+  const stderr: Buffer[] = [];
+  return new Promise((resolve, reject) => {
+    let buffer = "";
+
+    child.stdout?.on("data", (data) => {
+      buffer += data.toString();
+      let index;
+      while ((index = buffer.indexOf("\n")) !== -1) {
+        const message = buffer.slice(0, index);
+        buffer = buffer.slice(index + 1);
+        processJsonRpc(context, message);
+      }
+    });
+
+    child.stderr?.on("data", (data) => {
+      stderr.push(data);
+    });
+
+    child.on("error", (error) => {
+      reject(error);
+    });
+
+    child.on("exit", (exitCode) => {
+      resolve({
+        exitCode: exitCode ?? -1,
+        stderr: Buffer.concat(stderr).toString(),
+        proc: child,
+      });
+    });
+  });
+}
+
+function processJsonRpc(context: CSharpEmitterContext, message: string) {
+  const response = JSON.parse(message);
+  const method = response.method;
+  const params = response.params;
+  switch (method) {
+    case "trace":
+      context.logger.trace(params.level, params.message);
+      break;
+    case "diagnostic":
+      let crossLanguageDefinitionId: string | undefined;
+      if ("crossLanguageDefinitionId" in params) {
+        crossLanguageDefinitionId = params.crossLanguageDefinitionId;
+      }
+      context.logger.reportDiagnostic({
+        code: params.code,
+        format: {
+          message: params.message,
+        },
+        target: findTarget(crossLanguageDefinitionId) ?? NoTarget,
+      });
+      break;
+  }
+
+  function findTarget(crossLanguageDefinitionId: string | undefined): Type | undefined {
+    if (crossLanguageDefinitionId === undefined) {
+      return undefined;
+    }
+    const target = context.__typeCache.crossLanguageDefinitionIds.get(crossLanguageDefinitionId);
+    if (target) {
+      return target.__raw;
+    }
+    return undefined;
+  }
+}
 
 export async function execAsync(
   command: string,
