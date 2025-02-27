@@ -302,12 +302,12 @@ export interface HeaderFieldOptions {
    *  | simple | true    | `id=5`              | `3,4,5`           | `role=admin,firstName=Alex`                     |
    *
    */
-
   explode?: boolean;
 
   /**
    * The string format of the array. "csv" and "simple" are used interchangeably, as are
    * "multi" and "form".
+   * @deprecated use explode and `@encode` decorator instead.
    */
   format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
