@@ -11,7 +11,6 @@ import {
   Program,
   Type,
   typespecTypeToJson,
-  TypeSpecValue,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
 import { setStatusCode } from "@typespec/http";
