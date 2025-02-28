@@ -126,12 +126,6 @@ export interface NameResolver {
   /** Return augment decorator nodes that are bound to this symbol */
   getAugmentDecoratorsForSym(symbol: Sym): AugmentDecoratorStatementNode[];
 
-  /** Return template parameters which are not used. */
-  getUnusedTemplateParameterDeclarationNodes(): Set<TemplateParameterDeclarationNode>;
-
-  /** Set unused template parameter */
-  setUnusedTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void;
-
   /**
    * Resolve the member expression using the given symbol as base.
    * This can be used to follow the name resolution for template instance which are not statically linked.
@@ -196,11 +190,6 @@ export function createResolver(program: Program): NameResolver {
   const nullSym = createSymbol(undefined, "null", SymbolFlags.None);
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
 
-  /**
-   * Tracking the template parameters that are not used.
-   */
-  const unusedTemplateParameterDeclarationNodes = new Set<TemplateParameterDeclarationNode>();
-
   return {
     symbols: { global: globalNamespaceSym, null: nullSym },
     resolveProgram() {
@@ -244,8 +233,6 @@ export function createResolver(program: Program): NameResolver {
 
     getAugmentDecoratorsForSym,
     getUnusedUsings,
-    getUnusedTemplateParameterDeclarationNodes,
-    setUnusedTemplateParameterDeclarationNode,
   };
 
   function getUnusedUsings(): UsingStatementNode[] {
@@ -281,14 +268,6 @@ export function createResolver(program: Program): NameResolver {
     return mergedSymbols.get(sym) || sym;
   }
 
-  function setUnusedTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void {
-    if (!node) return;
-    unusedTemplateParameterDeclarationNodes.add(node);
-  }
-
-  function getUnusedTemplateParameterDeclarationNodes(): Set<TemplateParameterDeclarationNode> {
-    return unusedTemplateParameterDeclarationNodes;
-  }
   /**
    * @internal
    */
