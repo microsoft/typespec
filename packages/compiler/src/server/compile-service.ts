@@ -79,6 +79,7 @@ export function createCompileService({
   const oldPrograms = new Map<string, Program>();
   const eventListeners = new Map<string, (...args: unknown[]) => void>();
   const updated = new UpdateManger((document) => compile(document));
+  let configFilePath: string | undefined;
 
   return { compile, getScript, on, notifyChange };
 
@@ -103,6 +104,7 @@ export function createCompileService({
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
     const config = await getConfig(mainFile);
+    configFilePath = config.filename;
     log({ level: "debug", message: `config resolved`, detail: config });
 
     const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
@@ -174,12 +176,30 @@ export function createCompileService({
       if (serverHost.throwInternalErrors) {
         throw err;
       }
+
+      let uri = document.uri;
+      let range = Range.create(0, 0, 0, 0);
+      if (err.info.kind === "emitter" && configFilePath) {
+        const sourceFile = await serverHost.compilerHost.readFile(configFilePath);
+        const emitterName = err.info.metadata.name;
+        const lineAndChar = sourceFile.getLineAndCharacterOfPosition(
+          sourceFile.text.indexOf(emitterName),
+        );
+
+        uri = fileService.getURL(configFilePath);
+        range = Range.create(
+          lineAndChar.line,
+          lineAndChar.character,
+          lineAndChar.line,
+          lineAndChar.character + emitterName.length,
+        );
+      }
       serverHost.sendDiagnostics({
-        uri: document.uri,
+        uri,
         diagnostics: [
           {
             severity: DiagnosticSeverity.Error,
-            range: Range.create(0, 0, 0, 0),
+            range,
             message:
               `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n` +
               err.stack,
