@@ -48,7 +48,7 @@
     "@typespec/events": "workspace:~",
     "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
-    "@typespec/http-server-javascript": "workspace:~",
+    "@typespec/http-server-js": "workspace:~",
     "@typespec/http-server-csharp": "workspace:~",
     "@typespec/json-schema": "workspace:~",
     "@typespec/openapi": "workspace:~",
