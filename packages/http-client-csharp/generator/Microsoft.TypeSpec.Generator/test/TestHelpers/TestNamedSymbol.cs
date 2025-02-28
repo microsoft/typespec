@@ -56,6 +56,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
                         typeof(string), "InternalStringProperty", new AutoPropertyBody(false), this),
                     new PropertyProvider($"PropertyTypeProperty property", MethodSignatureModifiers.Public,
                         new PropertyType().Type, "PropertyTypeProperty", new AutoPropertyBody(true), this),
+                    new PropertyProvider($"NullWireInfo property", MethodSignatureModifiers.Public,
+                        new PropertyType().Type, "NullWireInfoProperty", new AutoPropertyBody(true), this),
                 ];
             }
 

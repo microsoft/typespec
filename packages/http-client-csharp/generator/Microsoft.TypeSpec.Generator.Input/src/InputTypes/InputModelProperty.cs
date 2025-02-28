@@ -29,5 +29,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputModelType? EnclosingType { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
         public InputSerializationOptions SerializationOptions { get; internal set; }
+        public string SerializedName => SerializationOptions.Json?.Name ?? Name;
     }
 }

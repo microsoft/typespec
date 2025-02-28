@@ -153,7 +153,7 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/http-server-javascript
+                    - packages/http-server-js
             then:
               - addLabel:
                   label: emitter:service:js

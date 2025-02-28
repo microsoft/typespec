@@ -154,6 +154,8 @@ const { isEqual } = pkg;
 
 type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
 
+const AZURE_CORE_FOUNDATIONS_ERROR_ID = "Azure.Core.Foundations.Error";
+
 export class CodeModelBuilder {
   private program: Program;
   private typeNameOptions: TypeNameOptions;
@@ -2473,28 +2475,53 @@ export class CodeModelBuilder {
 
     // type is a subtype
     if (type.baseModel) {
-      const parentSchema = this.processSchema(type.baseModel, type.baseModel.name);
-      objectSchema.parents = new Relations();
-      objectSchema.parents.immediate.push(parentSchema);
-
-      if (parentSchema instanceof ObjectSchema) {
-        pushDistinct(objectSchema.parents.all, parentSchema);
-
-        parentSchema.children = parentSchema.children || new Relations();
-        pushDistinct(parentSchema.children.immediate, objectSchema);
-        pushDistinct(parentSchema.children.all, objectSchema);
-
-        if (parentSchema.parents) {
-          pushDistinct(objectSchema.parents.all, ...parentSchema.parents.all);
-
-          parentSchema.parents.all.forEach((it) => {
-            if (it instanceof ObjectSchema && it.children) {
-              pushDistinct(it.children.all, objectSchema);
+      if (
+        this.isBranded() &&
+        type.baseModel.crossLanguageDefinitionId === AZURE_CORE_FOUNDATIONS_ERROR_ID
+      ) {
+        // com.azure.core.models.ResponseError class is final, we cannot extend it
+        // therefore, copy all properties from "Error" to this class
+        const parentSchema = this.processSchema(type.baseModel, type.baseModel.name);
+        if (parentSchema instanceof ObjectSchema) {
+          parentSchema.properties?.forEach((p) => {
+            objectSchema.addProperty(p);
+            // improve the casing for Java
+            if (p.serializedName === "innererror") {
+              p.language.default.name = "innerError";
+              if (p.schema instanceof ObjectSchema) {
+                p.schema.properties?.forEach((innerErrorProperty) => {
+                  if (innerErrorProperty.serializedName === "innererror") {
+                    innerErrorProperty.language.default.name = "innerError";
+                  }
+                });
+              }
             }
           });
         }
+      } else {
+        const parentSchema = this.processSchema(type.baseModel, type.baseModel.name);
+        objectSchema.parents = new Relations();
+        objectSchema.parents.immediate.push(parentSchema);
+
+        if (parentSchema instanceof ObjectSchema) {
+          pushDistinct(objectSchema.parents.all, parentSchema);
+
+          parentSchema.children = parentSchema.children || new Relations();
+          pushDistinct(parentSchema.children.immediate, objectSchema);
+          pushDistinct(parentSchema.children.all, objectSchema);
+
+          if (parentSchema.parents) {
+            pushDistinct(objectSchema.parents.all, ...parentSchema.parents.all);
+
+            parentSchema.parents.all.forEach((it) => {
+              if (it instanceof ObjectSchema && it.children) {
+                pushDistinct(it.children.all, objectSchema);
+              }
+            });
+          }
+        }
+        objectSchema.discriminatorValue = type.discriminatorValue;
       }
-      objectSchema.discriminatorValue = type.discriminatorValue;
     }
     if (type.additionalProperties) {
       // model has additional property
@@ -2870,6 +2897,10 @@ export class CodeModelBuilder {
           // Azure.Core.Foundations.OperationStatus<>
           // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
           return this.baseJavaNamespace;
+        } else if (crossLanguageDefinitionId === "Azure.Core.Foundations.InnerError") {
+          // Azure.Core.Foundations.InnerError
+          // this model could be generated, if a model extends Error
+          return this.baseJavaNamespace;
         } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
           // models in Azure.ResourceManager
           return this.baseJavaNamespace;
@@ -3074,18 +3105,31 @@ export class CodeModelBuilder {
 
       processedSchemas.add(schema);
       if (schema instanceof ObjectSchema || schema instanceof GroupSchema) {
+        let skipPropergateProperties = false;
+        if (
+          this.isBranded() &&
+          schema.language.default.crossLanguageDefinitionId === AZURE_CORE_FOUNDATIONS_ERROR_ID
+        ) {
+          // a temporary hack to avoid propergate usage for Azure.Core.Foundations.Error
+          // the reason is that the InnerError within cannot be mapped to azure-core ResponseInnerError, as that class is not public
+          // so generator had to generate the class, if used outside of Azure.Core.Foundations.Error (e.g., when a model extends Error)
+          skipPropergateProperties = true;
+        }
+
         if (schemaUsage.usage || schemaUsage.serializationFormats) {
-          schema.properties?.forEach((p) => {
-            if (p.readOnly && schemaUsage.usage?.includes(SchemaContext.Input)) {
-              const schemaUsageWithoutInput = {
-                usage: schemaUsage.usage.filter((it) => it !== SchemaContext.Input),
-                serializationFormats: schemaUsage.serializationFormats,
-              };
-              innerApplySchemaUsage(p.schema, schemaUsageWithoutInput);
-            } else {
-              innerApplySchemaUsage(p.schema, schemaUsage);
-            }
-          });
+          if (!skipPropergateProperties) {
+            schema.properties?.forEach((p) => {
+              if (p.readOnly && schemaUsage.usage?.includes(SchemaContext.Input)) {
+                const schemaUsageWithoutInput = {
+                  usage: schemaUsage.usage.filter((it) => it !== SchemaContext.Input),
+                  serializationFormats: schemaUsage.serializationFormats,
+                };
+                innerApplySchemaUsage(p.schema, schemaUsageWithoutInput);
+              } else {
+                innerApplySchemaUsage(p.schema, schemaUsage);
+              }
+            });
+          }
 
           if (schema instanceof ObjectSchema) {
             schema.parents?.all?.forEach((p) => innerApplySchemaUsage(p, schemaUsage));
