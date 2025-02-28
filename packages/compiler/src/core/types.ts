@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-deprecated*/
+// ^  TODO: remove when removing projection
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import type { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import type { AssetEmitter } from "../emitter-framework/types.js";
@@ -60,10 +62,15 @@ export interface BaseType {
   kind: string;
   node?: Node;
   instantiationParameters?: Type[];
+  /** @deprecated */
   get projections(): ProjectionStatementNode[];
+  /** @deprecated */
   projectionsByName(name: string): ProjectionStatementNode[];
+  /** @deprecated */
   projectionSource?: Type;
+  /** @deprecated */
   projectionBase?: Type;
+  /** @deprecated */
   projector?: Projector;
 
   /**
@@ -2020,6 +2027,7 @@ export interface ProjectionNode extends BaseNode {
   readonly locals?: SymbolTable;
 }
 
+/** @deprecated */
 export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.ProjectionStatement;
   readonly selector:
@@ -2042,6 +2050,7 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
+/** @deprecated */
 export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionDecoratorReferenceExpression;
   readonly target: MemberExpressionNode | IdentifierNode;
@@ -2880,6 +2889,10 @@ export interface RelatedSourceLocation {
 
 export interface LogSink {
   log(log: ProcessedLog): void;
+  /**
+   * @internal
+   */
+  trackAction?<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
 }
 
 export interface Logger {
@@ -2887,6 +2900,7 @@ export interface Logger {
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
+  trackAction<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
 }
 
 export interface TracerOptions {

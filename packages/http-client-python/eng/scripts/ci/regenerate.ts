@@ -58,6 +58,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   },
   "type/array": {
     "package-name": "typetest-array",
+    "use-pyodide": "true",
   },
   "type/dictionary": {
     "package-name": "typetest-dictionary",
@@ -85,6 +86,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   },
   "type/model/inheritance/recursive": {
     "package-name": "typetest-model-recursive",
+    "use-pyodide": "true",
   },
   "type/model/usage": {
     "package-name": "typetest-model-usage",
@@ -220,6 +222,9 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
         // after fix test generation for nested operation group, remove this check
         if (mainTspRelativePath.includes("client-operation-group")) return;
 
+        // after https://github.com/Azure/autorest.python/issues/3043 fixed, remove this check
+        if (mainTspRelativePath.includes("azure/client-generator-core/api-version")) return;
+
         const hasMainTsp = await promises
           .access(mainTspPath)
           .then(() => true)
@@ -314,7 +319,7 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
 async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
   if (flags.flavor === undefined) {
     await regenerate({ flavor: "azure", ...flags });
-    await regenerate({ flavor: "unbranded", pyodide: true, ...flags });
+    await regenerate({ flavor: "unbranded", ...flags });
   } else {
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);

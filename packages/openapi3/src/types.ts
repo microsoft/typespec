@@ -1013,6 +1013,15 @@ export type JsonSchema<AdditionalVocabularies extends {} = {}> = AdditionalVocab
   additionalProperties?: boolean | Refable<JsonSchema<AdditionalVocabularies>>;
 
   /**
+   * Indicates that additional unlisted properties can exist in this schema.
+   * This differs from additionalProperties in that it is aware of any in-place applicators.
+   * This includes being aware of properties defined in sibling `allOf` sub-schemas.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-unevaluatedproperties
+   */
+  unevaluatedProperties?: boolean | Refable<JsonSchema<AdditionalVocabularies>>;
+
+  /**
    * Property is readonly.
    */
   readOnly?: boolean;

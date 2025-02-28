@@ -2,19 +2,19 @@
 // Licensed under the MIT License.
 
 using System.ComponentModel.Composition;
-using Microsoft.Generator.CSharp;
-using Microsoft.Generator.CSharp.ClientModel;
+using Microsoft.TypeSpec.Generator;
+using Microsoft.TypeSpec.Generator.ClientModel;
 
 namespace SamplePlugin
 {
     [Export(typeof(CodeModelPlugin))]
     [ExportMetadata("PluginName", nameof(SampleCodeModelPlugin))]
     [method: ImportingConstructor]
-    public class SampleCodeModelPlugin(GeneratorContext context) : ClientModelPlugin(context)
+    public class SampleCodeModelPlugin(GeneratorContext context) : ScmCodeModelPlugin(context)
     {
         public override void Configure()
         {
-            AddVisitor(new SamplePluginLibraryLibraryVisitor());
+            AddVisitor(new SamplePluginLibraryVisitor());
         }
     }
 }

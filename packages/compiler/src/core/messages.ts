@@ -160,7 +160,9 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: `Augment decorator first argument must be a type reference.`,
-      noInstance: `Cannot reference template instances`,
+      noInstance: `Cannot reference template instances.`,
+      noModelExpression: `Cannot augment model expressions.`,
+      noUnionExpression: `Cannot augment union expressions.`,
     },
   },
   "duplicate-decorator": {
@@ -674,13 +676,6 @@ const diagnostics = {
       required: "dec first parameter must be required.",
     },
   },
-  "projections-are-experimental": {
-    severity: "warning",
-    messages: {
-      default:
-        "Projections are experimental - your code will need to change as this feature evolves.",
-    },
-  },
   "mixed-string-template": {
     severity: "error",
     messages: {
@@ -844,6 +839,9 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Union variant "${"name"}" must be a model type.`,
+      noEnvelopeModel: paramMessage`Union variant "${"name"}" must be a model type when the union has envelope: none.`,
+      discriminantMismatch: paramMessage`Variant "${"name"}" explicitly defines the discriminator property "${"discriminant"}" but the value "${"propertyValue"}" do not match the variant name "${"variantName"}".`,
+      duplicateDefaultVariant: `Discriminated union only allow a single default variant(Without a variant name).`,
       noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
       wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
     },

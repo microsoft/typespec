@@ -7,7 +7,7 @@ const context: EsmResolutionContext = {
   packageUrl: "file:///test/node_modules/test-lib/",
   moduleDirs: ["node_modules"],
   conditions: ["import"],
-  resolveId: () => {},
+  resolveId: async () => undefined,
 };
 
 it("returns target if it is a string", async () => {

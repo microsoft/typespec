@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import type { AstPath, Doc, Printer } from "prettier";
 import { builders } from "prettier/doc";
-import { CharCode } from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
-import { printIdentifier as printIdentifierString } from "../../core/helpers/syntax-utils.js";
+import {
+  printIdentifier as printIdentifierString,
+  splitLines,
+} from "../../core/helpers/syntax-utils.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
@@ -1918,36 +1921,6 @@ export function printStringTemplateExpression(
     ];
     return content;
   }
-}
-
-function splitLines(text: string): string[] {
-  const lines = [];
-  let start = 0;
-  let pos = 0;
-
-  while (pos < text.length) {
-    const ch = text.charCodeAt(pos);
-    switch (ch) {
-      case CharCode.CarriageReturn:
-        if (text.charCodeAt(pos + 1) === CharCode.LineFeed) {
-          lines.push(text.slice(start, pos));
-          start = pos;
-          pos++;
-        } else {
-          lines.push(text.slice(start, pos));
-          start = pos;
-        }
-        break;
-      case CharCode.LineFeed:
-        lines.push(text.slice(start, pos));
-        start = pos;
-        break;
-    }
-    pos++;
-  }
-
-  lines.push(text.slice(start));
-  return lines;
 }
 
 function trimMultilineString(lines: string[], whitespaceIndent: number): Doc[] {

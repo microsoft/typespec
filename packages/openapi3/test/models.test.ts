@@ -1,3 +1,4 @@
+import { DiagnosticTarget } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
@@ -19,24 +20,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
         x: { type: "integer", format: "int32" },
       },
       required: ["x"],
-    });
-  });
-
-  it("uses json name specified via @projectedName (LEGACY)", async () => {
-    const res = await oapiForModel(
-      "Foo",
-      `model Foo {
-        #suppress "deprecated" "for testing"
-        @projectedName("json", "xJson")
-        x: int32;
-      };`,
-    );
-
-    expect(res.schemas.Foo).toMatchObject({
-      required: ["xJson"],
-      properties: {
-        xJson: { type: "integer", format: "int32" },
-      },
     });
   });
 
@@ -141,6 +124,13 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
           code: "@typespec/openapi3/invalid-component-fixed-field-key",
         },
       ]);
+      diagnostics.forEach((d) => {
+        const diagnosticTarget = d.target as DiagnosticTarget;
+        strictEqual(
+          diagnosticTarget && "kind" in diagnosticTarget && diagnosticTarget.kind === "Model",
+          true,
+        );
+      });
     });
   });
 

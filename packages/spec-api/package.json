@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spec-api",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "Spec api to implement mock api",
   "main": "dist/index.js",
   "type": "module",
@@ -49,6 +49,6 @@
     "@vitest/ui": "^3.0.3",
     "rimraf": "~6.0.1",
     "typescript": "~5.7.3",
-    "vitest": "^3.0.4"
+    "vitest": "^3.0.5"
   }
 }

@@ -3,7 +3,7 @@
 
 package type.scalar;
 
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import java.io.IOException;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Assertions;

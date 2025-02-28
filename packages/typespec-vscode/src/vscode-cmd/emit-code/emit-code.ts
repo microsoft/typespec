@@ -45,8 +45,8 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
       },
     };
   };
-  const codesToEmit = emitterKinds.map((kind) => toEmitterTypeQuickPickItem(kind));
-  const codeType = await vscode.window.showQuickPick(codesToEmit, {
+  const codeTypesToEmit = emitterKinds.map((kind) => toEmitterTypeQuickPickItem(kind));
+  const codeType = await vscode.window.showQuickPick(codeTypesToEmit, {
     title: "Generate from TypeSpec",
     canPickMany: false,
     placeHolder: "Select an emitter type",
@@ -98,7 +98,7 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
   emitterSelector.items = all;
   emitterSelector.title = `Generate from TypeSpec`;
   emitterSelector.canSelectMany = false;
-  emitterSelector.placeholder = `Select a Language for ${codeType} code generation`;
+  emitterSelector.placeholder = `Select a Language for${codeType.emitterKind !== EmitterKind.Unknown ? " " + codeType.emitterKind : ""} code generation`;
   emitterSelector.ignoreFocusOut = true;
   emitterSelector.onDidTriggerItemButton(async (e) => {
     if (e.button.tooltip === "More details") {
@@ -336,25 +336,30 @@ async function doEmit(mainTspFile: string, emitter: Emitter) {
     .replace("{output-dir}", `${baseDir}/tsp-output`)
     .replace("{emitter-name}", emitter.package);
   const options: Record<string, string> = {};
-  logger.info(
-    `Start to generate ${emitter.language} ${emitter.kind} code under directory ${outputDir}`,
-  );
+  let codeInfoStr: string = "code";
+  if (emitter.kind !== EmitterKind.Unknown) {
+    codeInfoStr = `${emitter.kind} code`;
+  }
+  if (emitter.language) {
+    codeInfoStr += ` for ${emitter.language}`;
+  }
+  logger.info(`Start to generate ${codeInfoStr} under directory ${outputDir}`);
   await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
-      title: `Generating ${emitter.kind} code for ${emitter.language}...`,
+      title: `Generating ${codeInfoStr}...`,
       cancellable: false,
     },
     async () => {
       try {
         const compileResult = await compile(cli, mainTspFile, emitter.package, options, false);
         if (compileResult.exitCode !== 0) {
-          logger.error(`Generating ${emitter.kind} code for ${emitter.language}...Failed`, [], {
+          logger.error(`Generating ${codeInfoStr}...Failed`, [], {
             showOutput: true,
             showPopup: true,
           });
         } else {
-          logger.info(`Generating ${emitter.kind} code for ${emitter.language}...Succeeded`, [], {
+          logger.info(`Generating ${codeInfoStr}...Succeeded`, [], {
             showOutput: true,
             showPopup: true,
           });
@@ -366,16 +371,12 @@ async function doEmit(mainTspFile: string, emitter: Emitter) {
           if (execOutput.stdout !== "") details.push(execOutput.stdout);
           if (execOutput.stderr !== "") details.push(execOutput.stderr);
           if (execOutput.error) details.push(execOutput.error);
-          logger.error(
-            `Generating ${emitter.kind} code for ${emitter.language}...Failed.`,
-            details,
-            {
-              showOutput: true,
-              showPopup: true,
-            },
-          );
+          logger.error(`Generating ${codeInfoStr}...Failed.`, details, {
+            showOutput: true,
+            showPopup: true,
+          });
         } else {
-          logger.error(`Generating ${emitter.kind} code for ${emitter.language}...Failed.`, [err], {
+          logger.error(`Generating ${codeInfoStr}...Failed.`, [err], {
             showOutput: true,
             showPopup: true,
           });
@@ -570,7 +571,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       tspProjectFile,
       getRegisterEmittersByPackage(selectedExistingEmitter.package) ?? {
         package: selectedExistingEmitter.package,
-        language: "Unknown",
+        language: selectedExistingEmitter.package,
         kind: EmitterKind.Unknown,
       },
     );

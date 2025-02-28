@@ -36,8 +36,6 @@ import {
   navigateTypesInNamespace,
   NewLine,
   Program,
-  ProjectionApplication,
-  projectProgram,
   resolvePath,
   Service,
   Type,
@@ -45,7 +43,10 @@ import {
 } from "@typespec/compiler";
 
 import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
-import {} from "@typespec/compiler/utils";
+import {
+  unsafe_mutateSubgraphWithNamespace,
+  unsafe_MutatorWithNamespace,
+} from "@typespec/compiler/experimental";
 import {
   AuthenticationOptionReference,
   AuthenticationReference,
@@ -83,7 +84,7 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
-import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
+import { getVersioningMutators } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
@@ -115,6 +116,7 @@ import {
 } from "./types.js";
 import {
   deepEquals,
+  ensureValidComponentFixedFieldKey,
   getDefaultValue,
   isBytesKeptRaw,
   isSharedHttpOperation,
@@ -129,6 +131,7 @@ const defaultOptions = {
   "omit-unreachable-types": false,
   "include-x-typespec-name": "never",
   "safeint-strategy": "int64",
+  "seal-object-schemas": false,
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
@@ -211,6 +214,7 @@ export function resolveOptions(
     safeintStrategy: resolvedOptions["safeint-strategy"],
     outputFile: resolvePath(context.emitterOutputDir, specDir, outputFile),
     openapiVersions,
+    sealObjectSchemas: resolvedOptions["seal-object-schemas"],
   };
 }
 
@@ -222,6 +226,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   omitUnreachableTypes: boolean;
   includeXTypeSpecName: "inline-only" | "never";
   safeintStrategy: "double-int" | "int64";
+  sealObjectSchemas: boolean;
 }
 
 function createOAPIEmitter(
@@ -236,7 +241,7 @@ function createOAPIEmitter(
     getRawBinarySchema,
     isRawBinarySchema,
   } = getOpenApiSpecProps(specVersion);
-  let program = context.program;
+  const program = context.program;
   let schemaEmitter: AssetEmitter<OpenAPI3Schema | OpenAPISchema3_1, OpenAPI3EmitterOptions>;
 
   let root: SupportedOpenAPIDocuments;
@@ -381,6 +386,7 @@ function createOAPIEmitter(
       case "Scalar":
         return ignoreDiagnostics(
           program.checker.isTypeAssignableTo(
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
             type.projectionBase ?? type,
             program.checker.getStdType("string"),
             type,
@@ -453,15 +459,25 @@ function createOAPIEmitter(
       services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
-      const versions = buildVersionProjections(program, service.type);
-      if (versions.length === 1 && versions[0].version === undefined) {
-        // non-versioned spec
-        const document = await getProjectedOpenAPIDocument(service, versions[0]);
+      const versions = getVersioningMutators(program, service.type);
+      if (versions === undefined) {
+        const document = await getOpenApiFromVersion(service);
         if (document === undefined) {
           // an error occurred producing this document, so don't return it
           return serviceRecords;
         }
-
+        serviceRecords.push({
+          service,
+          versioned: false,
+          document: document[0],
+          diagnostics: document[1],
+        });
+      } else if (versions.kind === "transient") {
+        const document = await getVersionSnapshotDocument(service, versions.mutator);
+        if (document === undefined) {
+          // an error occurred producing this document, so don't return it
+          return serviceRecords;
+        }
         serviceRecords.push({
           service,
           versioned: false,
@@ -477,8 +493,12 @@ function createOAPIEmitter(
         };
         serviceRecords.push(serviceRecord);
 
-        for (const record of versions) {
-          const document = await getProjectedOpenAPIDocument(service, record);
+        for (const snapshot of versions.snapshots) {
+          const document = await getVersionSnapshotDocument(
+            service,
+            snapshot.mutator,
+            snapshot.version?.value,
+          );
           if (document === undefined) {
             // an error occurred producing this document
             continue;
@@ -486,7 +506,7 @@ function createOAPIEmitter(
 
           serviceRecord.versions.push({
             service,
-            version: record.version!,
+            version: snapshot.version!.value,
             document: document[0],
             diagnostics: document[1],
           });
@@ -495,32 +515,19 @@ function createOAPIEmitter(
     }
 
     return serviceRecords;
+  }
 
-    async function getProjectedOpenAPIDocument(service: Service, record: VersionProjections) {
-      const commonProjections: ProjectionApplication[] = [
-        {
-          projectionName: "target",
-          arguments: ["json"],
-        },
-      ];
-      const originalProgram = program;
-      const projectedProgram = (program = projectProgram(originalProgram, [
-        ...commonProjections,
-        ...record.projections,
-      ]));
-      const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
-        service.type,
-      ) as Namespace;
+  async function getVersionSnapshotDocument(
+    service: Service,
+    mutator: unsafe_MutatorWithNamespace,
+    version?: string,
+  ) {
+    const subgraph = unsafe_mutateSubgraphWithNamespace(program, [mutator], service.type);
 
-      const document = await getOpenApiFromVersion(
-        projectedServiceNs === projectedProgram.getGlobalNamespaceType()
-          ? { type: projectedProgram.getGlobalNamespaceType() }
-          : getService(program, projectedServiceNs)!,
-        record.version,
-      );
+    compilerAssert(subgraph.type.kind === "Namespace", "Should not have mutated to another type");
+    const document = await getOpenApiFromVersion(getService(program, subgraph.type)!, version);
 
-      return document;
-    }
+    return document;
   }
 
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
@@ -674,7 +681,6 @@ function createOAPIEmitter(
           }
         }
       }
-
       return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
@@ -703,7 +709,10 @@ function createOAPIEmitter(
   }
 
   function computeSharedOperationId(shared: SharedHttpOperation) {
-    return shared.operations.map((op) => resolveOperationId(program, op.operation)).join("_");
+    const operationIds = shared.operations.map((op) => resolveOperationId(program, op.operation));
+    const uniqueOpIds = new Set<string>(operationIds);
+    if (uniqueOpIds.size === 1) return uniqueOpIds.values().next().value;
+    return operationIds.join("_");
   }
 
   function getOperationOrSharedOperation(operation: HttpOperation | SharedHttpOperation):
@@ -1560,21 +1569,6 @@ function createOAPIEmitter(
     }
   }
 
-  function validateComponentFixedFieldKey(type: Type, name: string) {
-    const pattern = /^[a-zA-Z0-9.\-_]+$/;
-    if (!pattern.test(name)) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-component-fixed-field-key",
-          format: {
-            value: name,
-          },
-          target: type,
-        }),
-      );
-    }
-  }
-
   function emitParameters() {
     for (const [property, param] of params) {
       const key = getParameterKey(
@@ -1584,14 +1578,12 @@ function createOAPIEmitter(
         root.components!.parameters!,
         typeNameOptions,
       );
-      validateComponentFixedFieldKey(property, key);
-
-      root.components!.parameters![key] = { ...param };
+      const validKey = ensureValidComponentFixedFieldKey(program, property, key);
+      root.components!.parameters![validKey] = { ...param };
       for (const key of Object.keys(param)) {
         delete param[key];
       }
-
-      param.$ref = "#/components/parameters/" + encodeURIComponent(key);
+      param.$ref = "#/components/parameters/" + encodeURIComponent(validKey);
     }
   }
 
@@ -1609,8 +1601,6 @@ function createOAPIEmitter(
       const schemas = root.components!.schemas!;
       const declarations = files[0].globalScope.declarations;
       for (const declaration of declarations) {
-        validateComponentFixedFieldKey(serviceNamespace, declaration.name);
-
         schemas[declaration.name] = declaration.value as any;
       }
     }

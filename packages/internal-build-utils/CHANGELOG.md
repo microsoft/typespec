@@ -1,5 +1,12 @@
 # Change Log - @typespec/internal-build-utils
 
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+
 ## 0.64.0
 
 ### Bug Fixes

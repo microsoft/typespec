@@ -70,6 +70,7 @@ export function isIntrinsicType(
 ): boolean {
   return ignoreDiagnostics(
     program.checker.isTypeAssignableTo(
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       type.projectionBase ?? type,
       program.checker.getStdType(kind),
       type,
@@ -416,6 +417,12 @@ function typespecTypeToJsonInternal(
       }
       return [result, []];
     }
+    case "StringTemplate":
+      if (typespecType.stringValue) {
+        return [typespecType.stringValue, []];
+      }
+    // By design
+    // eslint-disable-next-line no-fallthrough
     default:
       const diagnostic =
         path.length === 0

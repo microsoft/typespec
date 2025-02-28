@@ -4,9 +4,13 @@ import {
   Model,
   ModelProperty,
   NoTarget,
+  NumericLiteral,
+  Operation,
   Program,
   Scalar,
+  StringTemplateSpan,
   Type,
+  Union,
   getFriendlyName,
   isNullType,
   isNumericType,
@@ -14,24 +18,36 @@ import {
   isUnknownType,
   isVoidType,
 } from "@typespec/compiler";
-import { StringBuilder } from "@typespec/compiler/emitter-framework";
+import {
+  AssetEmitter,
+  EmitterOutput,
+  StringBuilder,
+  code,
+} from "@typespec/compiler/emitter-framework";
 import {
   HttpOperation,
+  HttpOperationParameter,
   HttpOperationResponse,
   HttpStatusCodesEntry,
   MetadataInfo,
   Visibility,
   createMetadataInfo,
+  getHeaderFieldName,
   isBody,
   isBodyRoot,
+  isHeader,
   isMetadata,
+  isPathParam,
+  isQueryParam,
   isStatusCode,
 } from "@typespec/http";
+import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
 import { camelCase, pascalCase } from "change-case";
 import { getAttributes } from "./attributes.js";
 import {
   Attribute,
   BooleanValue,
+  CSharpOperationParameter,
   CSharpType,
   CSharpValue,
   NameCasingType,
@@ -39,7 +55,7 @@ import {
   NumericValue,
   StringValue,
 } from "./interfaces.js";
-import { reportDiagnostic } from "./lib.js";
+import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
 
 const _scalars: Map<Scalar, CSharpType> = new Map<Scalar, CSharpType>();
 export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharpType {
@@ -59,7 +75,7 @@ export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharp
   });
 
   const result = new CSharpType({
-    name: "Object",
+    name: "object",
     namespace: "System",
     isBuiltIn: true,
     isValueType: false,
@@ -128,6 +144,7 @@ export function getCSharpType(
           namespace: namespace || "Models",
           isBuiltIn: false,
           isValueType: false,
+          isClass: true,
         }),
       };
     case "Enum":
@@ -136,7 +153,7 @@ export function getCSharpType(
           name: ensureCSharpIdentifier(program, type, type.name, NameCasingType.Class),
           namespace: `${namespace}.Models`,
           isBuiltIn: false,
-          isValueType: false,
+          isValueType: true,
         }),
       };
     case "Model":
@@ -151,6 +168,8 @@ export function getCSharpType(
             namespace: itemType.namespace,
             isBuiltIn: itemType.isBuiltIn,
             isValueType: false,
+            isClass: itemType.isClass,
+            isCollection: true,
           }),
         };
       }
@@ -164,6 +183,7 @@ export function getCSharpType(
           namespace: `${namespace}.Models`,
           isBuiltIn: false,
           isValueType: false,
+          isClass: true,
         }),
       };
     default:
@@ -560,6 +580,34 @@ export function getModelAttributes(
   return getAttributes(program, entity, cSharpName);
 }
 
+export function getModelDeclarationName(
+  program: Program,
+  model: Model,
+  defaultSuffix: string,
+): string {
+  if (model.name !== null && model.name.length > 0) {
+    return ensureCSharpIdentifier(program, model, model.name, NameCasingType.Class);
+  }
+  if (model.sourceModel && model.sourceModel.name && model.sourceModel.name.length > 0) {
+    return ensureCSharpIdentifier(
+      program,
+      model,
+      `${model.sourceModel.name}${defaultSuffix}`,
+      NameCasingType.Class,
+    );
+  }
+  if (model.sourceModels.length > 0) {
+    const sourceNames = model.sourceModels
+      .filter((m) => m.model.name !== undefined && m.model.name.length > 0)
+      .flatMap((m) => ensureCSharpIdentifier(program, model, m.model.name, NameCasingType.Class));
+    if (sourceNames.length > 0) {
+      return `${sourceNames.join()}${defaultSuffix}`;
+    }
+  }
+
+  return `Model${defaultSuffix}`;
+}
+
 export function getModelInstantiationName(program: Program, model: Model, name: string): string {
   const friendlyName = getFriendlyName(program, model);
   if (friendlyName && friendlyName.length > 0) return friendlyName;
@@ -656,8 +704,10 @@ export class HttpMetadata {
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => true,
     });
+
     switch (responseType.kind) {
       case "Model":
+        if (responseType.indexer && responseType.indexer.key.name !== "string") return responseType;
         const bodyProp = new ModelInfo().filterAllProperties(
           program,
           responseType,
@@ -754,4 +804,642 @@ export function getCSharpStatusCode(entry: HttpStatusCodesEntry): string | undef
     default:
       return undefined;
   }
+}
+
+export function isEmptyResponseModel(program: Program, model: Type): boolean {
+  if (model.kind !== "Model") return false;
+  if (model.properties.size === 0) return true;
+  return model.properties.size === 1 && isStatusCode(program, [...model.properties.values()][0]);
+}
+
+export function isContentTypeHeader(program: Program, parameter: ModelProperty): boolean {
+  return (
+    isHeader(program, parameter) &&
+    (parameter.name === "contentType" || getHeaderFieldName(program, parameter) === "Content-type")
+  );
+}
+
+export function isValidParameter(program: Program, parameter: ModelProperty): boolean {
+  return (
+    !isContentTypeHeader(program, parameter) &&
+    (parameter.type.kind !== "Intrinsic" || parameter.type.name !== "never") &&
+    parameter.model?.name === ""
+  );
+}
+
+/** Determine whether the given parameter is http metadata */
+export function isHttpMetadata(program: Program, property: ModelProperty) {
+  return (
+    isPathParam(program, property) || isHeader(program, property) || isQueryParam(program, property)
+  );
+}
+
+export function getBusinessLogicCallParameters(
+  parameters: CSharpOperationParameter[],
+): EmitterOutput<string> {
+  const builder: StringBuilder = new StringBuilder();
+  const blParameters = parameters.filter(
+    (p) => p.operationKind === "BusinessLogic" || p.operationKind === "All",
+  );
+  let i = 0;
+  for (const param of blParameters) {
+    builder.push(
+      code`${getBusinessLogicCallParameter(param)}${++i < blParameters.length ? ", " : ""}`,
+    );
+  }
+  return builder.reduce();
+}
+
+export function getBusinessLogicDeclParameters(
+  parameters: CSharpOperationParameter[],
+): EmitterOutput<string> {
+  const builder: StringBuilder = new StringBuilder();
+  const blParameters = parameters.filter(
+    (p) => p.operationKind === "BusinessLogic" || p.operationKind === "All",
+  );
+  let i = 0;
+  for (const param of blParameters) {
+    builder.push(
+      code`${getBusinessLogicSignatureParameter(param)}${++i < blParameters.length ? ", " : ""}`,
+    );
+  }
+  return builder.reduce();
+}
+
+export function getHttpDeclParameters(
+  parameters: CSharpOperationParameter[],
+): EmitterOutput<string> {
+  const builder: StringBuilder = new StringBuilder();
+  const blParameters = parameters.filter(
+    (p) => p.operationKind === "Http" || p.operationKind === "All",
+  );
+  let i = 0;
+  for (const param of blParameters) {
+    builder.push(code`${getHttpSignatureParameter(param)}${++i < blParameters.length ? ", " : ""}`);
+  }
+  return builder.reduce();
+}
+export function getBusinessLogicCallParameter(
+  param: CSharpOperationParameter,
+): EmitterOutput<string> {
+  const builder: StringBuilder = new StringBuilder();
+  builder.push(code`${param.callName}`);
+  return builder.reduce();
+}
+
+export function getBusinessLogicSignatureParameter(
+  param: CSharpOperationParameter,
+): EmitterOutput<string> {
+  const builder: StringBuilder = new StringBuilder();
+  builder.push(
+    code`${param.typeName}${param.optional || param.nullable ? "? " : " "}${param.name}`,
+  );
+  return builder.reduce();
+}
+
+export function getHttpSignatureParameter(param: CSharpOperationParameter): EmitterOutput<string> {
+  const builder: StringBuilder = new StringBuilder();
+  builder.push(
+    code`${getHttpParameterDecorator(param)}${getBusinessLogicSignatureParameter(param)}${param.defaultValue === undefined ? "" : code` = ${typeof param.defaultValue === "boolean" ? code`${param.defaultValue.toString()}` : code`${param.defaultValue}`}`}`,
+  );
+  return builder.reduce();
+}
+
+export function getHttpParameterDecorator(
+  parameter: CSharpOperationParameter,
+): EmitterOutput<string> {
+  switch (parameter.httpParameterKind) {
+    case "query":
+      return code`[FromQuery${parameter.httpParameterName ? code`(Name="${parameter.httpParameterName}")` : ""}] `;
+    case "header":
+      return code`[FromHeader${parameter.httpParameterName ? code`(Name="${parameter.httpParameterName}")` : ""}] `;
+    default:
+      return "";
+  }
+}
+
+export function getParameterKind(parameter: HttpOperationParameter): HttpRequestParameterKind {
+  switch (parameter.type) {
+    case "path":
+      return "path";
+    case "cookie":
+    case "header":
+      return "header";
+    case "query":
+      return "query";
+  }
+}
+
+export function canHaveDefault(program: Program, type: Type): boolean {
+  switch (type.kind) {
+    case "Boolean":
+    case "EnumMember":
+    case "Enum":
+    case "Number":
+    case "String":
+    case "Scalar":
+    case "StringTemplate":
+      return true;
+    case "ModelProperty":
+      return canHaveDefault(program, type.type);
+    default:
+      return false;
+  }
+}
+
+export interface EmittedTypeInfo {
+  typeReference: EmitterOutput<string>;
+  nullableType: boolean;
+  defaultValue?: string | boolean;
+}
+
+export class CSharpOperationHelpers {
+  constructor(inEmitter: AssetEmitter<string, CSharpServiceEmitterOptions>) {
+    this.emitter = inEmitter;
+    this.#anonymousModels = new Map<Model, EmittedTypeInfo>();
+    this.#opCache = new Map<Operation, CSharpOperationParameter[]>();
+  }
+  emitter: AssetEmitter<string, CSharpServiceEmitterOptions>;
+  #anonymousModels: Map<Model, EmittedTypeInfo>;
+  #opCache: Map<Operation, CSharpOperationParameter[]>;
+  getParameters(program: Program, operation: HttpOperation): CSharpOperationParameter[] {
+    function safeConcat(...names: (string | undefined)[]): string {
+      return names
+        .filter((n) => n !== undefined && n !== null && n.length > 0)
+        .flatMap((s) => getCSharpIdentifier(s!, NameCasingType.Class))
+        .join();
+    }
+    const cached = this.#opCache.get(operation.operation);
+    if (cached) return cached;
+    const bodyParam = operation.parameters.body;
+    const isExplicitBodyParam: boolean = bodyParam?.property !== undefined;
+    const result: CSharpOperationParameter[] = [];
+    if (operation.verb === "get" && operation.parameters.body !== undefined) {
+      reportDiagnostic(program, {
+        code: "get-request-body",
+        target: operation.operation,
+        format: {},
+      });
+
+      this.#opCache.set(operation.operation, result);
+      return result;
+    }
+    const validParams: HttpOperationParameter[] = operation.parameters.parameters.filter((p) =>
+      isValidParameter(program, p.param),
+    );
+    const requiredParams: HttpOperationParameter[] = validParams.filter(
+      (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),
+    );
+    const optionalParams: HttpOperationParameter[] = validParams.filter(
+      (p) => p.type !== "path" && (p.param.optional || p.param.defaultValue !== undefined),
+    );
+    for (const parameter of requiredParams) {
+      let { typeReference: paramType, defaultValue: paramValue } = this.getTypeInfo(
+        program,
+        parameter.param.type,
+      );
+      // cSharp does not allow array defaults in operation parameters
+      if (!canHaveDefault(program, parameter.param)) {
+        paramValue = undefined;
+      }
+      const paramName = ensureCSharpIdentifier(
+        program,
+        parameter.param,
+        parameter.param.name,
+        NameCasingType.Parameter,
+      );
+      result.push({
+        isExplicitBody: false,
+        name: paramName,
+        callName: paramName,
+        optional: false,
+        typeName: paramType,
+        defaultValue: paramValue,
+        httpParameterKind: getParameterKind(parameter),
+        httpParameterName: parameter.name,
+        nullable: false,
+        operationKind: "All",
+      });
+    }
+
+    const overrideParameters = getExplicitBodyParameters(program, operation);
+    if (overrideParameters !== undefined) {
+      for (const overrideParam of overrideParameters) {
+        result.push(overrideParam);
+      }
+    } else if (bodyParam !== undefined && isExplicitBodyParam) {
+      let {
+        typeReference: bodyType,
+        defaultValue: bodyValue,
+        nullableType: isNullable,
+      } = this.getTypeInfo(program, bodyParam.type);
+      if (!canHaveDefault(program, bodyParam.type)) {
+        bodyValue = undefined;
+      }
+      result.push({
+        isExplicitBody: true,
+        httpParameterKind: "body",
+        name: "body",
+        callName: "body",
+        typeName: bodyType,
+        nullable: isNullable,
+        defaultValue: bodyValue,
+        optional: bodyParam.property?.optional ?? false,
+        operationKind: "All",
+      });
+    } else if (bodyParam !== undefined) {
+      switch (bodyParam.type.kind) {
+        case "Model":
+          let tsBody: Model = bodyParam.type;
+          if (!bodyParam.type.name) {
+            tsBody = program.checker.cloneType(bodyParam.type, {
+              name: safeConcat(
+                operation.operation.interface?.name,
+                operation.operation.name,
+                "Request",
+              ),
+            });
+          }
+
+          const { typeReference: bodyType } = this.getTypeInfo(program, tsBody);
+          const bodyName = ensureCSharpIdentifier(
+            program,
+            bodyParam.type,
+            "body",
+            NameCasingType.Parameter,
+          );
+          result.push({
+            isExplicitBody: false,
+            httpParameterKind: "body",
+            name: bodyName,
+            callName: bodyName,
+            typeName: bodyType,
+            nullable: false,
+            defaultValue: undefined,
+            optional: false,
+            operationKind: "Http",
+          });
+          for (const [propName, propDef] of bodyParam.type.properties) {
+            let {
+              typeReference: csType,
+              defaultValue: csValue,
+              nullableType: isNullable,
+            } = this.getTypeInfo(program, propDef.type);
+            // cSharp does not allow array defaults in operation parameters
+            if (!canHaveDefault(program, propDef)) {
+              csValue = undefined;
+            }
+            const paramName = ensureCSharpIdentifier(
+              program,
+              propDef,
+              propName,
+              NameCasingType.Parameter,
+            );
+            const refName = ensureCSharpIdentifier(
+              program,
+              propDef,
+              propName,
+              NameCasingType.Property,
+            );
+            result.push({
+              isExplicitBody: false,
+              httpParameterKind: "body",
+              name: paramName,
+              callName: `body.${refName}`,
+              typeName: csType,
+              nullable: isNullable,
+              defaultValue: csValue,
+              optional: propDef.optional,
+              operationKind: "BusinessLogic",
+            });
+          }
+
+          break;
+        case "ModelProperty":
+          {
+            let {
+              typeReference: csType,
+              defaultValue: csValue,
+              nullableType: isNullable,
+            } = this.getTypeInfo(program, bodyParam.type.type);
+            if (!canHaveDefault(program, bodyParam.type)) {
+              csValue = undefined;
+            }
+            const optName = ensureCSharpIdentifier(
+              program,
+              bodyParam.type.type,
+              bodyParam.type.name,
+              NameCasingType.Parameter,
+            );
+            result.push({
+              isExplicitBody: true,
+              httpParameterKind: "body",
+              name: optName,
+              callName: optName,
+              typeName: csType,
+              nullable: isNullable,
+              defaultValue: csValue,
+              optional: bodyParam.type.optional,
+              operationKind: "All",
+            });
+          }
+          break;
+        default: {
+          let {
+            typeReference: csType,
+            defaultValue: csValue,
+            nullableType: isNullable,
+          } = this.getTypeInfo(program, bodyParam.type);
+          if (!canHaveDefault(program, bodyParam.type)) {
+            csValue = undefined;
+          }
+          result.push({
+            isExplicitBody: true,
+            httpParameterKind: "body",
+            name: "body",
+            callName: "body",
+            typeName: csType,
+            nullable: isNullable,
+            defaultValue: csValue,
+            optional: false,
+            operationKind: "All",
+          });
+        }
+      }
+    }
+
+    for (const parameter of optionalParams) {
+      const {
+        typeReference: paramType,
+        defaultValue: paramValue,
+        nullableType: isNullable,
+      } = this.getTypeInfo(program, parameter.param.type);
+      const optName = ensureCSharpIdentifier(
+        program,
+        parameter.param,
+        parameter.param.name,
+        NameCasingType.Parameter,
+      );
+      result.push({
+        isExplicitBody: false,
+        name: optName,
+        callName: optName,
+        optional: true,
+        typeName: paramType,
+        defaultValue: paramValue,
+        httpParameterKind: getParameterKind(parameter),
+        httpParameterName: parameter.name,
+        nullable: isNullable,
+        operationKind: "All",
+      });
+    }
+
+    this.#opCache.set(operation.operation, result);
+    return result;
+  }
+  getTypeInfo(program: Program, tsType: Type): EmittedTypeInfo {
+    const myEmitter = this.emitter;
+    function extractStringValue(type: Type, span: StringTemplateSpan): string {
+      switch (type.kind) {
+        case "String":
+          return type.value;
+        case "Boolean":
+          return `${type.value}`;
+        case "Number":
+          return type.valueAsString;
+        case "StringTemplateSpan":
+          if (type.isInterpolated) {
+            return extractStringValue(type.type, span);
+          } else {
+            return type.type.value;
+          }
+        case "ModelProperty":
+          return extractStringValue(type.type, span);
+        case "EnumMember":
+          if (type.value === undefined) return type.name;
+          if (typeof type.value === "string") return type.value;
+          if (typeof type.value === "number") return `${type.value}`;
+      }
+      reportDiagnostic(myEmitter.getProgram(), {
+        code: "invalid-interpolation",
+        target: span,
+        format: {},
+      });
+      return "";
+    }
+    switch (tsType.kind) {
+      case "String":
+        return {
+          typeReference: code`string`,
+          defaultValue: `"${tsType.value}"`,
+          nullableType: false,
+        };
+      case "StringTemplate":
+        const template = tsType;
+        if (template.stringValue !== undefined)
+          return {
+            typeReference: code`string`,
+            defaultValue: `"${template.stringValue}"`,
+            nullableType: false,
+          };
+        const spanResults: string[] = [];
+        for (const span of template.spans) {
+          spanResults.push(extractStringValue(span, span));
+        }
+        return {
+          typeReference: code`string`,
+          defaultValue: `"${spanResults.join("")}"`,
+          nullableType: false,
+        };
+      case "Boolean":
+        return {
+          typeReference: code`bool`,
+          defaultValue: `${tsType.value === true ? true : false}`,
+          nullableType: false,
+        };
+      case "Number":
+        const [type, value] = findNumericType(tsType);
+        return { typeReference: code`${type}`, defaultValue: `${value}`, nullableType: false };
+      case "Tuple":
+        const defaults = [];
+        const [csharpType, isObject] = coalesceTsTypes(program, tsType.values);
+        if (isObject)
+          return { typeReference: "object[]", defaultValue: undefined, nullableType: false };
+        for (const value of tsType.values) {
+          const { defaultValue: itemDefault } = this.getTypeInfo(program, value);
+          defaults.push(itemDefault);
+        }
+        return {
+          typeReference: code`${csharpType.getTypeReference()}[]`,
+          defaultValue: `[${defaults.join(", ")}]`,
+          nullableType: csharpType.isNullable,
+        };
+      case "Object":
+        return { typeReference: code`object`, defaultValue: undefined, nullableType: false };
+      case "Model":
+        let modelResult: EmittedTypeInfo;
+        const cachedResult = this.#anonymousModels.get(tsType);
+        if (cachedResult) {
+          return cachedResult;
+        }
+        if (isRecord(tsType)) {
+          modelResult = { typeReference: code`JsonObject`, nullableType: false };
+        } else {
+          modelResult = {
+            typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
+            nullableType: false,
+          };
+        }
+        this.#anonymousModels.set(tsType, modelResult);
+        return modelResult;
+      case "ModelProperty":
+        return this.getTypeInfo(program, tsType.type);
+      case "Enum":
+        return {
+          typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
+          nullableType: false,
+        };
+      case "EnumMember":
+        if (typeof tsType.value === "number") {
+          const stringValue = tsType.value.toString();
+          if (stringValue.includes(".") || stringValue.includes("e"))
+            return { typeReference: "double", defaultValue: stringValue, nullableType: false };
+          return { typeReference: "int", defaultValue: stringValue, nullableType: false };
+        }
+        if (typeof tsType.value === "string") {
+          return { typeReference: "string", defaultValue: tsType.value, nullableType: false };
+        }
+        return { typeReference: code`object`, nullableType: false };
+      case "Union":
+        return this.getUnionInfo(program, tsType);
+      case "UnionVariant":
+        return this.getTypeInfo(program, tsType.type);
+      default:
+        return {
+          typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
+          nullableType: false,
+        };
+    }
+  }
+  getUnionInfo(program: Program, union: Union): EmittedTypeInfo {
+    const propResult = getNonNullableTsType(union);
+    if (propResult === undefined) {
+      return {
+        typeReference: code`${this.emitter.emitTypeReference(union)}`,
+        nullableType: [...union.variants.values()].some((v) => isNullType(v.type)),
+      };
+    }
+    const candidate = this.getTypeInfo(program, propResult.type);
+    candidate.nullableType = propResult.nullable;
+    return candidate;
+  }
+}
+
+export function getExplicitBodyParameters(
+  program: Program,
+  httpOperation: HttpOperation,
+): CSharpOperationParameter[] | undefined {
+  if (httpOperation.parameters.body && httpOperation.parameters.body.bodyKind === "multipart") {
+    return [
+      {
+        name: "reader",
+        callName: "reader",
+        nullable: false,
+        optional: false,
+        typeName: "MultipartReader",
+        isExplicitBody: false,
+        httpParameterKind: "body",
+        operationKind: "BusinessLogic",
+      },
+    ];
+  }
+
+  return undefined;
+}
+
+export function findNumericType(type: NumericLiteral): [string, string] {
+  const stringValue = type.valueAsString;
+  if (stringValue.includes(".") || stringValue.includes("e")) return ["double", stringValue];
+  return ["int", stringValue];
+}
+
+export function coalesceUnionTypes(program: Program, union: Union): CSharpType {
+  const [result, _] = coalesceTsTypes(
+    program,
+    [...union.variants.values()].flatMap((v) => v.type),
+  );
+  return result;
+}
+
+export function getNonNullableTsType(union: Union): { type: Type; nullable: boolean } | undefined {
+  const types = [...union.variants.values()];
+  const nulls = types.flatMap((v) => v.type).filter((t) => isNullType(t));
+  const nonNulls = types.flatMap((v) => v.type).filter((t) => !isNullType(t));
+  if (nonNulls.length === 1) return { type: nonNulls[0], nullable: nulls.length > 0 };
+  return undefined;
+}
+
+export function coalesceTsTypes(program: Program, types: Type[]): [CSharpType, boolean] {
+  const defaultValue: [CSharpType, boolean] = [
+    new CSharpType({
+      name: "object",
+      namespace: "System",
+      isBuiltIn: true,
+      isValueType: false,
+    }),
+    true,
+  ];
+  let current: CSharpType | undefined = undefined;
+  let nullable: boolean = false;
+  for (const type of types) {
+    let candidate: CSharpType | undefined = undefined;
+    switch (type.kind) {
+      case "Boolean":
+        candidate = new CSharpType({ name: "bool", namespace: "System", isValueType: true });
+        break;
+      case "StringTemplate":
+      case "String":
+        candidate = new CSharpType({ name: "string", namespace: "System", isValueType: false });
+        break;
+      case "Number":
+        const stringValue = type.valueAsString;
+        if (stringValue.includes(".") || stringValue.includes("e")) {
+          candidate = new CSharpType({
+            name: "double",
+            namespace: "System",
+            isValueType: true,
+          });
+        } else {
+          candidate = new CSharpType({ name: "int", namespace: "System", isValueType: true });
+        }
+        break;
+      case "Union":
+        candidate = coalesceUnionTypes(program, type);
+        break;
+      case "Scalar":
+        candidate = getCSharpTypeForScalar(program, type);
+        break;
+      case "Intrinsic":
+        if (isNullType(type)) {
+          nullable = true;
+          candidate = current;
+        } else {
+          return defaultValue;
+        }
+        break;
+      default:
+        return defaultValue;
+    }
+
+    current = current ?? candidate;
+    if (current === undefined || (candidate !== undefined && !candidate.equals(current)))
+      return defaultValue;
+  }
+
+  if (current !== undefined && nullable === true) current.isNullable = true;
+  return current === undefined ? defaultValue : [current, false];
+}
+
+export function isRecord(type: Type): boolean {
+  return type.kind === "Model" && type.name === "Record" && type.indexer !== undefined;
 }

@@ -1,5 +1,9 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
+// TODO: remove after projection removal
 import type {
   DeprecatedDecorator,
+  DiscriminatedDecorator,
+  DiscriminatedOptions,
   DiscriminatorDecorator,
   DocDecorator,
   EncodeDecorator,
@@ -63,6 +67,7 @@ import {
   getMinLengthAsNumeric,
   getMinValueAsNumeric,
   getMinValueExclusiveAsNumeric,
+  setDiscriminatedOptions,
   setDiscriminator,
   setDocData,
   setMaxItems,
@@ -98,6 +103,7 @@ import {
   UnionVariant,
   Value,
 } from "../core/types.js";
+import { Realm } from "../experimental/realm.js";
 import { useStateMap, useStateSet } from "../utils/index.js";
 import { setKey } from "./key.js";
 import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
@@ -875,7 +881,6 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
 ) => {
   // remove all read-only properties from the target type
   target.properties.forEach((p) => {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     delete p.default;
     delete p.defaultValue;
   });
@@ -1074,7 +1079,6 @@ export { getKeyName, isKey } from "./key.js";
  *     model Foo {}
  * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-deprecated
 export const $deprecated: DeprecatedDecorator = (
   context: DecoratorContext,
   target: Type,
@@ -1258,6 +1262,22 @@ function validateRange(
   return true;
 }
 
+export const discriminatedDecorator: DiscriminatedDecorator = (
+  context: DecoratorContext,
+  entity: Union,
+  options: DiscriminatedOptions = {},
+) => {
+  setDiscriminatedOptions(context.program, entity, {
+    envelope: "object",
+    discriminatorPropertyName: "kind",
+    envelopePropertyName: "value",
+    ...options,
+  });
+
+  const [_, diagnostics] = getDiscriminatedUnion(context.program, entity);
+  context.program.reportDiagnostics(diagnostics);
+};
+
 export const $discriminator: DiscriminatorDecorator = (
   context: DecoratorContext,
   entity: Model | Union,
@@ -1266,6 +1286,11 @@ export const $discriminator: DiscriminatorDecorator = (
   const discriminator: Discriminator = { propertyName };
 
   if (entity.kind === "Union") {
+    reportDeprecated(
+      context.program,
+      "@discriminator on union is deprecated. Use `@discriminated` instead. `@discriminated(#{envelope: false})` for the exact equivalent.",
+      context.decoratorTarget,
+    );
     // we can validate discriminator up front for unions. Models are validated in the accessor as we might not have the reference to all derived types at this time.
     const [, diagnostics] = getDiscriminatedUnion(entity, discriminator);
     if (diagnostics.length > 0) {
@@ -1300,7 +1325,7 @@ export const $example: ExampleDecorator = (
   compilerAssert(decorator, `Couldn't find @example decorator`, context.decoratorTarget);
   const rawExample = decorator.args[0].value as Value;
   // skip validation in projections
-  if (target.projectionBase === undefined) {
+  if (target.projectionBase === undefined && Realm.realmForType.get(target) === undefined) {
     if (
       !checkExampleValid(
         context.program,
@@ -1346,7 +1371,7 @@ export const $opExample: OpExampleDecorator = (
   const returnType = rawExampleConfig.properties.get("returnType")?.value;
 
   // skip validation in projections
-  if (target.projectionBase === undefined) {
+  if (target.projectionBase === undefined && Realm.realmForType.get(target) === undefined) {
     if (
       parameters &&
       !checkExampleValid(
