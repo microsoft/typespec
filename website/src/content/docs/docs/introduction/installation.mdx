@@ -4,11 +4,32 @@ title: Installation
 slug: docs
 ---
 
+import { Badge } from "@astrojs/starlight/components";
 import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
 
-## Requirements
+TypeSpec can be used in two ways:
 
-Install [Node.js 20 LTS](https://nodejs.org/en/download/) and ensure you can run the `npm` command in a command prompt:
+- A standalone executable without any additional dependencies. <Badge text="Preview" variant="caution" />
+- Npm package for use with Node.js and other package managers.
+
+## Standalone <Badge text="Preview" variant="caution" />
+
+### macOS and Linux
+
+```bash
+curl -fsSL https://typespec.io/install.sh | bash
+```
+
+### Windows
+
+```bash
+powershell -c "irm typespec.io/install.ps1|iex"
+```
+
+## With Node.js
+
+Install [Node.js LTS](https://nodejs.org/en/download/) and ensure you can run the `npm` command in a command prompt:
 
 ```bash
 npm --version
@@ -26,7 +47,7 @@ TypeSpec uses node package linking to manage dependencies. Any package manager t
 Yarn will not automatically install implicit peerDependencies. TypeSpec libraries rely on this. Watch for warnings for any missing dependencies.
 :::
 
-## Install tsp
+### Install tsp
 
 The first step is to install `tsp`, the TypeSpec compiler/CLI.
 
@@ -43,26 +64,23 @@ TypeSpec provides extensions for the following editors:
 
 ## Create a new TypeSpec project
 
-Run the following command in a clean directory to create a new TypeSpec project.
+<Steps>
 
-```bash
-tsp init
-```
+1. Create a new TypeSpec project.
 
-This will prompt you with a few questions. Pick the `Generic REST API` template, your project name, and make sure the `@typespec\http` and `@typespec/openapi3` libraries are selected.
+   ```bash
+   tsp init
+   ```
 
-Next, you can install the dependencies.
+   This will prompt you with a few questions. Pick the `Generic REST API` template, your project name, and make sure the `@typespec/http` and `@typespec/openapi3` libraries are selected.
 
-```bash
-tsp install
-```
+2. Run a build to generate the OpenAPI specification output file.
 
-Run a build to generate the OpenAPI specification output file.
+   ```bash
+   tsp compile .
+   ```
 
-```bash
-tsp compile .
-```
-
+</Steps>
 You should now have a basic TypeSpec project setup with a structure looking like this:
 
 {/* prettier-ignore */}

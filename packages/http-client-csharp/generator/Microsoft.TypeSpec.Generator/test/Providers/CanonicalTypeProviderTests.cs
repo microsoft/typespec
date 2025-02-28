@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
@@ -56,24 +57,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void ValidateProperties()
         {
-            // customization code provides 4 properties:
+            // customization code provides 5 properties:
             // - public int IntProperty { get; set; }
             // - public string StringProperty { get; }
             // - public string InternalStringProperty { get; }
             // - public PropertyType PropertyTypeProperty { get; set; }
-            // generated code provides 2 properties:
+            // - public string NullWireInfoProperty { get; set; }
+            // generated code provides 3 properties:
             // - public int IntProperty { get; set; }
             // - public string SpecProperty { get; }
-            // therefore the CanonicalType should have 5 properties:
+            // - public string NullWireInfoProperty { get; set; }
+            // therefore the CanonicalType should have 6 properties:
             // - public int IntProperty { get; set; } (from customization code)
             // - public string StringProperty { get; } (from customization code)
             // - public string InternalStringProperty { get; } (from customization code)
             // - public PropertyType PropertyTypeProperty { get; set; } (from customization code)
             // - public string SpecProperty { get; } (from generated code)
+            // - public string NullWireInfoProperty { get; set; } (from customization code)
             Dictionary<string, PropertyProvider> properties = _typeProvider.CanonicalView.Properties.ToDictionary(p => p.Name);
-            Assert.AreEqual(5, properties.Count);
-            Assert.AreEqual(1, _typeProvider.Properties.Count);
-            Assert.AreEqual(4, _typeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual(7, properties.Count);
+            Assert.AreEqual(2, _typeProvider.Properties.Count);
+            Assert.AreEqual(5, _typeProvider.CustomCodeView!.Properties.Count);
             foreach (var expected in _namedSymbol.Properties)
             {
                 var actual = properties[expected.Name];
@@ -87,6 +91,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType());
                 Assert.AreEqual(expected.Body.HasSetter, actual.Body.HasSetter);
             }
+            // int, spec, nullWireInfo are all spec properties and they should have serialized name
+            Assert.AreEqual("intProperty", properties["IntProperty"].WireInfo!.SerializedName);
+            Assert.AreEqual("stringProperty", properties["StringProperty"].WireInfo!.SerializedName);
+            Assert.AreEqual("NullWireInfoProperty", properties["NullWireInfoProperty"].WireInfo!.SerializedName);
+
+            // pure customization code properties should not have serialized name
+            Assert.IsNull(properties["InternalStringProperty"].WireInfo);
+            Assert.IsNull(properties["PropertyTypeProperty"].WireInfo);
         }
 
         [Test]
@@ -150,9 +162,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             private readonly string _name;
             private readonly string _namespace;
             public TestTypeProvider(string name, string ns)
+                : base(GetSpecType())
             {
                 _name = name;
                 _namespace = ns;
+            }
+
+            private static InputType GetSpecType()
+            {
+                InputModelProperty[] properties =
+                [
+                    InputFactory.Property("IntProperty", InputPrimitiveType.Int32, wireName: "intProperty"),
+                    InputFactory.Property("StringProperty", InputPrimitiveType.String, wireName: "stringProperty"),
+                    new InputModelProperty("NullWireInfoProperty", null, null, InputPrimitiveType.String, false, false, false, new InputSerializationOptions())
+                ];
+                return InputFactory.Model("TestName", "Sample.Models", properties: properties);
             }
             protected override string BuildRelativeFilePath() => "NamedSymbol";
 
@@ -164,12 +188,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             protected override PropertyProvider[] BuildProperties()
             {
+                var nullInputWireInfo = InputFactory.Property("NullWireInfo", InputPrimitiveType.String);
                 return
                 [
                     // customized by the NamedSymbol
-                    new PropertyProvider($"Foo property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty")),
+                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty")),
                     // not customized by the NamedSymbol
-                    new PropertyProvider($"Bar property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "stringProperty")),
+                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "stringProperty")),
+                    // customized by the NamedSymbol with null wire info
+                    new PropertyProvider($"Null Wire Info property", MethodSignatureModifiers.Public, typeof(string), "NullWireInfo", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(nullInputWireInfo))
                 ];
             }
 

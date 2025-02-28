@@ -19,7 +19,9 @@ import {
   joinPaths,
   parse,
 } from "../core/index.js";
-import { builtInLinterLibraryName, builtInLinterRule_UnusedUsing } from "../core/linter.js";
+import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
+import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
+import { builtInLinterLibraryName } from "../core/linter.js";
 import { compile as compileProgram } from "../core/program.js";
 import { doIO, loadFile, resolveTspMain } from "../utils/misc.js";
 import { serverOptions } from "./constants.js";
@@ -117,6 +119,17 @@ export function createCompileService({
       options.linterRuleSet ??= {};
       options.linterRuleSet.enable ??= {};
       options.linterRuleSet.enable[unusedUsingRule] = true;
+    }
+
+    // add linter rule for unused template parameter if user didn't configure it explicitly
+    const unusedTemplateParameterRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedTemplateParameter}`;
+    if (
+      options.linterRuleSet?.enable?.[unusedTemplateParameterRule] === undefined &&
+      options.linterRuleSet?.disable?.[unusedTemplateParameterRule] === undefined
+    ) {
+      options.linterRuleSet ??= {};
+      options.linterRuleSet.enable ??= {};
+      options.linterRuleSet.enable[unusedTemplateParameterRule] = true;
     }
 
     log({ level: "debug", message: `compiler options resolved`, detail: options });

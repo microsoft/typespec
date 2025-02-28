@@ -78,7 +78,8 @@ namespace Microsoft.TypeSpec.Generator
                 new ChangeTrackingDictionaryDefinition(),
                 new ArgumentDefinition(),
                 new OptionalDefinition(),
-                .. BuildModelFactory()
+                .. BuildModelFactory(),
+                .. CodeModelPlugin.Instance.CustomCodeAttributeProviders
             ];
         }
 
