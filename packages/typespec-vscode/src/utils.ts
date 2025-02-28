@@ -1,6 +1,6 @@
 import type { ModuleResolutionResult, NodePackage, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-import { mkdir, readFile, realpath, stat } from "fs/promises";
+import { mkdtemp, readFile, realpath, stat } from "fs/promises";
 import { tmpdir } from "os";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";
@@ -32,18 +32,11 @@ export async function createTempDir(): Promise<string | undefined> {
   try {
     const tempDir = tmpdir();
     const realTempDir = await realpath(tempDir);
-    const uid = createGuid();
-    const subDir = joinPaths(realTempDir, uid);
-    await mkdir(subDir);
-    return subDir;
+    return await mkdtemp(realTempDir);
   } catch (e) {
     logger.error("Failed to create temp folder", [e]);
     return undefined;
   }
-}
-
-function createGuid() {
-  return crypto.randomUUID();
 }
 
 export function isWhitespaceStringOrUndefined(str: string | undefined): boolean {
