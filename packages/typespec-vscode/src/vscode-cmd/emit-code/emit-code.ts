@@ -2,7 +2,7 @@ import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
-import { isScalar, isSeq } from "yaml";
+import { Document, isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
@@ -312,7 +312,7 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
   /*Config emitter output dir and emit in tspconfig.yaml. */
   const defaultEmitOutputDirInConfig = `{output-dir}/{emitter-name}`;
   const tspConfigFile = path.join(baseDir, TspConfigFileName);
-  let configYaml = tryParseYaml("") ?? {}; //generate a empty yaml
+  let configYaml = new Document(); //generate a empty yaml
   if (await isFile(tspConfigFile)) {
     const content = await tryReadFile(tspConfigFile);
     if (content) {
