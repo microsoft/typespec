@@ -1436,7 +1436,7 @@ it("Initializes enum types", async () => {
       Green
     }
     model Widget {
-      @visibility("update", "read")
+      @visibility(Lifecycle.Update, Lifecycle.Read)
       @path id: string;
       @query kind?: string;
       color: Color;
