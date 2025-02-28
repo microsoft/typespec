@@ -26,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import java.net.URI;
@@ -935,6 +936,24 @@ public class ClientModelUtil {
             errorBodyClassName = errorBodyClassName.substring(0, errorBodyClassName.length() - "Exception".length());
         }
         return ClientModels.getInstance().getModel(errorBodyClassName);
+    }
+
+    /**
+     * Gets a ModelPropertySegment represents the model and property.
+     *
+     * @param modelType the type of the model
+     * @param propertySerializedName the serialized name of the property
+     * @return the ModelPropertySegment represents the model and property
+     */
+    public static ModelPropertySegment getModelPropertySegment(IType modelType, String propertySerializedName) {
+        ClientModel responseBodyModel = ClientModelUtil.getClientModel(modelType.toString());
+        ClientModelProperty property = Stream
+            .concat(responseBodyModel.getProperties().stream(),
+                ClientModelUtil.getParentProperties(responseBodyModel).stream())
+            .filter(p -> p.getSerializedName().equals(propertySerializedName))
+            .findAny()
+            .orElse(null);
+        return property == null ? null : new ModelPropertySegment(responseBodyModel, property);
     }
 
     private static boolean hasNoUsage(ClientModel model) {

@@ -15,17 +15,17 @@ import payload.pageable.implementation.ServerDrivenPaginationsImpl;
  * Initializes a new instance of the synchronous PageableClient type.
  */
 @ServiceClient(builder = PageableClientBuilder.class)
-public final class PageableClient {
+public final class ServerDrivenPaginationClient {
     @Metadata(generated = true)
     private final ServerDrivenPaginationsImpl serviceClient;
 
     /**
-     * Initializes an instance of PageableClient class.
+     * Initializes an instance of ServerDrivenPaginationClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Metadata(generated = true)
-    PageableClient(ServerDrivenPaginationsImpl serviceClient) {
+    ServerDrivenPaginationClient(ServerDrivenPaginationsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 

@@ -10,10 +10,10 @@ import payload.pageable.models.Pet;
 
 public class PageableTests {
 
-    private final PageableClient client = new PageableClientBuilder().buildClient();
+    private final ServerDrivenPaginationClient client = new PageableClientBuilder().buildServerDrivenPaginationClient();
 
     @Test
-    public void test() {
+    public void testNextLink() {
         PagedIterable<Pet> pagedIterable = client.link();
 
         Assertions.assertEquals(4, pagedIterable.stream().count());

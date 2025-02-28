@@ -51,6 +51,20 @@ public final class PageableClientImpl {
     }
 
     /**
+     * The ServerDrivenPaginationContinuationTokensImpl object to access its operations.
+     */
+    private final ServerDrivenPaginationContinuationTokensImpl serverDrivenPaginationContinuationTokens;
+
+    /**
+     * Gets the ServerDrivenPaginationContinuationTokensImpl object to access its operations.
+     * 
+     * @return the ServerDrivenPaginationContinuationTokensImpl object.
+     */
+    public ServerDrivenPaginationContinuationTokensImpl getServerDrivenPaginationContinuationTokens() {
+        return this.serverDrivenPaginationContinuationTokens;
+    }
+
+    /**
      * Initializes an instance of PageableClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -60,5 +74,6 @@ public final class PageableClientImpl {
         this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.serverDrivenPaginations = new ServerDrivenPaginationsImpl(this);
+        this.serverDrivenPaginationContinuationTokens = new ServerDrivenPaginationContinuationTokensImpl(this);
     }
 }
