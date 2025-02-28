@@ -15,9 +15,11 @@ import type {
   WithVisibilityFilterDecorator,
 } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorTarget, validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
+import { getSourceLocation, SyntaxKind } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import type { Program } from "../core/program.js";
 import {
+  CodeFix,
   DecoratorApplication,
   DecoratorContext,
   DecoratorFunction,
@@ -65,16 +67,136 @@ import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
  * @returns a tuple containing visibility enum members in the first position and
  *         legacy visibility strings in the second position
  */
-function splitLegacyVisibility(visibilities: (string | EnumValue)[]): [EnumMember[], string[]] {
+function splitLegacyVisibility(
+  context: DecoratorContext,
+  visibilities: (string | EnumValue)[],
+  decorator: DecoratorFunction,
+): [EnumMember[], string[]] {
   const legacyVisibilities = [] as string[];
   const modifiers = [] as EnumMember[];
 
+  let argIdx = 0;
+
+  const decoratorLocation = getSourceLocation(context.decoratorTarget);
+  const decoratorName = decorator.name.slice(1);
+
+  function isArgumentFixable(idx: number): boolean {
+    const argTarget = context.getArgumentTarget(idx);
+
+    const argTargetIsStringLiteral =
+      argTarget &&
+      typeof argTarget !== "symbol" &&
+      "kind" in argTarget &&
+      argTarget.kind === SyntaxKind.StringLiteral;
+
+    const argTargetSourceLocation = getSourceLocation(argTarget);
+
+    // We can fix the string if the target is a string literal
+    // in user code.
+    return (
+      !!argTargetIsStringLiteral &&
+      argTargetSourceLocation !== undefined &&
+      !argTargetSourceLocation.isSynthetic &&
+      !argTargetSourceLocation.file.path.includes("node_modules")
+    );
+  }
+
+  const allVisibilityStringsAreFixable = visibilities.every((v, idx) => {
+    if (typeof v !== "string") return false;
+
+    const lifecycleModifier = normalizeLegacyLifecycleVisibilityString(context.program, v);
+
+    return lifecycleModifier && isArgumentFixable(idx);
+  });
+
   for (const visibility of visibilities) {
     if (typeof visibility === "string") {
+      const lifecycleModifier = normalizeLegacyLifecycleVisibilityString(
+        context.program,
+        visibility,
+      );
+
+      const canApplyCodeFix = isArgumentFixable(argIdx);
+
+      const argTarget = context.getArgumentTarget(argIdx);
+
+      const fallbackTarget = argTarget ?? context.decoratorTarget;
+
+      if (lifecycleModifier) {
+        const codefixes: CodeFix[] = [];
+
+        if (allVisibilityStringsAreFixable) {
+          let alreadyFixed = false;
+          codefixes.push({
+            id: "visibility-legacy-to-lifecycle",
+            label: `Convert to Lifecycle`,
+            fix: (ctx) => {
+              if (alreadyFixed) return;
+
+              alreadyFixed = true;
+
+              const replacements = visibilities
+                .map((v) => {
+                  const normalized = normalizeLegacyLifecycleVisibilityString(
+                    context.program,
+                    v as string,
+                  );
+
+                  return `Lifecycle.${normalized!.name}`;
+                })
+                .join(", ");
+
+              return ctx.replaceText(decoratorLocation, `@${decoratorName}(${replacements})`);
+            },
+          });
+        }
+
+        reportDiagnostic(context.program, {
+          code: "visibility-legacy",
+          target: fallbackTarget,
+          messageId: "default",
+          format: {
+            modifier: visibility,
+            newModifier: `Lifecycle.${lifecycleModifier.name}`,
+          },
+          codefixes,
+        });
+      } else if (visibility === "none" && decoratorName === "visibility") {
+        const codefixes: CodeFix[] = [];
+
+        if (visibilities.length === 1 && canApplyCodeFix) {
+          codefixes.push({
+            id: "visibility-none-invisible-lifecycle",
+            label: "Convert to `@invisible(Lifecycle)`",
+            fix: (ctx) => {
+              return ctx.replaceText(decoratorLocation, "@invisible(Lifecycle)");
+            },
+          });
+        }
+
+        reportDiagnostic(context.program, {
+          code: "visibility-legacy",
+          messageId: "none",
+          target: decoratorLocation,
+          codefixes,
+        });
+      } else {
+        reportDiagnostic(context.program, {
+          code: "visibility-legacy",
+          target: context.getArgumentTarget(argIdx) ?? context.decoratorTarget,
+          messageId: "unrecognized",
+          format: {
+            modifier: visibility,
+          },
+        });
+      }
+
       legacyVisibilities.push(visibility);
     } else {
       modifiers.push(visibility.value);
     }
+
+    argIdx += 1;
   }
 
   return [modifiers, legacyVisibilities] as const;
@@ -166,10 +288,20 @@ export const $parameterVisibility: ParameterVisibilityDecorator = (
   validateDecoratorUniqueOnNode(context, operation, $parameterVisibility);
 
   if (visibilities.length === 0) {
+    reportDiagnostic(context.program, {
+      code: "operation-visibility-constraint-empty",
+      messageId: "parameter",
+      target: context.decoratorTarget,
+    });
+
     context.program.stateSet(parameterVisibilityIsEmpty).add(operation);
   }
 
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
+  const [modifiers, legacyVisibilities] = splitLegacyVisibility(
+    context,
+    visibilities,
+    $parameterVisibility,
+  );
 
   if (modifiers.length > 0 && legacyVisibilities.length > 0) {
     reportDiagnostic(context.program, {
@@ -190,7 +322,7 @@ export const $parameterVisibility: ParameterVisibilityDecorator = (
 /**
  * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
  *
- * @deprecated Use `getParameterVisibilityFilter` instead.
+ * @deprecated Use `getParameterVisibilityFilter` instead. This function will be REMOVED in TypeSpec 1.0-rc.
  *
  * @see {@link getParameterVisibilityFilter}
  * @see {@link $parameterVisibility}
@@ -278,7 +410,21 @@ export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, operation, $parameterVisibility);
 
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
+  if (visibilities.length === 0) {
+    reportDiagnostic(context.program, {
+      code: "operation-visibility-constraint-empty",
+      messageId: "returnType",
+      target: context.decoratorTarget,
+    });
+
+    context.program.stateSet(parameterVisibilityIsEmpty).add(operation);
+  }
+
+  const [modifiers, legacyVisibilities] = splitLegacyVisibility(
+    context,
+    visibilities,
+    $returnTypeVisibility,
+  );
 
   if (modifiers.length > 0 && legacyVisibilities.length > 0) {
     reportDiagnostic(context.program, {
@@ -299,7 +445,7 @@ export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
 /**
  * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
  *
- * @deprecated Use `getReturnTypeVisibilityFilter` instead.
+ * @deprecated Use `getReturnTypeVisibilityFilter` instead. This function will be REMOVED in TypeSpec 1.0-rc.
  *
  * @see {@link getReturnTypeVisibilityFilter}
  * @see {@link $returnTypeVisibility}
@@ -361,7 +507,7 @@ export const $visibility: VisibilityDecorator = (
   target: ModelProperty,
   ...visibilities: (string | EnumValue)[]
 ) => {
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
+  const [modifiers, legacyVisibilities] = splitLegacyVisibility(context, visibilities, $visibility);
 
   if (legacyVisibilities.length > 0 || visibilities.length === 0) {
     const isUnique = validateDecoratorUniqueOnNode(context, target, $visibility);
@@ -449,7 +595,11 @@ export const $withVisibility: WithVisibilityDecorator = (
   target: Model,
   ...visibilities: (string | EnumValue)[]
 ) => {
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
+  const [modifiers, legacyVisibilities] = splitLegacyVisibility(
+    context,
+    visibilities,
+    $withVisibility,
+  );
 
   if (legacyVisibilities.length > 0) {
     if (modifiers.length > 0) {

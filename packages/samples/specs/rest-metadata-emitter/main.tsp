@@ -17,7 +17,7 @@ namespace UserService {
 
   model User {
     @path id: string;
-    @visibility("create") secret: string;
+    @visibility(Lifecycle.Create) secret: string;
     name: string;
     @added(Versions.v2) age: int32;
   }

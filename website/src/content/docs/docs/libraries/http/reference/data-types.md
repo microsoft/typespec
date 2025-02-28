@@ -490,6 +490,20 @@ model TypeSpec.Http.PasswordFlow
 | refreshUrl? | `string`                                | the refresh URL                   |
 | scopes?     | `string[]`                              | list of scopes for the credential |
 
+### `PatchOptions` {#TypeSpec.Http.PatchOptions}
+
+Options for PATCH operations.
+
+```typespec
+model TypeSpec.Http.PatchOptions
+```
+
+#### Properties
+
+| Name                 | Type      | Description                                                                                                       |
+| -------------------- | --------- | ----------------------------------------------------------------------------------------------------------------- |
+| implicitOptionality? | `boolean` | If set to `false`, disables the implicit transform that makes the body of a<br />PATCH operation deeply optional. |
+
 ### `PathOptions` {#TypeSpec.Http.PathOptions}
 
 ```typespec

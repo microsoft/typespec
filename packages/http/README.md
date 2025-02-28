@@ -344,7 +344,7 @@ op upload(
 Specify the HTTP verb for the target operation to be `PATCH`.
 
 ```typespec
-@TypeSpec.Http.patch
+@TypeSpec.Http.patch(options?: valueof TypeSpec.Http.PatchOptions)
 ```
 
 ##### Target
@@ -353,12 +353,21 @@ Specify the HTTP verb for the target operation to be `PATCH`.
 
 ##### Parameters
 
-None
+| Name    | Type                                    | Description                      |
+| ------- | --------------------------------------- | -------------------------------- |
+| options | [valueof `PatchOptions`](#patchoptions) | Options for the PATCH operation. |
 
 ##### Examples
 
 ```typespec
 @patch op update(pet: Pet): void;
+```
+
+```typespec
+// Disable implicit optionality, making the body of the PATCH operation use the
+// optionality as defined in the `Pet` model.
+@patch(#{ implicitOptionality: false })
+op update(pet: Pet): void;
 ```
 
 #### `@path`

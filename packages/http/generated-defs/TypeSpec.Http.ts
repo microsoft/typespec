@@ -24,6 +24,10 @@ export interface PathOptions {
   readonly allowReserved?: boolean;
 }
 
+export interface PatchOptions {
+  readonly implicitOptionality?: boolean;
+}
+
 /**
  * Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
  *
@@ -206,12 +210,24 @@ export type PostDecorator = (context: DecoratorContext, target: Operation) => vo
 /**
  * Specify the HTTP verb for the target operation to be `PATCH`.
  *
+ * @param options Options for the PATCH operation.
  * @example
  * ```typespec
- * @patch op update(pet: Pet): void
+ * @patch op update(pet: Pet): void;
+ * ```
+ * @example
+ * ```typespec
+ * // Disable implicit optionality, making the body of the PATCH operation use the
+ * // optionality as defined in the `Pet` model.
+ * @patch(#{ implicitOptionality: false })
+ * op update(pet: Pet): void;
  * ```
  */
-export type PatchDecorator = (context: DecoratorContext, target: Operation) => void;
+export type PatchDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  options?: PatchOptions,
+) => void;
 
 /**
  * Specify the HTTP verb for the target operation to be `DELETE`.
