@@ -155,7 +155,7 @@ defineKit<TypekitExtension>({
             ...type,
             decorators: [...type.decorators],
             derivedModels: [...type.derivedModels],
-            sourceModels: [...type.sourceModels],
+            sourceModels: type.sourceModels.map((x) => ({ ...x })),
             properties: copyMap(type.properties),
             indexer: type.indexer ? { ...type.indexer } : undefined,
           });
