@@ -331,8 +331,25 @@ it("can mutate literals", async () => {
   strictEqual(mutatedC.value, true);
 });
 
-it("mutate sourceProperty", async () => {
-  const code = `
+// When mutating everything verify all reference between types are kept in the new realm.
+describe("global graph mutation", () => {
+  const noop = { mutate: () => {} };
+  const mutator: MutatorWithNamespace = {
+    name: "test",
+    Namespace: noop,
+    Interface: noop,
+    Model: noop,
+    Union: noop,
+    UnionVariant: noop,
+    Enum: noop,
+    Scalar: noop,
+    EnumMember: noop,
+    Operation: noop,
+    ModelProperty: noop,
+  };
+
+  it("mutate sourceProperty", async () => {
+    const code = `
     @test model Spread {
       prop: string;
     }
@@ -341,57 +358,49 @@ it("mutate sourceProperty", async () => {
     };
   `;
 
-  await runner.compile(code);
-  const mutator: Mutator = {
-    name: "test",
-    Model: {
-      mutate: (clone) => {},
-    },
-  };
-  const { type } = mutateSubgraphWithNamespace(
-    runner.program,
-    [mutator],
-    runner.program.getGlobalNamespaceType(),
-  );
-  strictEqual(type.kind, "Namespace");
-  const MutatedSpread = type.models.get("Spread")!;
-  const MutatedFoo = type.models.get("Foo")!;
-  expectTypeEquals(
-    MutatedFoo.properties.get("prop")?.sourceProperty,
-    MutatedSpread.properties.get("prop")!,
-  );
-});
+    await runner.compile(code);
 
-it("mutate sourceProperty in operation", async () => {
-  const code = `
+    const { type } = mutateSubgraphWithNamespace(
+      runner.program,
+      [mutator],
+      runner.program.getGlobalNamespaceType(),
+    );
+    strictEqual(type.kind, "Namespace");
+    const MutatedSpread = type.models.get("Spread")!;
+    const MutatedFoo = type.models.get("Foo")!;
+    expectTypeEquals(
+      MutatedFoo.properties.get("prop")?.sourceProperty,
+      MutatedSpread.properties.get("prop")!,
+    );
+  });
+
+  it("mutate sourceProperty in operation", async () => {
+    const code = `
     @test model Spread {
       prop: string;
     }
     op foo(...Spread): void;
   `;
 
-  await runner.compile(code);
-  const mutator: Mutator = {
-    name: "test",
-    Model: { mutate: (clone) => {} },
-    Operation: { mutate: (clone) => {} },
-  };
-  const { type } = mutateSubgraphWithNamespace(
-    runner.program,
-    [mutator],
-    runner.program.getGlobalNamespaceType(),
-  );
-  strictEqual(type.kind, "Namespace");
-  const MutatedSpread = type.models.get("Spread")!;
-  const MutatedFoo = type.operations.get("foo")!;
-  expectTypeEquals(
-    MutatedFoo.parameters.properties.get("prop")?.sourceProperty,
-    MutatedSpread.properties.get("prop")!,
-  );
-});
-it("mutate sourceProperty alternative ref", async () => {
-  const code = `
-    @test model Spread {
+    await runner.compile(code);
+    const { type } = mutateSubgraphWithNamespace(
+      runner.program,
+      [mutator],
+      runner.program.getGlobalNamespaceType(),
+    );
+    strictEqual(type.kind, "Namespace");
+    const MutatedSpread = type.models.get("Spread")!;
+    const MutatedFoo = type.operations.get("foo")!;
+    expectTypeEquals(
+      MutatedFoo.parameters.properties.get("prop")?.sourceProperty,
+      MutatedSpread.properties.get("prop")!,
+    );
+  });
+
+  it("mutate sourceProperty alternative ref", async () => {
+    const code = `
+    @test namespace Test;
+    model Spread {
       prop: string;
     }
     op foo(...Spread): void;
@@ -399,27 +408,24 @@ it("mutate sourceProperty alternative ref", async () => {
     op bar(ref: Spread): void;
   `;
 
-  await runner.compile(code);
-  const mutator: Mutator = {
-    name: "test",
-    Model: { mutate: (clone) => {} },
-    Operation: { mutate: (clone) => {} },
-  };
-  const { type } = mutateSubgraphWithNamespace(
-    runner.program,
-    [mutator],
-    runner.program.getGlobalNamespaceType(),
-  );
-  strictEqual(type.kind, "Namespace");
-  const MutatedSpread = type.models.get("Spread")!;
-  const MutatedFoo = type.operations.get("foo")!;
-  const MutatedBar = type.operations.get("bar")!;
-  expectTypeEquals(
-    MutatedFoo.parameters.properties.get("prop")?.sourceProperty,
-    MutatedSpread.properties.get("prop")!,
-  );
-  expectTypeEquals(
-    MutatedFoo.parameters.properties.get("prop")?.sourceProperty!.model,
-    MutatedBar.parameters.properties.get("ref")!.type,
-  );
+    const { Test } = (await runner.compile(code)) as { Test: Namespace };
+    const { type } = mutateSubgraphWithNamespace(runner.program, [mutator], Test);
+    strictEqual(type.kind, "Namespace");
+    const MutatedSpread = type.models.get("Spread")!;
+    const MutatedFoo = type.operations.get("foo")!;
+    const MutatedBar = type.operations.get("bar")!;
+    expectTypeEquals(
+      MutatedFoo.parameters.properties.get("prop")?.sourceProperty,
+      MutatedSpread.properties.get("prop")!,
+    );
+    expectTypeEquals(
+      MutatedFoo.parameters.properties.get("prop")?.sourceProperty!.model,
+      MutatedBar.parameters.properties.get("ref")!.type,
+    );
+
+    expectTypeEquals(
+      MutatedFoo.parameters.sourceModels[0].model,
+      MutatedBar.parameters.properties.get("ref")!.type,
+    );
+  });
 });
