@@ -200,7 +200,7 @@ export function resolveOptions(
     resolvedOptions["file-type"] ?? findFileTypeFromFilename(resolvedOptions["output-file"]);
 
   const outputFile =
-    resolvedOptions["output-file"] ?? `openapi.{service-name}.{version}.${fileType}`;
+    resolvedOptions["output-file"] ?? `openapi.{service-name-if-multiple}.{version}.${fileType}`;
 
   const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
 
@@ -533,7 +533,8 @@ function createOAPIEmitter(
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
     return interpolatePath(options.outputFile, {
       "openapi-version": specVersion,
-      "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
+      "service-name-if-multiple": multipleService ? getNamespaceFullName(service.type) : undefined,
+      "service-name": getNamespaceFullName(service.type),
       version,
     });
   }
