@@ -23,13 +23,11 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "HEAD",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/server/endpoint/not-defined/valid",
      "BufferResponse": true,

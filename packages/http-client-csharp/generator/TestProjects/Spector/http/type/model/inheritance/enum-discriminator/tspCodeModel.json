@@ -375,7 +375,6 @@
        "BodyType": {
         "$ref": "10"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -384,7 +383,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/extensible-enum",
      "BufferResponse": true,
@@ -453,13 +451,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/extensible-enum",
      "RequestMediaTypes": [
@@ -515,7 +511,6 @@
        "BodyType": {
         "$ref": "10"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -524,7 +519,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator",
      "BufferResponse": true,
@@ -577,7 +571,6 @@
        "BodyType": {
         "$ref": "10"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -586,7 +579,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator",
      "BufferResponse": true,
@@ -639,7 +631,6 @@
        "BodyType": {
         "$ref": "25"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -648,7 +639,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/fixed-enum",
      "BufferResponse": true,
@@ -717,13 +707,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/fixed-enum",
      "RequestMediaTypes": [
@@ -779,7 +767,6 @@
        "BodyType": {
         "$ref": "25"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -788,7 +775,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator",
      "BufferResponse": true,
@@ -841,7 +827,6 @@
        "BodyType": {
         "$ref": "25"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -850,7 +835,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator",
      "BufferResponse": true,

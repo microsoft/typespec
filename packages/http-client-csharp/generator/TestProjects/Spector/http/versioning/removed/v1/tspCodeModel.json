@@ -589,7 +589,6 @@
        "BodyType": {
         "$ref": "22"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -598,7 +597,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/removed/api-version:{version}",
      "Path": "/v1",
      "RequestMediaTypes": [
@@ -719,7 +717,6 @@
        "BodyType": {
         "$ref": "36"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -728,7 +725,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/removed/api-version:{version}",
      "Path": "/v2",
      "RequestMediaTypes": [
@@ -829,7 +825,6 @@
        "BodyType": {
         "$ref": "56"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -838,7 +833,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/removed/api-version:{version}",
      "Path": "/v3",
      "RequestMediaTypes": [
@@ -991,7 +985,6 @@
        "BodyType": {
         "$ref": "22"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1000,7 +993,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/removed/api-version:{version}",
      "Path": "/interface-v1/v1",
      "RequestMediaTypes": [

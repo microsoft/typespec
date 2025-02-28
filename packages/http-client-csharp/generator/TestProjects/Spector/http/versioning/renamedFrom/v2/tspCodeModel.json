@@ -327,7 +327,6 @@
        "BodyType": {
         "$ref": "12"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -336,7 +335,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/renamed-from/api-version:{version}",
      "Path": "/test",
      "RequestMediaTypes": [
@@ -488,7 +486,6 @@
        "BodyType": {
         "$ref": "12"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -497,7 +494,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/renamed-from/api-version:{version}",
      "Path": "/interface/test",
      "RequestMediaTypes": [

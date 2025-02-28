@@ -2310,7 +2310,6 @@
        "BodyType": {
         "$ref": "264"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2319,7 +2318,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordUnknown",
      "BufferResponse": true,
@@ -2388,13 +2386,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordUnknown",
      "RequestMediaTypes": [
@@ -2495,7 +2491,6 @@
        "BodyType": {
         "$ref": "263"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2504,7 +2499,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordUnknownDerived",
      "BufferResponse": true,
@@ -2573,13 +2567,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordUnknownDerived",
      "RequestMediaTypes": [
@@ -2680,7 +2672,6 @@
        "BodyType": {
         "$ref": "238"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2689,7 +2680,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsUnknownDiscriminated",
      "BufferResponse": true,
@@ -2758,13 +2748,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsUnknownDiscriminated",
      "RequestMediaTypes": [
@@ -2865,7 +2853,6 @@
        "BodyType": {
         "$ref": "224"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2874,7 +2861,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordUnknown",
      "BufferResponse": true,
@@ -2943,13 +2929,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordUnknown",
      "RequestMediaTypes": [
@@ -3050,7 +3034,6 @@
        "BodyType": {
         "$ref": "223"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3059,7 +3042,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordUnknownDerived",
      "BufferResponse": true,
@@ -3128,13 +3110,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordUnknownDerived",
      "RequestMediaTypes": [
@@ -3235,7 +3215,6 @@
        "BodyType": {
         "$ref": "198"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3244,7 +3223,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isUnknownDiscriminated",
      "BufferResponse": true,
@@ -3313,13 +3291,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isUnknownDiscriminated",
      "RequestMediaTypes": [
@@ -3420,7 +3396,6 @@
        "BodyType": {
         "$ref": "192"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3429,7 +3404,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordString",
      "BufferResponse": true,
@@ -3498,13 +3472,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordString",
      "RequestMediaTypes": [
@@ -3605,7 +3577,6 @@
        "BodyType": {
         "$ref": "186"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3614,7 +3585,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordstring",
      "BufferResponse": true,
@@ -3683,13 +3653,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordstring",
      "RequestMediaTypes": [
@@ -3790,7 +3758,6 @@
        "BodyType": {
         "$ref": "180"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3799,7 +3766,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordString",
      "BufferResponse": true,
@@ -3868,13 +3834,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordString",
      "RequestMediaTypes": [
@@ -3975,7 +3939,6 @@
        "BodyType": {
         "$ref": "174"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3984,7 +3947,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordFloat",
      "BufferResponse": true,
@@ -4053,13 +4015,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordFloat",
      "RequestMediaTypes": [
@@ -4160,7 +4120,6 @@
        "BodyType": {
         "$ref": "168"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -4169,7 +4128,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordFloat",
      "BufferResponse": true,
@@ -4238,13 +4196,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordFloat",
      "RequestMediaTypes": [
@@ -4345,7 +4301,6 @@
        "BodyType": {
         "$ref": "162"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -4354,7 +4309,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordFloat",
      "BufferResponse": true,
@@ -4423,13 +4377,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordFloat",
      "RequestMediaTypes": [
@@ -4530,7 +4482,6 @@
        "BodyType": {
         "$ref": "158"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -4539,7 +4490,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordModel",
      "BufferResponse": true,
@@ -4608,13 +4558,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordModel",
      "RequestMediaTypes": [
@@ -4715,7 +4663,6 @@
        "BodyType": {
         "$ref": "154"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -4724,7 +4671,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordModel",
      "BufferResponse": true,
@@ -4793,13 +4739,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordModel",
      "RequestMediaTypes": [
@@ -4900,7 +4844,6 @@
        "BodyType": {
         "$ref": "150"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -4909,7 +4852,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordModel",
      "BufferResponse": true,
@@ -4978,13 +4920,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordModel",
      "RequestMediaTypes": [
@@ -5085,7 +5025,6 @@
        "BodyType": {
         "$ref": "144"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -5094,7 +5033,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordModelArray",
      "BufferResponse": true,
@@ -5163,13 +5101,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordModelArray",
      "RequestMediaTypes": [
@@ -5270,7 +5206,6 @@
        "BodyType": {
         "$ref": "138"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -5279,7 +5214,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordModelArray",
      "BufferResponse": true,
@@ -5348,13 +5282,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordModelArray",
      "RequestMediaTypes": [
@@ -5455,7 +5387,6 @@
        "BodyType": {
         "$ref": "132"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -5464,7 +5395,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordModelArray",
      "BufferResponse": true,
@@ -5533,13 +5463,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordModelArray",
      "RequestMediaTypes": [
@@ -5640,7 +5568,6 @@
        "BodyType": {
         "$ref": "122"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -5649,7 +5576,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordString",
      "BufferResponse": true,
@@ -5718,13 +5644,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordString",
      "RequestMediaTypes": [
@@ -5825,7 +5749,6 @@
        "BodyType": {
         "$ref": "111"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -5834,7 +5757,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordFloat",
      "BufferResponse": true,
@@ -5903,13 +5825,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordFloat",
      "RequestMediaTypes": [
@@ -6010,7 +5930,6 @@
        "BodyType": {
         "$ref": "102"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6019,7 +5938,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordModel",
      "BufferResponse": true,
@@ -6088,13 +6006,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordModel",
      "RequestMediaTypes": [
@@ -6195,7 +6111,6 @@
        "BodyType": {
         "$ref": "86"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6204,7 +6119,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordModelArray",
      "BufferResponse": true,
@@ -6273,13 +6187,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordModelArray",
      "RequestMediaTypes": [
@@ -6380,7 +6292,6 @@
        "BodyType": {
         "$ref": "121"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6389,7 +6300,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadString",
      "BufferResponse": true,
@@ -6458,13 +6368,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadString",
      "RequestMediaTypes": [
@@ -6565,7 +6473,6 @@
        "BodyType": {
         "$ref": "110"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6574,7 +6481,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadFloat",
      "BufferResponse": true,
@@ -6643,13 +6549,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadFloat",
      "RequestMediaTypes": [
@@ -6750,7 +6654,6 @@
        "BodyType": {
         "$ref": "101"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6759,7 +6662,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadModel",
      "BufferResponse": true,
@@ -6828,13 +6730,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadModel",
      "RequestMediaTypes": [
@@ -6935,7 +6835,6 @@
        "BodyType": {
         "$ref": "85"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6944,7 +6843,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadModelArray",
      "BufferResponse": true,
@@ -7013,13 +6911,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadModelArray",
      "RequestMediaTypes": [
@@ -7120,7 +7016,6 @@
        "BodyType": {
         "$ref": "77"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -7129,7 +7024,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/multipleSpreadRecord",
      "BufferResponse": true,
@@ -7198,13 +7092,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/multipleSpreadRecord",
      "RequestMediaTypes": [
@@ -7305,7 +7197,6 @@
        "BodyType": {
         "$ref": "69"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -7314,7 +7205,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordUnion",
      "BufferResponse": true,
@@ -7383,13 +7273,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordUnion",
      "RequestMediaTypes": [
@@ -7490,7 +7378,6 @@
        "BodyType": {
         "$ref": "63"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -7499,7 +7386,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordDiscriminatedUnion",
      "BufferResponse": true,
@@ -7568,13 +7454,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordDiscriminatedUnion",
      "RequestMediaTypes": [
@@ -7675,7 +7559,6 @@
        "BodyType": {
         "$ref": "48"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -7684,7 +7567,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion",
      "BufferResponse": true,
@@ -7753,13 +7635,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion",
      "RequestMediaTypes": [
@@ -7860,7 +7740,6 @@
        "BodyType": {
         "$ref": "42"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -7869,7 +7748,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2",
      "BufferResponse": true,
@@ -7938,13 +7816,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2",
      "RequestMediaTypes": [
@@ -8045,7 +7921,6 @@
        "BodyType": {
         "$ref": "11"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -8054,7 +7929,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion3",
      "BufferResponse": true,
@@ -8123,13 +7997,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion3",
      "RequestMediaTypes": [

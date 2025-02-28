@@ -344,13 +344,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/query/default",
      "BufferResponse": true,
@@ -401,13 +399,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/query/rfc3339",
      "BufferResponse": true,
@@ -458,13 +454,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/query/rfc7231",
      "BufferResponse": true,
@@ -515,13 +509,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/query/unix-timestamp",
      "BufferResponse": true,
@@ -595,13 +587,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/query/unix-timestamp-array",
      "BufferResponse": true,
@@ -743,7 +733,6 @@
        "BodyType": {
         "$ref": "2"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -752,7 +741,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/property/default",
      "RequestMediaTypes": [
@@ -852,7 +840,6 @@
        "BodyType": {
         "$ref": "8"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -861,7 +848,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/property/rfc3339",
      "RequestMediaTypes": [
@@ -961,7 +947,6 @@
        "BodyType": {
         "$ref": "14"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -970,7 +955,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/property/rfc7231",
      "RequestMediaTypes": [
@@ -1070,7 +1054,6 @@
        "BodyType": {
         "$ref": "20"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1079,7 +1062,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/property/unix-timestamp",
      "RequestMediaTypes": [
@@ -1179,7 +1161,6 @@
        "BodyType": {
         "$ref": "26"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1188,7 +1169,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/property/unix-timestamp-array",
      "RequestMediaTypes": [
@@ -1287,13 +1267,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/header/default",
      "BufferResponse": true,
@@ -1344,13 +1322,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/header/rfc3339",
      "BufferResponse": true,
@@ -1401,13 +1377,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/header/rfc7231",
      "BufferResponse": true,
@@ -1458,13 +1432,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/header/unix-timestamp",
      "BufferResponse": true,
@@ -1538,13 +1510,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/header/unix-timestamp-array",
      "BufferResponse": true,
@@ -1610,7 +1580,6 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "163",
@@ -1637,7 +1606,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/responseheader/default",
      "BufferResponse": true,
@@ -1658,7 +1626,6 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "168",
@@ -1685,7 +1652,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/responseheader/rfc3339",
      "BufferResponse": true,
@@ -1706,7 +1672,6 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "173",
@@ -1733,7 +1698,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/responseheader/rfc7231",
      "BufferResponse": true,
@@ -1754,7 +1718,6 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "178",
@@ -1781,7 +1744,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/responseheader/unix-timestamp",
      "BufferResponse": true,
