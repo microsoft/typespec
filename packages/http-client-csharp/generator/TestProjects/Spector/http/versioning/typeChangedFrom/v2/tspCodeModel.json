@@ -56,7 +56,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.TypeChangedFrom",
+   "namespace": "Versioning.TypeChangedFrom",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -69,7 +69,7 @@
    "$id": "8",
    "kind": "model",
    "name": "TestModel",
-   "clientNamespace": "Versioning.TypeChangedFrom",
+   "namespace": "Versioning.TypeChangedFrom",
    "crossLanguageDefinitionId": "Versioning.TypeChangedFrom.TestModel",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -133,7 +133,7 @@
   {
    "$id": "17",
    "Name": "TypeChangedFromClient",
-   "ClientNamespace": "Versioning.TypeChangedFrom",
+   "Namespace": "Versioning.TypeChangedFrom",
    "Doc": "Test for the `@typeChangedFrom` decorator.",
    "Operations": [
     {

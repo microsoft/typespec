@@ -54,7 +54,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.Added",
+   "namespace": "Versioning.Added",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -91,7 +91,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.Added",
+   "namespace": "Versioning.Added",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -147,7 +147,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.Added",
+   "namespace": "Versioning.Added",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -160,7 +160,7 @@
    "$id": "18",
    "kind": "model",
    "name": "ModelV1",
-   "clientNamespace": "Versioning.Added",
+   "namespace": "Versioning.Added",
    "crossLanguageDefinitionId": "Versioning.Added.ModelV1",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -245,7 +245,7 @@
         "decorators": []
        }
       ],
-      "clientNamespace": "Versioning.Added",
+      "namespace": "Versioning.Added",
       "decorators": []
      },
      "optional": false,
@@ -268,7 +268,7 @@
    "$id": "33",
    "kind": "model",
    "name": "ModelV2",
-   "clientNamespace": "Versioning.Added",
+   "namespace": "Versioning.Added",
    "crossLanguageDefinitionId": "Versioning.Added.ModelV2",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -346,7 +346,7 @@
         "decorators": []
        }
       ],
-      "clientNamespace": "Versioning.Added",
+      "namespace": "Versioning.Added",
       "decorators": []
      },
      "optional": false,
@@ -370,7 +370,7 @@
   {
    "$id": "47",
    "Name": "AddedClient",
-   "ClientNamespace": "Versioning.Added",
+   "Namespace": "Versioning.Added",
    "Doc": "Test for the `@added` decorator.",
    "Operations": [
     {
@@ -662,7 +662,7 @@
   {
    "$id": "72",
    "Name": "InterfaceV2",
-   "ClientNamespace": "Versioning.Added",
+   "Namespace": "Versioning.Added",
    "Operations": [
     {
      "$id": "73",

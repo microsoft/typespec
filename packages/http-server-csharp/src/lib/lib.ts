@@ -101,6 +101,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`StringTemplate types should only reference literal-valued constants, enum members, or literal-valued model properties.  The interpolated value will not contain one or more referenced elements in generated code.`,
       },
     },
+    "get-request-body": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Get operations should not have request bodies. Generating an operation and interface without parameters, your business logic will use HttpContext to interpret Request properties.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<CSharpServiceEmitterOptions>,

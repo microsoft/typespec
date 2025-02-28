@@ -37,7 +37,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.Removed",
+   "namespace": "Versioning.Removed",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -91,7 +91,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.Removed",
+   "namespace": "Versioning.Removed",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -147,7 +147,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.Removed",
+   "namespace": "Versioning.Removed",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -160,7 +160,7 @@
    "$id": "18",
    "kind": "model",
    "name": "ModelV1",
-   "clientNamespace": "Versioning.Removed",
+   "namespace": "Versioning.Removed",
    "crossLanguageDefinitionId": "Versioning.Removed.ModelV1",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -238,7 +238,7 @@
         "decorators": []
        }
       ],
-      "clientNamespace": "Versioning.Removed",
+      "namespace": "Versioning.Removed",
       "decorators": []
      },
      "optional": false,
@@ -261,7 +261,7 @@
    "$id": "32",
    "kind": "model",
    "name": "ModelV2",
-   "clientNamespace": "Versioning.Removed",
+   "namespace": "Versioning.Removed",
    "crossLanguageDefinitionId": "Versioning.Removed.ModelV2",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -379,7 +379,7 @@
         "decorators": []
        }
       ],
-      "clientNamespace": "Versioning.Removed",
+      "namespace": "Versioning.Removed",
       "decorators": []
      },
      "optional": false,
@@ -402,7 +402,7 @@
    "$id": "52",
    "kind": "model",
    "name": "ModelV3",
-   "clientNamespace": "Versioning.Removed",
+   "namespace": "Versioning.Removed",
    "crossLanguageDefinitionId": "Versioning.Removed.ModelV3",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -440,7 +440,7 @@
   {
    "$id": "57",
    "Name": "RemovedClient",
-   "ClientNamespace": "Versioning.Removed",
+   "Namespace": "Versioning.Removed",
    "Doc": "Test for the `@removed` decorator.",
    "Operations": [
     {
@@ -843,7 +843,7 @@
   {
    "$id": "91",
    "Name": "InterfaceV1",
-   "ClientNamespace": "Versioning.Removed",
+   "Namespace": "Versioning.Removed",
    "Doc": "This operation group should not be generated with latest version.",
    "Operations": [
     {

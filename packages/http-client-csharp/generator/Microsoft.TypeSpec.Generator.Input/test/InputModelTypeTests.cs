@@ -18,5 +18,19 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var model2 = InputFactory.Model("bar", "internal", usage: InputModelTypeUsage.Input, properties: [property]);
             Assert.AreEqual(model2, property.EnclosingType);
         }
+
+        [Test]
+        public void SerializedNameIsSetToWireName()
+        {
+            var property = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true, wireName: "foo");
+            Assert.AreEqual("foo", property.SerializedName);
+        }
+
+        [Test]
+        public void SerializedNameFallsBackToPropertyName()
+        {
+            var property = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
+            Assert.AreEqual("prop1", property.SerializedName);
+        }
     }
 }

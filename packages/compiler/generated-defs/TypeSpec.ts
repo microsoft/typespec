@@ -69,7 +69,7 @@ export type EncodeDecorator = (
 ) => void;
 
 /**
- * Attach a documentation string.
+ * Attach a documentation string. Content support CommonMark markdown formatting.
  *
  * @param doc Documentation string
  * @param formatArgs Record with key value pair that can be interpolated in the doc.
