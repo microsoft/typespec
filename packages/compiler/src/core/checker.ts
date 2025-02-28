@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
-import { unsafe_$, unsafe_Realm } from "../experimental/index.js";
+import { Realm } from "../experimental/realm.js";
+import { $ } from "../experimental/typekit/index.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
@@ -7183,8 +7184,8 @@ export function filterModelProperties(
     return model;
   }
 
-  const realm = unsafe_Realm.realmForType.get(model);
-  const typekit = realm ? unsafe_$(realm) : unsafe_$;
+  const realm = Realm.realmForType.get(model);
+  const typekit = realm ? $(realm) : $;
   const newModel: Model = typekit.model.create({
     name: "",
     indexer: undefined,
