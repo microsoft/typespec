@@ -16,12 +16,14 @@ TypeSpec Compiler and libraries follow [semver](https://semver.org/) for version
 
 ## Breaking Change Philosophy
 
-The basic of the policy can be summarized as follows, we guarantee stability for runtime behavior but not for the build process.
+The basic of the policy can be summarized as follows: existing language syntax and semantics will not change without a major version. The runtime behavior for a given TypeSpec will not change without a major version. TypeSpecs leveraging new or updated features may cause runtime API consumers to fail (e.g. because a new type is unhandled) or builds to fail (e.g. because exhaustive unions are no longer exhaustive).
+``
 
+- The language syntax and semantics for existing language elements will not change within a major version.
 - A spec that was building successfully should build successfully with the new version of the compiler and libraries with the same major version.
 - New types and functionalities can be added in a minor version release.
   - If a spec updates to use that new functionality/type it is not considered a breaking change if it goes through a library/emitter that will now break.
-- TypeScript types might change in ways that introcue compilation type checking errors. Those are not considered breaking changes.
+- TypeScript types might change in ways that introduce compilation type checking errors. Those are not considered breaking changes.
 
 ### Bugs
 
