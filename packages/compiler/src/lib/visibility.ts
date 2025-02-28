@@ -84,7 +84,10 @@ function splitLegacyVisibility(
     const argTarget = context.getArgumentTarget(idx);
 
     const argTargetIsStringLiteral =
-      argTarget && "kind" in argTarget && argTarget.kind === SyntaxKind.StringLiteral;
+      argTarget &&
+      typeof argTarget !== "symbol" &&
+      "kind" in argTarget &&
+      argTarget.kind === SyntaxKind.StringLiteral;
 
     const argTargetSourceLocation = getSourceLocation(argTarget);
 
