@@ -98,13 +98,17 @@ Click the `Create TypeSpec Project` command, and a folder selection interface wi
 
    ![alt text](./images/CreateTypeSpecProject_Generate_gitignoreFile.png)
 
-4. Select libraries to update. _(Multiple choice)_
+4. Select libraries to update and Select emitters. _(Multiple choice)_
 
    > Note: Select libraries to update is required only when you select `Generic REST API`. This step will not appear if you select other templates.
 
-   **Validate:** Will it appear: `Here are libraries to install or update.`
+   1. **Validate:** Will it appear: `Here are libraries to install or update.`
 
-   ![alt text](./images/CreateTypeSpecProject_InstallOrUpdateLibraries.png)
+      ![alt text](./images/CreateTypeSpecProject_InstallOrUpdateLibraries.png)
+
+   2. Click `OK` and Select emitters. _(Multiple choice)_
+
+      **Validate:** Will it appear: `Select emitters?` and emitter type: `@typespec/openapi3`, `@typespec/http-client-csharp`, `@typespec/http-client-java`, `@azure-tools/typespec-ts`, `@typespec/http-client-python`, `@typespec/http-server-csharp`, `@typespec/http-server-javascript`.
 
 5. Click `OK` and the project will be created, the folder structure will be set up, dependencies will be installed, and tspconfig.yaml will be updated.
 

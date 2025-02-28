@@ -1,4 +1,4 @@
-# Contribute to TypeSpec extension manual testing
+# Contribute to TypeSpec Extension Manual Testing
 
 This section describes manual testing of the TypeSpec extension.
 
