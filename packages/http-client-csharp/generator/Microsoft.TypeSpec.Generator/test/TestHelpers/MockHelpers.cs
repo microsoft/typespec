@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -68,6 +69,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
             var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(configFilePath, configuration))) { CallBase = true };
+
+            mockPlugin.Setup(p => p.Emitter).Returns(new Emitter(Console.OpenStandardOutput()));
 
             var mockTypeFactory = new Mock<TypeFactory>() { CallBase = true };
 

@@ -16,4 +16,5 @@ export interface InputClient {
   Parent?: string;
   Parameters?: InputParameter[];
   Decorators?: DecoratorInfo[];
+  CrossLanguageDefinitionId: string;
 }

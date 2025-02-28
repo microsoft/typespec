@@ -378,7 +378,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Resiliency.ServiceDriven"
   }
  ]
 }
