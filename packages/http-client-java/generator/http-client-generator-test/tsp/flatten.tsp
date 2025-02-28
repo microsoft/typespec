@@ -106,6 +106,7 @@ interface FlattenOp {
   @post
   send(
     @query id: string,
+    @query maxpagesize?: int32,
     @query constantQueryParam: "constant",
     ...Request,
     ...ApiVersionParameter,
@@ -117,7 +118,7 @@ interface FlattenOp {
     @query id: string,
 
     @encodedName("application/json", "file_id")
-    @projectedName("client", "fileIdentifier")
+    @clientName("fileIdentifier")
     fileId: string,
   ): OkResponse;
 

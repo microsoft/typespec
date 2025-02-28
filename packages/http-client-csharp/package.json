@@ -17,9 +17,9 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/emitter/index.js",
+  "main": "dist/emitter/src/index.js",
   "exports": {
-    ".": "./dist/emitter/index.js"
+    ".": "./dist/emitter/src/index.js"
   },
   "scripts": {
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
@@ -40,7 +40,8 @@
     "extract-api": "npx api-extractor run --local --verbose"
   },
   "files": [
-    "dist/**"
+    "dist/emitter/src/**",
+    "dist/generator/**"
   ],
   "dependencies": {
     "@typespec/http-client-csharp": "file:",
@@ -58,7 +59,7 @@
   "devDependencies": {
     "@azure-tools/azure-http-specs": "0.1.0-alpha.6",
     "@azure-tools/typespec-azure-core": "0.51.0",
-    "@azure-tools/typespec-client-generator-core": "0.51.1",
+    "@azure-tools/typespec-client-generator-core": "0.51.3",
     "@microsoft/api-extractor": "^7.47.11",
     "@types/node": "~22.7.5",
     "@typespec/compiler": "0.65.0",

@@ -1661,6 +1661,184 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseBody
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body`
+
+Test case for using continuation token as pagination. Continuation token is passed in the request header and response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "nextToken": "page2"
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body?bar=bar
+
+Expected request header:
+token=page2
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseHeader
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header`
+
+Test case for using continuation token as pagination. Continuation token is passed in the request header and response header.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ]
+}
+```
+
+Expected response header:
+next-token=page2
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
+
+Expected request header:
+token=page2
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseBody
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body`
+
+Test case for using continuation token as pagination. Continuation token is passed in the request query and response body.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "nextToken": "page2"
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar&token=page2
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseHeader
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header`
+
+Test case for using continuation token as pagination. Continuation token is passed in the request query and response header.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ]
+}
+```
+
+Expected response header:
+next-token=page2
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar&token=page2
+
+Expected request header:
+foo=foo
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Pageable_ServerDrivenPagination_link
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/link`
@@ -2200,7 +2378,7 @@ Expected path: /routes/path/label/standard/record.a,1,b,2
 
 Test matrix expansion with explode: true when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/path/matrix/explode/array;a.b
+Expected path: /routes/path/matrix/explode/array;param=a;param=b
 
 ### Routes_PathParameters_MatrixExpansion_Explode_primitive
 
@@ -2208,7 +2386,7 @@ Expected path: /routes/path/matrix/explode/array;a.b
 
 Test matrix expansion with explode: true when passed a primitive value.
 Param value: "a"
-Expected path: /routes/path/matrix/explode/primitive;a
+Expected path: /routes/path/matrix/explode/primitive;param=a
 
 ### Routes_PathParameters_MatrixExpansion_Explode_record
 
@@ -2224,7 +2402,7 @@ Expected path: /routes/path/matrix/explode/record;a=1;b=2
 
 Test matrix expansion with explode: false when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/path/matrix/standard/array;a,b
+Expected path: /routes/path/matrix/standard/array;param=a;param=b
 
 ### Routes_PathParameters_MatrixExpansion_Standard_primitive
 
@@ -2232,7 +2410,7 @@ Expected path: /routes/path/matrix/standard/array;a,b
 
 Test matrix expansion with explode: false when passed a primitive value.
 Param value: "a"
-Expected path: /routes/path/matrix/standard/primitive;a
+Expected path: /routes/path/matrix/standard/primitive;param=a
 
 ### Routes_PathParameters_MatrixExpansion_Standard_record
 
@@ -2240,7 +2418,7 @@ Expected path: /routes/path/matrix/standard/primitive;a
 
 Test matrix expansion with explode: false when passed a record value.
 Param value: {a: 1, b: 2}
-Expected path: /routes/path/matrix/standard/record;a,1,b,2
+Expected path: /routes/path/matrix/standard/record;a=1;b=2
 
 ### Routes_PathParameters_PathExpansion_Explode_array
 

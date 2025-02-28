@@ -507,22 +507,22 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       @service({title: "My Service"})
       namespace Foo {
         model Resource {
-          @visibility("read")
+          @visibility(Lifecycle.Read)
           @key
           id: string;
 
-          @visibility("create", "update")
+          @visibility(Lifecycle.Create, Lifecycle.Update)
           name: string;
         }
 
         @sharedRoute
         @route("/foo")
-        @parameterVisibility("read")
+        @parameterVisibility(Lifecycle.Read)
         op op1Foo(...Resource): Resource[];
 
         @sharedRoute
         @route("/foo")
-        @parameterVisibility("create")
+        @parameterVisibility(Lifecycle.Create)
         op op2Foo(...Resource): Resource[];
       }
       `,

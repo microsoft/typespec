@@ -10,17 +10,17 @@ using TypeSpec.Rest;
 namespace VisibilitySample;
 
 model Person {
-  @visibility("read") id: string;
-  @visibility("create") secret: string;
+  @visibility(Lifecycle.Read) id: string;
+  @visibility(Lifecycle.Create) secret: string;
   name: string;
 
-  @visibility("read", "create")
+  @visibility(Lifecycle.Read, Lifecycle.Create)
   test: string;
 
-  @visibility("other", "read", "update")
+  @visibility(Lifecycle.Read, Lifecycle.Update)
   other: string;
 
-  @visibility("read", "create", "update")
+  @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Update)
   relatives: PersonRelative[];
 }
 
@@ -29,12 +29,12 @@ model PersonRelative {
   relationship: string;
 }
 
-@withVisibility("read")
+@withVisibility(Lifecycle.Read)
 model Readable<Data> {
   ...Data;
 }
 
-@withVisibility("create")
+@withVisibility(Lifecycle.Create)
 model Writable<Data> {
   ...Data;
 }

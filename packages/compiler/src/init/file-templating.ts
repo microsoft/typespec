@@ -1,10 +1,14 @@
 import { camelCase, kebabCase, pascalCase } from "change-case";
 import Mustache from "mustache";
+import { getBaseFileName } from "../core/path-utils.js";
 import type { InitTemplate } from "./init-template.js";
 import type { ScaffoldingConfig } from "./scaffold.js";
 
 export type FileTemplatingContext = Omit<InitTemplate, "libraries"> &
   ScaffoldingConfig & {
+    /** Name of the folder */
+    folderName: string;
+
     casing: CasingUtils;
     /**
      * NormalizeVersion function replaces `-` with `_`.
@@ -29,9 +33,11 @@ export interface CasingUtils {
 }
 
 export function createFileTemplatingContext(config: ScaffoldingConfig): FileTemplatingContext {
+  const folderName = getBaseFileName(config.directory);
   return {
     ...config.template,
     ...config,
+    folderName,
     normalizeVersion,
     toLowerCase,
     normalizePackageName,

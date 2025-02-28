@@ -84,6 +84,78 @@ op Action<Result>(): Result;
 ```
 
 
+### `@discriminated` {#@discriminated}
+
+Specify that this union is discriminated.
+```typespec
+@discriminated(options?: valueof DiscriminatedOptions)
+```
+
+#### Target
+
+`Union`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| options | [valueof `DiscriminatedOptions`](./built-in-data-types.md#DiscriminatedOptions) | Options to configure the serialization of the discriminated union. |
+
+#### Examples
+
+```typespec
+@discriminated
+union Pet{ cat: Cat, dog: Dog }
+
+model Cat { name: string, meow: boolean }
+model Dog { name: string, bark: boolean }
+```
+Serialized as:
+```json
+{
+  "kind": "cat",
+  "value": {
+    "name": "Whiskers",
+    "meow": true
+  }
+},
+{
+  "kind": "dog",
+  "value": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
+
+##### Custom property names
+
+
+```typespec
+@discriminated(#{discriminatorPropertyName: "dataKind", envelopePropertyName: "data"})
+union Pet{ cat: Cat, dog: Dog }
+
+model Cat { name: string, meow: boolean }
+model Dog { name: string, bark: boolean }
+```
+Serialized as:
+```json
+{
+  "dataKind": "cat",
+  "data": {
+    "name": "Whiskers",
+    "meow": true
+  }
+},
+{
+  "dataKind": "dog",
+  "data": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
+
+
 ### `@discriminator` {#@discriminator}
 
 Specify the property to be used to discriminate this type.
@@ -104,14 +176,6 @@ Specify the property to be used to discriminate this type.
 
 ```typespec
 @discriminator("kind")
-union Pet{ cat: Cat, dog: Dog }
-
-model Cat {kind: "cat", meow: boolean}
-model Dog {kind: "dog", bark: boolean}
-```
-
-```typespec
-@discriminator("kind")
 model Pet{ kind: string }
 
 model Cat extends Pet {kind: "cat", meow: boolean}
@@ -121,7 +185,7 @@ model Dog extends Pet  {kind: "dog", bark: boolean}
 
 ### `@doc` {#@doc}
 
-Attach a documentation string.
+Attach a documentation string. Content support CommonMark markdown formatting.
 ```typespec
 @doc(doc: valueof string, formatArgs?: {})
 ```

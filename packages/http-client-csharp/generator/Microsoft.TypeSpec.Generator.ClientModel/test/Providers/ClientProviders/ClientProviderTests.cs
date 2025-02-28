@@ -570,7 +570,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             MockHelpers.LoadMockPlugin();
 
             //protocol and convenience methods should have a different type for enum query parameters
-            var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
+            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
             Assert.IsNotNull(clientProvider);
             var methods = clientProvider!.Methods;
             //4 methods, sync / async + protocol / convenience
@@ -588,7 +588,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             MockHelpers.LoadMockPlugin(
                 createClientCore: (client) => new ValidateQueryParamDiffClientProvider(client, isAsync));
 
-            var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
+            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
             Assert.IsNotNull(clientProvider);
 
             TypeProviderWriter writer = new(clientProvider!);
@@ -604,7 +604,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 createClientCore: (client) => new UnsupportedAuthClientProvider(client),
                 auth: () => new InputAuth(null, null));
 
-            var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(InputFactory.Client(TestClientName));
+            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(InputFactory.Client(TestClientName));
             Assert.IsNotNull(clientProvider);
 
             TypeProviderWriter writer = new(clientProvider!);
@@ -631,7 +631,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                     InputPrimitiveType.String))
                         ])
                 ]);
-            var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(clientProvider);
             var convenienceMethod = clientProvider!.Methods.FirstOrDefault(
                 m => m.Signature.Name == "Foo" &&
@@ -801,6 +801,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 createClientCore: (client) => null);
 
             Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>());
+        }
+
+        [TestCase]
+        public void ClientProviderSummaryIsPopulated()
+        {
+            var plugin = MockHelpers.LoadMockPlugin(
+                clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "client description")]);
+
+            var client = plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
+            Assert.IsNotNull(client);
+
+            Assert.AreEqual("/// <summary> client description. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
         }
 
         private static InputClient GetEnumQueryParamClient()

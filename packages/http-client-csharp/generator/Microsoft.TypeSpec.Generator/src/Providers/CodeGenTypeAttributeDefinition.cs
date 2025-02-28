@@ -27,10 +27,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
             return [new AttributeStatement(typeof(AttributeUsageAttribute),
+            [new BinaryOperatorExpression(
+                "|",
                 new BinaryOperatorExpression(
                     "|",
                     FrameworkEnumValue(AttributeTargets.Class),
-                    FrameworkEnumValue(AttributeTargets.Struct)))];
+                    FrameworkEnumValue(AttributeTargets.Enum)),
+                FrameworkEnumValue(AttributeTargets.Struct))])];
         }
 
         protected override PropertyProvider[] BuildProperties() =>
