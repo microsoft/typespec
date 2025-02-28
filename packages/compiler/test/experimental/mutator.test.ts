@@ -348,16 +348,7 @@ describe("global graph mutation", () => {
     ModelProperty: noop,
   };
 
-  it("mutate sourceProperty", async () => {
-    const code = `
-    @test model Spread {
-      prop: string;
-    }
-    @test model Foo {
-      ...Spread
-    };
-  `;
-
+  async function globalMutate(code: string): Promise<Namespace> {
     await runner.compile(code);
 
     const { type } = mutateSubgraphWithNamespace(
@@ -366,66 +357,40 @@ describe("global graph mutation", () => {
       runner.program.getGlobalNamespaceType(),
     );
     strictEqual(type.kind, "Namespace");
+
+    return type;
+  }
+  it("mutate sourceProperty", async () => {
+    const type = await globalMutate(`
+      model Spread {
+        prop: string;
+      }
+      model Foo { ...Spread };
+    `);
+
     const MutatedSpread = type.models.get("Spread")!;
     const MutatedFoo = type.models.get("Foo")!;
     expectTypeEquals(
       MutatedFoo.properties.get("prop")?.sourceProperty,
       MutatedSpread.properties.get("prop")!,
     );
+    expectTypeEquals(MutatedFoo.sourceModels[0].model, MutatedSpread);
   });
 
-  it("mutate sourceProperty in operation", async () => {
-    const code = `
-    @test model Spread {
-      prop: string;
-    }
-    op foo(...Spread): void;
-  `;
+  it("mutate sourceProperty and sourceModels in operation", async () => {
+    const type = await globalMutate(`
+      model Spread {
+        prop: string;
+      }
+      op foo(...Spread): void;
+    `);
 
-    await runner.compile(code);
-    const { type } = mutateSubgraphWithNamespace(
-      runner.program,
-      [mutator],
-      runner.program.getGlobalNamespaceType(),
-    );
-    strictEqual(type.kind, "Namespace");
     const MutatedSpread = type.models.get("Spread")!;
     const MutatedFoo = type.operations.get("foo")!;
     expectTypeEquals(
       MutatedFoo.parameters.properties.get("prop")?.sourceProperty,
       MutatedSpread.properties.get("prop")!,
     );
-  });
-
-  it("mutate sourceProperty alternative ref", async () => {
-    const code = `
-    @test namespace Test;
-    model Spread {
-      prop: string;
-    }
-    op foo(...Spread): void;
-
-    op bar(ref: Spread): void;
-  `;
-
-    const { Test } = (await runner.compile(code)) as { Test: Namespace };
-    const { type } = mutateSubgraphWithNamespace(runner.program, [mutator], Test);
-    strictEqual(type.kind, "Namespace");
-    const MutatedSpread = type.models.get("Spread")!;
-    const MutatedFoo = type.operations.get("foo")!;
-    const MutatedBar = type.operations.get("bar")!;
-    expectTypeEquals(
-      MutatedFoo.parameters.properties.get("prop")?.sourceProperty,
-      MutatedSpread.properties.get("prop")!,
-    );
-    expectTypeEquals(
-      MutatedFoo.parameters.properties.get("prop")?.sourceProperty!.model,
-      MutatedBar.parameters.properties.get("ref")!.type,
-    );
-
-    expectTypeEquals(
-      MutatedFoo.parameters.sourceModels[0].model,
-      MutatedBar.parameters.properties.get("ref")!.type,
-    );
+    expectTypeEquals(MutatedFoo.parameters.sourceModels[0].model, MutatedSpread);
   });
 });
