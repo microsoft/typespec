@@ -50,7 +50,8 @@ describe("compiler: server: on hover", () => {
       deepStrictEqual(hover, {
         contents: {
           kind: MarkupKind.Markdown,
-          value: "(model property)\n```typespec\nMyModel.name: string\n```\n\nname of the model",
+          value:
+            "(model property)\n```typespec\nMyModel.name: string\n```\n\n```\nname of the model\n```",
         },
       });
     });
@@ -152,7 +153,7 @@ describe("compiler: server: on hover", () => {
             "```typespec\n" +
             "dec single(context: unknown)\n" +
             "```\n\n" +
-            "description of single decorator",
+            "```\ndescription of single decorator\n```",
         },
       });
     });
@@ -221,7 +222,7 @@ describe("compiler: server: on hover", () => {
             "MyLogArg.msg: string\n" +
             "```\n" +
             "\n" +
-            "my log message",
+            "```\nmy log message\n```",
         },
       });
     });
@@ -253,7 +254,7 @@ describe("compiler: server: on hover", () => {
             "MyLogContext<T>.item: Record<Element>\n" +
             "```\n" +
             "\n" +
-            "items of context",
+            "```\nitems of context\n```",
         },
       });
     });
@@ -615,7 +616,8 @@ describe("compiler: server: on hover", () => {
       deepStrictEqual(hover, {
         contents: {
           kind: MarkupKind.Markdown,
-          value: "(model property)\n```typespec\nMyModel.name: string\n```\n\nname of the model",
+          value:
+            "(model property)\n```typespec\nMyModel.name: string\n```\n\n```\nname of the model\n```",
         },
       });
     });

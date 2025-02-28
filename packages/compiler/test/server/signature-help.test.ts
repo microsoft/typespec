@@ -19,7 +19,7 @@ describe("compiler: server: signature help", () => {
             activeParameter: 0,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "Decorator with a single param",
+              value: "```\nDecorator with a single param\n```",
             },
             label: "@single(arg: string)",
             parameters: [
@@ -46,7 +46,7 @@ describe("compiler: server: signature help", () => {
               activeParameter,
               documentation: {
                 kind: MarkupKind.Markdown,
-                value: "Decorator with multiple params",
+                value: "```\nDecorator with multiple params\n```",
               },
               label: "@multiple(foo: string, bar?: string)",
               parameters: [
@@ -142,7 +142,7 @@ describe("compiler: server: signature help", () => {
             {
               documentation: {
                 kind: MarkupKind.Markdown,
-                value: "Decorator with rest param",
+                value: "```\nDecorator with rest param\n```",
               },
               activeParameter,
               label: "@rest(foo: string, ...others: string[])",
@@ -251,7 +251,7 @@ describe("compiler: server: signature help", () => {
             activeParameter: 0,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "Decorator with a single param",
+              value: "```\nDecorator with a single param\n```",
             },
             label: "@@single(target: unknown, arg: string)",
             parameters: [
@@ -281,7 +281,7 @@ describe("compiler: server: signature help", () => {
               activeParameter,
               documentation: {
                 kind: MarkupKind.Markdown,
-                value: "Decorator with multiple params",
+                value: "```\nDecorator with multiple params\n```",
               },
               label: "@@multiple(target: unknown, foo: string, bar?: string)",
               parameters: [
@@ -389,7 +389,7 @@ describe("compiler: server: signature help", () => {
             {
               documentation: {
                 kind: MarkupKind.Markdown,
-                value: "Decorator with rest param",
+                value: "```\nDecorator with rest param\n```",
               },
               activeParameter,
               label: "@@rest(target: unknown, foo: string, ...others: string[])",
@@ -503,7 +503,7 @@ describe("compiler: server: signature help", () => {
                 activeParameter: 0,
                 documentation: {
                   kind: MarkupKind.Markdown,
-                  value: `${type} with a single template param`,
+                  value: `\`\`\`\n${type} with a single template param\n\`\`\``,
                 },
                 label: `${type}1<T>`,
                 parameters: [
@@ -530,7 +530,7 @@ describe("compiler: server: signature help", () => {
                   activeParameter,
                   documentation: {
                     kind: MarkupKind.Markdown,
-                    value: `${type} with two template params`,
+                    value: `\`\`\`\n${type} with two template params\n\`\`\``,
                   },
                   label: `${type}2<TFirst, TSecond>`,
                   parameters: [
