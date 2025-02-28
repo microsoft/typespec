@@ -47,7 +47,6 @@ import {
   unsafe_mutateSubgraphWithNamespace,
   unsafe_MutatorWithNamespace,
 } from "@typespec/compiler/experimental";
-import {} from "@typespec/compiler/utils";
 import {
   AuthenticationOptionReference,
   AuthenticationReference,
@@ -117,6 +116,7 @@ import {
 } from "./types.js";
 import {
   deepEquals,
+  ensureValidComponentFixedFieldKey,
   getDefaultValue,
   isBytesKeptRaw,
   isSharedHttpOperation,
@@ -681,7 +681,6 @@ function createOAPIEmitter(
           }
         }
       }
-
       return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
@@ -710,7 +709,10 @@ function createOAPIEmitter(
   }
 
   function computeSharedOperationId(shared: SharedHttpOperation) {
-    return shared.operations.map((op) => resolveOperationId(program, op.operation)).join("_");
+    const operationIds = shared.operations.map((op) => resolveOperationId(program, op.operation));
+    const uniqueOpIds = new Set<string>(operationIds);
+    if (uniqueOpIds.size === 1) return uniqueOpIds.values().next().value;
+    return operationIds.join("_");
   }
 
   function getOperationOrSharedOperation(operation: HttpOperation | SharedHttpOperation):
@@ -1577,21 +1579,6 @@ function createOAPIEmitter(
     return attributes;
   }
 
-  function validateComponentFixedFieldKey(type: Type, name: string) {
-    const pattern = /^[a-zA-Z0-9.\-_]+$/;
-    if (!pattern.test(name)) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-component-fixed-field-key",
-          format: {
-            value: name,
-          },
-          target: type,
-        }),
-      );
-    }
-  }
-
   function emitParameters() {
     for (const [property, param] of params) {
       const key = getParameterKey(
@@ -1601,14 +1588,12 @@ function createOAPIEmitter(
         root.components!.parameters!,
         typeNameOptions,
       );
-      validateComponentFixedFieldKey(property, key);
-
-      root.components!.parameters![key] = { ...param };
+      const validKey = ensureValidComponentFixedFieldKey(program, property, key);
+      root.components!.parameters![validKey] = { ...param };
       for (const key of Object.keys(param)) {
         delete param[key];
       }
-
-      param.$ref = "#/components/parameters/" + encodeURIComponent(key);
+      param.$ref = "#/components/parameters/" + encodeURIComponent(validKey);
     }
   }
 
@@ -1626,8 +1611,6 @@ function createOAPIEmitter(
       const schemas = root.components!.schemas!;
       const declarations = files[0].globalScope.declarations;
       for (const declaration of declarations) {
-        validateComponentFixedFieldKey(serviceNamespace, declaration.name);
-
         schemas[declaration.name] = declaration.value as any;
       }
     }

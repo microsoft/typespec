@@ -803,6 +803,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>());
         }
 
+        [TestCase]
+        public void ClientProviderSummaryIsPopulated()
+        {
+            var plugin = MockHelpers.LoadMockPlugin(
+                clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "client description")]);
+
+            var client = plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
+            Assert.IsNotNull(client);
+
+            Assert.AreEqual("/// <summary> client description. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
+        }
+
         private static InputClient GetEnumQueryParamClient()
             => InputFactory.Client(
                 TestClientName,

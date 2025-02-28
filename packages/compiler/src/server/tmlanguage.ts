@@ -59,7 +59,7 @@ const meta: typeof tm.meta = tm.meta;
 const identifierStart = "[_$[:alpha:]]";
 // cspell:disable-next-line
 const identifierContinue = "[_$[:alnum:]]";
-const beforeIdentifier = `(?=${identifierStart})`;
+const beforeIdentifier = `(?=(${identifierStart}|\`))`;
 const escapedIdentifier = "`(?:[^`\\\\]|\\\\.)*`";
 const simpleIdentifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const identifier = `${simpleIdentifier}|${escapedIdentifier}`;

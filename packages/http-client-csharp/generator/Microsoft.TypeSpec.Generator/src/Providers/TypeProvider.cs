@@ -491,7 +491,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             ValidateArguments(enclosingType, attribute);
             var name = attribute.ConstructorArguments[0].Value as string;
-            if (name != signature.Name)
+            if (name != GetFullMethodName(signature))
             {
                 return false;
             }
@@ -530,7 +530,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
         {
-            if (customMethod.Parameters.Count != method.Parameters.Count || customMethod.Name != method.Name)
+            if (customMethod.Parameters.Count != method.Parameters.Count || GetFullMethodName(customMethod) != GetFullMethodName(method))
             {
                 return false;
             }
@@ -556,6 +556,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return true;
+        }
+
+        private static string GetFullMethodName(MethodSignatureBase method)
+        {
+            if (method is MethodSignature methodSignature)
+            {
+                return methodSignature.FullMethodName;
+            }
+
+            return method.Name;
         }
 
         private static void ValidateArguments(TypeProvider type, AttributeData attributeData)

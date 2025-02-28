@@ -21,6 +21,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
+import { useStateMap } from "@typespec/compiler/utils";
 import {
   BodyDecorator,
   BodyIgnoreDecorator,
@@ -33,6 +34,7 @@ import {
   HeaderDecorator,
   MultipartBodyDecorator,
   PatchDecorator,
+  PatchOptions,
   PathDecorator,
   PathOptions,
   PostDecorator,
@@ -450,9 +452,36 @@ function createVerbDecorator(verb: HttpVerb) {
 export const $get: GetDecorator = createVerbDecorator("get");
 export const $put: PutDecorator = createVerbDecorator("put");
 export const $post: PostDecorator = createVerbDecorator("post");
-export const $patch: PatchDecorator = createVerbDecorator("patch");
 export const $delete: DeleteDecorator = createVerbDecorator("delete");
 export const $head: HeadDecorator = createVerbDecorator("head");
+
+const _patch = createVerbDecorator("patch");
+
+const [_getPatchOptions, setPatchOptions] = useStateMap<Operation, PatchOptions | undefined>(
+  HttpStateKeys.patchOptions,
+);
+
+export const $patch: PatchDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+  options?: PatchOptions,
+) => {
+  _patch(context, entity);
+
+  if (options) setPatchOptions(context.program, entity, options);
+};
+
+/**
+ * Gets the `PatchOptions` for the given operation.
+ *
+ * @param program - The program in which the operation occurs.
+ * @param operation - The operation.
+ * @returns The `PatchOptions` for the operation, or `undefined` if none. If the operation is not a PATCH operation, this
+ * function will always return `undefined`. If it is a PATCH operation, it may return undefined if no options were provided.
+ */
+export function getPatchOptions(program: Program, operation: Operation): PatchOptions | undefined {
+  return _getPatchOptions(program, operation);
+}
 
 const VERB_DECORATORS = [$get, $head, $post, $put, $patch, $delete];
 

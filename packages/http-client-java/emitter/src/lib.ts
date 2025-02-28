@@ -97,7 +97,7 @@ export const $lib = createTypeSpecLibrary({
     "unknown-error": {
       severity: "error",
       messages: {
-        default: paramMessage`An unknown error occurred. '${"errorMessage"}'`,
+        default: paramMessage`An unknown error occurred. ${"errorMessage"}`,
       },
     },
     "invalid-java-sdk-dependency": {

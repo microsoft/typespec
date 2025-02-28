@@ -37,7 +37,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Resiliency.ServiceDriven",
+   "namespace": "Resiliency.ServiceDriven",
    "doc": "Service versions.",
    "isFixed": true,
    "isFlags": false,
@@ -50,7 +50,7 @@
   {
    "$id": "6",
    "Name": "ResiliencyServiceDrivenClient",
-   "ClientNamespace": "Resiliency.ServiceDriven",
+   "Namespace": "Resiliency.ServiceDriven",
    "Doc": "Test that we can grow up a service spec and service deployment into a multi-versioned service with full client support.",
    "Operations": [
     {

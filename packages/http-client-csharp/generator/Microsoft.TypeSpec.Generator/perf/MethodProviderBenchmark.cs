@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.Perf
     public class MethodProviderBenchmark
     {
         private MethodSignature Signature { get; }
-        private MethodBodyStatement BodyStatement = new();
+        private MethodBodyStatement BodyStatement = MethodBodyStatement.Empty;
         private Dictionary<ParameterValidationType, List<ParameterProvider>>? ParamHash;
 
         public MethodProviderBenchmark()

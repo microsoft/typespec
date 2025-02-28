@@ -2,7 +2,7 @@
 changeKind: feature
 packages:
   - "@typespec/html-program-viewer"
-  - "@typespec/http-server-javascript"
+  - "@typespec/http-server-js"
   - "@typespec/http"
 ---
 

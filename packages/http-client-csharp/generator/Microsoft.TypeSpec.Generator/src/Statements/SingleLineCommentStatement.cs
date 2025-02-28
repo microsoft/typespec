@@ -16,5 +16,10 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         public SingleLineCommentStatement(string message) : this(FormattableStringHelpers.FromString(message))
         { }
+
+        internal override void Write(CodeWriter writer)
+        {
+            writer.WriteLine($"// {Message}");
+        }
     }
 }
