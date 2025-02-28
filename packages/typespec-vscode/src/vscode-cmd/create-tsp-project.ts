@@ -1,31 +1,30 @@
-import type {
-  InitProjectConfig,
-  InitProjectTemplate,
-  InitProjectTemplateEmitterTemplate,
-  InitProjectTemplateLibrarySpec,
+import {
+  SystemHost,
+  type InitProjectConfig,
+  type InitProjectTemplate,
+  type InitProjectTemplateEmitterTemplate,
+  type InitProjectTemplateLibrarySpec,
 } from "@typespec/compiler";
+import { NodeSystemHost, scaffoldNewProject } from "@typespec/compiler/internals/init";
 import { readdir } from "fs/promises";
 import * as semver from "semver";
-import vscode, { OpenDialogOptions, QuickPickItem, window } from "vscode";
-import { State } from "vscode-languageclient";
+import { fileURLToPath } from "url";
+import vscode, { OpenDialogOptions, QuickPickItem } from "vscode";
 import { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
-import { getBaseFileName, getDirectoryPath, joinPaths, normalizePath } from "../path-utils.js";
-import { TspLanguageClient } from "../tsp-language-client.js";
 import {
-  CommandName,
-  InstallGlobalCliCommandArgs,
-  RestartServerCommandArgs,
-  Result,
-  ResultCode,
-  SettingName,
-} from "../types.js";
+  getBaseFileName,
+  getDirectoryPath,
+  joinPaths,
+  normalizePath,
+  resolvePath,
+} from "../path-utils.js";
+import { ResultCode, SettingName } from "../types.js";
 import {
   createPromiseWithCancelAndTimeout,
   ExecOutput,
   isFile,
   isWhitespaceStringOrUndefined,
-  spawnExecution,
   tryParseJson,
   tryReadFileOrUrl,
 } from "../utils.js";
@@ -59,10 +58,7 @@ interface EmitterQuickPickItem extends QuickPickItem {
 
 const COMPILER_CORE_TEMPLATES = "compiler-core-templates";
 const TITLE = "Create a TypeSpec project";
-export async function createTypeSpecProject(
-  client: TspLanguageClient | undefined,
-  stateManager: ExtensionStateManager,
-) {
+export async function createTypeSpecProject(stateManager: ExtensionStateManager) {
   await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Window,
@@ -83,37 +79,7 @@ export async function createTypeSpecProject(
       }
       const folderName = getBaseFileName(selectedRootFolder);
 
-      if (!client || client.state !== State.Running) {
-        const r = await CheckCompilerAndStartLSPClient(selectedRootFolder);
-        if (r.code === ResultCode.Cancelled) {
-          logger.info("Creating TypeSpec Project cancelled when installing Compiler/CLI");
-          return;
-        }
-        if (
-          r.code !== ResultCode.Success ||
-          r.value === undefined ||
-          r.value.state !== State.Running
-        ) {
-          logger.error(
-            "Unexpected Error when checking Compiler/CLI. Please check the previous log for details.",
-            [],
-            {
-              showOutput: true,
-              showPopup: true,
-            },
-          );
-          return;
-        }
-        client = r.value;
-      }
-
-      const isSupport = await isCompilerSupport(client);
-      if (!isSupport) {
-        logger.info("Creating TypeSpec Project cancelled due to unsupported by compiler.");
-        return;
-      }
-
-      const templateInfoMap = await loadInitTemplates(client);
+      const templateInfoMap = await loadInitTemplates();
       if (templateInfoMap.size === 0) {
         logger.error(
           "Unexpected Error: No templates loaded. Please check the configuration of InitTemplatesUrls or upgrade @typespec/compiler and try again.",
@@ -133,7 +99,7 @@ export async function createTypeSpecProject(
         logger.info(`Selected template: ${info.source}.${info.name}`);
       }
 
-      const validateResult = await validateTemplate(info, client);
+      const validateResult = await validateTemplate(info);
       if (!validateResult) {
         logger.info("Creating TypeSpec Project cancelled when validating template.");
         return;
@@ -207,7 +173,7 @@ export async function createTypeSpecProject(
         emitters: selectedEmitters,
         ...({ folderName: folderName } as any), // TODO: init template should not call to a randome typespec version.
       };
-      const initResult = await initProject(client, initTemplateConfig);
+      const initResult = await initProject(initTemplateConfig);
       if (!initResult) {
         logger.info("Creating TypeSpec Project cancelled when initializing project.", [], {
           showOutput: false,
@@ -221,7 +187,7 @@ export async function createTypeSpecProject(
         logger.warning("Skip tsp install since no package.json is found in the project folder.");
       } else {
         // just ignore the result from tsp install. We will open the project folder anyway.
-        await tspInstall(client, selectedRootFolder);
+        await tspInstall(selectedRootFolder);
       }
 
       const msg = Object.entries(selectedEmitters)
@@ -300,10 +266,7 @@ async function selectEmitters(
   return Object.fromEntries(selectedEmitters.map((x) => [x.name, x.emitterTemplate]));
 }
 
-async function tspInstall(
-  client: TspLanguageClient,
-  directory: string,
-): Promise<ExecOutput | undefined> {
+async function tspInstall(directory: string): Promise<ExecOutput | undefined> {
   logger.info("Installing TypeSpec project dependencies by 'tsp install'...");
   return await vscode.window.withProgress(
     {
@@ -315,7 +278,8 @@ async function tspInstall(
       const TIMEOUT = 600000; // set timeout to 10 minutes which should be enough for tsp install for a new project
       try {
         const result = await createPromiseWithCancelAndTimeout(
-          client.runCliCommand(["install"], directory),
+          // client.runCliCommand(["install"], directory),
+          Promise.resolve(undefined), // todo: implement tsp install
           token,
           TIMEOUT,
         );
@@ -343,10 +307,7 @@ async function tspInstall(
   );
 }
 
-async function initProject(
-  client: TspLanguageClient,
-  initTemplateConfig: InitProjectConfig,
-): Promise<boolean> {
+async function initProject(initTemplateConfig: InitProjectConfig): Promise<boolean> {
   return await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
@@ -356,22 +317,22 @@ async function initProject(
     async (_progress, token) => {
       const TIMEOUT = 300000; // set timeout to 5 minutes which should be enough for init project
       try {
-        const result = await createPromiseWithCancelAndTimeout(
-          client.initProject(initTemplateConfig),
+        await createPromiseWithCancelAndTimeout(
+          scaffoldNewProject(NodeSystemHost, initTemplateConfig),
           token,
           TIMEOUT,
         );
-        if (!result) {
-          logger.error(
-            "Failed to create TypeSpec project. Please check the previous log for details.",
-            [],
-            {
-              showOutput: true,
-              showPopup: true,
-            },
-          );
-          return false;
-        }
+        // if (!result) {
+        //   logger.error(
+        //     "Failed to create TypeSpec project. Please check the previous log for details.",
+        //     [],
+        //     {
+        //       showOutput: true,
+        //       showPopup: true,
+        //     },
+        //   );
+        //   return false;
+        // }
         logger.info("Creating TypeSpec project completed. ");
         return true;
       } catch (e) {
@@ -391,16 +352,13 @@ async function initProject(
   );
 }
 
-async function validateTemplate(
-  info: InitTemplateInfo,
-  client: TspLanguageClient,
-): Promise<boolean> {
+async function validateTemplate(info: InitTemplateInfo): Promise<boolean> {
   if (info.sourceType === "compiler") {
     // no need to validate template from compiler
     return true;
   }
 
-  const compilerVersion = client.initializeResult?.serverInfo?.version;
+  const compilerVersion = vscode.extensions.getExtension("typespec.typespec")?.packageJSON.version;
   const templateRequiredVersion = info.template.compilerVersion;
   if (
     compilerVersion &&
@@ -426,24 +384,25 @@ async function validateTemplate(
     }
   }
 
-  const validateResult = await client.validateInitProjectTemplate(info.template);
-  if (!validateResult) {
-    logger.warning("Template validation failed. Please check the previous log for details.", [], {
-      showOutput: true,
-      showPopup: true,
-    });
-    const cont = await vscode.window.showQuickPick(["Yes", "No"], {
-      canPickMany: false,
-      placeHolder:
-        "Template validation failed. Do you want to continue? Detail log can be found in the Output window.",
-      ignoreFocusOut: true,
-      title: TITLE,
-    });
-    if (cont !== "Yes") {
-      logger.info("Creating TypeSpec Project cancelled due to template validation failure.");
-      return false;
-    }
-  }
+  // TODO: Why is this here again?
+  // const validateResult = await client.validateInitProjectTemplate(info.template);
+  // if (!validateResult) {
+  //   logger.warning("Template validation failed. Please check the previous log for details.", [], {
+  //     showOutput: true,
+  //     showPopup: true,
+  //   });
+  //   const cont = await vscode.window.showQuickPick(["Yes", "No"], {
+  //     canPickMany: false,
+  //     placeHolder:
+  //       "Template validation failed. Do you want to continue? Detail log can be found in the Output window.",
+  //     ignoreFocusOut: true,
+  //     title: TITLE,
+  //   });
+  //   if (cont !== "Yes") {
+  //     logger.info("Creating TypeSpec Project cancelled due to template validation failure.");
+  //     return false;
+  //   }
+  // }
   return true;
 }
 
@@ -605,52 +564,54 @@ async function selectTemplate(
   return selected?.info;
 }
 
-async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
-  if (
-    client.initializeResult?.serverInfo?.version === undefined ||
-    client.initializeResult?.customCapacities?.getInitProjectContext !== true ||
-    client.initializeResult?.customCapacities?.validateInitProjectTemplate !== true ||
-    client.initializeResult?.customCapacities?.initProject !== true
-  ) {
-    logger.error(
-      `Create project feature is not supported by the current TypeSpec Compiler (ver ${client.initializeResult?.serverInfo?.version ?? "< 0.64.0"}). ` +
-        `Please Upgrade TypeSpec Compiler, Restart TypeSpec server (by vscode command 'TypeSpec:Restart TypeSpec server') or restart vscode, and try again.`,
-      [],
-      {
-        showOutput: true,
-        showPopup: true,
-      },
-    );
-    return false;
+async function findProjectRoot(host: SystemHost) {
+  let current = getDirectoryPath(fileURLToPath(import.meta.url));
+  while (true) {
+    const pkgPath = joinPaths(current, "package.json");
+    try {
+      const stat = await host.stat(pkgPath);
+      if (stat?.isFile()) {
+        return current;
+      }
+    } catch (e) {}
+    const parent = getDirectoryPath(current);
+    if (parent === current) {
+      throw new Error("Unexpected: Failed to resolve project root.");
+    }
+    current = parent;
   }
-  return true;
 }
 
-async function loadInitTemplates(
-  client: TspLanguageClient,
-): Promise<Map<string, InitTemplateInfo[]>> {
+async function getTypeSpecCoreTemplates(
+  host: SystemHost,
+): Promise<{ readonly baseUri: string; readonly templates: Record<string, any> }> {
+  const projectRoot = await findProjectRoot(host);
+  const templatesDir = resolvePath(projectRoot, "templates");
+  const file = await host.readFile(resolvePath(templatesDir, "scaffolding.json"));
+  const content = JSON.parse(file.text);
+  return {
+    baseUri: templatesDir,
+    templates: content,
+  };
+}
+
+async function loadInitTemplates(): Promise<Map<string, InitTemplateInfo[]>> {
   logger.info("Loading init templates from compiler...");
   const templateInfoMap: Map<string, InitTemplateInfo[]> = new Map();
-  const ipContext = await client.getInitProjectContext();
-  if (
-    ipContext?.coreInitTemplates &&
-    ipContext?.coreInitTemplates.templates &&
-    Object.entries(ipContext?.coreInitTemplates.templates).length > 0
-  ) {
-    templateInfoMap.set(
-      COMPILER_CORE_TEMPLATES,
-      Object.entries(ipContext.coreInitTemplates.templates)
-        .filter(([_key, value]) => value !== undefined)
-        .map(([key, value]) => ({
-          source: COMPILER_CORE_TEMPLATES,
-          sourceType: "compiler",
-          baseUrl: ipContext.coreInitTemplates.baseUri,
-          name: key,
-          template: value,
-        })),
-    );
-  }
   logger.info("Loading init templates from config...");
+  const templates = await getTypeSpecCoreTemplates(NodeSystemHost);
+  templateInfoMap.set(
+    COMPILER_CORE_TEMPLATES,
+    Object.entries(templates.templates)
+      .filter(([_key, value]) => value !== undefined)
+      .map(([key, value]) => ({
+        source: COMPILER_CORE_TEMPLATES,
+        sourceType: "compiler",
+        baseUrl: templates.baseUri,
+        name: key,
+        template: value,
+      })),
+  );
   const settings = vscode.workspace
     .getConfiguration()
     .get<InitTemplatesUrlSetting[]>(SettingName.InitTemplatesUrls);
@@ -766,78 +727,4 @@ async function checkProjectRootFolderEmpty(selectedFolder: string): Promise<bool
     });
     return false;
   }
-}
-
-async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<TspLanguageClient>> {
-  // language server may not be started because no workspace is opened or failed to start for some reason
-  // so before trying to start it, let's try to check whether global compiler is available first
-  // to avoid unnecessary error notification when starting LSP which would be confusing (we can't avoid it which
-  // is from base LanguageClient class...).
-  const r = await IsGlobalCompilerAvailable(folder);
-  if (r.code !== ResultCode.Success) {
-    return { code: r.code, details: r.details };
-  }
-  if (!r.value) {
-    const igcArgs: InstallGlobalCliCommandArgs = {
-      confirm: true,
-      confirmTitle: TITLE,
-      confirmPlaceholder: "Install TypeSpec Compiler CLI.",
-      silentMode: true,
-    };
-    const result = await vscode.commands.executeCommand<Result<void>>(
-      CommandName.InstallGlobalCompilerCli,
-      igcArgs,
-    );
-    if (result.code !== ResultCode.Success) {
-      return { code: result.code, details: result.details };
-    }
-  }
-  logger.info("Try to restart lsp client.");
-  const rsArgs: RestartServerCommandArgs = {
-    forceRecreate: false,
-    notificationMessage: "Launching TypeSpec language service...",
-  };
-  const newClient = await vscode.commands.executeCommand<TspLanguageClient>(
-    CommandName.RestartServer,
-    rsArgs,
-  );
-  return { code: ResultCode.Success, value: newClient };
-}
-
-async function IsGlobalCompilerAvailable(folder: string): Promise<Result<boolean>> {
-  const TIMEOUT = 120000; // set timeout to 2 minutes which should be enough for checking compiler
-  return await window.withProgress(
-    {
-      location: vscode.ProgressLocation.Notification,
-      title: "Checking TypeSpec compiler...",
-      cancellable: true,
-    },
-    async (_progress, token) => {
-      let output;
-      try {
-        output = await createPromiseWithCancelAndTimeout(
-          // it's possible for the execution to fail, so don't log to output channel by default to avoid potential confusing
-          spawnExecution("tsp", ["--version"], folder),
-          token,
-          TIMEOUT,
-        );
-        logger.debug("Global compiler is available by checking 'tsp --version'");
-        return { code: ResultCode.Success, value: true };
-      } catch (e) {
-        if (e === ResultCode.Cancelled) {
-          logger.info("Checking compiler is cancelled by user.");
-          return { code: ResultCode.Cancelled };
-        } else if (e === ResultCode.Timeout) {
-          logger.debug(`Checking compiler is timeout after ${TIMEOUT}ms.`);
-          return { code: ResultCode.Timeout };
-        } else {
-          logger.debug(
-            "Global compiler is not available by check 'tsp --version' command which reported error",
-            [e, output],
-          );
-          return { code: ResultCode.Success, value: false };
-        }
-      }
-    },
-  );
 }

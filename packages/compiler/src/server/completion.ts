@@ -33,7 +33,8 @@ import {
   resolvePath,
 } from "../core/path-utils.js";
 import { PackageJson } from "../types/package-json.js";
-import { findProjectRoot, loadFile, resolveTspMain } from "../utils/misc.js";
+import { findProjectRoot, loadFile } from "../utils/io.js";
+import { resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
 
 export type CompletionContext = {
