@@ -10,7 +10,7 @@ export function createConsoleSink(options: any): LogSink {
 
   return {
     log,
-    trackAction: (action, log, completedLog) => trackAction(action, log, completedLog),
+    trackAction: (message, finalMessage, action) => trackAction(message, finalMessage, action),
   };
 }
 
@@ -19,17 +19,17 @@ export function formatLog(log: ProcessedLog): string {
 }
 
 async function trackAction<T>(
+  message: string,
+  finalMessage: string,
   asyncAction: () => Promise<T>,
-  log: string,
-  completedLog: string,
 ): Promise<T> {
   // eslint-disable-next-line no-console
-  console.log(log);
+  console.log(message);
 
   try {
     return await asyncAction();
   } finally {
     // eslint-disable-next-line no-console
-    console.log(`✓ ${completedLog}`);
+    console.log(`✓ ${finalMessage}`);
   }
 }

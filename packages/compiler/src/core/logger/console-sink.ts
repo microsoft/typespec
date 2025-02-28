@@ -27,7 +27,7 @@ export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
 
   return {
     log,
-    trackAction: (action, log, completedLog) => trackAction(action, log, completedLog),
+    trackAction: (message, finalMessage, action) => trackAction(message, finalMessage, action),
   };
 }
 
@@ -138,9 +138,9 @@ function getLineAndColumn(location: SourceLocation): RealLocation {
 }
 
 export async function trackAction<T>(
+  message: string,
+  finalMessage: string,
   asyncAction: () => Promise<T>,
-  log: string,
-  completedLog: string,
 ): Promise<T> {
   const isTTY = process.stdout?.isTTY && !process.env.CI;
   let interval;
@@ -150,7 +150,7 @@ export async function trackAction<T>(
     interval = setInterval(() => {
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`\r${spinner()} ${log}`);
+      process.stdout.write(`\r${spinner()} ${message}`);
     }, 200);
   }
 
@@ -160,7 +160,7 @@ export async function trackAction<T>(
     if (interval) {
       clearInterval(interval);
       clearLastLine();
-      process.stdout.write(`✓ ${completedLog}\n`);
+      process.stdout.write(`✓ ${finalMessage}\n`);
     }
   }
 }

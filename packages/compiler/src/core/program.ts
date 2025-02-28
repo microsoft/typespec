@@ -159,10 +159,8 @@ export async function compile(
   oldProgram?: Program, // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ) {
   const logger = createLogger({ sink: host.logSink });
-  const { program, shouldAbort } = await logger.trackAction(
-    () => runCompiler(host, mainFile, options, oldProgram),
-    "Compiling...",
-    "Compiling",
+  const { program, shouldAbort } = await logger.trackAction("Compiling...", "Compiling", () =>
+    createProgram(host, mainFile, options, oldProgram),
   );
 
   if (shouldAbort) {
@@ -180,7 +178,7 @@ export async function compile(
   return program;
 }
 
-export async function runCompiler(
+async function createProgram(
   host: CompilerHost,
   mainFile: string,
   options: CompilerOptions = {},
@@ -931,9 +929,9 @@ async function emit(emitter: EmitterRef, program: Program, options: CompilerOpti
 
   const logger = createLogger({ sink: program.host.logSink });
   await logger.trackAction(
-    () => runEmitter(emitter, program),
     `Running ${emitterName}...`,
     `${emitterName}\t${relativePathForEmittedFiles}`,
+    () => runEmitter(emitter, program),
   );
 }
 
