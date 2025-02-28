@@ -1552,6 +1552,7 @@ function createOAPIEmitter(
       attributes.explode = true;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     switch (parameter.format) {
       case undefined:
         return attributes;
@@ -1565,6 +1566,7 @@ function createOAPIEmitter(
             code: "invalid-format",
             format: {
               paramType: "header",
+              // eslint-disable-next-line @typescript-eslint/no-deprecated
               value: parameter.format,
             },
             target: parameter.param,
