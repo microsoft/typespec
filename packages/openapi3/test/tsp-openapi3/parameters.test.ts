@@ -342,12 +342,8 @@ describe("header", () => {
       using Http;
       using OpenAPI;
 
-      @service({
-        title: "Test Service",
-      })
-      @info({
-        version: "1.0.0",
-      })
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
       namespace TestService;
 
       @route("/") @get op foo(
@@ -394,12 +390,8 @@ describe("header", () => {
       using Http;
       using OpenAPI;
 
-      @service({
-        title: "Test Service",
-      })
-      @info({
-        version: "1.0.0",
-      })
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
       namespace TestService;
 
       @route("/") @get op foo(
