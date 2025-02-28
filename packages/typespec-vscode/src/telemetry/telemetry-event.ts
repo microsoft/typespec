@@ -26,7 +26,7 @@ export interface OperationTelemetryEvent extends TelemetryEventBase {
 
 export enum OperationDetailPropertyName {
   error,
-  emitterPackage,
+  emitterName,
   emitterVersion,
   emitResult,
   compilerLocation,
