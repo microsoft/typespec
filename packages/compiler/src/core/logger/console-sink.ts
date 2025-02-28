@@ -27,7 +27,8 @@ export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
 
   return {
     log,
-    trackAction: (message, finalMessage, action) => trackAction(message, finalMessage, action),
+    trackAction: (message, finalMessage, action) =>
+      trackAction(message, finalMessage, action, options),
   };
 }
 
@@ -141,6 +142,7 @@ export async function trackAction<T>(
   message: string,
   finalMessage: string,
   asyncAction: () => Promise<T>,
+  options: FormatLogOptions,
 ): Promise<T> {
   const isTTY = process.stdout?.isTTY && !process.env.CI;
   let interval;
@@ -150,18 +152,25 @@ export async function trackAction<T>(
     interval = setInterval(() => {
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`\r${spinner()} ${message}`);
+      process.stdout.write(`\r${color(options, spinner(), pc.yellow)} ${message}`);
     }, 200);
   }
 
   try {
-    return await asyncAction();
-  } finally {
+    const result = await asyncAction();
     if (interval) {
       clearInterval(interval);
       clearLastLine();
-      process.stdout.write(`✓ ${finalMessage}\n`);
+      process.stdout.write(`${color(options, "✔", pc.green)} ${finalMessage}\n`);
     }
+    return result;
+  } catch (error) {
+    if (interval) {
+      clearInterval(interval);
+      clearLastLine();
+      process.stdout.write(`${color(options, "x", pc.red)} ${message}\n`);
+    }
+    throw error;
   }
 }
 
