@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator
             Configuration = context.Configuration;
             _inputLibrary = new InputLibrary(Configuration.OutputDirectory);
             TypeFactory = new TypeFactory();
-            Emitter = null!;
+            Emitter = new Emitter(Console.OpenStandardOutput());
         }
 
         // for mocking
@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator
         internal bool IsNewProject { get; set; }
         private InputLibrary _inputLibrary;
 
-        public virtual Emitter Emitter { get; internal set; }
+        public virtual Emitter Emitter { get; }
 
         // Extensibility points to be implemented by a plugin
         public virtual TypeFactory TypeFactory { get; }

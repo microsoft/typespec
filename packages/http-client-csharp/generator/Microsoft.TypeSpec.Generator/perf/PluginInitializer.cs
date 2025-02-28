@@ -11,7 +11,7 @@ namespace Microsoft.TypeSpec.Generator.Perf
         public static void Initialize()
         {
             PluginHandler pluginHandler = new PluginHandler();
-            pluginHandler.LoadPlugin(null!, new CommandLineOptions
+            pluginHandler.LoadPlugin(new CommandLineOptions
             {
                 OutputDirectory = Path.Combine(Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName, "Projects", "Model"),
                 PluginName = "CodeModelPlugin"
