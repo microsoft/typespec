@@ -3,7 +3,7 @@
 
 import { HttpContext } from "./router.js";
 
-export const HTTP_RESPONDER = Symbol.for("@typespec/http-server-javascript.HttpResponder");
+export const HTTP_RESPONDER = Symbol.for("@typespec/http-server-js.HttpResponder");
 
 /**
  * A type that can respond to an HTTP request.
