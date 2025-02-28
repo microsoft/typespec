@@ -1,0 +1,45 @@
+{
+  "properties": {
+    "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/baselines"
+  },
+  "version": "1.0.0",
+  "baselines": {
+    "default": {
+      "name": "default",
+      "createdDate": "2025-02-24 23:24:12Z",
+      "lastUpdatedDate": "2025-02-24 23:24:12Z"
+    }
+  },
+  "results": {
+    "7488628e824c7aba7a88714d62df832b3ebb7007377ab1899a1c14f925db5a45": {
+      "signature": "7488628e824c7aba7a88714d62df832b3ebb7007377ab1899a1c14f925db5a45",
+      "alternativeSignatures": [
+        "43f013a3d0f2645761a202faa9a0669de81ad2c6718a7a14f1d32e737c2b956c"
+      ],
+      "target": "packages/standalone/dist/tsp.exe",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2008",
+      "createdDate": "2025-02-24 23:24:12Z",
+      "expirationDate": "2025-08-14 00:11:04Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2025-02-25 00:11:04Z"
+    },
+    "b11660cc5d32dfb802d68edc8d8922e4b2bdcfdc3d781ca4ea4bfd76c9a25c4d": {
+      "signature": "b11660cc5d32dfb802d68edc8d8922e4b2bdcfdc3d781ca4ea4bfd76c9a25c4d",
+      "alternativeSignatures": [
+        "d32dec024bfd9283c1993f099e658a8b8fdd02ad6a7111fa5f1f857c56aba407"
+      ],
+      "target": "signed-windows/standalone-windows-x64/tsp.exe",
+      "memberOf": [
+        "default"
+      ],
+      "tool": "binskim",
+      "ruleId": "BA2008",
+      "createdDate": "2025-02-25 00:00:45Z",
+      "expirationDate": "2025-08-14 00:11:04Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2025-02-25 00:11:04Z"
+    }
+  }
+}
