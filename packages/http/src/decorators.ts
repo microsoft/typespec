@@ -8,7 +8,6 @@ import {
   Namespace,
   Operation,
   Program,
-  StringLiteral,
   SyntaxKind,
   Tuple,
   Type,
@@ -69,48 +68,44 @@ export const namespace = "TypeSpec.Http";
 export const $header: HeaderDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  headerNameOrOptions?: StringLiteral | Type,
+  headerNameOrOptions,
 ) => {
   const options: HeaderFieldOptions = {
     type: "header",
     name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
   };
   if (headerNameOrOptions) {
-    if (headerNameOrOptions.kind === "String") {
-      options.name = headerNameOrOptions.value;
-    } else if (headerNameOrOptions.kind === "Model") {
-      const name = headerNameOrOptions.properties.get("name")?.type;
-      if (name?.kind === "String") {
-        options.name = name.value;
+    if (typeof headerNameOrOptions === "string") {
+      options.name = headerNameOrOptions;
+    } else {
+      const name = headerNameOrOptions.name;
+      if (name) {
+        options.name = name;
       }
-      const format = headerNameOrOptions.properties.get("format")?.type;
-      if (format?.kind === "String") {
-        const val = format.value;
+      const format = headerNameOrOptions.format;
+      if (format) {
+        reportDeprecated(
+          context.program,
+          "The `format` option of `@header` decorator is deprecated. Use `explode: true` instead of `form` and `multi`. `csv` or `simple` is the default now.",
+          entity,
+        );
         if (
-          val === "csv" ||
-          val === "tsv" ||
-          val === "pipes" ||
-          val === "ssv" ||
-          val === "simple" ||
-          val === "form" ||
-          val === "multi"
+          format === "csv" ||
+          format === "tsv" ||
+          format === "pipes" ||
+          format === "ssv" ||
+          format === "simple" ||
+          format === "form" ||
+          format === "multi"
         ) {
-          options.format = val;
+          // eslint-disable-next-line @typescript-eslint/no-deprecated
+          options.format = format;
         }
       }
-    } else {
-      return;
+      if (headerNameOrOptions.explode) {
+        options.explode = true;
+      }
     }
-  }
-  if (
-    entity.type.kind === "Model" &&
-    isArrayModelType(context.program, entity.type) &&
-    options.format === undefined
-  ) {
-    reportDiagnostic(context.program, {
-      code: "header-format-required",
-      target: context.decoratorTarget,
-    });
   }
   context.program.stateMap(HttpStateKeys.header).set(entity, options);
 };

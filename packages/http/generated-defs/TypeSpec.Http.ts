@@ -7,6 +7,12 @@ import type {
   Type,
 } from "@typespec/compiler";
 
+export interface HeaderOptions {
+  readonly name?: string;
+  readonly explode?: boolean;
+  readonly format?: "csv" | "multi" | "tsv" | "ssv" | "pipes" | "simple" | "form";
+}
+
 export interface CookieOptions {
   readonly name?: string;
 }
@@ -78,7 +84,7 @@ export type BodyDecorator = (context: DecoratorContext, target: ModelProperty) =
 export type HeaderDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  headerNameOrOptions?: Type,
+  headerNameOrOptions?: string | HeaderOptions,
 ) => void;
 
 /**
