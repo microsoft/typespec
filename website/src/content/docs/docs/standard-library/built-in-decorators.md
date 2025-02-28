@@ -185,7 +185,7 @@ model Dog extends Pet  {kind: "dog", bark: boolean}
 
 ### `@doc` {#@doc}
 
-Attach a documentation string.
+Attach a documentation string. Content support CommonMark markdown formatting.
 ```typespec
 @doc(doc: valueof string, formatArgs?: {})
 ```
