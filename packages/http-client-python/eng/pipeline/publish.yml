@@ -31,6 +31,7 @@ extends:
           CadlRanchName: "@typespec/http-client-python"
           EnableCadlRanchReport: false
       - script:
+          # https://github.com/timotheeguerin/chronus/issues/359, `--prerelease` does not respect `--only`
           pnpm chronus version --prerelease --only @typespec/http-client-python
           git add $(Build.SourcesDirectory)/packages/http-client-python
           git checkout -- $(Build.SourcesDirectory)
