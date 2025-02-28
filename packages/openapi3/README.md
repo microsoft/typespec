@@ -49,6 +49,7 @@ Name of the output file.
 Output file will interpolate the following values:
 
 - service-name: Name of the service if multiple
+- service-name-if-multiple: Name of the service if multiple
 - version: Version of the service if multiple
 
 Default: `{service-name}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`
