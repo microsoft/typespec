@@ -29,9 +29,6 @@ import {
 } from "./utils.js";
 
 async function main() {
-  // eslint-disable-next-line no-console
-  console.log(`TypeSpec compiler v${typespecVersion}\n`);
-
   await yargs(process.argv.slice(2))
     .scriptName("tsp")
     .help()
