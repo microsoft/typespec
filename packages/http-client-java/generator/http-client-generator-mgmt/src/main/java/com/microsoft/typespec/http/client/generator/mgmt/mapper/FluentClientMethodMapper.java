@@ -116,7 +116,12 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
                     != MethodOverloadType.OVERLOAD_MINIMUM.value())) {
                 // sync method has both minimum overload and maximum overload + Context parameter, but not maximum
                 // overload without Context parameter
-                visibility = NOT_GENERATE;
+                if (methodType == ClientMethodType.LongRunningBeginSync && syncStack) {
+                    // In sync-stack, LongRunningSync calls LongRunningBeginSync for implementation.
+                    visibility = NOT_VISIBLE;
+                } else {
+                    visibility = NOT_GENERATE;
+                }
             } else {
                 visibility
                     = super.methodVisibility(methodType, methodOverloadType, hasContextParameter, isProtocolMethod);

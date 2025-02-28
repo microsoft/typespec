@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
@@ -290,17 +291,16 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
     @Override
     protected void generateLongRunningSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
-        super.generateSyncMethod(clientMethod, typeBlock, restAPIMethod, settings);
-//        typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
-//        String asyncMethodName = clientMethod.getSimpleAsyncMethodName();
-//        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
-//            addOptionalVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
-//            if (clientMethod.getReturnValue().getType() != PrimitiveType.Void) {
-//                function.methodReturn(String.format("%s(%s).block()", asyncMethodName, clientMethod.getArgumentList()));
-//            } else {
-//                function.line("%s(%s).block();", asyncMethodName, clientMethod.getArgumentList());
-//            }
-//        });
+        typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
+        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+            addOptionalVariables(function, clientMethod);
+            String line = String.format("%s(%s).getFinalResult()", MethodNamer.getLroBeginMethodName(restAPIMethod.getName()), clientMethod.getArgumentList());
+            if (clientMethod.getReturnValue().getType() != PrimitiveType.VOID) {
+                function.methodReturn(line);
+            } else {
+                function.line(line + ";");
+            }
+        });
     }
 
     @Override
@@ -343,14 +343,16 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
     @Override
     protected void generateLongRunningBeginSync(ClientMethod clientMethod, JavaType typeBlock,
         ProxyMethod restAPIMethod, JavaSettings settings) {
+        boolean contextInParameters = contextInParameters(clientMethod);
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
-        String beginAsyncMethodName = MethodNamer.getLroBeginAsyncMethodName(restAPIMethod.getName());
         typeBlock.publicMethod(clientMethod.getDeclaration(), function -> {
             addOptionalVariables(function, clientMethod);
-            function.line("return %s(%s)", beginAsyncMethodName, clientMethod.getArgumentList());
-            function.indent((() -> {
-                function.text(".getSyncPoller();");
-            }));
+            function.line(String.format("Response<BinaryData> response = %s(%s);",
+                MethodNamer.getSimpleRestResponseMethodName(restAPIMethod.getName()), clientMethod.getArgumentList()));
+            IType classType
+                = ((GenericType) clientMethod.getReturnValue().getType().getClientType()).getTypeArguments()[1];
+            String contextArgument = contextInParameters ? ", context" : "";
+            function.methodReturn(String.format("SyncPollerFactory.create(%1$s.getSerializerAdapter(), %1$s.getHttpPipeline(), %2$s.class, %2$s.class, %1$s.getDefaultPollInterval(), () -> response%3$s)", clientMethod.getClientReference(), classType, contextArgument));
         });
     }
 

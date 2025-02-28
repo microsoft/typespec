@@ -408,25 +408,29 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                     if (JavaSettings.getInstance().isSyncStackEnabled() && !proxyMethodUsesFluxByteBuffer) {
                         // WithResponseSync, with required and optional parameters
-                        methods.add(builder
+                        builder
                             .returnValue(createSimpleSyncRestResponseReturnValue(operation,
                                 returnTypeHolder.syncReturnWithResponse, returnTypeHolder.syncReturnType))
                             .name(proxyMethod.getSimpleRestResponseMethodName())
                             .onlyRequiredParameters(false)
                             .type(ClientMethodType.SimpleSyncRestResponse)
                             .groupedParameterRequired(false)
-                            .methodVisibility(simpleSyncMethodVisibility)
-                            .proxyMethod(proxyMethod.toSync())
-                            .build());
-
+                            .proxyMethod(proxyMethod.toSync());
                         if (settings.isFluent()) {
-                            // fluent + sync stack only needs LRO simple rest response with Context for implementation
+                            // fluent + sync stack needs simple rest response for implementation only
+                            ReturnValue binaryDataResponse = createSimpleSyncRestResponseReturnValue(
+                                operation, createSyncReturnWithResponseType(ClassType.BINARY_DATA, operation,
+                                    isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored()),
+                                ClassType.BINARY_DATA);
                             builder.methodVisibility(NOT_VISIBLE)
-                                .returnValue(createSimpleSyncRestResponseReturnValue(
-                                    operation, createSyncReturnWithResponseType(ClassType.BINARY_DATA, operation,
-                                        isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored()),
-                                    ClassType.BINARY_DATA));
+                                .returnValue(binaryDataResponse);
                         } else {
+                            builder.methodVisibility(simpleSyncMethodVisibility);
+                        }
+
+                        methods.add(builder.build());
+
+                        if (!settings.isFluent()) {
                             builder.methodVisibility(simpleSyncMethodVisibilityWithContext);
                         }
                         addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));

@@ -512,13 +512,15 @@ public class ClientMethod {
                 ClassType.HTTP_REQUEST.addImportsTo(imports, false);
             }
 
-            // sync-stack, pageable lro
-            if (type == ClientMethodType.PagingSyncSinglePage
-                && settings.isSyncStackEnabled()
-                && settings.isFluent()
-                && proxyMethod != null
-                && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType())) {
-                ClassType.SYNC_POLLER_FACTORY.addImportsTo(imports, false);
+            // sync-stack, lro (+ pageable)
+            if (settings.isSyncStackEnabled() && settings.isFluent()) {
+                if ((
+                    type == ClientMethodType.PagingSyncSinglePage
+                        && proxyMethod != null
+                        && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()))
+                    || type == ClientMethodType.LongRunningBeginSync) {
+                    ClassType.SYNC_POLLER_FACTORY.addImportsTo(imports, false);
+                }
             }
         }
     }
