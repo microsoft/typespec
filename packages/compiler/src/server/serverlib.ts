@@ -349,8 +349,10 @@ export function createServer(host: ServerHost): Server {
 
     if (tspChanges.length === 0 || tspChanges.length % 2 !== 0) {
       log({
-        level: "warning",
-        message: `No file changes found in the file event list: ${JSON.stringify(tspChanges)}`,
+        level: "debug",
+        message:
+          "There is no file operation or not a rename file operation, it must occur in pairs," +
+          "i.e. one file is marked as deleted(type=3) and one is marked as created(type=1)",
       });
       return;
     }
@@ -384,8 +386,12 @@ export function createServer(host: ServerHost): Server {
 
     if (filePathChangedMap.size === 0) {
       log({
-        level: "warning",
-        message: `It should be possible to form key-value pairs in the file event list: ${JSON.stringify(tspChanges)}`,
+        level: "debug",
+        message:
+          "Moving a file location will definitely get the key-value pairs before(type=3) and after(type=1) the move according to its file name, " +
+          "and this message indicates that the corresponding file key-value pairs were not found, " +
+          "see the input parameters for details:" +
+          JSON.stringify(tspChanges),
       });
       return;
     }
@@ -395,7 +401,7 @@ export function createServer(host: ServerHost): Server {
     const result = await compileService.compile({ uri: fileService.getURL(mainFile) });
     if (!result) {
       log({
-        level: "warning",
+        level: "debug",
         message: `The main tsp file '${mainFile}' does not have any diagnostics.`,
       });
       return;
@@ -418,7 +424,7 @@ export function createServer(host: ServerHost): Server {
             const replaceText = getRelativePath(filePath, newFilePath);
             if (!replaceText) {
               log({
-                level: "warning",
+                level: "debug",
                 message: `Unable to get the relative path of the imported content '${target.path.value}' through '${filePath}' and '${newFilePath}`,
               });
               continue;

@@ -269,11 +269,11 @@ describe("compiler: path utils", () => {
   it("getRelativePathFromDirectory", () => {
     strictEqual(
       getRelativePathFromDirectory("/a/main.tsp", "/a/lib/enum.tsp", false),
-      "./lib/enum.tsp",
+      "../lib/enum.tsp",
     );
     strictEqual(
       getRelativePathFromDirectory("/a/lib/pet.tsp", "/a/test/enum.tsp", false),
-      "../test/enum.tsp",
+      "../../test/enum.tsp",
     );
   });
 });
