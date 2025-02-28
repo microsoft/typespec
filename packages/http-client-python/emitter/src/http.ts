@@ -1,3 +1,5 @@
+import { NoTarget } from "@typespec/compiler";
+
 import {
   SdkBasicServiceMethod,
   SdkBodyParameter,
@@ -18,7 +20,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { HttpStatusCodeRange } from "@typespec/http";
-import { PythonSdkContext } from "./lib.js";
+import { PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { KnownTypes, getType } from "./types.js";
 import {
   camelToSnakeCase,
@@ -96,10 +98,10 @@ function addLroInformation(
   };
 }
 
-function getWireNameFromSegments(
+
+
+function getWireNameFromPropertySegments(
   segments: SdkModelPropertyType[] | undefined,
-  method?: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  input: boolean = true,
 ): string {
   if (segments === undefined) return "";
   if (segments.length === 0) return "";
@@ -112,7 +114,21 @@ function getWireNameFromSegments(
       }
     }
     return result.join(".");
-  } else if (method) {
+  }
+
+  throw new Error("Cannot find wire name from property segments");
+}
+
+function getWireNameForContinuationToken(
+  segments: SdkModelPropertyType[] | undefined,
+  method?: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+  input: boolean = true,
+): string {
+  try {
+    return getWireNameFromPropertySegments(segments);
+  } catch (e) {}
+
+  if (method) {
     if (input) {
       for (const parameter of method.operation.parameters) {
         if (isContinuationToken(parameter, method, input)) {
@@ -130,10 +146,26 @@ function getWireNameFromSegments(
     }
   }
 
-  throw new Error("Cannot find wire name from segments");
+  throw new Error("For now python don't support @continuationToken in request body");
 }
 
-function getPositionFromSegments(
+function getWireNameWithDiagnostics(
+  context: PythonSdkContext<SdkHttpOperation>,
+  segments: SdkModelPropertyType[] | undefined,
+  code: "no-valid-paging-items" | "no-valid-nextlink" | "no-valid-lro-result",
+): string {
+ try {
+    return getWireNameFromPropertySegments(segments);
+  } catch (e) {
+    reportDiagnostic(context.program, {
+      code: code,
+      target: NoTarget,
+    });
+  }
+  return "";
+}
+
+function getPositionForContinuationToken(
   segments: SdkModelPropertyType[],
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   input: boolean,
@@ -167,8 +199,8 @@ function buildContinuationToken(
 ): Record<string, any> {
   if (segments === undefined) return {};
   if (segments.length === 0) return {};
-  const wireName = getWireNameFromSegments(segments, method, input);
-  const position = getPositionFromSegments(segments, method, input);
+  const wireName = getWireNameForContinuationToken(segments, method, input);
+  const position = getPositionForContinuationToken(segments, method, input);
   return { wireName, position };
 }
 
@@ -185,8 +217,8 @@ function addPagingInformation(
   }
   const itemType = getType(context, method.response.type!);
   const base = emitHttpOperation(context, rootClient, operationGroupName, method.operation, method);
-  const itemName = getWireNameFromSegments(method.response.resultSegments);
-  const nextLinkName = getWireNameFromSegments(method.pagingMetadata.nextLinkSegments);
+  const itemName = getWireNameWithDiagnostics(context, method.response.resultSegments, "no-valid-paging-items");
+  const nextLinkName = getWireNameWithDiagnostics(context, method.pagingMetadata.nextLinkSegments, "no-valid-nextlink");
   base.responses.forEach((resp: Record<string, any>) => {
     resp.type = itemType;
   });
@@ -459,7 +491,7 @@ function emitHttpResponse(
     type,
     contentTypes: response.contentTypes,
     defaultContentType: response.defaultContentType ?? "application/json",
-    resultProperty: getWireNameFromSegments(method?.response.resultSegments),
+    resultProperty: getWireNameWithDiagnostics(context, method?.response.resultSegments, "no-valid-lro-result"),
   };
 }
 

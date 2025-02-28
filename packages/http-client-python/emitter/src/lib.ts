@@ -83,6 +83,25 @@ const libDef = {
         default: "Can't generate Python SDK since no client defined in typespec file.",
       },
     },
+    "no-valid-paging-items": {
+      severity: "warning",
+      messages: {
+        default: "No valid paging items.",
+      },
+    },
+    "no-valid-nextlink": {
+      severity: "warning",
+      messages: {
+        default: "No valid next link.",
+      },
+    },
+    "no-valid-lro-result": {
+      severity: "warning",
+      messages: {
+        default: "No valid LRO result.",
+      },
+    },
+
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<PythonEmitterOptions>,
