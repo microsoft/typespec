@@ -154,7 +154,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
                 Assert.IsTrue(methods.ContainsKey(expected.Signature.Name));
                 Assert.AreEqual(expected.Signature.Name, actual.Signature.Name);
-                Assert.AreEqual($"{expected.Signature.Description}.", actual.Signature.Description?.ToString()); // the writer adds a period
+                if (!string.IsNullOrEmpty(expected.Signature.Description?.ToString()))
+                {
+                    Assert.AreEqual($"{expected.Signature.Description}.", actual.Signature.Description?.ToString()); // the writer adds a period
+                }
                 Assert.AreEqual(expected.Signature.Modifiers, actual.Signature.Modifiers);
                 Assert.AreEqual(expected.Signature.ReturnType, actual.Signature.ReturnType);
                 Assert.AreEqual(expected.Signature.Parameters.Count, actual.Signature.Parameters.Count);

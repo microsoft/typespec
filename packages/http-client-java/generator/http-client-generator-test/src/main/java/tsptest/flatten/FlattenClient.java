@@ -51,6 +51,13 @@ public final class FlattenClient {
 
     /**
      * The send operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maxPageSize parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -251,6 +258,7 @@ public final class FlattenClient {
      * @param endpoint The endpoint parameter.
      * @param input The input parameter.
      * @param requiredInt The requiredInt parameter.
+     * @param maxPageSize The maxPageSize parameter.
      * @param user The user parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -261,11 +269,14 @@ public final class FlattenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(String id, String endpoint, String input, int requiredInt, User user) {
+    public void send(String id, String endpoint, String input, int requiredInt, Integer maxPageSize, User user) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
         SendRequest sendRequestObj = new SendRequest(endpoint, input, requiredInt).setUser(user);
         BinaryData sendRequest = BinaryData.fromObject(sendRequestObj);
+        if (maxPageSize != null) {
+            requestOptions.addQueryParam("maxpagesize", String.valueOf(maxPageSize), false);
+        }
         sendWithResponse(id, sendRequest, requestOptions).getValue();
     }
 

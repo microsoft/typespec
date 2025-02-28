@@ -165,3 +165,22 @@ it("warns for anonymous models", async () => {
     },
   ]);
 });
+
+it("warns for GET requests with explicit body parameters", async () => {
+  const [_, diagnostics] = await runner.compileAndDiagnose(
+    getStandardService(
+      `
+      #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
+      @route("/foo") @get op foo(@body body?: { intProp?: int32}): void;
+      `,
+    ),
+  );
+
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http-server-csharp/get-request-body",
+      message:
+        "Get operations should not have request bodies. Generating an operation and interface without parameters, your business logic will use HttpContext to interpret Request properties.",
+    },
+  ]);
+});

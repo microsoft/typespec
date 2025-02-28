@@ -30,16 +30,24 @@ public final class Diagnostic implements JsonSerializable<Diagnostic> {
     @Generated
     private final ResponseError error;
 
+    /*
+     * The subError property.
+     */
+    @Generated
+    private final SubError subError;
+
     /**
      * Creates an instance of Diagnostic class.
      * 
      * @param name the name value to set.
      * @param error the error value to set.
+     * @param subError the subError value to set.
      */
     @Generated
-    private Diagnostic(String name, ResponseError error) {
+    private Diagnostic(String name, ResponseError error, SubError subError) {
         this.name = name;
         this.error = error;
+        this.subError = subError;
     }
 
     /**
@@ -63,6 +71,16 @@ public final class Diagnostic implements JsonSerializable<Diagnostic> {
     }
 
     /**
+     * Get the subError property: The subError property.
+     * 
+     * @return the subError value.
+     */
+    @Generated
+    public SubError getSubError() {
+        return this.subError;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Generated
@@ -71,6 +89,7 @@ public final class Diagnostic implements JsonSerializable<Diagnostic> {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("name", this.name);
         jsonWriter.writeJsonField("error", this.error);
+        jsonWriter.writeJsonField("subError", this.subError);
         return jsonWriter.writeEndObject();
     }
 
@@ -88,6 +107,7 @@ public final class Diagnostic implements JsonSerializable<Diagnostic> {
         return jsonReader.readObject(reader -> {
             String name = null;
             ResponseError error = null;
+            SubError subError = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -96,11 +116,13 @@ public final class Diagnostic implements JsonSerializable<Diagnostic> {
                     name = reader.getString();
                 } else if ("error".equals(fieldName)) {
                     error = ResponseError.fromJson(reader);
+                } else if ("subError".equals(fieldName)) {
+                    subError = SubError.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }
             }
-            return new Diagnostic(name, error);
+            return new Diagnostic(name, error, subError);
         });
     }
 }
