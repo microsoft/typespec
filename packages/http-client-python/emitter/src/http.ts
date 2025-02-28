@@ -98,11 +98,7 @@ function addLroInformation(
   };
 }
 
-
-
-function getWireNameFromPropertySegments(
-  segments: SdkModelPropertyType[] | undefined,
-): string {
+function getWireNameFromPropertySegments(segments: SdkModelPropertyType[] | undefined): string {
   if (segments === undefined) return "";
   if (segments.length === 0) return "";
 
@@ -154,7 +150,7 @@ function getWireNameWithDiagnostics(
   segments: SdkModelPropertyType[] | undefined,
   code: "no-valid-paging-items" | "no-valid-nextlink" | "no-valid-lro-result",
 ): string {
- try {
+  try {
     return getWireNameFromPropertySegments(segments);
   } catch (e) {
     reportDiagnostic(context.program, {
@@ -217,8 +213,16 @@ function addPagingInformation(
   }
   const itemType = getType(context, method.response.type!);
   const base = emitHttpOperation(context, rootClient, operationGroupName, method.operation, method);
-  const itemName = getWireNameWithDiagnostics(context, method.response.resultSegments, "no-valid-paging-items");
-  const nextLinkName = getWireNameWithDiagnostics(context, method.pagingMetadata.nextLinkSegments, "no-valid-nextlink");
+  const itemName = getWireNameWithDiagnostics(
+    context,
+    method.response.resultSegments,
+    "no-valid-paging-items",
+  );
+  const nextLinkName = getWireNameWithDiagnostics(
+    context,
+    method.pagingMetadata.nextLinkSegments,
+    "no-valid-nextlink",
+  );
   base.responses.forEach((resp: Record<string, any>) => {
     resp.type = itemType;
   });
@@ -491,7 +495,11 @@ function emitHttpResponse(
     type,
     contentTypes: response.contentTypes,
     defaultContentType: response.defaultContentType ?? "application/json",
-    resultProperty: getWireNameWithDiagnostics(context, method?.response.resultSegments, "no-valid-lro-result"),
+    resultProperty: getWireNameWithDiagnostics(
+      context,
+      method?.response.resultSegments,
+      "no-valid-lro-result",
+    ),
   };
 }
 

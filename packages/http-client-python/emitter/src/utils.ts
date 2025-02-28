@@ -176,6 +176,11 @@ export function isContinuationToken<TServiceOperation extends SdkServiceOperatio
     method && method.kind === "paging"
       ? method.pagingMetadata.continuationTokenParameterSegments
       : undefined;
+  const responseSegments =
+    method && method.kind === "paging"
+      ? method.pagingMetadata.continuationTokenResponseSegments
+      : undefined;
+  if (!parameterSegments || !responseSegments) return false;
   if (input) {
     return Boolean(
       parameterSegments &&
@@ -185,10 +190,6 @@ export function isContinuationToken<TServiceOperation extends SdkServiceOperatio
     );
   }
 
-  const responseSegments =
-    method && method.kind === "paging"
-      ? method.pagingMetadata.continuationTokenResponseSegments
-      : undefined;
   return Boolean(
     responseSegments && responseSegments.length > 0 && responseSegments.at(-1) === parameter,
   );

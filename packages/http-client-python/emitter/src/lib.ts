@@ -101,7 +101,6 @@ const libDef = {
         default: "No valid LRO result.",
       },
     },
-
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<PythonEmitterOptions>,
