@@ -2,6 +2,7 @@ import { Children, code, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   Discriminator,
+  getDiscriminatedUnion,
   Model,
   ModelProperty,
   RekeyableMap,
@@ -11,7 +12,6 @@ import {
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
-import { getDiscriminatedUnion } from "../../../../compiler/dist/src/core/helpers/discriminator-utils.js";
 import { reportDiagnostic } from "../../lib.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import {

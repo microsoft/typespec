@@ -1,0 +1,20 @@
+{
+  "name": "test-package",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@typespec/ts-http-runtime": "0.1.0",
+    "uri-template": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "~18.19.75",
+    "typescript": "^5.5.2"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./models": "./dist/models/index.js"
+  }
+}

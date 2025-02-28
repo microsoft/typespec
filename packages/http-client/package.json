@@ -32,13 +32,16 @@
     "eslint": "^9.18.0",
     "prettier": "~3.4.2",
     "typescript": "~5.7.3",
-    "vitest": "^3.0.5"
+    "vitest": "^3.0.5",
+    "concurrently": "^9.1.2"
   },
   "scripts": {
     "build-src": "babel src -d dist/src --extensions .ts,.tsx",
     "build": "tsc -p . && npm run build-src",
-    "watch": "tsc --watch",
-    "build:tsp": "tsp compile . --no-emit",
+    "clean": "rimraf ./dist",
+    "watch-src": "babel src -d dist/src --extensions .ts,.tsx --watch",
+    "watch-tsc": "tsc -p . --watch",
+    "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
     "test": "vitest run",
     "lint": "eslint src/ test/ --report-unused-disable-directives --max-warnings=0",
     "lint:fix": "eslint . --report-unused-disable-directives --fix",

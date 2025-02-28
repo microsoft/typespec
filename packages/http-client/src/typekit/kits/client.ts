@@ -2,14 +2,17 @@ import {
   Interface,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
+  ModelProperty,
   Namespace,
   NoTarget,
   Operation,
 } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { $, defineKit } from "@typespec/compiler/experimental/typekit";
 import {
   getHttpService,
   getServers,
+  HttpOperation,
+  HttpServer,
   HttpServiceAuthentication,
   resolveAuthentication,
 } from "@typespec/http";
@@ -17,6 +20,7 @@ import "@typespec/http/experimental/typekit";
 import { InternalClient } from "../../interfaces.js";
 import { reportDiagnostic } from "../../lib.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
+import { getStringValue } from "../../utils/helpers.js";
 import { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<InternalClient> {
@@ -53,11 +57,14 @@ interface ClientKit extends NameKit<InternalClient> {
    *
    * @param client the client to get the methods for
    */
-  listServiceOperations(client: InternalClient): Operation[];
+  listHttpOperations(client: InternalClient): HttpOperation[];
 
   /**
    * Get the url template of a client, given its constructor as well */
-  getUrlTemplate(client: InternalClient, constructor: Operation): string;
+  getUrlTemplate(
+    client: InternalClient,
+    constructor?: Operation,
+  ): { url: string; parameters: ModelProperty[] };
   /**
    * Determines is both clients have the same constructor
    */
@@ -67,6 +74,11 @@ interface ClientKit extends NameKit<InternalClient> {
    * @param client
    */
   getAuth(client: InternalClient): HttpServiceAuthentication;
+  /**
+   * Lists servers for a client or its closest parent's sever
+   * @param client client to check for servers
+   */
+  listServers(client: InternalClient): HttpServer[] | undefined;
 }
 
 interface TypekitExtension {
@@ -82,7 +94,7 @@ function getClientName(name: string): string {
 }
 
 export const clientCache = new Map<Namespace | Interface, InternalClient>();
-export const clientOperationCache = new Map<InternalClient, Operation[]>();
+export const clientOperationCache = new Map<InternalClient, HttpOperation[]>();
 
 defineKit<TypekitExtension>({
   client: {
@@ -140,7 +152,7 @@ defineKit<TypekitExtension>({
     isPubliclyInitializable(client) {
       return client.type.kind === "Namespace";
     },
-    listServiceOperations(client) {
+    listHttpOperations(client) {
       if (clientOperationCache.has(client)) {
         return clientOperationCache.get(client)!;
       }
@@ -161,32 +173,71 @@ defineKit<TypekitExtension>({
         operations.push(clientOperation);
       }
 
-      clientOperationCache.set(client, operations);
+      const httpOperations = operations.map((o) => this.httpOperation.get(o));
+      clientOperationCache.set(client, httpOperations);
 
-      return operations;
+      return httpOperations;
     },
-    getUrlTemplate(client, constructor) {
-      const params = this.operation.getClientSignature(client, constructor);
-      const endpointParams = params
-        .filter(
-          (p) =>
-            this.modelProperty.getName(p) === "endpoint" || this.modelProperty.isHttpPathParam(p),
-        )
-        .map((p) => p.name)
-        .sort();
-      if (endpointParams.length === 1) {
-        return "{endpoint}";
+    getUrlTemplate(client, _constructor) {
+      const constructor = _constructor ? _constructor : this.client.getConstructor(client);
+      // By default, we assume that the client has a single templated argument with a single endpoint parameter
+      const endpointTemplate: { url: string; parameters: ModelProperty[] } = {
+        url: "{endpoint}",
+        parameters: [
+          this.modelProperty.create({ name: "endpoint", type: $.builtin.string, optional: false }),
+        ],
+      };
+
+      const servers = this.client.listServers(client);
+
+      // There are no servers defined for this client
+      // Give the client a required endpoint parameter
+      if (!servers || servers.length === 0) {
+        return endpointTemplate;
       }
-      // here we have multiple templated arguments to an endpoint
-      const servers = getServers(this.program, client.service) || [];
+
       for (const server of servers) {
         const serverParams = [...server.parameters.values()].map((p) => p.name).sort();
-        if (JSON.stringify(serverParams) === JSON.stringify(endpointParams)) {
-          // this is the server we want
-          return server.url;
+
+        let constructorParams = constructor
+          ? [...constructor.parameters.properties.values()].map((p) => p.name).sort()
+          : [];
+        const optionalConstructorParams = constructor?.parameters.properties.get("options");
+        if (optionalConstructorParams && this.model.is(optionalConstructorParams.type)) {
+          constructorParams = [
+            ...constructorParams,
+            ...Array.from(optionalConstructorParams.type.properties.values()).map((p) => p.name),
+          ];
         }
+
+        // If we don't have any parameters in the server and the constructor says endpoint
+        if (
+          !serverParams.length &&
+          constructorParams.length === 1 &&
+          constructorParams[0] === "endpoint"
+        ) {
+          return {
+            url: "{endpoint}",
+            parameters: [
+              // Add the endpoint parameter as optional since we have a default url
+              this.modelProperty.create({
+                name: "endpoint",
+                type: $.builtin.string,
+                optional: true,
+                defaultValue: getStringValue(server.url),
+              }),
+            ],
+          };
+        }
+
+        // TODO: Handle multiple servers
+
+        return { url: server.url, parameters: Array.from(server.parameters.values()) };
       }
-      return "{endpoint}";
+
+      // Couldn't find a match, return the default
+      throw new Error("Couldn't find a matching server for the client");
+      return endpointTemplate;
     },
     haveSameConstructor(a, b) {
       const aConstructor = this.client.getConstructor(a);
@@ -210,6 +261,25 @@ defineKit<TypekitExtension>({
     getAuth(client) {
       const [httpService] = getHttpService(this.program, client.service);
       return resolveAuthentication(httpService);
+    },
+    listServers(client) {
+      const currentServers = getServers(this.program, client.service);
+
+      if (currentServers) {
+        return currentServers;
+      }
+
+      let parent = this.client.getParent(client);
+
+      while (parent) {
+        const servers = getServers(this.program, parent.service);
+        if (servers) {
+          return servers;
+        }
+        parent = this.client.getParent(parent);
+      }
+
+      return undefined;
     },
   },
 });
