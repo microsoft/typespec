@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-Fix bug of unable to use `{service-name}` interpolation for filenames with openapi3-emitter when only one service is defined
+Using `{service-name}` in `tspconfig.yaml` will always interpolate the current service name. `{service-name-if-multiple}` can be used to get the previous behavior
