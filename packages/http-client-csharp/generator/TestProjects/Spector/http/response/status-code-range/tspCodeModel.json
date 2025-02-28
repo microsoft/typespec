@@ -391,7 +391,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Response.StatusCodeRange"
   }
  ]
 }

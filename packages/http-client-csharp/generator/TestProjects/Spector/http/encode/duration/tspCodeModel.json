@@ -340,7 +340,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Duration"
   },
   {
    "$id": "47",
@@ -750,7 +751,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Duration.Query"
   },
   {
    "$id": "86",
@@ -1449,7 +1451,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Duration.Property"
   },
   {
    "$id": "146",
@@ -1859,7 +1862,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Duration.Header"
   }
  ]
 }

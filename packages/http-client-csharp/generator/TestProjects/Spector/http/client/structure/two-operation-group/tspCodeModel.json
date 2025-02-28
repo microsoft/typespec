@@ -160,7 +160,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.TwoOperationGroup"
   },
   {
    "$id": "19",
@@ -294,7 +295,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group1"
   },
   {
    "$id": "30",
@@ -428,7 +430,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group2"
   }
  ]
 }

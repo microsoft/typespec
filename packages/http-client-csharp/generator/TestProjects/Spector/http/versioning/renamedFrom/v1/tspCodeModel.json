@@ -374,7 +374,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Versioning.RenamedFrom"
   },
   {
    "$id": "41",
@@ -536,7 +537,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Versioning.RenamedFrom.OldInterface"
   }
  ]
 }

@@ -110,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public CSharpType Type => _type ??=
             new(
                 _name ??= CustomCodeView?.Name ?? BuildName(),
-                CustomCodeView?.BuildNamespace() ?? BuildNamespace(),
+                CustomCodeView?.Type.Namespace ?? BuildNamespace(),
                 this is EnumProvider ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum),
