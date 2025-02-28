@@ -96,9 +96,10 @@ function addLroInformation(
   };
 }
 
-function getPropertyNameFromSegments(
+function getWireNameFromSegments(
   segments: SdkModelPropertyType[] | undefined,
   method?: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+  input: boolean = true,
 ): string {
   if (segments === undefined) return "";
   if (segments.length === 0) return "";
@@ -112,26 +113,47 @@ function getPropertyNameFromSegments(
     }
     return result.join(".");
   } else if (method) {
-    for (const parameter of method.operation.parameters) {
-      if (isContinuationToken(parameter, method)) {
-        return parameter.serializedName;
+    if (input) {
+      for (const parameter of method.operation.parameters) {
+        if (isContinuationToken(parameter, method, input)) {
+          return parameter.serializedName;
+        }
+      }
+    } else {
+      for (const response of method.operation.responses) {
+        for (const header of response.headers) {
+          if (isContinuationToken(header, method, input)) {
+            return header.serializedName;
+          }
+        }
       }
     }
   }
 
-  throw new Error("Cannot find property name from segments");
+  throw new Error("Cannot find wire name from segments");
 }
 
 function getPositionFromSegments(
   segments: SdkModelPropertyType[],
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+  input: boolean,
 ): string {
   if (segments[0].kind === "property") {
     return "body";
   }
-  for (const parameter of method.operation.parameters) {
-    if (isContinuationToken(parameter, method)) {
-      return parameter.kind;
+  if (input) {
+    for (const parameter of method.operation.parameters) {
+      if (isContinuationToken(parameter, method, input)) {
+        return parameter.kind;
+      }
+    }
+  } else {
+    for (const response of method.operation.responses) {
+      for (const header of response.headers) {
+        if (isContinuationToken(header, method, input)) {
+          return "header";
+        }
+      }
     }
   }
 
@@ -141,11 +163,12 @@ function getPositionFromSegments(
 function buildContinuationToken(
   segments: SdkModelPropertyType[] | undefined,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+  input: boolean = true,
 ): Record<string, any> {
   if (segments === undefined) return {};
   if (segments.length === 0) return {};
-  const wireName = getPropertyNameFromSegments(segments, method);
-  const position = getPositionFromSegments(segments, method);
+  const wireName = getWireNameFromSegments(segments, method, input);
+  const position = getPositionFromSegments(segments, method, input);
   return { wireName, position };
 }
 
@@ -162,8 +185,8 @@ function addPagingInformation(
   }
   const itemType = getType(context, method.response.type!);
   const base = emitHttpOperation(context, rootClient, operationGroupName, method.operation, method);
-  const itemName = getPropertyNameFromSegments(method.response.resultSegments);
-  const nextLinkName = getPropertyNameFromSegments(method.pagingMetadata.nextLinkSegments);
+  const itemName = getWireNameFromSegments(method.response.resultSegments);
+  const nextLinkName = getWireNameFromSegments(method.pagingMetadata.nextLinkSegments);
   base.responses.forEach((resp: Record<string, any>) => {
     resp.type = itemType;
   });
@@ -184,6 +207,7 @@ function addPagingInformation(
     continuationTokenResponse: buildContinuationToken(
       method.pagingMetadata.continuationTokenResponseSegments,
       method,
+      false,
     ),
   };
 }
@@ -435,7 +459,7 @@ function emitHttpResponse(
     type,
     contentTypes: response.contentTypes,
     defaultContentType: response.defaultContentType ?? "application/json",
-    resultProperty: getPropertyNameFromSegments(method?.response.resultSegments),
+    resultProperty: getWireNameFromSegments(method?.response.resultSegments),
   };
 }
 
