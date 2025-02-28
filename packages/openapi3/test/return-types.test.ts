@@ -472,7 +472,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
   });
 
   describe("response model resolving to no property in the body produce no body", () => {
-    it.each(["{}", "{@header prop: string}", `{@visibility("none") prop: string}`])(
+    it.each(["{}", "{@header prop: string}", `{@invisible(Lifecycle) prop: string}`])(
       "%s",
       async (body) => {
         const res = await openApiFor(`op test(): ${body};`);

@@ -47,7 +47,6 @@ import {
   unsafe_mutateSubgraphWithNamespace,
   unsafe_MutatorWithNamespace,
 } from "@typespec/compiler/experimental";
-import {} from "@typespec/compiler/utils";
 import {
   AuthenticationOptionReference,
   AuthenticationReference,
@@ -117,6 +116,7 @@ import {
 } from "./types.js";
 import {
   deepEquals,
+  ensureValidComponentFixedFieldKey,
   getDefaultValue,
   isBytesKeptRaw,
   isSharedHttpOperation,
@@ -681,7 +681,6 @@ function createOAPIEmitter(
           }
         }
       }
-
       return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
@@ -710,7 +709,10 @@ function createOAPIEmitter(
   }
 
   function computeSharedOperationId(shared: SharedHttpOperation) {
-    return shared.operations.map((op) => resolveOperationId(program, op.operation)).join("_");
+    const operationIds = shared.operations.map((op) => resolveOperationId(program, op.operation));
+    const uniqueOpIds = new Set<string>(operationIds);
+    if (uniqueOpIds.size === 1) return uniqueOpIds.values().next().value;
+    return operationIds.join("_");
   }
 
   function getOperationOrSharedOperation(operation: HttpOperation | SharedHttpOperation):
@@ -1454,7 +1456,7 @@ function createOAPIEmitter(
   ): { style?: string; explode?: boolean } | undefined {
     switch (parameter.type) {
       case "header":
-        return mapHeaderParameterFormat(parameter);
+        return getHeaderParameterAttributes(parameter);
       case "cookie":
         // style and explode options are omitted from cookies
         // https://github.com/microsoft/typespec/pull/4761#discussion_r1803365689
@@ -1541,23 +1543,32 @@ function createOAPIEmitter(
     }
   }
 
-  function mapHeaderParameterFormat(
+  function getHeaderParameterAttributes(
     parameter: HeaderFieldOptions & {
       param: ModelProperty;
     },
-  ): { style?: string; explode?: boolean } | undefined {
+  ) {
+    const attributes: { style?: "simple"; explode?: boolean } = {};
+    if (parameter.explode) {
+      // The default for headers is false, so only need to specify when true https://spec.openapis.org/oas/v3.0.4.html#fixed-fields-for-use-with-schema-0
+      attributes.explode = true;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     switch (parameter.format) {
       case undefined:
-        return {};
+        return attributes;
       case "csv":
       case "simple":
-        return { style: "simple" };
+        attributes.style = "simple";
+        break;
       default:
         diagnostics.add(
           createDiagnostic({
             code: "invalid-format",
             format: {
               paramType: "header",
+              // eslint-disable-next-line @typescript-eslint/no-deprecated
               value: parameter.format,
             },
             target: parameter.param,
@@ -1565,21 +1576,7 @@ function createOAPIEmitter(
         );
         return undefined;
     }
-  }
-
-  function validateComponentFixedFieldKey(type: Type, name: string) {
-    const pattern = /^[a-zA-Z0-9.\-_]+$/;
-    if (!pattern.test(name)) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "invalid-component-fixed-field-key",
-          format: {
-            value: name,
-          },
-          target: type,
-        }),
-      );
-    }
+    return attributes;
   }
 
   function emitParameters() {
@@ -1591,14 +1588,12 @@ function createOAPIEmitter(
         root.components!.parameters!,
         typeNameOptions,
       );
-      validateComponentFixedFieldKey(property, key);
-
-      root.components!.parameters![key] = { ...param };
+      const validKey = ensureValidComponentFixedFieldKey(program, property, key);
+      root.components!.parameters![validKey] = { ...param };
       for (const key of Object.keys(param)) {
         delete param[key];
       }
-
-      param.$ref = "#/components/parameters/" + encodeURIComponent(key);
+      param.$ref = "#/components/parameters/" + encodeURIComponent(validKey);
     }
   }
 
@@ -1616,8 +1611,6 @@ function createOAPIEmitter(
       const schemas = root.components!.schemas!;
       const declarations = files[0].globalScope.declarations;
       for (const declaration of declarations) {
-        validateComponentFixedFieldKey(serviceNamespace, declaration.name);
-
         schemas[declaration.name] = declaration.value as any;
       }
     }

@@ -54,12 +54,12 @@ export type OperationIdDecorator = (
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
  *
- * @param key Extension key. Must start with `x-`
+ * @param key Extension key.
  * @param value Extension value.
  * @example
  * ```typespec
  * @extension("x-custom", "My value")
- * @extension("x-pageable", {nextLink: "x-next-link"})
+ * @extension("x-pageable", #{nextLink: "x-next-link"})
  * op read(): string;
  * ```
  */
@@ -67,7 +67,7 @@ export type ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
-  value: Type,
+  value: unknown,
 ) => void;
 
 /**

@@ -13,7 +13,7 @@ using UnbrandedTypeSpec.Models.Custom;
 
 namespace UnbrandedTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> This is a sample typespec project. </summary>
     public partial class UnbrandedTypeSpecClient
     {
         private readonly Uri _endpoint;

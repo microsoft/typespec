@@ -144,6 +144,7 @@ export function getCSharpType(
           namespace: namespace || "Models",
           isBuiltIn: false,
           isValueType: false,
+          isClass: true,
         }),
       };
     case "Enum":
@@ -152,7 +153,7 @@ export function getCSharpType(
           name: ensureCSharpIdentifier(program, type, type.name, NameCasingType.Class),
           namespace: `${namespace}.Models`,
           isBuiltIn: false,
-          isValueType: false,
+          isValueType: true,
         }),
       };
     case "Model":
@@ -167,6 +168,8 @@ export function getCSharpType(
             namespace: itemType.namespace,
             isBuiltIn: itemType.isBuiltIn,
             isValueType: false,
+            isClass: itemType.isClass,
+            isCollection: true,
           }),
         };
       }
@@ -180,6 +183,7 @@ export function getCSharpType(
           namespace: `${namespace}.Models`,
           isBuiltIn: false,
           isValueType: false,
+          isClass: true,
         }),
       };
     default:
@@ -970,6 +974,16 @@ export class CSharpOperationHelpers {
     const bodyParam = operation.parameters.body;
     const isExplicitBodyParam: boolean = bodyParam?.property !== undefined;
     const result: CSharpOperationParameter[] = [];
+    if (operation.verb === "get" && operation.parameters.body !== undefined) {
+      reportDiagnostic(program, {
+        code: "get-request-body",
+        target: operation.operation,
+        format: {},
+      });
+
+      this.#opCache.set(operation.operation, result);
+      return result;
+    }
     const validParams: HttpOperationParameter[] = operation.parameters.parameters.filter((p) =>
       isValidParameter(program, p.param),
     );
@@ -1422,7 +1436,7 @@ export function coalesceTsTypes(program: Program, types: Type[]): [CSharpType, b
       return defaultValue;
   }
 
-  if (current !== undefined && nullable) current.isNullable = true;
+  if (current !== undefined && nullable === true) current.isNullable = true;
   return current === undefined ? defaultValue : [current, false];
 }
 

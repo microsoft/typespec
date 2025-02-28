@@ -58,7 +58,9 @@ import {
   ResolveModuleHost,
   typespecVersion,
 } from "../core/index.js";
-import { builtInLinterLibraryName, builtInLinterRule_UnusedUsing } from "../core/linter.js";
+import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
+import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
+import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
@@ -498,6 +500,7 @@ export function createServer(host: ServerHost): Server {
           };
         }
         const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
+        const unusedTemlateParameterRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedTemplateParameter}`;
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
         } else if (each.code === unusedUsingRule) {
@@ -510,6 +513,18 @@ export function createServer(host: ServerHost): Server {
             optionsFromConfig.linterRuleSet?.disable?.[unusedUsingRule] === undefined
           ) {
             // if the unused using is not configured by user explicitly, report it as hint by default
+            diagnostic.severity = DiagnosticSeverity.Hint;
+          }
+        } else if (each.code === unusedTemlateParameterRule) {
+          // Unused or unnecessary code. Diagnostics with this tag are rendered faded out, so no extra work needed from IDE side
+          // https://vscode-api.js.org/enums/vscode.DiagnosticTag.html#google_vignette
+          // https://learn.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.languageserver.protocol.diagnostictag?view=visualstudiosdk-2022
+          diagnostic.tags = [DiagnosticTag.Unnecessary];
+          if (
+            optionsFromConfig.linterRuleSet?.enable?.[unusedTemlateParameterRule] === undefined &&
+            optionsFromConfig.linterRuleSet?.disable?.[unusedTemlateParameterRule] === undefined
+          ) {
+            // if the unused template parameter is not configured by user explicitly, report it as hint by default
             diagnostic.severity = DiagnosticSeverity.Hint;
           }
         }
@@ -540,11 +555,11 @@ export function createServer(host: ServerHost): Server {
 
     const id = getNodeAtPosition(script, document.offsetAt(params.position));
     const sym =
-      id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
+      id?.kind === SyntaxKind.Identifier ? program.checker.resolveRelatedSymbols(id) : undefined;
 
     const markdown: MarkupContent = {
       kind: MarkupKind.Markdown,
-      value: sym ? getSymbolDetails(program, sym) : "",
+      value: sym && sym.length > 0 ? getSymbolDetails(program, sym[0]) : "",
     };
     return {
       contents: markdown,
@@ -581,10 +596,13 @@ export function createServer(host: ServerHost): Server {
     node: TypeReferenceNode,
     argumentIndex: number,
   ): SignatureHelp | undefined {
-    const sym = program.checker.resolveIdentifier(
+    const sym = program.checker.resolveRelatedSymbols(
       node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
-    const templateDeclNode = sym?.declarations[0];
+    if (!sym || sym.length <= 0) {
+      return undefined;
+    }
+    const templateDeclNode = sym[0].declarations[0];
     if (
       !templateDeclNode ||
       !("templateParameters" in templateDeclNode) ||
@@ -606,7 +624,7 @@ export function createServer(host: ServerHost): Server {
     const help: SignatureHelp = {
       signatures: [
         {
-          label: `${sym.name}<${parameters.map((x) => x.label).join(", ")}>`,
+          label: `${sym[0].name}<${parameters.map((x) => x.label).join(", ")}>`,
           parameters,
           activeParameter: Math.min(parameters.length - 1, argumentIndex),
         },
@@ -615,7 +633,7 @@ export function createServer(host: ServerHost): Server {
       activeParameter: 0,
     };
 
-    const doc = getSymbolDetails(program, sym, {
+    const doc = getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
     });
@@ -631,17 +649,18 @@ export function createServer(host: ServerHost): Server {
     node: DecoratorExpressionNode | AugmentDecoratorStatementNode,
     argumentIndex: number,
   ): SignatureHelp | undefined {
-    const sym = program.checker.resolveIdentifier(
+    const sym = program.checker.resolveRelatedSymbols(
       node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
-    if (!sym) {
+    if (!sym || sym.length <= 0) {
       return undefined;
     }
 
-    const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined = sym.declarations.find(
-      (x): x is DecoratorDeclarationStatementNode =>
-        x.kind === SyntaxKind.DecoratorDeclarationStatement,
-    );
+    const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined =
+      sym[0].declarations.find(
+        (x): x is DecoratorDeclarationStatementNode =>
+          x.kind === SyntaxKind.DecoratorDeclarationStatement,
+      );
     if (decoratorDeclNode === undefined) {
       return undefined;
     }
@@ -692,7 +711,7 @@ export function createServer(host: ServerHost): Server {
       activeParameter: 0,
     };
 
-    const doc = getSymbolDetails(program, sym, {
+    const doc = getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
     });
@@ -767,8 +786,8 @@ export function createServer(host: ServerHost): Server {
     const node = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
     switch (node?.kind) {
       case SyntaxKind.Identifier:
-        const sym = result.program.checker.resolveIdentifier(node);
-        return getLocations(sym?.declarations);
+        const sym = result.program.checker.resolveRelatedSymbols(node);
+        return getLocations(sym && sym.length > 0 ? sym[0].declarations : undefined);
       case SyntaxKind.StringLiteral:
         if (node.parent?.kind === SyntaxKind.ImportStatement) {
           return [await getImportLocation(node.value, result.script)];
@@ -908,8 +927,8 @@ export function createServer(host: ServerHost): Server {
       return [];
     }
 
-    const sym = program.checker.resolveIdentifier(id);
-    if (!sym) {
+    const sym = program.checker.resolveRelatedSymbols(id);
+    if (!sym || sym.length <= 0) {
       return [id];
     }
 
@@ -917,8 +936,11 @@ export function createServer(host: ServerHost): Server {
     for (const searchFile of searchFiles) {
       visitChildren(searchFile, function visit(node) {
         if (node.kind === SyntaxKind.Identifier) {
-          const s = program.checker.resolveIdentifier(node);
-          if (s === sym || (sym.type && s?.type === sym.type)) {
+          const s = program.checker.resolveRelatedSymbols(node);
+          if (!s || s.length <= 0) {
+            return;
+          }
+          if (s[0] === sym[0] || (sym[0].type && s[0].type === sym[0].type)) {
             references.push(node);
           }
         }

@@ -231,7 +231,7 @@ describe("Test Usage", () => {
             model Foo {
                 @doc("id of Foo")
                 @key
-                @visibility("read","create","query")
+                @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Query)
                 id: string;
                 @doc("name of Foo")
                 name: string;
@@ -293,7 +293,7 @@ describe("Test Usage", () => {
             model Foo {
                 @doc("id of Foo")
                 @key
-                @visibility("read","create","query")
+                @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Query)
                 id: string;
                 @doc("name of Foo")
                 name: string;
@@ -328,7 +328,7 @@ describe("Test Usage", () => {
             model Foo {
                 @doc("id of Foo")
                 @key
-                @visibility("read","create","query")
+                @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Query)
                 id: string;
                 @doc("name of Foo")
                 name: string;
@@ -389,7 +389,7 @@ describe("Test Usage", () => {
             model Foo {
                 @doc("id of Foo")
                 @key
-                @visibility("read","create","query")
+                @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Query)
                 id: string;
                 @doc("name of Foo")
                 name: string;
@@ -528,24 +528,24 @@ model HealthInsightsOperationStatus<
 > {
   @key("operationId")
   @doc("The unique ID of the operation.")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: Azure.Core.uuid;
 
   @doc("The status of the operation")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @lroStatus
   status: JobStatus;
 
   @doc("The date and time when the processing job was created.")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   createdDateTime?: utcDateTime;
 
   @doc("The date and time when the processing job is set to expire.")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   expirationDateTime?: utcDateTime;
 
   @doc("The date and time when the processing job was last updated.")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   lastUpdateDateTime?: utcDateTime;
 
   @doc("Error object that describes the error when status is Failed.")
