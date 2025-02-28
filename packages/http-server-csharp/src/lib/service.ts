@@ -137,7 +137,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     unionLiteral(union: Union): EmitterOutput<string> {
       const csType = coalesceUnionTypes(this.emitter.getProgram(), union);
-      return this.emitter.result.rawCode(csType && csType.isBuiltIn ? csType.name : "object");
+      return this.emitter.result.rawCode(
+        csType ? csType.getTypeReference(this.emitter.getContext()?.scope) : "object",
+      );
     }
 
     declarationName(declarationType: TypeSpecDeclaration): string {
