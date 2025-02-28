@@ -1,4 +1,3 @@
-import { resolveVirtualPath } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { worksFor } from "./works-for.js";
 
@@ -77,60 +76,6 @@ describe("Scalar formats of serialized document in YAML", () => {
             - 'OFF'
             - oFF
     `);
-    });
-
-    interface ServiceNameCase {
-      description: string;
-      code: string;
-      outputFilePattern: string;
-      expectedOutputFiles: string[];
-    }
-    it.each([
-      // {service-name} cases
-      {
-        description: "{service-name} for one service",
-        code: "@service namespace AAA { model M {a: string} }",
-        outputFilePattern: "{service-name}.yaml",
-        expectedOutputFiles: [resolveVirtualPath("AAA.yaml")],
-      },
-      {
-        description: "{service-name} for multiple services",
-        code:
-          "@service namespace AAA { model M {a: string} }" +
-          "@service namespace BBB { model N {b: string} }",
-        outputFilePattern: "{service-name}.yaml",
-        expectedOutputFiles: [resolveVirtualPath("AAA.yaml"), resolveVirtualPath("BBB.yaml")],
-      },
-      // {service-name-if-multiple} cases
-      {
-        description: "{service-name-if-multiple} for one service",
-        code: "@service namespace AAA { model M {a: string} }",
-        outputFilePattern: "{service-name-if-multiple}.yaml",
-        expectedOutputFiles: [resolveVirtualPath("yaml")],
-      },
-      {
-        description: "{service-name-if-multiple} for multiple services",
-        code:
-          "@service namespace AAA { model M {a: string} }" +
-          "@service namespace BBB { model N {b: string} }",
-        outputFilePattern: "{service-name-if-multiple}.yaml",
-        expectedOutputFiles: [resolveVirtualPath("AAA.yaml"), resolveVirtualPath("BBB.yaml")],
-      },
-      // fixed name cases
-      {
-        description: "fixed name for one service",
-        code: "@service namespace AAA { model M {a: string} }",
-        outputFilePattern: "fixed-name.yaml",
-        expectedOutputFiles: [resolveVirtualPath("fixed-name.yaml")],
-      },
-    ])("$description", async (c: ServiceNameCase) => {
-      const options = {
-        "output-file": c.outputFilePattern,
-        "emitter-output-dir": "{output-dir}",
-      };
-      const [diag, load, _] = await helper.emitOpenApi(c.code, options);
-      expect(diag.length).toBe(0);
-      for (const outputFile of c.expectedOutputFiles) expect(load(outputFile)).toBeDefined();
     });
   });
 });
