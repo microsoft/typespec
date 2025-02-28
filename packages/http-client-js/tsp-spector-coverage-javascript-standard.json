@@ -1,7 +1,7 @@
 [
   {
     "scenariosMetadata": {
-      "commit": "f1c3ed823884d96e0f23810c4f605c2cc91909a1",
+      "commit": "e857c8e9c6764fb491743b925ee1b8129bd7a43b",
       "version": "0.1.0-alpha.9",
       "packageName": "@typespec/http-specs"
     },
@@ -669,6 +669,6 @@
       "Type_Model_Inheritance_SingleDiscriminator_getWrongDiscriminator": "pass",
       "Type_Model_Inheritance_SingleDiscriminator_getLegacyModel": "pass"
     },
-    "createdAt": "2025-02-27T05:35:52.983Z"
+    "createdAt": "2025-02-27T23:55:15.970Z"
   }
 ]

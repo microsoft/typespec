@@ -21,19 +21,11 @@
       }
     },
     {
-      "files": ["packages/http-client/**/*.tsx"],
-      "options": {
-        "parser": "alloy-ts"
-      }
-    },
-    {
-      "files": ["packages/http-client-js/**/*.tsx"],
-      "options": {
-        "parser": "alloy-ts"
-      }
-    },
-    {
-      "files": ["packages/emitter-framework/**/*.tsx"],
+      "files": [
+        "packages/http-client-js/**/*.tsx",
+        "packages/http-client/**/*.tsx",
+        "packages/emitter-framework/**/*.tsx"
+      ],
       "options": {
         "parser": "alloy-ts"
       }

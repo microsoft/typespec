@@ -294,6 +294,8 @@ async function processFiles(files, options) {
 
 // Main logic.
 (async () => {
+  const startTime = Date.now(); // Record start time
+
   await clearLogDirectory(); // Clear the log directory at the start.
 
   const ignoreList = await getIgnoreList();
@@ -311,4 +313,8 @@ async function processFiles(files, options) {
     interactive: argv.interactive,
     build: argv.build,
   });
+
+  const endTime = Date.now(); // Record end time
+  const duration = (endTime - startTime) / 1000; // Calculate duration in seconds
+  console.log(chalk.blue(`Total time taken: ${duration} seconds`)); // Log duration
 })();

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-js",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
   "private": true,
   "main": "dist/src/index.js",
@@ -33,9 +33,6 @@
     "@typespec/emitter-framework": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/http-client": "workspace:~",
-    "@typespec/json-schema": "workspace:~",
-    "@typespec/openapi": "workspace:~",
-    "@typespec/openapi3": "workspace:~",
     "@typespec/rest": "workspace:~"
   },
   "dependencies": {
@@ -45,11 +42,6 @@
   },
   "devDependencies": {
     "@alloy-js/babel-preset": "^0.1.1",
-    "@azure-tools/cadl-ranch": "0.16.2",
-    "@azure-tools/cadl-ranch-expect": "0.15.7",
-    "@azure-tools/cadl-ranch-specs": "0.39.6",
-    "@azure-tools/typespec-azure-resource-manager": "0.49.0",
-    "@azure-tools/typespec-client-generator-core": "0.49.0",
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.26.0",
     "@rollup/plugin-babel": "^6.0.4",
@@ -66,10 +58,8 @@
     "fs-extra": "^11.2.0",
     "globby": "~14.0.2",
     "inquirer": "^12.2.0",
-    "listr2": "^8.2.5",
     "ora": "^8.1.1",
     "p-limit": "^6.2.0",
-    "ts-morph": "^23.0.0",
     "typescript": "~5.7.3",
     "uri-template": "^2.0.0",
     "vitest": "^3.0.5",
