@@ -27,9 +27,13 @@ async function trackAction<T>(
   console.log(message);
 
   try {
-    return await asyncAction();
-  } finally {
+    const result = await asyncAction();
     // eslint-disable-next-line no-console
     console.log(`✓ ${finalMessage}`);
+    return result;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(`x ${message}`);
+    throw error;
   }
 }
