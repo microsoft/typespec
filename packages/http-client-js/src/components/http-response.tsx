@@ -60,6 +60,8 @@ export function HttpResponses(props: HttpResponsesProps) {
       }
       `;
       }
+
+      return null;
     },
     { joiner: "\n\n" },
   );

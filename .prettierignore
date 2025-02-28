@@ -61,5 +61,12 @@ packages/http-client-csharp/generator/TestProjects/**/tspCodeModel.json
 packages/http-client-java/generator/http-client-generator-test/src/main/**/*.json
 packages/http-client-java/generator/http-client-generator-clientcore-test/src/main/**/*.json
 
+# auto generated http-client-js files
+packages/http-client-js/test/e2e/generated/
+
+# built test files for http-client-js
+packages/http-client-js/dist-test
+
+
 .gitattributes
 CODEOWNERS
