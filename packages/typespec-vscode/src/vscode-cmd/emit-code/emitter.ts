@@ -69,8 +69,8 @@ const PreDefinedEmitters: ReadonlyArray<Emitter> = [
   },
   {
     language: "JavaScript",
-    package: "@typespec/http-server-javascript",
-    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-server-javascript",
+    package: "@typespec/http-server-js",
+    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-server-js",
     kind: EmitterKind.Server,
   },
   {

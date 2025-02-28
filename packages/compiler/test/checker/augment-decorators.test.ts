@@ -157,6 +157,40 @@ describe("declaration scope", () => {
   });
 });
 
+describe("cannot augment expressions", () => {
+  it("model expressions", async () => {
+    testHost.addTypeSpecFile(
+      "test.tsp",
+      `
+        alias A = { some: string};
+        @@doc(A, "This doc");
+        `,
+    );
+
+    const diagnostics = await testHost.diagnose("test.tsp");
+    expectDiagnostics(diagnostics, {
+      code: "augment-decorator-target",
+      message: "Cannot augment model expressions.",
+    });
+  });
+
+  it("union expressions", async () => {
+    testHost.addTypeSpecFile(
+      "test.tsp",
+      `
+        alias A = string | int32;
+        @@doc(A, "This doc");
+        `,
+    );
+
+    const diagnostics = await testHost.diagnose("test.tsp");
+    expectDiagnostics(diagnostics, {
+      code: "augment-decorator-target",
+      message: "Cannot augment union expressions.",
+    });
+  });
+});
+
 describe("augment types", () => {
   async function expectTarget(code: string, reference: string) {
     let customName: string | undefined;
@@ -374,7 +408,7 @@ describe("emit diagnostic", () => {
     `);
     expectDiagnostics(diagnostics, {
       code: "augment-decorator-target",
-      message: "Cannot reference template instances",
+      message: "Cannot reference template instances.",
     });
   });
 
@@ -387,7 +421,7 @@ describe("emit diagnostic", () => {
     `);
     expectDiagnostics(diagnostics, {
       code: "augment-decorator-target",
-      message: "Cannot reference template instances",
+      message: "Cannot reference template instances.",
     });
   });
 
@@ -399,7 +433,7 @@ describe("emit diagnostic", () => {
     `);
     expectDiagnostics(diagnostics, {
       code: "augment-decorator-target",
-      message: "Cannot reference template instances",
+      message: "Cannot reference template instances.",
     });
   });
 
@@ -411,7 +445,7 @@ describe("emit diagnostic", () => {
     `);
     expectDiagnostics(diagnostics, {
       code: "augment-decorator-target",
-      message: "Cannot reference template instances",
+      message: "Cannot reference template instances.",
     });
   });
 
@@ -424,7 +458,7 @@ describe("emit diagnostic", () => {
     `);
     expectDiagnostics(diagnostics, {
       code: "augment-decorator-target",
-      message: "Cannot reference template instances",
+      message: "Cannot reference template instances.",
     });
   });
 });

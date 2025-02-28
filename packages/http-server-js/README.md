@@ -1,4 +1,4 @@
-# @typespec/http-server-javascript
+# @typespec/http-server-js
 
 :warning: **This package is highly experimental and may be subject to breaking changes and bugs.** Please expect that your code may need to be updated as this package evolves, and please report any issues you encounter.
 
@@ -10,7 +10,7 @@ Node.js HTTP server or Express.js application.
 ## Install
 
 ```bash
-npm install @typespec/http-server-javascript
+npm install @typespec/http-server-js
 ```
 
 ## Emitter
@@ -20,14 +20,14 @@ npm install @typespec/http-server-javascript
 1. Via the command line
 
 ```bash
-tsp compile . --emit=@typespec/http-server-javascript
+tsp compile . --emit=@typespec/http-server-js
 ```
 
 2. Via the config
 
 ```yaml
 emit:
-  - "@typespec/http-server-javascript"
+  - "@typespec/http-server-js"
 ```
 
 ### Emitter options
@@ -61,7 +61,7 @@ The emitter generates a few major components:
 ### Router
 
 The highest-level component that your code interacts with directly is the router implementation.
-`@typespec/http-server-javascript` generates a static router that you can bind to an implementation of an HTTP server.
+`@typespec/http-server-js` generates a static router that you can bind to an implementation of an HTTP server.
 
 The router is generated in the `http/router.js` module within the output directory. Each service will have its own
 router implementation named after the service. For example, given a service namespace named `Todo`, the router module
@@ -69,7 +69,7 @@ will export a function `createTodoRouter`. This function creates an instance of 
 the `Todo` service.
 
 ```ts
-import { createTodoRouter } from "../tsp-output/@typespec/http-server-javascript/http/router.js";
+import { createTodoRouter } from "../tsp-output/@typespec/http-server-js/http/router.js";
 
 const router = createTodoRouter(users, todoItems, attachments);
 ```
@@ -150,8 +150,8 @@ must use the `HttpContext` type as the `Context` argument when implementing the 
 to use the default `unknown` argument.
 
 ```ts
-import { HttpContext } from "../tsp-output/@typespec/http-server-javascript/helpers/router.js";
-import { Users } from "../tsp-output/@typespec/http-server-javascript/models/all/todo/index.js";
+import { HttpContext } from "../tsp-output/@typespec/http-server-js/helpers/router.js";
+import { Users } from "../tsp-output/@typespec/http-server-js/models/all/todo/index.js";
 
 export const users: Users<HttpContext> = {
   async create(ctx, user) {

@@ -10,6 +10,7 @@
     "clean": "rimraf dist/ temp/",
     "test:e2e": "pnpm validate-scenarios  && pnpm validate-mock-apis && pnpm validate-client-server",
     "validate:all": "pnpm build && pnpm regen-docs && pnpm test:e2e",
+    "ci": "prettier specs --write && pnpm validate:all",
     "validate-scenarios": "tsp-spector validate-scenarios ./specs",
     "generate-scenarios-summary": "tsp-spector generate-scenarios-summary ./specs",
     "regen-docs": "pnpm generate-scenarios-summary",
