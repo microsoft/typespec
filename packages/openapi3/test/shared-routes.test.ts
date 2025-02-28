@@ -7,7 +7,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("emits warning for routes containing query parameters", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           id: string;
@@ -36,7 +36,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("model shared routes that differ by query params as a union of optional params", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           id: string;
@@ -100,7 +100,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("model shared routes that differ by query param values as an enum", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           id: string;
@@ -146,7 +146,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("model shared routes with shared parameters in different locations", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           id: string;
@@ -201,7 +201,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("model shared routes with different response types", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           id: string;
@@ -247,7 +247,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("model shared routes with different request bodies", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         @sharedRoute
         @route("/1")
@@ -310,7 +310,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("model shared routes with different response bodies", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
 
         model A {
@@ -363,7 +363,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("model shared routes with different implicit request bodies", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model A {
           name: string;
@@ -420,7 +420,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("model shared routes with different request and response body types", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
 
         @error
@@ -504,7 +504,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("should warn if shared routes differ by `@parameterVisibility`", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           @visibility(Lifecycle.Read)
