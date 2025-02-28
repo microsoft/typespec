@@ -247,7 +247,7 @@
     "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
-    "package-vsix": "vsce package --no-dependencies",
+    "package-vsix": "vsce package",
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
     "test:e2e": "pnpm test:web",
