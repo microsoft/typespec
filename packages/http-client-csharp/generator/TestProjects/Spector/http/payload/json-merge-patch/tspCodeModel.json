@@ -883,7 +883,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Payload.JsonMergePatch"
   }
  ]
 }
