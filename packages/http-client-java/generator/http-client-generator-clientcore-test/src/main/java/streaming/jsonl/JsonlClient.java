@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import streaming.jsonl.implementation.BasicsImpl;
 
@@ -19,14 +20,18 @@ public final class JsonlClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final BasicsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of JsonlClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    JsonlClient(BasicsImpl serviceClient) {
+    JsonlClient(BasicsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -43,7 +48,8 @@ public final class JsonlClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendWithResponse(BinaryData body, long contentLength, RequestContext requestContext) {
-        return this.serviceClient.sendWithResponse(body, contentLength, requestContext);
+        return this.instrumentation.instrumentWithResponse("Basic.send", requestContext,
+            updatedContext -> this.serviceClient.sendWithResponse(body, contentLength, updatedContext));
     }
 
     /**
@@ -73,7 +79,8 @@ public final class JsonlClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> receiveWithResponse(RequestContext requestContext) {
-        return this.serviceClient.receiveWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("Basic.receive", requestContext,
+            updatedContext -> this.serviceClient.receiveWithResponse(updatedContext));
     }
 
     /**

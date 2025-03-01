@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.model.usage.implementation.UsageClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class UsageClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final UsageClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of UsageClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    UsageClient(UsageClientImpl serviceClient) {
+    UsageClient(UsageClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class UsageClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> inputWithResponse(InputRecord input, RequestContext requestContext) {
-        return this.serviceClient.inputWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".input", requestContext,
+            updatedContext -> this.serviceClient.inputWithResponse(input, updatedContext));
     }
 
     /**
@@ -70,7 +76,8 @@ public final class UsageClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<OutputRecord> outputWithResponse(RequestContext requestContext) {
-        return this.serviceClient.outputWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".output", requestContext,
+            updatedContext -> this.serviceClient.outputWithResponse(updatedContext));
     }
 
     /**
@@ -100,7 +107,8 @@ public final class UsageClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<InputOutputRecord> inputAndOutputWithResponse(InputOutputRecord body,
         RequestContext requestContext) {
-        return this.serviceClient.inputAndOutputWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse(".inputAndOutput", requestContext,
+            updatedContext -> this.serviceClient.inputAndOutputWithResponse(body, updatedContext));
     }
 
     /**

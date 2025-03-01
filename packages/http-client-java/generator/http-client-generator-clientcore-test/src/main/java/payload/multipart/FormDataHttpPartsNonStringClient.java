@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.multipart.formdata.httpparts.nonstring.FloatRequest;
 import payload.multipart.implementation.FormDataHttpPartsNonStringsImpl;
 
@@ -19,14 +20,18 @@ public final class FormDataHttpPartsNonStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final FormDataHttpPartsNonStringsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of FormDataHttpPartsNonStringClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    FormDataHttpPartsNonStringClient(FormDataHttpPartsNonStringsImpl serviceClient) {
+    FormDataHttpPartsNonStringClient(FormDataHttpPartsNonStringsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -44,7 +49,8 @@ public final class FormDataHttpPartsNonStringClient {
     public Response<Void> floatMethodWithResponse(FloatRequest body, RequestContext requestContext) {
         // Operation 'float' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.floatMethodWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("FormDataHttpPartsNonString.float", requestContext,
+            updatedContext -> this.serviceClient.floatMethodWithResponse(body, updatedContext));
     }
 
     /**

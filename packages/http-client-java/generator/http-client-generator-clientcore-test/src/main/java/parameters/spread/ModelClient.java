@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import parameters.spread.implementation.ModelsImpl;
 import parameters.spread.model.BodyParameter;
 
@@ -19,14 +20,18 @@ public final class ModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ModelClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ModelClient(ModelsImpl serviceClient) {
+    ModelClient(ModelsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class ModelClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadAsRequestBodyWithResponse(String name, RequestContext requestContext) {
-        return this.serviceClient.spreadAsRequestBodyWithResponse(name, requestContext);
+        return this.instrumentation.instrumentWithResponse("Model.spreadAsRequestBody", requestContext,
+            updatedContext -> this.serviceClient.spreadAsRequestBodyWithResponse(name, updatedContext));
     }
 
     /**
@@ -73,7 +79,8 @@ public final class ModelClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestOnlyWithBodyWithResponse(BodyParameter body,
         RequestContext requestContext) {
-        return this.serviceClient.spreadCompositeRequestOnlyWithBodyWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Model.spreadCompositeRequestOnlyWithBody", requestContext,
+            updatedContext -> this.serviceClient.spreadCompositeRequestOnlyWithBodyWithResponse(body, updatedContext));
     }
 
     /**
@@ -105,7 +112,9 @@ public final class ModelClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestWithoutBodyWithResponse(String name, String testHeader,
         RequestContext requestContext) {
-        return this.serviceClient.spreadCompositeRequestWithoutBodyWithResponse(name, testHeader, requestContext);
+        return this.instrumentation.instrumentWithResponse("Model.spreadCompositeRequestWithoutBody", requestContext,
+            updatedContext -> this.serviceClient.spreadCompositeRequestWithoutBodyWithResponse(name, testHeader,
+                updatedContext));
     }
 
     /**
@@ -139,7 +148,9 @@ public final class ModelClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestWithResponse(String name, String testHeader, BodyParameter body,
         RequestContext requestContext) {
-        return this.serviceClient.spreadCompositeRequestWithResponse(name, testHeader, body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Model.spreadCompositeRequest", requestContext,
+            updatedContext -> this.serviceClient.spreadCompositeRequestWithResponse(name, testHeader, body,
+                updatedContext));
     }
 
     /**
@@ -174,7 +185,9 @@ public final class ModelClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> spreadCompositeRequestMixWithResponse(String name, String testHeader, String prop,
         RequestContext requestContext) {
-        return this.serviceClient.spreadCompositeRequestMixWithResponse(name, testHeader, prop, requestContext);
+        return this.instrumentation.instrumentWithResponse("Model.spreadCompositeRequestMix", requestContext,
+            updatedContext -> this.serviceClient.spreadCompositeRequestMixWithResponse(name, testHeader, prop,
+                updatedContext));
     }
 
     /**

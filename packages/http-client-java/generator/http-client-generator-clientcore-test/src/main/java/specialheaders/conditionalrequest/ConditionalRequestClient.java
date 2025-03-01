@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.time.OffsetDateTime;
 import specialheaders.conditionalrequest.implementation.ConditionalRequestClientImpl;
 
@@ -19,14 +20,18 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ConditionalRequestClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of ConditionalRequestClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    ConditionalRequestClient(ConditionalRequestClientImpl serviceClient) {
+    ConditionalRequestClient(ConditionalRequestClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -42,7 +47,8 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfMatchWithResponse(String ifMatch, RequestContext requestContext) {
-        return this.serviceClient.postIfMatchWithResponse(ifMatch, requestContext);
+        return this.instrumentation.instrumentWithResponse(".postIfMatch", requestContext,
+            updatedContext -> this.serviceClient.postIfMatchWithResponse(ifMatch, updatedContext));
     }
 
     /**
@@ -85,7 +91,8 @@ public final class ConditionalRequestClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfNoneMatchWithResponse(String ifNoneMatch, RequestContext requestContext) {
-        return this.serviceClient.postIfNoneMatchWithResponse(ifNoneMatch, requestContext);
+        return this.instrumentation.instrumentWithResponse(".postIfNoneMatch", requestContext,
+            updatedContext -> this.serviceClient.postIfNoneMatchWithResponse(ifNoneMatch, updatedContext));
     }
 
     /**
@@ -131,7 +138,8 @@ public final class ConditionalRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> headIfModifiedSinceWithResponse(OffsetDateTime ifModifiedSince,
         RequestContext requestContext) {
-        return this.serviceClient.headIfModifiedSinceWithResponse(ifModifiedSince, requestContext);
+        return this.instrumentation.instrumentWithResponse(".headIfModifiedSince", requestContext,
+            updatedContext -> this.serviceClient.headIfModifiedSinceWithResponse(ifModifiedSince, updatedContext));
     }
 
     /**
@@ -179,7 +187,8 @@ public final class ConditionalRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postIfUnmodifiedSinceWithResponse(OffsetDateTime ifUnmodifiedSince,
         RequestContext requestContext) {
-        return this.serviceClient.postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, requestContext);
+        return this.instrumentation.instrumentWithResponse(".postIfUnmodifiedSince", requestContext,
+            updatedContext -> this.serviceClient.postIfUnmodifiedSinceWithResponse(ifUnmodifiedSince, updatedContext));
     }
 
     /**

@@ -67,7 +67,7 @@ public class Project {
         AZURE_IDENTITY("com.azure", "azure-identity", "1.16.2"),
         AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.61"),
 
-        CLIENTCORE("io.clientcore", "core", "1.0.0-beta.10");
+        CLIENTCORE("io.clientcore", "core", "1.0.0-beta.11");
 
         private final String groupId;
         private final String artifactId;

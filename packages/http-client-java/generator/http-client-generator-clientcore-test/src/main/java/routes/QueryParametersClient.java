@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import routes.implementation.QueryParametersImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class QueryParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final QueryParametersImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of QueryParametersClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    QueryParametersClient(QueryParametersImpl serviceClient) {
+    QueryParametersClient(QueryParametersImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class QueryParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> templateOnlyWithResponse(String param, RequestContext requestContext) {
-        return this.serviceClient.templateOnlyWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("QueryParameters.templateOnly", requestContext,
+            updatedContext -> this.serviceClient.templateOnlyWithResponse(param, updatedContext));
     }
 
     /**
@@ -71,7 +77,8 @@ public final class QueryParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> explicitWithResponse(String param, RequestContext requestContext) {
-        return this.serviceClient.explicitWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("QueryParameters.explicit", requestContext,
+            updatedContext -> this.serviceClient.explicitWithResponse(param, updatedContext));
     }
 
     /**
@@ -101,7 +108,8 @@ public final class QueryParametersClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> annotationOnlyWithResponse(String param, RequestContext requestContext) {
-        return this.serviceClient.annotationOnlyWithResponse(param, requestContext);
+        return this.instrumentation.instrumentWithResponse("QueryParameters.annotationOnly", requestContext,
+            updatedContext -> this.serviceClient.annotationOnlyWithResponse(param, updatedContext));
     }
 
     /**

@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import parameters.bodyoptionality.implementation.BodyOptionalityClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class BodyOptionalityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final BodyOptionalityClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of BodyOptionalityClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    BodyOptionalityClient(BodyOptionalityClientImpl serviceClient) {
+    BodyOptionalityClient(BodyOptionalityClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class BodyOptionalityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requiredExplicitWithResponse(BodyModel body, RequestContext requestContext) {
-        return this.serviceClient.requiredExplicitWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse(".requiredExplicit", requestContext,
+            updatedContext -> this.serviceClient.requiredExplicitWithResponse(body, updatedContext));
     }
 
     /**
@@ -71,7 +77,8 @@ public final class BodyOptionalityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requiredImplicitWithResponse(String name, RequestContext requestContext) {
-        return this.serviceClient.requiredImplicitWithResponse(name, requestContext);
+        return this.instrumentation.instrumentWithResponse(".requiredImplicit", requestContext,
+            updatedContext -> this.serviceClient.requiredImplicitWithResponse(name, updatedContext));
     }
 
     /**

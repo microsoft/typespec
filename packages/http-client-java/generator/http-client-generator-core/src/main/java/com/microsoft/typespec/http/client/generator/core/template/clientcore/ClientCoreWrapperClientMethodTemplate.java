@@ -4,9 +4,11 @@
 package com.microsoft.typespec.http.client.generator.core.template.clientcore;
 
 import com.azure.core.annotation.ReturnType;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
@@ -69,18 +71,34 @@ public class ClientCoreWrapperClientMethodTemplate extends WrapperClientMethodTe
     @Override
     protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
         List<ClientMethodParameter> parameters = clientMethod.getMethodInputParameters();
-        final String argumentList;
+        Stream<ClientMethodParameter> argStream = parameters.stream();
+
         if (clientMethod.isPageStreamingType()) {
-            final MethodPageDetails pageDetails = clientMethod.getMethodPageDetails();
-            argumentList = parameters.stream()
-                .filter(parameter -> !pageDetails.shouldHideParameter(parameter))
-                .map(ClientMethodParameter::getName)
-                .collect(Collectors.joining(", "));
-        } else {
-            argumentList = parameters.stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
+            argStream
+                = argStream.filter(parameter -> !clientMethod.getMethodPageDetails().shouldHideParameter(parameter));
         }
-        function.line((shouldReturn ? "return " : "") + "this.serviceClient.%1$s(%2$s);", clientMethod.getName(),
-            argumentList);
+
+        // generate language-agnostic operation name excluding package name for brevity.
+        // operation name is used by instrumentation and package name is added via
+        // SdkInstrumentationOptions at construction time. It's not needed for each operation
+        Operation operation = clientMethod.getOperation();
+        String operationName
+            = String.format("%s.%s", operation.getOperationGroup().getLanguage().getDefault().getName(),
+                operation.getLanguage().getDefault().getName());
+
+        final String requestContextParam = parameters.stream()
+            .filter(p -> p.getClientType() == ClassType.REQUEST_CONTEXT)
+            .map(ClientMethodParameter::getName)
+            .findFirst()
+            .orElse(null);
+
+        final String argumentList
+            = argStream.map(p -> p.getClientType() == ClassType.REQUEST_CONTEXT ? "updatedContext" : p.getName())
+                .collect(Collectors.joining(", "));
+
+        function.line((shouldReturn ? "return " : "")
+            + "this.instrumentation.instrumentWithResponse(\"%1$s\", %2$s, updatedContext -> this.serviceClient.%3$s(%4$s));",
+            operationName, requestContextParam, clientMethod.getName(), argumentList);
     }
 
     protected void generateJavadoc(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod) {

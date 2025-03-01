@@ -9,6 +9,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.time.Duration;
 import java.util.List;
 
@@ -20,14 +21,18 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final HeadersImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of HeaderClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    HeaderClient(HeadersImpl serviceClient) {
+    HeaderClient(HeadersImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -43,7 +48,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(Duration duration, RequestContext requestContext) {
-        return this.serviceClient.defaultMethodWithResponse(duration, requestContext);
+        return this.instrumentation.instrumentWithResponse("Header.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(duration, updatedContext));
     }
 
     /**
@@ -73,7 +79,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration duration, RequestContext requestContext) {
-        return this.serviceClient.iso8601WithResponse(duration, requestContext);
+        return this.instrumentation.instrumentWithResponse("Header.iso8601", requestContext,
+            updatedContext -> this.serviceClient.iso8601WithResponse(duration, updatedContext));
     }
 
     /**
@@ -103,7 +110,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601ArrayWithResponse(List<Duration> duration, RequestContext requestContext) {
-        return this.serviceClient.iso8601ArrayWithResponse(duration, requestContext);
+        return this.instrumentation.instrumentWithResponse("Header.iso8601Array", requestContext,
+            updatedContext -> this.serviceClient.iso8601ArrayWithResponse(duration, updatedContext));
     }
 
     /**
@@ -133,7 +141,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsWithResponse(Duration duration, RequestContext requestContext) {
-        return this.serviceClient.int32SecondsWithResponse(duration, requestContext);
+        return this.instrumentation.instrumentWithResponse("Header.int32Seconds", requestContext,
+            updatedContext -> this.serviceClient.int32SecondsWithResponse(duration, updatedContext));
     }
 
     /**
@@ -163,7 +172,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatSecondsWithResponse(Duration duration, RequestContext requestContext) {
-        return this.serviceClient.floatSecondsWithResponse(duration, requestContext);
+        return this.instrumentation.instrumentWithResponse("Header.floatSeconds", requestContext,
+            updatedContext -> this.serviceClient.floatSecondsWithResponse(duration, updatedContext));
     }
 
     /**
@@ -193,7 +203,8 @@ public final class HeaderClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> float64SecondsWithResponse(Duration duration, RequestContext requestContext) {
-        return this.serviceClient.float64SecondsWithResponse(duration, requestContext);
+        return this.instrumentation.instrumentWithResponse("Header.float64Seconds", requestContext,
+            updatedContext -> this.serviceClient.float64SecondsWithResponse(duration, updatedContext));
     }
 
     /**

@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.nullable.implementation.CollectionsStringsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class CollectionsStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final CollectionsStringsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of CollectionsStringClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    CollectionsStringClient(CollectionsStringsImpl serviceClient) {
+    CollectionsStringClient(CollectionsStringsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class CollectionsStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsStringProperty> getNonNullWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getNonNullWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("CollectionsString.getNonNull", requestContext,
+            updatedContext -> this.serviceClient.getNonNullWithResponse(updatedContext));
     }
 
     /**
@@ -68,7 +74,8 @@ public final class CollectionsStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsStringProperty> getNullWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getNullWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("CollectionsString.getNull", requestContext,
+            updatedContext -> this.serviceClient.getNullWithResponse(updatedContext));
     }
 
     /**
@@ -97,7 +104,8 @@ public final class CollectionsStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNonNullWithResponse(CollectionsStringProperty body, RequestContext requestContext) {
-        return this.serviceClient.patchNonNullWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("CollectionsString.patchNonNull", requestContext,
+            updatedContext -> this.serviceClient.patchNonNullWithResponse(body, updatedContext));
     }
 
     /**
@@ -127,7 +135,8 @@ public final class CollectionsStringClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchNullWithResponse(CollectionsStringProperty body, RequestContext requestContext) {
-        return this.serviceClient.patchNullWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("CollectionsString.patchNull", requestContext,
+            updatedContext -> this.serviceClient.patchNullWithResponse(body, updatedContext));
     }
 
     /**

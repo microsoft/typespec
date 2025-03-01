@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import payload.mediatype.implementation.StringBodiesImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class MediaTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringBodiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of MediaTypeClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    MediaTypeClient(StringBodiesImpl serviceClient) {
+    MediaTypeClient(StringBodiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class MediaTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendAsTextWithResponse(String text, RequestContext requestContext) {
-        return this.serviceClient.sendAsTextWithResponse(text, requestContext);
+        return this.instrumentation.instrumentWithResponse("StringBody.sendAsText", requestContext,
+            updatedContext -> this.serviceClient.sendAsTextWithResponse(text, updatedContext));
     }
 
     /**
@@ -70,7 +76,8 @@ public final class MediaTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<String> getAsTextWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getAsTextWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("StringBody.getAsText", requestContext,
+            updatedContext -> this.serviceClient.getAsTextWithResponse(updatedContext));
     }
 
     /**
@@ -99,7 +106,8 @@ public final class MediaTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendAsJsonWithResponse(String text, RequestContext requestContext) {
-        return this.serviceClient.sendAsJsonWithResponse(text, requestContext);
+        return this.instrumentation.instrumentWithResponse("StringBody.sendAsJson", requestContext,
+            updatedContext -> this.serviceClient.sendAsJsonWithResponse(text, updatedContext));
     }
 
     /**
@@ -128,7 +136,8 @@ public final class MediaTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<String> getAsJsonWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getAsJsonWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("StringBody.getAsJson", requestContext,
+            updatedContext -> this.serviceClient.getAsJsonWithResponse(updatedContext));
     }
 
     /**

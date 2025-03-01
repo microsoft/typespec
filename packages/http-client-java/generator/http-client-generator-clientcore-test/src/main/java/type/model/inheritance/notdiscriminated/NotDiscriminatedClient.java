@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.model.inheritance.notdiscriminated.implementation.NotDiscriminatedClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class NotDiscriminatedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final NotDiscriminatedClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of NotDiscriminatedClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    NotDiscriminatedClient(NotDiscriminatedClientImpl serviceClient) {
+    NotDiscriminatedClient(NotDiscriminatedClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class NotDiscriminatedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postValidWithResponse(Siamese input, RequestContext requestContext) {
-        return this.serviceClient.postValidWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".postValid", requestContext,
+            updatedContext -> this.serviceClient.postValidWithResponse(input, updatedContext));
     }
 
     /**
@@ -70,7 +76,8 @@ public final class NotDiscriminatedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Siamese> getValidWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getValidWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".getValid", requestContext,
+            updatedContext -> this.serviceClient.getValidWithResponse(updatedContext));
     }
 
     /**
@@ -99,7 +106,8 @@ public final class NotDiscriminatedClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Siamese> putValidWithResponse(Siamese input, RequestContext requestContext) {
-        return this.serviceClient.putValidWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".putValid", requestContext,
+            updatedContext -> this.serviceClient.putValidWithResponse(input, updatedContext));
     }
 
     /**

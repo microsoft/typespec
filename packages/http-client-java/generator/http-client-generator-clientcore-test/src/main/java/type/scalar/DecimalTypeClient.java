@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import java.math.BigDecimal;
 import type.scalar.implementation.DecimalTypesImpl;
 
@@ -19,14 +20,18 @@ public final class DecimalTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final DecimalTypesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of DecimalTypeClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    DecimalTypeClient(DecimalTypesImpl serviceClient) {
+    DecimalTypeClient(DecimalTypesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class DecimalTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BigDecimal> responseBodyWithResponse(RequestContext requestContext) {
-        return this.serviceClient.responseBodyWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("DecimalType.responseBody", requestContext,
+            updatedContext -> this.serviceClient.responseBodyWithResponse(updatedContext));
     }
 
     /**
@@ -70,7 +76,8 @@ public final class DecimalTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requestBodyWithResponse(BigDecimal body, RequestContext requestContext) {
-        return this.serviceClient.requestBodyWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("DecimalType.requestBody", requestContext,
+            updatedContext -> this.serviceClient.requestBodyWithResponse(body, updatedContext));
     }
 
     /**
@@ -100,7 +107,8 @@ public final class DecimalTypeClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requestParameterWithResponse(BigDecimal value, RequestContext requestContext) {
-        return this.serviceClient.requestParameterWithResponse(value, requestContext);
+        return this.instrumentation.instrumentWithResponse("DecimalType.requestParameter", requestContext,
+            updatedContext -> this.serviceClient.requestParameterWithResponse(value, updatedContext));
     }
 
     /**

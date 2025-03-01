@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import versioning.renamedfrom.implementation.NewInterfacesImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class NewInterfaceClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final NewInterfacesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of NewInterfaceClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    NewInterfaceClient(NewInterfacesImpl serviceClient) {
+    NewInterfaceClient(NewInterfacesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class NewInterfaceClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NewModel> newOpInNewInterfaceWithResponse(NewModel body, RequestContext requestContext) {
-        return this.serviceClient.newOpInNewInterfaceWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("NewInterface.newOpInNewInterface", requestContext,
+            updatedContext -> this.serviceClient.newOpInNewInterfaceWithResponse(body, updatedContext));
     }
 
     /**

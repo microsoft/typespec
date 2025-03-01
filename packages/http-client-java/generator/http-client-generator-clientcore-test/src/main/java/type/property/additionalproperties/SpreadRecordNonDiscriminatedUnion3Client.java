@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.additionalproperties.implementation.SpreadRecordNonDiscriminatedUnion3sImpl;
 
 /**
@@ -18,14 +19,19 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final SpreadRecordNonDiscriminatedUnion3sImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of SpreadRecordNonDiscriminatedUnion3Client class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    SpreadRecordNonDiscriminatedUnion3Client(SpreadRecordNonDiscriminatedUnion3sImpl serviceClient) {
+    SpreadRecordNonDiscriminatedUnion3Client(SpreadRecordNonDiscriminatedUnion3sImpl serviceClient,
+        Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +46,8 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SpreadRecordForNonDiscriminatedUnion3> getWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("SpreadRecordNonDiscriminatedUnion3.get", requestContext,
+            updatedContext -> this.serviceClient.getWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +76,8 @@ public final class SpreadRecordNonDiscriminatedUnion3Client {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(SpreadRecordForNonDiscriminatedUnion3 body, RequestContext requestContext) {
-        return this.serviceClient.putWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("SpreadRecordNonDiscriminatedUnion3.put", requestContext,
+            updatedContext -> this.serviceClient.putWithResponse(body, updatedContext));
     }
 
     /**

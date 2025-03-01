@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.property.optional.implementation.RequiredAndOptionalsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final RequiredAndOptionalsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of RequiredAndOptionalClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    RequiredAndOptionalClient(RequiredAndOptionalsImpl serviceClient) {
+    RequiredAndOptionalClient(RequiredAndOptionalsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<RequiredAndOptionalProperty> getAllWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getAllWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("RequiredAndOptional.getAll", requestContext,
+            updatedContext -> this.serviceClient.getAllWithResponse(updatedContext));
     }
 
     /**
@@ -68,7 +74,8 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<RequiredAndOptionalProperty> getRequiredOnlyWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getRequiredOnlyWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("RequiredAndOptional.getRequiredOnly", requestContext,
+            updatedContext -> this.serviceClient.getRequiredOnlyWithResponse(updatedContext));
     }
 
     /**
@@ -97,7 +104,8 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(RequiredAndOptionalProperty body, RequestContext requestContext) {
-        return this.serviceClient.putAllWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("RequiredAndOptional.putAll", requestContext,
+            updatedContext -> this.serviceClient.putAllWithResponse(body, updatedContext));
     }
 
     /**
@@ -127,7 +135,8 @@ public final class RequiredAndOptionalClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putRequiredOnlyWithResponse(RequiredAndOptionalProperty body, RequestContext requestContext) {
-        return this.serviceClient.putRequiredOnlyWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("RequiredAndOptional.putRequiredOnly", requestContext,
+            updatedContext -> this.serviceClient.putRequiredOnlyWithResponse(body, updatedContext));
     }
 
     /**

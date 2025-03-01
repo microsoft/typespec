@@ -120,6 +120,10 @@
             <version>1.0.0-beta.3</version>
           </dependency>
         </dependencies>
+        <configuration>
+          <source>10</source>
+          <target>10</target>
+        </configuration>
       </plugin>
     </plugins>
   </build>

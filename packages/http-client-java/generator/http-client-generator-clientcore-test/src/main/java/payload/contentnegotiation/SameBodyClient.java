@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import payload.contentnegotiation.implementation.SameBodiesImpl;
 
@@ -19,14 +20,18 @@ public final class SameBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final SameBodiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of SameBodyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    SameBodyClient(SameBodiesImpl serviceClient) {
+    SameBodyClient(SameBodiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class SameBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getAvatarAsPngWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getAvatarAsPngWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("SameBody.getAvatarAsPng", requestContext,
+            updatedContext -> this.serviceClient.getAvatarAsPngWithResponse(updatedContext));
     }
 
     /**
@@ -69,7 +75,8 @@ public final class SameBodyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getAvatarAsJpegWithResponse(RequestContext requestContext) {
-        return this.serviceClient.getAvatarAsJpegWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse("SameBody.getAvatarAsJpeg", requestContext,
+            updatedContext -> this.serviceClient.getAvatarAsJpegWithResponse(updatedContext));
     }
 
     /**

@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import type.model.visibility.implementation.VisibilityClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final VisibilityClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of VisibilityClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    VisibilityClient(VisibilityClientImpl serviceClient) {
+    VisibilityClient(VisibilityClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -43,7 +48,8 @@ public final class VisibilityClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<VisibilityModel> getModelWithResponse(int queryProp, VisibilityModel input,
         RequestContext requestContext) {
-        return this.serviceClient.getModelWithResponse(queryProp, input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".getModel", requestContext,
+            updatedContext -> this.serviceClient.getModelWithResponse(queryProp, input, updatedContext));
     }
 
     /**
@@ -76,7 +82,8 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> headModelWithResponse(int queryProp, VisibilityModel input, RequestContext requestContext) {
-        return this.serviceClient.headModelWithResponse(queryProp, input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".headModel", requestContext,
+            updatedContext -> this.serviceClient.headModelWithResponse(queryProp, input, updatedContext));
     }
 
     /**
@@ -107,7 +114,8 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        return this.serviceClient.putModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".putModel", requestContext,
+            updatedContext -> this.serviceClient.putModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -137,7 +145,8 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> patchModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        return this.serviceClient.patchModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".patchModel", requestContext,
+            updatedContext -> this.serviceClient.patchModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -167,7 +176,8 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        return this.serviceClient.postModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".postModel", requestContext,
+            updatedContext -> this.serviceClient.postModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -197,7 +207,8 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteModelWithResponse(VisibilityModel input, RequestContext requestContext) {
-        return this.serviceClient.deleteModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".deleteModel", requestContext,
+            updatedContext -> this.serviceClient.deleteModelWithResponse(input, updatedContext));
     }
 
     /**
@@ -227,7 +238,8 @@ public final class VisibilityClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ReadOnlyModel> putReadOnlyModelWithResponse(ReadOnlyModel input, RequestContext requestContext) {
-        return this.serviceClient.putReadOnlyModelWithResponse(input, requestContext);
+        return this.instrumentation.instrumentWithResponse(".putReadOnlyModel", requestContext,
+            updatedContext -> this.serviceClient.putReadOnlyModelWithResponse(input, updatedContext));
     }
 
     /**

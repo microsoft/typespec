@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import parameters.bodyoptionality.implementation.OptionalExplicitsImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class OptionalExplicitClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final OptionalExplicitsImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of OptionalExplicitClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    OptionalExplicitClient(OptionalExplicitsImpl serviceClient) {
+    OptionalExplicitClient(OptionalExplicitsImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class OptionalExplicitClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> setWithResponse(BodyModel body, RequestContext requestContext) {
-        return this.serviceClient.setWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("OptionalExplicit.set", requestContext,
+            updatedContext -> this.serviceClient.setWithResponse(body, updatedContext));
     }
 
     /**
@@ -84,7 +90,8 @@ public final class OptionalExplicitClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> omitWithResponse(BodyModel body, RequestContext requestContext) {
-        return this.serviceClient.omitWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("OptionalExplicit.omit", requestContext,
+            updatedContext -> this.serviceClient.omitWithResponse(body, updatedContext));
     }
 
     /**

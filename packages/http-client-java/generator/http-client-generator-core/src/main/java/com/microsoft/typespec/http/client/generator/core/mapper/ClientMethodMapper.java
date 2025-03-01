@@ -129,6 +129,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         final ClientMethod.Builder builder = new ClientMethod.Builder()
             .clientReference((operation.getOperationGroup() == null
                 || operation.getOperationGroup().getLanguage().getJava().getName().isEmpty()) ? "this" : "this.client")
+            .operation(operation)
             .setCrossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(operation));
 
         setJavaDoc(builder, operation);

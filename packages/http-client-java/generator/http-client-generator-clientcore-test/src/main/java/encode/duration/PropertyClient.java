@@ -15,6 +15,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the synchronous DurationClient type.
@@ -24,14 +25,18 @@ public final class PropertyClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PropertiesImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of PropertyClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    PropertyClient(PropertiesImpl serviceClient) {
+    PropertyClient(PropertiesImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -48,7 +53,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<DefaultDurationProperty> defaultMethodWithResponse(DefaultDurationProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.defaultMethodWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.default", requestContext,
+            updatedContext -> this.serviceClient.defaultMethodWithResponse(body, updatedContext));
     }
 
     /**
@@ -80,7 +86,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ISO8601DurationProperty> iso8601WithResponse(ISO8601DurationProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.iso8601WithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.iso8601", requestContext,
+            updatedContext -> this.serviceClient.iso8601WithResponse(body, updatedContext));
     }
 
     /**
@@ -112,7 +119,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Int32SecondsDurationProperty> int32SecondsWithResponse(Int32SecondsDurationProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.int32SecondsWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.int32Seconds", requestContext,
+            updatedContext -> this.serviceClient.int32SecondsWithResponse(body, updatedContext));
     }
 
     /**
@@ -144,7 +152,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FloatSecondsDurationProperty> floatSecondsWithResponse(FloatSecondsDurationProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.floatSecondsWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.floatSeconds", requestContext,
+            updatedContext -> this.serviceClient.floatSecondsWithResponse(body, updatedContext));
     }
 
     /**
@@ -176,7 +185,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Float64SecondsDurationProperty> float64SecondsWithResponse(Float64SecondsDurationProperty body,
         RequestContext requestContext) {
-        return this.serviceClient.float64SecondsWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.float64Seconds", requestContext,
+            updatedContext -> this.serviceClient.float64SecondsWithResponse(body, updatedContext));
     }
 
     /**
@@ -208,7 +218,8 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FloatSecondsDurationArrayProperty>
         floatSecondsArrayWithResponse(FloatSecondsDurationArrayProperty body, RequestContext requestContext) {
-        return this.serviceClient.floatSecondsArrayWithResponse(body, requestContext);
+        return this.instrumentation.instrumentWithResponse("Property.floatSecondsArray", requestContext,
+            updatedContext -> this.serviceClient.floatSecondsArrayWithResponse(body, updatedContext));
     }
 
     /**

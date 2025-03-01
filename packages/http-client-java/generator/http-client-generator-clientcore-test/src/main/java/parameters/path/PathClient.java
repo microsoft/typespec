@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import parameters.path.implementation.PathClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class PathClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PathClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of PathClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    PathClient(PathClientImpl serviceClient) {
+    PathClient(PathClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -41,7 +46,8 @@ public final class PathClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> normalWithResponse(String name, RequestContext requestContext) {
-        return this.serviceClient.normalWithResponse(name, requestContext);
+        return this.instrumentation.instrumentWithResponse(".normal", requestContext,
+            updatedContext -> this.serviceClient.normalWithResponse(name, updatedContext));
     }
 
     /**
@@ -71,7 +77,8 @@ public final class PathClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> optionalWithResponse(String name, RequestContext requestContext) {
-        return this.serviceClient.optionalWithResponse(name, requestContext);
+        return this.instrumentation.instrumentWithResponse(".optional", requestContext,
+            updatedContext -> this.serviceClient.optionalWithResponse(name, updatedContext));
     }
 
     /**

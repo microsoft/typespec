@@ -34,6 +34,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.traits.EndpointTrait;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -91,6 +92,12 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
             ClassType.CLIENT_LOGGER.addImportsTo(imports, false);
         }
         Annotation.SERVICE_CLIENT_BUILDER.addImportsTo(imports);
+
+        if (!settings.isAzureV1()) {
+            ClassType.INSTRUMENTATION.addImportsTo(imports, false);
+            ClassType.SDK_INSTRUMENTATION_OPTIONS.addImportsTo(imports, false);
+        }
+
         addHttpPolicyImports(imports);
         addImportForCoreUtils(imports);
         addSerializerImport(imports, settings);
@@ -175,17 +182,16 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                         String.format("String[] DEFAULT_SCOPES = new String[] {%s}", String.join(", ", scopes)));
                 }
 
-                if (settings.isAzureV1() || settings.isAzureV2()) {
-                    // properties for sdk name and version
-                    String propertiesValue = "new HashMap<>()";
-                    String artifactId = ClientModelUtil.getArtifactId();
-                    if (!CoreUtils.isNullOrEmpty(artifactId)) {
-                        propertiesValue = "CoreUtils.getProperties" + "(\"" + artifactId + ".properties\")";
-                    }
-                    addGeneratedAnnotation(classBlock);
-                    classBlock.privateStaticFinalVariable(
-                        String.format("Map<String, String> PROPERTIES = %s", propertiesValue));
+                // properties for sdk name and version
+                String propertiesValue = "new HashMap<>()";
+                String artifactId = ClientModelUtil.getArtifactId();
+                if (!CoreUtils.isNullOrEmpty(artifactId)) {
+                    propertiesValue = "CoreUtils.getProperties" + "(\"" + artifactId + ".properties\")";
                 }
+                addGeneratedAnnotation(classBlock);
+                classBlock
+                    .privateStaticFinalVariable(String.format("Map<String, String> PROPERTIES = %s", propertiesValue));
+
                 addGeneratedAnnotation(classBlock);
                 classBlock.privateFinalMemberVariable("List<HttpPipelinePolicy>", "pipelinePolicies");
 
@@ -465,11 +471,41 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
 
     protected void writeSyncClientBuildMethodFromInnerClient(AsyncSyncClient syncClient, JavaBlock function,
         String buildMethodName, boolean wrapServiceClient) {
+
+        boolean newPath = !JavaSettings.getInstance().isAzureV1();
+
+        if (newPath) {
+            boolean hasEndpoint = syncClient.getClientBuilder()
+                .getBuilderTraits()
+                .stream()
+                .anyMatch(trait -> trait instanceof EndpointTrait);
+
+            function.line(
+                "HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
+
+            function.line(
+                "SdkInstrumentationOptions sdkInstrumentationOptions = new SdkInstrumentationOptions(%1$s).setSdkVersion(%2$s)%3$s;",
+                "PROPERTIES.getOrDefault(SDK_NAME, \"UnknownName\")", "PROPERTIES.get(SDK_VERSION)",
+                hasEndpoint ? ".setEndpoint(this.endpoint)" : "");
+
+            function.line(
+                "Instrumentation instrumentation = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);");
+        }
         if (wrapServiceClient) {
-            function.line("return new %1$s(%2$s());", syncClient.getClassName(), buildMethodName);
+            if (newPath) {
+                function.line("return new %1$s(%2$s(), %3$s);", syncClient.getClassName(), buildMethodName,
+                    "instrumentation");
+            } else {
+                function.line("return new %1$s(%2$s());", syncClient.getClassName(), buildMethodName);
+            }
         } else {
-            function.line("return new %1$s(%2$s().get%3$s());", syncClient.getClassName(), buildMethodName,
-                CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()));
+            if (newPath) {
+                function.line("return new %1$s(%2$s().get%3$s(), %4$s);", syncClient.getClassName(), buildMethodName,
+                    CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()), "instrumentation");
+            } else {
+                function.line("return new %1$s(%2$s().get%3$s());", syncClient.getClassName(), buildMethodName,
+                    CodeNamer.toPascalCase(syncClient.getMethodGroupClient().getVariableName()));
+            }
         }
     }
 

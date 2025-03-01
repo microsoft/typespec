@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.ServiceMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.instrumentation.Instrumentation;
 import server.path.multiple.implementation.MultipleClientImpl;
 
 /**
@@ -18,14 +19,18 @@ public final class MultipleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final MultipleClientImpl serviceClient;
 
+    private final Instrumentation instrumentation;
+
     /**
      * Initializes an instance of MultipleClient class.
      * 
      * @param serviceClient the service client implementation.
+     * @param instrumentation the instrumentation instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    MultipleClient(MultipleClientImpl serviceClient) {
+    MultipleClient(MultipleClientImpl serviceClient, Instrumentation instrumentation) {
         this.serviceClient = serviceClient;
+        this.instrumentation = instrumentation;
     }
 
     /**
@@ -40,7 +45,8 @@ public final class MultipleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> noOperationParamsWithResponse(RequestContext requestContext) {
-        return this.serviceClient.noOperationParamsWithResponse(requestContext);
+        return this.instrumentation.instrumentWithResponse(".noOperationParams", requestContext,
+            updatedContext -> this.serviceClient.noOperationParamsWithResponse(updatedContext));
     }
 
     /**
@@ -68,7 +74,8 @@ public final class MultipleClient {
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withOperationPathParamWithResponse(String keyword, RequestContext requestContext) {
-        return this.serviceClient.withOperationPathParamWithResponse(keyword, requestContext);
+        return this.instrumentation.instrumentWithResponse(".withOperationPathParam", requestContext,
+            updatedContext -> this.serviceClient.withOperationPathParamWithResponse(keyword, updatedContext));
     }
 
     /**
