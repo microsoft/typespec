@@ -4,6 +4,7 @@ import { readFile, realpath, stat } from "fs/promises";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
+import { parseDocument } from "yaml";
 import logger from "./log/logger.js";
 import { getDirectoryPath, isUrl, joinPaths } from "./path-utils.js";
 import { ResultCode } from "./types.js";
@@ -139,6 +140,13 @@ export async function tryReadUrl(
   }
 }
 
+export function tryParseYaml(str: string): any | undefined {
+  try {
+    return parseDocument(str);
+  } catch {
+    return undefined;
+  }
+}
 export interface ExecOutput {
   stdout: string;
   stderr: string;
