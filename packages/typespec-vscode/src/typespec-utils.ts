@@ -4,7 +4,7 @@ import vscode from "vscode";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { getDirectoryPath, normalizeSlashes } from "./path-utils.js";
-import { isFile } from "./utils.js";
+import { isFile, isWhitespaceStringOrUndefined, spawnExecution } from "./utils.js";
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
   const isFilePath = await isFile(tspPath);
@@ -52,4 +52,23 @@ export async function TraverseMainTspFileInWorkspace() {
         .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
         .map((uri) => normalizeSlashes(uri.fsPath)),
     );
+}
+
+type TspCliType = "tsp-npm-global" | "tsp-standalone" | "not-available";
+export async function checkTspCli(): Promise<TspCliType> {
+  try {
+    // use "where" or "which" command instead of "tsp --version" which is much slower
+    const command = process.platform === "win32" ? "where" : "which";
+    const r = await spawnExecution(command, ["tsp"], process.cwd());
+    if (r.exitCode !== 0) {
+      return "not-available";
+    } else {
+      const founds = r.stdout.split("\n").filter((line) => !isWhitespaceStringOrUndefined(line));
+      // the standalone tsp is expected to be installed at .../.tsp/bin/... folder
+      const isStandalone = founds.length > 0 && founds[0].includes(".tsp");
+      return isStandalone ? "tsp-standalone" : "tsp-npm-global";
+    }
+  } catch (e) {
+    return "not-available";
+  }
 }

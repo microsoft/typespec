@@ -3,6 +3,7 @@ import { ExtensionContext, workspace } from "vscode";
 import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 import { SettingName } from "./types.js";
+import { checkTspCli } from "./typespec-utils.js";
 import { isFile, loadModule, useShellInExec } from "./utils.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
 
@@ -43,6 +44,7 @@ export async function resolveTypeSpecCli(
 }
 
 export async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executable> {
+  const checkCliPromise = checkTspCli();
   const nodeOptions = process.env.TYPESPEC_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
 
@@ -112,7 +114,14 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
   }
 
   options.env["TYPESPEC_SKIP_COMPILER_RESOLVE"] = "1";
-  return { command: "node", args: [serverPath, ...args], options };
+  const checkCliResult = await checkCliPromise;
+  if (checkCliResult === "tsp-standalone") {
+    logger.debug("Start tsp server using standalong tsp cli");
+    return { command: "tsp", args: ["--server", serverPath, ...args], options };
+  } else {
+    logger.debug("Start tsp server using node");
+    return { command: "node", args: [serverPath, ...args], options };
+  }
 }
 
 async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {
