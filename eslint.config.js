@@ -148,6 +148,7 @@ export default tsEslint.config(
       "packages/compiler/templates/**/*", // Ignore the templates which might have invalid code and not follow exactly our rules.
       "**/venv/**/*", // Ignore python virtual env
       "**/.vscode-test-web/**/*", // Ignore VSCode test web project
+      "packages/typespec-vscode/swagger-ui/swagger-ui*", // Ignore swagger-ui-dist files
       // TODO: enable
       "**/.scripts/**/*",
       "eng/tsp-core/scripts/**/*",

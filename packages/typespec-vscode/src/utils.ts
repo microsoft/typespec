@@ -1,6 +1,7 @@
 import type { ModuleResolutionResult, NodePackage, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-import { readFile, realpath, stat } from "fs/promises";
+import { mkdir, readFile, realpath, stat } from "fs/promises";
+import { tmpdir } from "os";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
@@ -25,6 +26,24 @@ export async function isDirectory(path: string) {
   } catch {
     return false;
   }
+}
+
+export async function createTempDir(): Promise<string | undefined> {
+  try {
+    const tempDir = tmpdir();
+    const realTempDir = await realpath(tempDir);
+    const uid = createGuid();
+    const subDir = joinPaths(realTempDir, uid);
+    await mkdir(subDir);
+    return subDir;
+  } catch (e) {
+    logger.error("Failed to create temp folder", [e]);
+    return undefined;
+  }
+}
+
+function createGuid() {
+  return crypto.randomUUID();
 }
 
 export function isWhitespaceStringOrUndefined(str: string | undefined): boolean {
@@ -388,4 +407,34 @@ export async function loadPackageJsonFile(
   const packageJson = tryParseJson(content);
   if (!packageJson) return undefined;
   return packageJson as NodePackage;
+}
+
+export async function parseJsonFromFile(filePath: string): Promise<string | undefined> {
+  try {
+    const fileContent = await readFile(filePath, "utf-8");
+    const content = JSON.parse(fileContent);
+    return content;
+  } catch (e) {
+    logger.error(`Failed to load JSON file: ${filePath}`, [e]);
+    return;
+  }
+}
+
+/**
+ * Throttle the function to be called at most once in every blockInMs milliseconds. This utility
+ * is useful when your event handler will trigger the same event multiple times in a short period.
+ *
+ * @param fn Underlying function to be throttled
+ * @param blockInMs Block time in milliseconds
+ * @returns a throttled function
+ */
+export function throttle<T extends (...args: any[]) => any>(fn: T, blockInMs: number): T {
+  let time: number | undefined;
+  return function (this: any, ...args: Parameters<T>) {
+    const now = Date.now();
+    if (time === undefined || now - time >= blockInMs) {
+      time = now;
+      fn.apply(this, args);
+    }
+  } as T;
 }
