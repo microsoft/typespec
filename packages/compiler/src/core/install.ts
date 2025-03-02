@@ -1,7 +1,10 @@
 import Arborist from "@npmcli/arborist";
 import { spawn } from "child_process";
+import { mkdir } from "fs/promises";
+import { homedir } from "os";
+import { downloadPackageVersion } from "../package-manger/npm-registry-utils.js";
 import { CliCompilerHost } from "./cli/types.js";
-import { getTypeSpecEngine } from "./engine.js";
+import { joinPaths } from "./path-utils.js";
 
 interface SpawnError {
   errno: number;
@@ -11,18 +14,24 @@ interface SpawnError {
   spawnArgs: string[];
 }
 
+const tspDir = homedir() + "/.tsp";
+const pmDir = joinPaths(tspDir, "pm");
+
 export async function installTypeSpecDependencies(
   host: CliCompilerHost,
   directory: string,
   stdio: "inherit" | "pipe" = "inherit",
 ): Promise<void> {
-  // Only use the builtin npm when running in standalone tsp mode.
-  // TBD how we'll change this as we move to a more integrated setup and resolve the user package manager.
-  if (getTypeSpecEngine() === "tsp") {
-    await installWithBuiltinNpm(host, directory);
-  } else {
-    await installWithNpmExe(host, directory, stdio);
-  }
+  const installDir = joinPaths(pmDir, "npm", "latest");
+  await mkdir(installDir, { recursive: true });
+  await downloadPackageVersion("npm", "latest", installDir);
+  // // Only use the builtin npm when running in standalone tsp mode.
+  // // TBD how we'll change this as we move to a more integrated setup and resolve the user package manager.
+  // if (getTypeSpecEngine() === "tsp") {
+  //   await installWithBuiltinNpm(host, directory);
+  // } else {
+  //   await installWithNpmExe(host, directory, stdio);
+  // }
 }
 
 async function installWithBuiltinNpm(host: CliCompilerHost, directory: string): Promise<void> {

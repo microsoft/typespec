@@ -163,6 +163,7 @@ words:
   - onwarn
   - openapi
   - openapiv
+  - Packument
   - Perfolizer
   - picocolors
   - posargs
