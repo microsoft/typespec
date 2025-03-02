@@ -107,6 +107,13 @@ export async function downloadPackageVersion(
   return downloadAndExtractTarball(manifest.dist.tarball, dest);
 }
 
+export async function downloadAndExtractPackage(
+  manifest: NpmManifest,
+  dest: string,
+): Promise<void> {
+  return downloadAndExtractTarball(manifest.dist.tarball, dest);
+}
+
 async function downloadAndExtractTarball(url: string, dest: string): Promise<void> {
   const res = await fetch(url);
   const tarball = Readable.fromWeb(res.body as any);
