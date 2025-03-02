@@ -43,7 +43,7 @@ export async function installTypeSpecDependencies(
   const binPath = joinPaths(installDir, bin);
   tracer.trace("running-binary", `Running binary ${binPath}`);
   const child = fork(binPath, ["install"], {
-    stdio: "pipe",
+    stdio,
     cwd: directory,
     env: process.env,
   });
