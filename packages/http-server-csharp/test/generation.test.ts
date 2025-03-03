@@ -1330,7 +1330,11 @@ model FileAttachmentMultipartRequest {
       ["ContosoOperations.cs", ["public class ContosoOperations : IContosoOperations"]],
       [
         "MockRegistration.cs",
-        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+        [
+          "public static class MockRegistration",
+          "<IContosoOperations, ContosoOperations>()",
+          "builder.Services.AddHttpContextAccessor();",
+        ],
       ],
       ["Program.cs", ["MockRegistration"]],
     ],
@@ -1361,6 +1365,10 @@ it("Handles spread parameters", async () => {
         "ContosoOperations.cs",
         [
           "public class ContosoOperations : IContosoOperations",
+          "public ContosoOperations(IInitializer initializer, IHttpContextAccessor accessor)",
+          "_initializer = initializer;",
+          "HttpContextAccessor = accessor;",
+          "public IHttpContextAccessor HttpContextAccessor { get; }",
           "public Task<Widget> CreateAsync( string id, string color, string? kind)",
         ],
       ],
@@ -1385,7 +1393,7 @@ it("Handles bodyRoot parameters", async () => {
     await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
     `
     model Widget {
-      @visibility("update", "read")
+      @visibility(Lifecycle.Update, Lifecycle.Read)
       @path id: string;
       @query kind?: string;
       color: string;
@@ -1397,7 +1405,6 @@ it("Handles bodyRoot parameters", async () => {
 
     `,
     [
-      //["Widget.cs", ["[FromQuery]"]],
       ["IContosoOperations.cs", ["Task<Widget> CreateAsync( Widget body);"]],
       [
         "ContosoOperations.cs",
@@ -1415,6 +1422,103 @@ it("Handles bodyRoot parameters", async () => {
         ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
       ],
       ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("Initializes enum types", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+    enum Color {
+      Red,
+      Blue,
+      Green
+    }
+    model Widget {
+      @visibility(Lifecycle.Update, Lifecycle.Read)
+      @path id: string;
+      @query kind?: string;
+      color: Color;
+    }
+
+    @route("/widgets")
+    @post op create(@bodyRoot body: Widget) : Widget;
+    @route("/colors")
+    @get op getDefaultColor(): Color;
+
+    `,
+    [
+      [
+        "IContosoOperations.cs",
+        ["Task<Widget> CreateAsync( Widget body);", "Task<Color> GetDefaultColorAsync( );"],
+      ],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public Task<Widget> CreateAsync( Widget body)",
+          "public Task<Color> GetDefaultColorAsync( )",
+          "return Task.FromResult<Microsoft.Contoso.Service.Models.Color>(default);",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          `public virtual async Task<IActionResult> Create(Widget body)`,
+          ".CreateAsync(body)",
+          `public virtual async Task<IActionResult> GetDefaultColor()`,
+          ".GetDefaultColorAsync()",
+        ],
+      ],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("emits correct code for GET requests with body parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+      #suppress "@typespec/http-server-csharp/get-request-body" "Test"
+      @route("/foo") @get op foo(intProp?: int32): void;
+      `,
+    [
+      [
+        "ContosoOperationsController.cs",
+        [`public virtual async Task<IActionResult> Foo()`, ".FooAsync()"],
+      ],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+      [
+        "ContosoOperations.cs",
+        ["public class ContosoOperations : IContosoOperations", "public Task FooAsync( )"],
+      ],
+    ],
+  );
+});
+
+it("emits correct code for GET requests with explicit body parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+      #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
+      #suppress "@typespec/http-server-csharp/get-request-body" "Test"
+      @route("/foo") @get op foo(@body body?: { intProp?: int32}): void;
+      `,
+    [
+      [
+        "ContosoOperationsController.cs",
+        [`public virtual async Task<IActionResult> Foo()`, ".FooAsync()"],
+      ],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+      [
+        "ContosoOperations.cs",
+        ["public class ContosoOperations : IContosoOperations", "public Task FooAsync( )"],
+      ],
     ],
   );
 });

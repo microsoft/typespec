@@ -2259,7 +2259,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties"
   },
   {
    "$id": "284",
@@ -2440,7 +2441,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknown"
   },
   {
    "$id": "301",
@@ -2621,7 +2623,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDerived"
   },
   {
    "$id": "318",
@@ -2802,7 +2805,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDiscriminated"
   },
   {
    "$id": "335",
@@ -2983,7 +2987,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknown"
   },
   {
    "$id": "352",
@@ -3164,7 +3169,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDerived"
   },
   {
    "$id": "369",
@@ -3345,7 +3351,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDiscriminated"
   },
   {
    "$id": "386",
@@ -3526,7 +3533,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsString"
   },
   {
    "$id": "403",
@@ -3707,7 +3715,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsString"
   },
   {
    "$id": "420",
@@ -3888,7 +3897,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadString"
   },
   {
    "$id": "437",
@@ -4069,7 +4079,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloat"
   },
   {
    "$id": "454",
@@ -4250,7 +4261,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloat"
   },
   {
    "$id": "471",
@@ -4431,7 +4443,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloat"
   },
   {
    "$id": "488",
@@ -4612,7 +4625,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModel"
   },
   {
    "$id": "505",
@@ -4793,7 +4807,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModel"
   },
   {
    "$id": "522",
@@ -4974,7 +4989,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModel"
   },
   {
    "$id": "539",
@@ -5155,7 +5171,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArray"
   },
   {
    "$id": "556",
@@ -5336,7 +5353,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArray"
   },
   {
    "$id": "573",
@@ -5517,7 +5535,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArray"
   },
   {
    "$id": "590",
@@ -5698,7 +5717,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentString"
   },
   {
    "$id": "607",
@@ -5879,7 +5899,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentFloat"
   },
   {
    "$id": "624",
@@ -6060,7 +6081,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModel"
   },
   {
    "$id": "641",
@@ -6241,7 +6263,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModelArray"
   },
   {
    "$id": "658",
@@ -6422,7 +6445,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadString"
   },
   {
    "$id": "675",
@@ -6603,7 +6627,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadFloat"
   },
   {
    "$id": "692",
@@ -6784,7 +6809,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModel"
   },
   {
    "$id": "709",
@@ -6965,7 +6991,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModelArray"
   },
   {
    "$id": "726",
@@ -7146,7 +7173,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpread"
   },
   {
    "$id": "743",
@@ -7327,7 +7355,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordUnion"
   },
   {
    "$id": "760",
@@ -7508,7 +7537,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordDiscriminatedUnion"
   },
   {
    "$id": "777",
@@ -7689,7 +7719,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion"
   },
   {
    "$id": "794",
@@ -7870,7 +7901,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion2"
   },
   {
    "$id": "811",
@@ -8051,7 +8083,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3"
   }
  ]
 }

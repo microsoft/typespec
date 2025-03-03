@@ -1,4 +1,5 @@
 import { codeFrameColumns } from "@babel/code-frame";
+import isUnicodeSupported from "is-unicode-supported";
 import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
@@ -15,12 +16,19 @@ export interface ConsoleSinkOptions extends FormatLogOptions {}
 
 export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
   function log(data: ProcessedLog) {
+    const isTTY = process.stdout?.isTTY && !process.env.CI;
+    if (isTTY) {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+    }
     // eslint-disable-next-line no-console
     console.log(formatLog(data, options));
   }
 
   return {
     log,
+    trackAction: (message, finalMessage, action) =>
+      trackAction(message, finalMessage, action, options),
   };
 }
 
@@ -129,3 +137,56 @@ function getLineAndColumn(location: SourceLocation): RealLocation {
   }
   return result;
 }
+
+export async function trackAction<T>(
+  message: string,
+  finalMessage: string,
+  asyncAction: () => Promise<T>,
+  options: FormatLogOptions,
+): Promise<T> {
+  const isTTY = process.stdout?.isTTY && !process.env.CI;
+  let interval;
+  if (isTTY) {
+    const spinner = createSpinner();
+
+    interval = setInterval(() => {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+      process.stdout.write(`\r${color(options, spinner(), pc.yellow)} ${message}`);
+    }, 200);
+  }
+
+  try {
+    const result = await asyncAction();
+    if (interval) {
+      clearInterval(interval);
+      clearLastLine();
+      process.stdout.write(`${color(options, "✔", pc.green)} ${finalMessage}\n`);
+    }
+    return result;
+  } catch (error) {
+    if (interval) {
+      clearInterval(interval);
+      clearLastLine();
+      process.stdout.write(`${color(options, "x", pc.red)} ${message}\n`);
+    }
+    throw error;
+  }
+}
+
+function clearLastLine(): void {
+  process.stdout.write("\r\x1b[K");
+}
+
+function createSpinner(): () => string {
+  let index = 0;
+
+  return () => {
+    index = ++index % spinnerFrames.length;
+    return spinnerFrames[index];
+  };
+}
+
+export const spinnerFrames = isUnicodeSupported()
+  ? ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+  : ["-", "\\", "|", "/"];

@@ -4025,7 +4025,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec"
   }
  ],
  "Auth": {

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
+import { Realm } from "../experimental/realm.js";
+import { $ } from "../experimental/typekit/index.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
@@ -300,6 +302,9 @@ export interface Checker {
   /** @internal */
   getTypeOrValueForNode(node: Node): Type | Value | null;
 
+  /** @internal */
+  getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean>;
+
   readonly errorType: ErrorType;
   readonly voidType: VoidType;
   readonly neverType: NeverType;
@@ -401,6 +406,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   let evalContext: EvalContext | undefined = undefined;
 
+  /**
+   * Tracking the template parameters used or not.
+   */
+  const templateParameterUsageMap = new Map<TemplateParameterDeclarationNode, boolean>();
+
   const checker: Checker = {
     getTypeForNode,
     checkProgram,
@@ -433,6 +443,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueForNode,
     getTypeOrValueForNode,
     getValueExactType,
+    getTemplateParameterUsageMap,
     isTypeAssignableTo: undefined!,
   };
   const relation = createTypeRelationChecker(program, checker);
@@ -440,6 +451,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   const projectionMembers = createProjectionMembers(checker);
   return checker;
+
+  function getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean> {
+    return templateParameterUsageMap;
+  }
 
   function wrapInstantiationDiagnostic(
     diagnostic: Diagnostic,
@@ -1066,6 +1081,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const grandParentNode = parentNode.parent;
     const links = getSymbolLinks(node.symbol);
 
+    if (!templateParameterUsageMap.has(node)) {
+      templateParameterUsageMap.set(node, false);
+    }
+
     if (pendingResolutions.has(getNodeSym(node), ResolutionKind.Constraint)) {
       if (mapper === undefined) {
         reportCheckerDiagnostic(
@@ -1112,7 +1131,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
       }
     }
-
     return mapper ? mapper.getMappedType(type) : type;
   }
 
@@ -1512,6 +1530,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkTypeOrValueReferenceSymbol(
+    sym: Sym,
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+    mapper: TypeMapper | undefined,
+    instantiateTemplates = true,
+  ): Type | Value | IndeterminateEntity | null {
+    const entity = checkTypeOrValueReferenceSymbolWorker(sym, node, mapper, instantiateTemplates);
+
+    if (entity !== null && isType(entity) && entity.kind === "TemplateParameter") {
+      templateParameterUsageMap.set(entity.node, true);
+    }
+    return entity;
+  }
+
+  function checkTypeOrValueReferenceSymbolWorker(
     sym: Sym,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
@@ -5225,6 +5257,34 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           target: node.targetType,
         }),
       );
+    } else if (
+      links.finalSymbol?.flags &&
+      ~links.finalSymbol.flags & SymbolFlags.Declaration &&
+      ~links.finalSymbol.flags & SymbolFlags.Member
+    ) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "augment-decorator-target",
+          messageId:
+            links.finalSymbol.flags & SymbolFlags.Model
+              ? "noModelExpression"
+              : links.finalSymbol.flags & SymbolFlags.Union
+                ? "noUnionExpression"
+                : "default",
+          target: node.targetType,
+        }),
+      );
+    } else if (links.finalSymbol?.flags && links.finalSymbol.flags & SymbolFlags.Alias) {
+      const aliasNode: AliasStatementNode = getSymNode(links.finalSymbol) as AliasStatementNode;
+
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "augment-decorator-target",
+          messageId:
+            aliasNode.value.kind === SyntaxKind.UnionExpression ? "noUnionExpression" : "default",
+          target: node.targetType,
+        }),
+      );
     }
 
     // If this was used to get a type this is invalid, only used for validation.
@@ -7124,13 +7184,12 @@ export function filterModelProperties(
     return model;
   }
 
-  const properties = createRekeyableMap<string, ModelProperty>();
-  const newModel: Model = program.checker.createType({
-    kind: "Model",
-    node: undefined,
+  const realm = Realm.realmForType.get(model);
+  const typekit = realm ? $(realm) : $;
+  const newModel: Model = typekit.model.create({
     name: "",
     indexer: undefined,
-    properties,
+    properties: {},
     decorators: [],
     derivedModels: [],
     sourceModels: [{ usage: "spread", model }],
@@ -7138,11 +7197,12 @@ export function filterModelProperties(
 
   for (const property of walkPropertiesInherited(model)) {
     if (filter(property)) {
-      const newProperty = program.checker.cloneType(property, {
+      const newProperty = typekit.type.clone(property);
+      Object.assign(newProperty, {
         sourceProperty: property,
         model: newModel,
       });
-      properties.set(property.name, newProperty);
+      newModel.properties.set(property.name, newProperty);
     }
   }
 

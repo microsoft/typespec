@@ -254,11 +254,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 ["application/json"]);
         }
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null, string? crossLanguageDefinitionId = null)
         {
             return new InputClient(
                 name,
                 clientNamespace,
+                crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
                 string.Empty,
                 doc ?? $"{name} description",
                 operations is null ? [] : [.. operations],

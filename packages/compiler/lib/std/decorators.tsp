@@ -17,7 +17,7 @@ namespace TypeSpec;
 extern dec summary(target: unknown, summary: valueof string);
 
 /**
- * Attach a documentation string.
+ * Attach a documentation string. Content support CommonMark markdown formatting.
  * @param doc Documentation string
  * @param formatArgs Record with key value pair that can be interpolated in the doc.
  *
@@ -102,17 +102,17 @@ model ServiceOptions {
  *
  * @example Setting service title
  * ```typespec
- * @service({title: "Pet store"})
+ * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
  *
  * @example Setting service version
  * ```typespec
- * @service({version: "1.0"})
+ * @service(#{version: "1.0"})
  * namespace PetStore;
  * ```
  */
-extern dec service(target: Namespace, options?: ServiceOptions);
+extern dec service(target: Namespace, options?: valueof ServiceOptions);
 
 /**
  * Specify that this model is an error type. Operations return error types when the operation has failed.

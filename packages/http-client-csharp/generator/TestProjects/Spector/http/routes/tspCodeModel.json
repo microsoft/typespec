@@ -73,7 +73,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes"
   },
   {
    "$id": "10",
@@ -259,7 +260,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters"
   },
   {
    "$id": "28",
@@ -398,7 +400,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.ReservedExpansion"
   },
   {
    "$id": "42",
@@ -442,7 +445,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion"
   },
   {
    "$id": "48",
@@ -647,7 +651,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard"
   },
   {
    "$id": "69",
@@ -852,7 +857,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode"
   },
   {
    "$id": "90",
@@ -896,7 +902,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion"
   },
   {
    "$id": "96",
@@ -1101,7 +1108,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard"
   },
   {
    "$id": "117",
@@ -1306,7 +1314,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode"
   },
   {
    "$id": "138",
@@ -1350,7 +1359,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion"
   },
   {
    "$id": "144",
@@ -1555,7 +1565,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard"
   },
   {
    "$id": "165",
@@ -1760,7 +1771,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode"
   },
   {
    "$id": "186",
@@ -1804,7 +1816,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion"
   },
   {
    "$id": "192",
@@ -2009,7 +2022,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard"
   },
   {
    "$id": "213",
@@ -2214,7 +2228,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode"
   },
   {
    "$id": "234",
@@ -2400,7 +2415,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters"
   },
   {
    "$id": "252",
@@ -2444,7 +2460,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion"
   },
   {
    "$id": "258",
@@ -2649,7 +2666,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard"
   },
   {
    "$id": "279",
@@ -2854,7 +2872,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode"
   },
   {
    "$id": "300",
@@ -2898,7 +2917,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation"
   },
   {
    "$id": "306",
@@ -3103,7 +3123,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard"
   },
   {
    "$id": "327",
@@ -3308,7 +3329,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode"
   },
   {
    "$id": "348",
@@ -3378,7 +3400,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.InInterface"
   }
  ]
 }

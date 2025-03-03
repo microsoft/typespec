@@ -295,7 +295,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Server.Versions.Versioned"
   }
  ]
 }

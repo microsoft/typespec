@@ -179,7 +179,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Server.Path.Multiple"
   }
  ]
 }

@@ -190,7 +190,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "SpecialHeaders.Repeatability"
   }
  ]
 }

@@ -1306,7 +1306,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "SpecialWords"
   },
   {
    "$id": "178",
@@ -3794,7 +3795,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "SpecialWords.Models"
   },
   {
    "$id": "382",
@@ -3914,7 +3916,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "SpecialWords.ModelProperties"
   },
   {
    "$id": "394",
@@ -4785,7 +4788,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "SpecialWords.Operations"
   },
   {
    "$id": "466",
@@ -6429,7 +6433,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "SpecialWords.Parameters"
   }
  ]
 }

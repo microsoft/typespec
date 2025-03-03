@@ -121,7 +121,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary"
   },
   {
    "$id": "18",
@@ -332,7 +333,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.Int32Value"
   },
   {
    "$id": "41",
@@ -543,7 +545,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.Int64Value"
   },
   {
    "$id": "64",
@@ -754,7 +757,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.BooleanValue"
   },
   {
    "$id": "87",
@@ -965,7 +969,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.StringValue"
   },
   {
    "$id": "110",
@@ -1176,7 +1181,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.Float32Value"
   },
   {
    "$id": "133",
@@ -1403,7 +1409,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.DatetimeValue"
   },
   {
    "$id": "158",
@@ -1630,7 +1637,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.DurationValue"
   },
   {
    "$id": "183",
@@ -1841,7 +1849,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.UnknownValue"
   },
   {
    "$id": "206",
@@ -2044,7 +2053,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.ModelValue"
   },
   {
    "$id": "227",
@@ -2247,7 +2257,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.RecursiveModelValue"
   },
   {
    "$id": "248",
@@ -2459,7 +2470,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.NullableFloatValue"
   }
  ]
 }

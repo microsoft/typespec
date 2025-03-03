@@ -166,7 +166,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Authentication.OAuth2"
   }
  ],
  "Auth": {

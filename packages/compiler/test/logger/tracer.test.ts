@@ -13,6 +13,7 @@ describe("compiler: tracer", () => {
       error: () => {},
       warn: () => {},
       trace: () => {},
+      trackAction: async (_x, _y, action) => action(),
     };
   });
 

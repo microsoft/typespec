@@ -1,19 +1,15 @@
 import {
-  $visibility,
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
   getOverloadedOperation,
   getOverloads,
-  getVisibility,
   listOperationsIn,
   listServices,
-  ModelProperty,
   Namespace,
   navigateProgram,
   Operation,
   Program,
-  SyntaxKind,
 } from "@typespec/compiler";
 import { getAuthenticationForOperation } from "./auth.js";
 import { getAuthentication } from "./decorators.js";
@@ -99,7 +95,6 @@ export function getHttpService(
   );
   const authentication = getAuthentication(program, serviceNamespace);
 
-  validateProgram(program, diagnostics);
   validateRouteUnique(program, diagnostics, httpOperations);
 
   const service: HttpService = {
@@ -240,29 +235,4 @@ function getHttpOperationInternal(
   }
 
   return diagnostics.wrap(httpOperationRef);
-}
-
-function validateProgram(program: Program, diagnostics: DiagnosticCollector) {
-  navigateProgram(program, {
-    modelProperty(property) {
-      checkForUnsupportedVisibility(property);
-    },
-  });
-
-  // NOTE: This is intentionally not checked in the visibility decorator
-  // itself as that would be a layering violation, putting a REST
-  // interpretation of visibility into the core.
-  function checkForUnsupportedVisibility(property: ModelProperty) {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    if (getVisibility(program, property)?.includes("write")) {
-      // NOTE: Check for name equality instead of function equality
-      // to deal with multiple copies of core being used.
-      const decorator = property.decorators.find((d) => d.decorator.name === $visibility.name);
-      const arg = decorator?.args.find(
-        (a) => a.node?.kind === SyntaxKind.StringLiteral && a.node.value === "write",
-      );
-      const target = arg?.node ?? property;
-      diagnostics.add(createDiagnostic({ code: "write-visibility-not-supported", target }));
-    }
-  }
 }

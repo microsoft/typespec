@@ -825,7 +825,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Model.Inheritance.NestedDiscriminator"
   }
  ]
 }

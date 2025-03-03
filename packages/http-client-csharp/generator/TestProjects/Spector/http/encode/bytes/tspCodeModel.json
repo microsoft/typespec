@@ -215,7 +215,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes"
   },
   {
    "$id": "30",
@@ -468,7 +469,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes.Query"
   },
   {
    "$id": "54",
@@ -941,7 +943,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes.Property"
   },
   {
    "$id": "96",
@@ -1194,7 +1197,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes.Header"
   },
   {
    "$id": "120",
@@ -1630,7 +1634,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes.RequestBody"
   },
   {
    "$id": "161",
@@ -2039,7 +2044,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes.ResponseBody"
   }
  ]
 }

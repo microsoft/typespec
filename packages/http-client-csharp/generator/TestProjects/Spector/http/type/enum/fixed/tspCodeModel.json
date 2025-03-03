@@ -194,7 +194,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Enum.Fixed"
   },
   {
    "$id": "24",
@@ -451,7 +452,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Enum.Fixed.String"
   }
  ]
 }

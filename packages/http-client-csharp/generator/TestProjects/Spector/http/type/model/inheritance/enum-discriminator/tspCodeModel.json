@@ -880,7 +880,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator"
   }
  ]
 }

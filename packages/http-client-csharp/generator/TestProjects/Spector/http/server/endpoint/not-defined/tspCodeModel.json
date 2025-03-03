@@ -63,7 +63,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Server.Endpoint.NotDefined"
   }
  ]
 }

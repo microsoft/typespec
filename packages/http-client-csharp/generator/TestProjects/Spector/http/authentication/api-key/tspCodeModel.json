@@ -166,7 +166,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Authentication.ApiKey"
   }
  ],
  "Auth": {
