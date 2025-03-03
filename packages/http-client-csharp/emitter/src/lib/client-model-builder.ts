@@ -1,15 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  UsageFlags,
-} from "@azure-tools/typespec-client-generator-core";
+import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
+import { fromSdkClients } from "./client-converter.js";
 import { navigateModels } from "./model.js";
 import { processServiceAuthentication } from "./service-authentication.js";
-import { fromSdkClients } from "./client-converter.js";
 
 /**
  * Creates the code model from the SDK context.

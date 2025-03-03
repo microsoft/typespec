@@ -41,8 +41,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputOperation>? operations = null;
             IReadOnlyList<InputParameter>? parameters = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
-            string? parent = null;
             string? crossLanguageDefinitionId = null;
+            InputClient? parent = null;
+            IReadOnlyList<InputClient>? children = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -53,9 +54,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadWithConverter("operations", options, ref operations)
                     || reader.TryReadWithConverter("parameters", options, ref parameters)
                     || reader.TryReadWithConverter("decorators", options, ref decorators)
-                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId);
-                    //|| reader.TryReadWithConverter("parent", options, ref parent)
-                    //|| reader.TryReadWithConverter("children", options, ref children)
+                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
+                    || reader.TryReadWithConverter("parent", options, ref parent)
+                    || reader.TryReadWithConverter("children", options, ref children);
 
                 if (!isKnownProperty)
                 {
@@ -70,8 +71,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.Doc = doc;
             client.Operations = operations ?? [];
             client.Parameters = parameters ?? [];
-            client.Parent = parent;
             client.Decorators = decorators ?? [];
+            client.Parent = parent;
+            client.Children = children ?? [];
 
             var lastSegment = GetLastSegment(client.Namespace);
             if (lastSegment == client.Name)
