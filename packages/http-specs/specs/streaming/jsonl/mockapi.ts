@@ -1,4 +1,4 @@
-import { MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -9,17 +9,10 @@ Scenarios.Streaming_Jsonl_Basic_send = passOnSuccess({
     headers: {
       "Content-Type": "application/jsonl",
     },
-    body: '{"desc": "one"}\n{"desc": "two"}\n{"desc": "three"}',
+    body: Buffer.from('{"desc": "one"}\n{"desc": "two"}\n{"desc": "three"}'),
   },
   response: {
     status: 204,
-  },
-  handler: (req: MockRequest) => {
-    req.expect.containsHeader("content-type", "application/jsonl");
-    req.expect.rawBodyEquals('{"desc": "one"}\n{"desc": "two"}\n{"desc": "three"}');
-    return {
-      status: 204,
-    };
   },
   kind: "MockApiDefinition",
 });
@@ -31,7 +24,7 @@ Scenarios.Streaming_Jsonl_Basic_receive = passOnSuccess({
   response: {
     status: 200,
     body: {
-      rawContent: '{"desc": "one"}\n{"desc": "two"}\n{"desc": "three"}',
+      rawContent: Buffer.from('{"desc": "one"}\n{"desc": "two"}\n{"desc": "three"}'),
       contentType: "application/jsonl",
     },
   },
