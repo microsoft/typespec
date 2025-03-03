@@ -348,7 +348,7 @@ function loadOperationPaging(
 
   // TODO - this is hopefully temporary until TCGC provides the information directly https://github.com/Azure/typespec-azure/issues/2288
   let continuationToken: ContinuationToken | undefined;
-  let responseModel: SdkHttpResponse | undefined = method.operation.responses.find(
+  const responseModel: SdkHttpResponse | undefined = method.operation.responses.find(
     (r) => r.type?.kind === "model",
   ) as SdkHttpResponse | undefined;
   let responseProperty: SdkModelPropertyType | undefined;
