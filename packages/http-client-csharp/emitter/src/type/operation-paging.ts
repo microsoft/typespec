@@ -8,6 +8,7 @@ import { ResponseLocation } from "./response-location.js";
 export interface OperationPaging {
   NextLink?: NextLink;
   ContinuationToken?: ContinuationToken;
+  ItemsPropertyName: string;
 }
 
 export interface NextLink {

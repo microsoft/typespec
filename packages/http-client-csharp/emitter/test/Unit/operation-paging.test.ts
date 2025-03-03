@@ -41,6 +41,7 @@ describe("Next link operations", () => {
     const root = createModel(sdkContext);
     const paging = root.Clients[0].Operations[0].Paging;
     ok(paging);
+    strictEqual(paging.ItemsPropertyName, "items");
     strictEqual(paging.NextLink?.ResponseLocation, ResponseLocation.Body);
     strictEqual(paging.NextLink?.ResponseSegments.length, 1);
     strictEqual(paging.NextLink?.ResponseSegments[0], "next");
@@ -72,6 +73,7 @@ describe("Next link operations", () => {
     const root = createModel(sdkContext);
     const paging = root.Clients[0].Operations[0].Paging;
     ok(paging);
+    strictEqual(paging.ItemsPropertyName, "items");
     strictEqual(paging.NextLink?.ResponseLocation, ResponseLocation.Body);
     strictEqual(paging.NextLink?.ResponseSegments.length, 2);
     strictEqual(paging.NextLink?.ResponseSegments[0], "next");
@@ -106,6 +108,7 @@ describe("Continuation token operations", () => {
     const root = createModel(sdkContext);
     const paging = root.Clients[0].Operations[0].Paging;
     ok(paging);
+    strictEqual(paging.ItemsPropertyName, "items");
     const continuationToken = paging.ContinuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.Parameter.Name, "token");
@@ -136,6 +139,7 @@ describe("Continuation token operations", () => {
     const root = createModel(sdkContext);
     const paging = root.Clients[0].Operations[0].Paging;
     ok(paging);
+    strictEqual(paging.ItemsPropertyName, "items");
     const continuationToken = paging.ContinuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.Parameter.Name, "token");
@@ -167,6 +171,7 @@ describe("Continuation token operations", () => {
     const root = createModel(sdkContext);
     const paging = root.Clients[0].Operations[0].Paging;
     ok(paging);
+    strictEqual(paging.ItemsPropertyName, "items");
     const continuationToken = paging.ContinuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.Parameter.Name, "token");
@@ -198,6 +203,7 @@ describe("Continuation token operations", () => {
     const root = createModel(sdkContext);
     const paging = root.Clients[0].Operations[0].Paging;
     ok(paging);
+    strictEqual(paging.ItemsPropertyName, "items");
     const continuationToken = paging.ContinuationToken;
     ok(continuationToken);
     strictEqual(continuationToken.Parameter.Name, "token");

@@ -9,13 +9,14 @@ import {
   SdkHttpResponse,
   SdkModelPropertyType,
   SdkModelType,
+  SdkPagingServiceMetadata,
   SdkServiceMethod,
   SdkServiceResponseHeader,
   SdkType,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
-import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
+import { getDeprecated, isErrorModel, NoTarget, PagingOperation } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
@@ -37,6 +38,7 @@ import { ResponseLocation } from "../type/response-location.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
+import { PagedResultMetadata } from "@azure-tools/typespec-azure-core";
 
 export function fromSdkServiceMethod(
   sdkContext: CSharpEmitterContext,
@@ -379,6 +381,7 @@ function loadOperationPaging(
   }
 
   return {
+    ItemsPropertyName: (method.pagingMetadata.__raw as PagingOperation).output!.pageItems.property.name,
     NextLink: nextLink,
     ContinuationToken: continuationToken,
   };
