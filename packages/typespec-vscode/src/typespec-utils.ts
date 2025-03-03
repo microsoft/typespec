@@ -1,10 +1,11 @@
 import { readFile } from "fs/promises";
 import path from "path";
 import vscode from "vscode";
+import which from "which";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { getDirectoryPath, normalizeSlashes } from "./path-utils.js";
-import { isFile, isWhitespaceStringOrUndefined, spawnExecution } from "./utils.js";
+import { isFile } from "./utils.js";
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
   const isFilePath = await isFile(tspPath);
@@ -57,17 +58,11 @@ export async function TraverseMainTspFileInWorkspace() {
 type TspCliType = "tsp-npm-global" | "tsp-standalone" | "not-available";
 export async function checkTspCliType(): Promise<TspCliType> {
   try {
-    // use "where" or "which" command instead of "tsp --version" which is much slower
-    const command = process.platform === "win32" ? "where" : "which";
-    const r = await spawnExecution(command, ["tsp"], process.cwd());
-    if (r.exitCode !== 0) {
-      return "not-available";
-    } else {
-      const founds = r.stdout.split("\n").filter((line) => !isWhitespaceStringOrUndefined(line));
-      // the standalone tsp is expected to be installed at .../.tsp/... folder
-      const isStandalone = founds.length > 0 && founds[0].includes(".tsp");
-      return isStandalone ? "tsp-standalone" : "tsp-npm-global";
-    }
+    // using "which" instead of 'tsp --version' to do the check because 'tsp --version' is very slow
+    const found = await which("tsp");
+    // the standalone tsp is expected to be installed at .../.tsp/... folder
+    const isStandalone = found.length > 0 && found.includes(".tsp");
+    return isStandalone ? "tsp-standalone" : "tsp-npm-global";
   } catch (e) {
     return "not-available";
   }
