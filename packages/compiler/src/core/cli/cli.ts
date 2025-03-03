@@ -218,7 +218,7 @@ async function main() {
       "install",
       "Install TypeSpec dependencies",
       () => {},
-      withCliHost((host) => installTypeSpecDependencies(host, process.cwd())),
+      withCliHostAndDiagnostics((host) => installTypeSpecDependencies(host, process.cwd())),
     )
     .command(
       "info",

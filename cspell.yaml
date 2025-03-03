@@ -112,6 +112,7 @@ words:
   - killpg
   - kwargs
   - labelledby
+  - libc
   - lifecyle
   - LINUXARMVMIMAGE
   - LINUXNEXTVMIMAGE
