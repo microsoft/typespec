@@ -10,6 +10,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
 import { InputOperation } from "./input-operation.js";
+import { InputParameter } from "./input-parameter.js";
 
 export interface InputClientType extends DecoratedType {
   kind: "client";
@@ -18,6 +19,7 @@ export interface InputClientType extends DecoratedType {
   doc?: string;
   summary?: string;
   // clientInitialization: TODO;
+  parameters?: InputParameter[]; // TODO -- this should be replaced by clientInitialization when the clientInitialization related stuffs are done.
   operations: InputOperation[];
   apiVersions: string[];
   crossLanguageDefinitionId: string;

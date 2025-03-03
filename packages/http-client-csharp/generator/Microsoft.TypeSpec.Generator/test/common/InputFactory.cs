@@ -256,9 +256,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 ["application/json"]);
         }
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null, string? crossLanguageDefinitionId = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
         {
-            return new InputClient(
+            // when this client has parent, we add the constructed client into the `children` list of the parent
+            var client = new InputClient(
                 name,
                 clientNamespace,
                 crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
@@ -266,7 +267,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 doc ?? $"{name} description",
                 operations is null ? [] : [.. operations],
                 parameters is null ? [] : [.. parameters],
-                parent);
+                parent,
+                null);
+            if (parent != null)
+            {
+                // parent.Children is internal here we have to use reflection to set the proper value
+                var propertyInfo = typeof(InputClient).GetProperty("Children", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                List<InputClient> newChildren = [.. parent.Children, client];
+                propertyInfo!.SetValue(parent, newChildren);
+            }
+            return client;
         }
     }
 }
