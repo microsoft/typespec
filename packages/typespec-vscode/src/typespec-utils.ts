@@ -55,7 +55,7 @@ export async function TraverseMainTspFileInWorkspace() {
 }
 
 type TspCliType = "tsp-npm-global" | "tsp-standalone" | "not-available";
-export async function checkTspCli(): Promise<TspCliType> {
+export async function checkTspCliType(): Promise<TspCliType> {
   try {
     // use "where" or "which" command instead of "tsp --version" which is much slower
     const command = process.platform === "win32" ? "where" : "which";
@@ -64,7 +64,7 @@ export async function checkTspCli(): Promise<TspCliType> {
       return "not-available";
     } else {
       const founds = r.stdout.split("\n").filter((line) => !isWhitespaceStringOrUndefined(line));
-      // the standalone tsp is expected to be installed at .../.tsp/bin/... folder
+      // the standalone tsp is expected to be installed at .../.tsp/... folder
       const isStandalone = founds.length > 0 && founds[0].includes(".tsp");
       return isStandalone ? "tsp-standalone" : "tsp-npm-global";
     }

@@ -3,7 +3,7 @@ import { ExtensionContext, workspace } from "vscode";
 import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 import { SettingName } from "./types.js";
-import { checkTspCli } from "./typespec-utils.js";
+import { checkTspCliType } from "./typespec-utils.js";
 import { isFile, loadModule, useShellInExec } from "./utils.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
 
@@ -44,7 +44,7 @@ export async function resolveTypeSpecCli(
 }
 
 export async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executable> {
-  const checkCliPromise = checkTspCli();
+  const checkCliPromise = checkTspCliType();
   const nodeOptions = process.env.TYPESPEC_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
 
