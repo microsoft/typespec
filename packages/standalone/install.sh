@@ -194,9 +194,9 @@ setup_shell() {
     {
       echo ''
       echo '# TypeSpec'
-      echo 'TYPESPEC_PATH="'"$install_dir"'"'
+      echo 'TYPESPEC_PATH="'"$bin_dir"'"'
       echo 'if [ -d "$TYPESPEC_PATH" ]; then'
-      echo '  export PATH="'$install_dir':$PATH"'
+      echo '  export PATH="'$bin_dir':$PATH"'
       echo 'fi'
     } | tee -a "$CONF_FILE"
 
@@ -207,7 +207,7 @@ setup_shell() {
     {
       echo ''
       echo '# TypeSpec'
-      echo 'set TYPESPEC_PATH "'"$install_dir"'"'
+      echo 'set TYPESPEC_PATH "'"$bin_dir"'"'
       echo 'if [ -d "$TYPESPEC_PATH" ]'
       echo '  set PATH "$TYPESPEC_PATH" $PATH'
       echo 'end'
@@ -224,7 +224,7 @@ setup_shell() {
     {
       echo ''
       echo '# TypeSpec'
-      echo 'TYPESPEC_PATH="'"$install_dir"'"'
+      echo 'TYPESPEC_PATH="'"$bin_dir"'"'
       echo 'if [ -d "$TYPESPEC_PATH" ]; then'
       echo '  export PATH="$TYPESPEC_PATH:$PATH"'
       echo 'fi'
