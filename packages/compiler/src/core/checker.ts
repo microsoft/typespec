@@ -7203,6 +7203,7 @@ export function filterModelProperties(
         model: newModel,
       });
       newModel.properties.set(property.name, newProperty);
+      typekit.type.finishType(newProperty);
     }
   }
 
