@@ -2,14 +2,14 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
+import { RequestLocation } from "../../src/type/request-location.js";
+import { ResponseLocation } from "../../src/type/response-location.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
   typeSpecCompile,
 } from "./utils/test-util.js";
-import { ResponseLocation } from "../../src/type/response-location.js";
-import { RequestLocation } from "../../src/type/request-location.js";
 
 describe("Next link operations", () => {
   let runner: TestHost;
@@ -42,7 +42,7 @@ describe("Next link operations", () => {
     const paging = root.Clients[0].Operations[0].Paging;
     ok(paging);
     strictEqual(paging.NextLink?.ResponseLocation, ResponseLocation.Body);
-    strictEqual(paging.NextLink?.ResponseSegments.length, 1)
+    strictEqual(paging.NextLink?.ResponseSegments.length, 1);
     strictEqual(paging.NextLink?.ResponseSegments[0], "next");
   });
 
@@ -73,7 +73,7 @@ describe("Next link operations", () => {
     const paging = root.Clients[0].Operations[0].Paging;
     ok(paging);
     strictEqual(paging.NextLink?.ResponseLocation, ResponseLocation.Body);
-    strictEqual(paging.NextLink?.ResponseSegments.length, 2)
+    strictEqual(paging.NextLink?.ResponseSegments.length, 2);
     strictEqual(paging.NextLink?.ResponseSegments[0], "next");
     strictEqual(paging.NextLink?.ResponseSegments[1], "nested");
   });
@@ -111,9 +111,9 @@ describe("Continuation token operations", () => {
     strictEqual(continuationToken.Parameter.Name, "token");
     strictEqual(continuationToken.Parameter.Location, RequestLocation.Header);
     strictEqual(continuationToken.ResponseLocation, ResponseLocation.Header);
-    strictEqual(continuationToken.ResponseSegments.length, 1)
+    strictEqual(continuationToken.ResponseSegments.length, 1);
     strictEqual(continuationToken.ResponseSegments[0], "nextToken");
-  })
+  });
 
   it("header request body response", async () => {
     const program = await typeSpecCompile(
@@ -142,9 +142,9 @@ describe("Continuation token operations", () => {
     strictEqual(continuationToken.Parameter.NameInRequest, "token");
     strictEqual(continuationToken.Parameter.Location, RequestLocation.Header);
     strictEqual(continuationToken.ResponseLocation, ResponseLocation.Body);
-    strictEqual(continuationToken.ResponseSegments.length, 1)
+    strictEqual(continuationToken.ResponseSegments.length, 1);
     strictEqual(continuationToken.ResponseSegments[0], "nextToken");
-  })
+  });
 
   it("query request header response", async () => {
     const program = await typeSpecCompile(
@@ -173,9 +173,9 @@ describe("Continuation token operations", () => {
     strictEqual(continuationToken.Parameter.NameInRequest, "token");
     strictEqual(continuationToken.Parameter.Location, RequestLocation.Query);
     strictEqual(continuationToken.ResponseLocation, ResponseLocation.Header);
-    strictEqual(continuationToken.ResponseSegments.length, 1)
+    strictEqual(continuationToken.ResponseSegments.length, 1);
     strictEqual(continuationToken.ResponseSegments[0], "nextToken");
-  })
+  });
 
   it("query request body response", async () => {
     const program = await typeSpecCompile(
@@ -204,7 +204,7 @@ describe("Continuation token operations", () => {
     strictEqual(continuationToken.Parameter.NameInRequest, "token");
     strictEqual(continuationToken.Parameter.Location, RequestLocation.Query);
     strictEqual(continuationToken.ResponseLocation, ResponseLocation.Body);
-    strictEqual(continuationToken.ResponseSegments.length, 1)
+    strictEqual(continuationToken.ResponseSegments.length, 1);
     strictEqual(continuationToken.ResponseSegments[0], "nextToken");
-  })
+  });
 });

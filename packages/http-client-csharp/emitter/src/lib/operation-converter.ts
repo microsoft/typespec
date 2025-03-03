@@ -29,14 +29,14 @@ import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationLongRunning } from "../type/operation-long-running.js";
-import { NextLink, ContinuationToken, OperationPaging } from "../type/operation-paging.js";
+import { ContinuationToken, NextLink, OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
+import { ResponseLocation } from "../type/response-location.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
-import { ResponseLocation } from "../type/response-location.js";
 
 export function fromSdkServiceMethod(
   sdkContext: CSharpEmitterContext,
@@ -174,7 +174,7 @@ function fromSdkHttpOperationParameter(
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
 
   // use serializedName for any models that have this property except for body parameters
-  const serializedName = p.kind !== "body" && 'serializedName' in p ? p.serializedName : p.name;
+  const serializedName = p.kind !== "body" && "serializedName" in p ? p.serializedName : p.name;
 
   // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the delimiter for
   // any path expansion to ensure the parameter values are delimited correctly during serialization.
@@ -322,7 +322,7 @@ function loadOperationPaging(
   context: CSharpEmitterContext,
   method: SdkServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
-  uri: string
+  uri: string,
 ): OperationPaging | undefined {
   if (method.kind !== "paging" || method.pagingMetadata === undefined) {
     return undefined;
@@ -331,38 +331,51 @@ function loadOperationPaging(
   let nextLink: NextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
     nextLink = {
-      ResponseSegments: method.pagingMetadata.nextLinkSegments.map(segment => getResponseSegmentName(segment)),
-      ResponseLocation: getResponseLocation(method.pagingMetadata.nextLinkSegments[0])
+      ResponseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
+        getResponseSegmentName(segment),
+      ),
+      ResponseLocation: getResponseLocation(method.pagingMetadata.nextLinkSegments[0]),
     };
     if (method.pagingMetadata.nextLinkOperation) {
-      nextLink.Operation = fromSdkServiceMethod(context, method.pagingMetadata.nextLinkOperation, uri, rootApiVersions);
+      nextLink.Operation = fromSdkServiceMethod(
+        context,
+        method.pagingMetadata.nextLinkOperation,
+        uri,
+        rootApiVersions,
+      );
     }
   }
 
   // TODO - this is hopefully temporary until TCGC provides the information directly https://github.com/Azure/typespec-azure/issues/2288
   let continuationToken: ContinuationToken | undefined;
   let responseModel: SdkHttpResponse | undefined = method.operation.responses.find(
-    (r) => r.type?.kind === "model") as SdkHttpResponse | undefined;
+    (r) => r.type?.kind === "model",
+  ) as SdkHttpResponse | undefined;
   let responseProperty: SdkModelPropertyType | undefined;
   let requestProperty: SdkModelPropertyType | undefined;
   if (responseModel) {
     responseProperty = responseModel.headers.find(
       // it is safe to check the first segment as segments cannot mix header and body
-      (p) => p.name === method.pagingMetadata.continuationTokenResponseSegments?.[0].name);
+      (p) => p.name === method.pagingMetadata.continuationTokenResponseSegments?.[0].name,
+    );
     if (!responseProperty) {
       responseProperty = (responseModel.type as SdkModelType)!.properties.find(
-        (p) => p.name === method.pagingMetadata.continuationTokenResponseSegments?.[0].name);
+        (p) => p.name === method.pagingMetadata.continuationTokenResponseSegments?.[0].name,
+      );
     }
     requestProperty = method.operation.parameters.find(
-      (p) => p.name === method.pagingMetadata.continuationTokenParameterSegments?.[0].name)
+      (p) => p.name === method.pagingMetadata.continuationTokenParameterSegments?.[0].name,
+    );
   }
-  
+
   if (responseProperty) {
     continuationToken = {
       Parameter: fromSdkHttpOperationParameter(context, requestProperty!, rootApiVersions),
-      ResponseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map(segment => getResponseSegmentName(segment)),
+      ResponseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
+        getResponseSegmentName(segment),
+      ),
       ResponseLocation: getResponseLocation(responseProperty),
-    }  
+    };
   }
 
   return {
@@ -371,13 +384,13 @@ function loadOperationPaging(
   };
 }
 
-function getResponseSegmentName(
-  segment: SdkModelPropertyType): string {
-  return segment.kind === "header" || segment.kind === "body" ? segment.serializedName : segment.name;
+function getResponseSegmentName(segment: SdkModelPropertyType): string {
+  return segment.kind === "header" || segment.kind === "body"
+    ? segment.serializedName
+    : segment.name;
 }
 
-function getResponseLocation
-  (p: SdkModelPropertyType): ResponseLocation {
+function getResponseLocation(p: SdkModelPropertyType): ResponseLocation {
   switch (p?.kind) {
     case "responseheader":
       return ResponseLocation.Header;
@@ -389,9 +402,7 @@ function getResponseLocation
 }
 
 // TODO: https://github.com/Azure/typespec-azure/issues/1441
-function getParameterLocation(
-  p: SdkModelPropertyType,
-): RequestLocation {
+function getParameterLocation(p: SdkModelPropertyType): RequestLocation {
   switch (p?.kind) {
     case "path":
       return RequestLocation.Path;
@@ -418,7 +429,6 @@ function getParameterKind(
     }
     return InputOperationParameterKind.Method;
   }
-
 
   return type.kind === "constant"
     ? InputOperationParameterKind.Constant

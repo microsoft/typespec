@@ -5,9 +5,8 @@ import { InputOperation } from "./input-operation.js";
 import { InputParameter } from "./input-parameter.js";
 import { ResponseLocation } from "./response-location.js";
 
-
 export interface OperationPaging {
-  NextLink?: NextLink
+  NextLink?: NextLink;
   ContinuationToken?: ContinuationToken;
 }
 

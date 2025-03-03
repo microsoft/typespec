@@ -387,6 +387,7 @@ op WithApiVersion(@header p1: string, @query apiVersion: string): void;
 op ListWithNextLink(): {
   @pageItems
   things: Thing[];
+
   @nextLink next?: url;
 };
 
@@ -397,5 +398,6 @@ op ListWithNextLink(): {
 op ListWithContinuationToken(@query @continuationToken token: string): {
   @pageItems
   things: Thing[];
+
   @continuationToken nextToken?: string;
 };
