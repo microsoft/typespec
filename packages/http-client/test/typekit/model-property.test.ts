@@ -15,7 +15,7 @@ beforeEach(async () => {
 describe("getCredentialAuth", () => {
   it("should return the correct http scheme", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
@@ -37,7 +37,7 @@ describe("getCredentialAuth", () => {
 
   it("should return the correct http schemes", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key"> | OAuth2Auth<[{
@@ -67,7 +67,7 @@ describe("isOnClient", () => {
   describe("endpoint", () => {
     it("no servers", async () => {
       const { DemoService } = (await runner.compile(`
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -83,7 +83,7 @@ describe("isOnClient", () => {
     it("one server, no params", async () => {
       const { DemoService } = (await runner.compile(`
         @server("https://example.com", "The service endpoint")
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -99,7 +99,7 @@ describe("isOnClient", () => {
     it("one server with parameter", async () => {
       const { DemoService } = (await runner.compile(`
         @server("https://example.com/{name}/foo", "My service url", { name: string })
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -151,7 +151,7 @@ describe("isOnClient", () => {
   describe("credential", () => {
     it("apikey", async () => {
       const { DemoService } = (await runner.compile(`
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
@@ -169,7 +169,7 @@ describe("isOnClient", () => {
     });
     it("bearer", async () => {
       const { DemoService } = (await runner.compile(`
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @useAuth(OAuth2Auth<[{
@@ -196,7 +196,7 @@ describe("isOnClient", () => {
 describe("isCredential", () => {
   it("apikey", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
@@ -214,7 +214,7 @@ describe("isCredential", () => {
   });
   it("bearer", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @useAuth(OAuth2Auth<[{

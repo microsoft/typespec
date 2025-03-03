@@ -14,6 +14,11 @@ import type {
   UnionVariant,
 } from "../src/core/index.js";
 
+export interface ServiceOptions {
+  readonly title?: string;
+  readonly version?: string;
+}
+
 export interface DiscriminatedOptions {
   readonly envelope?: "object" | "none";
   readonly discriminatorPropertyName?: string;
@@ -69,7 +74,7 @@ export type EncodeDecorator = (
 ) => void;
 
 /**
- * Attach a documentation string.
+ * Attach a documentation string. Content support CommonMark markdown formatting.
  *
  * @param doc Documentation string
  * @param formatArgs Record with key value pair that can be interpolated in the doc.
@@ -222,19 +227,19 @@ export type DeprecatedDecorator = (
  * ```
  * @example Setting service title
  * ```typespec
- * @service({title: "Pet store"})
+ * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
  * @example Setting service version
  * ```typespec
- * @service({version: "1.0"})
+ * @service(#{version: "1.0"})
  * namespace PetStore;
  * ```
  */
 export type ServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  options?: Type,
+  options?: ServiceOptions,
 ) => void;
 
 /**

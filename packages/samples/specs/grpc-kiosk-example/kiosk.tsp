@@ -2,9 +2,7 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Grpc Kiosk sample",
-})
+@service(#{ title: "Grpc Kiosk sample" })
 namespace GrpcKioskSample;
 
 @route("/v1")

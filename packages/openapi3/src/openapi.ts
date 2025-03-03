@@ -709,7 +709,10 @@ function createOAPIEmitter(
   }
 
   function computeSharedOperationId(shared: SharedHttpOperation) {
-    return shared.operations.map((op) => resolveOperationId(program, op.operation)).join("_");
+    const operationIds = shared.operations.map((op) => resolveOperationId(program, op.operation));
+    const uniqueOpIds = new Set<string>(operationIds);
+    if (uniqueOpIds.size === 1) return uniqueOpIds.values().next().value;
+    return operationIds.join("_");
   }
 
   function getOperationOrSharedOperation(operation: HttpOperation | SharedHttpOperation):
@@ -1453,7 +1456,7 @@ function createOAPIEmitter(
   ): { style?: string; explode?: boolean } | undefined {
     switch (parameter.type) {
       case "header":
-        return mapHeaderParameterFormat(parameter);
+        return getHeaderParameterAttributes(parameter);
       case "cookie":
         // style and explode options are omitted from cookies
         // https://github.com/microsoft/typespec/pull/4761#discussion_r1803365689
@@ -1540,23 +1543,32 @@ function createOAPIEmitter(
     }
   }
 
-  function mapHeaderParameterFormat(
+  function getHeaderParameterAttributes(
     parameter: HeaderFieldOptions & {
       param: ModelProperty;
     },
-  ): { style?: string; explode?: boolean } | undefined {
+  ) {
+    const attributes: { style?: "simple"; explode?: boolean } = {};
+    if (parameter.explode) {
+      // The default for headers is false, so only need to specify when true https://spec.openapis.org/oas/v3.0.4.html#fixed-fields-for-use-with-schema-0
+      attributes.explode = true;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     switch (parameter.format) {
       case undefined:
-        return {};
+        return attributes;
       case "csv":
       case "simple":
-        return { style: "simple" };
+        attributes.style = "simple";
+        break;
       default:
         diagnostics.add(
           createDiagnostic({
             code: "invalid-format",
             format: {
               paramType: "header",
+              // eslint-disable-next-line @typescript-eslint/no-deprecated
               value: parameter.format,
             },
             target: parameter.param,
@@ -1564,6 +1576,7 @@ function createOAPIEmitter(
         );
         return undefined;
     }
+    return attributes;
   }
 
   function emitParameters() {

@@ -3,10 +3,18 @@
 
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { DecoratorContext, Enum, Model, ModelProperty } from "../../src/core/types.js";
+import {
+  DecoratorContext,
+  Diagnostic,
+  DiagnosticTarget,
+  Enum,
+  Model,
+  ModelProperty,
+  NoTarget,
+} from "../../src/core/types.js";
 import { getVisibility, getVisibilityForClass } from "../../src/core/visibility/core.js";
 import { $visibility, getLifecycleVisibilityEnum } from "../../src/index.js";
-import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
+import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
 
 function assertSetsEqual<T>(a: Set<T>, b: Set<T>): void {
   strictEqual(a.size, b.size);
@@ -74,7 +82,7 @@ describe("visibility (legacy)", function () {
 
   describe("@withDefaultKeyVisibility", () => {
     it("sets the default visibility on a key property when not already present", async () => {
-      const { TestModel } = (await runner.compile(
+      const [{ TestModel }, diagnostics] = (await runner.compileAndDiagnose(
         `
         model OriginalModel {
           @key
@@ -84,13 +92,21 @@ describe("visibility (legacy)", function () {
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "read"> {
         } `,
-      )) as { TestModel: Model };
+      )) as [{ TestModel: Model }, Diagnostic[]];
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), ["read"]);
+
+      expectDiagnostics(
+        diagnostics,
+        Array(2).fill({
+          code: "visibility-legacy",
+          severity: "warning",
+        }),
+      );
     });
 
     it("allows visibility applied to a key property to override the default", async () => {
-      const { TestModel } = (await runner.compile(
+      const [{ TestModel }, diagnostics] = (await runner.compileAndDiagnose(
         `
         model OriginalModel {
           @key
@@ -101,31 +117,54 @@ describe("visibility (legacy)", function () {
         @test
         model TestModel is DefaultKeyVisibility<OriginalModel, "create"> {
         } `,
-      )) as { TestModel: Model };
+      )) as [{ TestModel: Model }, Diagnostic[]];
 
       deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), [
         "read",
         "update",
       ]);
+
+      expectDiagnostics(
+        diagnostics,
+        // 6 diagnostics. 2 for the original property, 2 for the key property cloned by DefaultKeyVisibility, and 2
+        // for the property cloned by `model is`.
+        Array(6).fill({
+          code: "visibility-legacy",
+          severity: "warning",
+        }),
+      );
     });
 
     it("allows overriding legacy visibility", async () => {
-      const { Example } = (await runner.compile(`
+      const [{ Example }, diagnostics] = (await runner.compileAndDiagnose(`
         @test model Example {
           @visibility("read")
           name: string
         }
-        `)) as { Example: Model };
+        `)) as [{ Example: Model }, Diagnostic[]];
+
+      expectDiagnostics(diagnostics, {
+        code: "visibility-legacy",
+        severity: "warning",
+      });
 
       const name = Example.properties.get("name")!;
 
       const decCtx = {
         program: runner.program,
+        getArgumentTarget(_) {
+          return NoTarget as unknown as DiagnosticTarget;
+        },
       } as DecoratorContext;
 
       $visibility(decCtx, name, "create");
 
       deepStrictEqual(getVisibility(runner.program, name), ["create"]);
+
+      expectDiagnostics(
+        runner.program.diagnostics,
+        Array(2).fill({ code: "visibility-legacy", severity: "warning" }),
+      );
     });
   });
 });

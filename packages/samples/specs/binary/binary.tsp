@@ -2,9 +2,7 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Binary sample",
-})
+@service(#{ title: "Binary sample" })
 namespace BinarySample;
 
 model HasBytes {
