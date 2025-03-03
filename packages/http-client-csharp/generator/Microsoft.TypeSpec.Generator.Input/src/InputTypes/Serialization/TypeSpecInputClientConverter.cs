@@ -46,15 +46,16 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadString(nameof(InputClient.Name), ref name)
-                    || reader.TryReadString("Namespace", ref @namespace)
-                    || reader.TryReadString("Summary", ref summary)
-                    || reader.TryReadString("Doc", ref doc)
-                    || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
-                    || reader.TryReadWithConverter(nameof(InputClient.Parameters), options, ref parameters)
-                    || reader.TryReadString(nameof(InputClient.Parent), ref parent)
-                    || reader.TryReadWithConverter(nameof(InputClient.Decorators), options, ref decorators)
-                    || reader.TryReadString("CrossLanguageDefinitionId", ref crossLanguageDefinitionId);
+                var isKnownProperty = reader.TryReadString("name", ref name)
+                    || reader.TryReadString("namespace", ref @namespace)
+                    || reader.TryReadString("summary", ref summary)
+                    || reader.TryReadString("doc", ref doc)
+                    || reader.TryReadWithConverter("operations", options, ref operations)
+                    || reader.TryReadWithConverter("parameters", options, ref parameters)
+                    || reader.TryReadWithConverter("decorators", options, ref decorators)
+                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId);
+                    //|| reader.TryReadWithConverter("parent", options, ref parent)
+                    //|| reader.TryReadWithConverter("children", options, ref children)
 
                 if (!isKnownProperty)
                 {
