@@ -119,6 +119,7 @@ export async function createCSharpSdkContext(
     logger: new Logger(program.program, LoggerLevel.INFO),
     __typeCache: {
       crossLanguageDefinitionIds: new Map(),
+      clients: new Map(),
       types: new Map(),
       models: new Map(),
       enums: new Map(),
