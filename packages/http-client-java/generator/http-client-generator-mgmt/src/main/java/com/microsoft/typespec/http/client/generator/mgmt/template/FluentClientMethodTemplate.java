@@ -352,7 +352,20 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
             IType classType
                 = ((GenericType) clientMethod.getReturnValue().getType().getClientType()).getTypeArguments()[1];
             String contextArgument = contextInParameters ? ", context" : "";
-            function.methodReturn(String.format("SyncPollerFactory.create(%1$s.getSerializerAdapter(), %1$s.getHttpPipeline(), %2$s.class, %2$s.class, %1$s.getDefaultPollInterval(), () -> response%3$s)", clientMethod.getClientReference(), classType, contextArgument));
+            String typeExpression;
+            if (classType instanceof GenericType) {
+                // pageable LRO
+                String typeReferenceGetType;
+                if (settings.isStreamStyleSerialization()) {
+                    typeReferenceGetType = "getJavaType";
+                } else {
+                    typeReferenceGetType = "getType";
+                }
+                typeExpression = String.format("new TypeReference<%s>() {}.%s()", classType, typeReferenceGetType);
+            } else {
+                typeExpression = String.format("%s.class", classType);
+            }
+            function.methodReturn(String.format("SyncPollerFactory.create(%1$s.getSerializerAdapter(), %1$s.getHttpPipeline(), %2$s, %2$s, %1$s.getDefaultPollInterval(), () -> response%3$s)", clientMethod.getClientReference(), typeExpression, contextArgument));
         });
     }
 
