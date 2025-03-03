@@ -173,8 +173,8 @@ function fromSdkHttpOperationParameter(
   const parameterType = fromSdkType(sdkContext, p.type);
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
 
-  // use serializedName for any models that have this property except for body parameters
-  const serializedName = p.kind !== "body" && "serializedName" in p ? p.serializedName : p.name;
+  // use serializedName if available, but fallback to name
+  const serializedName =  "serializedName" in p ? p.serializedName ?? p.name : p.name;
 
   // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the delimiter for
   // any path expansion to ensure the parameter values are delimited correctly during serialization.
@@ -183,7 +183,7 @@ function fromSdkHttpOperationParameter(
 
   return {
     Name: p.name,
-    NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName!) : serializedName,
+    NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
     Summary: p.summary,
     Doc: p.doc,
     Type: parameterType,
@@ -336,6 +336,7 @@ function loadOperationPaging(
       ),
       ResponseLocation: getResponseLocation(method.pagingMetadata.nextLinkSegments[0]),
     };
+
     if (method.pagingMetadata.nextLinkOperation) {
       nextLink.Operation = fromSdkServiceMethod(
         context,
@@ -368,9 +369,9 @@ function loadOperationPaging(
     );
   }
 
-  if (responseProperty) {
+  if (requestProperty && responseProperty) {
     continuationToken = {
-      Parameter: fromSdkHttpOperationParameter(context, requestProperty!, rootApiVersions),
+      Parameter: fromSdkHttpOperationParameter(context, requestProperty, rootApiVersions),
       ResponseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
         getResponseSegmentName(segment),
       ),
