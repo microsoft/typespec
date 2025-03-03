@@ -174,7 +174,7 @@ function fromSdkHttpOperationParameter(
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
 
   // use serializedName if available, but fallback to name
-  const serializedName =  "serializedName" in p ? p.serializedName ?? p.name : p.name;
+  const serializedName = "serializedName" in p ? (p.serializedName ?? p.name) : p.name;
 
   // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the delimiter for
   // any path expansion to ensure the parameter values are delimited correctly during serialization.
