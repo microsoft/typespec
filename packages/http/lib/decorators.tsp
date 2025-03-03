@@ -12,7 +12,19 @@ model HeaderOptions {
   name?: string;
 
   /**
+   * Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   *
+   *  | Style  | Explode | Primitive value = 5 | Array = [3, 4, 5] | Object = {"role": "admin", "firstName": "Alex"} |
+   *  | ------ | ------- | ------------------- | ----------------- | ----------------------------------------------- |
+   *  | simple | false   | `5   `              | `3,4,5`           | `role,admin,firstName,Alex`                     |
+   *  | simple | true    | `5`                 | `3,4,5`           | `role=admin,firstName=Alex`                     |
+   *
+   */
+  explode?: boolean;
+
+  /**
    * Determines the format of the array if type array is used.
+   * **DEPRECATED**: use explode: true instead of `csv` or `@encode`
    */
   format?: "csv" | "multi" | "tsv" | "ssv" | "pipes" | "simple" | "form";
 }
@@ -37,7 +49,7 @@ model HeaderOptions {
  * op update(@header ifMatch: string): void; // headerName: if-match
  * ```
  */
-extern dec header(target: ModelProperty, headerNameOrOptions?: string | HeaderOptions);
+extern dec header(target: ModelProperty, headerNameOrOptions?: valueof string | HeaderOptions);
 
 /**
  * Cookie Options.
@@ -260,15 +272,36 @@ extern dec put(target: Operation);
 extern dec post(target: Operation);
 
 /**
+ * Options for PATCH operations.
+ */
+model PatchOptions {
+  /**
+   * If set to `false`, disables the implicit transform that makes the body of a
+   * PATCH operation deeply optional.
+   */
+  implicitOptionality?: boolean;
+}
+
+/**
  * Specify the HTTP verb for the target operation to be `PATCH`.
+ *
+ * @param options Options for the PATCH operation.
  *
  * @example
  *
  * ```typespec
- * @patch op update(pet: Pet): void
+ * @patch op update(pet: Pet): void;
+ * ```
+ *
+ * @example
+ * ```typespec
+ * // Disable implicit optionality, making the body of the PATCH operation use the
+ * // optionality as defined in the `Pet` model.
+ * @patch(#{ implicitOptionality: false })
+ * op update(pet: Pet): void;
  * ```
  */
-extern dec patch(target: Operation);
+extern dec patch(target: Operation, options?: valueof PatchOptions);
 
 /**
  * Specify the HTTP verb for the target operation to be `DELETE`.
