@@ -1,5 +1,6 @@
 import { DiagnosticSeverity, Range, TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { isMap, parseDocument } from "yaml";
 import {
   defaultConfig,
   findTypeSpecConfigPath,
@@ -182,18 +183,48 @@ export function createCompileService({
       if (err.info.kind === "emitter" && configFilePath) {
         const sourceFile = await serverHost.compilerHost.readFile(configFilePath);
         const emitterName = err.info.metadata.name;
-        const lineAndChar = sourceFile.getLineAndCharacterOfPosition(
-          sourceFile.text.indexOf(emitterName),
-        );
+        const yamlDoc = parseDocument(sourceFile.text, {
+          keepSourceTokens: true,
+        });
+        if (yamlDoc) {
+          let emitOffset = 0;
+          if (isMap(yamlDoc.contents)) {
+            const yamlMap = yamlDoc.contents.items.find(
+              (item) => (<any>item.key).source === "emit",
+            );
+            if (
+              yamlMap &&
+              yamlMap.value &&
+              yamlMap.value.srcToken &&
+              yamlMap.value.srcToken.type === "block-seq"
+            ) {
+              yamlMap.value.srcToken.items.forEach((item) => {
+                if (
+                  item.value &&
+                  (item.value.type === "double-quoted-scalar" ||
+                    item.value.type === "single-quoted-scalar") &&
+                  item.value.source.includes(emitterName)
+                ) {
+                  emitOffset = item.value.offset;
+                }
+              });
+            }
+          }
 
-        uri = fileService.getURL(configFilePath);
-        range = Range.create(
-          lineAndChar.line,
-          lineAndChar.character,
-          lineAndChar.line,
-          lineAndChar.character + emitterName.length,
-        );
+          if (emitOffset > 0) {
+            const lineAndChar = sourceFile.getLineAndCharacterOfPosition(emitOffset + 1);
+
+            uri = fileService.getURL(configFilePath);
+            range = Range.create(
+              lineAndChar.line,
+              lineAndChar.character,
+              lineAndChar.line,
+              lineAndChar.character + emitterName.length,
+            );
+          }
+        }
       }
+
       serverHost.sendDiagnostics({
         uri,
         diagnostics: [
