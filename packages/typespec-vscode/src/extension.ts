@@ -104,7 +104,7 @@ export async function activate(context: ExtensionContext) {
 
   context.subscriptions.push(
     commands.registerCommand(CommandName.CreateProject, async () => {
-      await createTypeSpecProject(client, stateManager);
+      await createTypeSpecProject(stateManager);
     }),
   );
 

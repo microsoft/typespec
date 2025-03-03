@@ -3,7 +3,8 @@ import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../cor
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { createSourceFile } from "../core/source-file.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
-import { deepClone, deepFreeze, doIO, omitUndefined } from "../utils/misc.js";
+import { doIO } from "../utils/io.js";
+import { deepClone, deepFreeze, omitUndefined } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/index.js";
 import { parseYaml } from "../yaml/parser.js";
 import { YamlScript } from "../yaml/types.js";

@@ -2,7 +2,7 @@ import { fail, ok } from "assert";
 import { fileURLToPath } from "url";
 import { getTypeName, NodeHost, resolvePath, Type } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
-import { findProjectRoot } from "../utils/misc.js";
+import { findProjectRoot } from "../utils/io.js";
 import {
   BasicTestRunner,
   TestHost,
