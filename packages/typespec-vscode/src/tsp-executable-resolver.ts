@@ -116,7 +116,7 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
   options.env["TYPESPEC_SKIP_COMPILER_RESOLVE"] = "1";
   const checkCliResult = await checkCliPromise;
   if (checkCliResult === "tsp-standalone") {
-    logger.debug("Start tsp server using standalong tsp cli");
+    logger.debug("Start tsp server using standalone tsp cli");
     return { command: "tsp", args: ["--server", serverPath, ...args], options };
   } else {
     logger.debug("Start tsp server using node");
