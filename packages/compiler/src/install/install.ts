@@ -2,13 +2,13 @@ import Arborist from "@npmcli/arborist";
 import { fork, spawn } from "child_process";
 import { mkdir, rm } from "fs/promises";
 import { homedir } from "os";
+import { CliCompilerHost } from "../core/cli/types.js";
+import { createTracer } from "../core/logger/tracer.js";
+import { joinPaths } from "../core/path-utils.js";
 import {
   downloadAndExtractPackage,
   fetchLatestPackageManifest,
 } from "../package-manger/npm-registry-utils.js";
-import { CliCompilerHost } from "./cli/types.js";
-import { createTracer } from "./logger/tracer.js";
-import { joinPaths } from "./path-utils.js";
 
 interface SpawnError {
   errno: number;
