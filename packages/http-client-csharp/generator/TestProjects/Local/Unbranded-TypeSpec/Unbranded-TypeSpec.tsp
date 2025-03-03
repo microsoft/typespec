@@ -379,3 +379,23 @@ op headAsBoolean(@path id: string): void;
 @get
 @convenientAPI(true)
 op WithApiVersion(@header p1: string, @query apiVersion: string): void;
+
+@route("/link")
+@doc("List things with nextlink")
+@convenientAPI(true)
+@list
+op ListWithNextLink(): {
+  @pageItems
+  things: Thing[];
+  @nextLink next?: url;
+};
+
+@route("/continuation")
+@doc("List things with continuation token")
+@convenientAPI(true)
+@list
+op ListWithContinuationToken(@query @continuationToken token: string): {
+  @pageItems
+  things: Thing[];
+  @continuationToken nextToken?: string;
+};
