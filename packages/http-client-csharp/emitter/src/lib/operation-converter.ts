@@ -379,6 +379,7 @@ function loadOperationPaging(
   }
 
   return {
+    // TODO - this is hopefully temporary until TCGC provides the information directly https://github.com/Azure/typespec-azure/issues/2291
     ItemsPropertyName: (method.pagingMetadata.__raw as PagingOperation).output!.pageItems.property
       .name,
     NextLink: nextLink,
