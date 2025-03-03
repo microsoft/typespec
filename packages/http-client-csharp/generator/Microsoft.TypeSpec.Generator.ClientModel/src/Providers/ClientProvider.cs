@@ -151,6 +151,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string namespaceConflictCode = "client-namespace-conflict";
 
         private string? _namespace;
+        // This `BuildNamespace` method has been called twice - one when building the `Type`, the other is trying to find the CustomCodeView, both of them are required.
+        // therefore here to avoid this being called twice because this method now reports a diagnostic, we cache the result.
         protected override string BuildNamespace() => _namespace ??= BuildNamespaceCore();
 
         private string BuildNamespaceCore()
