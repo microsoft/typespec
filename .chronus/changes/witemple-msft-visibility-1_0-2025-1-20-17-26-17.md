@@ -1,7 +1,6 @@
 ---
 changeKind: internal
 packages:
-  - "@typespec/http-specs"
   - "@typespec/http"
   - "@typespec/rest"
 ---
