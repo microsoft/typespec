@@ -6,8 +6,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Routes._QueryParameters.QueryContinuation;
-using Routes._QueryParameters.QueryExpansion;
+using Routes._QueryParameters._QueryContinuation;
+using Routes._QueryParameters._QueryExpansion;
 
 namespace Routes._QueryParameters
 {

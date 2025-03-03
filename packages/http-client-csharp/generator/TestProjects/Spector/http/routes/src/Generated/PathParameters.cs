@@ -6,11 +6,11 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Routes._PathParameters.LabelExpansion;
-using Routes._PathParameters.MatrixExpansion;
-using Routes._PathParameters.PathExpansion;
-using Routes._PathParameters.ReservedExpansion;
-using Routes._PathParameters.SimpleExpansion;
+using Routes._PathParameters._LabelExpansion;
+using Routes._PathParameters._MatrixExpansion;
+using Routes._PathParameters._PathExpansion;
+using Routes._PathParameters._ReservedExpansion;
+using Routes._PathParameters._SimpleExpansion;
 
 namespace Routes._PathParameters
 {

@@ -7,73 +7,56 @@
  "Clients": [
   {
    "$id": "2",
-   "Name": "ConditionalRequestClient",
-   "Namespace": "SpecialHeaders.ConditionalRequest",
-   "Doc": "Illustrates conditional request headers",
-   "Operations": [
+   "kind": "client",
+   "name": "ConditionalRequestClient",
+   "namespace": "SpecialHeaders.ConditionalRequest",
+   "doc": "Illustrates conditional request headers",
+   "parameters": [
     {
      "$id": "3",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Doc": "Service host",
+     "Type": {
+      "$id": "4",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "5",
+      "Type": {
+       "$id": "6",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ],
+   "operations": [
+    {
+     "$id": "7",
      "Name": "postIfMatch",
      "ResourceName": "ConditionalRequest",
      "Doc": "Check when only If-Match in header is defined.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "4",
+       "$id": "8",
        "Name": "ifMatch",
        "NameInRequest": "If-Match",
        "Doc": "The request should only proceed if an entity matches this string.",
-       "Type": {
-        "$id": "5",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": false,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "6",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}",
-     "Path": "/special-headers/conditional-request/if-match",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "SpecialHeaders.ConditionalRequest.postIfMatch",
-     "Decorators": []
-    },
-    {
-     "$id": "7",
-     "Name": "postIfNoneMatch",
-     "ResourceName": "ConditionalRequest",
-     "Doc": "Check when only If-None-Match in header is defined.",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "8",
-       "Name": "ifNoneMatch",
-       "NameInRequest": "If-None-Match",
-       "Doc": "The request should only proceed if no entity matches this string.",
        "Type": {
         "$id": "9",
         "kind": "string",
@@ -106,6 +89,57 @@
      "HttpMethod": "POST",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
+     "Path": "/special-headers/conditional-request/if-match",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "SpecialHeaders.ConditionalRequest.postIfMatch",
+     "Decorators": []
+    },
+    {
+     "$id": "11",
+     "Name": "postIfNoneMatch",
+     "ResourceName": "ConditionalRequest",
+     "Doc": "Check when only If-None-Match in header is defined.",
+     "Accessibility": "public",
+     "Parameters": [
+      {
+       "$id": "12",
+       "Name": "ifNoneMatch",
+       "NameInRequest": "If-None-Match",
+       "Doc": "The request should only proceed if no entity matches this string.",
+       "Type": {
+        "$id": "13",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "Explode": false,
+       "IsRequired": false,
+       "Kind": "Method",
+       "Decorators": [],
+       "SkipUrlEncoding": false
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "14",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}",
      "Path": "/special-headers/conditional-request/if-none-match",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
@@ -114,24 +148,24 @@
      "Decorators": []
     },
     {
-     "$id": "11",
+     "$id": "15",
      "Name": "headIfModifiedSince",
      "ResourceName": "ConditionalRequest",
      "Doc": "Check when only If-Modified-Since in header is defined.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "12",
+       "$id": "16",
        "Name": "ifModifiedSince",
        "NameInRequest": "If-Modified-Since",
        "Doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nbeen modified since the specified time.",
        "Type": {
-        "$id": "13",
+        "$id": "17",
         "kind": "utcDateTime",
         "name": "utcDateTime",
         "encode": "rfc7231",
         "wireType": {
-         "$id": "14",
+         "$id": "18",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -153,7 +187,7 @@
      ],
      "Responses": [
       {
-       "$id": "15",
+       "$id": "19",
        "StatusCodes": [
         204
        ],
@@ -173,24 +207,24 @@
      "Decorators": []
     },
     {
-     "$id": "16",
+     "$id": "20",
      "Name": "postIfUnmodifiedSince",
      "ResourceName": "ConditionalRequest",
      "Doc": "Check when only If-Unmodified-Since in header is defined.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "17",
+       "$id": "21",
        "Name": "ifUnmodifiedSince",
        "NameInRequest": "If-Unmodified-Since",
        "Doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nnot been modified since the specified time.",
        "Type": {
-        "$id": "18",
+        "$id": "22",
         "kind": "utcDateTime",
         "name": "utcDateTime",
         "encode": "rfc7231",
         "wireType": {
-         "$id": "19",
+         "$id": "23",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -212,7 +246,7 @@
      ],
      "Responses": [
       {
-       "$id": "20",
+       "$id": "24",
        "StatusCodes": [
         204
        ],
@@ -232,44 +266,8 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "21"
-   },
-   "Parameters": [
-    {
-     "$id": "22",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "23",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "24",
-      "Type": {
-       "$id": "25",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "SpecialHeaders.ConditionalRequest"
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "SpecialHeaders.ConditionalRequest"
   }
  ]
 }

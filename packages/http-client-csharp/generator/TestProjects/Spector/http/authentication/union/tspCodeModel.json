@@ -7,12 +7,46 @@
  "Clients": [
   {
    "$id": "2",
-   "Name": "UnionClient",
-   "Namespace": "Authentication.Union",
-   "Doc": "Illustrates clients generated with ApiKey and OAuth2 authentication.",
-   "Operations": [
+   "kind": "client",
+   "name": "UnionClient",
+   "namespace": "Authentication.Union",
+   "doc": "Illustrates clients generated with ApiKey and OAuth2 authentication.",
+   "parameters": [
     {
      "$id": "3",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Doc": "Service host",
+     "Type": {
+      "$id": "4",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "5",
+      "Type": {
+       "$id": "6",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ],
+   "operations": [
+    {
+     "$id": "7",
      "Name": "validKey",
      "ResourceName": "Union",
      "Doc": "Check whether client is authenticated",
@@ -20,7 +54,7 @@
      "Parameters": [],
      "Responses": [
       {
-       "$id": "4",
+       "$id": "8",
        "StatusCodes": [
         204
        ],
@@ -40,7 +74,7 @@
      "Decorators": []
     },
     {
-     "$id": "5",
+     "$id": "9",
      "Name": "validToken",
      "ResourceName": "Union",
      "Doc": "Check whether client is authenticated",
@@ -48,7 +82,7 @@
      "Parameters": [],
      "Responses": [
       {
-       "$id": "6",
+       "$id": "10",
        "StatusCodes": [
         204
        ],
@@ -68,55 +102,19 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "7"
-   },
-   "Parameters": [
-    {
-     "$id": "8",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "9",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "10",
-      "Type": {
-       "$id": "11",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Authentication.Union"
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Authentication.Union"
   }
  ],
  "Auth": {
-  "$id": "12",
+  "$id": "11",
   "ApiKey": {
-   "$id": "13",
+   "$id": "12",
    "Name": "x-ms-api-key",
    "In": "header"
   },
   "OAuth2": {
-   "$id": "14",
+   "$id": "13",
    "Scopes": [
     "https://security.microsoft.com/.default"
    ]

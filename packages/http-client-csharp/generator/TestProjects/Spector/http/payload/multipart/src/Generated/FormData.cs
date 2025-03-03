@@ -5,7 +5,7 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
-using Payload.MultiPart._FormData.HttpParts;
+using Payload.MultiPart._FormData._HttpParts;
 
 namespace Payload.MultiPart._FormData
 {

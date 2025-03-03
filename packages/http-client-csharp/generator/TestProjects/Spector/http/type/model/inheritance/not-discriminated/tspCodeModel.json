@@ -128,26 +128,60 @@
  "Clients": [
   {
    "$id": "17",
-   "Name": "NotDiscriminatedClient",
-   "Namespace": "Type.Model.Inheritance.NotDiscriminated",
-   "Doc": "Illustrates not-discriminated inheritance model.",
-   "Operations": [
+   "kind": "client",
+   "name": "NotDiscriminatedClient",
+   "namespace": "Type.Model.Inheritance.NotDiscriminated",
+   "doc": "Illustrates not-discriminated inheritance model.",
+   "parameters": [
     {
      "$id": "18",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Doc": "Service host",
+     "Type": {
+      "$id": "19",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "20",
+      "Type": {
+       "$id": "21",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ],
+   "operations": [
+    {
+     "$id": "22",
      "Name": "postValid",
      "ResourceName": "NotDiscriminated",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "19",
+       "$id": "23",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "20",
+        "$id": "24",
         "kind": "constant",
         "valueType": {
-         "$id": "21",
+         "$id": "25",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -167,7 +201,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "22",
+       "$id": "26",
        "Name": "input",
        "NameInRequest": "input",
        "Type": {
@@ -186,7 +220,7 @@
      ],
      "Responses": [
       {
-       "$id": "23",
+       "$id": "27",
        "StatusCodes": [
         204
        ],
@@ -209,20 +243,20 @@
      "Decorators": []
     },
     {
-     "$id": "24",
+     "$id": "28",
      "Name": "getValid",
      "ResourceName": "NotDiscriminated",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "25",
+       "$id": "29",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "26",
+        "$id": "30",
         "kind": "constant",
         "valueType": {
-         "$id": "27",
+         "$id": "31",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -244,7 +278,7 @@
      ],
      "Responses": [
       {
-       "$id": "28",
+       "$id": "32",
        "StatusCodes": [
         200
        ],
@@ -270,21 +304,21 @@
      "Decorators": []
     },
     {
-     "$id": "29",
+     "$id": "33",
      "Name": "putValid",
      "ResourceName": "NotDiscriminated",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "30",
+       "$id": "34",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "31",
+        "$id": "35",
         "kind": "constant",
         "valueType": {
-         "$id": "32",
+         "$id": "36",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -304,14 +338,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "33",
+       "$id": "37",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "34",
+        "$id": "38",
         "kind": "constant",
         "valueType": {
-         "$id": "35",
+         "$id": "39",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -331,7 +365,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "36",
+       "$id": "40",
        "Name": "input",
        "NameInRequest": "input",
        "Type": {
@@ -350,7 +384,7 @@
      ],
      "Responses": [
       {
-       "$id": "37",
+       "$id": "41",
        "StatusCodes": [
         200
        ],
@@ -379,44 +413,8 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "38"
-   },
-   "Parameters": [
-    {
-     "$id": "39",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "40",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "41",
-      "Type": {
-       "$id": "42",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Model.Inheritance.NotDiscriminated"
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.NotDiscriminated"
   }
  ]
 }

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Routes._PathParameters.LabelExpansion.Explode
+namespace Routes._PathParameters._LabelExpansion._Explode
 {
     public partial class PathParametersLabelExpansionExplode
     {

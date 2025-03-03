@@ -45,12 +45,46 @@
  "Clients": [
   {
    "$id": "7",
-   "Name": "ApiKeyClient",
-   "Namespace": "Authentication.ApiKey",
-   "Doc": "Illustrates clients generated with ApiKey authentication.",
-   "Operations": [
+   "kind": "client",
+   "name": "ApiKeyClient",
+   "namespace": "Authentication.ApiKey",
+   "doc": "Illustrates clients generated with ApiKey authentication.",
+   "parameters": [
     {
      "$id": "8",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Doc": "Service host",
+     "Type": {
+      "$id": "9",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "10",
+      "Type": {
+       "$id": "11",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ],
+   "operations": [
+    {
+     "$id": "12",
      "Name": "valid",
      "ResourceName": "ApiKey",
      "Doc": "Check whether client is authenticated",
@@ -58,7 +92,7 @@
      "Parameters": [],
      "Responses": [
       {
-       "$id": "9",
+       "$id": "13",
        "StatusCodes": [
         204
        ],
@@ -78,21 +112,21 @@
      "Decorators": []
     },
     {
-     "$id": "10",
+     "$id": "14",
      "Name": "invalid",
      "ResourceName": "ApiKey",
      "Doc": "Check whether client is authenticated.",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "11",
+       "$id": "15",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "12",
+        "$id": "16",
         "kind": "constant",
         "valueType": {
-         "$id": "13",
+         "$id": "17",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -114,7 +148,7 @@
      ],
      "Responses": [
       {
-       "$id": "14",
+       "$id": "18",
        "StatusCodes": [
         204
        ],
@@ -134,50 +168,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "15"
-   },
-   "Parameters": [
-    {
-     "$id": "16",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "17",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "18",
-      "Type": {
-       "$id": "19",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Authentication.ApiKey"
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Authentication.ApiKey"
   }
  ],
  "Auth": {
-  "$id": "20",
+  "$id": "19",
   "ApiKey": {
-   "$id": "21",
+   "$id": "20",
    "Name": "x-ms-api-key",
    "In": "header"
   }

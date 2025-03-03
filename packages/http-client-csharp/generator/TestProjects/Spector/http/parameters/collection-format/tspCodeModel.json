@@ -7,38 +7,35 @@
  "Clients": [
   {
    "$id": "2",
-   "Name": "CollectionFormatClient",
-   "Namespace": "Parameters.CollectionFormat",
-   "Doc": "Test for collectionFormat.",
-   "Operations": [],
-   "Protocol": {
-    "$id": "3"
-   },
-   "Parameters": [
+   "kind": "client",
+   "name": "CollectionFormatClient",
+   "namespace": "Parameters.CollectionFormat",
+   "doc": "Test for collectionFormat.",
+   "parameters": [
     {
-     "$id": "4",
+     "$id": "3",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
+      "$id": "4",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
       "$id": "5",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "6",
       "Type": {
-       "$id": "7",
+       "$id": "6",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -47,447 +44,450 @@
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Parameters.CollectionFormat"
-  },
-  {
-   "$id": "8",
-   "Name": "Query",
-   "Namespace": "Parameters.CollectionFormat.Query",
-   "Operations": [
+   "operations": [],
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Parameters.CollectionFormat",
+   "children": [
     {
-     "$id": "9",
-     "Name": "multi",
-     "ResourceName": "Query",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "7",
+     "kind": "client",
+     "name": "Query",
+     "namespace": "Parameters.CollectionFormat.Query",
+     "parameters": [
       {
-       "$id": "10",
-       "Name": "colors",
-       "NameInRequest": "colors",
-       "Doc": "Possible values for colors are [blue,red,green]",
+       "$id": "8",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Doc": "Service host",
        "Type": {
-        "$id": "11",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "12",
+        "$id": "9",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "10",
+        "Type": {
+         "$id": "11",
          "kind": "string",
          "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+        "Value": "http://localhost:3000"
+       }
       }
      ],
-     "Responses": [
+     "operations": [
       {
-       "$id": "13",
-       "StatusCodes": [
-        204
+       "$id": "12",
+       "Name": "multi",
+       "ResourceName": "Query",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "13",
+         "Name": "colors",
+         "NameInRequest": "colors",
+         "Doc": "Possible values for colors are [blue,red,green]",
+         "Type": {
+          "$id": "14",
+          "kind": "array",
+          "name": "Array",
+          "valueType": {
+           "$id": "15",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "crossLanguageDefinitionId": "TypeSpec.Array",
+          "decorators": []
+         },
+         "Location": "Query",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": true,
+         "IsRequired": true,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
        ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
+       "Responses": [
+        {
+         "$id": "16",
+         "StatusCodes": [
+          204
+         ],
+         "BodyMediaType": "Json",
+         "Headers": [],
+         "IsErrorResponse": false
+        }
+       ],
+       "HttpMethod": "GET",
+       "RequestBodyMediaType": "None",
+       "Uri": "{endpoint}",
+       "Path": "/parameters/collection-format/query/multi",
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query.multi",
+       "Decorators": []
+      },
+      {
+       "$id": "17",
+       "Name": "ssv",
+       "ResourceName": "Query",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "18",
+         "Name": "colors",
+         "NameInRequest": "colors",
+         "Doc": "Possible values for colors are [blue,red,green]",
+         "Type": {
+          "$id": "19",
+          "kind": "array",
+          "name": "Array",
+          "valueType": {
+           "$id": "20",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "crossLanguageDefinitionId": "TypeSpec.Array",
+          "decorators": []
+         },
+         "Location": "Query",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "ArraySerializationDelimiter": " ",
+         "IsRequired": true,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
+       ],
+       "Responses": [
+        {
+         "$id": "21",
+         "StatusCodes": [
+          204
+         ],
+         "BodyMediaType": "Json",
+         "Headers": [],
+         "IsErrorResponse": false
+        }
+       ],
+       "HttpMethod": "GET",
+       "RequestBodyMediaType": "None",
+       "Uri": "{endpoint}",
+       "Path": "/parameters/collection-format/query/ssv",
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query.ssv",
+       "Decorators": []
+      },
+      {
+       "$id": "22",
+       "Name": "tsv",
+       "ResourceName": "Query",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "23",
+         "Name": "colors",
+         "NameInRequest": "colors",
+         "Doc": "Possible values for colors are [blue,red,green]",
+         "Type": {
+          "$id": "24",
+          "kind": "array",
+          "name": "Array",
+          "valueType": {
+           "$id": "25",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "crossLanguageDefinitionId": "TypeSpec.Array",
+          "decorators": []
+         },
+         "Location": "Query",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "ArraySerializationDelimiter": "\t",
+         "IsRequired": true,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
+       ],
+       "Responses": [
+        {
+         "$id": "26",
+         "StatusCodes": [
+          204
+         ],
+         "BodyMediaType": "Json",
+         "Headers": [],
+         "IsErrorResponse": false
+        }
+       ],
+       "HttpMethod": "GET",
+       "RequestBodyMediaType": "None",
+       "Uri": "{endpoint}",
+       "Path": "/parameters/collection-format/query/tsv",
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query.tsv",
+       "Decorators": []
+      },
+      {
+       "$id": "27",
+       "Name": "pipes",
+       "ResourceName": "Query",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "28",
+         "Name": "colors",
+         "NameInRequest": "colors",
+         "Doc": "Possible values for colors are [blue,red,green]",
+         "Type": {
+          "$id": "29",
+          "kind": "array",
+          "name": "Array",
+          "valueType": {
+           "$id": "30",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "crossLanguageDefinitionId": "TypeSpec.Array",
+          "decorators": []
+         },
+         "Location": "Query",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "ArraySerializationDelimiter": "|",
+         "IsRequired": true,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
+       ],
+       "Responses": [
+        {
+         "$id": "31",
+         "StatusCodes": [
+          204
+         ],
+         "BodyMediaType": "Json",
+         "Headers": [],
+         "IsErrorResponse": false
+        }
+       ],
+       "HttpMethod": "GET",
+       "RequestBodyMediaType": "None",
+       "Uri": "{endpoint}",
+       "Path": "/parameters/collection-format/query/pipes",
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query.pipes",
+       "Decorators": []
+      },
+      {
+       "$id": "32",
+       "Name": "csv",
+       "ResourceName": "Query",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "33",
+         "Name": "colors",
+         "NameInRequest": "colors",
+         "Doc": "Possible values for colors are [blue,red,green]",
+         "Type": {
+          "$id": "34",
+          "kind": "array",
+          "name": "Array",
+          "valueType": {
+           "$id": "35",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "crossLanguageDefinitionId": "TypeSpec.Array",
+          "decorators": []
+         },
+         "Location": "Query",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "ArraySerializationDelimiter": ",",
+         "IsRequired": true,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
+       ],
+       "Responses": [
+        {
+         "$id": "36",
+         "StatusCodes": [
+          204
+         ],
+         "BodyMediaType": "Json",
+         "Headers": [],
+         "IsErrorResponse": false
+        }
+       ],
+       "HttpMethod": "GET",
+       "RequestBodyMediaType": "None",
+       "Uri": "{endpoint}",
+       "Path": "/parameters/collection-format/query/csv",
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query.csv",
+       "Decorators": []
       }
      ],
-     "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}",
-     "Path": "/parameters/collection-format/query/multi",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query.multi",
-     "Decorators": []
+     "apiVersions": [],
+     "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query",
+     "parent": {
+      "$ref": "2"
+     }
     },
     {
-     "$id": "14",
-     "Name": "ssv",
-     "ResourceName": "Query",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "37",
+     "kind": "client",
+     "name": "Header",
+     "namespace": "Parameters.CollectionFormat.Header",
+     "parameters": [
       {
-       "$id": "15",
-       "Name": "colors",
-       "NameInRequest": "colors",
-       "Doc": "Possible values for colors are [blue,red,green]",
-       "Type": {
-        "$id": "16",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "17",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "ArraySerializationDelimiter": " ",
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "18",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}",
-     "Path": "/parameters/collection-format/query/ssv",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query.ssv",
-     "Decorators": []
-    },
-    {
-     "$id": "19",
-     "Name": "tsv",
-     "ResourceName": "Query",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "20",
-       "Name": "colors",
-       "NameInRequest": "colors",
-       "Doc": "Possible values for colors are [blue,red,green]",
-       "Type": {
-        "$id": "21",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "22",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "ArraySerializationDelimiter": "\t",
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "23",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}",
-     "Path": "/parameters/collection-format/query/tsv",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query.tsv",
-     "Decorators": []
-    },
-    {
-     "$id": "24",
-     "Name": "pipes",
-     "ResourceName": "Query",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "25",
-       "Name": "colors",
-       "NameInRequest": "colors",
-       "Doc": "Possible values for colors are [blue,red,green]",
-       "Type": {
-        "$id": "26",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "27",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "ArraySerializationDelimiter": "|",
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "28",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}",
-     "Path": "/parameters/collection-format/query/pipes",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query.pipes",
-     "Decorators": []
-    },
-    {
-     "$id": "29",
-     "Name": "csv",
-     "ResourceName": "Query",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "30",
-       "Name": "colors",
-       "NameInRequest": "colors",
-       "Doc": "Possible values for colors are [blue,red,green]",
-       "Type": {
-        "$id": "31",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "32",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "ArraySerializationDelimiter": ",",
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "33",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}",
-     "Path": "/parameters/collection-format/query/csv",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query.csv",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "34"
-   },
-   "Parent": "CollectionFormatClient",
-   "Parameters": [
-    {
-     "$id": "35",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "36",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "37",
-      "Type": {
        "$id": "38",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query"
-  },
-  {
-   "$id": "39",
-   "Name": "Header",
-   "Namespace": "Parameters.CollectionFormat.Header",
-   "Operations": [
-    {
-     "$id": "40",
-     "Name": "csv",
-     "ResourceName": "Header",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "41",
-       "Name": "colors",
-       "NameInRequest": "colors",
-       "Doc": "Possible values for colors are [blue,red,green]",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Doc": "Service host",
        "Type": {
-        "$id": "42",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "43",
+        "$id": "39",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "40",
+        "Type": {
+         "$id": "41",
          "kind": "string",
          "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "ArraySerializationDelimiter": ",",
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+        "Value": "http://localhost:3000"
+       }
       }
      ],
-     "Responses": [
+     "operations": [
       {
-       "$id": "44",
-       "StatusCodes": [
-        204
+       "$id": "42",
+       "Name": "csv",
+       "ResourceName": "Header",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "43",
+         "Name": "colors",
+         "NameInRequest": "colors",
+         "Doc": "Possible values for colors are [blue,red,green]",
+         "Type": {
+          "$id": "44",
+          "kind": "array",
+          "name": "Array",
+          "valueType": {
+           "$id": "45",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "crossLanguageDefinitionId": "TypeSpec.Array",
+          "decorators": []
+         },
+         "Location": "Header",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "ArraySerializationDelimiter": ",",
+         "IsRequired": true,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
        ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
+       "Responses": [
+        {
+         "$id": "46",
+         "StatusCodes": [
+          204
+         ],
+         "BodyMediaType": "Json",
+         "Headers": [],
+         "IsErrorResponse": false
+        }
+       ],
+       "HttpMethod": "GET",
+       "RequestBodyMediaType": "None",
+       "Uri": "{endpoint}",
+       "Path": "/parameters/collection-format/header/csv",
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Header.csv",
+       "Decorators": []
       }
      ],
-     "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}",
-     "Path": "/parameters/collection-format/header/csv",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Header.csv",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "45"
-   },
-   "Parent": "CollectionFormatClient",
-   "Parameters": [
-    {
-     "$id": "46",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "47",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "48",
-      "Type": {
-       "$id": "49",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
+     "apiVersions": [],
+     "crossLanguageDefinitionId": "Parameters.CollectionFormat.Header",
+     "parent": {
+      "$ref": "2"
      }
     }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Header"
+   ]
   }
  ]
 }

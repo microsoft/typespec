@@ -3,10 +3,10 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
-using Routes._PathParameters.LabelExpansion.Explode;
-using Routes._PathParameters.LabelExpansion.Standard;
+using Routes._PathParameters._LabelExpansion._Explode;
+using Routes._PathParameters._LabelExpansion._Standard;
 
-namespace Routes._PathParameters.LabelExpansion
+namespace Routes._PathParameters._LabelExpansion
 {
     public partial class PathParametersLabelExpansion
     {

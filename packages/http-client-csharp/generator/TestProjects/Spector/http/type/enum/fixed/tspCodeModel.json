@@ -155,37 +155,34 @@
  "Clients": [
   {
    "$id": "18",
-   "Name": "FixedClient",
-   "Namespace": "Type.Enum.Fixed",
-   "Operations": [],
-   "Protocol": {
-    "$id": "19"
-   },
-   "Parameters": [
+   "kind": "client",
+   "name": "FixedClient",
+   "namespace": "Type.Enum.Fixed",
+   "parameters": [
     {
-     "$id": "20",
+     "$id": "19",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
+      "$id": "20",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
       "$id": "21",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "22",
       "Type": {
-       "$id": "23",
+       "$id": "22",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -194,272 +191,275 @@
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Enum.Fixed"
-  },
-  {
-   "$id": "24",
-   "Name": "String",
-   "Namespace": "Type.Enum.Fixed",
-   "Operations": [
+   "operations": [],
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Type.Enum.Fixed",
+   "children": [
     {
-     "$id": "25",
-     "Name": "getKnownValue",
-     "ResourceName": "String",
-     "Doc": "getKnownValue",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "23",
+     "kind": "client",
+     "name": "String",
+     "namespace": "Type.Enum.Fixed",
+     "parameters": [
       {
-       "$id": "26",
-       "Name": "accept",
-       "NameInRequest": "Accept",
+       "$id": "24",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Doc": "Service host",
        "Type": {
-        "$id": "27",
-        "kind": "constant",
-        "valueType": {
-         "$id": "28",
+        "$id": "25",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "26",
+        "Type": {
+         "$id": "27",
          "kind": "string",
          "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+        "Value": "http://localhost:3000"
+       }
       }
      ],
-     "Responses": [
+     "operations": [
       {
-       "$id": "29",
-       "StatusCodes": [
-        200
+       "$id": "28",
+       "Name": "getKnownValue",
+       "ResourceName": "String",
+       "Doc": "getKnownValue",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "29",
+         "Name": "accept",
+         "NameInRequest": "Accept",
+         "Type": {
+          "$id": "30",
+          "kind": "constant",
+          "valueType": {
+           "$id": "31",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "Location": "Header",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": true,
+         "Kind": "Constant",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
        ],
-       "BodyType": {
-        "$ref": "2"
-       },
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "Responses": [
+        {
+         "$id": "32",
+         "StatusCodes": [
+          200
+         ],
+         "BodyType": {
+          "$ref": "2"
+         },
+         "BodyMediaType": "Json",
+         "Headers": [],
+         "IsErrorResponse": false,
+         "ContentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "HttpMethod": "GET",
+       "RequestBodyMediaType": "None",
+       "Uri": "{endpoint}",
+       "Path": "/type/enum/fixed/string/known-value",
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Type.Enum.Fixed.String.getKnownValue",
+       "Decorators": []
+      },
+      {
+       "$id": "33",
+       "Name": "putKnownValue",
+       "ResourceName": "String",
+       "Doc": "putKnownValue",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "34",
+         "Name": "contentType",
+         "NameInRequest": "Content-Type",
+         "Doc": "Body parameter's content type. Known values are application/json",
+         "Type": {
+          "$id": "35",
+          "kind": "constant",
+          "valueType": {
+           "$id": "36",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "Location": "Header",
+         "IsApiVersion": false,
+         "IsContentType": true,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": true,
+         "Kind": "Constant",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        },
+        {
+         "$id": "37",
+         "Name": "body",
+         "NameInRequest": "body",
+         "Doc": "_",
+         "Type": {
+          "$ref": "2"
+         },
+         "Location": "Body",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": true,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
+       ],
+       "Responses": [
+        {
+         "$id": "38",
+         "StatusCodes": [
+          204
+         ],
+         "BodyMediaType": "Json",
+         "Headers": [],
+         "IsErrorResponse": false
+        }
+       ],
+       "HttpMethod": "PUT",
+       "RequestBodyMediaType": "None",
+       "Uri": "{endpoint}",
+       "Path": "/type/enum/fixed/string/known-value",
+       "RequestMediaTypes": [
         "application/json"
-       ]
-      }
-     ],
-     "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}",
-     "Path": "/type/enum/fixed/string/known-value",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Enum.Fixed.String.getKnownValue",
-     "Decorators": []
-    },
-    {
-     "$id": "30",
-     "Name": "putKnownValue",
-     "ResourceName": "String",
-     "Doc": "putKnownValue",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "31",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "32",
-        "kind": "constant",
-        "valueType": {
-         "$id": "33",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "34",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Doc": "_",
-       "Type": {
-        "$ref": "2"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "35",
-       "StatusCodes": [
-        204
        ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}",
-     "Path": "/type/enum/fixed/string/known-value",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Enum.Fixed.String.putKnownValue",
-     "Decorators": []
-    },
-    {
-     "$id": "36",
-     "Name": "putUnknownValue",
-     "ResourceName": "String",
-     "Doc": "putUnknownValue",
-     "Accessibility": "public",
-     "Parameters": [
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Type.Enum.Fixed.String.putKnownValue",
+       "Decorators": []
+      },
       {
-       "$id": "37",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "38",
-        "kind": "constant",
-        "valueType": {
-         "$id": "39",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "39",
+       "Name": "putUnknownValue",
+       "ResourceName": "String",
+       "Doc": "putUnknownValue",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "40",
+         "Name": "contentType",
+         "NameInRequest": "Content-Type",
+         "Doc": "Body parameter's content type. Known values are application/json",
+         "Type": {
+          "$id": "41",
+          "kind": "constant",
+          "valueType": {
+           "$id": "42",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "Location": "Header",
+         "IsApiVersion": false,
+         "IsContentType": true,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": true,
+         "Kind": "Constant",
+         "Decorators": [],
+         "SkipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "40",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Doc": "_",
-       "Type": {
-        "$ref": "2"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "41",
-       "StatusCodes": [
-        204
+        {
+         "$id": "43",
+         "Name": "body",
+         "NameInRequest": "body",
+         "Doc": "_",
+         "Type": {
+          "$ref": "2"
+         },
+         "Location": "Body",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": true,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
        ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
+       "Responses": [
+        {
+         "$id": "44",
+         "StatusCodes": [
+          204
+         ],
+         "BodyMediaType": "Json",
+         "Headers": [],
+         "IsErrorResponse": false
+        }
+       ],
+       "HttpMethod": "PUT",
+       "RequestBodyMediaType": "None",
+       "Uri": "{endpoint}",
+       "Path": "/type/enum/fixed/string/unknown-value",
+       "RequestMediaTypes": [
+        "application/json"
+       ],
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Type.Enum.Fixed.String.putUnknownValue",
+       "Decorators": []
       }
      ],
-     "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}",
-     "Path": "/type/enum/fixed/string/unknown-value",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Enum.Fixed.String.putUnknownValue",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "42"
-   },
-   "Parent": "FixedClient",
-   "Parameters": [
-    {
-     "$id": "43",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "44",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "45",
-      "Type": {
-       "$id": "46",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
+     "apiVersions": [],
+     "crossLanguageDefinitionId": "Type.Enum.Fixed.String",
+     "parent": {
+      "$ref": "18"
      }
     }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Enum.Fixed.String"
+   ]
   }
  ]
 }

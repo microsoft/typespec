@@ -208,25 +208,59 @@
  "Clients": [
   {
    "$id": "30",
-   "Name": "StatusCodeRangeClient",
-   "Namespace": "Response.StatusCodeRange",
-   "Doc": "Test for range of status code.",
-   "Operations": [
+   "kind": "client",
+   "name": "StatusCodeRangeClient",
+   "namespace": "Response.StatusCodeRange",
+   "doc": "Test for range of status code.",
+   "parameters": [
     {
      "$id": "31",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Doc": "Service host",
+     "Type": {
+      "$id": "32",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "33",
+      "Type": {
+       "$id": "34",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ],
+   "operations": [
+    {
+     "$id": "35",
      "Name": "errorResponseStatusCodeInRange",
      "ResourceName": "StatusCodeRange",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "32",
+       "$id": "36",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "33",
+        "$id": "37",
         "kind": "constant",
         "valueType": {
-         "$id": "34",
+         "$id": "38",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -248,15 +282,15 @@
      ],
      "Responses": [
       {
-       "$id": "35",
+       "$id": "39",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "36",
+        "$id": "40",
         "kind": "constant",
         "valueType": {
-         "$id": "37",
+         "$id": "41",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -284,20 +318,20 @@
      "Decorators": []
     },
     {
-     "$id": "38",
+     "$id": "42",
      "Name": "errorResponseStatusCode404",
      "ResourceName": "StatusCodeRange",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "39",
+       "$id": "43",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "40",
+        "$id": "44",
         "kind": "constant",
         "valueType": {
-         "$id": "41",
+         "$id": "45",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -319,15 +353,15 @@
      ],
      "Responses": [
       {
-       "$id": "42",
+       "$id": "46",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "43",
+        "$id": "47",
         "kind": "constant",
         "valueType": {
-         "$id": "44",
+         "$id": "48",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -355,44 +389,8 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "45"
-   },
-   "Parameters": [
-    {
-     "$id": "46",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "47",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "48",
-      "Type": {
-       "$id": "49",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Response.StatusCodeRange"
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Response.StatusCodeRange"
   }
  ]
 }

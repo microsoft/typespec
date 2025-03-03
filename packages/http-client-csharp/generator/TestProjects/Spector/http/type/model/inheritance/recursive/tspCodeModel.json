@@ -90,26 +90,60 @@
  "Clients": [
   {
    "$id": "12",
-   "Name": "RecursiveClient",
-   "Namespace": "Type.Model.Inheritance.Recursive",
-   "Doc": "Illustrates inheritance recursion",
-   "Operations": [
+   "kind": "client",
+   "name": "RecursiveClient",
+   "namespace": "Type.Model.Inheritance.Recursive",
+   "doc": "Illustrates inheritance recursion",
+   "parameters": [
     {
      "$id": "13",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Doc": "Service host",
+     "Type": {
+      "$id": "14",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "15",
+      "Type": {
+       "$id": "16",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ],
+   "operations": [
+    {
+     "$id": "17",
      "Name": "put",
      "ResourceName": "Recursive",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "14",
+       "$id": "18",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "15",
+        "$id": "19",
         "kind": "constant",
         "valueType": {
-         "$id": "16",
+         "$id": "20",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -129,7 +163,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "17",
+       "$id": "21",
        "Name": "input",
        "NameInRequest": "input",
        "Type": {
@@ -148,7 +182,7 @@
      ],
      "Responses": [
       {
-       "$id": "18",
+       "$id": "22",
        "StatusCodes": [
         204
        ],
@@ -171,20 +205,20 @@
      "Decorators": []
     },
     {
-     "$id": "19",
+     "$id": "23",
      "Name": "get",
      "ResourceName": "Recursive",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "20",
+       "$id": "24",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "21",
+        "$id": "25",
         "kind": "constant",
         "valueType": {
-         "$id": "22",
+         "$id": "26",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -206,7 +240,7 @@
      ],
      "Responses": [
       {
-       "$id": "23",
+       "$id": "27",
        "StatusCodes": [
         200
        ],
@@ -232,44 +266,8 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "24"
-   },
-   "Parameters": [
-    {
-     "$id": "25",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "26",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "27",
-      "Type": {
-       "$id": "28",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Model.Inheritance.Recursive"
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.Recursive"
   }
  ]
 }

@@ -195,22 +195,64 @@
  "Clients": [
   {
    "$id": "25",
-   "Name": "RenamedFromClient",
-   "Namespace": "Versioning.RenamedFrom",
-   "Doc": "Test for the `@renamedFrom` decorator.",
-   "Operations": [
+   "kind": "client",
+   "name": "RenamedFromClient",
+   "namespace": "Versioning.RenamedFrom",
+   "doc": "Test for the `@renamedFrom` decorator.",
+   "parameters": [
     {
      "$id": "26",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
+     "Type": {
+      "$id": "27",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client"
+    },
+    {
+     "$id": "28",
+     "Name": "version",
+     "NameInRequest": "version",
+     "Doc": "Need to be set as 'v1' or 'v2' in client.",
+     "Type": {
+      "$ref": "6"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": false,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client"
+    }
+   ],
+   "operations": [
+    {
+     "$id": "29",
      "Name": "oldOp",
      "ResourceName": "RenamedFrom",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "27",
+       "$id": "30",
        "Name": "oldQuery",
        "NameInRequest": "newQuery",
        "Type": {
-        "$id": "28",
+        "$id": "31",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -227,15 +269,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "29",
+       "$id": "32",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "30",
+        "$id": "33",
         "kind": "constant",
         "valueType": {
-         "$id": "31",
+         "$id": "34",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -255,14 +297,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "32",
+       "$id": "35",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "33",
+        "$id": "36",
         "kind": "constant",
         "valueType": {
-         "$id": "34",
+         "$id": "37",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -282,7 +324,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "35",
+       "$id": "38",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -301,7 +343,7 @@
      ],
      "Responses": [
       {
-       "$id": "36",
+       "$id": "39",
        "StatusCodes": [
         200
        ],
@@ -330,215 +372,177 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "37"
-   },
-   "Parameters": [
-    {
-     "$id": "38",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Need to be set as 'http://localhost:3000' in client.",
-     "Type": {
-      "$id": "39",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
-    },
+   "apiVersions": [
+    "v1"
+   ],
+   "crossLanguageDefinitionId": "Versioning.RenamedFrom",
+   "children": [
     {
      "$id": "40",
-     "Name": "version",
-     "NameInRequest": "version",
-     "Doc": "Need to be set as 'v1' or 'v2' in client.",
-     "Type": {
-      "$ref": "6"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": false,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Versioning.RenamedFrom"
-  },
-  {
-   "$id": "41",
-   "Name": "OldInterface",
-   "Namespace": "Versioning.RenamedFrom",
-   "Operations": [
-    {
-     "$id": "42",
-     "Name": "newOpInNewInterface",
-     "ResourceName": "OldInterface",
-     "Accessibility": "public",
-     "Parameters": [
+     "kind": "client",
+     "name": "OldInterface",
+     "namespace": "Versioning.RenamedFrom",
+     "parameters": [
+      {
+       "$id": "41",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Doc": "Need to be set as 'http://localhost:3000' in client.",
+       "Type": {
+        "$id": "42",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
       {
        "$id": "43",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Name": "version",
+       "NameInRequest": "version",
+       "Doc": "Need to be set as 'v1' or 'v2' in client.",
        "Type": {
-        "$id": "44",
-        "kind": "constant",
-        "valueType": {
+        "$ref": "6"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      }
+     ],
+     "operations": [
+      {
+       "$id": "44",
+       "Name": "newOpInNewInterface",
+       "ResourceName": "OldInterface",
+       "Accessibility": "public",
+       "Parameters": [
+        {
          "$id": "45",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+         "Name": "contentType",
+         "NameInRequest": "Content-Type",
+         "Doc": "Body parameter's content type. Known values are application/json",
+         "Type": {
+          "$id": "46",
+          "kind": "constant",
+          "valueType": {
+           "$id": "47",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "Location": "Header",
+         "IsApiVersion": false,
+         "IsContentType": true,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": true,
+         "Kind": "Constant",
+         "Decorators": [],
+         "SkipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "46",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
-        "$id": "47",
-        "kind": "constant",
-        "valueType": {
+        {
          "$id": "48",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+         "Name": "accept",
+         "NameInRequest": "Accept",
+         "Type": {
+          "$id": "49",
+          "kind": "constant",
+          "valueType": {
+           "$id": "50",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "Location": "Header",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": true,
+         "Kind": "Constant",
+         "Decorators": [],
+         "SkipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "49",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "10"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "50",
-       "StatusCodes": [
-        200
+        {
+         "$id": "51",
+         "Name": "body",
+         "NameInRequest": "body",
+         "Type": {
+          "$ref": "10"
+         },
+         "Location": "Body",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": true,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
        ],
-       "BodyType": {
-        "$ref": "10"
-       },
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "Responses": [
+        {
+         "$id": "52",
+         "StatusCodes": [
+          200
+         ],
+         "BodyType": {
+          "$ref": "10"
+         },
+         "BodyMediaType": "Json",
+         "Headers": [],
+         "IsErrorResponse": false,
+         "ContentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "HttpMethod": "POST",
+       "RequestBodyMediaType": "Json",
+       "Uri": "{endpoint}/versioning/renamed-from/api-version:{version}",
+       "Path": "/interface/test",
+       "RequestMediaTypes": [
         "application/json"
-       ]
+       ],
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Versioning.RenamedFrom.OldInterface.newOpInNewInterface",
+       "Decorators": []
       }
      ],
-     "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
-     "Uri": "{endpoint}/versioning/renamed-from/api-version:{version}",
-     "Path": "/interface/test",
-     "RequestMediaTypes": [
-      "application/json"
+     "apiVersions": [
+      "v1"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Versioning.RenamedFrom.OldInterface.newOpInNewInterface",
-     "Decorators": []
+     "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldInterface",
+     "parent": {
+      "$ref": "25"
+     }
     }
-   ],
-   "Protocol": {
-    "$id": "51"
-   },
-   "Parent": "RenamedFromClient",
-   "Parameters": [
-    {
-     "$id": "52",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Need to be set as 'http://localhost:3000' in client.",
-     "Type": {
-      "$id": "53",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
-    },
-    {
-     "$id": "54",
-     "Name": "version",
-     "NameInRequest": "version",
-     "Doc": "Need to be set as 'v1' or 'v2' in client.",
-     "Type": {
-      "$ref": "6"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": false,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Versioning.RenamedFrom.OldInterface"
+   ]
   }
  ]
 }

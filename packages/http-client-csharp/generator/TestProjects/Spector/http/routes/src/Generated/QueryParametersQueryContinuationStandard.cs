@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Routes._QueryParameters.QueryContinuation.Standard
+namespace Routes._QueryParameters._QueryContinuation._Standard
 {
     public partial class QueryParametersQueryContinuationStandard
     {

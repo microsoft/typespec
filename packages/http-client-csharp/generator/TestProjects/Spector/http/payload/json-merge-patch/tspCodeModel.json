@@ -514,27 +514,61 @@
  "Clients": [
   {
    "$id": "75",
-   "Name": "JsonMergePatchClient",
-   "Namespace": "Payload.JsonMergePatch",
-   "Doc": "Test for merge-patch+json content-type",
-   "Operations": [
+   "kind": "client",
+   "name": "JsonMergePatchClient",
+   "namespace": "Payload.JsonMergePatch",
+   "doc": "Test for merge-patch+json content-type",
+   "parameters": [
     {
      "$id": "76",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Doc": "Service host",
+     "Type": {
+      "$id": "77",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "78",
+      "Type": {
+       "$id": "79",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ],
+   "operations": [
+    {
+     "$id": "80",
      "Name": "createResource",
      "ResourceName": "JsonMergePatch",
      "Doc": "Test content-type: application/merge-patch+json with required body",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "77",
+       "$id": "81",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "78",
+        "$id": "82",
         "kind": "constant",
         "valueType": {
-         "$id": "79",
+         "$id": "83",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -554,14 +588,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "80",
+       "$id": "84",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "81",
+        "$id": "85",
         "kind": "constant",
         "valueType": {
-         "$id": "82",
+         "$id": "86",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -581,7 +615,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "83",
+       "$id": "87",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -600,7 +634,7 @@
      ],
      "Responses": [
       {
-       "$id": "84",
+       "$id": "88",
        "StatusCodes": [
         200
        ],
@@ -629,21 +663,21 @@
      "Decorators": []
     },
     {
-     "$id": "85",
+     "$id": "89",
      "Name": "updateResource",
      "ResourceName": "JsonMergePatch",
      "Doc": "Test content-type: application/merge-patch+json with required body",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "86",
+       "$id": "90",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "87",
+        "$id": "91",
         "kind": "constant",
         "valueType": {
-         "$id": "88",
+         "$id": "92",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -663,14 +697,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "89",
+       "$id": "93",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "90",
+        "$id": "94",
         "kind": "constant",
         "valueType": {
-         "$id": "91",
+         "$id": "95",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -690,7 +724,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "92",
+       "$id": "96",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -709,7 +743,7 @@
      ],
      "Responses": [
       {
-       "$id": "93",
+       "$id": "97",
        "StatusCodes": [
         200
        ],
@@ -738,21 +772,21 @@
      "Decorators": []
     },
     {
-     "$id": "94",
+     "$id": "98",
      "Name": "updateOptionalResource",
      "ResourceName": "JsonMergePatch",
      "Doc": "Test content-type: application/merge-patch+json with optional body",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "95",
+       "$id": "99",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "96",
+        "$id": "100",
         "kind": "constant",
         "valueType": {
-         "$id": "97",
+         "$id": "101",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -772,14 +806,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "98",
+       "$id": "102",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "99",
+        "$id": "103",
         "kind": "constant",
         "valueType": {
-         "$id": "100",
+         "$id": "104",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -799,7 +833,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "101",
+       "$id": "105",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -818,7 +852,7 @@
      ],
      "Responses": [
       {
-       "$id": "102",
+       "$id": "106",
        "StatusCodes": [
         200
        ],
@@ -847,44 +881,8 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "103"
-   },
-   "Parameters": [
-    {
-     "$id": "104",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "105",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "106",
-      "Type": {
-       "$id": "107",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Payload.JsonMergePatch"
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Payload.JsonMergePatch"
   }
  ]
 }

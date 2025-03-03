@@ -113,22 +113,64 @@
  "Clients": [
   {
    "$id": "15",
-   "Name": "TypeChangedFromClient",
-   "Namespace": "Versioning.TypeChangedFrom",
-   "Doc": "Test for the `@typeChangedFrom` decorator.",
-   "Operations": [
+   "kind": "client",
+   "name": "TypeChangedFromClient",
+   "namespace": "Versioning.TypeChangedFrom",
+   "doc": "Test for the `@typeChangedFrom` decorator.",
+   "parameters": [
     {
      "$id": "16",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
+     "Type": {
+      "$id": "17",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client"
+    },
+    {
+     "$id": "18",
+     "Name": "version",
+     "NameInRequest": "version",
+     "Doc": "Need to be set as 'v1' or 'v2' in client.",
+     "Type": {
+      "$ref": "2"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": false,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client"
+    }
+   ],
+   "operations": [
+    {
+     "$id": "19",
      "Name": "test",
      "ResourceName": "TypeChangedFrom",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "17",
+       "$id": "20",
        "Name": "param",
        "NameInRequest": "param",
        "Type": {
-        "$id": "18",
+        "$id": "21",
         "kind": "int32",
         "name": "int32",
         "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -145,15 +187,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "19",
+       "$id": "22",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "20",
+        "$id": "23",
         "kind": "constant",
         "valueType": {
-         "$id": "21",
+         "$id": "24",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -173,14 +215,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "22",
+       "$id": "25",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "23",
+        "$id": "26",
         "kind": "constant",
         "valueType": {
-         "$id": "24",
+         "$id": "27",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -200,7 +242,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "25",
+       "$id": "28",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -219,7 +261,7 @@
      ],
      "Responses": [
       {
-       "$id": "26",
+       "$id": "29",
        "StatusCodes": [
         200
        ],
@@ -248,52 +290,10 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "27"
-   },
-   "Parameters": [
-    {
-     "$id": "28",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Need to be set as 'http://localhost:3000' in client.",
-     "Type": {
-      "$id": "29",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
-    },
-    {
-     "$id": "30",
-     "Name": "version",
-     "NameInRequest": "version",
-     "Doc": "Need to be set as 'v1' or 'v2' in client.",
-     "Type": {
-      "$ref": "2"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": false,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
-    }
+   "apiVersions": [
+    "v1"
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Versioning.TypeChangedFrom"
+   "crossLanguageDefinitionId": "Versioning.TypeChangedFrom"
   }
  ]
 }

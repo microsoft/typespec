@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Routes._QueryParameters.QueryExpansion.Explode
+namespace Routes._QueryParameters._QueryExpansion._Explode
 {
     public partial class QueryParametersQueryExpansionExplode
     {
