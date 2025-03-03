@@ -54,6 +54,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -566,12 +567,18 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             mapping
                 .setInputParameter(Mappers.getClientParameterMapper().map(parameter.getGroupedBy(), isProtocolMethod));
             ClientModel groupModel = Mappers.getModelMapper().map((ObjectSchema) parameter.getGroupedBy().getSchema());
-            ClientModelProperty inputProperty = groupModel.getProperties()
+            Optional<ClientModelProperty> inputProperty = groupModel.getProperties()
                 .stream()
                 .filter(p -> parameter.getLanguage().getJava().getName().equals(p.getName()))
-                .findFirst()
-                .get();
-            mapping.setInputParameterProperty(inputProperty);
+                .findFirst();
+            if (inputProperty.isEmpty()) {
+                // try find by serializedName
+                inputProperty = groupModel.getProperties()
+                    .stream()
+                    .filter(p -> parameter.getLanguage().getDefault().getSerializedName().equals(p.getSerializedName()))
+                    .findFirst();
+            }
+            mapping.setInputParameterProperty(inputProperty.get());
         } else {
             mapping.setInputParameter(clientMethodParameter);
         }
