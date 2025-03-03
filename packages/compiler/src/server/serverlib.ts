@@ -351,8 +351,7 @@ export function createServer(host: ServerHost): Server {
       log({
         level: "debug",
         message:
-          "There is no file operation or not a rename file operation, it must occur in pairs," +
-          "i.e. one file is marked as deleted(type=3) and one is marked as created(type=1)",
+          "The arguments are empty or do not contain pairs of TSP files marked for deletion(type=3) and creation(type=1)",
       });
       return;
     }
@@ -360,6 +359,26 @@ export function createServer(host: ServerHost): Server {
     // type 1: created, type 3: deleted
     // Modify file name or move the file to a new location,
     // the original file is marked as delete, and the new file is marked as Create
+    let type1Count = 0;
+    let type3Count = 0;
+    tspChanges.forEach((change) => {
+      if (change.type === 1) {
+        type1Count++;
+      } else if (change.type === 3) {
+        type3Count++;
+      }
+    });
+    if (type1Count !== type3Count) {
+      log({
+        level: "debug",
+        message:
+          "The number of files marked for deletion(type=3) and creation(type=1) is not equal, " +
+          "see the input parameters for details:" +
+          JSON.stringify(tspChanges),
+      });
+      return;
+    }
+
     if (tspChanges.length === 2) {
       // Only one file is renamed or moved
       const oldFilePath = tspChanges.find((c) => c.type === 3);
