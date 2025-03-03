@@ -619,7 +619,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.Nullable"
   },
   {
    "$id": "87",
@@ -942,7 +943,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.Nullable.String"
   },
   {
    "$id": "115",
@@ -1265,7 +1267,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.Nullable.Bytes"
   },
   {
    "$id": "143",
@@ -1588,7 +1591,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.Nullable.Datetime"
   },
   {
    "$id": "171",
@@ -1911,7 +1915,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.Nullable.Duration"
   },
   {
    "$id": "199",
@@ -2234,7 +2239,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte"
   },
   {
    "$id": "227",
@@ -2557,7 +2563,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel"
   },
   {
    "$id": "255",
@@ -2880,7 +2887,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString"
   }
  ]
 }
