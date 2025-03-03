@@ -1,6 +1,7 @@
-import { Namespace } from "@typespec/compiler";
+import { isNullType, isType, Namespace } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
-import { deepStrictEqual } from "assert";
+import { deepStrictEqual, ok } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import {
   getExtensions,
@@ -74,24 +75,33 @@ describe("openapi: decorators", () => {
       });
     });
 
-    it.for([
-      { type: `{ name: "foo" }`, expected: { name: "foo" } },
-      { type: `["foo"]`, expected: ["foo"] },
-    ])("treats type $type as raw value and emits diagnostic", async ({ type, expected }) => {
-      const [{ Foo }, diagnostics] = await runner.compileAndDiagnose(`
-          @extension("x-custom", ${type})
-          @test
-          model Foo{}  
-        `);
+    it("treats types as Type", async () => {
+      const { Foo } = await runner.compile(`
+        @extension("x-model", { id: string })
+        @extension("x-tuple", [ 1 ])
+        @extension("x-array", string[])
+        @extension("x-string", string)
+        @extension("x-boolean", boolean)
+        @extension("x-int", int8)
+        @extension("x-union", "one" | "two" )
+        @extension("x-null", typeof null)
+        @test
+        model Foo{}
+      `);
 
-      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
-        "x-custom": expected,
-      });
+      const results = Object.fromEntries(getExtensions(runner.program, Foo));
 
-      expectDiagnostics(diagnostics, {
-        code: "deprecated",
-        severity: "warning",
-      });
+      ok($.model.is(results["x-model"]), "x-model: expected Model Type");
+      ok(
+        isType(results["x-tuple"]) && results["x-tuple"].kind === "Tuple",
+        "x-tuple: expected Tuple Type",
+      );
+      ok($.array.is(results["x-array"]), "x-array: expected Array Type");
+      ok($.scalar.isString(results["x-string"]), "x-string: expected String Type");
+      ok($.scalar.isBoolean(results["x-boolean"]), "x-boolean: expected Boolean Type");
+      ok($.scalar.isInt8(results["x-int"]), "x-int: expected Int8 Type");
+      ok($.union.is(results["x-union"]), "x-union: expected Union Type");
+      ok(isNullType(results["x-null"]), "x-null: expected Null Type");
     });
 
     it.for([

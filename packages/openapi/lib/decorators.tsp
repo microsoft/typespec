@@ -18,6 +18,12 @@ extern dec operationId(target: Operation, operationId: valueof string);
 
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
+ * Values will be treated as raw data and be inserted directly into the generated OpenAPI document as-is.
+ * Types will emit an Open API schema as the value.
+ *
+ * For example, `@extension("x-custom", "My value")` will emit the raw data `"My value"`,
+ * whereas `@extension("x-custom", typeof "My Value")` will emit the Open API schema
+ * `{ type: "string", enum: [ "My Value" ]}`.
  *
  * @param key Extension key.
  * @param value Extension value.
@@ -30,7 +36,7 @@ extern dec operationId(target: Operation, operationId: valueof string);
  * op read(): string;
  * ```
  */
-extern dec extension(target: unknown, key: valueof string, value: valueof unknown);
+extern dec extension(target: unknown, key: valueof string, value: unknown | (valueof unknown));
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.

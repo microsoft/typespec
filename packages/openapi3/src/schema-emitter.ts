@@ -39,6 +39,7 @@ import {
   isArrayModelType,
   isNeverType,
   isSecret,
+  isType,
   resolveEncodedName,
 } from "@typespec/compiler";
 import {
@@ -59,12 +60,12 @@ import { $ } from "@typespec/compiler/experimental/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
+  getExtensions,
   getExternalDocs,
   getOpenAPITypeName,
   isReadonlyProperty,
   shouldInline,
 } from "@typespec/openapi";
-import { attachExtensions } from "./attach-extensions.js";
 import { getOneOf, getRef } from "./decorators.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
@@ -453,7 +454,7 @@ export class OpenAPI3SchemaEmitterBase<
     }
 
     // Attach any additional OpenAPI extensions
-    attachExtensions(program, prop, additionalProps);
+    this.attachExtensions(prop, additionalProps);
 
     if (schema && isRef && !(prop.type.kind === "Model" && isArrayModelType(program, prop.type))) {
       if (Object.keys(additionalProps).length === 0) {
@@ -767,7 +768,7 @@ export class OpenAPI3SchemaEmitterBase<
     this.applyCustomConstraints(type, schema as any, refSchema);
 
     this.applyXml(type, schema as any, refSchema);
-    attachExtensions(program, type, schema);
+    this.attachExtensions(type, schema);
 
     const values = getKnownValues(program, type as any);
     if (values) {
@@ -801,6 +802,23 @@ export class OpenAPI3SchemaEmitterBase<
             refSchema,
           );
           break;
+      }
+    }
+  }
+
+  attachExtensions(type: Type, emitObject: Record<string, any>): void {
+    const program = this.emitter.getProgram();
+
+    const extensions = getExtensions(program, type);
+    if (!extensions) return;
+
+    for (const key of extensions.keys()) {
+      const value = extensions.get(key);
+      // Need to convert Types into schemas
+      if (isType(value)) {
+        emitObject[key] = this.emitter.emitTypeReference(value);
+      } else {
+        emitObject[key] = value;
       }
     }
   }
