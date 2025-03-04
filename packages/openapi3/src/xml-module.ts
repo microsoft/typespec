@@ -9,6 +9,7 @@ import {
   resolveEncodedName,
 } from "@typespec/compiler";
 import { ArrayBuilder, ObjectBuilder } from "@typespec/compiler/emitter-framework";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
@@ -124,15 +125,11 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
           : resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
         if (propValue.kind === "Scalar") {
           let scalarSchema: OpenAPI3Schema = {};
-          const isStd = program.checker.isStdType(propValue);
-          if (isStd) {
-            scalarSchema = getSchemaForStdScalars(propValue, options);
-          } else if (propValue.baseScalar) {
-            scalarSchema = getSchemaForStdScalars(
-              propValue.baseScalar as Scalar & { name: IntrinsicScalarName },
-              options,
-            );
-          }
+          const root = $.scalar.getStdBase(propValue);
+          scalarSchema = getSchemaForStdScalars(
+            root as Scalar & { name: IntrinsicScalarName },
+            options,
+          );
           scalarSchema.xml = { name: propXmlName };
           refSchema.items = scalarSchema;
         } else {
@@ -208,6 +205,19 @@ function isXmlModelChecker(
           }
         }
       }
+    }
+    if (model.name === "Array") {
+      const propValue = (model as ArrayModelType).indexer.value;
+      if (propValue.kind === "Scalar") {
+        if (isXmlModelChecker(program, propValue, checked)) {
+          return true;
+        }
+      }
+    }
+  }
+  if (model.kind === "Scalar" && model.baseScalar) {
+    if (isXmlModelChecker(program, model.baseScalar, checked)) {
+      return true;
     }
   }
 

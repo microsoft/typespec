@@ -1187,4 +1187,63 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
       type: "object",
     });
   });
+
+  it("test scalar", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
+      scalar A extends string;
+
+      @name("B_xml")
+      scalar B extends A;
+
+      model Book {
+        arr: B[];
+      }`,
+    );
+
+    deepStrictEqual(res.schemas.Book, {
+      properties: {
+        arr: {
+          items: {
+            type: "string",
+            xml: { name: "B_xml" },
+          },
+          type: "array",
+          xml: { wrapped: true },
+        },
+      },
+      type: "object",
+      required: ["arr"],
+    });
+  });
+
+  it("test scalar2", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
+      @name("A_xml")
+      scalar A extends string;
+      scalar B extends A;
+
+      model Book {
+        arr: B[];
+      }`,
+    );
+
+    deepStrictEqual(res.schemas.Book, {
+      properties: {
+        arr: {
+          items: {
+            type: "string",
+            xml: { name: "B" },
+          },
+          type: "array",
+          xml: { wrapped: true },
+        },
+      },
+      type: "object",
+      required: ["arr"],
+    });
+  });
 });
