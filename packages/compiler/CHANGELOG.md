@@ -1,5 +1,97 @@
 # Change Log - @typespec/compiler
 
+## 0.66.0
+
+### Bug Fixes
+
+- [#4926](https://github.com/microsoft/typespec/pull/4926) Augmenting an expression will now report an error instead of silently failing to apply.
+- [#5937](https://github.com/microsoft/typespec/pull/5937) Fix: StringTemplate type not supported in typespecValueToJson
+- [#6204](https://github.com/microsoft/typespec/pull/6204) Fix `@example` reporting assignability error when using mix metadata(http) models
+- [#6125](https://github.com/microsoft/typespec/pull/6125) Fix tmlanguage syntax highlighting when using decorator before escaped identifier
+- [#6192](https://github.com/microsoft/typespec/pull/6192) Fix `tsp info` crash
+- [#6203](https://github.com/microsoft/typespec/pull/6203) Fix mutator not mutating sourceModel(s)
+
+### Features
+
+- [#5483](https://github.com/microsoft/typespec/pull/5483) Add autocomplete of model properties for union type
+- [#5458](https://github.com/microsoft/typespec/pull/5458) Add codefix for for various triple quoted string syntax issues
+- [#6082](https://github.com/microsoft/typespec/pull/6082) Introduced `list-files` flag to log all emitted files.
+- [#6082](https://github.com/microsoft/typespec/pull/6082) Added a progress indicator to show the current stage of tsp compilation process.
+- [#6059](https://github.com/microsoft/typespec/pull/6059) Add new `@discriminated` decorator to represent discriminated union with implicit envelopes
+- [#5494](https://github.com/microsoft/typespec/pull/5494) Report unused template parameters in language server
+- [#6045](https://github.com/microsoft/typespec/pull/6045) Redesign and simplification of `tsp init`
+- [#5996](https://github.com/microsoft/typespec/pull/5996) Add Typekits to support EFV2
+- [#5986](https://github.com/microsoft/typespec/pull/5986) Tsp init template with both config and emitters merge in tspconfig.yaml
+- [#6108](https://github.com/microsoft/typespec/pull/6108) Migrate `@service` decorator options to take in a value
+
+```diff lang="tsp"
+-@service({title: "My service"})
++@service(#{title: "My service"})
+```
+- [#6047](https://github.com/microsoft/typespec/pull/6047) `--version` shows if tsp is running from the standalone version
+- [#5453](https://github.com/microsoft/typespec/pull/5453) Report unused `using` in language server
+- [#6164](https://github.com/microsoft/typespec/pull/6164) Renamed package `@typespec/http-server-javascript` to `@typespec/http-server-js`.
+
+### Deprecations
+
+- [#6059](https://github.com/microsoft/typespec/pull/6059) Deprecate use of `@discriminator` on union. Migrate to `@discriminated`
+
+```diff lang="tsp"
+-@discriminator("type")
++@discriminated(#{envelope: "none", discriminatorPropertyName: "type"})
+union Pet;
+```
+- [#6088](https://github.com/microsoft/typespec/pull/6088) Deprecate use of string-based visibility modifiers using warnings.
+
+String-based visibilities can be replaced as follows:
+
+- `"create"`, `"read"`, `"update"`, `"delete"`, and `"query"` can be replaced with `Lifecycle.Create`, `Lifecycle.Read`, `Lifecycle.Update`, `Lifecycle.Delete`, and `Lifecycle.Query` respectively.
+- `@visibility("none")` can be replaced with `@invisible(Lifecycle)`.
+
+For example:
+
+```tsp
+@visibility("create", "read")
+example: string;
+```
+
+can be replaced with:
+
+```tsp
+@visibility(Lifecycle.Create, Lifecycle.Read)
+example: string;
+```
+
+```tsp
+@visibility("none")
+example: string;
+```
+
+can be replaced with:
+
+```tsp
+@invisible(Lifecycle)
+example: string;
+```
+
+Additionally, `@parameterVisibility` with no arguments is deprecated.
+
+```tsp
+@parameterVisibility
+@patch
+op example(@bodyRoot resource: Resource): Resource;
+```
+
+The effect of `@parameterVisibility` is to disable effective PATCH optionality. If you wish
+to disable effective PATCH optionality in `@typespec/http`, preventing it from treating all
+properties of the request body as effectively optional, you can now do so explicitly:
+
+```tsp
+@patch(#{ implicitOptionality: false })
+op example(@bodyRoot resource: Resource): Resource;
+```
+
+
 ## 0.65.3
 
 ### Bug Fixes
