@@ -572,7 +572,15 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 .filter(p -> parameter.getLanguage().getJava().getName().equals(p.getName()))
                 .findFirst();
             if (inputProperty.isEmpty()) {
-                // try find by serializedName
+                /*
+                 * try again, find by serializedName
+                 *
+                 * The reason is that for parameter of reserved name, on parameter it would be renamed to "#Parameter",
+                 * but on property it would be renamed to "#Property".
+                 * We can modify the rename behavior in Transformer.java (GroupSchema is merged to ObjectSchema there),
+                 * but it could break existing SDKs.
+                 * Hence we only do a patch here, as a fallback logic to find the property in GroupSchema.
+                 */
                 inputProperty = groupModel.getProperties()
                     .stream()
                     .filter(p -> parameter.getLanguage().getDefault().getSerializedName().equals(p.getSerializedName()))
