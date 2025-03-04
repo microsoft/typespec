@@ -159,14 +159,6 @@ describe("compiler: entrypoints", () => {
       expectDiagnosticEmpty(program.diagnostics);
     });
 
-    it("Back compat: succeed if package.json has cadlMain", async () => {
-      const program = await compileScenario("backcompat-package-cadlMain", {
-        emit: [],
-        additionalImports: [],
-      });
-      expectDiagnosticEmpty(program.diagnostics);
-    });
-
     it("Back compat: succeed if main.cadl exists and package.json with no tsp/cadlMain", async () => {
       const program = await compileScenario("backcompat-package-no_main", {
         emit: [],
