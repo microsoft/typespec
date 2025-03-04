@@ -23,10 +23,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         public void Setup()
         {
             _mockInputLibrary = new Mock<InputLibrary>();
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("Sample"));
             _mockPlugin = MockHelpers.LoadMockPlugin(
                 createInputLibrary: () => _mockInputLibrary.Object,
-                createClientCore: inputClient => new ClientProvider(inputClient),
-                packageName: "Sample");
+                createClientCore: inputClient => new ClientProvider(inputClient));
             _mockVisitor = new Mock<ScmLibraryVisitor> { CallBase = true };
         }
 
