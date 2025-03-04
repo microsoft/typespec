@@ -9,6 +9,8 @@ import {
   addVisibilityModifiers,
   clearVisibilityModifiersForClass,
   DecoratorContext,
+  Diagnostic,
+  DiagnosticTarget,
   EmptyVisibilityProvider,
   Enum,
   getLifecycleVisibilityEnum,
@@ -20,6 +22,7 @@ import {
   isVisible,
   Model,
   ModelProperty,
+  NoTarget,
   Operation,
   removeVisibilityModifiers,
   resetVisibilityModifiersForClass,
@@ -625,7 +628,7 @@ describe("compiler: visibility core", () => {
       });
 
       it("correctly coerces legacy string in visibility filter", async () => {
-        const { Example, foo } = (await runner.compile(`
+        const [{ Example, foo }, diagnostics] = (await runner.compileAndDiagnose(`
           @test model Example {
             @visibility(Lifecycle.Create)
             x: string;
@@ -635,7 +638,7 @@ describe("compiler: visibility core", () => {
           @test op foo(
             example: Example
           ): void;
-        `)) as { Example: Model; foo: Operation };
+        `)) as [{ Example: Model; foo: Operation }, Diagnostic[]];
 
         const x = Example.properties.get("x")!;
 
@@ -649,10 +652,15 @@ describe("compiler: visibility core", () => {
         strictEqual(filter.none, undefined);
 
         strictEqual(isVisible(runner.program, x, filter), false);
+
+        expectDiagnostics(diagnostics, {
+          code: "visibility-legacy",
+          severity: "warning",
+        });
       });
 
       it("allows properties when no arguments provided to parameter/returnType visibility", async () => {
-        const { Example, foo } = (await runner.compile(`
+        const [{ Example, foo }, diagnostics] = (await runner.compileAndDiagnose(`
           @test model Example {
             @visibility(Lifecycle.Create)
             x: string;
@@ -663,7 +671,15 @@ describe("compiler: visibility core", () => {
           @test op foo(
             example: Example
           ): Example;
-        `)) as { Example: Model; foo: Operation };
+        `)) as [{ Example: Model; foo: Operation }, Diagnostic[]];
+
+        expectDiagnostics(
+          diagnostics,
+          Array(2).fill({
+            code: "operation-visibility-constraint-empty",
+            severity: "warning",
+          }),
+        );
 
         const x = Example.properties.get("x")!;
 
@@ -689,12 +705,17 @@ describe("compiler: visibility core", () => {
 
   describe("legacy compatibility", () => {
     it("converts legacy visibility strings to modifiers", async () => {
-      const { Example } = (await runner.compile(`
+      const [{ Example }, diagnostics] = (await runner.compileAndDiagnose(`
         @test model Example {
           @visibility("create")
           x: string;
         }
-      `)) as { Example: Model };
+      `)) as [{ Example: Model }, Diagnostic[]];
+
+      expectDiagnostics(diagnostics, {
+        code: "visibility-legacy",
+        severity: "warning",
+      });
 
       const x = Example.properties.get("x")!;
 
@@ -787,12 +808,17 @@ describe("compiler: visibility core", () => {
     });
 
     it("correctly coerces visibility modifiers after rewriting", async () => {
-      const { Example } = (await runner.compile(`
+      const [{ Example }, diagnostics] = (await runner.compileAndDiagnose(`
         @test model Example {
           @visibility("create")
           x: string;
         }
-      `)) as { Example: Model };
+      `)) as [{ Example: Model }, Diagnostic[]];
+
+      expectDiagnostics(diagnostics, {
+        code: "visibility-legacy",
+        severity: "warning",
+      });
 
       const x = Example.properties.get("x")!;
 
@@ -817,7 +843,21 @@ describe("compiler: visibility core", () => {
       deepStrictEqual(legacyVisibility, ["create"]);
 
       // Now change the visibility imperatively using the legacy API
-      $visibility({ program: runner.program } as DecoratorContext, x, "read");
+      $visibility(
+        {
+          program: runner.program,
+          getArgumentTarget(_) {
+            return NoTarget as unknown as DiagnosticTarget;
+          },
+        } as DecoratorContext,
+        x,
+        "read",
+      );
+
+      expectDiagnostics(
+        runner.program.diagnostics,
+        Array(2).fill({ code: "visibility-legacy", severity: "warning" }),
+      );
 
       const updatedVisibility = getVisibilityForClass(runner.program, x, LifecycleEnum);
 
@@ -843,7 +883,7 @@ describe("compiler: visibility core", () => {
         Create: legacy ? `"create"` : "Lifecycle.Create",
         Update: legacy ? `"update"` : "Lifecycle.Update",
       };
-      const { Result } = (await runner.compile(`
+      const [{ Result }, diagnostics] = (await runner.compileAndDiagnose(`
         model Example {
           @visibility(${Lifecycle.Read})
           r: string;
@@ -898,7 +938,23 @@ describe("compiler: visibility core", () => {
         model ReadExample is Read<Example>;
 
         @test model Result is ${transform}<Example>;
-      `)) as { Result: Model };
+      `)) as [{ Result: Model }, Diagnostic[]];
+
+      if (legacy) {
+        for (const diagnostic of diagnostics) {
+          strictEqual(
+            diagnostic.code,
+            "visibility-legacy",
+            "Expected only legacy visibility diagnostics to be produced.",
+          );
+        }
+      } else {
+        strictEqual(
+          diagnostics.length,
+          0,
+          "Expected no diagnostics to be produced without legacy modifiers.",
+        );
+      }
 
       return Result;
     }

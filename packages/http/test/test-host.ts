@@ -95,7 +95,7 @@ export async function getOperationsWithServiceNamespace(
 ): Promise<[HttpOperation[], readonly Diagnostic[]]> {
   const runner = await createHttpTestRunner();
   await runner.compileAndDiagnose(
-    `@service({title: "Test Service"}) namespace TestService;
+    `@service(#{title: "Test Service"}) namespace TestService;
     ${code}`,
     {
       noEmit: true,

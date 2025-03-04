@@ -15,7 +15,7 @@ beforeEach(async () => {
 describe("isSameConstructor", () => {
   it("should return true for the same client", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService;
@@ -28,7 +28,7 @@ describe("isSameConstructor", () => {
 
   it("should return false for the clients with different constructors", async () => {
     const { DemoService, SubClient } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService {
@@ -46,7 +46,7 @@ describe("isSameConstructor", () => {
 
   it.skip("should return true when subclient doesn't override the client params", async () => {
     const { DemoService, SubClient } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
@@ -64,7 +64,7 @@ describe("isSameConstructor", () => {
 
   it("should return false for the clients with different constructor", async () => {
     const { DemoService, SubClient } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService {
@@ -94,7 +94,7 @@ describe("getClient", () => {
 
   it("should get the client", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService;
@@ -109,7 +109,7 @@ describe("getClient", () => {
 
   it("should preserve client object identity", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService;
@@ -122,7 +122,7 @@ describe("getClient", () => {
 
   it("should get a flattened list of clients", async () => {
     const { DemoService, BarBaz } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService {
@@ -149,7 +149,7 @@ describe("getConstructor", () => {
   describe("credential parameter", () => {
     it("none", async () => {
       const { DemoService } = (await runner.compile(`
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -166,7 +166,7 @@ describe("getConstructor", () => {
     });
     it("apikey", async () => {
       const { DemoService } = (await runner.compile(`
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
@@ -189,7 +189,7 @@ describe("getConstructor", () => {
 
     it("bearer", async () => {
       const { DemoService } = (await runner.compile(`
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @useAuth(OAuth2Auth<[{
@@ -217,7 +217,7 @@ describe("getConstructor", () => {
   describe("endpoint", () => {
     it("no servers", async () => {
       const { DemoService } = (await runner.compile(`
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -235,7 +235,7 @@ describe("getConstructor", () => {
     it("one server, no params", async () => {
       const { DemoService } = (await runner.compile(`
         @server("https://example.com", "The service endpoint")
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -254,7 +254,7 @@ describe("getConstructor", () => {
     it("one server with parameter", async () => {
       const { DemoService } = (await runner.compile(`
         @server("https://example.com/{name}/foo", "My service url", { name: string })
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -308,7 +308,7 @@ describe("getConstructor", () => {
       const { DemoService } = (await runner.compile(`
         @server("https://example.com", "The service endpoint")
         @server("https://example.org", "The service endpoint")
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -341,7 +341,7 @@ describe("getConstructor", () => {
 describe("isPubliclyInitializable", () => {
   it("namespace", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService;
@@ -354,7 +354,7 @@ describe("isPubliclyInitializable", () => {
   });
   it("nested namespace", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService {
@@ -374,7 +374,7 @@ describe("isPubliclyInitializable", () => {
   });
   it("nested interface", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService {
@@ -411,7 +411,7 @@ describe("listServiceOperations", () => {
 
   it("no operations", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService;
@@ -422,7 +422,7 @@ describe("listServiceOperations", () => {
   });
   it("nested namespace", async () => {
     const { DemoService, NestedService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService {

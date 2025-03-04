@@ -200,7 +200,7 @@ export function resolveOptions(
     resolvedOptions["file-type"] ?? findFileTypeFromFilename(resolvedOptions["output-file"]);
 
   const outputFile =
-    resolvedOptions["output-file"] ?? `openapi.{service-name}.{version}.${fileType}`;
+    resolvedOptions["output-file"] ?? `openapi.{service-name-if-multiple}.{version}.${fileType}`;
 
   const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
 
@@ -533,7 +533,8 @@ function createOAPIEmitter(
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
     return interpolatePath(options.outputFile, {
       "openapi-version": specVersion,
-      "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
+      "service-name-if-multiple": multipleService ? getNamespaceFullName(service.type) : undefined,
+      "service-name": getNamespaceFullName(service.type),
       version,
     });
   }
@@ -1456,7 +1457,7 @@ function createOAPIEmitter(
   ): { style?: string; explode?: boolean } | undefined {
     switch (parameter.type) {
       case "header":
-        return mapHeaderParameterFormat(parameter);
+        return getHeaderParameterAttributes(parameter);
       case "cookie":
         // style and explode options are omitted from cookies
         // https://github.com/microsoft/typespec/pull/4761#discussion_r1803365689
@@ -1543,23 +1544,32 @@ function createOAPIEmitter(
     }
   }
 
-  function mapHeaderParameterFormat(
+  function getHeaderParameterAttributes(
     parameter: HeaderFieldOptions & {
       param: ModelProperty;
     },
-  ): { style?: string; explode?: boolean } | undefined {
+  ) {
+    const attributes: { style?: "simple"; explode?: boolean } = {};
+    if (parameter.explode) {
+      // The default for headers is false, so only need to specify when true https://spec.openapis.org/oas/v3.0.4.html#fixed-fields-for-use-with-schema-0
+      attributes.explode = true;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     switch (parameter.format) {
       case undefined:
-        return {};
+        return attributes;
       case "csv":
       case "simple":
-        return { style: "simple" };
+        attributes.style = "simple";
+        break;
       default:
         diagnostics.add(
           createDiagnostic({
             code: "invalid-format",
             format: {
               paramType: "header",
+              // eslint-disable-next-line @typescript-eslint/no-deprecated
               value: parameter.format,
             },
             target: parameter.param,
@@ -1567,6 +1577,7 @@ function createOAPIEmitter(
         );
         return undefined;
     }
+    return attributes;
   }
 
   function emitParameters() {

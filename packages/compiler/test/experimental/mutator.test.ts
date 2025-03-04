@@ -330,3 +330,67 @@ it("can mutate literals", async () => {
   strictEqual(mutatedC.kind, "Boolean");
   strictEqual(mutatedC.value, true);
 });
+
+// When mutating everything verify all reference between types are kept in the new realm.
+describe("global graph mutation", () => {
+  const noop = { mutate: () => {} };
+  const mutator: MutatorWithNamespace = {
+    name: "test",
+    Namespace: noop,
+    Interface: noop,
+    Model: noop,
+    Union: noop,
+    UnionVariant: noop,
+    Enum: noop,
+    Scalar: noop,
+    EnumMember: noop,
+    Operation: noop,
+    ModelProperty: noop,
+  };
+
+  async function globalMutate(code: string): Promise<Namespace> {
+    await runner.compile(code);
+
+    const { type } = mutateSubgraphWithNamespace(
+      runner.program,
+      [mutator],
+      runner.program.getGlobalNamespaceType(),
+    );
+    strictEqual(type.kind, "Namespace");
+
+    return type;
+  }
+  it("mutate sourceProperty", async () => {
+    const type = await globalMutate(`
+      model Spread {
+        prop: string;
+      }
+      model Foo { ...Spread };
+    `);
+
+    const MutatedSpread = type.models.get("Spread")!;
+    const MutatedFoo = type.models.get("Foo")!;
+    expectTypeEquals(
+      MutatedFoo.properties.get("prop")?.sourceProperty,
+      MutatedSpread.properties.get("prop")!,
+    );
+    expectTypeEquals(MutatedFoo.sourceModels[0].model, MutatedSpread);
+  });
+
+  it("mutate sourceProperty and sourceModels in operation", async () => {
+    const type = await globalMutate(`
+      model Spread {
+        prop: string;
+      }
+      op foo(...Spread): void;
+    `);
+
+    const MutatedSpread = type.models.get("Spread")!;
+    const MutatedFoo = type.operations.get("foo")!;
+    expectTypeEquals(
+      MutatedFoo.parameters.properties.get("prop")?.sourceProperty,
+      MutatedSpread.properties.get("prop")!,
+    );
+    expectTypeEquals(MutatedFoo.parameters.sourceModels[0].model, MutatedSpread);
+  });
+});

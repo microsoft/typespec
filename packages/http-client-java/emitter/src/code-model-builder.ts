@@ -2855,7 +2855,7 @@ export class CodeModelBuilder {
     // hopefully it is the root namespace of the SDK
     let baseJavaNamespace: string | undefined = undefined;
     this.sdkContext.sdkPackage.clients
-      .map((it) => it.clientNamespace)
+      .map((it) => it.namespace)
       .forEach((it) => {
         if (baseJavaNamespace === undefined || baseJavaNamespace.length > it.length) {
           baseJavaNamespace = it;
@@ -2877,7 +2877,7 @@ export class CodeModelBuilder {
       | undefined = undefined,
   ): string | undefined {
     // clientNamespace from TCGC
-    const clientNamespace: string | undefined = type?.clientNamespace;
+    const clientNamespace: string | undefined = type?.namespace;
 
     if (type) {
       const crossLanguageDefinitionId = type.crossLanguageDefinitionId;
