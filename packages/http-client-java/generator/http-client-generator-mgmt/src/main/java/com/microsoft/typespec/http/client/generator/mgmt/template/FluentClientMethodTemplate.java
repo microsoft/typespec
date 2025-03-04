@@ -365,7 +365,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
             } else {
                 typeExpression = String.format("%s.class", classType);
             }
-            function.methodReturn(String.format("this.client.<%3$s, %3$s>getLroResult(() -> response, %1$s, %1$s, %2$s)", typeExpression, contextArgument, classType));
+            function.methodReturn(String.format("this.client.<%3$s, %3$s>getLroResult(response, %1$s, %1$s, %2$s)", typeExpression, contextArgument, classType));
         });
     }
 

@@ -83,7 +83,7 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
             MethodTemplate getLroResultSyncMethod = MethodTemplate.builder()
                 .imports(Arrays.asList(PollResult.class.getName(), Mono.class.getName(),
                     ClassType.RESPONSE.getFullName(), ByteBuffer.class.getName(), Type.class.getName(),
-                    ClassType.SYNC_POLLER_FACTORY.getFullName(), ClassType.BINARY_DATA.getFullName()))
+                    ClassType.SYNC_POLLER_FACTORY.getFullName(), ClassType.BINARY_DATA.getFullName(), ClassType.SYNC_POLLER.getFullName()))
                 .methodSignature(
                     "<T, U> SyncPoller<PollResult<T>, U> getLroResult(Response<BinaryData> activationResponse, Type pollResultType, Type finalResultType, Context context)")
                 .comment(comment -> {
