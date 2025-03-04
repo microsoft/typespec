@@ -67,6 +67,5 @@ packages/http-client-js/test/e2e/generated/
 # built test files for http-client-js
 packages/http-client-js/dist-test
 
-
 .gitattributes
 CODEOWNERS
