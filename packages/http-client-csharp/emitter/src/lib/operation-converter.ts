@@ -174,7 +174,8 @@ function fromSdkHttpOperationParameter(
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
 
   // use serializedName if available, but fallback to name
-  const serializedName = "serializedName" in p ? (p.serializedName ?? p.name) : p.name;
+  // special case for body as the name is incorrectly set to "body" https://github.com/Azure/typespec-azure/issues/2292
+  const serializedName = "serializedName" in p && p.kind !== "body" ? (p.serializedName ?? p.name) : p.name;
 
   // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the delimiter for
   // any path expansion to ensure the parameter values are delimited correctly during serialization.
