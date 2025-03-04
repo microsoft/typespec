@@ -61,6 +61,18 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.continuation_token_request: Dict[str, Any] = yaml_data.get("continuationTokenRequest", {})
         self.continuation_token_response: Dict[str, Any] = yaml_data.get("continuationTokenResponse", {})
 
+    @property
+    def has_continuation_token(self) -> bool:
+        return bool(self.continuation_token_request and self.continuation_token_response)
+
+    @property
+    def next_variable_name(self) -> str:
+        return "_next_token" if self.has_continuation_token else "next_link"
+
+    @property
+    def next_none_value(self) -> str:
+        return "_Unset" if self.has_continuation_token else "None"
+
     def _get_attr_name(self, wire_name: str) -> str:
         response_type = self.responses[0].type
         if not response_type:
@@ -78,16 +90,6 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     @property
     def next_link_name(self) -> Optional[str]:
         wire_name = self.yaml_data.get("nextLinkName")
-        if not wire_name:
-            # That's an ok scenario, it just means no next page possible
-            return None
-        if self.code_model.options["models_mode"] == "msrest":
-            return self._get_attr_name(wire_name)
-        return wire_name
-
-    @property
-    def continuation_token_name(self) -> Optional[str]:
-        wire_name = self.yaml_data.get("continuationTokenName")
         if not wire_name:
             # That's an ok scenario, it just means no next page possible
             return None
@@ -164,7 +166,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             file_import.merge(self.item_type.imports(**kwargs))
             if self.default_error_deserialization or self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
-        if self.continuation_token_response and self.continuation_token_request:
+        if self.has_continuation_token:
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
             file_import.define_mypy_type("_Unset: Any", "object()")
         return file_import

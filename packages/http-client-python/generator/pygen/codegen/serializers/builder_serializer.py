@@ -1290,16 +1290,20 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
 
     def _prepare_request_callback(self, builder: PagingOperationType) -> List[str]:
         retval = self._initialize_overloads(builder)
-        retval.append("def prepare_request(next_link=None):")
-        retval.append("    if not next_link:")
-        retval.extend([f"        {line}" for line in self.call_request_builder(builder, is_paging=True)])
-        retval.append("")
-        retval.append("    else:")
-        retval.extend([f"        {line}" for line in self.call_next_link_request_builder(builder)])
-        if not builder.next_request_builder and self.code_model.is_legacy:
-            retval.append('        _request.method = "GET"')
+        if builder.has_continuation_token:
+            retval.append(f"def prepare_request({builder.next_variable_name}={builder.next_none_value}):")
+            retval.extend([f"    {line}" for line in self.call_request_builder(builder, is_paging=True)])
         else:
+            retval.append("def prepare_request(next_link=None):")
+            retval.append("    if not next_link:")
+            retval.extend([f"        {line}" for line in self.call_request_builder(builder, is_paging=True)])
             retval.append("")
+            retval.append("    else:")
+            retval.extend([f"        {line}" for line in self.call_next_link_request_builder(builder)])
+            if not builder.next_request_builder and self.code_model.is_legacy:
+                retval.append('        _request.method = "GET"')
+            else:
+                retval.append("")
         retval.append("    return _request")
         return retval
 
@@ -1347,20 +1351,34 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         retval.append("    if cls:")
         retval.append("        list_of_elem = cls(list_of_elem) # type: ignore")
 
-        next_link_name = builder.next_link_name
-        if not next_link_name:
-            cont_token_property = "None"
-        elif self.code_model.options["models_mode"] == "msrest":
-            cont_token_property = f"deserialized.{next_link_name} or None"
+        if builder.has_continuation_token:
+            position = builder.continuation_token_response.get("position")
+            wire_name = builder.continuation_token_response.get("wireName") or ""
+            if position == "header":
+                cont_token_property = f'pipeline_response.http_response.headers.get("{wire_name}") or None'
+            else:
+                wire_name_array = wire_name.split(".")
+                wire_name_call = (
+                    "".join([f'.get("{i}", {{}})' for i in wire_name_array[:-1]]) + f'.get("{wire_name_array[-1]}")'
+                )
+                cont_token_property = f"deserialized{wire_name_call} or None"
         else:
-            cont_token_property = f'deserialized.get("{next_link_name}") or None'
+            next_link_name = builder.next_link_name
+            if not next_link_name:
+                cont_token_property = "None"
+            elif self.code_model.options["models_mode"] == "msrest":
+                cont_token_property = f"deserialized.{next_link_name} or None"
+            else:
+                cont_token_property = f'deserialized.get("{next_link_name}") or None'
         list_type = "AsyncList" if self.async_mode else "iter"
         retval.append(f"    return {cont_token_property}, {list_type}(list_of_elem)")
         return retval
 
     def _get_next_callback(self, builder: PagingOperationType) -> List[str]:
-        retval = [f"{'async ' if self.async_mode else ''}def get_next(next_link=None):"]
-        retval.append("    _request = prepare_request(next_link)")
+        retval = [
+            f"{'async ' if self.async_mode else ''}def get_next({builder.next_variable_name}={builder.next_none_value}):"
+        ]
+        retval.append(f"    _request = prepare_request({builder.next_variable_name})")
         retval.append("")
         retval.extend([f"    {l}" for l in self.make_pipeline_call(builder)])
         retval.append("    response = pipeline_response.http_response")
@@ -1512,10 +1530,12 @@ class LROPagingOperationSerializer(
 
     def get_long_running_output(self, builder: LROPagingOperation) -> List[str]:
         retval = ["def get_long_running_output(pipeline_response):"]
-        retval.append(f"    {self._function_def} internal_get_next(next_link=None):")
-        retval.append("        if next_link is None:")
+        retval.append(
+            f"    {self._function_def} internal_get_next({builder.next_variable_name}={builder.next_none_value}):"
+        )
+        retval.append(f"        if {builder.next_variable_name} is {builder.next_none_value}:")
         retval.append("            return pipeline_response")
-        retval.append(f"        return {self._call_method}get_next(next_link)")
+        retval.append(f"        return {self._call_method}get_next({builder.next_variable_name})")
         retval.append("")
         retval.append(f"    return {builder.get_pager(self.async_mode)}(")
         retval.append("        internal_get_next, extract_data")
