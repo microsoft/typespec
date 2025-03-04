@@ -236,11 +236,11 @@ export class Realm {
     return this.#types;
   }
 
-  static #knownRealms = new Map<symbol, Realm>();
+  // static #knownRealms = new Map<symbol, Realm>();
 
-  static realmForKey(key: symbol, parentRealm?: Realm) {
-    return this.#knownRealms.get(key);
-  }
+  // static realmForKey(key: symbol, parentRealm?: Realm) {
+  //   return this.#knownRealms.get(key);
+  // }
 
   static realmForType = new WeakMap<Type, Realm>();
 }
