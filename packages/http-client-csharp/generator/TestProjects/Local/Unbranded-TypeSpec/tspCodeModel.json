@@ -4228,7 +4228,9 @@
      "BufferResponse": true,
      "Paging": {
       "$id": "462",
-      "ItemsPropertyName": "things",
+      "ItemPropertySegments": [
+       "things"
+      ],
       "NextLink": {
        "$id": "463",
        "ResponseSegments": [
@@ -4322,7 +4324,9 @@
      "BufferResponse": true,
      "Paging": {
       "$id": "471",
-      "ItemsPropertyName": "things",
+      "ItemPropertySegments": [
+       "things"
+      ],
       "ContinuationToken": {
        "$id": "472",
        "Parameter": {
