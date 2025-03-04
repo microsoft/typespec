@@ -100,7 +100,7 @@ export class PageableContinuationToken {
    * The parameter of the operation as continuationToken in API request.
    */
   parameter: Parameter;
-  // responseProperty and responseHeader is mutally exclusive
+  // responseProperty and responseHeader is mutually exclusive
   /**
    * The reference to response body property of the operation as continuationToken in API request.
    * Array because the property may be at "links.nextToken".
