@@ -161,15 +161,17 @@ export async function trackAction<T>(
     if (interval) {
       clearInterval(interval);
       clearLastLine();
-      process.stdout.write(`${color(options, "✔", pc.green)} ${finalMessage}\n`);
     }
+
+    console.log(`${color(options, "✔", pc.green)} ${finalMessage}\n`);
     return result;
   } catch (error) {
     if (interval) {
       clearInterval(interval);
       clearLastLine();
-      process.stdout.write(`${color(options, "x", pc.red)} ${message}\n`);
     }
+
+    console.log(`${color(options, "x", pc.red)} ${message}\n`);
     throw error;
   }
 }
