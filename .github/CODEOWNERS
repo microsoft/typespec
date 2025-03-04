@@ -22,7 +22,7 @@
 ######################
 # JavaScript
 ######################
-/packages/http-client-js/                @joheredi
+/packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @allenjzhang @witemple-msft @chrisradek @AlitzelMendez
 
 ######################
 # Emiter Shared

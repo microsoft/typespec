@@ -2,8 +2,6 @@
   "name": "@typespec/http-client-js",
   "version": "0.1.0",
   "type": "module",
-  "private": true,
-  "main": "dist/src/index.js",
   "scripts": {
     "build-src": "babel src -d dist/src --extensions .ts,.tsx",
     "build": "tsc -p . && npm run build-src",
@@ -24,10 +22,17 @@
     "run:e2e": "node eng/scripts/run-e2e-tests.js",
     "emit:e2e": "node eng/scripts/emit-e2e.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "typespec",
+    "javascript",
+    "typescript"
+  ],
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "description": "TypeSpec library for emitting Http Client libraries for JavaScript/TypeScript",
   "peerDependencies": {
     "@typespec/compiler": "workspace:~",
     "@typespec/emitter-framework": "workspace:~",
