@@ -193,7 +193,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       // we can just return the single schema member after applying nullable
       const schema = schemaMember.schema;
       const type = schemaMember.type;
-
       const additionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
         ? this.applyConstraints(union, {})
         : {};
@@ -217,7 +216,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
             });
           } else if (type && type.kind === "Scalar") {
             let objectInitializer: Record<string, unknown> = {};
-
             const stdScalar = $.scalar.getStdBase(type);
             if (stdScalar?.name) {
               // already has same std scalar member, use $ref
@@ -239,7 +237,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
                 ...additionalProps,
               };
             }
-
             return new ObjectBuilder<OpenAPI3Schema>(objectInitializer);
           } else {
             return new ObjectBuilder({ allOf: Builders.array([schema]), ...additionalProps });
