@@ -1,7 +1,6 @@
 import { readFile } from "fs/promises";
 import path from "path";
 import vscode from "vscode";
-import which from "which";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { getDirectoryPath, normalizeSlashes } from "./path-utils.js";
@@ -53,17 +52,4 @@ export async function TraverseMainTspFileInWorkspace() {
         .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
         .map((uri) => normalizeSlashes(uri.fsPath)),
     );
-}
-
-type TspCliType = "tsp-npm-global" | "tsp-standalone" | "not-available";
-export async function checkTspCliType(): Promise<TspCliType> {
-  try {
-    // using "which" instead of 'tsp --version' to do the check because 'tsp --version' is very slow
-    const found = await which("tsp");
-    // the standalone tsp is expected to be installed at .../.tsp/... folder
-    const isStandalone = found.length > 0 && found.includes(".tsp");
-    return isStandalone ? "tsp-standalone" : "tsp-npm-global";
-  } catch (e) {
-    return "not-available";
-  }
 }
