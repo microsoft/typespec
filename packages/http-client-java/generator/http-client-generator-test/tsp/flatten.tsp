@@ -51,6 +51,9 @@ alias LongRequest = {
   @clientName("dataFloat")
   @encodedName("application/json", "data_float")
   float?: float64;
+
+  // reserved keyword
+  long?: int64;
 };
 
 model User {
