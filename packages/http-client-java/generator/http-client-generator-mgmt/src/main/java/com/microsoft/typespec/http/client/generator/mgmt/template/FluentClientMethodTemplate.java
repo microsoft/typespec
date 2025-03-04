@@ -225,7 +225,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
             IType classType = clientMethod.getMethodPageDetails().getLroIntermediateType();
             // get final result
             function.line(String.format(
-                "%1$s result = SyncPollerFactory.create(%2$s.getSerializerAdapter(), %2$s.getHttpPipeline(), %1$s.class, %1$s.class, %2$s.getDefaultPollInterval(), () -> res, %3$s).getFinalResult();",
+                "%1$s result = this.client.<%1$s, %1$s>getLroResult(res, %1$s.class, %1$s.class, %3$s).getFinalResult();",
                 classType, clientMethod.getClientReference(), contextInParameters ? "context" : "Context.NONE"));
             // return line
             String nextLink = clientMethod.getMethodPageDetails().nonNullNextLink()
