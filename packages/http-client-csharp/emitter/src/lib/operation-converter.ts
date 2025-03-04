@@ -9,14 +9,13 @@ import {
   SdkHttpParameter,
   SdkHttpResponse,
   SdkModelPropertyType,
-  SdkModelType,
   SdkServiceMethod,
   SdkServiceResponseHeader,
   SdkType,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
-import { getDeprecated, isErrorModel, NoTarget, PagingOperation } from "@typespec/compiler";
+import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
@@ -352,23 +351,32 @@ function loadOperationPaging(
 
   let continuationToken: ContinuationToken | undefined;
 
-  if (method.pagingMetadata.continuationTokenParameterSegments && method.pagingMetadata.continuationTokenResponseSegments) {
+  if (
+    method.pagingMetadata.continuationTokenParameterSegments &&
+    method.pagingMetadata.continuationTokenResponseSegments
+  ) {
     // The last segment of the service method parameter can be used to map back to the protocol parameter
     var lastParameterSegment = method.pagingMetadata.continuationTokenParameterSegments[
       method.pagingMetadata.continuationTokenParameterSegments.length - 1
     ] as SdkModelPropertyType;
     continuationToken = {
-      Parameter: fromSdkHttpOperationParameter(context, getHttpOperationParameter(method, lastParameterSegment)!, rootApiVersions),
+      Parameter: fromSdkHttpOperationParameter(
+        context,
+        getHttpOperationParameter(method, lastParameterSegment)!,
+        rootApiVersions,
+      ),
       ResponseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
         getResponseSegmentName(segment),
       ),
-      ResponseLocation: getResponseLocation(method.pagingMetadata.continuationTokenResponseSegments?.[0]),
+      ResponseLocation: getResponseLocation(
+        method.pagingMetadata.continuationTokenResponseSegments?.[0],
+      ),
     };
   }
 
   return {
     // TODO - this is hopefully temporary until TCGC provides the information directly on pagingMetadata https://github.com/Azure/typespec-azure/issues/2291
-    ItemPropertySegments: method.response.resultSegments!.map(s => s.name),
+    ItemPropertySegments: method.response.resultSegments!.map((s) => s.name),
     NextLink: nextLink,
     ContinuationToken: continuationToken,
   };
