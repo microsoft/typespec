@@ -154,6 +154,9 @@ export async function trackAction<T>(
       process.stdout.cursorTo(0);
       process.stdout.write(`\r${color(options, spinner(), pc.yellow)} ${message}`);
     }, 200);
+  } else {
+    // eslint-disable-next-line no-console
+    console.log(message);
   }
 
   try {
@@ -162,7 +165,7 @@ export async function trackAction<T>(
       clearInterval(interval);
       clearLastLine();
     }
-
+    // eslint-disable-next-line no-console
     console.log(`${color(options, "✔", pc.green)} ${finalMessage}\n`);
     return result;
   } catch (error) {
@@ -171,6 +174,7 @@ export async function trackAction<T>(
       clearLastLine();
     }
 
+    // eslint-disable-next-line no-console
     console.log(`${color(options, "x", pc.red)} ${message}\n`);
     throw error;
   }
