@@ -166,7 +166,7 @@ export async function trackAction<T>(
       clearLastLine();
     }
     // eslint-disable-next-line no-console
-    console.log(`${color(options, "✔", pc.green)} ${finalMessage}\n`);
+    console.log(`${color(options, "✔", pc.green)} ${finalMessage}`);
     return result;
   } catch (error) {
     if (interval) {
@@ -175,7 +175,7 @@ export async function trackAction<T>(
     }
 
     // eslint-disable-next-line no-console
-    console.log(`${color(options, "x", pc.red)} ${message}\n`);
+    console.log(`${color(options, "x", pc.red)} ${message}`);
     throw error;
   }
 }
