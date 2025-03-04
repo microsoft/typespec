@@ -53,19 +53,16 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
   entity: Model,
   visibility: EnumValue,
 ) => {
-  const keyProperties: ModelProperty[] = [];
-  entity.properties.forEach((prop: ModelProperty) => {
+  const keyProperties = [...entity.properties].filter(([_, prop]: [string, ModelProperty]) => {
     // Keep track of any key property without a visibility
-    if (isKey(context.program, prop) && !!getRawVisibilityStore(context.program, prop)) {
-      keyProperties.push(prop);
-    }
+    return isKey(context.program, prop) && !getRawVisibilityStore(context.program, prop);
   });
 
   // For each key property without a visibility, clone it and add the specified
   // default visibility value
-  keyProperties.forEach((keyProp) => {
+  for (const [name, keyProp] of keyProperties) {
     entity.properties.set(
-      keyProp.name,
+      name,
       context.program.checker.cloneType(keyProp, {
         decorators: [
           ...keyProp.decorators,
@@ -81,7 +78,7 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
         ],
       }),
     );
-  });
+  }
 };
 
 /**
