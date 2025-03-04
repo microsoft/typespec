@@ -346,11 +346,11 @@ export function isArmCommonType(entity: Type): boolean {
 }
 
 export function getPropertySerializedName(property: SdkBodyModelPropertyType): string {
-  // TODO: remove the "property.serializedName" after bug https://github.com/microsoft/typespec/pull/5702 is fixed
+  // still fallback to "property.name", as for orphan model, serializationOptions.json is undefined
   return (
     property.serializationOptions.json?.name ??
     property.serializationOptions.multipart?.name ??
-    property.serializedName
+    property.name
   );
 }
 
