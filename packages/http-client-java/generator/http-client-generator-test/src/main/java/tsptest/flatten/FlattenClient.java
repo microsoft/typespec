@@ -140,6 +140,7 @@ public final class FlattenClient {
      *     dataLong: Long (Optional)
      *     requiredUser (Required): (recursive schema, see requiredUser above)
      *     data_float: Double (Optional)
+     *     long: Long (Optional)
      *     title: String (Required)
      *     description: String (Optional)
      *     status: String(NotStarted/InProgress/Completed) (Required)
@@ -349,6 +350,7 @@ public final class FlattenClient {
                 .setDataIntOptional(options.getDataIntOptional())
                 .setDataLong(options.getDataLong())
                 .setDataFloat(options.getDataFloat())
+                .setLongProperty(options.getLongParameter())
                 .setDescription(options.getDescription())
                 .setDummy(options.getDummy());
         BinaryData sendLongRequest = BinaryData.fromObject(sendLongRequestObj);
