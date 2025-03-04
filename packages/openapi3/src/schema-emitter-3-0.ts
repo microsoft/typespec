@@ -279,7 +279,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     }
 
     const isMerge = checkMerge(schemaMembers);
-    const stdScalars = collectScalarInfo(schemaMembers);
+    const stdScalars = getStdScalarNames(schemaMembers);
 
     const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
@@ -300,17 +300,12 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       type: Type | null;
     }
 
-    function collectScalarInfo(scalarMembers: ScalarMember[]): Set<string> {
+    function getStdScalarNames(scalarMembers: ScalarMember[]): Set<string> {
       const stdScalars = new Set<string>();
-      const stdScalarMap = new Map<string, ScalarMember[]>();
       for (const member of scalarMembers) {
         if (member.type?.kind === "Scalar") {
           const stdScalarName = $.scalar.getStdBase(member.type)?.name;
           if (member.type.name === stdScalarName) stdScalars.add(stdScalarName);
-          if (stdScalarName) {
-            if (!stdScalarMap.has(stdScalarName)) stdScalarMap.set(stdScalarName, [member]);
-            else stdScalarMap.get(stdScalarName)!.push(member);
-          }
         }
       }
       return stdScalars;
