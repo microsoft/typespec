@@ -116,13 +116,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/server/path/multiple/{apiVersion}",
      "Path": "/",
      "BufferResponse": true,
@@ -165,13 +163,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/server/path/multiple/{apiVersion}",
      "Path": "/{keyword}",
      "BufferResponse": true,

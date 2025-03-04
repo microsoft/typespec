@@ -299,7 +299,6 @@
         "value": 204,
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -308,7 +307,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/response/status-code-range/error-response-status-code-in-range",
      "BufferResponse": true,
@@ -370,7 +368,6 @@
         "value": 204,
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -379,7 +376,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/response/status-code-range/error-response-status-code-404",
      "BufferResponse": true,

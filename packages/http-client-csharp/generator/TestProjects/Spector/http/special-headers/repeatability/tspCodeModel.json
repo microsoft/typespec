@@ -164,7 +164,6 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "20",
@@ -180,7 +179,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/special-headers/repeatability/immediateSuccess",
      "BufferResponse": true,
