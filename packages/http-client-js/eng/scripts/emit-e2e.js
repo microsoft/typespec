@@ -291,30 +291,39 @@ async function processFiles(files, options) {
   await writeFile(reportFilePath, report, "utf8");
   console.log(chalk.blue(`Report written to: ${reportFilePath}`));
 }
+// Main execution function
+async function main() {
+  const startTime = process.hrtime.bigint(); // ✅ High precision time tracking
+  let exitCode = 0; // ✅ Track success/failure
 
-// Main logic.
-(async () => {
-  const startTime = Date.now(); // Record start time
+  try {
+    await clearLogDirectory(); // ✅ Clear logs at the start
 
-  await clearLogDirectory(); // Clear the log directory at the start.
-
-  const ignoreList = await getIgnoreList();
-  const paths =
-    argv._.length > 0
+    const ignoreList = await getIgnoreList();
+    const paths = argv._.length
       ? await processPaths(argv._, ignoreList, argv["main-only"])
       : await processPaths(["."], ignoreList, argv["main-only"]);
 
-  if (paths.length === 0) {
-    console.log(chalk.yellow("No files to process."));
-    return;
+    if (paths.length === 0) {
+      console.log(chalk.yellow("⚠️ No files to process."));
+      return;
+    }
+
+    await processFiles(paths, {
+      interactive: argv.interactive,
+      build: argv.build,
+    });
+  } catch (error) {
+    console.error(chalk.red(`❌ Fatal Error: ${error.message}`));
+    exitCode = 1; // ✅ Ensure graceful failure handling
+  } finally {
+    // ✅ Always log execution time before exit
+    const endTime = process.hrtime.bigint();
+    const duration = Number(endTime - startTime) / 1e9; // Convert nanoseconds to seconds
+    console.log(chalk.blue(`⏱️ Total execution time: ${duration.toFixed(2)} seconds`));
+
+    process.exit(exitCode); // ✅ Ensures proper exit handling
   }
+}
 
-  await processFiles(paths, {
-    interactive: argv.interactive,
-    build: argv.build,
-  });
-
-  const endTime = Date.now(); // Record end time
-  const duration = (endTime - startTime) / 1000; // Calculate duration in seconds
-  console.log(chalk.blue(`Total time taken: ${duration} seconds`)); // Log duration
-})();
+await main();

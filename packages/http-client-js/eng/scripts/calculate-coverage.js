@@ -8,7 +8,11 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const coverageFilePath = join(__dirname, "../..", "tsp-spector-coverage-javascript-standard.json");
+const coverageFilePath = join(
+  __dirname,
+  "../../temp",
+  "tsp-spector-coverage-javascript-standard.json",
+);
 
 export async function calculateCoverage() {
   try {
