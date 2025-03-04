@@ -128,6 +128,9 @@ import {
   operationIsMultipleContentTypes,
 } from "./operation-utils.js";
 import {
+  BYTES_KNOWN_ENCODING,
+  DATETIME_KNOWN_ENCODING,
+  DURATION_KNOWN_ENCODING,
   ProcessingCache,
   getAccess,
   getDurationFormat,
@@ -2054,17 +2057,35 @@ export class CodeModelBuilder {
           return this.processArraySchema(type, nameHint);
 
         case "duration":
-          return this.processDurationSchema(type, nameHint, getDurationFormat(type));
+          if (DURATION_KNOWN_ENCODING.includes(type.encode)) {
+            return this.processDurationSchema(type, nameHint, getDurationFormat(type));
+          } else {
+            reportDiagnostic(this.program, {
+              code: "unknown-encode",
+              format: { encode: type.encode },
+              target: type.__raw ?? NoTarget,
+            });
+            return this.processBuiltInType(type.wireType, nameHint);
+          }
 
         case "constant":
           return this.processConstantSchema(type, nameHint);
 
         case "utcDateTime":
         case "offsetDateTime":
-          if (type.encode === "unixTimestamp") {
-            return this.processUnixTimeSchema(type, nameHint);
+          if (DATETIME_KNOWN_ENCODING.includes(type.encode)) {
+            if (type.encode === "unixTimestamp") {
+              return this.processUnixTimeSchema(type, nameHint);
+            } else {
+              return this.processDateTimeSchema(type, nameHint, type.encode === "rfc7231");
+            }
           } else {
-            return this.processDateTimeSchema(type, nameHint, type.encode === "rfc7231");
+            reportDiagnostic(this.program, {
+              code: "unknown-encode",
+              format: { encode: type.encode },
+              target: type.__raw ?? NoTarget,
+            });
+            return this.processBuiltInType(type.wireType, nameHint);
           }
       }
     }
@@ -2100,7 +2121,16 @@ export class CodeModelBuilder {
           return this.processDecimalSchema(type, nameHint);
 
         case "bytes":
-          return this.processByteArraySchema(type, nameHint);
+          if (!type.encode || BYTES_KNOWN_ENCODING.includes(type.encode)) {
+            return this.processByteArraySchema(type, nameHint);
+          } else {
+            reportDiagnostic(this.program, {
+              code: "unknown-encode",
+              format: { encode: type.encode },
+              target: type.__raw ?? NoTarget,
+            });
+            return this.processStringSchema(type, nameHint);
+          }
 
         case "boolean":
           return this.processBooleanSchema(type, nameHint);
