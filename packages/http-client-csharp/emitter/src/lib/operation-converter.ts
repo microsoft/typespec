@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  getHttpOperationParameter,
   SdkBuiltInKinds,
   SdkContext,
   SdkHttpOperation,
@@ -349,42 +350,25 @@ function loadOperationPaging(
     }
   }
 
-  // TODO - this is hopefully temporary until TCGC provides the information directly https://github.com/Azure/typespec-azure/issues/2288
   let continuationToken: ContinuationToken | undefined;
-  const responseModel: SdkHttpResponse | undefined = method.operation.responses.find(
-    (r) => r.type?.kind === "model",
-  ) as SdkHttpResponse | undefined;
-  let responseProperty: SdkModelPropertyType | undefined;
-  let requestProperty: SdkModelPropertyType | undefined;
-  if (responseModel) {
-    responseProperty = responseModel.headers.find(
-      // it is safe to check the first segment as segments cannot mix header and body
-      (p) => p.name === method.pagingMetadata.continuationTokenResponseSegments?.[0].name,
-    );
-    if (!responseProperty) {
-      responseProperty = (responseModel.type as SdkModelType)!.properties.find(
-        (p) => p.name === method.pagingMetadata.continuationTokenResponseSegments?.[0].name,
-      );
-    }
-    requestProperty = method.operation.parameters.find(
-      (p) => p.name === method.pagingMetadata.continuationTokenParameterSegments?.[0].name,
-    );
-  }
 
-  if (requestProperty && responseProperty) {
+  if (method.pagingMetadata.continuationTokenParameterSegments && method.pagingMetadata.continuationTokenResponseSegments) {
+    // The last segment of the service method parameter can be used to map back to the protocol parameter
+    var lastParameterSegment = method.pagingMetadata.continuationTokenParameterSegments[
+      method.pagingMetadata.continuationTokenParameterSegments.length - 1
+    ] as SdkModelPropertyType;
     continuationToken = {
-      Parameter: fromSdkHttpOperationParameter(context, requestProperty, rootApiVersions),
+      Parameter: fromSdkHttpOperationParameter(context, getHttpOperationParameter(method, lastParameterSegment)!, rootApiVersions),
       ResponseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
         getResponseSegmentName(segment),
       ),
-      ResponseLocation: getResponseLocation(responseProperty),
+      ResponseLocation: getResponseLocation(method.pagingMetadata.continuationTokenResponseSegments?.[0]),
     };
   }
 
   return {
-    // TODO - this is hopefully temporary until TCGC provides the information directly https://github.com/Azure/typespec-azure/issues/2291
-    ItemsPropertyName: (method.pagingMetadata.__raw as PagingOperation).output!.pageItems.property
-      .name,
+    // TODO - this is hopefully temporary until TCGC provides the information directly on pagingMetadata https://github.com/Azure/typespec-azure/issues/2291
+    ItemPropertySegments: method.response.resultSegments!.map(s => s.name),
     NextLink: nextLink,
     ContinuationToken: continuationToken,
   };
