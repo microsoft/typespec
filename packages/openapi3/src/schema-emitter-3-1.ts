@@ -1,12 +1,12 @@
 import {
   compilerAssert,
   Enum,
+  getDiscriminatedUnion,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
   IntrinsicScalarName,
   IntrinsicType,
-  isNeverType,
   Model,
   ModelProperty,
   Program,
@@ -149,12 +149,12 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
   }
 
   applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
-    if (!model.indexer) return;
-    const indexerType = model.indexer.value;
+    const shouldSeal = this.shouldSealSchema(model);
+    if (!shouldSeal && !model.indexer) return;
 
-    const unevaluatedPropertiesSchema = isNeverType(indexerType)
+    const unevaluatedPropertiesSchema = shouldSeal
       ? { not: {} }
-      : this.emitter.emitTypeReference(indexerType);
+      : this.emitter.emitTypeReference(model.indexer!.value);
     schema.set("unevaluatedProperties", unevaluatedPropertiesSchema);
   }
 
@@ -200,6 +200,10 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
 
   unionSchema(union: Union): ObjectBuilder<OpenAPISchema3_1> {
     const program = this.emitter.getProgram();
+    const [discriminated] = getDiscriminatedUnion(program, union);
+    if (discriminated) {
+      return this.discriminatedUnion(discriminated);
+    }
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });
       return new ObjectBuilder({});

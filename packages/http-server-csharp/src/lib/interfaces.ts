@@ -8,6 +8,7 @@ import {
   SourceFile,
 } from "@typespec/compiler/emitter-framework";
 import { HttpStatusCodeRange } from "@typespec/http";
+import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
 
 export const HelperNamespace: string = "TypeSpec.Helpers.JsonConverters";
 
@@ -28,6 +29,8 @@ export class CSharpType implements CSharpTypeMetadata {
   isBuiltIn: boolean;
   isValueType: boolean;
   isNullable: boolean;
+  isClass: boolean;
+  isCollection: boolean;
 
   public constructor(input: {
     name: string;
@@ -35,12 +38,16 @@ export class CSharpType implements CSharpTypeMetadata {
     isBuiltIn?: boolean;
     isValueType?: boolean;
     isNullable?: boolean;
+    isClass?: boolean;
+    isCollection?: boolean;
   }) {
     this.name = input.name;
     this.namespace = input.namespace;
     this.isBuiltIn = input.isBuiltIn !== undefined ? input.isBuiltIn : input.namespace === "System";
     this.isValueType = input.isValueType !== undefined ? input.isValueType : false;
     this.isNullable = input.isNullable !== undefined ? input.isNullable : false;
+    this.isClass = input.isClass !== undefined ? input.isClass : false;
+    this.isCollection = input.isCollection !== undefined ? input.isCollection : false;
   }
 
   isNamespaceInScope(scope?: Scope<string>, visited?: Set<Scope<string>>): boolean {
@@ -297,4 +304,17 @@ export class LibrarySourceFile {
   source: SourceFile<string>;
   emitted: EmittedSourceFile;
   path: string;
+}
+
+export interface CSharpOperationParameter {
+  name: string;
+  typeName: EmitterOutput<string>;
+  optional: boolean;
+  httpParameterKind: HttpRequestParameterKind;
+  httpParameterName?: string;
+  callName: string;
+  isExplicitBody: boolean;
+  nullable: boolean;
+  operationKind: "Http" | "BusinessLogic" | "All";
+  defaultValue?: string | boolean;
 }

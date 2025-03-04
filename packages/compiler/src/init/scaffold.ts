@@ -1,5 +1,6 @@
 import { stringify } from "yaml";
 import { TypeSpecConfigFilename } from "../config/config-loader.js";
+import { TypeSpecRawConfig } from "../config/types.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { CompilerHost } from "../core/types.js";
@@ -28,11 +29,6 @@ export interface ScaffoldingConfig {
   directory: string;
 
   /**
-   * folder name where the project should be initialized.
-   */
-  folderName: string;
-
-  /**
    * Name of the project.
    */
   name: string;
@@ -48,7 +44,7 @@ export interface ScaffoldingConfig {
   includeGitignore: boolean;
 
   /**
-   * Custom parameters provided in the tempalates.
+   * Custom parameters provided in the templates.
    */
   parameters: Record<string, any>;
 
@@ -75,7 +71,6 @@ export function makeScaffoldingConfig(
     baseUri: config.baseUri ?? ".",
     name: config.name ?? "",
     directory: config.directory ?? "",
-    folderName: config.folderName ?? "",
     parameters: config.parameters ?? {},
     includeGitignore: config.includeGitignore ?? true,
     emitters: config.emitters ?? {},
@@ -166,19 +161,20 @@ async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
     return;
   }
 
-  let content: string = placeholderConfig;
+  let rawConfig: TypeSpecRawConfig | undefined;
   if (config.template.config !== undefined && Object.keys(config.template.config).length > 0) {
-    content = stringify(config.template.config);
-  } else if (Object.keys(config.emitters).length > 0) {
-    const emitters = Object.keys(config.emitters);
-    const options = Object.fromEntries(
+    rawConfig = config.template.config;
+  }
+
+  if (Object.keys(config.emitters).length > 0) {
+    rawConfig ??= {};
+
+    rawConfig.emit = Object.keys(config.emitters);
+    rawConfig.options = Object.fromEntries(
       Object.entries(config.emitters).map(([key, emitter]) => [key, emitter.options]),
     );
-    content = stringify({
-      emit: emitters,
-      options: Object.keys(options).length > 0 ? options : undefined,
-    });
   }
+  const content = rawConfig ? stringify(rawConfig) : placeholderConfig;
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 

@@ -30,7 +30,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "doc": "The WidgetData2_kind",
    "isFixed": false,
    "isFlags": false,
@@ -64,7 +64,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "doc": "The WidgetData1_kind",
    "isFixed": false,
    "isFlags": false,
@@ -98,7 +98,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "doc": "The WidgetData0_kind",
    "isFixed": false,
    "isFlags": false,
@@ -111,7 +111,7 @@
    "$id": "11",
    "kind": "model",
    "name": "SpreadRecordForNonDiscriminatedUnion3",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion3",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<WidgetData2[] | WidgetData1>",
@@ -129,7 +129,7 @@
        "$id": "14",
        "kind": "model",
        "name": "WidgetData2",
-       "clientNamespace": "Type.Property.AdditionalProperties",
+       "namespace": "Type.Property.AdditionalProperties",
        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData2",
        "usage": "Input,Output,Json",
        "decorators": [],
@@ -197,7 +197,7 @@
       "$id": "23",
       "kind": "model",
       "name": "WidgetData1",
-      "clientNamespace": "Type.Property.AdditionalProperties",
+      "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1",
       "usage": "Input,Output,Json",
       "decorators": [],
@@ -301,7 +301,7 @@
       ]
      }
     ],
-    "clientNamespace": "",
+    "namespace": "",
     "decorators": []
    },
    "properties": [
@@ -344,7 +344,7 @@
    "$id": "42",
    "kind": "model",
    "name": "SpreadRecordForNonDiscriminatedUnion2",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion2",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<WidgetData2 | WidgetData1>",
@@ -361,7 +361,7 @@
       "$ref": "23"
      }
     ],
-    "clientNamespace": "",
+    "namespace": "",
     "decorators": []
    },
    "properties": [
@@ -398,7 +398,7 @@
    "$id": "48",
    "kind": "model",
    "name": "SpreadRecordForNonDiscriminatedUnion",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<WidgetData0 | WidgetData1>",
@@ -412,7 +412,7 @@
       "$id": "50",
       "kind": "model",
       "name": "WidgetData0",
-      "clientNamespace": "Type.Property.AdditionalProperties",
+      "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData0",
       "usage": "Input,Output,Json",
       "decorators": [],
@@ -477,7 +477,7 @@
       "$ref": "23"
      }
     ],
-    "clientNamespace": "",
+    "namespace": "",
     "decorators": []
    },
    "properties": [
@@ -517,7 +517,7 @@
    "$id": "63",
    "kind": "model",
    "name": "SpreadRecordForDiscriminatedUnion",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForDiscriminatedUnion",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<WidgetData>",
@@ -534,7 +534,7 @@
       "$ref": "23"
      }
     ],
-    "clientNamespace": "Type.Property.AdditionalProperties",
+    "namespace": "Type.Property.AdditionalProperties",
     "decorators": []
    },
    "properties": [
@@ -571,7 +571,7 @@
    "$id": "69",
    "kind": "model",
    "name": "SpreadRecordForUnion",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForUnion",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<string | float32>",
@@ -596,7 +596,7 @@
       "decorators": []
      }
     ],
-    "clientNamespace": "",
+    "namespace": "",
     "decorators": []
    },
    "properties": [
@@ -633,7 +633,7 @@
    "$id": "77",
    "kind": "model",
    "name": "MultipleSpreadRecord",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpreadRecord",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<string> and Record<float32>",
@@ -658,7 +658,7 @@
       "decorators": []
      }
     ],
-    "clientNamespace": "",
+    "namespace": "",
     "decorators": []
    },
    "properties": [
@@ -695,7 +695,7 @@
    "$id": "85",
    "kind": "model",
    "name": "DifferentSpreadModelArrayDerived",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a model that spread Record<ModelForRecord[]> with the different known property type",
@@ -704,7 +704,7 @@
     "$id": "86",
     "kind": "model",
     "name": "DifferentSpreadModelArrayRecord",
-    "clientNamespace": "Type.Property.AdditionalProperties",
+    "namespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord",
     "usage": "Input,Output,Json",
     "doc": "The model spread Record<ModelForRecord[]> with the different known property type",
@@ -717,7 +717,7 @@
       "$id": "88",
       "kind": "model",
       "name": "ModelForRecord",
-      "clientNamespace": "Type.Property.AdditionalProperties",
+      "namespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ModelForRecord",
       "usage": "Input,Output,Json",
       "doc": "model for record",
@@ -827,7 +827,7 @@
    "$id": "101",
    "kind": "model",
    "name": "DifferentSpreadModelDerived",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a model that spread Record<ModelForRecord> with the different known property type",
@@ -836,7 +836,7 @@
     "$id": "102",
     "kind": "model",
     "name": "DifferentSpreadModelRecord",
-    "clientNamespace": "Type.Property.AdditionalProperties",
+    "namespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelRecord",
     "usage": "Input,Output,Json",
     "doc": "The model spread Record<ModelForRecord> with the different known property type",
@@ -906,7 +906,7 @@
    "$id": "110",
    "kind": "model",
    "name": "DifferentSpreadFloatDerived",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a model that spread Record<float32> with the different known property type",
@@ -915,7 +915,7 @@
     "$id": "111",
     "kind": "model",
     "name": "DifferentSpreadFloatRecord",
-    "clientNamespace": "Type.Property.AdditionalProperties",
+    "namespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatRecord",
     "usage": "Input,Output,Json",
     "doc": "The model spread Record<float32> with the different known property type",
@@ -994,7 +994,7 @@
    "$id": "121",
    "kind": "model",
    "name": "DifferentSpreadStringDerived",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a model that spread Record<string> with the different known property type",
@@ -1003,7 +1003,7 @@
     "$id": "122",
     "kind": "model",
     "name": "DifferentSpreadStringRecord",
-    "clientNamespace": "Type.Property.AdditionalProperties",
+    "namespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringRecord",
     "usage": "Input,Output,Json",
     "doc": "The model spread Record<string> with the different known property type",
@@ -1082,7 +1082,7 @@
    "$id": "132",
    "kind": "model",
    "name": "SpreadModelArrayRecord",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArrayRecord",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -1132,7 +1132,7 @@
    "$id": "138",
    "kind": "model",
    "name": "IsModelArrayAdditionalProperties",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArrayAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model is from Record<ModelForRecord[]> type.",
@@ -1183,7 +1183,7 @@
    "$id": "144",
    "kind": "model",
    "name": "ExtendsModelArrayAdditionalProperties",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model extends from Record<ModelForRecord[]> type.",
@@ -1234,7 +1234,7 @@
    "$id": "150",
    "kind": "model",
    "name": "SpreadModelRecord",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelRecord",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<ModelForRecord> with the same known property type",
@@ -1271,7 +1271,7 @@
    "$id": "154",
    "kind": "model",
    "name": "IsModelAdditionalProperties",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model is from Record<ModelForRecord> type.",
@@ -1308,7 +1308,7 @@
    "$id": "158",
    "kind": "model",
    "name": "ExtendsModelAdditionalProperties",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model extends from Record<ModelForRecord> type.",
@@ -1345,7 +1345,7 @@
    "$id": "162",
    "kind": "model",
    "name": "SpreadFloatRecord",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloatRecord",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<float32> with the same known property type",
@@ -1391,7 +1391,7 @@
    "$id": "168",
    "kind": "model",
    "name": "IsFloatAdditionalProperties",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloatAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model is from Record<float32> type.",
@@ -1437,7 +1437,7 @@
    "$id": "174",
    "kind": "model",
    "name": "ExtendsFloatAdditionalProperties",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloatAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model extends from Record<float32> type.",
@@ -1483,7 +1483,7 @@
    "$id": "180",
    "kind": "model",
    "name": "SpreadStringRecord",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadStringRecord",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<string> with the same known property type",
@@ -1529,7 +1529,7 @@
    "$id": "186",
    "kind": "model",
    "name": "IsStringAdditionalProperties",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsStringAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model is from Record<string> type.",
@@ -1575,7 +1575,7 @@
    "$id": "192",
    "kind": "model",
    "name": "ExtendsStringAdditionalProperties",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model extends from Record<string> type.",
@@ -1621,7 +1621,7 @@
    "$id": "198",
    "kind": "model",
    "name": "IsUnknownAdditionalPropertiesDiscriminated",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated",
    "usage": "Input,Output,Json",
    "doc": "The model is Record<unknown> with a discriminator.",
@@ -1698,7 +1698,7 @@
      "$id": "209",
      "kind": "model",
      "name": "IsUnknownAdditionalPropertiesDiscriminatedDerived",
-     "clientNamespace": "Type.Property.AdditionalProperties",
+     "namespace": "Type.Property.AdditionalProperties",
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived",
      "usage": "Input,Output,Json",
      "doc": "The derived discriminated type",
@@ -1805,7 +1805,7 @@
    "$id": "223",
    "kind": "model",
    "name": "IsUnknownAdditionalPropertiesDerived",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a type that is Record<unknown> type",
@@ -1814,7 +1814,7 @@
     "$id": "224",
     "kind": "model",
     "name": "IsUnknownAdditionalProperties",
-    "clientNamespace": "Type.Property.AdditionalProperties",
+    "namespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalProperties",
     "usage": "Input,Output,Json",
     "doc": "The model is from Record<unknown> type.",
@@ -1920,7 +1920,7 @@
    "$id": "238",
    "kind": "model",
    "name": "ExtendsUnknownAdditionalPropertiesDiscriminated",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated",
    "usage": "Input,Output,Json",
    "doc": "The model extends from Record<unknown> with a discriminator.",
@@ -1997,7 +1997,7 @@
      "$id": "249",
      "kind": "model",
      "name": "ExtendsUnknownAdditionalPropertiesDiscriminatedDerived",
-     "clientNamespace": "Type.Property.AdditionalProperties",
+     "namespace": "Type.Property.AdditionalProperties",
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived",
      "usage": "Input,Output,Json",
      "doc": "The derived discriminated type",
@@ -2104,7 +2104,7 @@
    "$id": "263",
    "kind": "model",
    "name": "ExtendsUnknownAdditionalPropertiesDerived",
-   "clientNamespace": "Type.Property.AdditionalProperties",
+   "namespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a type that extends from Record<unknown>.",
@@ -2113,7 +2113,7 @@
     "$id": "264",
     "kind": "model",
     "name": "ExtendsUnknownAdditionalProperties",
-    "clientNamespace": "Type.Property.AdditionalProperties",
+    "namespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalProperties",
     "usage": "Input,Output,Json",
     "doc": "The model extends from Record<unknown> type.",
@@ -2220,7 +2220,7 @@
   {
    "$id": "278",
    "Name": "AdditionalPropertiesClient",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Doc": "Tests for additional properties of models",
    "Operations": [],
    "Protocol": {
@@ -2259,12 +2259,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties"
   },
   {
    "$id": "284",
    "Name": "ExtendsUnknown",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "285",
@@ -2310,7 +2311,6 @@
        "BodyType": {
         "$ref": "264"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2319,7 +2319,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordUnknown",
      "BufferResponse": true,
@@ -2388,13 +2387,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordUnknown",
      "RequestMediaTypes": [
@@ -2444,12 +2441,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknown"
   },
   {
    "$id": "301",
    "Name": "ExtendsUnknownDerived",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "302",
@@ -2495,7 +2493,6 @@
        "BodyType": {
         "$ref": "263"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2504,7 +2501,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordUnknownDerived",
      "BufferResponse": true,
@@ -2573,13 +2569,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordUnknownDerived",
      "RequestMediaTypes": [
@@ -2629,12 +2623,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDerived"
   },
   {
    "$id": "318",
    "Name": "ExtendsUnknownDiscriminated",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "319",
@@ -2680,7 +2675,6 @@
        "BodyType": {
         "$ref": "238"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2689,7 +2683,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsUnknownDiscriminated",
      "BufferResponse": true,
@@ -2758,13 +2751,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsUnknownDiscriminated",
      "RequestMediaTypes": [
@@ -2814,12 +2805,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDiscriminated"
   },
   {
    "$id": "335",
    "Name": "IsUnknown",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "336",
@@ -2865,7 +2857,6 @@
        "BodyType": {
         "$ref": "224"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2874,7 +2865,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordUnknown",
      "BufferResponse": true,
@@ -2943,13 +2933,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordUnknown",
      "RequestMediaTypes": [
@@ -2999,12 +2987,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknown"
   },
   {
    "$id": "352",
    "Name": "IsUnknownDerived",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "353",
@@ -3050,7 +3039,6 @@
        "BodyType": {
         "$ref": "223"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3059,7 +3047,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordUnknownDerived",
      "BufferResponse": true,
@@ -3128,13 +3115,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordUnknownDerived",
      "RequestMediaTypes": [
@@ -3184,12 +3169,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDerived"
   },
   {
    "$id": "369",
    "Name": "IsUnknownDiscriminated",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "370",
@@ -3235,7 +3221,6 @@
        "BodyType": {
         "$ref": "198"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3244,7 +3229,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isUnknownDiscriminated",
      "BufferResponse": true,
@@ -3313,13 +3297,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isUnknownDiscriminated",
      "RequestMediaTypes": [
@@ -3369,12 +3351,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDiscriminated"
   },
   {
    "$id": "386",
    "Name": "ExtendsString",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "387",
@@ -3420,7 +3403,6 @@
        "BodyType": {
         "$ref": "192"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3429,7 +3411,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordString",
      "BufferResponse": true,
@@ -3498,13 +3479,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordString",
      "RequestMediaTypes": [
@@ -3554,12 +3533,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsString"
   },
   {
    "$id": "403",
    "Name": "IsString",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "404",
@@ -3605,7 +3585,6 @@
        "BodyType": {
         "$ref": "186"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3614,7 +3593,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordstring",
      "BufferResponse": true,
@@ -3683,13 +3661,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordstring",
      "RequestMediaTypes": [
@@ -3739,12 +3715,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsString"
   },
   {
    "$id": "420",
    "Name": "SpreadString",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "421",
@@ -3790,7 +3767,6 @@
        "BodyType": {
         "$ref": "180"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3799,7 +3775,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordString",
      "BufferResponse": true,
@@ -3868,13 +3843,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordString",
      "RequestMediaTypes": [
@@ -3924,12 +3897,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadString"
   },
   {
    "$id": "437",
    "Name": "ExtendsFloat",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "438",
@@ -3975,7 +3949,6 @@
        "BodyType": {
         "$ref": "174"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -3984,7 +3957,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordFloat",
      "BufferResponse": true,
@@ -4053,13 +4025,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordFloat",
      "RequestMediaTypes": [
@@ -4109,12 +4079,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloat"
   },
   {
    "$id": "454",
    "Name": "IsFloat",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "455",
@@ -4160,7 +4131,6 @@
        "BodyType": {
         "$ref": "168"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -4169,7 +4139,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordFloat",
      "BufferResponse": true,
@@ -4238,13 +4207,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordFloat",
      "RequestMediaTypes": [
@@ -4294,12 +4261,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloat"
   },
   {
    "$id": "471",
    "Name": "SpreadFloat",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "472",
@@ -4345,7 +4313,6 @@
        "BodyType": {
         "$ref": "162"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -4354,7 +4321,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordFloat",
      "BufferResponse": true,
@@ -4423,13 +4389,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordFloat",
      "RequestMediaTypes": [
@@ -4479,12 +4443,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloat"
   },
   {
    "$id": "488",
    "Name": "ExtendsModel",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "489",
@@ -4530,7 +4495,6 @@
        "BodyType": {
         "$ref": "158"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -4539,7 +4503,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordModel",
      "BufferResponse": true,
@@ -4608,13 +4571,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordModel",
      "RequestMediaTypes": [
@@ -4664,12 +4625,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModel"
   },
   {
    "$id": "505",
    "Name": "IsModel",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "506",
@@ -4715,7 +4677,6 @@
        "BodyType": {
         "$ref": "154"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -4724,7 +4685,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordModel",
      "BufferResponse": true,
@@ -4793,13 +4753,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordModel",
      "RequestMediaTypes": [
@@ -4849,12 +4807,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModel"
   },
   {
    "$id": "522",
    "Name": "SpreadModel",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "523",
@@ -4900,7 +4859,6 @@
        "BodyType": {
         "$ref": "150"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -4909,7 +4867,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordModel",
      "BufferResponse": true,
@@ -4978,13 +4935,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordModel",
      "RequestMediaTypes": [
@@ -5034,12 +4989,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModel"
   },
   {
    "$id": "539",
    "Name": "ExtendsModelArray",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "540",
@@ -5085,7 +5041,6 @@
        "BodyType": {
         "$ref": "144"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -5094,7 +5049,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordModelArray",
      "BufferResponse": true,
@@ -5163,13 +5117,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsRecordModelArray",
      "RequestMediaTypes": [
@@ -5219,12 +5171,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArray"
   },
   {
    "$id": "556",
    "Name": "IsModelArray",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "557",
@@ -5270,7 +5223,6 @@
        "BodyType": {
         "$ref": "138"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -5279,7 +5231,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordModelArray",
      "BufferResponse": true,
@@ -5348,13 +5299,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/isRecordModelArray",
      "RequestMediaTypes": [
@@ -5404,12 +5353,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArray"
   },
   {
    "$id": "573",
    "Name": "SpreadModelArray",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "574",
@@ -5455,7 +5405,6 @@
        "BodyType": {
         "$ref": "132"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -5464,7 +5413,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordModelArray",
      "BufferResponse": true,
@@ -5533,13 +5481,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordModelArray",
      "RequestMediaTypes": [
@@ -5589,12 +5535,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArray"
   },
   {
    "$id": "590",
    "Name": "SpreadDifferentString",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "591",
@@ -5640,7 +5587,6 @@
        "BodyType": {
         "$ref": "122"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -5649,7 +5595,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordString",
      "BufferResponse": true,
@@ -5718,13 +5663,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordString",
      "RequestMediaTypes": [
@@ -5774,12 +5717,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentString"
   },
   {
    "$id": "607",
    "Name": "SpreadDifferentFloat",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "608",
@@ -5825,7 +5769,6 @@
        "BodyType": {
         "$ref": "111"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -5834,7 +5777,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordFloat",
      "BufferResponse": true,
@@ -5903,13 +5845,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordFloat",
      "RequestMediaTypes": [
@@ -5959,12 +5899,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentFloat"
   },
   {
    "$id": "624",
    "Name": "SpreadDifferentModel",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "625",
@@ -6010,7 +5951,6 @@
        "BodyType": {
         "$ref": "102"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6019,7 +5959,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordModel",
      "BufferResponse": true,
@@ -6088,13 +6027,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordModel",
      "RequestMediaTypes": [
@@ -6144,12 +6081,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModel"
   },
   {
    "$id": "641",
    "Name": "SpreadDifferentModelArray",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "642",
@@ -6195,7 +6133,6 @@
        "BodyType": {
         "$ref": "86"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6204,7 +6141,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordModelArray",
      "BufferResponse": true,
@@ -6273,13 +6209,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadDifferentRecordModelArray",
      "RequestMediaTypes": [
@@ -6329,12 +6263,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModelArray"
   },
   {
    "$id": "658",
    "Name": "ExtendsDifferentSpreadString",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "659",
@@ -6380,7 +6315,6 @@
        "BodyType": {
         "$ref": "121"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6389,7 +6323,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadString",
      "BufferResponse": true,
@@ -6458,13 +6391,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadString",
      "RequestMediaTypes": [
@@ -6514,12 +6445,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadString"
   },
   {
    "$id": "675",
    "Name": "ExtendsDifferentSpreadFloat",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "676",
@@ -6565,7 +6497,6 @@
        "BodyType": {
         "$ref": "110"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6574,7 +6505,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadFloat",
      "BufferResponse": true,
@@ -6643,13 +6573,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadFloat",
      "RequestMediaTypes": [
@@ -6699,12 +6627,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadFloat"
   },
   {
    "$id": "692",
    "Name": "ExtendsDifferentSpreadModel",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "693",
@@ -6750,7 +6679,6 @@
        "BodyType": {
         "$ref": "101"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6759,7 +6687,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadModel",
      "BufferResponse": true,
@@ -6828,13 +6755,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadModel",
      "RequestMediaTypes": [
@@ -6884,12 +6809,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModel"
   },
   {
    "$id": "709",
    "Name": "ExtendsDifferentSpreadModelArray",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "710",
@@ -6935,7 +6861,6 @@
        "BodyType": {
         "$ref": "85"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -6944,7 +6869,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadModelArray",
      "BufferResponse": true,
@@ -7013,13 +6937,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/extendsDifferentSpreadModelArray",
      "RequestMediaTypes": [
@@ -7069,12 +6991,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModelArray"
   },
   {
    "$id": "726",
    "Name": "MultipleSpread",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "727",
@@ -7120,7 +7043,6 @@
        "BodyType": {
         "$ref": "77"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -7129,7 +7051,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/multipleSpreadRecord",
      "BufferResponse": true,
@@ -7198,13 +7119,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/multipleSpreadRecord",
      "RequestMediaTypes": [
@@ -7254,12 +7173,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpread"
   },
   {
    "$id": "743",
    "Name": "SpreadRecordUnion",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "744",
@@ -7305,7 +7225,6 @@
        "BodyType": {
         "$ref": "69"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -7314,7 +7233,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordUnion",
      "BufferResponse": true,
@@ -7383,13 +7301,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordUnion",
      "RequestMediaTypes": [
@@ -7439,12 +7355,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordUnion"
   },
   {
    "$id": "760",
    "Name": "SpreadRecordDiscriminatedUnion",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "761",
@@ -7490,7 +7407,6 @@
        "BodyType": {
         "$ref": "63"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -7499,7 +7415,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordDiscriminatedUnion",
      "BufferResponse": true,
@@ -7568,13 +7483,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordDiscriminatedUnion",
      "RequestMediaTypes": [
@@ -7624,12 +7537,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordDiscriminatedUnion"
   },
   {
    "$id": "777",
    "Name": "SpreadRecordNonDiscriminatedUnion",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "778",
@@ -7675,7 +7589,6 @@
        "BodyType": {
         "$ref": "48"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -7684,7 +7597,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion",
      "BufferResponse": true,
@@ -7753,13 +7665,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion",
      "RequestMediaTypes": [
@@ -7809,12 +7719,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion"
   },
   {
    "$id": "794",
    "Name": "SpreadRecordNonDiscriminatedUnion2",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "795",
@@ -7860,7 +7771,6 @@
        "BodyType": {
         "$ref": "42"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -7869,7 +7779,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2",
      "BufferResponse": true,
@@ -7938,13 +7847,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2",
      "RequestMediaTypes": [
@@ -7994,12 +7901,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion2"
   },
   {
    "$id": "811",
    "Name": "SpreadRecordNonDiscriminatedUnion3",
-   "ClientNamespace": "Type.Property.AdditionalProperties",
+   "Namespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "812",
@@ -8045,7 +7953,6 @@
        "BodyType": {
         "$ref": "11"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -8054,7 +7961,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion3",
      "BufferResponse": true,
@@ -8123,13 +8029,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion3",
      "RequestMediaTypes": [
@@ -8179,7 +8083,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3"
   }
  ]
 }

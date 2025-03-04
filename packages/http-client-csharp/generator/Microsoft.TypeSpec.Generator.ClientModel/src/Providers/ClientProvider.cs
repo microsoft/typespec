@@ -7,12 +7,14 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -48,6 +50,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private Lazy<ParameterProvider?> ClientOptionsParameter { get; }
 
+        protected override FormattableString Description { get; }
+
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ClientProvider()
@@ -58,14 +62,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            _inputAuth = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
+            _inputAuth = ScmCodeModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = new Lazy<ClientOptionsProvider?>(() => _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null);
             ClientOptionsParameter = new Lazy<ParameterProvider?>(() => ClientOptions.Value != null ? ScmKnownParameters.ClientOptions(ClientOptions.Value.Type) : null);
+            Description = DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
 
             var apiKey = _inputAuth?.ApiKey;
-            var keyCredentialType = ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
+            var keyCredentialType = ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
             if (apiKey != null && keyCredentialType != null)
             {
                 var apiKeyAuthField = new FieldProvider(
@@ -93,7 +98,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             // in this plugin, the type of TokenCredential is null therefore these code will never be executed, but it should be invoked in other plugins that could support it.
             var tokenAuth = _inputAuth?.OAuth2;
-            var tokenCredentialType = ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
+            var tokenCredentialType = ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
             if (tokenAuth != null && tokenCredentialType != null)
             {
                 var tokenCredentialField = new FieldProvider(
@@ -119,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PipelineProperty = new(
                 description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
                 modifiers: MethodSignatureModifiers.Public,
-                type: ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineType,
+                type: ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineType,
                 name: "Pipeline",
                 body: new AutoPropertyBody(false),
                 enclosingType: this);
@@ -143,9 +148,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _subClients = new(GetSubClients);
         }
 
-        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputClient.Namespace) ?
-            base.BuildNamespace() :
-            ClientModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
+        private const string namespaceConflictCode = "client-namespace-conflict";
+
+        private string? _namespace;
+        // This `BuildNamespace` method has been called twice - one when building the `Type`, the other is trying to find the CustomCodeView, both of them are required.
+        // therefore here to avoid this being called twice because this method now reports a diagnostic, we cache the result.
+        protected override string BuildNamespace() => _namespace ??= BuildNamespaceCore();
+
+        private string BuildNamespaceCore()
+        {
+            // if namespace is empty, we fallback to the root namespace
+            if (string.IsNullOrEmpty(_inputClient.Namespace))
+            {
+                return base.BuildNamespace();
+            }
+            var ns = ScmCodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
+
+            // figure out if this namespace has been changed for this client
+            if (!StringExtensions.IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
+            {
+                ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(namespaceConflictCode, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
+            }
+            return ns;
+        }
 
         private IReadOnlyList<ParameterProvider> GetSubClientInternalConstructorParameters()
         {
@@ -252,8 +277,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!p.IsEndpoint)
                 {
                     var type = p is { IsApiVersion: true, Type: InputEnumType enumType }
-                        ? ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
-                        : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
+                        ? ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
+                        : ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
 
                     if (type != null)
                     {
@@ -263,7 +288,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             "_" + p.Name.ToVariableName(),
                             this,
                             wireInfo: new PropertyWireInformation(
-                                ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(p.Type),
+                                ScmCodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(p.Type),
                                 p.IsRequired,
                                 false,
                                 p.Type is InputNullableType,
@@ -308,7 +333,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return [mockingConstructor, subClientConstructor];
             }
 
-            // we need to construct two sets of constructors for both auth we supported if any.
+            // we need to construct two sets of constructors for both auth if we supported any.
             var primaryConstructors = new List<ConstructorProvider>();
             var secondaryConstructors = new List<ConstructorProvider>();
 
@@ -322,22 +347,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 AppendConstructors(_oauth2Fields, primaryConstructors, secondaryConstructors);
             }
+
+            bool onlyContainsUnsupportedAuth = _inputAuth != null && _apiKeyAuthFields == null && _oauth2Fields == null;
             // if there is no auth
             if (_apiKeyAuthFields == null && _oauth2Fields == null)
             {
-                AppendConstructors(null, primaryConstructors, secondaryConstructors);
+                AppendConstructors(null, primaryConstructors, secondaryConstructors, onlyContainsUnsupportedAuth);
             }
-            var shouldIncludeMockingConstructor = secondaryConstructors.All(c => c.Signature.Parameters.Count > 0);
+
+            var shouldIncludeMockingConstructor = !onlyContainsUnsupportedAuth && secondaryConstructors.All(c => c.Signature.Parameters.Count > 0);
+
             return shouldIncludeMockingConstructor
                 ? [ConstructorProviderHelper.BuildMockingConstructor(this), .. secondaryConstructors, .. primaryConstructors]
                 : [.. secondaryConstructors, .. primaryConstructors];
 
-            void AppendConstructors(AuthFields? authFields, List<ConstructorProvider> primaryConstructors, List<ConstructorProvider> secondaryConstructors)
+            void AppendConstructors(
+                AuthFields? authFields,
+                List<ConstructorProvider> primaryConstructors,
+                List<ConstructorProvider> secondaryConstructors,
+                bool onlyContainsUnsupportedAuth = false)
             {
                 var requiredParameters = GetRequiredParameters(authFields?.AuthField);
                 ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter.Value];
+                // If auth exists but it's not supported, we will make the constructor internal.
+                var constructorModifier = onlyContainsUnsupportedAuth ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
                 var primaryConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
+                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters),
                     BuildPrimaryConstructorBody(primaryConstructorParameters, authFields),
                     this);
 
@@ -347,7 +382,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ParameterProvider[] secondaryConstructorParameters = _endpointParameter.InitializationValue is null
                     ? [_endpointParameter, .. requiredParameters]
                     : [.. requiredParameters];
-                var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters);
+                var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters, constructorModifier);
 
                 secondaryConstructors.Add(secondaryConstructor);
             }
@@ -376,7 +411,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ParameterProvider CreateParameter(InputParameter parameter)
         {
-            var param = ClientModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
+            var param = ScmCodeModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
             param.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
             return param;
         }
@@ -409,13 +444,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 case ApiKeyFields keyAuthFields:
                     ValueExpression? keyPrefixExpression = keyAuthFields.AuthorizationApiKeyPrefixField != null ? (ValueExpression)keyAuthFields.AuthorizationApiKeyPrefixField : null;
-                    perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression));
+                    perRetryPolicies = New.Array(ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression));
                     break;
                 case OAuth2Fields oauth2AuthFields:
-                    perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField));
+                    perRetryPolicies = New.Array(ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField));
                     break;
                 default:
-                    perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType);
+                    perRetryPolicies = New.Array(ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType);
                     break;
             }
 
@@ -444,7 +479,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <param name="primaryCtorOrderedParams">The ordered parameters for the primary constructor.</param>
         private ConstructorProvider BuildSecondaryConstructor(
             IReadOnlyList<ParameterProvider> secondaryConstructorParameters,
-            IReadOnlyList<ParameterProvider> primaryCtorOrderedParams)
+            IReadOnlyList<ParameterProvider> primaryCtorOrderedParams,
+            MethodSignatureModifiers modifier)
         {
             // initialize the arguments to reference the primary constructor
             var primaryCtorInitializer = new ConstructorInitializer(
@@ -454,7 +490,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var constructorSignature = new ConstructorSignature(
                 Type,
                 _publicCtorDescription,
-                MethodSignatureModifiers.Public,
+                modifier,
                 secondaryConstructorParameters,
                 Initializer: primaryCtorInitializer);
 
@@ -473,7 +509,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                var clientMethods = ClientModelPlugin.Instance.TypeFactory.CreateMethods(operation, this);
+                var clientMethods = ScmCodeModelPlugin.Instance.TypeFactory.CreateMethods(operation, this);
                 if (clientMethods != null)
                 {
                     methods.AddRange(clientMethods);
@@ -561,7 +597,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<ClientProvider> GetSubClients()
         {
-            var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            var inputClients = ScmCodeModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
             var subClients = new List<ClientProvider>(inputClients.Count);
 
             foreach (var client in inputClients)
@@ -569,7 +605,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // add direct child clients
                 if (client.Parent != null && client.Parent == _inputClient.Key)
                 {
-                    var subClient = ClientModelPlugin.Instance.TypeFactory.CreateClient(client);
+                    var subClient = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(client);
                     if (subClient != null)
                     {
                         subClients.Add(subClient);

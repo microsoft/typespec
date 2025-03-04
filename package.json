@@ -36,13 +36,12 @@
     "sync-labels": "tsx ./eng/common/scripts/labels/sync-labels.ts  --config ./eng/common/config/labels.ts",
     "validate-scenarios": "pnpm -r --filter=@typespec/http-specs run validate-scenarios",
     "validate-mock-apis": "pnpm -r --filter=@typespec/http-specs run validate-mock-apis",
-    "generate-scenarios-summary": "pnpm -r --filter=@typespec/http-specs run generate-scenarios-summary",
-    "upload-manifest": "pnpm -r --filter=@typespec/http-specs run upload-manifest"
+    "generate-scenarios-summary": "pnpm -r --filter=@typespec/http-specs run generate-scenarios-summary"
   },
   "devDependencies": {
     "@alloy-js/prettier-plugin-alloy": "^0.1.0",
-    "@chronus/chronus": "^0.14.1",
-    "@chronus/github": "^0.4.7",
+    "@chronus/chronus": "^0.16.0",
+    "@chronus/github": "^0.4.8",
     "@eslint/js": "^9.18.0",
     "@microsoft/api-extractor": "^7.49.1",
     "@octokit/core": "^6.1.3",

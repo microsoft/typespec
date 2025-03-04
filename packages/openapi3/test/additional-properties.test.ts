@@ -1,5 +1,6 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
+import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { worksFor } from "./works-for.js";
 
 worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, objectSchemaIndexer }) => {
@@ -176,6 +177,54 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
         },
         unevaluatedProperties: { not: {} },
       });
+    });
+  });
+});
+
+worksFor(["3.0.0", "3.1.0"], ({ oapiForModel: baseOapiForMopdel, objectSchemaIndexer }) => {
+  const oapiForModel = async (name: string, model: string, options?: OpenAPI3EmitterOptions) => {
+    return baseOapiForMopdel(name, model, { ...options, "seal-object-schemas": true });
+  };
+
+  describe("seal-object-schemas enabled", () => {
+    it("seals object schemas", async () => {
+      const res = await oapiForModel("Pet", `model Pet { name: string; };`);
+      deepStrictEqual(res.schemas.Pet, {
+        type: "object",
+        required: ["name"],
+        properties: { name: { type: "string" } },
+        [objectSchemaIndexer]: { not: {} },
+      });
+    });
+
+    it(`does not seal object schemas that already have ${objectSchemaIndexer} set`, async () => {
+      const res = await oapiForModel("Pet", `model Pet { name: string; ...Record<string>; };`);
+      deepStrictEqual(res.schemas.Pet, {
+        type: "object",
+        required: ["name"],
+        properties: { name: { type: "string" } },
+        [objectSchemaIndexer]: { type: "string" },
+      });
+    });
+
+    it("does not seal object schemas that have derived schemas", async () => {
+      const res = await oapiForModel(
+        "Spinner",
+        `
+        model Entity { id: string; };
+        model Widget extends Entity { kind: string; name: string; };
+        model Spinner extends Widget { kind: "spinner"; cycles: int8; }
+      `,
+      );
+
+      // Should not constrain additional properties
+      deepStrictEqual(res.schemas.Entity[objectSchemaIndexer], undefined);
+
+      // Should not constrain additional properties
+      deepStrictEqual(res.schemas.Widget[objectSchemaIndexer], undefined);
+
+      // SHOULD constrain additional properties
+      deepStrictEqual(res.schemas.Spinner[objectSchemaIndexer], { not: {} });
     });
   });
 });

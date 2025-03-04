@@ -14,6 +14,17 @@ import type {
   UnionVariant,
 } from "../src/core/index.js";
 
+export interface ServiceOptions {
+  readonly title?: string;
+  readonly version?: string;
+}
+
+export interface DiscriminatedOptions {
+  readonly envelope?: "object" | "none";
+  readonly discriminatorPropertyName?: string;
+  readonly envelopePropertyName?: string;
+}
+
 export interface ExampleOptions {
   readonly title?: string;
   readonly description?: string;
@@ -63,7 +74,7 @@ export type EncodeDecorator = (
 ) => void;
 
 /**
- * Attach a documentation string.
+ * Attach a documentation string. Content support CommonMark markdown formatting.
  *
  * @param doc Documentation string
  * @param formatArgs Record with key value pair that can be interpolated in the doc.
@@ -216,19 +227,19 @@ export type DeprecatedDecorator = (
  * ```
  * @example Setting service title
  * ```typespec
- * @service({title: "Pet store"})
+ * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
  * @example Setting service version
  * ```typespec
- * @service({version: "1.0"})
+ * @service(#{version: "1.0"})
  * namespace PetStore;
  * ```
  */
 export type ServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  options?: Type,
+  options?: ServiceOptions,
 ) => void;
 
 /**
@@ -568,18 +579,72 @@ export type EncodedNameDecorator = (
 ) => void;
 
 /**
+ * Specify that this union is discriminated.
+ *
+ * @param options Options to configure the serialization of the discriminated union.
+ * @example
+ * ```typespec
+ * @discriminated
+ * union Pet{ cat: Cat, dog: Dog }
+ *
+ * model Cat { name: string, meow: boolean }
+ * model Dog { name: string, bark: boolean }
+ * ```
+ * Serialized as:
+ * ```json
+ * {
+ *   "kind": "cat",
+ *   "value": {
+ *     "name": "Whiskers",
+ *     "meow": true
+ *   }
+ * },
+ * {
+ *   "kind": "dog",
+ *   "value": {
+ *     "name": "Rex",
+ *     "bark": false
+ *   }
+ * }
+ * ```
+ * @example Custom property names
+ *
+ * ```typespec
+ * @discriminated(#{discriminatorPropertyName: "dataKind", envelopePropertyName: "data"})
+ * union Pet{ cat: Cat, dog: Dog }
+ *
+ * model Cat { name: string, meow: boolean }
+ * model Dog { name: string, bark: boolean }
+ * ```
+ * Serialized as:
+ * ```json
+ * {
+ *   "dataKind": "cat",
+ *   "data": {
+ *     "name": "Whiskers",
+ *     "meow": true
+ *   }
+ * },
+ * {
+ *   "dataKind": "dog",
+ *   "data": {
+ *     "name": "Rex",
+ *     "bark": false
+ *   }
+ * }
+ * ```
+ */
+export type DiscriminatedDecorator = (
+  context: DecoratorContext,
+  target: Union,
+  options?: DiscriminatedOptions,
+) => void;
+
+/**
  * Specify the property to be used to discriminate this type.
  *
  * @param propertyName The property name to use for discrimination
  * @example
- * ```typespec
- * @discriminator("kind")
- * union Pet{ cat: Cat, dog: Dog }
- *
- * model Cat {kind: "cat", meow: boolean}
- * model Dog {kind: "dog", bark: boolean}
- * ```
- *
  * ```typespec
  * @discriminator("kind")
  * model Pet{ kind: string }
@@ -1089,6 +1154,7 @@ export type TypeSpecDecorators = {
   overload: OverloadDecorator;
   projectedName: ProjectedNameDecorator;
   encodedName: EncodedNameDecorator;
+  discriminated: DiscriminatedDecorator;
   discriminator: DiscriminatorDecorator;
   example: ExampleDecorator;
   opExample: OpExampleDecorator;

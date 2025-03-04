@@ -51,6 +51,9 @@ alias LongRequest = {
   @clientName("dataFloat")
   @encodedName("application/json", "data_float")
   float?: float64;
+
+  // reserved keyword
+  long?: int64;
 };
 
 model User {
@@ -106,6 +109,7 @@ interface FlattenOp {
   @post
   send(
     @query id: string,
+    @query maxpagesize?: int32,
     @query constantQueryParam: "constant",
     ...Request,
     ...ApiVersionParameter,
@@ -117,7 +121,7 @@ interface FlattenOp {
     @query id: string,
 
     @encodedName("application/json", "file_id")
-    @projectedName("client", "fileIdentifier")
+    @clientName("fileIdentifier")
     fileId: string,
   ): OkResponse;
 

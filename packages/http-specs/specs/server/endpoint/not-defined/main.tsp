@@ -8,9 +8,7 @@ using Spector;
  * Illustrates server doesn't define endpoint. Client should automatically add an endpoint to let user pass in.
  */
 @route("/server/endpoint/not-defined")
-@service({
-  title: "Testserver without any endpoint",
-})
+@service(#{ title: "Testserver without any endpoint" })
 namespace Server.Endpoint.NotDefined;
 
 @scenario

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/internal-build-utils",
-  "version": "0.65.0",
+  "version": "0.66.0",
   "author": "Microsoft Corporation",
   "description": "Internal library to TypeSpec providing helpers to build.",
   "homepage": "https://typespec.io",
@@ -41,12 +41,14 @@
   ],
   "dependencies": {
     "@pnpm/find-workspace-packages": "^6.0.9",
+    "cross-spawn": "^7.0.6",
     "cspell": "^8.17.2",
     "semver": "^7.6.3",
     "strip-json-comments": "~5.0.1",
     "yargs": "~17.7.2"
   },
   "devDependencies": {
+    "@types/cross-spawn": "~6.0.6",
     "@types/node": "~22.10.10",
     "@types/semver": "^7.5.8",
     "@types/yargs": "~17.0.33",

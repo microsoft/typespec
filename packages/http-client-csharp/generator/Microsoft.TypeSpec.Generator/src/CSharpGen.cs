@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 
 namespace Microsoft.TypeSpec.Generator
@@ -28,21 +27,22 @@ namespace Microsoft.TypeSpec.Generator
             var generatedSourceOutputPath = CodeModelPlugin.Instance.Configuration.ProjectGeneratedDirectory;
             var generatedTestOutputPath = CodeModelPlugin.Instance.Configuration.TestGeneratedDirectory;
 
-            GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
+            GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create();
 
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
             // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
 
             List<Task> generateAttributeTasks = new();
-            foreach (var attributeProvider in GetCustomCodeAttributeProviders())
+            foreach (var attributeProvider in CodeModelPlugin.Instance.CustomCodeAttributeProviders)
             {
-                var writer = CodeModelPlugin.Instance.GetWriter(attributeProvider);
-                generateAttributeTasks.Add(workspace.AddGeneratedFile(writer.Write()));
+                generateAttributeTasks.Add(customCodeWorkspace.AddInMemoryFile(attributeProvider));
             }
 
             await Task.WhenAll(generateAttributeTasks);
 
-            CodeModelPlugin.Instance.SourceInputModel = new SourceInputModel(await workspace.GetCompilationAsync());
+            CodeModelPlugin.Instance.SourceInputModel = new SourceInputModel(await customCodeWorkspace.GetCompilationAsync());
+
+            GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create();
 
             var output = CodeModelPlugin.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
@@ -57,12 +57,12 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var outputType in output.TypeProviders)
             {
                 var writer = CodeModelPlugin.Instance.GetWriter(outputType);
-                generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
+                generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
 
                 foreach (var serialization in outputType.SerializationProviders)
                 {
                     writer = CodeModelPlugin.Instance.GetWriter(serialization);
-                    generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
+                    generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
                 }
             }
 
@@ -75,17 +75,17 @@ namespace Microsoft.TypeSpec.Generator
                 DeleteDirectory(generatedTestOutputPath, _filesToKeep);
             }
 
-            await workspace.PostProcessAsync();
+            await generatedCodeWorkspace.PostProcessAsync();
 
             // Write the generated files to the output directory
-            await foreach (var file in workspace.GetGeneratedFilesAsync())
+            await foreach (var file in generatedCodeWorkspace.GetGeneratedFilesAsync())
             {
                 if (string.IsNullOrEmpty(file.Text))
                 {
                     continue;
                 }
                 var filename = Path.Combine(outputPath, file.Name);
-                Console.WriteLine($"Writing {Path.GetFullPath(filename)}");
+                CodeModelPlugin.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
                 await File.WriteAllTextAsync(filename, file.Text);
             }
@@ -95,14 +95,6 @@ namespace Microsoft.TypeSpec.Generator
             {
                 await CodeModelPlugin.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
-        }
-
-        private static IEnumerable<TypeProvider> GetCustomCodeAttributeProviders()
-        {
-            yield return new CodeGenTypeAttributeDefinition();
-            yield return new CodeGenMemberAttributeDefinition();
-            yield return new CodeGenSuppressAttributeDefinition();
-            yield return new CodeGenSerializationAttributeDefinition();
         }
 
         /// <summary>

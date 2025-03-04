@@ -19,6 +19,7 @@ export interface CompileCliArgs {
   debug?: boolean;
   config?: string;
   "warn-as-error"?: boolean;
+  "list-files"?: boolean;
   "no-emit"?: boolean;
   "ignore-deprecated"?: boolean;
   "node-modules"?: string[];
@@ -62,6 +63,8 @@ export async function getCompilerOptions(
   );
   if (args["no-emit"]) {
     resolvedOptions.noEmit = true;
+  } else if (args["list-files"]) {
+    resolvedOptions.listFiles = true;
   }
 
   return diagnostics.wrap(

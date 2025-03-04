@@ -1,5 +1,4 @@
 {
   "output-folder": ".",
-  "namespace": "Response.StatusCodeRange",
-  "library-name": "Response.StatusCodeRange"
+  "package-name": "Response.StatusCodeRange"
 }

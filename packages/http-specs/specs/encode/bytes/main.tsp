@@ -216,9 +216,8 @@ namespace Header {
     value=dGVzdA,dGVzdA
     """)
   op base64urlArray(
-    @header({
-      format: "csv",
-    })
+    #suppress "deprecated" "Deprecated in next release"
+    @header(#{ format: "csv" })
     value: base64urlBytes[],
   ): NoContentResponse;
 }

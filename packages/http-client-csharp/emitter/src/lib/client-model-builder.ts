@@ -22,6 +22,12 @@ import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-conv
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 
+/**
+ * Creates the code model from the SDK context.
+ * @param sdkContext - The SDK context
+ * @returns The code model
+ * @beta
+ */
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
@@ -48,6 +54,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   fromSdkClients(rootClients, inputClients, []);
 
   const clientModel: CodeModel = {
+    // rootNamespace is really coalescing the `package-name` option and the first namespace found.
     Name: sdkPackage.rootNamespace,
     ApiVersions: rootApiVersions,
     Enums: Array.from(sdkContext.__typeCache.enums.values()),
@@ -85,23 +92,14 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
     const clientName = getClientName(client, parentNames);
-    // see if this namespace is a sub-namespace of an existing bad namespace
-    const segments = client.clientNamespace.split(".");
-    const lastSegment = segments[segments.length - 1];
-    if (lastSegment === clientName) {
-      // we report diagnostics when the last segment of the namespace is the same as the client name
-      // because in our design, a sub namespace will be generated as a sub client with exact the same name as the namespace
-      // in csharp, this will cause a conflict between the namespace and the class name
-      sdkContext.logger.reportDiagnostic({
-        code: "client-namespace-conflict",
-        format: { clientNamespace: client.clientNamespace, clientName },
-        target: client.__raw.type ?? NoTarget,
-      });
-    }
 
+    sdkContext.__typeCache.crossLanguageDefinitionIds.set(
+      client.crossLanguageDefinitionId,
+      client.__raw.type,
+    );
     return {
       Name: clientName,
-      ClientNamespace: client.clientNamespace,
+      Namespace: client.namespace,
       Summary: client.summary,
       Doc: client.doc,
       Operations: client.methods
@@ -118,6 +116,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
       Parameters: clientParameters,
       Decorators: client.decorators,
+      CrossLanguageDefinitionId: client.crossLanguageDefinitionId,
     };
   }
 

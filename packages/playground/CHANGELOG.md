@@ -1,5 +1,9 @@
 # Change Log - @typespec/playground
 
+## 0.7.2
+
+No changes, version bump only.
+
 ## 0.7.1
 
 ### Bump dependencies

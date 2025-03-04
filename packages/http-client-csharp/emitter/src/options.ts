@@ -1,6 +1,6 @@
 import { SdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
-import { tspOutputFileName } from "./constants.js";
+import { _defaultPluginName, tspOutputFileName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 
 /**
@@ -11,9 +11,6 @@ export interface CSharpEmitterOptions extends SdkEmitterOptions {
   "api-version"?: string;
   outputFile?: string;
   logFile?: string;
-  namespace: string;
-  "library-name": string;
-  skipSDKGeneration?: boolean;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
   "clear-output-folder"?: boolean;
@@ -39,9 +36,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
     "api-version": { type: "string", nullable: true },
     outputFile: { type: "string", nullable: true },
     logFile: { type: "string", nullable: true },
-    namespace: { type: "string" },
-    "library-name": { type: "string" },
-    skipSDKGeneration: { type: "boolean", default: false, nullable: true },
     "unreferenced-types-handling": {
       type: "string",
       enum: ["removeOrInternalize", "internalize", "keepAll"],
@@ -75,7 +69,6 @@ export const defaultOptions = {
   "api-version": "latest",
   outputFile: tspOutputFileName,
   logFile: "log.json",
-  skipSDKGeneration: false,
   "new-project": false,
   "clear-output-folder": false,
   "save-inputs": false,
@@ -84,7 +77,7 @@ export const defaultOptions = {
   "package-name": undefined,
   debug: undefined,
   logLevel: LoggerLevel.INFO,
-  "plugin-name": "ClientModelPlugin",
+  "plugin-name": _defaultPluginName,
   "emitter-extension-path": undefined,
 };
 

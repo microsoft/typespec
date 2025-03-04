@@ -3,7 +3,7 @@
 
 package type.property.valuetypes;
 
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;

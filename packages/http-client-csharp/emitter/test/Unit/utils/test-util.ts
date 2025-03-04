@@ -10,6 +10,7 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
+import { LoggerLevel } from "../../../src/lib/logger-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { CSharpEmitterOptions } from "../../../src/options.js";
 import { CSharpEmitterContext } from "../../../src/sdk-context.js";
@@ -93,7 +94,6 @@ export function createEmitterContext(program: Program): EmitContext<CSharpEmitte
     options: {
       outputFile: "tspCodeModel.json",
       logFile: "log.json",
-      skipSDKGeneration: false,
       "new-project": false,
       "clear-output-folder": false,
       "save-inputs": false,
@@ -116,8 +116,9 @@ export async function createCSharpSdkContext(
   );
   return {
     ...context,
-    logger: new Logger(program.program),
+    logger: new Logger(program.program, LoggerLevel.INFO),
     __typeCache: {
+      crossLanguageDefinitionIds: new Map(),
       types: new Map(),
       models: new Map(),
       enums: new Map(),

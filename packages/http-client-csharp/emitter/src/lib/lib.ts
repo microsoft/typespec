@@ -57,12 +57,13 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
     severity: "warning",
     messages: {
       default: paramMessage`${"message"}`,
+      onlyUnsupportedAuthProvided: `No supported authentication methods were provided. No public client constructors will be generated. Please provide your own custom constructor for client instantiation.`,
     },
   },
   "client-namespace-conflict": {
     severity: "warning",
     messages: {
-      default: paramMessage`namespace ${"clientNamespace"} conflicts with client ${"clientName"}, please use @clientName to specify a different name for the client.`,
+      default: paramMessage`${"message"}`,
     },
   },
   "unsupported-endpoint-url": {

@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "InnerModel",
-   "clientNamespace": "Type.Array",
+   "namespace": "Type.Array",
    "crossLanguageDefinitionId": "Type.Array.InnerModel",
    "usage": "Input,Output,Json",
    "doc": "Array inner model",
@@ -77,7 +77,7 @@
   {
    "$id": "11",
    "Name": "ArrayClient",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Illustrates various types of arrays.",
    "Operations": [],
    "Protocol": {
@@ -116,12 +116,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array"
   },
   {
    "$id": "17",
    "Name": "Int32Value",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of int32 values",
    "Operations": [
     {
@@ -178,7 +179,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -187,7 +187,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/int32",
      "BufferResponse": true,
@@ -265,13 +264,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/int32",
      "RequestMediaTypes": [
@@ -321,12 +318,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.Int32Value"
   },
   {
    "$id": "38",
    "Name": "Int64Value",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of int64 values",
    "Operations": [
     {
@@ -383,7 +381,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -392,7 +389,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/int64",
      "BufferResponse": true,
@@ -470,13 +466,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/int64",
      "RequestMediaTypes": [
@@ -526,12 +520,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.Int64Value"
   },
   {
    "$id": "59",
    "Name": "BooleanValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of boolean values",
    "Operations": [
     {
@@ -588,7 +583,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -597,7 +591,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/boolean",
      "BufferResponse": true,
@@ -675,13 +668,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/boolean",
      "RequestMediaTypes": [
@@ -731,12 +722,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.BooleanValue"
   },
   {
    "$id": "80",
    "Name": "StringValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of string values",
    "Operations": [
     {
@@ -793,7 +785,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -802,7 +793,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/string",
      "BufferResponse": true,
@@ -880,13 +870,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/string",
      "RequestMediaTypes": [
@@ -936,12 +924,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.StringValue"
   },
   {
    "$id": "101",
    "Name": "Float32Value",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of float values",
    "Operations": [
     {
@@ -998,7 +987,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1007,7 +995,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/float32",
      "BufferResponse": true,
@@ -1085,13 +1072,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/float32",
      "RequestMediaTypes": [
@@ -1141,12 +1126,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.Float32Value"
   },
   {
    "$id": "122",
    "Name": "DatetimeValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of datetime values",
    "Operations": [
     {
@@ -1211,7 +1197,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1220,7 +1205,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/datetime",
      "BufferResponse": true,
@@ -1306,13 +1290,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/datetime",
      "RequestMediaTypes": [
@@ -1362,12 +1344,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.DatetimeValue"
   },
   {
    "$id": "145",
    "Name": "DurationValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of duration values",
    "Operations": [
     {
@@ -1432,7 +1415,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1441,7 +1423,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/duration",
      "BufferResponse": true,
@@ -1527,13 +1508,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/duration",
      "RequestMediaTypes": [
@@ -1583,12 +1562,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.DurationValue"
   },
   {
    "$id": "168",
    "Name": "UnknownValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of unknown values",
    "Operations": [
     {
@@ -1645,7 +1625,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1654,7 +1633,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/unknown",
      "BufferResponse": true,
@@ -1732,13 +1710,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/unknown",
      "RequestMediaTypes": [
@@ -1788,12 +1764,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.UnknownValue"
   },
   {
    "$id": "189",
    "Name": "ModelValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of model values",
    "Operations": [
     {
@@ -1846,7 +1823,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1855,7 +1831,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/model",
      "BufferResponse": true,
@@ -1929,13 +1904,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/model",
      "RequestMediaTypes": [
@@ -1985,12 +1958,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.ModelValue"
   },
   {
    "$id": "208",
    "Name": "NullableFloatValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of nullable float values",
    "Operations": [
     {
@@ -2047,12 +2021,11 @@
           "crossLanguageDefinitionId": "TypeSpec.float32",
           "decorators": []
          },
-         "clientNamespace": ""
+         "namespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2061,7 +2034,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-float",
      "BufferResponse": true,
@@ -2135,13 +2107,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-float",
      "RequestMediaTypes": [
@@ -2191,12 +2161,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.NullableFloatValue"
   },
   {
    "$id": "229",
    "Name": "NullableInt32Value",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of nullable int32 values",
    "Operations": [
     {
@@ -2253,12 +2224,11 @@
           "crossLanguageDefinitionId": "TypeSpec.int32",
           "decorators": []
          },
-         "clientNamespace": ""
+         "namespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2267,7 +2237,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-int32",
      "BufferResponse": true,
@@ -2341,13 +2310,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-int32",
      "RequestMediaTypes": [
@@ -2397,12 +2364,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.NullableInt32Value"
   },
   {
    "$id": "250",
    "Name": "NullableBooleanValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of nullable boolean values",
    "Operations": [
     {
@@ -2459,12 +2427,11 @@
           "crossLanguageDefinitionId": "TypeSpec.boolean",
           "decorators": []
          },
-         "clientNamespace": ""
+         "namespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2473,7 +2440,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-boolean",
      "BufferResponse": true,
@@ -2547,13 +2513,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-boolean",
      "RequestMediaTypes": [
@@ -2603,12 +2567,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.NullableBooleanValue"
   },
   {
    "$id": "271",
    "Name": "NullableStringValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of nullable string values",
    "Operations": [
     {
@@ -2665,12 +2630,11 @@
           "crossLanguageDefinitionId": "TypeSpec.string",
           "decorators": []
          },
-         "clientNamespace": ""
+         "namespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2679,7 +2643,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-string",
      "BufferResponse": true,
@@ -2753,13 +2716,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-string",
      "RequestMediaTypes": [
@@ -2809,12 +2770,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.NullableStringValue"
   },
   {
    "$id": "292",
    "Name": "NullableModelValue",
-   "ClientNamespace": "Type.Array",
+   "Namespace": "Type.Array",
    "Doc": "Array of nullable model values",
    "Operations": [
     {
@@ -2867,12 +2829,11 @@
          "type": {
           "$ref": "2"
          },
-         "clientNamespace": ""
+         "namespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2881,7 +2842,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-model",
      "BufferResponse": true,
@@ -2955,13 +2915,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/array/nullable-model",
      "RequestMediaTypes": [
@@ -3011,7 +2969,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Array.NullableModelValue"
   }
  ]
 }

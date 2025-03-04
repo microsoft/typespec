@@ -4,11 +4,11 @@ title: Authentication
 
 ## Introduction
 
-In this section, we'll focus on adding [authentication](../../libraries/http/authentication) to your REST API. We'll introduce the `@useAuth` decorator, show how to enforce authentication on specific operations, and provide an example using Bearer authentication.
+In this section, we'll focus on adding [authentication](../../../libraries/http/authentication/) to your REST API. We'll introduce the `@useAuth` decorator, show how to enforce authentication on specific operations, and provide an example using Bearer authentication.
 
 ## Introduction to the `@useAuth` Decorator
 
-The [@useAuth](../../libraries/http/reference/decorators#@TypeSpec.Http.useAuth) decorator is used to enforce authentication on specific operations in your REST API. This decorator allows you to specify the authentication mechanism that should be used for the operation. The TypeSpec HTTP library provides support for several authentication models, including `BearerAuth` for Bearer authentication.
+The [@useAuth](../../../libraries/http/reference/decorators/#@TypeSpec.Http.useAuth) decorator is used to enforce authentication on specific operations in your REST API. This decorator allows you to specify the authentication mechanism that should be used for the operation. The TypeSpec HTTP library provides support for several authentication models, including `BearerAuth` for Bearer authentication.
 
 Bearer authentication uses tokens for access control. The server generates a token upon login, and the client includes it in the Authorization header for protected resource requests. The server validates the token to grant access to the resource.
 
@@ -21,9 +21,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;
 

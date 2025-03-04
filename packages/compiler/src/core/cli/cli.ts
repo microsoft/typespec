@@ -8,6 +8,7 @@ try {
 
 import yargs from "yargs";
 import { typespecVersion } from "../../utils/misc.js";
+import { getTypeSpecEngine } from "../engine.js";
 import { installTypeSpecDependencies } from "../install.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { formatAction } from "./actions/format.js";
@@ -28,9 +29,6 @@ import {
 } from "./utils.js";
 
 async function main() {
-  // eslint-disable-next-line no-console
-  console.log(`TypeSpec compiler v${typespecVersion}\n`);
-
   await yargs(process.argv.slice(2))
     .scriptName("tsp")
     .help()
@@ -97,6 +95,11 @@ async function main() {
             type: "array",
             string: true,
             describe: "Name of the emitters",
+          })
+          .option("list-files", {
+            type: "boolean",
+            default: false,
+            describe: "List paths of emitted files.",
           })
           .option("trace", {
             type: "array",
@@ -228,7 +231,7 @@ async function main() {
       () => {},
       withCliHostAndDiagnostics((host) => printInfoAction(host)),
     )
-    .version(typespecVersion)
+    .version(getTypeSpecEngine() === "tsp" ? `${typespecVersion} standalone` : typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }
 

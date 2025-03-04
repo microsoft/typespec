@@ -86,9 +86,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private string? _relativeFilePath;
 
-        public string Name => _name ??= CustomCodeView?.Name ?? BuildName();
-
-        private string? _name;
+        public string Name => Type.Name;
 
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
@@ -106,17 +104,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private set => _deprecated = value;
         }
 
+        private string? _name;
         private CSharpType? _type;
-        public CSharpType Type => _type ??= new(
-            this,
-            CustomCodeView?.BuildNamespace() ?? BuildNamespace(),
-            GetTypeArguments(),
-            GetBaseType());
+        private CSharpType[]? _arguments;
+        public CSharpType Type => _type ??=
+            new(
+                _name ??= CustomCodeView?.Name ?? BuildName(),
+                CustomCodeView?.Type.Namespace ?? BuildNamespace(),
+                this is EnumProvider ||
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum),
+                false,
+                DeclaringTypeProvider?.Type,
+                _arguments ??= GetTypeArguments(),
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && _arguments.All(t => t.IsPublic),
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
+                GetBaseType(),
+                IsEnum ? EnumUnderlyingType.FrameworkType : null);
 
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
 
-        protected virtual string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.RootNamespace;
+        protected virtual string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.PackageName;
 
         private TypeSignatureModifiers? _declarationModifiers;
 
@@ -192,7 +201,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<TypeProvider>? _serializationProviders;
 
-        public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+        public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
         private IReadOnlyList<AttributeStatement>? _attributes;
         public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
@@ -482,7 +491,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             ValidateArguments(enclosingType, attribute);
             var name = attribute.ConstructorArguments[0].Value as string;
-            if (name != signature.Name)
+            if (name != GetFullMethodName(signature))
             {
                 return false;
             }
@@ -509,8 +518,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
                 // we ignore nullability for reference types as these are generated the same regardless of nullability
-                // TODO - switch to using CSharpType.Equals once https://github.com/microsoft/typespec/issues/4624 is fixed.
-                if (BuildTypeOrMethodName(parameterType.Name) != signature.Parameters[i].Type.Name ||
+                if (parameterType.FullyQualifiedName != signature.Parameters[i].Type.FullyQualifiedName ||
                     (parameterType.IsValueType && parameterType.IsNullable != signature.Parameters[i].Type.IsNullable))
                 {
                     return false;
@@ -522,26 +530,42 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
         {
-            if (customMethod.Parameters.Count != method.Parameters.Count || BuildTypeOrMethodName(customMethod.Name) != method.Name)
+            if (customMethod.Parameters.Count != method.Parameters.Count || GetFullMethodName(customMethod) != GetFullMethodName(method))
             {
                 return false;
             }
 
             for (int i = 0; i < customMethod.Parameters.Count; i++)
             {
-                if (BuildTypeOrMethodName(customMethod.Parameters[i].Type.Name) != method.Parameters[i].Type.Name)
+                // The namespace may not be available for generated types as they are not yet generated
+                // so Roslyn will not have the namespace information.
+                if (string.IsNullOrEmpty(customMethod.Parameters[i].Type.Namespace))
                 {
-                    return false;
+                    if (customMethod.Parameters[i].Type.Name != method.Parameters[i].Type.Name)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (customMethod.Parameters[i].Type.FullyQualifiedName != method.Parameters[i].Type.FullyQualifiedName)
+                    {
+                        return false;
+                    }
                 }
             }
 
             return true;
         }
 
-        private static string BuildTypeOrMethodName(string fullyQualifiedName)
+        private static string GetFullMethodName(MethodSignatureBase method)
         {
-            var parts = fullyQualifiedName.Split('.');
-            return parts[^1];
+            if (method is MethodSignature methodSignature)
+            {
+                return methodSignature.FullMethodName;
+            }
+
+            return method.Name;
         }
 
         private static void ValidateArguments(TypeProvider type, AttributeData attributeData)
