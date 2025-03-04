@@ -17,6 +17,7 @@ import {
 import { TwoLevelMap } from "@typespec/compiler/utils";
 import {
   getOperationVerb,
+  getPatchOptions,
   includeInapplicableMetadataInPayload,
   isBody,
   isBodyIgnore,
@@ -30,6 +31,10 @@ import {
 } from "./decorators.js";
 import { getHttpOperation } from "./operations.js";
 import { HttpVerb, OperationParameterOptions } from "./types.js";
+
+// Used in @link JsDoc tag.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { PatchOptions } from "../generated-defs/TypeSpec.Http.js";
 
 /**
  * Flags enum representation of well-known visibilities that are used in
@@ -48,16 +53,18 @@ export enum Visibility {
   /**
    * Additional flag to indicate when something is nested in a collection
    * and therefore no metadata is applicable.
-   *
-   * Never use this flag. It is used internally by the HTTP core.
    */
   Item = 1 << 20,
 
   /**
-   * Additional flag to indicate when the verb is path and therefore
-   * will have fields made optional if request visibility includes update.
+   * Additional flag to indicate when the verb is PATCH and will have fields made
+   * optional if the request visibility includes update.
    *
-   * Never use this flag. It is used internally by the HTTP core.
+   * Whether or not this flag is set automatically is determined by the options
+   * passed to the `@patch` decorator. By default, it is set in requests for any
+   * operation that uses the PATCH verb.
+   *
+   * @see {@link PatchOptions}
    */
   Patch = 1 << 21,
 
@@ -70,6 +77,10 @@ export enum Visibility {
    * in any other circumstances.
    *
    * Never use this flag. It is used internally by the HTTP core.
+   *
+   * @deprecated This flag will be removed in TypeSpec 1.0-rc.
+   *
+   * @internal
    */
   LegacyParameterVisibility = 1 << 22,
 
@@ -77,6 +88,8 @@ export enum Visibility {
    * Additional flags to indicate the treatment of properties in specific contexts.
    *
    * Never use these flags. They are used internally by the HTTP core.
+   *
+   * @internal
    */
   Synthetic = Visibility.Item | Visibility.Patch | Visibility.LegacyParameterVisibility,
 }
@@ -295,7 +308,8 @@ function getDefaultVisibilityForVerb(verb: HttpVerb): Visibility {
  * - PUT => Visibility.Create | Update
  * - DELETE => Visibility.Delete
  * @param verb The HTTP verb for the operation.
- * @deprecated Use `resolveRequestVisibility` instead, or if you only want the default visibility for a verb, `getDefaultVisibilityForVerb`.
+ * @deprecated Use `resolveRequestVisibility` instead, or if you only want the default visibility for a verb,
+ *   `getDefaultVisibilityForVerb`. This function will be removed in TypeSpec 1.0-rc.
  * @returns The applicable parameter visibility or visibilities for the request.
  */
 export function getRequestVisibility(verb: HttpVerb): Visibility {
@@ -409,12 +423,17 @@ export function resolveRequestVisibility(
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it.
   if (verb === "patch") {
-    visibility |= Visibility.Patch;
+    const patchOptionality = getPatchOptions(program, operation)?.implicitOptionality ?? true;
+
+    if (patchOptionality) {
+      visibility |= Visibility.Patch;
+    }
   }
 
   const isEmptyParameterVisibility = program.stateSet(parameterVisibilityIsEmpty).has(operation);
 
   if (isEmptyParameterVisibility) {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     visibility |= Visibility.LegacyParameterVisibility;
   }
 
@@ -439,6 +458,7 @@ export function isMetadata(program: Program, property: ModelProperty) {
  * Determines if the given property is visible with the given visibility.
  */
 export function isVisible(program: Program, property: ModelProperty, visibility: Visibility) {
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   if (visibility & Visibility.LegacyParameterVisibility) {
     // This is a hack that preserves the behavior of `@parameterVisibility()` with no arguments for now.
     // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -712,6 +732,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     const hasUpdate = (visibility & Visibility.Update) !== 0;
     const isPatch = (visibility & Visibility.Patch) !== 0;
     const isItem = (visibility & Visibility.Item) !== 0;
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const skipEffectiveOptionality = (visibility & Visibility.LegacyParameterVisibility) !== 0;
     return property.optional || (!skipEffectiveOptionality && hasUpdate && isPatch && !isItem);
   }

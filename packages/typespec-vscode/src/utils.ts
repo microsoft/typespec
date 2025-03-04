@@ -4,10 +4,12 @@ import { readFile, realpath, stat } from "fs/promises";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
+import which from "which";
 import { parseDocument } from "yaml";
 import logger from "./log/logger.js";
 import { getDirectoryPath, isUrl, joinPaths } from "./path-utils.js";
 import { ResultCode } from "./types.js";
+
 const ERROR_CODE_ENOENT = "ENOENT";
 
 export async function isFile(path: string) {
@@ -396,4 +398,15 @@ export async function loadPackageJsonFile(
   const packageJson = tryParseJson(content);
   if (!packageJson) return undefined;
   return packageJson as NodePackage;
+}
+
+/**
+ * @returns the path to the installed node executable, or empty string if not found.
+ */
+export async function checkInstalledNode(): Promise<string> {
+  try {
+    return await which("node");
+  } catch (e) {
+    return "";
+  }
 }
