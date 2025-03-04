@@ -711,6 +711,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     Assert.IsInstanceOf<IfStatement>(statement);
                     Assert.IsTrue((statement as IfStatement)!.Condition.ToDisplayString()
                         .Contains("options.Format != \"W\""));
+                    Assert.AreEqual(!isRequired, statement.ToDisplayString().Contains("IsDefined"));
                     hasInt = true;
                 }
                 else if (statement.ToDisplayString().Contains("readOnlyString"))
@@ -718,6 +719,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     Assert.IsInstanceOf<IfStatement>(statement);
                     Assert.IsTrue((statement as IfStatement)!.Condition.ToDisplayString()
                         .Contains("options.Format != \"W\""));
+                    Assert.AreEqual(!isRequired, statement.ToDisplayString().Contains("IsDefined"));
                     hasString = true;
                 }
                 else if (statement.ToDisplayString().Contains("readOnlyCollection"))
@@ -725,6 +727,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     Assert.IsInstanceOf<IfStatement>(statement);
                     Assert.IsTrue((statement as IfStatement)!.Condition.ToDisplayString()
                         .Contains("options.Format != \"W\""));
+                    Assert.AreEqual(!isRequired, statement.ToDisplayString().Contains("IsCollectionDefined"));
                     hasCollection = true;
                 }
                 else if (statement.ToDisplayString().Contains("readOnlyDictionary"))
@@ -732,6 +735,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     Assert.IsInstanceOf<IfStatement>(statement);
                     Assert.IsTrue((statement as IfStatement)!.Condition.ToDisplayString()
                         .Contains("options.Format != \"W\""));
+                    Assert.AreEqual(!isRequired, statement.ToDisplayString().Contains("IsCollectionDefined"));
                     hasDictionary = true;
                 }
             }
