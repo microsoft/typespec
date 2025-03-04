@@ -98,11 +98,8 @@ function addLroInformation(
   };
 }
 
-function getWireNameFromPropertySegments(segments: SdkModelPropertyType[] | undefined): string {
-  if (segments === undefined) return "";
-  if (segments.length === 0) return "";
-
-  if (segments[0].kind === "property") {
+function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): string | undefined {
+  if (segments.length > 0 && segments[0].kind === "property") {
     const result = [];
     for (const segment of segments) {
       if (segment.kind === "property") {
@@ -112,60 +109,75 @@ function getWireNameFromPropertySegments(segments: SdkModelPropertyType[] | unde
     return result.join(".");
   }
 
-  throw new Error("Cannot find wire name from property segments");
+  return undefined;
 }
 
 function getWireNameForContinuationToken(
-  segments: SdkModelPropertyType[] | undefined,
-  method?: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+  context: PythonSdkContext<SdkHttpOperation>,
+  segments: SdkModelPropertyType[],
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   input: boolean = true,
-): string {
-  try {
-    return getWireNameFromPropertySegments(segments);
-  } catch (e) {}
+): string | undefined {
+  const result = getWireNameFromPropertySegments(segments);
+  if (result) {
+    return result;
+  }
 
-  if (method) {
-    if (input) {
-      for (const parameter of method.operation.parameters) {
-        if (isContinuationToken(parameter, method, input)) {
-          return parameter.serializedName;
-        }
+  if (input) {
+    for (const parameter of method.operation.parameters) {
+      if (isContinuationToken(parameter, method, input)) {
+        return parameter.serializedName;
       }
-    } else {
-      for (const response of method.operation.responses) {
-        for (const header of response.headers) {
-          if (isContinuationToken(header, method, input)) {
-            return header.serializedName;
-          }
+    }
+  } else {
+    for (const response of method.operation.responses) {
+      for (const header of response.headers) {
+        if (isContinuationToken(header, method, input)) {
+          return header.serializedName;
         }
       }
     }
   }
 
-  throw new Error("For now python don't support @continuationToken in request body");
+  const code = input
+    ? "no-valid-wire-name-for-continuation-token-in-request"
+    : "no-valid-wire-name-for-continuation-token-in-response";
+  reportDiagnostic(context.program, {
+    code: code,
+    target: NoTarget,
+    format: { operationId: method.name },
+  });
+  return undefined;
 }
 
 function getWireNameWithDiagnostics(
   context: PythonSdkContext<SdkHttpOperation>,
   segments: SdkModelPropertyType[] | undefined,
   code: "no-valid-paging-items" | "no-valid-nextlink" | "no-valid-lro-result",
-): string {
-  try {
-    return getWireNameFromPropertySegments(segments);
-  } catch (e) {
+  method?: SdkServiceMethod<SdkHttpOperation>,
+): string | undefined {
+  if (segments) {
+    const result = getWireNameFromPropertySegments(segments);
+    if (result) {
+      return result;
+    }
+    const operationId = method ? method.name : "";
     reportDiagnostic(context.program, {
       code: code,
       target: NoTarget,
+      format: { operationId: operationId },
     });
   }
-  return "";
+
+  return undefined;
 }
 
 function getPositionForContinuationToken(
+  context: PythonSdkContext<SdkHttpOperation>,
   segments: SdkModelPropertyType[],
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   input: boolean,
-): string {
+): string | undefined {
   if (segments[0].kind === "property") {
     return "body";
   }
@@ -184,20 +196,32 @@ function getPositionForContinuationToken(
       }
     }
   }
-
-  throw new Error("Cannot find position for continuation token");
+  const code = input
+    ? "no-valid-position-for-continuation-token-in-request"
+    : "no-valid-position-for-continuation-token-in-response";
+  reportDiagnostic(context.program, {
+    code: code,
+    target: NoTarget,
+    format: { operationId: method.name },
+  });
+  return undefined;
 }
 
 function buildContinuationToken(
+  context: PythonSdkContext<SdkHttpOperation>,
   segments: SdkModelPropertyType[] | undefined,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   input: boolean = true,
 ): Record<string, any> {
-  if (segments === undefined) return {};
-  if (segments.length === 0) return {};
-  const wireName = getWireNameForContinuationToken(segments, method, input);
-  const position = getPositionForContinuationToken(segments, method, input);
-  return { wireName, position };
+  if (segments && segments.length > 0) {
+    const wireName = getWireNameForContinuationToken(context, segments, method, input);
+    const position = getPositionForContinuationToken(context, segments, method, input);
+    if (wireName !== undefined && position !== undefined) {
+      return { wireName, position };
+    }
+  }
+
+  return {};
 }
 
 function addPagingInformation(
@@ -217,11 +241,13 @@ function addPagingInformation(
     context,
     method.response.resultSegments,
     "no-valid-paging-items",
+    method,
   );
   const nextLinkName = getWireNameWithDiagnostics(
     context,
     method.pagingMetadata.nextLinkSegments,
     "no-valid-nextlink",
+    method,
   );
   base.responses.forEach((resp: Record<string, any>) => {
     resp.type = itemType;
@@ -237,10 +263,12 @@ function addPagingInformation(
     description: method.doc ?? "",
     summary: method.summary,
     continuationTokenRequest: buildContinuationToken(
+      context,
       method.pagingMetadata.continuationTokenParameterSegments,
       method,
     ),
     continuationTokenResponse: buildContinuationToken(
+      context,
       method.pagingMetadata.continuationTokenResponseSegments,
       method,
       false,
@@ -499,6 +527,7 @@ function emitHttpResponse(
       context,
       method?.response.resultSegments,
       "no-valid-lro-result",
+      method,
     ),
   };
 }

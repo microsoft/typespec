@@ -70,7 +70,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         return "_next_token" if self.has_continuation_token else "next_link"
 
     @property
-    def next_none_value(self) -> str:
+    def next_default_value(self) -> str:
         return "_Unset" if self.has_continuation_token else "None"
 
     def _get_attr_name(self, wire_name: str) -> str:
