@@ -351,7 +351,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                 MethodNamer.getSimpleRestResponseMethodName(restAPIMethod.getName()), clientMethod.getArgumentList()));
             IType classType
                 = ((GenericType) clientMethod.getReturnValue().getType().getClientType()).getTypeArguments()[1];
-            String contextArgument = contextInParameters ? ", context" : "";
+            String contextArgument = contextInParameters ? "context" : "Context.NONE";
             String typeExpression;
             if (classType instanceof GenericType) {
                 // pageable LRO
@@ -365,7 +365,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
             } else {
                 typeExpression = String.format("%s.class", classType);
             }
-            function.methodReturn(String.format("SyncPollerFactory.create(%1$s.getSerializerAdapter(), %1$s.getHttpPipeline(), %2$s, %2$s, %1$s.getDefaultPollInterval(), () -> response%3$s)", clientMethod.getClientReference(), typeExpression, contextArgument));
+            function.methodReturn(String.format("this.client.<%3$s, %3$s>getLroResult(() -> response, %1$s, %1$s, %2$s)", typeExpression, contextArgument, classType));
         });
     }
 
