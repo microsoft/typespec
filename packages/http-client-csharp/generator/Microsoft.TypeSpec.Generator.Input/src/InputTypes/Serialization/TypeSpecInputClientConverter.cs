@@ -76,6 +76,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.Children = children ?? [];
 
             var lastSegment = GetLastSegment(client.Namespace);
+            // TODO -- this is a workaround. We should not build the client name twice here and in the `ClientProvider`.
+            // but now we do not really have a way to notice us that we should have one particular namespace updated across all types.
+            // tracking https://github.com/microsoft/typespec/issues/6241
             if (lastSegment == client.Name)
             {
                 // invalid namespace segment found, add it into the list

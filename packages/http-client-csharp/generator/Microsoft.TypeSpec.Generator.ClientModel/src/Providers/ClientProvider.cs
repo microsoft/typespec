@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
