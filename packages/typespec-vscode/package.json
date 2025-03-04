@@ -247,6 +247,7 @@
     "@types/mocha": "^10.0.9",
     "@types/node": "~22.10.10",
     "@types/semver": "^7.5.8",
+    "@types/which": "^3.0.4",
     "@types/vscode": "~1.96.0",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
@@ -262,6 +263,7 @@
     "typescript": "~5.7.3",
     "vitest": "^3.0.5",
     "vscode-languageclient": "~9.0.1",
+    "which": "^5.0.0",
     "yaml": "~2.7.0"
   }
 }

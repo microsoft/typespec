@@ -6,9 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
-using Microsoft.CodeAnalysis;
-using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 
 namespace Microsoft.TypeSpec.Generator
@@ -88,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
                 var filename = Path.Combine(outputPath, file.Name);
-                Emitter.Instance.Info($"Writing {Path.GetFullPath(filename)}");
+                CodeModelPlugin.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
                 await File.WriteAllTextAsync(filename, file.Text);
             }
