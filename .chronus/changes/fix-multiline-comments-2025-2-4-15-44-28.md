@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-server-csharp"
 ---
 
-Fix
+Fix the generation of long and multiline comments.
