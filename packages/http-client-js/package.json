@@ -18,7 +18,7 @@
     "build-todo": "rimraf sample/output/todo dist/sample/output/todo && tsp compile sample/main.tsp --emit @typespec/http-client-js --output-dir sample/output/todo && babel sample/output/todo -d dist/sample/output/todo --extensions .ts,.tsx && npx prettier sample/output --write",
     "format": "prettier . --write",
     "build:test": "tsc -p tsconfig.test.json",
-    "start:server": "npx tsp-spector server start node_modules/@typespec/http-specs/specs --coverageFile ./tsp-spector-coverage-javascript-standard.json --debug",
+    "start:server": "npx tsp-spector server start node_modules/@typespec/http-specs/specs --coverageFile ./temp/tsp-spector-coverage-javascript-standard.json --debug",
     "stop:server": "npx tsp-spector server stop",
     "test:e2e": "npm run emit:e2e && node eng/scripts/run-e2e-tests.js",
     "run:e2e": "node eng/scripts/run-e2e-tests.js",
