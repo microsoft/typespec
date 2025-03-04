@@ -1001,9 +1001,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.extend(deserialize_code)
         return retval
 
-    def handle_error_response(  # pylint: disable=too-many-statements, too-many-branches
-        self, builder: OperationType
-    ) -> List[str]:
+    def handle_error_response(self, builder: OperationType) -> List[str]:
         async_await = "await " if self.async_mode else ""
         retval = [f"if response.status_code not in {str(builder.success_status_codes)}:"]
         response_read = [
@@ -1311,7 +1309,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
     def _function_def(self) -> str:
         return "def"
 
-    def _extract_data_callback(self, builder: PagingOperationType) -> List[str]:
+    def _extract_data_callback(self, builder: PagingOperationType) -> List[str]:  # pylint: disable=too-many-statements
         retval = [f"{'async ' if self.async_mode else ''}def extract_data(pipeline_response):"]
         response = builder.responses[0]
         deserialized = "pipeline_response.http_response.json()"
@@ -1376,7 +1374,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
 
     def _get_next_callback(self, builder: PagingOperationType) -> List[str]:
         retval = [
-            f"{'async ' if self.async_mode else ''}def get_next({builder.next_variable_name}={builder.next_default_value}):"
+            f"{'async ' if self.async_mode else ''}def get_next({builder.next_variable_name}={builder.next_default_value}):"  # pylint: disable=line-too-long
         ]
         retval.append(f"    _request = prepare_request({builder.next_variable_name})")
         retval.append("")

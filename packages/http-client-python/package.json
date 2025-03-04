@@ -82,7 +82,7 @@
     "@types/semver": "7.5.8",
     "@typespec/compiler": "~0.65.0",
     "@typespec/http": "~0.65.0",
-    "@typespec/http-specs": "0.1.0-alpha.9",
+    "@typespec/http-specs": "0.1.0-alpha.10",
     "@typespec/openapi": "~0.65.0",
     "@typespec/rest": "~0.65.0",
     "@typespec/versioning": "~0.65.0",
