@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import chalk from "chalk";
 import { exec, spawn } from "child_process";
 import fs from "fs";
 import http from "http";
 import ora from "ora";
 import path from "path";
+import pc from "picocolors";
 import { promisify } from "util";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
@@ -61,19 +61,19 @@ const waitForServer = async (url, retries = 20, delay = 2000) => {
       });
 
       if (res.statusCode === 204) {
-        spinner.succeed(chalk.green(`✅ Server is ready (received 204 from ${url})`));
+        spinner.succeed(pc.green(`✅ Server is ready (received 204 from ${url})`));
         return;
       } else {
-        log(chalk.yellow(`⚠️ Attempt ${attempt}: Received ${res.statusCode}, retrying...`));
+        log(pc.yellow(`⚠️ Attempt ${attempt}: Received ${res.statusCode}, retrying...`));
       }
     } catch (error) {
-      log(chalk.gray(`🔄 Attempt ${attempt}: Server not ready yet...`));
+      log(pc.gray(`🔄 Attempt ${attempt}: Server not ready yet...`));
     }
 
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
-  spinner.fail(chalk.red(`❌ Server did not start in time (no 204 from ${url})`));
+  spinner.fail(pc.red(`❌ Server did not start in time (no 204 from ${url})`));
   throw new Error("Server did not start in time.");
 };
 
@@ -81,7 +81,7 @@ const waitForServer = async (url, retries = 20, delay = 2000) => {
  * Main function to start the server, run tests, and stop the server
  */
 const runE2eTests = async () => {
-  log(chalk.blue.bold("\n🚀 Starting mock server..."));
+  log(pc.blue(pc.bold("\n🚀 Starting mock server...")));
   spinner.start("Launching mock server...");
 
   // ✅ Start the server using spawn
@@ -91,9 +91,9 @@ const runE2eTests = async () => {
   });
 
   // ✅ Handle logs from server
-  serverProcess.stdout.on("data", (data) => log(chalk.gray(`[Server] ${data.toString().trim()}`)));
+  serverProcess.stdout.on("data", (data) => log(pc.gray(`[Server] ${data.toString().trim()}`)));
   serverProcess.stderr.on("data", (data) =>
-    log(chalk.red(`[Server Error] ${data.toString().trim()}`)),
+    log(pc.red(`[Server Error] ${data.toString().trim()}`)),
   );
 
   // ✅ Ensure cleanup on exit
@@ -101,15 +101,15 @@ const runE2eTests = async () => {
     spinner.start("Shutting down mock server...");
     try {
       await execPromise("npm run stop:server");
-      spinner.succeed(chalk.green("✅ Mock server stopped successfully."));
+      spinner.succeed(pc.green("✅ Mock server stopped successfully."));
     } catch (err) {
-      spinner.fail(chalk.red("❌ Failed to stop the server gracefully."));
+      spinner.fail(pc.red("❌ Failed to stop the server gracefully."));
     }
   };
 
   process.on("exit", stopServer);
   process.on("SIGINT", async () => {
-    log(chalk.yellow("\n🛑 Interrupt received, stopping server..."));
+    log(pc.yellow("\n🛑 Interrupt received, stopping server..."));
     await stopServer();
     process.exit();
   });
@@ -117,15 +117,15 @@ const runE2eTests = async () => {
   try {
     await waitForServer(SERVER_URL);
 
-    log(chalk.green("\n🧪 Running tests...\n"));
-    log(chalk.cyan(`> ${vitestArgs.join(" ")}`));
+    log(pc.green("\n🧪 Running tests...\n"));
+    log(pc.cyan(`> ${vitestArgs.join(" ")}`));
 
     // ✅ Run Vitest and stream output live
     await new Promise((resolve, reject) => {
       const testProcess = spawn("npx", vitestArgs, { stdio: "inherit", shell: true });
 
       testProcess.on("exit", async (code) => {
-        log(chalk.yellow("\n🛑 Stopping server..."));
+        log(pc.yellow("\n🛑 Stopping server..."));
         await stopServer();
         await calculateCoverage(); // ✅ Call calculateCoverage after the server is stopped
 
@@ -137,7 +137,7 @@ const runE2eTests = async () => {
       });
     });
   } catch (err) {
-    log(chalk.red("\n❌ Error:"), err.message);
+    log(pc.red("\n❌ Error:"), err.message);
     await stopServer();
     process.exit(1);
   }
@@ -149,13 +149,13 @@ try {
   await runE2eTests();
   await runCoverageUpload({ force: forceUpload });
 } catch (error) {
-  log(chalk.red(`❌ Fatal Error: ${error.message}`));
+  log(pc.red(`❌ Fatal Error: ${error.message}`));
   exitCode = 1; // ✅ Mark as failure but do NOT exit yet
 } finally {
   // ✅ Ensure time is always logged
   const endTime = process.hrtime.bigint();
   const duration = Number(endTime - startTime) / 1e9; // Convert to seconds
-  console.log(chalk.blue(`Total time taken: ${duration.toFixed(2)} seconds`));
+  console.log(pc.blue(`Total time taken: ${duration.toFixed(2)} seconds`));
 
   // ✅ Exit after logging (0 = success, 1 = failure)
   process.exit(exitCode);

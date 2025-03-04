@@ -13,7 +13,6 @@
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
     "test:scenarios": "vitest run scenarios.test.ts",
     "test": "npm run test:scenarios",
-    "build-todo": "rimraf sample/output/todo dist/sample/output/todo && tsp compile sample/main.tsp --emit @typespec/http-client-js --output-dir sample/output/todo && babel sample/output/todo -d dist/sample/output/todo --extensions .ts,.tsx && npx prettier sample/output --write",
     "format": "prettier . --write",
     "build:test": "tsc -p tsconfig.test.json",
     "start:server": "npx tsp-spector server start node_modules/@typespec/http-specs/specs --coverageFile ./temp/tsp-spector-coverage-javascript-standard.json --debug",
@@ -21,6 +20,16 @@
     "test:e2e": "npm run emit:e2e && node eng/scripts/run-e2e-tests.js",
     "run:e2e": "node eng/scripts/run-e2e-tests.js",
     "emit:e2e": "node eng/scripts/emit-e2e.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
+    }
   },
   "keywords": [
     "typespec",
@@ -56,7 +65,7 @@
     "@typespec/ts-http-runtime": "0.1.0",
     "@typespec/versioning": "workspace:~",
     "@vitest/ui": "^3.0.3",
-    "chalk": "^2.4.2",
+    "picocolors": "~1.1.1",
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "execa": "^9.5.2",

@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import chalk from "chalk";
 import { execa } from "execa";
 import pkg from "fs-extra";
 import { copyFile, mkdir, rm } from "fs/promises";
@@ -9,6 +8,7 @@ import inquirer from "inquirer";
 import ora from "ora";
 import pLimit from "p-limit";
 import { basename, dirname, join, resolve } from "path";
+import pc from "picocolors";
 import { fileURLToPath } from "url";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
@@ -67,7 +67,7 @@ async function getIgnoreList() {
       .filter((line) => line.trim() && !line.startsWith("#"))
       .map((line) => line.trim());
   } catch {
-    console.warn(chalk.yellow("No ignore file found."));
+    console.warn(pc.yellow("No ignore file found."));
     return [];
   }
 }
@@ -79,7 +79,7 @@ async function processPaths(paths, ignoreList, mainOnly) {
     const fullPath = resolve(basePath, relativePath);
 
     if (!(await pathExists(fullPath))) {
-      console.warn(chalk.yellow(`Path not found: ${relativePath}`));
+      console.warn(pc.yellow(`Path not found: ${relativePath}`));
       continue;
     }
 
@@ -98,7 +98,7 @@ async function processPaths(paths, ignoreList, mainOnly) {
         .filter((file) => !ignoreList.some((ignore) => file.relativePath.startsWith(ignore)));
       results.push(...validFiles);
     } else {
-      console.warn(chalk.yellow(`Skipping unsupported path: ${relativePath}`));
+      console.warn(pc.yellow(`Skipping unsupported path: ${relativePath}`));
     }
   }
 
@@ -212,9 +212,9 @@ async function processFile(file, options) {
         if (spinner) spinner.start(`Retrying: ${relativePath}`);
         return await processFile(file, options);
       } else if (action === "next") {
-        console.log(chalk.yellow(`Skipping: ${relativePath}`));
+        console.log(pc.yellow(`Skipping: ${relativePath}`));
       } else if (action === "abort") {
-        console.log(chalk.red("Aborting processing."));
+        console.log(pc.red("Aborting processing."));
         throw new Error("Processing aborted by user");
       }
     }
@@ -268,16 +268,16 @@ async function processFiles(files, options) {
     }
   }
 
-  console.log(chalk.bold.green("\nProcessing Complete:"));
-  console.log(chalk.green(`Succeeded: ${succeeded.length}`));
-  console.log(chalk.red(`Failed: ${failed.length}`));
+  console.log(pc.bold(pc.green("\nProcessing Complete:")));
+  console.log(pc.green(`Succeeded: ${succeeded.length}`));
+  console.log(pc.red(`Failed: ${failed.length}`));
 
   if (failed.length > 0) {
-    console.log(chalk.red("\nFailed Specs:"));
+    console.log(pc.red("\nFailed Specs:"));
     failed.forEach((f) => {
-      console.log(chalk.red(`  - ${f.relativePath}`));
+      console.log(pc.red(`  - ${f.relativePath}`));
     });
-    console.log(chalk.blue(`\nLogs available at: ${logDirRoot}`));
+    console.log(pc.blue(`\nLogs available at: ${logDirRoot}`));
   }
 
   // Ensure the log directory exists before writing the report.
@@ -289,7 +289,7 @@ async function processFiles(files, options) {
     ...failed.map((f) => `  - ${f.relativePath}\n    Error: ${f.errorDetails}`),
   ].join("\n");
   await writeFile(reportFilePath, report, "utf8");
-  console.log(chalk.blue(`Report written to: ${reportFilePath}`));
+  console.log(pc.blue(`Report written to: ${reportFilePath}`));
 }
 // Main execution function
 async function main() {
@@ -305,7 +305,7 @@ async function main() {
       : await processPaths(["."], ignoreList, argv["main-only"]);
 
     if (paths.length === 0) {
-      console.log(chalk.yellow("⚠️ No files to process."));
+      console.log(pc.yellow("⚠️ No files to process."));
       return;
     }
 
@@ -314,13 +314,13 @@ async function main() {
       build: argv.build,
     });
   } catch (error) {
-    console.error(chalk.red(`❌ Fatal Error: ${error.message}`));
+    console.error(pc.red(`❌ Fatal Error: ${error.message}`));
     exitCode = 1; // ✅ Ensure graceful failure handling
   } finally {
     // ✅ Always log execution time before exit
     const endTime = process.hrtime.bigint();
     const duration = Number(endTime - startTime) / 1e9; // Convert nanoseconds to seconds
-    console.log(chalk.blue(`⏱️ Total execution time: ${duration.toFixed(2)} seconds`));
+    console.log(pc.blue(`⏱️ Total execution time: ${duration.toFixed(2)} seconds`));
 
     process.exit(exitCode); // ✅ Ensures proper exit handling
   }
