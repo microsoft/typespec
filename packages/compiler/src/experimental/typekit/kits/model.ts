@@ -135,7 +135,6 @@ defineKit<TypekitExtension>({
         indexer: desc.indexer,
       });
 
-      this.realm.addType(model);
       this.program.checker.finishType(model);
       return model;
     },
