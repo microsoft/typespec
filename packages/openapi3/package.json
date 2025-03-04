@@ -75,6 +75,9 @@
     },
     "@typespec/xml": {
       "optional": true
+    },
+    "@typespec/versioning": {
+      "optional": true
     }
   },
   "devDependencies": {
