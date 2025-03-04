@@ -52,4 +52,11 @@ public interface CommonPropertiesClient {
      * @return the ManagedIdentitiesClient object.
      */
     ManagedIdentitiesClient getManagedIdentities();
+
+    /**
+     * Gets the ErrorsClient object to access its operations.
+     * 
+     * @return the ErrorsClient object.
+     */
+    ErrorsClient getErrors();
 }

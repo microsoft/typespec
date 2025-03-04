@@ -3,6 +3,8 @@
 
 package azure.resourcemanager.commonproperties;
 
+import azure.resourcemanager.commonproperties.models.ApiErrorException;
+import azure.resourcemanager.commonproperties.models.ConfidentialResourceProperties;
 import azure.resourcemanager.commonproperties.models.ManagedIdentityTrackedResource;
 import azure.resourcemanager.commonproperties.models.ManagedIdentityTrackedResourceProperties;
 import azure.resourcemanager.commonproperties.models.ManagedServiceIdentity;
@@ -11,18 +13,20 @@ import azure.resourcemanager.commonproperties.models.UserAssignedIdentity;
 import com.azure.core.management.Region;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.azure.core.management.exception.ManagementException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
 
-public class ManagedIdentityManagerTests {
+public class CommonPropertiesTests {
     private static final String USER_ASSIGNED_IDENTITIES_KEY
         = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id1";
     private final CommonPropertiesManager manager
         = CommonPropertiesManager.authenticate(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile());
 
     @Test
-    public void testManagedIdentityManager() {
+    public void testManagedIdentity() {
         Map<String, String> tagsMap = new HashMap<>();
         tagsMap.put("tagKey1", "tagValue1");
         ManagedIdentityTrackedResource resource = manager.managedIdentities()
@@ -59,5 +63,31 @@ public class ManagedIdentityManagerTests {
         Assertions.assertNotNull(userAssignedIdentity.principalId());
         Assertions.assertNotNull(userAssignedIdentity.clientId());
 
+    }
+
+    @Test
+    public void testError() {
+        ApiErrorException apiErrorException = null;
+        try {
+            manager.errors().define("confidential")
+                .withRegion(Region.US_EAST)
+                .withExistingResourceGroup("test-rg")
+                .withProperties(new ConfidentialResourceProperties().withUsername("myusername").withPassword("mypassword"))
+                .create();
+        } catch (ApiErrorException e) {
+            apiErrorException = e;
+        }
+        Assertions.assertNotNull(apiErrorException);
+        Assertions.assertEquals("AuthorizationFailed", apiErrorException.getValue().getCode());
+        Assertions.assertEquals("general", apiErrorException.getValue().getInnererror().exceptiontype());
+
+        ManagementException exception = null;
+        try {
+            manager.errors().getByResourceGroup("test-rg", "confidential");
+        } catch (ManagementException e) {
+            exception = e;
+        }
+        Assertions.assertNotNull(exception);
+        Assertions.assertEquals("ResourceNotFound", exception.getValue().getCode());
     }
 }
