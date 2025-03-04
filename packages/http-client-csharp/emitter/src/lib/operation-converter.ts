@@ -356,7 +356,7 @@ function loadOperationPaging(
     method.pagingMetadata.continuationTokenResponseSegments
   ) {
     // The last segment of the service method parameter can be used to map back to the protocol parameter
-    var lastParameterSegment = method.pagingMetadata.continuationTokenParameterSegments[
+    const lastParameterSegment = method.pagingMetadata.continuationTokenParameterSegments[
       method.pagingMetadata.continuationTokenParameterSegments.length - 1
     ] as SdkModelPropertyType;
     continuationToken = {
