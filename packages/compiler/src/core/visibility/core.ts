@@ -148,13 +148,14 @@ const [getDefaultModifiers, setDefaultModifiers] = useStateMap<Enum, Set<EnumMem
 function getDefaultModifierSetForClass(program: Program, visibilityClass: Enum): Set<EnumMember> {
   const cached = getDefaultModifiers(program, visibilityClass);
 
-  if (cached) return cached;
+  if (cached) return new Set(cached);
 
   const defaultModifierSet = new Set<EnumMember>(visibilityClass.members.values());
 
   setDefaultModifiers(program, visibilityClass, defaultModifierSet);
 
-  return defaultModifierSet;
+  // Explicitly clone the set again to prevent accidental modification of the default set.
+  return new Set(defaultModifierSet);
 }
 
 /**
@@ -268,7 +269,7 @@ export function clearLegacyVisibility(program: Program, property: ModelProperty)
  * - Otherwise, this function will return an array of lowercase strings representing the active Lifecycle visibility
  *   modifiers ("create", "read", "update").
  *
- * @deprecated Use `getVisibilityForClass` instead.
+ * @deprecated Use `getVisibilityForClass` instead. This function will be REMOVED in TypeSpec 1.0-rc.
  *
  * @param program - the program in which the property occurs
  * @param property - the property to get legacy visibility modifiers for
@@ -675,7 +676,7 @@ export function isVisible(
  * Determines if a property has any of the specified (legacy) visibility strings.
  *
  * @deprecated Calling `isVisible` with an array of legacy visibility strings is deprecated. Use a `VisibilityFilter`
- * object instead.
+ * object instead. This function will be REMOVED in TypeSpec 1.0-rc.
  *
  * @param program - the program in which the property occurs
  * @param property - the property to check

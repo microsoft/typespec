@@ -102,17 +102,17 @@ model ServiceOptions {
  *
  * @example Setting service title
  * ```typespec
- * @service({title: "Pet store"})
+ * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
  *
  * @example Setting service version
  * ```typespec
- * @service({version: "1.0"})
+ * @service(#{version: "1.0"})
  * namespace PetStore;
  * ```
  */
-extern dec service(target: Namespace, options?: ServiceOptions);
+extern dec service(target: Namespace, options?: valueof ServiceOptions);
 
 /**
  * Specify that this model is an error type. Operations return error types when the operation has failed.

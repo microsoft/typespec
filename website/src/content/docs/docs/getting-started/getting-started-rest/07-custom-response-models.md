@@ -103,9 +103,7 @@ import "@typespec/versioning";
 using TypeSpec.Http;
 using TypeSpec.Versioning;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 @versioned(Versions)
 namespace PetStore;

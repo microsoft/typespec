@@ -121,7 +121,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary"
   },
   {
    "$id": "18",
@@ -188,7 +189,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -197,7 +197,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/int32",
      "BufferResponse": true,
@@ -280,13 +279,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/int32",
      "RequestMediaTypes": [
@@ -336,7 +333,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.Int32Value"
   },
   {
    "$id": "41",
@@ -403,7 +401,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -412,7 +409,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/int64",
      "BufferResponse": true,
@@ -495,13 +491,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/int64",
      "RequestMediaTypes": [
@@ -551,7 +545,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.Int64Value"
   },
   {
    "$id": "64",
@@ -618,7 +613,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -627,7 +621,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/boolean",
      "BufferResponse": true,
@@ -710,13 +703,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/boolean",
      "RequestMediaTypes": [
@@ -766,7 +757,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.BooleanValue"
   },
   {
    "$id": "87",
@@ -833,7 +825,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -842,7 +833,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/string",
      "BufferResponse": true,
@@ -925,13 +915,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/string",
      "RequestMediaTypes": [
@@ -981,7 +969,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.StringValue"
   },
   {
    "$id": "110",
@@ -1048,7 +1037,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1057,7 +1045,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/float32",
      "BufferResponse": true,
@@ -1140,13 +1127,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/float32",
      "RequestMediaTypes": [
@@ -1196,7 +1181,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.Float32Value"
   },
   {
    "$id": "133",
@@ -1271,7 +1257,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1280,7 +1265,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/datetime",
      "BufferResponse": true,
@@ -1371,13 +1355,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/datetime",
      "RequestMediaTypes": [
@@ -1427,7 +1409,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.DatetimeValue"
   },
   {
    "$id": "158",
@@ -1502,7 +1485,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1511,7 +1493,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/duration",
      "BufferResponse": true,
@@ -1602,13 +1583,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/duration",
      "RequestMediaTypes": [
@@ -1658,7 +1637,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.DurationValue"
   },
   {
    "$id": "183",
@@ -1725,7 +1705,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1734,7 +1713,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/unknown",
      "BufferResponse": true,
@@ -1817,13 +1795,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/unknown",
      "RequestMediaTypes": [
@@ -1873,7 +1849,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.UnknownValue"
   },
   {
    "$id": "206",
@@ -1936,7 +1913,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1945,7 +1921,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/model",
      "BufferResponse": true,
@@ -2024,13 +1999,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/model",
      "RequestMediaTypes": [
@@ -2080,7 +2053,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.ModelValue"
   },
   {
    "$id": "227",
@@ -2143,7 +2117,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2152,7 +2125,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/model/recursive",
      "BufferResponse": true,
@@ -2231,13 +2203,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/model/recursive",
      "RequestMediaTypes": [
@@ -2287,7 +2257,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.RecursiveModelValue"
   },
   {
    "$id": "248",
@@ -2359,7 +2330,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2368,7 +2338,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/nullable-float",
      "BufferResponse": true,
@@ -2447,13 +2416,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/dictionary/nullable-float",
      "RequestMediaTypes": [
@@ -2503,7 +2470,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Dictionary.NullableFloatValue"
   }
  ]
 }

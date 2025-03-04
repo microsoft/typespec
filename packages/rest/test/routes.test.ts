@@ -196,7 +196,7 @@ describe("rest: routes", () => {
           op action(): void;
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           op my is Lib.action;
           @route("my")
@@ -218,7 +218,7 @@ describe("rest: routes", () => {
           }
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           interface Mys extends Lib.Ops {
           }
@@ -241,7 +241,7 @@ describe("rest: routes", () => {
           }
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           @route("my") interface Mys2 extends Lib.Ops {}
 
@@ -263,7 +263,7 @@ describe("rest: routes", () => {
           op action(@path @segment("pets") id: string): void;
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           op my is Lib.action;
 
@@ -286,7 +286,7 @@ describe("rest: routes", () => {
           }
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           interface Mys extends Lib.Ops {}
           @route("my")
@@ -308,7 +308,7 @@ describe("rest: routes", () => {
           }
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           interface Mys extends Lib.Ops {}
           @route("my")

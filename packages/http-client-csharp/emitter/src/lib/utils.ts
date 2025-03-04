@@ -90,11 +90,7 @@ function processJsonRpc(context: CSharpEmitterContext, message: string) {
     if (crossLanguageDefinitionId === undefined) {
       return undefined;
     }
-    const target = context.__typeCache.crossLanguageDefinitionIds.get(crossLanguageDefinitionId);
-    if (target) {
-      return target.__raw;
-    }
-    return undefined;
+    return context.__typeCache.crossLanguageDefinitionIds.get(crossLanguageDefinitionId);
   }
 }
 
