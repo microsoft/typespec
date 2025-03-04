@@ -70,8 +70,8 @@
     "@typespec/versioning": "workspace:~",
     "@typespec/xml": "workspace:~",
     "es-module-shims": "~2.0.10",
-    "react": "~19.0.0",
-    "react-dom": "~19.0.0"
+    "react": "~18.3.1",
+    "react-dom": "~18.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
