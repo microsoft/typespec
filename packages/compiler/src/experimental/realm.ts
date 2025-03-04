@@ -134,7 +134,7 @@ export class Realm {
     this.key = Symbol(description);
     this.#program = program;
 
-    Realm.#knownRealms.set(this.key, this);
+    // Realm.#knownRealms.set(this.key, this);
   }
 
   #_typekit: Typekit | undefined;

@@ -129,13 +129,13 @@ defineKit<TypekitExtension>({
         name: desc.name ?? "",
         decorators: decoratorApplication(this, desc.decorators),
         properties: properties,
-        expression: desc.name === undefined,
         node: undefined as any,
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],
         indexer: desc.indexer,
       });
 
+      this.realm.addType(model);
       this.program.checker.finishType(model);
       return model;
     },
