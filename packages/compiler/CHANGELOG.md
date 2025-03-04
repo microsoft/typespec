@@ -61,6 +61,16 @@ properties of the request body as effectively optional, you can now do so explic
 op example(@bodyRoot resource: Resource): Resource;
 ```
 
+- [#6108](https://github.com/microsoft/typespec/pull/6108) Migrate `@service` decorator options to take in a value
+
+```diff lang="tsp"
+-@service({title: "My service"})
++@service(#{title: "My service"})
+```
+- [#6047](https://github.com/microsoft/typespec/pull/6047) `--version` shows if tsp is running from the standalone version
+- [#5453](https://github.com/microsoft/typespec/pull/5453) Report unused `using` in language server
+- [#6164](https://github.com/microsoft/typespec/pull/6164) Renamed package `@typespec/http-server-javascript` to `@typespec/http-server-js`.
+
 ### Features
 
 - [#5483](https://github.com/microsoft/typespec/pull/5483) Add autocomplete of model properties for union type
@@ -72,15 +82,6 @@ op example(@bodyRoot resource: Resource): Resource;
 - [#6045](https://github.com/microsoft/typespec/pull/6045) Redesign and simplification of `tsp init`
 - [#5996](https://github.com/microsoft/typespec/pull/5996) Add Typekits to support EFV2
 - [#5986](https://github.com/microsoft/typespec/pull/5986) Tsp init template with both config and emitters merge in tspconfig.yaml
-- [#6108](https://github.com/microsoft/typespec/pull/6108) Migrate `@service` decorator options to take in a value
-
-```diff lang="tsp"
--@service({title: "My service"})
-+@service(#{title: "My service"})
-```
-- [#6047](https://github.com/microsoft/typespec/pull/6047) `--version` shows if tsp is running from the standalone version
-- [#5453](https://github.com/microsoft/typespec/pull/5453) Report unused `using` in language server
-- [#6164](https://github.com/microsoft/typespec/pull/6164) Renamed package `@typespec/http-server-javascript` to `@typespec/http-server-js`.
 
 ### Bug Fixes
 

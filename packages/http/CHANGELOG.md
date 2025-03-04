@@ -2,9 +2,8 @@
 
 ## 0.66.0
 
-### Features
+### Deprecations
 
-- [#5996](https://github.com/microsoft/typespec/pull/5996) Emitter Framework V2
 - [#6130](https://github.com/microsoft/typespec/pull/6130) Updates `@header` decorator to accept values and adds the `explode` option.
 Note that using the model expression syntax to pass in arguments, or using the
 `format` field, are now deprecated.
@@ -20,6 +19,10 @@ op example2(
 +  @header list: string[]
 ): void;
 ```
+
+### Features
+
+- [#5996](https://github.com/microsoft/typespec/pull/5996) Emitter Framework V2
 
 
 ## 0.65.0

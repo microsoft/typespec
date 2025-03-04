@@ -2,7 +2,7 @@
 
 ## 0.66.0
 
-### Features
+### Deprecations
 
 - [#6078](https://github.com/microsoft/typespec/pull/6078) Updates the `@extension` decorator with 3 changes:
 
