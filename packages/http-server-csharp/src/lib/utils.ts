@@ -443,20 +443,25 @@ export function formatComment(
 ): string {
   function getNextLine(target: string): string {
     for (let i = lineLength - 1; i > 0; i--) {
-      if ([" ", ".", "?", ",", ";"].includes(target.charAt(i))) {
-        return `/// ${text.substring(0, i).replaceAll("\n", " ")}`;
+      if (target.charAt(i) === " ") {
+        return `${target.substring(0, i)}`;
+      }
+    }
+    for (let i = lineLength - 1; i < target.length; i++) {
+      if (target.charAt(i) === " ") {
+        return `${target.substring(0, i)}`;
       }
     }
 
-    return `/// ${text.substring(0, lineLength)}`;
+    return `${target.substring(0, lineLength)}`;
   }
-  let remaining: string = text;
+  let remaining: string = text.replaceAll("\n", " ");
   const lines: string[] = [];
   while (remaining.length > lineLength) {
     const currentLine = getNextLine(remaining);
     remaining =
-      remaining.length > currentLine.length ? remaining.substring(currentLine.length + 1) : "";
-    lines.push(currentLine);
+      remaining.length > currentLine.length ? remaining.substring(currentLine.length) : "";
+    lines.push(`/// ${currentLine}`);
   }
 
   if (remaining.length > 0) lines.push(`/// ${remaining}`);
