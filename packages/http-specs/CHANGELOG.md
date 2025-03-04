@@ -1,5 +1,12 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.11
+
+### Features
+
+- [#6140](https://github.com/microsoft/typespec/pull/6140) all parameters including headers and queries shall be passed when next call for continuation token paging
+
+
 ## 0.1.0-alpha.10
 
 ### Bug Fixes
