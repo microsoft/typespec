@@ -129,7 +129,6 @@ defineKit<TypekitExtension>({
         name: desc.name ?? "",
         decorators: decoratorApplication(this, desc.decorators),
         properties: properties,
-        expression: desc.name === undefined,
         node: undefined as any,
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],

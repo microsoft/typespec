@@ -1,8 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: fix
+changeKind: internal
 packages:
-  - "@typespec/compiler"
+  - "@typespec/http-client-python"
 ---
 
-Fix mutator not mutating sourceModel(s)
+add task pool for regeneration

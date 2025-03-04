@@ -141,7 +141,6 @@
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "20",
@@ -169,7 +168,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/content-negotiation/same-body",
      "BufferResponse": true,
@@ -225,7 +223,6 @@
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "29",
@@ -253,7 +250,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/content-negotiation/same-body",
      "BufferResponse": true,
@@ -355,7 +351,6 @@
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "44",
@@ -383,7 +378,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/content-negotiation/different-body",
      "BufferResponse": true,
@@ -435,7 +429,6 @@
        "BodyType": {
         "$ref": "2"
        },
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "52",
@@ -463,7 +456,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/content-negotiation/different-body",
      "BufferResponse": true,
