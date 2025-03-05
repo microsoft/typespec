@@ -68,7 +68,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType(nameof(InputOperation.Parameters), options, ref parameters)
                     || reader.TryReadComplexType(nameof(InputOperation.Responses), options, ref responses)
                     || reader.TryReadString(nameof(InputOperation.HttpMethod), ref httpMethod)
-                    || reader.TryReadComplexType(nameof(InputOperation.RequestBodyMediaType), options, ref requestBodyMediaType)
                     || reader.TryReadString(nameof(InputOperation.Uri), ref uri)
                     || reader.TryReadString(nameof(InputOperation.Path), ref path)
                     || reader.TryReadString(nameof(InputOperation.ExternalDocsUrl), ref externalDocsUrl)
