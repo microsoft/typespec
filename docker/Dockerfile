@@ -5,14 +5,12 @@
 FROM mcr.microsoft.com/azurelinux/base/nodejs:20.14 AS builder
 COPY . /app
 
-RUN set -eux; \
-    # Upgrade all packages per https://eng.ms/docs/more/containers-secure-supply-chain/updating.
-	tdnf update -y; \
-    tdnf install -y \
-        git \
-    ; \
-    tdnf clean all
-
+# Upgrade all packages per https://eng.ms/docs/more/containers-secure-supply-chain/updating.
+RUN set -eux \
+  && tdnf update -y \
+  && tdnf install -y \
+    git \
+  && tdnf clean all
 
 WORKDIR /app
 RUN npm install -g pnpm
