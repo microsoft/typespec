@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Potenatial fix for `StripGuards`
+Potential fix for `StripGuards`
