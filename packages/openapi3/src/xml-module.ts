@@ -180,11 +180,21 @@ function isXmlModelChecker(
   }
 
   if (model.kind === "ModelProperty") {
-    const propModel = model.type as Scalar | Model;
-    if (propModel && !checked.includes(propModel.name)) {
-      checked.push(propModel.name);
-      if (isXmlModelChecker(program, propModel, checked)) {
-        return true;
+    const isArrayProperty = model.type?.kind === "Model" && isArrayModelType(program, model.type);
+    if (isArrayProperty) {
+      const propValue = (model.type as ArrayModelType).indexer.value;
+      if (propValue.kind === "Scalar") {
+        if (isXmlModelChecker(program, propValue, checked)) {
+          return true;
+        }
+      }
+    } else {
+      const propModel = model.type as Scalar | Model;
+      if (propModel && !checked.includes(propModel.name)) {
+        checked.push(propModel.name);
+        if (isXmlModelChecker(program, propModel, checked)) {
+          return true;
+        }
       }
     }
   }
@@ -206,15 +216,8 @@ function isXmlModelChecker(
         }
       }
     }
-    if (model.name === "Array") {
-      const propValue = (model as ArrayModelType).indexer.value;
-      if (propValue.kind === "Scalar") {
-        if (isXmlModelChecker(program, propValue, checked)) {
-          return true;
-        }
-      }
-    }
   }
+
   if (model.kind === "Scalar" && model.baseScalar) {
     if (isXmlModelChecker(program, model.baseScalar, checked)) {
       return true;
