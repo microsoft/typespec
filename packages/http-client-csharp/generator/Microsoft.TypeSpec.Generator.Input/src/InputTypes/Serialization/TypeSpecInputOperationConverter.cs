@@ -45,7 +45,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputParameter>? parameters = null;
             IReadOnlyList<OperationResponse>? responses = null;
             string? httpMethod = null;
-            BodyMediaType requestBodyMediaType = default;
             string? uri = null;
             string? path = null;
             string? externalDocsUrl = null;
@@ -69,7 +68,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadWithConverter(nameof(InputOperation.Parameters), options, ref parameters)
                     || reader.TryReadWithConverter(nameof(InputOperation.Responses), options, ref responses)
                     || reader.TryReadString(nameof(InputOperation.HttpMethod), ref httpMethod)
-                    || reader.TryReadWithConverter(nameof(InputOperation.RequestBodyMediaType), options, ref requestBodyMediaType)
                     || reader.TryReadString(nameof(InputOperation.Uri), ref uri)
                     || reader.TryReadString(nameof(InputOperation.Path), ref path)
                     || reader.TryReadString(nameof(InputOperation.ExternalDocsUrl), ref externalDocsUrl)
@@ -97,7 +95,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             operation.Parameters = parameters ?? Array.Empty<InputParameter>();
             operation.Responses = responses ?? Array.Empty<OperationResponse>();
             operation.HttpMethod = httpMethod ?? throw new JsonException("InputOperation must have HttpMethod");
-            operation.RequestBodyMediaType = requestBodyMediaType;
             operation.Uri = uri ?? throw new JsonException("InputOperation must have Uri");
             operation.Path = path ?? throw new JsonException("InputOperation must have Path");
             operation.ExternalDocsUrl = externalDocsUrl;

@@ -166,6 +166,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Header parameter format '${"format"}' is not supported.`,
       },
     },
+    "unknown-encode": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Encode '${"encode"}' is not supported.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<EmitterOptions>,

@@ -1217,7 +1217,7 @@ scalar Password is string;
 
 Mark this namespace as describing a service and configure service properties.
 ```typespec
-@service(options?: ServiceOptions)
+@service(options?: valueof ServiceOptions)
 ```
 
 #### Target
@@ -1227,7 +1227,7 @@ Mark this namespace as describing a service and configure service properties.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| options | [`ServiceOptions`](./built-in-data-types.md#ServiceOptions) | Optional configuration for the service. |
+| options | [valueof `ServiceOptions`](./built-in-data-types.md#ServiceOptions) | Optional configuration for the service. |
 
 #### Examples
 
@@ -1239,14 +1239,14 @@ namespace PetStore;
 ##### Setting service title
 
 ```typespec
-@service({title: "Pet store"})
+@service(#{title: "Pet store"})
 namespace PetStore;
 ```
 
 ##### Setting service version
 
 ```typespec
-@service({version: "1.0"})
+@service(#{version: "1.0"})
 namespace PetStore;
 ```
 
