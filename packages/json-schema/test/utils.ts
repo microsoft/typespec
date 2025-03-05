@@ -43,7 +43,7 @@ export async function emitSchemaWithDiagnostics(
     host.program,
     JsonSchemaEmitter as any,
     {
-      emitterOutputDir: "cadl-output",
+      emitterOutputDir: "tsp-output",
       options,
     } as any,
   );
