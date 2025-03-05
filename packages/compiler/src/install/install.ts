@@ -10,12 +10,8 @@ import {
   downloadAndExtractPackage,
   fetchPackageManifest,
 } from "../package-manger/npm-registry-utils.js";
-import {
-  getPackageManagerConfig,
-  SupportedPackageManager,
-  type PackageManagerConfig,
-} from "./config.js";
-import { resolvePackageManagerSpec } from "./spec.js";
+import { getPackageManagerConfig, type PackageManagerConfig } from "./config.js";
+import { Descriptor, resolvePackageManagerSpec } from "./spec.js";
 
 interface SpawnError {
   errno: number;
@@ -28,7 +24,16 @@ interface SpawnError {
 const tspDir = homedir() + "/.tsp";
 const pmDir = joinPaths(tspDir, "pm");
 
-export class InstallDependenciesError extends Error {}
+export class InstallDependenciesError extends DiagnosticError {
+  constructor(message: string) {
+    super({
+      code: "install-package-manager-error",
+      message,
+      severity: "error",
+      target: NoTarget,
+    });
+  }
+}
 
 export async function installTypeSpecDependencies(
   host: CliCompilerHost,
@@ -38,16 +43,18 @@ export async function installTypeSpecDependencies(
   const diagnostics: Diagnostic[] = [];
   const tracer = createTracer(host.logger).sub("install");
   try {
-    const spec = await resolvePackageManagerSpec(host, tracer, directory);
+    const result = await resolvePackageManagerSpec(host, tracer, directory);
 
-    let version;
-    let packageManager: SupportedPackageManager;
-    switch (spec.kind) {
+    let spec: Descriptor;
+
+    switch (result.kind) {
       case "no-package":
         throw new InstallDependenciesError("No package.json found, cannot install dependencies.");
       case "no-spec":
-        packageManager = "npm";
-        version = "latest";
+        spec = {
+          name: "npm",
+          range: "latest",
+        };
         diagnostics.push({
           code: "no-package-manager-spec",
           severity: "warning",
@@ -57,13 +64,13 @@ export async function installTypeSpecDependencies(
         });
         break;
       case "resolved":
-        packageManager = spec.spec.name;
-        version = spec.spec.range;
+        spec = result.spec;
         break;
     }
 
+    const packageManager = spec.name;
     const packageManagerConfig = getPackageManagerConfig(packageManager);
-    const manifest = await fetchPackageManifest(packageManager, version);
+    const manifest = await fetchPackageManifest(packageManager, spec.range);
     tracer.trace(
       "fetched-manifest",
       `Resolved manifest for ${packageManager} at version ${manifest.version}`,
@@ -72,7 +79,18 @@ export async function installTypeSpecDependencies(
     const installDir = joinPaths(pmDir, packageManager, manifest.version);
     await rm(installDir, { recursive: true, force: true });
     await mkdir(installDir, { recursive: true });
-    await downloadAndExtractPackage(manifest, installDir);
+    const extractResult = await downloadAndExtractPackage(
+      manifest,
+      installDir,
+      spec.hash?.algorithm,
+    );
+    if (spec.hash) {
+      if (spec.hash.value !== extractResult.hash) {
+        throw new InstallDependenciesError(
+          `Mismatch hash for package manager. (${spec.hash.algorithm})\n  Expected: ${spec.hash.value}\n  Actual:   ${extractResult.hash}`,
+        );
+      }
+    }
     tracer.trace("downloaded", `Downloaded and extracted at ${installDir}`);
     const bin = manifest.bin![packageManager];
     const binPath = joinPaths(installDir, bin);

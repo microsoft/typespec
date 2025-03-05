@@ -39,6 +39,28 @@ it("resolve if packageManager is set", async () => {
   });
 });
 
+it("resolve hash configured in ", async () => {
+  const result = await getPackageManagerSpecFor("/test", {
+    "/test/package.json": {
+      name: "test",
+      packageManager:
+        "npm@10.2.0+sha256.c362077587b1e782e5aef3dcf85826399ae552ad66b760e2585c4ac11102243f",
+    },
+  });
+  expect(result).toEqual({
+    kind: "resolved",
+    path: "/test/package.json",
+    spec: {
+      name: "npm",
+      range: "10.2.0",
+      hash: {
+        algorithm: "sha256",
+        value: "c362077587b1e782e5aef3dcf85826399ae552ad66b760e2585c4ac11102243f",
+      },
+    },
+  });
+});
+
 it("resolve if devEngines only is set", async () => {
   const result = await getPackageManagerSpecFor("/test", {
     "/test/package.json": {

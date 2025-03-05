@@ -1,4 +1,5 @@
 // Helpers to access the npm registry api https://github.com/npm/registry/blob/main/docs/REGISTRY-API.md#package-endpoints
+import { createHash } from "crypto";
 import { Readable } from "stream";
 import { extract as tarX } from "tar/extract";
 
@@ -102,7 +103,7 @@ export async function downloadPackageVersion(
   packageName: string,
   version: string,
   dest: string,
-): Promise<void> {
+): Promise<ExtractedTarballResult> {
   const manifest = await fetchPackageManifest(packageName, version);
   return downloadAndExtractTarball(manifest.dist.tarball, dest);
 }
@@ -110,14 +111,23 @@ export async function downloadPackageVersion(
 export async function downloadAndExtractPackage(
   manifest: NpmManifest,
   dest: string,
-): Promise<void> {
-  return downloadAndExtractTarball(manifest.dist.tarball, dest);
+  hashAlgorithm: string = "sha512",
+): Promise<ExtractedTarballResult> {
+  return downloadAndExtractTarball(manifest.dist.tarball, dest, hashAlgorithm);
 }
 
-async function downloadAndExtractTarball(url: string, dest: string): Promise<void> {
+export interface ExtractedTarballResult {
+  readonly dest: string;
+  readonly hash: string;
+}
+async function downloadAndExtractTarball(
+  url: string,
+  dest: string,
+  hashAlgorithm: string = "sha512",
+): Promise<ExtractedTarballResult> {
   const res = await fetch(url);
-  const tarball = Readable.fromWeb(res.body as any);
-
+  const tarballStream = Readable.fromWeb(res.body as any);
+  const hash = tarballStream.pipe(createHash(hashAlgorithm));
   const extractor = tarX({
     strip: 1,
     cwd: dest,
@@ -132,9 +142,11 @@ async function downloadAndExtractTarball(url: string, dest: string): Promise<voi
       reject(er);
     });
 
-    tarball.on("error", (er) => reject(er));
+    tarballStream.on("error", (er) => reject(er));
   });
 
-  tarball.pipe(extractor);
-  return p;
+  tarballStream.pipe(extractor);
+  await p;
+
+  return { dest, hash: hash.digest("hex") };
 }

@@ -1,3 +1,4 @@
+import semverParse from "semver/functions/parse.js";
 import semverSatisfies from "semver/functions/satisfies.js";
 import semverValid from "semver/functions/valid.js";
 import semverValidRange from "semver/ranges/valid.js";
@@ -13,6 +14,11 @@ export interface Descriptor {
 
   /** Supported version range  */
   readonly range: string;
+
+  readonly hash?: {
+    readonly algorithm: string;
+    readonly value: string;
+  };
 }
 
 interface ResolvedSpecResult {
@@ -198,7 +204,7 @@ function parsePackageManagerField(raw: unknown, source: SourceFile): Descriptor 
 
   const name = raw.slice(0, atIndex);
   const version = raw.slice(atIndex + 1);
-
+  validatePackageManager(name, source);
   validateVersionNotUrl(version, source);
   if (!semverValid(version))
     throw new PackageManagerSpecError(
@@ -206,11 +212,15 @@ function parsePackageManagerField(raw: unknown, source: SourceFile): Descriptor 
       source,
     );
 
-  validatePackageManager(name, source);
-
+  const semver = semverParse(version)!;
+  const hash =
+    semver.build[0] && semver.build[1]
+      ? { algorithm: semver.build[0], value: semver.build[1] }
+      : undefined;
   return {
     name,
-    range: version,
+    range: semver.version,
+    hash,
   };
 }
 
