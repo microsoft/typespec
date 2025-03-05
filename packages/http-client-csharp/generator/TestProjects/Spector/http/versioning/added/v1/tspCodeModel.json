@@ -238,7 +238,6 @@
        "BodyType": {
         "$ref": "10"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -247,7 +246,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/added/api-version:{version}",
      "Path": "/v1",
      "RequestMediaTypes": [

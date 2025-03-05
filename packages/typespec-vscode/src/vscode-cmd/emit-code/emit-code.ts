@@ -2,14 +2,20 @@ import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
-import { isScalar, isSeq, parseDocument } from "yaml";
+import { Document, isScalar, isSeq } from "yaml";
 import { StartFileName, TspConfigFileName } from "../../const.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../../typespec-utils.js";
-import { ExecOutput, isFile, spawnExecutionAndLogToOutput } from "../../utils.js";
+import {
+  ExecOutput,
+  isFile,
+  spawnExecutionAndLogToOutput,
+  tryParseYaml,
+  tryReadFile,
+} from "../../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import {
   Emitter,
@@ -87,7 +93,6 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
     };
   };
 
-  /* filter out already existing emitters. */
   const registerEmitters = getRegisterEmitters(codeType.emitterKind);
   const all: EmitQuickPickItem[] = [...registerEmitters].map((e) => toQuickPickItem(e));
 
@@ -124,7 +129,8 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
     kind: selectedEmitter.emitterKind,
   };
 }
-async function doEmit(mainTspFile: string, emitter: Emitter) {
+
+async function doEmit(mainTspFile: string, emitters: Emitter[]) {
   if (!mainTspFile || !(await isFile(mainTspFile))) {
     logger.error(
       "Invalid typespec project. There is no main tsp file in the project. Generating Cancelled.",
@@ -134,17 +140,14 @@ async function doEmit(mainTspFile: string, emitter: Emitter) {
     return;
   }
 
+  if (emitters.length === 0) {
+    logger.info("No emitter. Generating skipped.");
+    return;
+  }
   const baseDir = getDirectoryPath(mainTspFile);
 
   const npmUtil = new NpmUtil(baseDir);
-  const packagesToInstall: string[] = [];
-
-  /* install emitter package. */
-  logger.info(`select ${emitter.package}`);
-  const { action, version } = await npmUtil.calculateNpmPackageInstallAction(
-    emitter.package,
-    emitter.version,
-  );
+  const packagesToInstall: { name: string; version?: string }[] = [];
 
   const installPackageQuickPickItems = await vscode.window.withProgress(
     {
@@ -153,65 +156,87 @@ async function doEmit(mainTspFile: string, emitter: Emitter) {
       cancellable: false,
     },
     async () => {
-      const packageQuickPickItems = [];
-      if (action === InstallAction.Upgrade || action === InstallAction.Install) {
-        const minimumRequisites = emitter.requisites
-          ? ` Minimum requisites: install ${emitter.requisites?.join(", ")}`
-          : "";
-        let packageFullName = emitter.package;
-        if (version) {
-          packageFullName = `${emitter.package}@${version}`;
-        }
-        packageQuickPickItems.push({
-          label: `${emitter.package}`,
-          description: `TypeSpec library for emitting ${emitter.language} from TypeSpec files.`,
-          detail: minimumRequisites,
-          packageFullName: packageFullName,
-          sourceRepo: emitter.sourceRepo,
-          picked: true,
-          buttons: emitter.sourceRepo
-            ? [
-                {
-                  iconPath: new vscode.ThemeIcon("link-external"),
-                  tooltip: "More details",
-                  uri: emitter.sourceRepo,
-                },
-              ]
-            : undefined,
-        });
-        packagesToInstall.push(packageFullName);
-      }
-
-      for (const p of packagesToInstall) {
-        /* verify dependency packages. */
-        try {
-          const dependenciesToInstall = await npmUtil.calculateNpmPackageDependencyToUpgrade(
-            p,
-            version,
-            [npmDependencyType.dependencies, npmDependencyType.peerDependencies],
-          );
-          if (dependenciesToInstall.length > 0) {
-            packagesToInstall.push(...dependenciesToInstall.map((d) => `${d.name}@${d.version}`));
-            for (const dep of dependenciesToInstall) {
-              const packageFullName = `${dep.name}@${version ?? "latest"}`;
-              packageQuickPickItems.push({
-                label: `${dep.name}`,
-                description: "Required for enabling the emitter library.",
-                packageFullName: packageFullName,
-                picked: true,
-              });
-            }
+      const installCalculationPromises = emitters.map(async (emitter) => {
+        const packageQuickPickItems = [];
+        /* install emitter package. */
+        logger.debug(`Start to calculate packages for ${emitter.package}`);
+        const { action, version } = await npmUtil.calculateNpmPackageInstallAction(
+          emitter.package,
+          emitter.version,
+        );
+        if (action === InstallAction.Upgrade || action === InstallAction.Install) {
+          const minimumRequisites = emitter.requisites
+            ? ` Minimum requisites: install ${emitter.requisites?.join(", ")}`
+            : "";
+          let packageFullName = emitter.package;
+          if (version) {
+            packageFullName = `${emitter.package}@${version}`;
           }
-        } catch (err) {
-          logger.error(`Exception occurred when check dependency packages for ${p}.`);
+          packageQuickPickItems.push({
+            label: `${emitter.package}`,
+            description: `TypeSpec library for emitting ${emitter.language} from TypeSpec files.`,
+            detail: minimumRequisites,
+            packageFullName: packageFullName,
+            sourceRepo: emitter.sourceRepo,
+            picked: true,
+            buttons: emitter.sourceRepo
+              ? [
+                  {
+                    iconPath: new vscode.ThemeIcon("link-external"),
+                    tooltip: "More details",
+                    uri: emitter.sourceRepo,
+                  },
+                ]
+              : undefined,
+          });
+          packagesToInstall.push({ name: emitter.package, version: version });
         }
+        for (const p of packagesToInstall) {
+          /* verify dependency packages. */
+          try {
+            const dependenciesToInstall = (
+              await npmUtil.calculateNpmPackageDependencyToUpgrade(p.name, p.version, [
+                npmDependencyType.dependencies,
+                npmDependencyType.peerDependencies,
+              ])
+            ).filter((d) => !packagesToInstall.includes(d));
+            if (dependenciesToInstall.length > 0) {
+              packagesToInstall.push(...dependenciesToInstall);
+              for (const dep of dependenciesToInstall) {
+                const packageFullName = `${dep.name}@${dep.version ?? "latest"}`;
+                packageQuickPickItems.push({
+                  label: `${dep.name}`,
+                  description: "Required for enabling the emitter library.",
+                  packageFullName: packageFullName,
+                  picked: true,
+                });
+              }
+            }
+          } catch (err) {
+            logger.error(`Exception occurred when check dependency packages for ${p}.`);
+          }
+          logger.debug(`completed calculate libraries for ${emitter.package}`);
+        }
+        return packageQuickPickItems;
+      });
+
+      try {
+        const results = await Promise.all(installCalculationPromises);
+        return results
+          .flat()
+          .filter(
+            (item, index, self) =>
+              index === self.findIndex((i) => i.packageFullName === item.packageFullName),
+          );
+      } catch (error: any) {
+        logger.error("Failed to calculate packages to install:", [error]);
+        return [];
       }
-      return packageQuickPickItems;
     },
   );
 
   if (installPackageQuickPickItems.length > 0) {
-    const installPackagesSelector = vscode.window.createQuickPick<any>();
+    const installPackagesSelector = vscode.window.createQuickPick();
     installPackagesSelector.items = installPackageQuickPickItems;
     installPackagesSelector.title = `Generate from TypeSpec`;
     installPackagesSelector.canSelectMany = true;
@@ -287,40 +312,63 @@ async function doEmit(mainTspFile: string, emitter: Emitter) {
   /*Config emitter output dir and emit in tspconfig.yaml. */
   const defaultEmitOutputDirInConfig = `{output-dir}/{emitter-name}`;
   const tspConfigFile = path.join(baseDir, TspConfigFileName);
-  let configYaml = parseDocument(""); //generate a empty yaml
+  let configYaml = new Document(); //generate a empty yaml
   if (await isFile(tspConfigFile)) {
-    const content = await readFile(tspConfigFile);
-    configYaml = parseDocument(content.toString());
+    const content = await tryReadFile(tspConfigFile);
+    if (content) {
+      configYaml = tryParseYaml(content.toString()) ?? configYaml;
+    }
   }
-  let outputDir = defaultEmitOutputDirInConfig;
+
+  const generations: {
+    emitter: Emitter;
+    outputDir: string;
+    options?: Record<string, string>;
+    codeInfo: string;
+  }[] = [];
   try {
-    /*update emitter in config.yaml. */
-    const emitNode = configYaml.get("emit");
-    if (emitNode) {
-      if (isSeq(emitNode)) {
-        if (Array.isArray(emitNode.items)) {
-          const index = emitNode.items.findIndex((item) => {
-            if (isScalar(item)) {
-              return item.value === emitter.package;
+    for (const emitter of emitters) {
+      let outputDir = defaultEmitOutputDirInConfig;
+      /*update emitter in config.yaml. */
+      const emitNode = configYaml.get("emit");
+      if (emitNode) {
+        if (isSeq(emitNode)) {
+          if (Array.isArray(emitNode.items)) {
+            const index = emitNode.items.findIndex((item) => {
+              if (isScalar(item)) {
+                return item.value === emitter.package;
+              }
+              return false;
+            });
+            if (index === -1) {
+              emitNode.items.push(emitter.package);
             }
-            return false;
-          });
-          if (index === -1) {
-            emitNode.items.push(emitter.package);
           }
         }
+      } else {
+        configYaml.set("emit", [emitter.package]);
       }
-    } else {
-      configYaml.set("emit", [emitter.package]);
-    }
-    const emitOutputDir = configYaml.getIn(["options", emitter.package, "emitter-output-dir"]);
-    if (!emitOutputDir) {
-      configYaml.setIn(
-        ["options", emitter.package, "emitter-output-dir"],
-        defaultEmitOutputDirInConfig,
-      );
-    } else {
-      outputDir = emitOutputDir as string;
+      const emitOutputDir = configYaml.getIn(["options", emitter.package, "emitter-output-dir"]);
+      if (!emitOutputDir) {
+        configYaml.setIn(
+          ["options", emitter.package, "emitter-output-dir"],
+          defaultEmitOutputDirInConfig,
+        );
+      } else {
+        outputDir = emitOutputDir as string;
+      }
+      let codeInfoStr: string = "code";
+      if (emitter.kind !== EmitterKind.Unknown) {
+        codeInfoStr = `${emitter.kind} code`;
+      }
+      if (emitter.language) {
+        codeInfoStr += ` for ${emitter.language}`;
+      }
+      outputDir = outputDir
+        .replace("{project-root}", baseDir)
+        .replace("{output-dir}", `${baseDir}/tsp-output`)
+        .replace("{emitter-name}", emitter.package);
+      generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
     }
     const newYamlContent = configYaml.toString();
     await writeFile(tspConfigFile, newYamlContent);
@@ -328,19 +376,11 @@ async function doEmit(mainTspFile: string, emitter: Emitter) {
     logger.error(error);
   }
 
-  outputDir = outputDir.replace("{project-root}", baseDir);
-  outputDir = outputDir
-    .replace("{output-dir}", `${baseDir}/tsp-output`)
-    .replace("{emitter-name}", emitter.package);
-  const options: Record<string, string> = {};
-  let codeInfoStr: string = "code";
-  if (emitter.kind !== EmitterKind.Unknown) {
-    codeInfoStr = `${emitter.kind} code`;
-  }
-  if (emitter.language) {
-    codeInfoStr += ` for ${emitter.language}`;
-  }
-  logger.info(`Start to generate ${codeInfoStr} under directory ${outputDir}`);
+  const allCodesToGenerate = generations
+    .map((g) => `${g.codeInfo} under directory ${g.outputDir}`)
+    .join(", ");
+  logger.info(`Start to generate ${allCodesToGenerate}...`);
+  const codeInfoStr = generations.map((g) => g.codeInfo).join(", ");
   await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
@@ -349,7 +389,14 @@ async function doEmit(mainTspFile: string, emitter: Emitter) {
     },
     async () => {
       try {
-        const compileResult = await compile(cli, mainTspFile, emitter.package, options, false);
+        const compileResult = await compile(
+          cli,
+          mainTspFile,
+          emitters.map((e) => {
+            return { name: e.package, options: {} };
+          }),
+          false,
+        );
         if (compileResult.exitCode !== 0) {
           logger.error(`Generating ${codeInfoStr}...Failed`, [], {
             showOutput: true,
@@ -440,10 +487,10 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
   logger.info(`Generate from entrypoint file: ${tspProjectFile}`);
   const baseDir = getDirectoryPath(tspProjectFile);
   const tspConfigFile = path.join(baseDir, TspConfigFileName);
-  let configYaml = parseDocument(""); //generate a empty yaml
+  let configYaml = tryParseYaml(""); //generate a empty yaml
   if (await isFile(tspConfigFile)) {
     const content = await readFile(tspConfigFile);
-    configYaml = parseDocument(content.toString());
+    configYaml = tryParseYaml(content.toString()) ?? configYaml;
   }
 
   let existingEmitters;
@@ -476,7 +523,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       label: `${e.language} ${e.kind} code emitter`,
       description: `${e.package}.`,
       // detail: `Generate ${e.kind} code for ${e.language} by TypeSpec library ${e.package}.`,
-      picked: false,
+      picked: true,
       fromConfig: true,
       iconPath: {
         light: Uri.file(
@@ -510,13 +557,36 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
           picked: true,
           fromConfig: true,
           package: e,
+          language: e,
+          emitterKind: EmitterKind.Unknown,
           kind: vscode.QuickPickItemKind.Default,
         };
       }
     });
+    const multipleSelectionSeparatorItem = {
+      kind: vscode.QuickPickItemKind.Separator,
+      info: undefined,
+      label: "multiple selection",
+      description: "Select multiple configured emitters for code generation",
+      package: "",
+      fromConfig: false,
+      picked: false,
+    };
+
+    const selectMultipleQuickPick = {
+      label: "Select multiple emitters",
+      description: "Select multiple configured emitters",
+      picked: true,
+      fromConfig: false,
+      package: "",
+      kind: vscode.QuickPickItemKind.Default,
+      iconPath: new vscode.ThemeIcon("check-all"),
+    };
+
     const separatorItem = {
       kind: vscode.QuickPickItemKind.Separator,
       info: undefined,
+      description: "Choose another emitter for code generation",
       package: "",
       fromConfig: false,
       picked: false,
@@ -535,6 +605,8 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     allPickItems.push(
       fromConfigSeparator,
       ...existingEmitterQuickPickItems,
+      multipleSelectionSeparatorItem,
+      selectMultipleQuickPick,
       separatorItem,
       newEmitterQuickPickItem,
     );
@@ -542,10 +614,12 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     existingEmittersSelector.items = allPickItems;
     existingEmittersSelector.title = `Generate from TypeSpec`;
     existingEmittersSelector.canSelectMany = false;
-    existingEmittersSelector.placeholder = "Select an emitter for code generation";
+    existingEmittersSelector.placeholder = "Select emitters for code generation";
     existingEmittersSelector.ignoreFocusOut = true;
+
     existingEmittersSelector.show();
-    const selectedExistingEmitter = await new Promise<EmitQuickPickItem>((resolve) => {
+
+    const selectedExistingEmitters = await new Promise<EmitQuickPickItem[]>((resolve) => {
       existingEmittersSelector.onDidAccept(async () => {
         const selectedItem = existingEmittersSelector.selectedItems[0];
         if (selectedItem === newEmitterQuickPickItem) {
@@ -553,29 +627,47 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
           if (!newEmitter) {
             return;
           }
-          resolve(toEmitterQuickPickItem(newEmitter));
+          resolve([toEmitterQuickPickItem(newEmitter)]);
+        } else if (selectedItem === selectMultipleQuickPick) {
+          const selectedItems = await vscode.window.showQuickPick(existingEmitterQuickPickItems, {
+            title: "Generate from TypeSpec",
+            canPickMany: true,
+            placeHolder: "Select emitters for code generation",
+            ignoreFocusOut: true,
+          });
+          if (selectedItems) {
+            resolve(selectedItems);
+          } else {
+            resolve([]);
+          }
         } else {
-          resolve(existingEmittersSelector.selectedItems[0]);
+          resolve([...existingEmittersSelector.selectedItems]);
           existingEmittersSelector.dispose();
         }
       });
     });
-    if (!selectedExistingEmitter) {
+    if (!selectedExistingEmitters || selectedExistingEmitters.length === 0) {
       logger.info("No emitter selected. Generating Cancelled.");
       return;
     }
+    logger.info(`Selected emitters: ${selectedExistingEmitters.map((e) => e.package).join(", ")}`);
+
     await doEmit(
       tspProjectFile,
-      getRegisterEmittersByPackage(selectedExistingEmitter.package) ?? {
-        package: selectedExistingEmitter.package,
-        language: selectedExistingEmitter.package,
-        kind: EmitterKind.Unknown,
-      },
+      selectedExistingEmitters.map(
+        (e) =>
+          getRegisterEmittersByPackage(e.package) ?? {
+            package: e.package,
+            language: e.package,
+            kind: EmitterKind.Unknown,
+          },
+      ),
     );
   } else {
     const selectedEmitter = await configureEmitter(context);
+    logger.info(`Selected emitter: ${selectedEmitter?.package}`);
     if (selectedEmitter) {
-      await doEmit(tspProjectFile, selectedEmitter);
+      await doEmit(tspProjectFile, [selectedEmitter]);
     } else {
       logger.info("No emitter selected. Generating Cancelled.");
       return;
@@ -586,23 +678,25 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
 async function compile(
   cli: Executable,
   startFile: string,
-  emitter: string,
-  options: Record<string, string>,
+  emitters: { name: string; options: Record<string, string> }[],
   logPretty?: boolean,
 ): Promise<ExecOutput> {
   const args: string[] = cli.args ?? [];
   args.push("compile");
   args.push(startFile);
-  if (emitter) {
-    args.push("--emit", emitter);
+  if (emitters) {
+    for (const emitter of emitters) {
+      args.push("--emit", emitter.name);
+      if (emitter.options) {
+        for (const [key, value] of Object.entries(emitter.options)) {
+          args.push("--option", `${emitter.name}.${key}=${value}`);
+        }
+      }
+    }
   }
   if (logPretty !== undefined) {
     args.push("--pretty");
     args.push(logPretty ? "true" : "false");
-  }
-
-  for (const [key, value] of Object.entries(options)) {
-    args.push("--option", `${emitter}.${key}=${value}`);
   }
 
   return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile), {
