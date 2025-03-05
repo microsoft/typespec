@@ -2,6 +2,7 @@
 import { createHash } from "crypto";
 import { Readable } from "stream";
 import { extract as tarX } from "tar/extract";
+import { Hash } from "../install/spec.js";
 
 /** Manifest of a single package version. */
 export interface NpmManifest {
@@ -118,7 +119,7 @@ export async function downloadAndExtractPackage(
 
 export interface ExtractedTarballResult {
   readonly dest: string;
-  readonly hash: string;
+  readonly hash: Hash;
 }
 async function downloadAndExtractTarball(
   url: string,
@@ -148,5 +149,5 @@ async function downloadAndExtractTarball(
   tarballStream.pipe(extractor);
   await p;
 
-  return { dest, hash: hash.digest("hex") };
+  return { dest, hash: { algorithm: hashAlgorithm, value: hash.digest("hex") } };
 }

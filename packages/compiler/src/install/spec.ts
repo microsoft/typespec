@@ -15,13 +15,15 @@ export interface Descriptor {
   /** Supported version range  */
   readonly range: string;
 
-  readonly hash?: {
-    readonly algorithm: string;
-    readonly value: string;
-  };
+  readonly hash?: Hash;
 }
 
-interface ResolvedSpecResult {
+export interface Hash {
+  readonly algorithm: string;
+  readonly value: string;
+}
+
+export interface ResolvedSpecResult {
   readonly kind: "resolved";
   /** Path to the resolved package.json */
   readonly path: string;
@@ -83,6 +85,20 @@ export async function resolvePackageManagerSpec(
     path: source.path,
     spec,
   };
+}
+
+function serializeSpec(spec: Descriptor): string {
+  return `${spec.name}@${spec.range}${spec.hash ? `+${spec.hash.algorithm}.${spec.hash.value}` : ""}`;
+}
+
+export async function updatePackageManagerInPackageJson(
+  host: CompilerHost,
+  path: string,
+  spec: Descriptor,
+) {
+  const [pkg] = (await readPackage(host, path))!;
+  pkg.packageManager = serializeSpec(spec);
+  return host.writeFile(path, JSON.stringify(pkg, undefined, 2));
 }
 
 async function readPackage(

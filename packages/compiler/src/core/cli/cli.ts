@@ -217,8 +217,17 @@ async function main() {
     .command(
       "install",
       "Install TypeSpec dependencies",
-      () => {},
-      withCliHostAndDiagnostics((host) => installTypeSpecDependencies(host, process.cwd())),
+      (cmd) =>
+        cmd.option("save-package-manager", {
+          type: "boolean",
+          description: "Update the packageManager field with the package manger version and hash",
+        }),
+      withCliHostAndDiagnostics((host, args) =>
+        installTypeSpecDependencies(host, {
+          directory: process.cwd(),
+          savePackageManager: args["save-package-manager"],
+        }),
+      ),
     )
     .command(
       "info",
