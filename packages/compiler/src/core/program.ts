@@ -244,14 +244,8 @@ async function createProgram(
 
   await loadSources(resolvedMain);
 
-  let emit = options.emit;
-  let emitterOptions = options.options;
-  /* eslint-disable @typescript-eslint/no-deprecated */
-  if (options.emitters) {
-    emit ??= Object.keys(options.emitters);
-    emitterOptions ??= options.emitters;
-  }
-  /* eslint-enable @typescript-eslint/no-deprecated */
+  const emit = options.emit;
+  const emitterOptions = options.options;
 
   await loadEmitters(basedir, emit ?? [], emitterOptions ?? {});
 
@@ -912,13 +906,7 @@ async function createProgram(
  * Resolve compiler options from input options.
  */
 function resolveOptions(options: CompilerOptions): CompilerOptions {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  const outputDir = options.outputDir ?? options.outputPath;
-  return {
-    ...options,
-    outputDir,
-    outputPath: outputDir,
-  };
+  return { ...options };
 }
 
 async function emit(emitter: EmitterRef, program: Program, options: CompilerOptions = {}) {

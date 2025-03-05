@@ -26,7 +26,8 @@ export async function createCSharpServiceEmitterTestRunner(
   const result = createTestWrapper(host, {
     autoUsings: ["TypeSpec.Http", "TypeSpec.Rest", "TypeSpec.Versioning"],
     compilerOptions: {
-      emitters: {
+      emit: ["@typespec/protobuf"],
+      options: {
         [CSharpServiceEmitterTestLibrary.name]: emitterOptions as any,
       },
       noEmit: false,

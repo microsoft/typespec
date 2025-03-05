@@ -107,10 +107,6 @@ export interface TypeMapper {
 
 export interface TemplatedTypeBase {
   templateMapper?: TypeMapper;
-  /**
-   * @deprecated use templateMapper instead.
-   */
-  templateArguments?: (Type | Value | IndeterminateEntity)[];
   templateNode?: Node;
 }
 
