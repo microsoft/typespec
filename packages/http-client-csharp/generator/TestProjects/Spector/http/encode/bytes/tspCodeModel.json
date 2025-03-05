@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "DefaultBytesProperty",
-   "clientNamespace": "Encode.Bytes",
+   "namespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.DefaultBytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -46,7 +46,7 @@
    "$id": "7",
    "kind": "model",
    "name": "Base64BytesProperty",
-   "clientNamespace": "Encode.Bytes",
+   "namespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.Base64BytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -84,7 +84,7 @@
    "$id": "12",
    "kind": "model",
    "name": "Base64urlBytesProperty",
-   "clientNamespace": "Encode.Bytes",
+   "namespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.Base64urlBytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -122,7 +122,7 @@
    "$id": "17",
    "kind": "model",
    "name": "Base64urlArrayBytesProperty",
-   "clientNamespace": "Encode.Bytes",
+   "namespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.Base64urlArrayBytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -176,7 +176,7 @@
   {
    "$id": "24",
    "Name": "BytesClient",
-   "ClientNamespace": "Encode.Bytes",
+   "Namespace": "Encode.Bytes",
    "Doc": "Test for encode decorator on bytes.",
    "Operations": [],
    "Protocol": {
@@ -215,12 +215,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes"
   },
   {
    "$id": "30",
    "Name": "Query",
-   "ClientNamespace": "Encode.Bytes.Query",
+   "Namespace": "Encode.Bytes.Query",
    "Operations": [
     {
      "$id": "31",
@@ -257,13 +258,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/query/default",
      "BufferResponse": true,
@@ -307,13 +306,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/query/base64",
      "BufferResponse": true,
@@ -357,13 +354,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/query/base64url",
      "BufferResponse": true,
@@ -423,13 +418,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/query/base64url-array",
      "BufferResponse": true,
@@ -476,12 +469,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes.Query"
   },
   {
    "$id": "54",
    "Name": "Property",
-   "ClientNamespace": "Encode.Bytes.Property",
+   "Namespace": "Encode.Bytes.Property",
    "Operations": [
     {
      "$id": "55",
@@ -571,7 +565,6 @@
        "BodyType": {
         "$ref": "2"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -580,7 +573,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/property/default",
      "RequestMediaTypes": [
@@ -680,7 +672,6 @@
        "BodyType": {
         "$ref": "7"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -689,7 +680,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/property/base64",
      "RequestMediaTypes": [
@@ -789,7 +779,6 @@
        "BodyType": {
         "$ref": "12"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -798,7 +787,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/property/base64url",
      "RequestMediaTypes": [
@@ -898,7 +886,6 @@
        "BodyType": {
         "$ref": "17"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -907,7 +894,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/property/base64url-array",
      "RequestMediaTypes": [
@@ -957,12 +943,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes.Property"
   },
   {
    "$id": "96",
    "Name": "Header",
-   "ClientNamespace": "Encode.Bytes.Header",
+   "Namespace": "Encode.Bytes.Header",
    "Operations": [
     {
      "$id": "97",
@@ -999,13 +986,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/header/default",
      "BufferResponse": true,
@@ -1049,13 +1034,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/header/base64",
      "BufferResponse": true,
@@ -1099,13 +1082,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/header/base64url",
      "BufferResponse": true,
@@ -1165,13 +1146,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/header/base64url-array",
      "BufferResponse": true,
@@ -1218,12 +1197,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes.Header"
   },
   {
    "$id": "120",
    "Name": "RequestBody",
-   "ClientNamespace": "Encode.Bytes.RequestBody",
+   "Namespace": "Encode.Bytes.RequestBody",
    "Operations": [
     {
      "$id": "121",
@@ -1288,13 +1268,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Binary",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/request/default",
      "RequestMediaTypes": [
@@ -1367,13 +1345,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Binary",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/request/octet-stream",
      "RequestMediaTypes": [
@@ -1446,13 +1422,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Binary",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/request/custom-content-type",
      "RequestMediaTypes": [
@@ -1527,13 +1501,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Binary",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/request/base64",
      "RequestMediaTypes": [
@@ -1608,13 +1580,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Binary",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/request/base64url",
      "RequestMediaTypes": [
@@ -1664,12 +1634,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes.RequestBody"
   },
   {
    "$id": "161",
    "Name": "ResponseBody",
-   "ClientNamespace": "Encode.Bytes.ResponseBody",
+   "Namespace": "Encode.Bytes.ResponseBody",
    "Operations": [
     {
      "$id": "162",
@@ -1719,7 +1690,6 @@
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1728,7 +1698,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/response/default",
      "BufferResponse": true,
@@ -1784,7 +1753,6 @@
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "174",
@@ -1812,7 +1780,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/response/octet-stream",
      "BufferResponse": true,
@@ -1868,7 +1835,6 @@
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "183",
@@ -1896,7 +1862,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/response/custom-content-type",
      "BufferResponse": true,
@@ -1953,7 +1918,6 @@
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1962,7 +1926,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/response/base64",
      "BufferResponse": true,
@@ -2027,7 +1990,6 @@
         },
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -2036,7 +1998,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/response/base64url",
      "BufferResponse": true,
@@ -2083,7 +2044,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Bytes.ResponseBody"
   }
  ]
 }

@@ -156,5 +156,27 @@ namespace UnbrandedTypeSpec
 
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
         }
+
+        /// <summary> The ListWithNextLinkResponse. </summary>
+        /// <param name="things"></param>
+        /// <param name="next"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.ListWithNextLinkResponse"/> instance for mocking. </returns>
+        public static ListWithNextLinkResponse ListWithNextLinkResponse(IEnumerable<Thing> things = default, Uri next = default)
+        {
+            things ??= new ChangeTrackingList<Thing>();
+
+            return new ListWithNextLinkResponse(things?.ToList(), next, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ListWithContinuationTokenResponse. </summary>
+        /// <param name="things"></param>
+        /// <param name="nextToken"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.ListWithContinuationTokenResponse"/> instance for mocking. </returns>
+        public static ListWithContinuationTokenResponse ListWithContinuationTokenResponse(IEnumerable<Thing> things = default, string nextToken = default)
+        {
+            things ??= new ChangeTrackingList<Thing>();
+
+            return new ListWithContinuationTokenResponse(things?.ToList(), nextToken, additionalBinaryDataProperties: null);
+        }
     }
 }

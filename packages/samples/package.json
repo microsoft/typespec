@@ -26,7 +26,7 @@
     }
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -48,8 +48,8 @@
     "@typespec/events": "workspace:~",
     "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
-    "@typespec/http-server-javascript": "workspace:~",
     "@typespec/http-server-csharp": "workspace:~",
+    "@typespec/http-server-js": "workspace:~",
     "@typespec/json-schema": "workspace:~",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
@@ -60,14 +60,14 @@
     "@typespec/versioning": "workspace:~"
   },
   "devDependencies": {
-    "@types/node": "~22.10.10",
+    "@types/node": "~22.13.9",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^3.0.4",
-    "@vitest/ui": "^3.0.3",
+    "@vitest/coverage-v8": "^3.0.7",
+    "@vitest/ui": "^3.0.7",
     "autorest": "~3.7.1",
     "cross-env": "~7.0.3",
     "rimraf": "~6.0.1",
-    "typescript": "~5.7.3",
-    "vitest": "^3.0.5"
+    "typescript": "~5.8.2",
+    "vitest": "^3.0.7"
   }
 }

@@ -209,7 +209,7 @@ None
 Specify this property is to be sent or received as an HTTP header.
 
 ```typespec
-@TypeSpec.Http.header(headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
+@TypeSpec.Http.header(headerNameOrOptions?: valueof string | TypeSpec.Http.HeaderOptions)
 ```
 
 #### Target
@@ -218,9 +218,9 @@ Specify this property is to be sent or received as an HTTP header.
 
 #### Parameters
 
-| Name                | Type                                    | Description                                                                                                                                                                                                 |
-| ------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| headerNameOrOptions | `string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over HTTP or header options.<br />By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`) |
+| Name                | Type                                            | Description                                                                                                                                                                                                 |
+| ------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headerNameOrOptions | `valueof string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over HTTP or header options.<br />By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`) |
 
 #### Examples
 
@@ -295,7 +295,7 @@ op upload(
 Specify the HTTP verb for the target operation to be `PATCH`.
 
 ```typespec
-@TypeSpec.Http.patch
+@TypeSpec.Http.patch(options?: valueof TypeSpec.Http.PatchOptions)
 ```
 
 #### Target
@@ -304,12 +304,21 @@ Specify the HTTP verb for the target operation to be `PATCH`.
 
 #### Parameters
 
-None
+| Name    | Type                                                                 | Description                      |
+| ------- | -------------------------------------------------------------------- | -------------------------------- |
+| options | [valueof `PatchOptions`](./data-types.md#TypeSpec.Http.PatchOptions) | Options for the PATCH operation. |
 
 #### Examples
 
 ```typespec
 @patch op update(pet: Pet): void;
+```
+
+```typespec
+// Disable implicit optionality, making the body of the PATCH operation use the
+// optionality as defined in the `Pet` model.
+@patch(#{ implicitOptionality: false })
+op update(pet: Pet): void;
 ```
 
 ### `@path` {#@TypeSpec.Http.path}
