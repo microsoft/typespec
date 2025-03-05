@@ -1,7 +1,6 @@
 // @ts-check
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
-import tailwind from "@astrojs/tailwind";
 import { TypeSpecLang } from "@typespec/astro-utils/shiki";
 import { processSidebar } from "@typespec/astro-utils/sidebar";
 import astroExpressiveCode from "astro-expressive-code";
@@ -55,7 +54,6 @@ export default defineConfig({
       plugins: [],
     }),
     react(),
-    tailwind({ applyBaseStyles: false }),
   ],
   markdown: {
     // @ts-expect-error wrong type
