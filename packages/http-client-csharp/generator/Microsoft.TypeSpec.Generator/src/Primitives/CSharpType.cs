@@ -105,7 +105,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             Name = type.IsGenericType ? type.Name.Substring(0, type.Name.IndexOf('`')) : type.Name;
             IsValueType = type.IsValueType;
             Namespace = type.Namespace ?? string.Empty;
-            FullyQualifiedName = $"{Namespace}.{Name}";
             IsPublic = type.IsPublic && arguments.All(t => t.IsPublic);
             // open generic parameter such as the `T` in `List<T>` is considered as declared inside the `List<T>` type as well, but we just want this to be the pure nested type, therefore here we exclude the open generic parameter scenario
             // for a closed generic parameter such as the `string` in `List<string>`, it is just an ordinary type without a `DeclaringType`.
@@ -133,27 +132,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         }
 
         internal CSharpType(
-            TypeProvider implementation,
-            string providerNamespace,
-            IReadOnlyList<CSharpType> arguments,
-            CSharpType? baseType)
-            : this(
-                  implementation.Name,
-                  providerNamespace,
-                  implementation is EnumProvider ||
-                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
-                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum),
-                  false,
-                  implementation.DeclaringTypeProvider?.Type,
-                  arguments,
-                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) && arguments.All(t => t.IsPublic),
-                  implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct),
-                  baseType,
-                  implementation.IsEnum? implementation.EnumUnderlyingType.FrameworkType : null)
-        {
-        }
-
-        internal CSharpType(
             string name,
             string ns,
             bool isValueType,
@@ -174,7 +152,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             IsValueType = isValueType;
             IsNullable = isNullable;
             Namespace = ns;
-            FullyQualifiedName = $"{ns}.{name}";
             DeclaringType = declaringType;
             IsPublic = isPublic;
             IsStruct = isStruct;
@@ -182,9 +159,13 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             _underlyingType = underlyingEnumType;
         }
 
-        public string Namespace { get; set; }
-        public string Name { get; private init; }
-        internal string FullyQualifiedName { get; private init; }
+        public string Namespace { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the name of the type.
+        /// </summary>
+        public string Name { get; private set; }
+        internal string FullyQualifiedName => $"{Namespace}.{Name}";
         public CSharpType? DeclaringType { get; private init; }
         public bool IsValueType { get; private init; }
         public bool IsEnum => _underlyingType is not null;
@@ -665,6 +646,23 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
 
             return returnType;
+        }
+
+        /// <summary>
+        /// Update the instance with given parameters.
+        /// </summary>
+        /// <param name="name">Name of the <see cref="CSharpType"/></param>
+        /// <param name="namespace">Namespace of the <see cref="CSharpType"/></param>
+        public void Update(string? name = null, string? @namespace = null)
+        {
+            if (name != null)
+            {
+                Name = name;
+            }
+            if (@namespace != null)
+            {
+                Namespace = @namespace;
+            }
         }
     }
 }

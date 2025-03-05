@@ -198,13 +198,14 @@ export async function createTypeSpecProject(
       const initTemplateConfig: InitProjectConfig = {
         template: info.template!,
         directory: selectedRootFolder,
-        folderName: folderName,
+
         baseUri: info.baseUrl,
         name: projectName!,
         parameters: inputs ?? {},
         includeGitignore: includeGitignore,
         libraries: librariesToInclude,
         emitters: selectedEmitters,
+        ...({ folderName: folderName } as any), // TODO: init template should not call to a randome typespec version.
       };
       const initResult = await initProject(client, initTemplateConfig);
       if (!initResult) {

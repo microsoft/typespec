@@ -52,6 +52,15 @@ model Encoded {
 
   @encode(BytesKnownEncoding.base64url)
   base64url?: bytes;
+
+  @encode("unknown-duration")
+  unknownDurationFormat?: duration;
+
+  @encode("unknown-datetime")
+  unknownDateTimeFormat?: utcDateTime;
+
+  @encode("unknown-bytes")
+  unknownBytes?: bytes;
 }
 
 model Request {

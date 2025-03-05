@@ -234,8 +234,11 @@ describe("converts top-level schemas", () => {
       /* @discriminator("kind") union DiscriminatedUnion { { kind: "foo" }, { kind: "bar" }, } */
       const discriminatedUnion = serviceNamespace.unions.get("DiscriminatedUnion");
       expect(discriminatedUnion?.decorators.length).toBe(1);
-      expect(discriminatedUnion?.decorators[0].definition?.name).toBe("@discriminator");
-      expect(discriminatedUnion?.decorators[0].args[0]).toMatchObject({ jsValue: "kind" });
+      expect(discriminatedUnion?.decorators[0].definition?.name).toBe("@discriminated");
+      expect(discriminatedUnion?.decorators[0].args[0].jsValue).toMatchObject({
+        envelope: "none",
+        discriminatorPropertyName: "kind",
+      });
       const discriminatedUnionVariants = [...(discriminatedUnion?.variants.values() ?? [])];
       expect(discriminatedUnionVariants.length).toBe(2);
       expect(

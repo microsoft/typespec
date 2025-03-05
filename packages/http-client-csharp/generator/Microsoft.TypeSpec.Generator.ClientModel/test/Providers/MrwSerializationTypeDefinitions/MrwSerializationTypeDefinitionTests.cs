@@ -577,6 +577,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(methodBody);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void SerializedNameIsUsed(bool isRequired)
+        {
+            var property = InputFactory.Property("mockProperty", new InputNullableType(InputPrimitiveType.Int32), isRequired: isRequired, wireName: "mock_wire_name");
+            var inputModel = InputFactory.Model("mockInputModel", properties: [property]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var serializationMethod = serialization.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
+            var methodBody = serializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(isRequired.ToString()), methodBody);
+        }
+
         [Test]
         public void TestBuildDeserializationMethodNestedSARD()
         {
@@ -669,6 +682,68 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestReadOnlyPropertiesHaveWireCheck(bool isRequired)
+        {
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("readOnlyInt", InputPrimitiveType.Int32, isRequired: isRequired, isReadOnly: true),
+                InputFactory.Property("readOnlyString", InputPrimitiveType.String, isRequired: isRequired, isReadOnly: true),
+                InputFactory.Property("readOnlyCollection", InputFactory.Array(InputPrimitiveType.String), isRequired: isRequired, isReadOnly: true),
+                InputFactory.Property("readOnlyDictionary", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: isRequired, isReadOnly: true),
+            };
+
+            var (_, serialization) = CreateModelAndSerialization(InputFactory.Model("TestModel", properties: properties));
+            var method = serialization.BuildJsonModelWriteCoreMethod();
+            Assert.IsNotNull(method);
+            Assert.IsNotNull(method.BodyStatements);
+            bool hasInt = false;
+            bool hasString = false;
+            bool hasCollection = false;
+            bool hasDictionary = false;
+            foreach (var statement in method.BodyStatements!.Flatten())
+            {
+                if (statement.ToDisplayString().Contains("readOnlyInt"))
+                {
+                    Assert.IsInstanceOf<IfStatement>(statement);
+                    Assert.IsTrue((statement as IfStatement)!.Condition.ToDisplayString()
+                        .Contains("options.Format != \"W\""));
+                    Assert.AreEqual(!isRequired, statement.ToDisplayString().Contains("IsDefined"));
+                    hasInt = true;
+                }
+                else if (statement.ToDisplayString().Contains("readOnlyString"))
+                {
+                    Assert.IsInstanceOf<IfStatement>(statement);
+                    Assert.IsTrue((statement as IfStatement)!.Condition.ToDisplayString()
+                        .Contains("options.Format != \"W\""));
+                    Assert.AreEqual(!isRequired, statement.ToDisplayString().Contains("IsDefined"));
+                    hasString = true;
+                }
+                else if (statement.ToDisplayString().Contains("readOnlyCollection"))
+                {
+                    Assert.IsInstanceOf<IfStatement>(statement);
+                    Assert.IsTrue((statement as IfStatement)!.Condition.ToDisplayString()
+                        .Contains("options.Format != \"W\""));
+                    Assert.AreEqual(!isRequired, statement.ToDisplayString().Contains("IsCollectionDefined"));
+                    hasCollection = true;
+                }
+                else if (statement.ToDisplayString().Contains("readOnlyDictionary"))
+                {
+                    Assert.IsInstanceOf<IfStatement>(statement);
+                    Assert.IsTrue((statement as IfStatement)!.Condition.ToDisplayString()
+                        .Contains("options.Format != \"W\""));
+                    Assert.AreEqual(!isRequired, statement.ToDisplayString().Contains("IsCollectionDefined"));
+                    hasDictionary = true;
+                }
+            }
+
+            Assert.IsTrue(hasInt);
+            Assert.IsTrue(hasString);
+            Assert.IsTrue(hasCollection);
+            Assert.IsTrue(hasDictionary);
         }
 
         [Test]
