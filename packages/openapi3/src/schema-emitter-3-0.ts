@@ -151,7 +151,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     const variants = Array.from(union.variants.values());
     const literalVariantEnumByType: Record<string, any[]> = {};
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
-    const schemaMembers: ScalarMember[] = [];
+    const schemaMembers: UnionSchemaMember[] = [];
     let nullable = false;
     const isMultipart = this.getContentType().startsWith("multipart/");
 
@@ -186,8 +186,9 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       }
     }
 
+    const stdScalars = getStdScalarNames(schemaMembers);
     const wrapWithObjectBuilder = (
-      schemaMember: ScalarMember,
+      schemaMember: UnionSchemaMember,
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
     ): ObjectBuilder<OpenAPI3Schema> => {
       // we can just return the single schema member after applying nullable
@@ -279,7 +280,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     }
 
     const isMerge = checkMerge(schemaMembers);
-    const stdScalars = getStdScalarNames(schemaMembers);
 
     const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
@@ -295,12 +295,12 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
 
     return this.applyConstraints(union, schema);
 
-    interface ScalarMember {
+    interface UnionSchemaMember {
       schema: any;
       type: Type | null;
     }
 
-    function getStdScalarNames(scalarMembers: ScalarMember[]): Set<string> {
+    function getStdScalarNames(scalarMembers: UnionSchemaMember[]): Set<string> {
       const stdScalars = new Set<string>();
       for (const member of scalarMembers) {
         if (member.type?.kind === "Scalar") {

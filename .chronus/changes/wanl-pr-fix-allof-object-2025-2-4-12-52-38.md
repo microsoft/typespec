@@ -4,4 +4,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-Fix the bug of nullable scalar generated as object by using `anyOf` 
+Fix union of custom scalar with `null` creating an `object` with `allOf` reference
