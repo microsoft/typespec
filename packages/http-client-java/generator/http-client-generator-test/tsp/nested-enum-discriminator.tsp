@@ -3,9 +3,7 @@ import "@typespec/http";
 using TypeSpec.Http;
 
 @doc("Illustrates multiple level inheritance with multiple enum discriminators.")
-@service({
-  title: "EnumNestedDiscriminator",
-})
+@service(#{ title: "EnumNestedDiscriminator" })
 @route("/type/model/inheritance/enum-nested-discriminator")
 namespace TspTest.EnumNestedDiscriminator;
 

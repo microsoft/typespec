@@ -135,7 +135,7 @@ export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: 
  * but will not change the visibility of any properties that have visibility set _explicitly_, even if the visibility
  * is the same as the default visibility.
  *
- * Visibility may be explicitly set using any of the following decorators:
+ * Visibility may be set explicitly using any of the following decorators:
  *
  * - `@visibility`
  * - `@removeVisibility`
@@ -146,7 +146,7 @@ export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: 
 export type WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  visibility: string | EnumValue,
+  visibility: EnumValue,
 ) => void;
 
 /**
@@ -892,7 +892,7 @@ export type InspectTypeNameDecorator = (
 export type VisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  ...visibilities: (string | EnumValue)[]
+  ...visibilities: EnumValue[]
 ) => void;
 
 /**
@@ -988,7 +988,7 @@ export type RemoveVisibilityDecorator = (
 export type WithVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  ...visibilities: (string | EnumValue)[]
+  ...visibilities: EnumValue[]
 ) => void;
 
 /**
@@ -997,33 +997,30 @@ export type WithVisibilityDecorator = (
  * A parameter or property nested within a parameter will be visible if it has _any_ of the visibilities
  * in the list.
  *
- * WARNING: If no arguments are provided to this decorator, the `@typespec/http` library considers only properties
- * that do not have visibility modifiers _explicitly_ configured to be visible. Additionally, the HTTP library will
- * disable the feature of `@patch` operations that causes the properties of the request body to become effectively
- * optional. Some specifications have used this configuration in the past to describe exact PATCH bodies, but using this
- * decorator with no arguments in that manner is not recommended. The legacy behavior of `@parameterVisibility` with no
- * arguments is preserved for backwards compatibility pending a future review and possible deprecation.
+ * It is invalid to call this decorator with no visibility modifiers.
  *
  * @param visibilities List of visibility modifiers that apply to the parameters of this operation.
  */
 export type ParameterVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: (string | EnumValue)[]
+  ...visibilities: EnumValue[]
 ) => void;
 
 /**
  * Declares the visibility constraint of the return type of a given operation.
  *
  * A property within the return type of the operation will be visible if it has _any_ of the visibilities
- * in the list, or if the list is empty (in which case the property is always visible).
+ * in the list.
+ *
+ * It is invalid to call this decorator with no visibility modifiers.
  *
  * @param visibilities List of visibility modifiers that apply to the return type of this operation.
  */
 export type ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: (string | EnumValue)[]
+  ...visibilities: EnumValue[]
 ) => void;
 
 /**

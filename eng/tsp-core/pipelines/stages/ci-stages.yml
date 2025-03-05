@@ -15,9 +15,6 @@ stages:
 
         strategy:
           matrix:
-            "Node 18.x":
-              nodeVersion: 18.x
-
             "Node 20.x":
               nodeVersion: 20.x
 
@@ -44,11 +41,10 @@ stages:
 
         strategy:
           matrix:
-            "Node 18.x":
-              nodeVersion: 18.x
-
             "Node 20.x":
               nodeVersion: 20.x
+            "Node 22.x":
+              nodeVersion: 22.x
 
         pool:
           name: $(LINUXPOOL)
