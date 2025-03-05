@@ -17,6 +17,9 @@ public class XmsPageable implements JsonSerializable<XmsPageable> {
     private String itemName = "value";
     private String nextLinkName;
     private String operationName;
+    private PageableContinuationToken continuationToken;
+
+    // internal
     private Operation nextOperation;
 
     /**
@@ -79,6 +82,14 @@ public class XmsPageable implements JsonSerializable<XmsPageable> {
         this.operationName = operationName;
     }
 
+    public PageableContinuationToken getContinuationToken() {
+        return continuationToken;
+    }
+
+    public void setContinuationToken(PageableContinuationToken continuationToken) {
+        this.continuationToken = continuationToken;
+    }
+
     /**
      * Gets the operation that retrieves the next page of items.
      *
@@ -103,6 +114,7 @@ public class XmsPageable implements JsonSerializable<XmsPageable> {
             .writeStringField("itemName", itemName)
             .writeStringField("nextLinkName", nextLinkName)
             .writeStringField("operationName", operationName)
+            .writeJsonField("continuationToken", continuationToken)
             .writeJsonField("nextOperation", nextOperation)
             .writeEndObject();
     }
@@ -122,6 +134,8 @@ public class XmsPageable implements JsonSerializable<XmsPageable> {
                 pageable.nextLinkName = reader.getString();
             } else if ("operationName".equals(fieldName)) {
                 pageable.operationName = reader.getString();
+            } else if ("continuationToken".equals(fieldName)) {
+                pageable.continuationToken = PageableContinuationToken.fromJson(reader);
             } else if ("nextOperation".equals(fieldName)) {
                 pageable.nextOperation = Operation.fromJson(reader);
             } else {
