@@ -30,6 +30,15 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
+      - name: Create PR Comment
+        run: chronus-github get-pr-comment --out ./comment-out/comment.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: comment
+          path: comment-out/
+          retention-days: 1 # Only need for the next workflow so don't need to waste storageretention-days
+
       - run: npx chronus verify --since ${{ github.event.pull_request.base.ref }}
         name: Check changelog
         if: |

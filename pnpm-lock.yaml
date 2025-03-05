@@ -20,6 +20,9 @@ importers:
       '@chronus/github':
         specifier: ^0.4.9
         version: 0.4.9
+      '@chronus/github-pr-commenter':
+        specifier: ^0.5.9
+        version: 0.5.9
       '@eslint/js':
         specifier: ^9.21.0
         version: 9.21.0
@@ -3444,6 +3447,11 @@ packages:
 
   '@chronus/chronus@0.17.0':
     resolution: {integrity: sha512-i4ZnvCCNnB8/i+Xl+vVLizy15k5HDyAoTfvxmQEE9bAyOy78hlCxJDhGY1dOA1pVmLT3oq9kV2e4qbVAYsokBw==}
+    engines: {node: '>=16.0.0'}
+    hasBin: true
+
+  '@chronus/github-pr-commenter@0.5.9':
+    resolution: {integrity: sha512-Iwrrjed8k13Zrgz8UTGMNHTEj/TbkTBNBvyKNGfUZXnWNmzD0W5V+GUKg0JF0ulfFMWSCh+bwKMW5qNEHziQeQ==}
     engines: {node: '>=16.0.0'}
     hasBin: true
 
@@ -14877,6 +14885,14 @@ snapshots:
       yaml: 2.7.0
       yargs: 17.7.2
       zod: 3.24.2
+    transitivePeerDependencies:
+      - bluebird
+      - supports-color
+
+  '@chronus/github-pr-commenter@0.5.9':
+    dependencies:
+      '@chronus/github': 0.4.9
+      '@octokit/rest': 21.1.0
     transitivePeerDependencies:
       - bluebird
       - supports-color
