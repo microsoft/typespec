@@ -1,7 +1,7 @@
 # --------------------------------
 #  Build compiler
 # --------------------------------
-FROM mcr.microsoft.com/mirror/docker/library/node:20 AS builder
+FROM mcr.microsoft.com/azurelinux/base/nodejs:20.14 AS builder
 
 COPY . /app
 
@@ -17,7 +17,7 @@ RUN npm pack
 # --------------------------------
 #  Setup final image
 # --------------------------------
-FROM mcr.microsoft.com/mirror/docker/library/node:20
+FROM mcr.microsoft.com/azurelinux/base/nodejs:20.14
 
 COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 
