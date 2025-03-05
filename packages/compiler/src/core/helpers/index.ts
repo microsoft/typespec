@@ -2,6 +2,7 @@ export {
   DiscriminatedUnion,
   DiscriminatedUnionLegacy,
   getDiscriminatedUnion,
+  getDiscriminatedUnionFromInheritance,
 } from "./discriminator-utils.js";
 export { getLocationContext } from "./location-context.js";
 export * from "./operation-utils.js";

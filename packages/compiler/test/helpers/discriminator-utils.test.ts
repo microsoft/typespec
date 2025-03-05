@@ -1,6 +1,7 @@
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Model, getDiscriminatedUnion, getDiscriminator } from "../../src/index.js";
+import { getDiscriminatedUnionFromInheritance } from "../../src/core/helpers/discriminator-utils.js";
+import { Model, getDiscriminator } from "../../src/index.js";
 import {
   BasicTestRunner,
   createTestRunner,
@@ -20,7 +21,7 @@ describe("compiler: discriminator", () => {
     if (discriminator === undefined) {
       throw new Error("Discriminator shouldn't be undefined.");
     }
-    const [union, diagnostics] = getDiscriminatedUnion(model, discriminator);
+    const [union, diagnostics] = getDiscriminatedUnionFromInheritance(model, discriminator);
     expectDiagnosticEmpty(diagnostics);
     return union;
   }

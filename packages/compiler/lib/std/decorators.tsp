@@ -462,7 +462,7 @@ extern dec discriminated(target: Union, options?: valueof DiscriminatedOptions);
  * model Dog extends Pet  {kind: "dog", bark: boolean}
  * ```
  */
-extern dec discriminator(target: Model | Union, propertyName: valueof string);
+extern dec discriminator(target: Model, propertyName: valueof string);
 
 /**
  * Known encoding to use on utcDateTime or offsetDateTime

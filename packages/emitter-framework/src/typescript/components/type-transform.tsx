@@ -1,8 +1,10 @@
 import { Children, code, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
+  DiscriminatedUnion,
   Discriminator,
   getDiscriminatedUnion,
+  getDiscriminatedUnionFromInheritance,
   Model,
   ModelProperty,
   RekeyableMap,
@@ -34,9 +36,9 @@ export interface UnionTransformProps {
   target: "application" | "transport";
 }
 function UnionTransformExpression(props: UnionTransformProps) {
-  const discriminator = $.type.getDiscriminator(props.type);
+  const [discriminatedUnion] = getDiscriminatedUnion($.program, props.type)!;
 
-  if (!discriminator) {
+  if (!discriminatedUnion) {
     // TODO: Handle non-discriminated unions
     reportTypescriptDiagnostic($.program, {
       code: "typescript-unsupported-nondiscriminated-union",
@@ -45,17 +47,46 @@ function UnionTransformExpression(props: UnionTransformProps) {
     return null;
   }
 
-  return <DiscriminateExpression type={props.type} discriminator={discriminator} target={props.target} />;
+  return <DiscriminateExpression type={props.type} discriminatedUnion={discriminatedUnion} target={props.target} />;
 }
 
 interface DiscriminateExpressionProps {
-  type: Union | Model;
-  discriminator: Discriminator;
+  type: Union;
+  discriminatedUnion: DiscriminatedUnion;
   target: "application" | "transport";
 }
 
 function DiscriminateExpression(props: DiscriminateExpressionProps) {
-  const [discriminatedUnion] = getDiscriminatedUnion(props.type, props.discriminator)!;
+  const discriminatorRef = `item.${props.discriminatedUnion.options.discriminatorPropertyName}`;
+
+  const unhandledVariant = `
+  \n\nconsole.warn(\`Received unknown snake kind: \${${discriminatorRef}}\`); 
+  return item as any;
+  `;
+
+  return mapJoin(
+    props.discriminatedUnion.variants,
+    (name, variant) => {
+      return code`
+    if( ${discriminatorRef} === ${JSON.stringify(name)}) {
+      return ${<TypeTransformCall type={variant} target={props.target} castInput itemPath={["item"]}/>}
+    }
+    `;
+    },
+    { joiner: "\n\n", ender: unhandledVariant },
+  );
+}
+
+interface DiscriminateModelExpressionProps {
+  type: Model;
+  discriminator: Discriminator;
+  target: "application" | "transport";
+}
+function DiscriminateModelExpression(props: DiscriminateModelExpressionProps) {
+  const [discriminatedUnion] = getDiscriminatedUnionFromInheritance(
+    props.type,
+    props.discriminator,
+  )!;
 
   const discriminatorRef = `item.${props.discriminator.propertyName}`;
 
@@ -113,7 +144,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
     const discriminator = $.type.getDiscriminator(props.type);
 
     transformExpression = discriminator ? (
-      <DiscriminateExpression type={props.type} discriminator={discriminator} target={props.target} />
+      <DiscriminateModelExpression type={props.type} discriminator={discriminator} target={props.target} />
     ) : (
       <>return <ModelTransformExpression  type={props.type} itemPath={["item"]} target={props.target} />;</>
     );
