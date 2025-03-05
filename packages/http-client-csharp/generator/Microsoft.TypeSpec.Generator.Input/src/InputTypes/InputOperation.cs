@@ -21,7 +21,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputParameter> parameters,
             IReadOnlyList<OperationResponse> responses,
             string httpMethod,
-            BodyMediaType requestBodyMediaType,
             string uri,
             string path,
             string? externalDocsUrl,
@@ -42,7 +41,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             Parameters = parameters;
             Responses = responses;
             HttpMethod = httpMethod;
-            RequestBodyMediaType = requestBodyMediaType;
             Uri = uri;
             Path = path;
             ExternalDocsUrl = externalDocsUrl;
@@ -65,7 +63,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameters: Array.Empty<InputParameter>(),
             responses: Array.Empty<OperationResponse>(),
             httpMethod: string.Empty,
-            requestBodyMediaType: BodyMediaType.None,
             uri: string.Empty,
             path: string.Empty,
             externalDocsUrl: null,
@@ -87,7 +84,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public IReadOnlyList<OperationResponse> Responses { get; internal set; }
         public string HttpMethod { get; internal set; }
-        public BodyMediaType RequestBodyMediaType { get; internal set; }
         public string Uri { get; internal set; }
         public string Path { get; internal set; }
         public string? ExternalDocsUrl { get; internal set; }

@@ -17,7 +17,7 @@
 ######################
 # Python
 ######################
-/packages/http-client-python/                @iscai-msft @tadelesh @msyyc
+/packages/http-client-python/                @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel
 
 ######################
 # Emiter Shared

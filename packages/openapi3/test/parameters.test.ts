@@ -450,6 +450,29 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       });
     });
 
+    // Test for https://github.com/microsoft/typespec/issues/6224
+    it("implicit body with metadata keeps decorator info on body properties", async () => {
+      const res = await openApiFor(`
+        @test op test(
+          @doc("Doc for param")
+          param: string;
+
+          @query
+          queryParam?: string,
+        ): void;
+        `);
+      expect(res.paths["/"].post.requestBody.content["application/json"].schema).toEqual({
+        type: "object",
+        properties: {
+          param: {
+            type: "string",
+            description: "Doc for param",
+          },
+        },
+        required: ["param"],
+      });
+    });
+
     describe("request parameters resolving to no property in the body produce no body", () => {
       it.each(["()", "(@header prop: string)", `(@invisible(Lifecycle) prop: string)`])(
         "%s",

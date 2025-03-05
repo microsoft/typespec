@@ -67,6 +67,12 @@ public final class SendLongOptions {
     private Double dataFloat;
 
     /*
+     * The long property.
+     */
+    @Generated
+    private Long longParameter;
+
+    /*
      * The item's title
      */
     @Generated
@@ -258,6 +264,28 @@ public final class SendLongOptions {
     @Generated
     public SendLongOptions setDataFloat(Double dataFloat) {
         this.dataFloat = dataFloat;
+        return this;
+    }
+
+    /**
+     * Get the longParameter property: The long property.
+     * 
+     * @return the longParameter value.
+     */
+    @Generated
+    public Long getLongParameter() {
+        return this.longParameter;
+    }
+
+    /**
+     * Set the longParameter property: The long property.
+     * 
+     * @param longParameter the longParameter value to set.
+     * @return the SendLongOptions object itself.
+     */
+    @Generated
+    public SendLongOptions setLongParameter(Long longParameter) {
+        this.longParameter = longParameter;
         return this;
     }
 
