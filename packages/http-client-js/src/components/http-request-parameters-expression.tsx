@@ -1,7 +1,6 @@
 import * as ay from "@alloy-js/core";
 import { Children, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { ModelProperty } from "@typespec/compiler";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import { HttpProperty } from "@typespec/http";
 import { getDefaultValue } from "../utils/parameters.jsx";
