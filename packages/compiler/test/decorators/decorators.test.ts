@@ -878,6 +878,51 @@ describe("compiler: built-in decorators", () => {
       const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
       deepStrictEqual(properties, ["pickMe", "pickMeToo"]);
     });
+
+    it("picks model inherited property", async () => {
+      const { TestModel } = await runner.compile(
+        `
+        model ParentModel {
+          pickMe: string;
+        }
+
+        model OriginalModel extends ParentModel {
+          pickMeToo: string;
+          notMe: string;
+        }
+
+        @test
+        model TestModel is PickProperties<OriginalModel, "pickMe"> {
+        }`,
+      );
+
+      const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
+      deepStrictEqual(properties, ["pickMe"]);
+    });
+
+    it("emits diagnostics if any given key is not a property of a model", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        model OriginalModel {
+          pickMe: string;
+          pickMeToo: string;
+          notMe: string;
+        }
+
+        model TestModel is PickProperties<OriginalModel, "pickMe" | "notMee"> {
+        }`,
+      );
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "unexpected-property",
+          message:
+            "Property 'notMee' does not exist in type 'OriginalModel'.",
+          pos: 190,
+          end: 198,
+        },
+      ]);
+    });
   });
 
   describe("@overload", () => {
