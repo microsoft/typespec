@@ -1,6 +1,6 @@
 import { DiagnosticSeverity, Range, TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { isMap, parseDocument } from "yaml";
+import { isSeq, parseDocument } from "yaml";
 import {
   defaultConfig,
   findTypeSpecConfigPath,
@@ -9,16 +9,16 @@ import {
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
 import {
+  compilerAssert,
   CompilerHost,
   CompilerOptions,
-  Program,
-  Diagnostic as TypeSpecDiagnostic,
-  TypeSpecScriptNode,
-  compilerAssert,
   formatDiagnostic,
   getDirectoryPath,
   joinPaths,
   parse,
+  Program,
+  Diagnostic as TypeSpecDiagnostic,
+  TypeSpecScriptNode,
 } from "../core/index.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
@@ -188,26 +188,14 @@ export function createCompileService({
         });
         if (yamlDoc) {
           let emitOffset = 0;
-          if (isMap(yamlDoc.contents)) {
-            const yamlMap = yamlDoc.contents.items.find(
-              (item) => (<any>item.key).source === "emit",
-            );
-            if (
-              yamlMap &&
-              yamlMap.value &&
-              yamlMap.value.srcToken &&
-              yamlMap.value.srcToken.type === "block-seq"
-            ) {
-              yamlMap.value.srcToken.items.forEach((item) => {
-                if (
-                  item.value &&
-                  (item.value.type === "double-quoted-scalar" ||
-                    item.value.type === "single-quoted-scalar") &&
-                  item.value.source.includes(emitterName)
-                ) {
-                  emitOffset = item.value.offset;
-                }
-              });
+          const emitNode = yamlDoc.get("emit");
+          if (isSeq(emitNode) && emitNode.srcToken?.type === "block-seq") {
+            const found = emitNode.srcToken.items.find(
+              (item) =>
+                item.value && "source" in item.value && item.value.source.includes(emitterName),
+            )?.value;
+            if (found) {
+              emitOffset = found.offset;
             }
           }
 
