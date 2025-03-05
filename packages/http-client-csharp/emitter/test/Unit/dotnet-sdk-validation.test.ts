@@ -10,9 +10,9 @@ import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { _validateDotNetSdk } from "../../src/emitter.js";
 import { execAsync } from "../../src/lib/utils.js";
 import {
+  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -43,7 +43,7 @@ describe("Test _validateDotNetSdk", () => {
     error.code = "ENOENT";
     (execAsync as Mock).mockRejectedValueOnce(error);
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
@@ -67,7 +67,7 @@ describe("Test _validateDotNetSdk", () => {
       proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
@@ -84,7 +84,7 @@ describe("Test _validateDotNetSdk", () => {
       proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
@@ -101,7 +101,7 @@ describe("Test _validateDotNetSdk", () => {
       proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);

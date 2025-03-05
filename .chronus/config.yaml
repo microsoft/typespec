@@ -55,6 +55,8 @@ versionPolicies:
       - "@typespec/sse"
       - "@typespec/streams"
       - "@typespec/xml"
+      - "@typespec/standalone-cli"
+
   - name: standalone
     type: independent
     packages:
@@ -62,9 +64,8 @@ versionPolicies:
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 
-ignore:
-  - "@typespec/http-client-csharp"
-  - "@typespec/http-client-java"
+additionalPackages:
+  - packages/http-client-python
 
 changedFiles:
   - "!**/*.md"

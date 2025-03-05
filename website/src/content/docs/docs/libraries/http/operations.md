@@ -276,25 +276,25 @@ namespace Pets {
 
 ## Automatic visibility
 
-The `@typespec/rest` library understands the following well-known [visibilities](../../standard-library/built-in-decorators.md) and provides functionality for emitters to apply them based on whether on request vs. response and HTTP method usage as detailed in the table below.
+The `@typespec/rest` library understands [Lifecycle Visibility](../../language-basics/visibility.md#lifecycle-visibility) and provides functionality for emitters to apply visibility transforms based on whether a model represents a request or response and on HTTP method usage as detailed in the table below.
 
-See [handling visibility and metadata](../../extending-typespec/emitter-metadata-handling.md) for how to incorporate this into
+See [handling visibility and metadata](../../extending-typespec/emitter-metadata-handling.md) for details on how to incorporate this information into an emitter implementation.
 
-| Name     | Visible in           |
-| -------- | -------------------- |
-| "read"   | Any response         |
-| "query"  | GET or HEAD request  |
-| "create" | POST or PUT request  |
-| "update" | PATCH or PUT request |
-| "delete" | DELETE request       |
+| Modifier         | Visible in           |
+| ---------------- | -------------------- |
+| Lifecycle.Read   | Any response         |
+| Lifecycle.Query  | GET or HEAD request  |
+| Lifecycle.Create | POST or PUT request  |
+| Lifecycle.Update | PATCH or PUT request |
+| Lifecycle.Delete | DELETE request       |
 
 This allows a single logical TypeSpec model to be used as in the following example:
 
 ```typespec
 model User {
   name: string;
-  @visibility("read") id: string;
-  @visibility("create") password: string;
+  @visibility(Lifecycle.Read) id: string;
+  @visibility(Lifecycle.Create) password: string;
 }
 
 @route("/users")
@@ -306,7 +306,7 @@ interface Users {
 
 There is a single logical user entity represented by the single TypeSpec type `User`, but the HTTP payload for this entity varies based on context. When returned in a response, the `id` property is included, but when sent in a request, it is not. Similarly, the `password` property is only included in create requests, but not present in responses.
 
-The OpenAPI v3 emitter will apply these visibilities automatically, without explicit use of `@withVisibility`, and it will generate separate schemas suffixed by visibility when necessary. `@visibility("read")` can be expressed in OpenAPI without generating additional schema by specifying `readOnly: true` and the OpenAPI v3 emitter will leverage this a an optimization, but other visibilities will generate additional schemas. For example, `@visibility("create")` applied to a model property of a type named Widget will generate a `WidgetCreate` schema.
+The OpenAPI v3 emitter will apply these visibilities automatically, without explicit use of `@withVisibility`, and it will generate separate schemas suffixed by visibility when necessary. `@visibility(Lifecycle.Read)` can be expressed in OpenAPI without generating additional schema by specifying `readOnly: true` and the OpenAPI v3 emitter will leverage this a an optimization, but other visibilities will generate additional schemas. For example, `@visibility(Lifecycle.Create)` applied to a model property of a type named Widget will generate a `WidgetCreate` schema.
 
 Another emitter such as one generating client code can see and preserve a single logical type and deal with these HTTP payload differences by means other than type proliferation.
 
@@ -329,13 +329,13 @@ Additionally metadata that appears in an array element type always inapplicable.
 
 When metadata is deemed "inapplicable", for example, if a `@path` property is seen in a response, it becomes part of the payload instead unless the [@includeInapplicableMetadataInPayload](./reference/decorators.md#@TypeSpec.Http.includeInapplicableMetadataInPayload) decorator is used and given a value of `false`.
 
-The handling of metadata applicability furthers the goal of keeping a single logical model in TypeSpec. For example, this defines a logical `User` entity that has a name, ID and password, but further annotates that the ID is sent in the HTTP path and the HTTP body in responses. Also, using automatically visibility as before, we further indicate that the password is only present in create requests.
+The handling of metadata applicability furthers the goal of keeping a single logical model in TypeSpec. For example, this defines a logical `User` entity that has a name, ID and password, but further annotates that the ID is sent in the HTTP path and the HTTP body in responses. Also, using automatic visibility as before, we further indicate that the password is only present in create requests.
 
 ```typespec
 model User {
   name: string;
   @path id: string;
-  @visibility("create") password: string;
+  @visibility(Lifecycle.Create) password: string;
 }
 ```
 

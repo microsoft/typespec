@@ -20,7 +20,42 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
         private readonly InputModelType _inputModel;
 
-        protected override FormattableString Description { get; }
+        protected override FormattableString Description => _description ??= BuildDescription();
+
+        private FormattableString? _description;
+
+        // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
+        // and derived models resulting in a stack overflow.
+        private FormattableString BuildDescription()
+        {
+            var description = DocHelpers.GetFormattableDescription(_inputModel.Summary, _inputModel.Doc) ??
+                              $"The {Name}.";
+            if (_isAbstract)
+            {
+                _derivedModels = BuildDerivedModels();
+                var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
+                var derivedClassesDescription =
+                    "Please note this is the abstract base class. The derived classes available for instantiation are: ";
+                bool addComma = publicDerivedModels.Count > 2;
+                for (int i = 0; i < publicDerivedModels.Count; i++)
+                {
+                    if (i == publicDerivedModels.Count - 1)
+                    {
+                        derivedClassesDescription += $"{(i > 0 ? "and " : "")}<see cref=\"{publicDerivedModels[i].Name}\"/>.";
+                    }
+                    else
+                    {
+                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Name}\"/>{(addComma ? ", ": " ")}";
+                    }
+                }
+
+                description = $"{description}\n{derivedClassesDescription}";
+            }
+
+            return description;
+        }
+
+        private readonly bool _isAbstract;
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
@@ -34,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
-            Description = DocHelpers.GetFormattableDescription(inputModel.Summary, inputModel.Doc) ?? $"The {Name}.";
+            _isAbstract = _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null;
 
             if (inputModel.BaseModel is not null)
             {
@@ -87,7 +122,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
-            CodeModelPlugin.Instance.TypeFactory.RootNamespace :
+            // TODO remove null check once https://github.com/Azure/typespec-azure/issues/2209 is fixed.
+            CodeModelPlugin.Instance.TypeFactory.PrimaryNamespace :
             CodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputModel.Namespace);
 
         protected override CSharpType? GetBaseType()
@@ -139,8 +175,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            bool isAbstract = _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null;
-            if (isAbstract)
+            if (_isAbstract)
             {
                 declarationModifiers |= TypeSignatureModifiers.Abstract;
             }

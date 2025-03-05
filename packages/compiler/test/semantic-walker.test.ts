@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   Enum,
   Interface,
@@ -15,6 +15,7 @@ import {
   getNamespaceFullName,
 } from "../src/core/index.js";
 import {
+  NavigationOptions,
   getProperty,
   navigateProgram,
   navigateType,
@@ -135,13 +136,17 @@ describe("compiler: semantic walker", () => {
     return [result, listener] as const;
   }
 
-  async function runNavigator(typespec: string, customListener?: SemanticNodeListener) {
+  async function runNavigator(
+    typespec: string,
+    customListener?: SemanticNodeListener,
+    options?: NavigationOptions,
+  ) {
     host.addTypeSpecFile("main.tsp", typespec);
 
     await host.compile("main.tsp", { nostdlib: true });
 
     const [result, listener] = createCollector(customListener);
-    navigateProgram(host.program, listener);
+    navigateProgram(host.program, listener, options);
 
     return result;
   }
@@ -185,7 +190,7 @@ describe("compiler: semantic walker", () => {
           visitedModels.push(model);
         },
       },
-      { includeTemplateDeclaration: false, visitDerivedTypes: true },
+      { visitDerivedTypes: true },
     );
 
     const expectedModels = ["Bird", "SeaGull", "Sparrow", "Goose", "Eagle"];
@@ -637,6 +642,55 @@ describe("compiler: semantic walker", () => {
       strictEqual(results.models.length, 2);
       strictEqual(results.models[0].name, "A");
       strictEqual(results.models[1].name, "B");
+    });
+  });
+
+  describe("template declarations", () => {
+    it("doesn't include by default", async () => {
+      const result = await runNavigator(`
+        model Foo<T> {}
+        model Bar {}
+      `);
+
+      strictEqual(result.models.length, 1);
+      strictEqual(result.models[0].name, "Bar");
+    });
+
+    it("include when includeTemplateDeclaration is set to true", async () => {
+      const result = await runNavigator(
+        `
+        model Foo<T> {}
+        model Bar {}
+      `,
+        undefined,
+        { includeTemplateDeclaration: true },
+      );
+
+      strictEqual(result.models.length, 4);
+      strictEqual(result.models[0].name, "Foo");
+      strictEqual(result.models[1].name, "Bar");
+      strictEqual(result.models[2].name, "Array");
+      strictEqual(result.models[3].name, "Record");
+    });
+
+    it("by default only include the template instantiations", async () => {
+      const results = await runNavigator(`
+        namespace Foo;
+      
+        model Bar<T> {
+          id: string;
+          name: string;
+          child: T;
+        };
+      
+        model Qux {
+          age: int32; 
+        };
+      
+        op getOperation(): Bar<Qux>;
+      `);
+
+      expect(results.models).toHaveLength(2);
     });
   });
 });

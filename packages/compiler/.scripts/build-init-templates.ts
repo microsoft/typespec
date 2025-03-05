@@ -9,56 +9,52 @@ const pkgJson = JSON.parse(
 const minCompilerVersion = pkgJson.version;
 
 const builtInTemplates: Record<string, InitTemplate> = {
-  empty: {
-    title: "Empty project",
-    description: "Create an empty project.",
-    libraries: [],
-    compilerVersion: minCompilerVersion,
-  },
   rest: {
     title: "Generic REST API",
-    description: "Create a project representing a generic REST API",
+    description: "Create a project representing a generic REST API service.",
     compilerVersion: minCompilerVersion,
     libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi", "@typespec/openapi3"],
     emitters: {
       "@typespec/openapi3": {
         selected: true,
+        label: "OpenAPI 3.1 document",
         options: {
           "emitter-output-dir": "{output-dir}/schema",
+          "openapi-versions": ["3.1.0"],
         },
       },
       "@typespec/http-client-csharp": {
-        description: "CSharp Client emitter",
+        label: "C# client",
         options: {
           "emitter-output-dir": "{output-dir}/clients/csharp",
         },
       },
       "@typespec/http-client-java": {
-        description: "Java Client emitter",
+        label: "Java client",
         options: {
           "emitter-output-dir": "{output-dir}/clients/java",
         },
       },
       "@azure-tools/typespec-ts": {
-        description: "JavaScript Client emitter",
+        label: "JavaScript client",
         options: {
           "emitter-output-dir": "{output-dir}/clients/js",
         },
       },
       "@typespec/http-client-python": {
-        description: "Python Client emitter",
+        label: "Python client",
         options: {
           "emitter-output-dir": "{output-dir}/clients/python",
         },
       },
       "@typespec/http-server-csharp": {
-        description: "CSharp server stubs",
+        label: "C# server stubs",
         options: {
           "emitter-output-dir": "{output-dir}/server/generated",
         },
       },
-      "@typespec/http-server-javascript": {
-        description: "Javascript server stubs",
+      "@typespec/http-server-js": {
+        description: "JavaScript server stubs",
         options: {
           "emitter-output-dir": "{output-dir}/server",
         },
@@ -67,8 +63,8 @@ const builtInTemplates: Record<string, InitTemplate> = {
     files: [...(await localDir("rest"))],
   },
   "library-ts": {
-    title: "TypeSpec Library (With TypeScript)",
-    description: "Create a new package to add decorators or linters to typespec.",
+    title: "TypeSpec library",
+    description: "Build your own TypeSpec library with custom types, decorators or linters.",
     compilerVersion: minCompilerVersion,
     libraries: [],
     files: [
@@ -78,8 +74,8 @@ const builtInTemplates: Record<string, InitTemplate> = {
     ],
   },
   "emitter-ts": {
-    title: "TypeSpec Emitter (With TypeScript)",
-    description: "Create a new package that will be emitting typespec",
+    title: "TypeSpec emitter",
+    description: "Create a new package that emits artifacts from TypeSpec.",
     compilerVersion: minCompilerVersion,
     libraries: [],
     files: [

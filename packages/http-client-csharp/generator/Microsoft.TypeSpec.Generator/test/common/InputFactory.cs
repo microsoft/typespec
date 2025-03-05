@@ -165,7 +165,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         public static InputModelType Model(
             string name,
-            string clientNamespace = "Sample.Models",
+            string @namespace = "Sample.Models",
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
             IEnumerable<InputModelProperty>? properties = null,
@@ -179,7 +179,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
             return new InputModelType(
                 name,
-                clientNamespace,
+                @namespace,
                 name,
                 access,
                 null,
@@ -232,7 +232,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 parameters is null ? [] : [.. parameters],
                 responses is null ? [OperationResponse()] : [.. responses],
                 httpMethod,
-                BodyMediaType.Json,
                 uri,
                 path,
                 null,
@@ -250,17 +249,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return new OperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
-                BodyMediaType.Json,
                 [],
                 false,
                 ["application/json"]);
         }
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null, string? crossLanguageDefinitionId = null)
         {
             return new InputClient(
                 name,
                 clientNamespace,
+                crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
                 string.Empty,
                 doc ?? $"{name} description",
                 operations is null ? [] : [.. operations],

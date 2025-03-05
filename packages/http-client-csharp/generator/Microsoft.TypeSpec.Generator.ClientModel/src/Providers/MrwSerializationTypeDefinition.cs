@@ -64,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _inputModel = inputModel;
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces
-            var interfaceType = inputModel.IsUnknownDiscriminatorModel ? ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel!)! : _model;
+            var interfaceType = inputModel.IsUnknownDiscriminatorModel ? ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel!)! : _model;
             _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), interfaceType.Type);
             _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), interfaceType.Type);
@@ -172,10 +172,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildExplicitFromClientResult()
         {
-            var result = new ParameterProvider("result", $"The {ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
+            var result = new ParameterProvider("result", $"The {ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
             // using PipelineResponse response = result.GetRawResponse();
-            var responseDeclaration = UsingDeclare("response", ClientModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
+            var responseDeclaration = UsingDeclare("response", ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
             // using JsonDocument document = JsonDocument.Parse(response.Content);
             var document = UsingDeclare(
                 "document",
@@ -198,15 +198,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildImplicitToBinaryContent()
         {
-            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType:C}", Type);
+            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType:C}", Type);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
             // return BinaryContent.Create(model, ModelSerializationExtensions.WireOptions);
             return new MethodProvider(
-                new MethodSignature(ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
+                new MethodSignature(ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.FrameworkType.Name, null, modifiers, null, null, [model]),
                 new MethodBodyStatement[]
                 {
                     !_isStruct ? new IfStatement(model.Equal(Null)) { Return(Null) } : MethodBodyStatement.Empty,
-                    ClientModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
+                    ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
                 },
                 this);
         }
@@ -841,7 +841,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (_additionalBinaryDataProperty != null)
             {
-                var binaryDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.DeserializeJsonValue(
+                var binaryDataDeserializationValue = ScmCodeModelPlugin.Instance.TypeFactory.DeserializeJsonValue(
                     _additionalBinaryDataProperty.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
                     _additionalBinaryDataProperty.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
@@ -849,7 +849,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else if (rawBinaryData != null)
             {
                 var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
-                var rawDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), SerializationFormat.Default);
+                var rawDataDeserializationValue = ScmCodeModelPlugin.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
@@ -1266,11 +1266,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    ClientModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
+                    ScmCodeModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
                 { IsFrameworkType: true } =>
-                    ClientModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, serializationFormat),
+                    ScmCodeModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, serializationFormat),
                 { IsEnum: true } =>
-                    valueType.ToEnum(ClientModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
+                    valueType.ToEnum(ScmCodeModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
                 _ => valueType.Deserialize(jsonElement, _mrwOptionsParameterSnippet)
             };
 
@@ -1313,7 +1313,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new ConstructorProvider(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", accessibility, Array.Empty<ParameterProvider>()),
-                bodyStatements: new MethodBodyStatement(),
+                bodyStatements: MethodBodyStatement.Empty,
                 this);
         }
 
@@ -1444,13 +1444,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyIsReadOnly,
                 propertyIsNullable,
                 writePropertySerializationStatements);
-            if (propertyIsReadOnly && wrapInIsDefinedStatement is not IfStatement)
-            {
-                wrapInIsDefinedStatement = new IfStatement(_isNotEqualToWireConditionSnippet)
-                {
-                    wrapInIsDefinedStatement
-                };
-            }
 
             return wrapInIsDefinedStatement;
         }
@@ -1464,50 +1457,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool propertyIsNullable,
             MethodBodyStatement writePropertySerializationStatement)
         {
-            // Create the first conditional statement to check if the property is defined
-            if (propertyIsNullable)
+            if (!propertyIsReadOnly)
             {
-                writePropertySerializationStatement = CheckPropertyIsInitialized(
+                // Non-nullable value types can be serialized directly
+                if (IsNonNullableValueType(propertyType))
+                {
+                    return writePropertySerializationStatement;
+                }
+
+                // Required properties that are not nullable can be serialized directly
+                if (propertyIsRequired && !propertyIsNullable)
+                {
+                    return writePropertySerializationStatement;
+                }
+            }
+
+            // Conditionally serialize based on whether the property is a collection or a single value and whether it is readonly
+            return CreateSerializationStatementForReadOnlyProperties(
                 propertyType,
-                wireInfo,
-                propertyIsRequired,
                 propertyExpression,
+                propertyIsReadOnly,
+                propertyIsNullable,
+                propertyIsRequired,
+                wireInfo.SerializedName,
                 writePropertySerializationStatement);
-            }
-
-            // Directly return the statement if the property is required or a non-nullable value type that is not JsonElement
-            if (IsRequiredOrNonNullableValueType(propertyType, propertyIsRequired))
-            {
-                return writePropertySerializationStatement;
-            }
-
-            // Conditionally serialize based on whether the property is a collection or a single value
-            return CreateConditionalSerializationStatement(propertyType, propertyExpression, propertyIsReadOnly, writePropertySerializationStatement);
-        }
-
-        private IfElseStatement CheckPropertyIsInitialized(
-            CSharpType propertyType,
-            PropertyWireInformation wireInfo,
-            bool isPropRequired,
-            MemberExpression propertyMemberExpression,
-            MethodBodyStatement writePropertySerializationStatement)
-        {
-            ScopedApi<bool> propertyIsInitialized;
-
-            if (propertyType.IsCollection && !propertyType.IsReadOnlyMemory && isPropRequired)
-            {
-                propertyIsInitialized = propertyMemberExpression.NotEqual(Null)
-                    .And(OptionalSnippets.IsCollectionDefined(propertyMemberExpression));
-            }
-            else
-            {
-                propertyIsInitialized = propertyMemberExpression.NotEqual(Null);
-            }
-
-            return new IfElseStatement(
-                propertyIsInitialized,
-                writePropertySerializationStatement,
-                _utf8JsonWriterSnippet.WriteNull(wireInfo.SerializedName.ToVariableName()));
         }
 
         /// <summary>
@@ -1588,7 +1561,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // now we just need to focus on how we serialize a value
             if (type.IsFrameworkType)
-                return ClientModelPlugin.Instance.TypeFactory.SerializeJsonValue(type.FrameworkType, value, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
+                return ScmCodeModelPlugin.Instance.TypeFactory.SerializeJsonValue(type.FrameworkType, value, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
 
             if (!type.IsEnum)
                 return _utf8JsonWriterSnippet.WriteObjectValue(value.As(type), options: _mrwOptionsParameterSnippet);
@@ -1764,19 +1737,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return expression.As(new CSharpType(typeof(IEnumerable<>), itemType));
         }
 
-        private static bool IsRequiredOrNonNullableValueType(CSharpType propertyType, bool isRequired)
-            => isRequired || (!propertyType.IsNullable && propertyType.IsValueType && !propertyType.Equals(typeof(JsonElement)));
+        private static bool IsNonNullableValueType(CSharpType propertyType)
+            => propertyType is { IsNullable: false, IsValueType: true } && !propertyType.Equals(typeof(JsonElement));
 
-        private IfStatement CreateConditionalSerializationStatement(
+        private MethodBodyStatement CreateSerializationStatementForReadOnlyProperties(
             CSharpType propertyType,
             MemberExpression propertyMemberExpression,
             bool isReadOnly,
+            bool isNullable,
+            bool isRequired,
+            string serializedName,
             MethodBodyStatement writePropertySerializationStatement)
         {
-            var isDefinedCondition = propertyType.IsCollection && !propertyType.IsReadOnlyMemory
+            if (isRequired && isReadOnly)
+            {
+                return new IfStatement(_isNotEqualToWireConditionSnippet)
+                {
+                    writePropertySerializationStatement
+                };
+            }
+
+            var isDefinedCondition = propertyType is { IsCollection: true, IsReadOnlyMemory: false }
                 ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression)
                 : OptionalSnippets.IsDefined(propertyMemberExpression);
             var condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
+
+            if (isRequired && isNullable)
+            {
+                return new IfElseStatement(
+                    condition,
+                    writePropertySerializationStatement,
+                    _utf8JsonWriterSnippet.WriteNull(serializedName));
+            }
 
             return new IfStatement(condition) { writePropertySerializationStatement };
         }

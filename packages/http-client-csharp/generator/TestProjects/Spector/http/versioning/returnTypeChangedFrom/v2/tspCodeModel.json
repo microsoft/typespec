@@ -1,6 +1,6 @@
 {
  "$id": "1",
- "Name": "Versioning.ReturnTypeChangedFrom",
+ "Name": "Versioning.ReturnTypeChangedFrom.V2",
  "ApiVersions": [
   "v1",
   "v2"
@@ -56,7 +56,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.ReturnTypeChangedFrom",
+   "namespace": "Versioning.ReturnTypeChangedFrom",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -69,7 +69,7 @@
   {
    "$id": "8",
    "Name": "ReturnTypeChangedFromClient",
-   "ClientNamespace": "Versioning.ReturnTypeChangedFrom",
+   "Namespace": "Versioning.ReturnTypeChangedFrom",
    "Doc": "Test for the `@returnTypeChangedFrom` decorator.",
    "Operations": [
     {
@@ -168,7 +168,6 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -177,7 +176,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Text",
      "Uri": "{endpoint}/versioning/return-type-changed-from/api-version:{version}",
      "Path": "/test",
      "RequestMediaTypes": [
@@ -234,7 +232,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Versioning.ReturnTypeChangedFrom"
   }
  ]
 }

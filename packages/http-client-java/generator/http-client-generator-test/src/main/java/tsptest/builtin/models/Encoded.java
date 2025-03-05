@@ -68,6 +68,24 @@ public final class Encoded implements JsonSerializable<Encoded> {
     @Generated
     private Base64Url base64url;
 
+    /*
+     * The unknownDurationFormat property.
+     */
+    @Generated
+    private String unknownDurationFormat;
+
+    /*
+     * The unknownDateTimeFormat property.
+     */
+    @Generated
+    private String unknownDateTimeFormat;
+
+    /*
+     * The unknownBytes property.
+     */
+    @Generated
+    private String unknownBytes;
+
     /**
      * Creates an instance of Encoded class.
      */
@@ -265,6 +283,72 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Get the unknownDurationFormat property: The unknownDurationFormat property.
+     * 
+     * @return the unknownDurationFormat value.
+     */
+    @Generated
+    public String getUnknownDurationFormat() {
+        return this.unknownDurationFormat;
+    }
+
+    /**
+     * Set the unknownDurationFormat property: The unknownDurationFormat property.
+     * 
+     * @param unknownDurationFormat the unknownDurationFormat value to set.
+     * @return the Encoded object itself.
+     */
+    @Generated
+    public Encoded setUnknownDurationFormat(String unknownDurationFormat) {
+        this.unknownDurationFormat = unknownDurationFormat;
+        return this;
+    }
+
+    /**
+     * Get the unknownDateTimeFormat property: The unknownDateTimeFormat property.
+     * 
+     * @return the unknownDateTimeFormat value.
+     */
+    @Generated
+    public String getUnknownDateTimeFormat() {
+        return this.unknownDateTimeFormat;
+    }
+
+    /**
+     * Set the unknownDateTimeFormat property: The unknownDateTimeFormat property.
+     * 
+     * @param unknownDateTimeFormat the unknownDateTimeFormat value to set.
+     * @return the Encoded object itself.
+     */
+    @Generated
+    public Encoded setUnknownDateTimeFormat(String unknownDateTimeFormat) {
+        this.unknownDateTimeFormat = unknownDateTimeFormat;
+        return this;
+    }
+
+    /**
+     * Get the unknownBytes property: The unknownBytes property.
+     * 
+     * @return the unknownBytes value.
+     */
+    @Generated
+    public String getUnknownBytes() {
+        return this.unknownBytes;
+    }
+
+    /**
+     * Set the unknownBytes property: The unknownBytes property.
+     * 
+     * @param unknownBytes the unknownBytes value to set.
+     * @return the Encoded object itself.
+     */
+    @Generated
+    public Encoded setUnknownBytes(String unknownBytes) {
+        this.unknownBytes = unknownBytes;
+        return this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Generated
@@ -279,6 +363,9 @@ public final class Encoded implements JsonSerializable<Encoded> {
         jsonWriter.writeNumberField("unixTimestamp", this.unixTimestamp);
         jsonWriter.writeBinaryField("base64", this.base64);
         jsonWriter.writeStringField("base64url", Objects.toString(this.base64url, null));
+        jsonWriter.writeStringField("unknownDurationFormat", this.unknownDurationFormat);
+        jsonWriter.writeStringField("unknownDateTimeFormat", this.unknownDateTimeFormat);
+        jsonWriter.writeStringField("unknownBytes", this.unknownBytes);
         return jsonWriter.writeEndObject();
     }
 
@@ -315,6 +402,12 @@ public final class Encoded implements JsonSerializable<Encoded> {
                 } else if ("base64url".equals(fieldName)) {
                     deserializedEncoded.base64url
                         = reader.getNullable(nonNullReader -> new Base64Url(nonNullReader.getString()));
+                } else if ("unknownDurationFormat".equals(fieldName)) {
+                    deserializedEncoded.unknownDurationFormat = reader.getString();
+                } else if ("unknownDateTimeFormat".equals(fieldName)) {
+                    deserializedEncoded.unknownDateTimeFormat = reader.getString();
+                } else if ("unknownBytes".equals(fieldName)) {
+                    deserializedEncoded.unknownBytes = reader.getString();
                 } else {
                     reader.skipChildren();
                 }

@@ -76,11 +76,25 @@ import {
   isOneOf,
 } from "./index.js";
 import { type JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
+import { includeDerivedModel } from "./utils.js";
 
 /** @internal */
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #idDuplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
+
+  #applyModelIndexer(schema: ObjectBuilder<unknown>, model: Model) {
+    if (model.indexer) {
+      schema.set("unevaluatedProperties", this.emitter.emitTypeReference(model.indexer.value));
+      return;
+    }
+    if (!this.emitter.getOptions()["seal-object-schemas"]) return;
+
+    const derivedModels = model.derivedModels.filter(includeDerivedModel);
+    if (!derivedModels.length) {
+      schema.set("unevaluatedProperties", { not: {} });
+    }
+  }
 
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     const schema = this.#initializeSchema(model, name, {
@@ -95,9 +109,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       schema.set("allOf", allOf);
     }
 
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
-    }
+    this.#applyModelIndexer(schema, model);
 
     this.#applyConstraints(model, schema);
     return this.#createDeclaration(model, name, schema);
@@ -110,9 +122,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       required: this.#requiredModelProperties(model),
     });
 
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
-    }
+    this.#applyModelIndexer(schema, model);
 
     return schema;
   }

@@ -432,7 +432,7 @@ describe("versioning: logic", () => {
     it("emits diagnostic when renaming causes duplicates", async () => {
       const code = `
       @versioned(Versions)
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       namespace DemoService;
@@ -968,7 +968,7 @@ describe("versioning: logic", () => {
     it("emits diagnostic when renaming causes duplicates", async () => {
       const code = `
       @versioned(Versions)
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       namespace DemoService;
@@ -2046,7 +2046,7 @@ describe("versioning: logic", () => {
     it("emits diagnostic when renaming causes duplicates", async () => {
       const code = `
       @versioned(Versions)
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       namespace DemoService;
