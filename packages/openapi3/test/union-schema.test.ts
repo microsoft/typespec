@@ -572,7 +572,6 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         `,
       );
       ok(res.isRef);
-      ok(res.schemas.Pet.properties.name.nullable);
       deepStrictEqual(res.schemas.Pet.properties.name.anyOf, [
         {
           type: "integer",
@@ -580,6 +579,27 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         },
         {
           type: "string",
+        },
+        {
+          not: {
+            anyOf: [
+              {
+                type: "string",
+              },
+              {
+                type: "number",
+              },
+              {
+                type: "boolean",
+              },
+              {
+                type: "object",
+              },
+              {
+                type: "array",
+              },
+            ],
+          },
         },
       ]);
     });
@@ -618,14 +638,28 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
       deepStrictEqual(openApi.components.schemas.A.properties, {
         x: {
           anyOf: [
+            { $ref: "#/components/schemas/MyStr" },
+            { $ref: "#/components/schemas/Foo" },
             {
-              type: "string",
-              nullable: true,
-            },
-            {
-              type: "object",
-              allOf: [{ $ref: "#/components/schemas/Foo" }],
-              nullable: true,
+              not: {
+                anyOf: [
+                  {
+                    type: "string",
+                  },
+                  {
+                    type: "number",
+                  },
+                  {
+                    type: "boolean",
+                  },
+                  {
+                    type: "object",
+                  },
+                  {
+                    type: "array",
+                  },
+                ],
+              },
             },
           ],
         },
@@ -642,14 +676,30 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
       deepStrictEqual(openApi.components.schemas.A.properties, {
         x: {
           anyOf: [
-            {
-              type: "object",
-              allOf: [{ $ref: "#/components/schemas/Foo" }],
-              nullable: true,
-            },
+            { $ref: "#/components/schemas/Foo" },
             {
               type: "string",
-              nullable: true,
+            },
+            {
+              not: {
+                anyOf: [
+                  {
+                    type: "string",
+                  },
+                  {
+                    type: "number",
+                  },
+                  {
+                    type: "boolean",
+                  },
+                  {
+                    type: "object",
+                  },
+                  {
+                    type: "array",
+                  },
+                ],
+              },
             },
           ],
         },
