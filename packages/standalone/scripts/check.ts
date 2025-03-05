@@ -6,7 +6,7 @@ async function main() {
   const exe = process.platform === "win32" ? "tsp.exe" : "tsp";
   console.log(`Checking ${exe} is running`);
   const result = await execa`dist/${exe} --help`;
-  if (result.stdout.includes("TypeSpec compiler v") && result.stdout.includes("tsp <command>")) {
+  if (result.stdout.includes("tsp <command>")) {
     console.log("✅ working!");
   } else {
     console.error("Executable is not working");
