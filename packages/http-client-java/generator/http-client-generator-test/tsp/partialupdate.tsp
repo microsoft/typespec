@@ -4,9 +4,7 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "PartialUpdate",
-})
+@service(#{ title: "PartialUpdate" })
 namespace TspTest.PartialUpdate;
 
 model PartialUpdateModel {
