@@ -6,7 +6,7 @@ namespace Microsoft.TypeSpec.Generator.Input
     /// <summary>
     /// Represents the HTTP request location header.
     /// </summary>
-    public enum RequestLocation
+    public enum InputRequestLocation
     {
         None,
         Uri,
