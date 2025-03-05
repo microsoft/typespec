@@ -16,13 +16,7 @@ import {
   Type,
 } from "./types.js";
 
-/** @deprecated Use TypeSpecValue */
-export type CadlValue = TypeSpecValue;
-
 export type TypeSpecValue = Type | string | number | boolean;
-
-/** @deprecated Use InferredTypeSpecValue */
-export type InferredCadlValue<K extends TypeKind> = InferredTypeSpecValue<K>;
 
 // prettier-ignore
 export type InferredTypeSpecValue<K extends TypeKind> =
@@ -108,9 +102,6 @@ export function validateDecoratorTargetIntrinsic(
   }
   return true;
 }
-
-/** @deprecated use isTypeSpecValueTypeOf */
-export const isCadlValueTypeOf = isTypeSpecValueTypeOf;
 
 /**
  * Check if the given target is of any of the TypeSpec types.
@@ -357,9 +348,6 @@ function prettyValue(program: Program, value: any) {
   }
   return value;
 }
-
-/** @deprecated use typespecTypeToJson */
-export const cadlTypeToJson = typespecTypeToJson;
 
 /**
  * Convert a TypeSpec type to a serializable Json object.
