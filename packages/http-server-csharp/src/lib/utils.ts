@@ -460,7 +460,7 @@ export function formatComment(
   while (remaining.length > lineLength) {
     const currentLine = getNextLine(remaining);
     remaining =
-      remaining.length > currentLine.length ? remaining.substring(currentLine.length) : "";
+      remaining.length > currentLine.length ? remaining.substring(currentLine.length + 1) : "";
     lines.push(`/// ${currentLine}`);
   }
 
