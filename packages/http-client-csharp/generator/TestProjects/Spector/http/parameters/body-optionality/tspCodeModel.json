@@ -45,26 +45,60 @@
  "Clients": [
   {
    "$id": "7",
-   "Name": "BodyOptionalityClient",
-   "Namespace": "Parameters.BodyOptionality",
-   "Doc": "Test describing optionality of the request body.",
-   "Operations": [
+   "kind": "client",
+   "name": "BodyOptionalityClient",
+   "namespace": "Parameters.BodyOptionality",
+   "doc": "Test describing optionality of the request body.",
+   "parameters": [
     {
      "$id": "8",
+     "Name": "endpoint",
+     "NameInRequest": "endpoint",
+     "Doc": "Service host",
+     "Type": {
+      "$id": "9",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "Location": "Uri",
+     "IsApiVersion": false,
+     "IsResourceParameter": false,
+     "IsContentType": false,
+     "IsRequired": true,
+     "IsEndpoint": true,
+     "SkipUrlEncoding": false,
+     "Explode": false,
+     "Kind": "Client",
+     "DefaultValue": {
+      "$id": "10",
+      "Type": {
+       "$id": "11",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "Value": "http://localhost:3000"
+     }
+    }
+   ],
+   "operations": [
+    {
+     "$id": "12",
      "Name": "requiredExplicit",
      "ResourceName": "BodyOptionality",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "9",
+       "$id": "13",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "10",
+        "$id": "14",
         "kind": "constant",
         "valueType": {
-         "$id": "11",
+         "$id": "15",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -84,7 +118,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "12",
+       "$id": "16",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -103,7 +137,7 @@
      ],
      "Responses": [
       {
-       "$id": "13",
+       "$id": "17",
        "StatusCodes": [
         204
        ],
@@ -124,21 +158,21 @@
      "Decorators": []
     },
     {
-     "$id": "14",
+     "$id": "18",
      "Name": "requiredImplicit",
      "ResourceName": "BodyOptionality",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "15",
+       "$id": "19",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "16",
+        "$id": "20",
         "kind": "constant",
         "valueType": {
-         "$id": "17",
+         "$id": "21",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -158,7 +192,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "18",
+       "$id": "22",
        "Name": "bodyModel",
        "NameInRequest": "bodyModel",
        "Type": {
@@ -177,7 +211,7 @@
      ],
      "Responses": [
       {
-       "$id": "19",
+       "$id": "23",
        "StatusCodes": [
         204
        ],
@@ -198,238 +232,204 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "20"
-   },
-   "Parameters": [
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Parameters.BodyOptionality",
+   "children": [
     {
-     "$id": "21",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "22",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "23",
-      "Type": {
-       "$id": "24",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Parameters.BodyOptionality"
-  },
-  {
-   "$id": "25",
-   "Name": "OptionalExplicit",
-   "Namespace": "Parameters.BodyOptionality.OptionalExplicit",
-   "Operations": [
-    {
-     "$id": "26",
-     "Name": "set",
-     "ResourceName": "OptionalExplicit",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "24",
+     "kind": "client",
+     "name": "OptionalExplicit",
+     "namespace": "Parameters.BodyOptionality.OptionalExplicit",
+     "parameters": [
       {
-       "$id": "27",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "$id": "25",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Doc": "Service host",
        "Type": {
-        "$id": "28",
-        "kind": "constant",
-        "valueType": {
-         "$id": "29",
+        "$id": "26",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "27",
+        "Type": {
+         "$id": "28",
          "kind": "string",
          "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": false,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "30",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "2"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": false,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+        "Value": "http://localhost:3000"
+       }
       }
      ],
-     "Responses": [
+     "operations": [
       {
-       "$id": "31",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "POST",
-     "Uri": "{endpoint}",
-     "Path": "/parameters/body-optionality/optional-explicit/set",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Parameters.BodyOptionality.OptionalExplicit.set",
-     "Decorators": []
-    },
-    {
-     "$id": "32",
-     "Name": "omit",
-     "ResourceName": "OptionalExplicit",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "33",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "34",
-        "kind": "constant",
-        "valueType": {
-         "$id": "35",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "29",
+       "Name": "set",
+       "ResourceName": "OptionalExplicit",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "30",
+         "Name": "contentType",
+         "NameInRequest": "Content-Type",
+         "Doc": "Body parameter's content type. Known values are application/json",
+         "Type": {
+          "$id": "31",
+          "kind": "constant",
+          "valueType": {
+           "$id": "32",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "Location": "Header",
+         "IsApiVersion": false,
+         "IsContentType": true,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": false,
+         "Kind": "Constant",
+         "Decorators": [],
+         "SkipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": false,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "36",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "2"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": false,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "37",
-       "StatusCodes": [
-        204
+        {
+         "$id": "33",
+         "Name": "body",
+         "NameInRequest": "body",
+         "Type": {
+          "$ref": "2"
+         },
+         "Location": "Body",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": false,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "Responses": [
+        {
+         "$id": "34",
+         "StatusCodes": [
+          204
+         ],
+         "Headers": [],
+         "IsErrorResponse": false
+        }
+       ],
+       "HttpMethod": "POST",
+       "Uri": "{endpoint}",
+       "Path": "/parameters/body-optionality/optional-explicit/set",
+       "RequestMediaTypes": [
+        "application/json"
+       ],
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Parameters.BodyOptionality.OptionalExplicit.set",
+       "Decorators": []
+      },
+      {
+       "$id": "35",
+       "Name": "omit",
+       "ResourceName": "OptionalExplicit",
+       "Accessibility": "public",
+       "Parameters": [
+        {
+         "$id": "36",
+         "Name": "contentType",
+         "NameInRequest": "Content-Type",
+         "Doc": "Body parameter's content type. Known values are application/json",
+         "Type": {
+          "$id": "37",
+          "kind": "constant",
+          "valueType": {
+           "$id": "38",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "Location": "Header",
+         "IsApiVersion": false,
+         "IsContentType": true,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": false,
+         "Kind": "Constant",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        },
+        {
+         "$id": "39",
+         "Name": "body",
+         "NameInRequest": "body",
+         "Type": {
+          "$ref": "2"
+         },
+         "Location": "Body",
+         "IsApiVersion": false,
+         "IsContentType": false,
+         "IsEndpoint": false,
+         "Explode": false,
+         "IsRequired": false,
+         "Kind": "Method",
+         "Decorators": [],
+         "SkipUrlEncoding": false
+        }
+       ],
+       "Responses": [
+        {
+         "$id": "40",
+         "StatusCodes": [
+          204
+         ],
+         "Headers": [],
+         "IsErrorResponse": false
+        }
+       ],
+       "HttpMethod": "POST",
+       "Uri": "{endpoint}",
+       "Path": "/parameters/body-optionality/optional-explicit/omit",
+       "RequestMediaTypes": [
+        "application/json"
+       ],
+       "BufferResponse": true,
+       "GenerateProtocolMethod": true,
+       "GenerateConvenienceMethod": true,
+       "CrossLanguageDefinitionId": "Parameters.BodyOptionality.OptionalExplicit.omit",
+       "Decorators": []
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{endpoint}",
-     "Path": "/parameters/body-optionality/optional-explicit/omit",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Parameters.BodyOptionality.OptionalExplicit.omit",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "38"
-   },
-   "Parent": "BodyOptionalityClient",
-   "Parameters": [
-    {
-     "$id": "39",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "40",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "41",
-      "Type": {
-       "$id": "42",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
+     "apiVersions": [],
+     "crossLanguageDefinitionId": "Parameters.BodyOptionality.OptionalExplicit",
+     "parent": {
+      "$ref": "7"
      }
     }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Parameters.BodyOptionality.OptionalExplicit"
+   ]
   }
  ]
 }

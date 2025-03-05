@@ -235,45 +235,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName()
-        {
-            var myName = _inputClient.Name.ToCleanName();
-            if (_inputClient.Parent == null)
-            {
-                // if this client does not have a parent, it is a toplevel client
-                return myName;
-            }
-
-            var parents = new List<InputClient>();
-            var parent = _inputClient.Parent;
-            while (parent != null)
-            {
-                parents.Add(parent);
-                parent = parent.Parent;
-            }
-
-            // General rule for client name:
-            // We alaways concat all its parents' name together as the prefix of the client name, but we exclude the root client's name.
-            // Therefore:
-            // for the first level children, its client name is its original name
-            // for deeper children, we add its parents' name as the prefix until the root (excluded)
-
-            if (parents.Count >= 2)
-            {
-                // when this client is more than second level client (its parent is not the root client),
-                // we concat all its parents' name together as the client name prefix, but exclude the root client's name.
-                var clientName = new StringBuilder();
-                for (int i = parents.Count - 2; i >= 0; i--)
-                {
-                    clientName.Append(parents[i].Name.ToCleanName());
-                }
-                clientName.Append(myName);
-                return clientName.ToString();
-            }
-
-            // when this client is the first level client (its parent is the root client), we just use its name
-            return myName;
-        }
+        protected override string BuildName() => _inputClient.Name.ToCleanName();
 
         protected override FieldProvider[] BuildFields()
         {

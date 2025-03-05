@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Routes._PathParameters._ReservedExpansion
+namespace Routes._PathParameters.ReservedExpansion
 {
     public partial class PathParametersReservedExpansion
     {
