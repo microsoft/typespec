@@ -6,7 +6,7 @@ using TypeSpec.Http;
 using Azure.Core;
 using Azure.ClientGenerator.Core;
 
-@service({
+@service(#{
   title: "EnumService",
 })
 namespace TspTest.EnumService;

@@ -14,7 +14,7 @@ using TypeSpec.OpenAPI;
 using Azure.ClientGenerator.Core;
 
 @armProviderNamespace
-@service({
+@service(#{
   title: "ArmStreamStyleSerialization",
 })
 @versioned(Versions)

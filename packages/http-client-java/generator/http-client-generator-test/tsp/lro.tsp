@@ -8,7 +8,7 @@ using Azure.Core;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service({
+@service(#{
   title: "LongRunning",
 })
 @versioned(ApiVersions)

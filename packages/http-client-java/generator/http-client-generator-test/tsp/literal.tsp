@@ -4,7 +4,7 @@ import "@azure-tools/typespec-azure-core";
 using TypeSpec.Http;
 using Azure.Core;
 
-@service({
+@service(#{
   title: "LiteralService",
 })
 namespace TspTest.LiteralService;

@@ -5,7 +5,7 @@ using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
 @doc("Test for mismatch of wire type and client type on class constructors.")
-@service({
+@service(#{
   title: "WireType",
 })
 namespace TspTest.WireType;

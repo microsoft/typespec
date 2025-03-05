@@ -10,7 +10,7 @@ using Azure.Core.Foundations;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service({
+@service(#{
   title: "MultipleApiVersion",
 })
 @versioned(TspTest.MultipleApiVersion.Versions)
@@ -49,7 +49,7 @@ namespace TspTest.MultipleApiVersion {
   }
 }
 
-@service({
+@service(#{
   title: "MultipleApiVersion2",
 })
 @versioned(TspTest.MultipleApiVersion2.Versions)
@@ -88,7 +88,7 @@ namespace TspTest.MultipleApiVersion2 {
   }
 }
 
-@service({
+@service(#{
   title: "MultipleApiVersion3",
 })
 @versioned(TspTest.MultipleApiVersion3.Versions)

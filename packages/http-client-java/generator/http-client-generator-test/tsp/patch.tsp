@@ -9,7 +9,7 @@ using Azure.Core;
 using Azure.ClientGenerator.Core;
 using TypeSpec.Versioning;
 
-@service({
+@service(#{
   title: "Patch",
 })
 @useDependency(Azure.Core.Versions.v1_0_Preview_2)

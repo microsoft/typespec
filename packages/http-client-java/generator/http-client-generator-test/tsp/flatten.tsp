@@ -6,7 +6,7 @@ using TypeSpec.Http;
 using TypeSpec.Versioning;
 using Azure.ClientGenerator.Core;
 
-@service({
+@service(#{
   title: "Flatten",
 })
 @server(

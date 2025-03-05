@@ -7,7 +7,7 @@ using TypeSpec.Http;
 using Azure.Core;
 using Azure.ClientGenerator.Core;
 
-@service({
+@service(#{
   title: "Internal",
 })
 namespace TspTest.Internal;

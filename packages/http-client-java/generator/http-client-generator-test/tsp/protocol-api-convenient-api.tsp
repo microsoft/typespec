@@ -10,7 +10,7 @@ using Azure.Core.Foundations;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service({
+@service(#{
   title: "ProtocolAndConvenient",
 })
 @versioned(ApiVersions)

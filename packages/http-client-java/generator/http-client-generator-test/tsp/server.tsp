@@ -6,7 +6,7 @@ using TypeSpec.Http;
 using TypeSpec.Versioning;
 using Azure.ClientGenerator.Core;
 
-@service({
+@service(#{
   title: "HttpbinServer",
 })
 @server(
@@ -35,7 +35,7 @@ namespace TspTest.Server {
   }
 }
 
-@service({
+@service(#{
   title: "ContosoServer",
 })
 @versioned(TspTest.ContosoServer.APIVersions)

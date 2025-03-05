@@ -7,7 +7,7 @@ using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.Core.Traits;
 
-@service({
+@service(#{
   title: "SpecialHeaders",
 })
 @versioned(ApiVersions)

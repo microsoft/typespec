@@ -10,7 +10,7 @@ using Azure.Core.Traits;
 using Azure.Core.Foundations;
 using Azure.ClientGenerator.Core;
 
-@service({
+@service(#{
   title: "Union",
 })
 @server(
