@@ -1,7 +1,7 @@
 import { fork } from "child_process";
 import { mkdir, rm } from "fs/promises";
 import { homedir } from "os";
-import { CliCompilerHost } from "../core/cli/types.js";
+import type { CliCompilerHost } from "../core/cli/types.js";
 import { DiagnosticError } from "../core/diagnostic-error.js";
 import { createTracer } from "../core/logger/tracer.js";
 import { joinPaths } from "../core/path-utils.js";
@@ -10,6 +10,11 @@ import {
   downloadAndExtractPackage,
   fetchPackageManifest,
 } from "../package-manger/npm-registry-utils.js";
+import {
+  getPackageManagerConfig,
+  SupportedPackageManager,
+  type PackageManagerConfig,
+} from "./config.js";
 import { resolvePackageManagerSpec } from "./spec.js";
 
 interface SpawnError {
@@ -36,7 +41,7 @@ export async function installTypeSpecDependencies(
     const spec = await resolvePackageManagerSpec(host, tracer, directory);
 
     let version;
-    let packageManager;
+    let packageManager: SupportedPackageManager;
     switch (spec.kind) {
       case "no-package":
         throw new InstallDependenciesError("No package.json found, cannot install dependencies.");
@@ -57,6 +62,7 @@ export async function installTypeSpecDependencies(
         break;
     }
 
+    const packageManagerConfig = getPackageManagerConfig(packageManager);
     const manifest = await fetchPackageManifest(packageManager, version);
     tracer.trace(
       "fetched-manifest",
@@ -72,7 +78,7 @@ export async function installTypeSpecDependencies(
     const binPath = joinPaths(installDir, bin);
     tracer.trace("running-binary", `Running binary ${binPath}`);
 
-    await runPackageManager(host, binPath, directory, stdio);
+    await runPackageManager(host, packageManagerConfig, binPath, directory, stdio);
     return diagnostics;
   } catch (e) {
     if (e instanceof DiagnosticError) {
@@ -85,11 +91,12 @@ export async function installTypeSpecDependencies(
 
 async function runPackageManager(
   host: CliCompilerHost,
+  packageManager: PackageManagerConfig,
   binPath: string,
   directory: string,
   stdio: "inherit" | "pipe",
 ) {
-  const child = fork(binPath, ["install"], {
+  const child = fork(binPath, packageManager.commands.install, {
     stdio,
     cwd: directory,
     env: process.env,
