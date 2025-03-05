@@ -20,7 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsNotNull(nextLink);
             Assert.AreEqual(1, nextLink!.ResponseSegments.Count);
             Assert.AreEqual("next", nextLink.ResponseSegments[0]);
-            Assert.AreEqual(ResponseLocation.Body, nextLink.ResponseLocation);
+            Assert.AreEqual(InputResponseLocation.Body, nextLink.InputResponseLocation);
 
             var continuationOperation = inputNamespace.Clients.First().Operations.FirstOrDefault(x => x.Name == "ListWithContinuationToken");
             Assert.IsNotNull(continuationOperation);
@@ -30,7 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsNotNull(continuation);
             Assert.AreEqual(1, continuation!.ResponseSegments.Count);
             Assert.AreEqual("nextToken", continuation.ResponseSegments[0]);
-            Assert.AreEqual(ResponseLocation.Header, continuation.ResponseLocation);
+            Assert.AreEqual(InputResponseLocation.Header, continuation.InputResponseLocation);
             Assert.AreEqual("token", continuation.Parameter.Name);
         }
     }

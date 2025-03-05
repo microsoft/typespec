@@ -4,11 +4,14 @@
 namespace Microsoft.TypeSpec.Generator.Input
 {
     /// <summary>
-    /// Represents the HTTP response location.
+    /// Represents the HTTP request location header.
     /// </summary>
-    public enum ResponseLocation
+    public enum InputRequestLocation
     {
         None,
+        Uri,
+        Path,
+        Query,
         Header,
         Body,
     }

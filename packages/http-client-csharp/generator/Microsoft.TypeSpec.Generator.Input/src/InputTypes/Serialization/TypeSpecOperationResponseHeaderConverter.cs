@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal sealed class TypeSpecOperationResponseHeaderConverter : JsonConverter<OperationResponseHeader>
+    internal sealed class TypeSpecOperationResponseHeaderConverter : JsonConverter<InputOperationResponseHeader>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
@@ -16,15 +16,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             _referenceHandler = referenceHandler;
         }
 
-        public override OperationResponseHeader? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override InputOperationResponseHeader? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return reader.ReadReferenceAndResolve<OperationResponseHeader>(_referenceHandler.CurrentResolver) ?? CreateOperationResponseHeader(ref reader, null, options);
+            return reader.ReadReferenceAndResolve<InputOperationResponseHeader>(_referenceHandler.CurrentResolver) ?? CreateOperationResponseHeader(ref reader, null, options);
         }
 
-        public override void Write(Utf8JsonWriter writer, OperationResponseHeader value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, InputOperationResponseHeader value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private OperationResponseHeader CreateOperationResponseHeader(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options)
+        private InputOperationResponseHeader CreateOperationResponseHeader(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options)
         {
             var isFirstProperty = id == null;
             string? name = null;
@@ -35,11 +35,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(OperationResponseHeader.Name), ref name)
-                    || reader.TryReadString(nameof(OperationResponseHeader.NameInResponse), ref nameInResponse)
+                    || reader.TryReadString(nameof(InputOperationResponseHeader.Name), ref name)
+                    || reader.TryReadString(nameof(InputOperationResponseHeader.NameInResponse), ref nameInResponse)
                     || reader.TryReadString("Summary", ref summary)
                     || reader.TryReadString("Doc", ref doc)
-                    || reader.TryReadComplexType(nameof(OperationResponseHeader.Type), options, ref type);
+                    || reader.TryReadComplexType(nameof(InputOperationResponseHeader.Type), options, ref type);
 
                 if (!isKnownProperty)
                 {
@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             nameInResponse = nameInResponse ?? throw new JsonException("OperationResponseHeader must have NameInResponse");
             type = type ?? throw new JsonException("OperationResponseHeader must have Type");
 
-            var result = new OperationResponseHeader(name, nameInResponse, summary, doc, type);
+            var result = new InputOperationResponseHeader(name, nameInResponse, summary, doc, type);
 
             if (id != null)
             {

@@ -5,17 +5,17 @@ using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public class NextLink
+    public class InputNextLink
     {
         public InputOperation? Operation { get; }
         public IReadOnlyList<string> ResponseSegments { get; }
-        public ResponseLocation ResponseLocation { get; }
+        public InputResponseLocation InputResponseLocation { get; }
 
-        public NextLink(InputOperation? operation, IReadOnlyList<string> responseSegments, ResponseLocation responseLocation)
+        public InputNextLink(InputOperation? operation, IReadOnlyList<string> responseSegments, InputResponseLocation inputResponseLocation)
         {
             Operation = operation;
             ResponseSegments = responseSegments;
-            ResponseLocation = responseLocation;
+            InputResponseLocation = inputResponseLocation;
         }
     }
 }

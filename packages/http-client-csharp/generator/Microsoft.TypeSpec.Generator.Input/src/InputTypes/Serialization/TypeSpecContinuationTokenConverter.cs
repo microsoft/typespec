@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal sealed class TypeSpecContinuationTokenConverter : JsonConverter<ContinuationToken>
+    internal sealed class TypeSpecContinuationTokenConverter : JsonConverter<InputContinuationToken>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
@@ -17,13 +17,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             _referenceHandler = referenceHandler;
         }
 
-        public override ContinuationToken? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<ContinuationToken>(_referenceHandler.CurrentResolver) ?? CreateContinuationToken(ref reader, options, _referenceHandler.CurrentResolver);
+        public override InputContinuationToken? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            => reader.ReadReferenceAndResolve<InputContinuationToken>(_referenceHandler.CurrentResolver) ?? CreateContinuationToken(ref reader, options, _referenceHandler.CurrentResolver);
 
-        public override void Write(Utf8JsonWriter writer, ContinuationToken value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, InputContinuationToken value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        internal static ContinuationToken CreateContinuationToken(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
+        internal static InputContinuationToken CreateContinuationToken(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             string? id = null;
             reader.TryReadReferenceId(ref id);
@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             InputParameter? parameter = null;
             IReadOnlyList<string>? responseSegments = null;
-            ResponseLocation? responseLocation = null;
+            InputResponseLocation? responseLocation = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            var continuationToken = new ContinuationToken(
+            var continuationToken = new InputContinuationToken(
                 parameter ?? throw new JsonException("Continuation token parameter must be defined."),
                 responseSegments ?? throw new JsonException("Continuation token response segments must be defined."),
                 responseLocation ?? throw new JsonException("Continuation token response location must be defined."));

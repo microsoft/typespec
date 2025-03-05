@@ -5,17 +5,17 @@ using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public class ContinuationToken
+    public class InputContinuationToken
     {
         public InputParameter Parameter { get; }
         public IReadOnlyList<string> ResponseSegments { get; }
-        public ResponseLocation ResponseLocation { get; }
+        public InputResponseLocation InputResponseLocation { get; }
 
-        public ContinuationToken(InputParameter parameter, IReadOnlyList<string> responseSegments, ResponseLocation responseLocation)
+        public InputContinuationToken(InputParameter parameter, IReadOnlyList<string> responseSegments, InputResponseLocation inputResponseLocation)
         {
             Parameter = parameter;
             ResponseSegments = responseSegments;
-            ResponseLocation = responseLocation;
+            InputResponseLocation = inputResponseLocation;
         }
     }
 }

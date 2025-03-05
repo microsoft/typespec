@@ -43,15 +43,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? deprecated = null;
             string? accessibility = null;
             IReadOnlyList<InputParameter>? parameters = null;
-            IReadOnlyList<OperationResponse>? responses = null;
+            IReadOnlyList<InputOperationResponse>? responses = null;
             string? httpMethod = null;
             string? uri = null;
             string? path = null;
             string? externalDocsUrl = null;
             IReadOnlyList<string>? requestMediaTypes = null;
             bool bufferResponse = false;
-            OperationLongRunning? longRunning = null;
-            OperationPaging? paging = null;
+            InputOperationLongRunning? longRunning = null;
+            InputOperationPaging? paging = null;
             bool generateProtocolMethod = false;
             bool generateConvenienceMethod = false;
             string? crossLanguageDefinitionId = null;
@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             operation.Deprecated = deprecated;
             operation.Accessibility = accessibility;
             operation.Parameters = parameters ?? Array.Empty<InputParameter>();
-            operation.Responses = responses ?? Array.Empty<OperationResponse>();
+            operation.Responses = responses ?? Array.Empty<InputOperationResponse>();
             operation.HttpMethod = httpMethod ?? throw new JsonException("InputOperation must have HttpMethod");
             operation.Uri = uri ?? throw new JsonException("InputOperation must have Uri");
             operation.Path = path ?? throw new JsonException("InputOperation must have Path");

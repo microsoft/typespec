@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal sealed class TypeSpecNextLinkConverter : JsonConverter<NextLink>
+    internal sealed class TypeSpecNextLinkConverter : JsonConverter<InputNextLink>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
@@ -17,13 +17,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             _referenceHandler = referenceHandler;
         }
 
-        public override NextLink? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<NextLink>(_referenceHandler.CurrentResolver) ?? CreateNextLink(ref reader, options, _referenceHandler.CurrentResolver);
+        public override InputNextLink? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            => reader.ReadReferenceAndResolve<InputNextLink>(_referenceHandler.CurrentResolver) ?? CreateNextLink(ref reader, options, _referenceHandler.CurrentResolver);
 
-        public override void Write(Utf8JsonWriter writer, NextLink value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, InputNextLink value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        internal static NextLink CreateNextLink(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
+        internal static InputNextLink CreateNextLink(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             string? id = null;
             reader.TryReadReferenceId(ref id);
@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             InputOperation? operation = null;
             IReadOnlyList<string>? responseSegments = null;
-            ResponseLocation? responseLocation = null;
+            InputResponseLocation? responseLocation = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            var nextLink = new NextLink(
+            var nextLink = new InputNextLink(
                 operation,
                 responseSegments ?? throw new JsonException("NextLink response segments must be defined."),
                 responseLocation ?? throw new JsonException("NextLink response location must be defined."));

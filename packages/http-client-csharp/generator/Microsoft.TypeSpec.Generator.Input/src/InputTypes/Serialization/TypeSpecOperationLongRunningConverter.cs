@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal sealed class TypeSpecOperationLongRunningConverter : JsonConverter<OperationLongRunning>
+    internal sealed class TypeSpecOperationLongRunningConverter : JsonConverter<InputOperationLongRunning>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
@@ -16,26 +16,26 @@ namespace Microsoft.TypeSpec.Generator.Input
             _referenceHandler = referenceHandler;
         }
 
-        public override OperationLongRunning? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override InputOperationLongRunning? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return reader.ReadReferenceAndResolve<OperationLongRunning>(_referenceHandler.CurrentResolver) ?? CreateOperationLongRunning(ref reader, null, options);
+            return reader.ReadReferenceAndResolve<InputOperationLongRunning>(_referenceHandler.CurrentResolver) ?? CreateOperationLongRunning(ref reader, null, options);
         }
 
-        public override void Write(Utf8JsonWriter writer, OperationLongRunning value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, InputOperationLongRunning value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private OperationLongRunning CreateOperationLongRunning(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options)
+        private InputOperationLongRunning CreateOperationLongRunning(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options)
         {
             var isFirstProperty = id == null;
             int finalStateVia = default;
-            OperationResponse? finalResponse = null;
+            InputOperationResponse? finalResponse = null;
             string? resultPath = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadInt32(nameof(OperationLongRunning.FinalStateVia), ref finalStateVia)
-                    || reader.TryReadComplexType(nameof(OperationLongRunning.FinalResponse), options, ref finalResponse)
-                    || reader.TryReadString(nameof(OperationLongRunning.ResultPath), ref resultPath);
+                    || reader.TryReadInt32(nameof(InputOperationLongRunning.FinalStateVia), ref finalStateVia)
+                    || reader.TryReadComplexType(nameof(InputOperationLongRunning.FinalResponse), options, ref finalResponse)
+                    || reader.TryReadString(nameof(InputOperationLongRunning.ResultPath), ref resultPath);
 
                 if (!isKnownProperty)
                 {
@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            var result = new OperationLongRunning(finalStateVia, finalResponse ?? new OperationResponse(), resultPath);
+            var result = new InputOperationLongRunning(finalStateVia, finalResponse ?? new InputOperationResponse(), resultPath);
 
             if (id != null)
             {

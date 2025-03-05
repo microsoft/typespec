@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public sealed class OperationPaging
+    public sealed class InputOperationPaging
     {
         public IReadOnlyList<string> ItemPropertySegments { get; internal set; }
-        public NextLink? NextLink { get; internal set; }
-        public ContinuationToken? ContinuationToken { get; internal set; }
+        public InputNextLink? NextLink { get; internal set; }
+        public InputContinuationToken? ContinuationToken { get; internal set; }
 
-        public OperationPaging(IReadOnlyList<string> itemPropertySegments, NextLink? nextLink, ContinuationToken? continuationToken)
+        public InputOperationPaging(IReadOnlyList<string> itemPropertySegments, InputNextLink? nextLink, InputContinuationToken? continuationToken)
         {
             ItemPropertySegments = itemPropertySegments;
             NextLink = nextLink;

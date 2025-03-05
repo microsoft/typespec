@@ -82,7 +82,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 throw new JsonException("Parameter must have location");
             }
-            Enum.TryParse<RequestLocation>(location, ignoreCase: true, out var requestLocation);
+            Enum.TryParse<InputRequestLocation>(location, ignoreCase: true, out var requestLocation);
 
             if (kind == null)
             {
