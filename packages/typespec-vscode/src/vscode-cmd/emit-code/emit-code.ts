@@ -157,7 +157,7 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
     },
     async () => {
       const installCalculationPromises = emitters.map(async (emitter) => {
-        const packageQuickPickItems: any[] = [];
+        const packageQuickPickItems = [];
         /* install emitter package. */
         logger.debug(`Start to calculate packages for ${emitter.package}`);
         const { action, version } = await npmUtil.calculateNpmPackageInstallAction(
@@ -236,7 +236,7 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
   );
 
   if (installPackageQuickPickItems.length > 0) {
-    const installPackagesSelector = vscode.window.createQuickPick<any>();
+    const installPackagesSelector = vscode.window.createQuickPick();
     installPackagesSelector.items = installPackageQuickPickItems;
     installPackagesSelector.title = `Generate from TypeSpec`;
     installPackagesSelector.canSelectMany = true;
