@@ -1,4 +1,4 @@
-import type { ModuleResolutionResult, NodePackage, ResolveModuleHost } from "@typespec/compiler";
+import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 import { readFile, realpath, stat } from "fs/promises";
 import { dirname } from "path";
@@ -353,7 +353,7 @@ export function* listParentFolders(from: string, includeSelf: boolean) {
  */
 export async function searchAndLoadPackageJson(
   folder: string,
-): Promise<{ packageJsonFolder?: string; packageJsonFile?: string; packageJson?: NodePackage }> {
+): Promise<{ packageJsonFolder?: string; packageJsonFile?: string; packageJson?: PackageJson }> {
   for (const f of listParentFolders(folder, true /* include self */)) {
     const path = joinPaths(f, "package.json");
     if (await isFile(path)) {
@@ -377,7 +377,7 @@ export async function searchAndLoadPackageJson(
 export async function loadDependencyPackageJson(
   rootPackageJsonFolder: string,
   depPackageName: string,
-): Promise<NodePackage | undefined> {
+): Promise<PackageJson | undefined> {
   const path = joinPaths(rootPackageJsonFolder, "node_modules", depPackageName, "package.json");
   if (!(await isFile(path))) {
     return undefined;
@@ -392,12 +392,12 @@ export async function loadDependencyPackageJson(
  */
 export async function loadPackageJsonFile(
   packageJsonPath: string,
-): Promise<NodePackage | undefined> {
+): Promise<PackageJson | undefined> {
   const content = await tryReadFile(packageJsonPath);
   if (!content) return undefined;
   const packageJson = tryParseJson(content);
   if (!packageJson) return undefined;
-  return packageJson as NodePackage;
+  return packageJson as PackageJson;
 }
 
 /**

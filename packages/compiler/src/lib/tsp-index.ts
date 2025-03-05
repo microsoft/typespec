@@ -1,6 +1,5 @@
 import { TypeSpecDecorators } from "../../generated-defs/TypeSpec.js";
 import {
-  $deprecated,
   $discriminator,
   $doc,
   $encode,
@@ -76,7 +75,6 @@ export const $decorators = {
     summary: $summary,
     returnsDoc: $returnsDoc,
     errorsDoc: $errorsDoc,
-    deprecated: $deprecated,
     service: $service,
     error: $error,
     format: $format,
