@@ -25,21 +25,21 @@ public class PageableTests {
 
     @Test
     public void testContinuationToken() {
-        PagedIterable<Pet> pagedIterable = tokenClient.requestHeaderResponseBody();
+        PagedIterable<Pet> pagedIterable = tokenClient.requestHeaderResponseBody("foo", "bar");
         Assertions.assertEquals(4, pagedIterable.stream().count());
 
-        pagedIterable = tokenClient.requestHeaderResponseHeader();
+        pagedIterable = tokenClient.requestHeaderResponseHeader("foo", "bar");
         Assertions.assertEquals(4, pagedIterable.stream().count());
 
-        pagedIterable = tokenClient.requestQueryResponseBody();
+        pagedIterable = tokenClient.requestQueryResponseBody("foo", "bar");
         Assertions.assertEquals(4, pagedIterable.stream().count());
 
-        pagedIterable = tokenClient.requestQueryResponseHeader();
+        pagedIterable = tokenClient.requestQueryResponseHeader("foo", "bar");
         Assertions.assertEquals(List.of("1", "2", "3", "4"),
             pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
 
         // query 2nd page
-        pagedIterable = tokenClient.requestQueryResponseHeader();
+        pagedIterable = tokenClient.requestQueryResponseHeader("foo", "bar");
         Assertions.assertEquals(List.of("3", "4"),
             pagedIterable.streamByPage(new PagingOptions().setContinuationToken("page2"))
                 .flatMap(page -> page.getValue().stream())
@@ -48,6 +48,8 @@ public class PageableTests {
 
         // expect throws if input unsupported PagingOptions param
         Assertions.assertThrows(IllegalArgumentException.class,
-            () -> tokenClient.requestQueryResponseHeader().streamByPage(new PagingOptions().setPageSize(4L)).count());
+            () -> tokenClient.requestQueryResponseHeader("foo", "bar")
+                .streamByPage(new PagingOptions().setPageSize(4L))
+                .count());
     }
 }
