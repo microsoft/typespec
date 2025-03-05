@@ -95,8 +95,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
      * 
      * <pre>
@@ -132,8 +140,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
      * 
      * <pre>
@@ -182,11 +198,19 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseBody operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
@@ -219,11 +243,19 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseBody operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
@@ -276,8 +308,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
      * 
      * <pre>
@@ -313,8 +353,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
      * 
      * <pre>
@@ -362,11 +410,19 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseHeader operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
@@ -399,11 +455,19 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseHeader operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
      * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Response Body Schema</strong></p>
