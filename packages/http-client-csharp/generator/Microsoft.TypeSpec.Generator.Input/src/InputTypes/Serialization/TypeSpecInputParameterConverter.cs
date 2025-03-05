@@ -53,9 +53,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString(nameof(InputParameter.NameInRequest), ref nameInRequest)
                     || reader.TryReadString("Summary", ref summary)
                     || reader.TryReadString("Doc", ref doc)
-                    || reader.TryReadWithConverter(nameof(InputParameter.Type), options, ref parameterType)
+                    || reader.TryReadComplexType(nameof(InputParameter.Type), options, ref parameterType)
                     || reader.TryReadString(nameof(InputParameter.Location), ref location)
-                    || reader.TryReadWithConverter(nameof(InputParameter.DefaultValue), options, ref defaultValue)
+                    || reader.TryReadComplexType(nameof(InputParameter.DefaultValue), options, ref defaultValue)
                     || reader.TryReadString(nameof(InputParameter.Kind), ref kind)
                     || reader.TryReadBoolean(nameof(InputParameter.IsRequired), ref isRequired)
                     || reader.TryReadBoolean(nameof(InputParameter.IsApiVersion), ref isApiVersion)
@@ -66,7 +66,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean(nameof(InputParameter.Explode), ref explode)
                     || reader.TryReadString(nameof(InputParameter.ArraySerializationDelimiter), ref arraySerializationDelimiter)
                     || reader.TryReadString(nameof(InputParameter.HeaderCollectionPrefix), ref headerCollectionPrefix)
-                    || reader.TryReadWithConverter(nameof(InputParameter.Decorators), options, ref decorators);
+                    || reader.TryReadComplexType(nameof(InputParameter.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {

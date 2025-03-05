@@ -66,21 +66,21 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("Doc", ref doc)
                     || reader.TryReadString(nameof(InputOperation.Deprecated), ref deprecated)
                     || reader.TryReadString(nameof(InputOperation.Accessibility), ref accessibility)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Parameters), options, ref parameters)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Responses), options, ref responses)
+                    || reader.TryReadComplexType(nameof(InputOperation.Parameters), options, ref parameters)
+                    || reader.TryReadComplexType(nameof(InputOperation.Responses), options, ref responses)
                     || reader.TryReadString(nameof(InputOperation.HttpMethod), ref httpMethod)
-                    || reader.TryReadWithConverter(nameof(InputOperation.RequestBodyMediaType), options, ref requestBodyMediaType)
+                    || reader.TryReadComplexType(nameof(InputOperation.RequestBodyMediaType), options, ref requestBodyMediaType)
                     || reader.TryReadString(nameof(InputOperation.Uri), ref uri)
                     || reader.TryReadString(nameof(InputOperation.Path), ref path)
                     || reader.TryReadString(nameof(InputOperation.ExternalDocsUrl), ref externalDocsUrl)
-                    || reader.TryReadWithConverter(nameof(InputOperation.RequestMediaTypes), options, ref requestMediaTypes)
+                    || reader.TryReadComplexType(nameof(InputOperation.RequestMediaTypes), options, ref requestMediaTypes)
                     || reader.TryReadBoolean(nameof(InputOperation.BufferResponse), ref bufferResponse)
-                    || reader.TryReadWithConverter(nameof(InputOperation.LongRunning), options, ref longRunning)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Paging), options, ref paging)
+                    || reader.TryReadComplexType(nameof(InputOperation.LongRunning), options, ref longRunning)
+                    || reader.TryReadComplexType(nameof(InputOperation.Paging), options, ref paging)
                     || reader.TryReadBoolean(nameof(InputOperation.GenerateProtocolMethod), ref generateProtocolMethod)
                     || reader.TryReadBoolean(nameof(InputOperation.GenerateConvenienceMethod), ref generateConvenienceMethod)
                     || reader.TryReadString(nameof(InputOperation.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Decorators), options, ref decorators);
+                    || reader.TryReadComplexType(nameof(InputOperation.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {

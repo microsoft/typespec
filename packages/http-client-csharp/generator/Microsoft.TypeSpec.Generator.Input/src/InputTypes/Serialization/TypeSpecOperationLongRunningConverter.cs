@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadInt32(nameof(OperationLongRunning.FinalStateVia), ref finalStateVia)
-                    || reader.TryReadWithConverter(nameof(OperationLongRunning.FinalResponse), options, ref finalResponse)
+                    || reader.TryReadComplexType(nameof(OperationLongRunning.FinalResponse), options, ref finalResponse)
                     || reader.TryReadString(nameof(OperationLongRunning.ResultPath), ref resultPath);
 
                 if (!isKnownProperty)

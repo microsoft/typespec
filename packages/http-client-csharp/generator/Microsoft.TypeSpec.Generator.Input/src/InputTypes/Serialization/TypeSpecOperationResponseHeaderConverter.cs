@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString(nameof(OperationResponseHeader.NameInResponse), ref nameInResponse)
                     || reader.TryReadString("Summary", ref summary)
                     || reader.TryReadString("Doc", ref doc)
-                    || reader.TryReadWithConverter(nameof(OperationResponseHeader.Type), options, ref type);
+                    || reader.TryReadComplexType(nameof(OperationResponseHeader.Type), options, ref type);
 
                 if (!isKnownProperty)
                 {

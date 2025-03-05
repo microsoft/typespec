@@ -37,12 +37,12 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadWithConverter(nameof(OperationResponse.StatusCodes), options, ref statusCodes)
-                    || reader.TryReadWithConverter(nameof(OperationResponse.BodyType), options, ref bodyType)
+                    || reader.TryReadComplexType(nameof(OperationResponse.StatusCodes), options, ref statusCodes)
+                    || reader.TryReadComplexType(nameof(OperationResponse.BodyType), options, ref bodyType)
                     || reader.TryReadString(nameof(OperationResponse.BodyMediaType), ref bodyMediaTypeString)
-                    || reader.TryReadWithConverter(nameof(OperationResponse.Headers), options, ref headers)
+                    || reader.TryReadComplexType(nameof(OperationResponse.Headers), options, ref headers)
                     || reader.TryReadBoolean(nameof(OperationResponse.IsErrorResponse), ref isErrorResponse)
-                    || reader.TryReadWithConverter(nameof(OperationResponse.ContentTypes), options, ref contentTypes);
+                    || reader.TryReadComplexType(nameof(OperationResponse.ContentTypes), options, ref contentTypes);
 
                 if (!isKnownProperty)
                 {
