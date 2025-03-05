@@ -93,7 +93,12 @@ export async function initTypeSpecProjectWorker(
   if (projectJsonCreated) {
     await action(
       "Installing dependencies",
-      async () => await installTypeSpecDependencies(host, { directory, stdio: "pipe" }),
+      async () =>
+        await installTypeSpecDependencies(host, {
+          directory,
+          stdio: "pipe",
+          savePackageManager: true,
+        }),
     );
   }
 

@@ -121,7 +121,8 @@ export async function installTypeSpecDependencies(
 
     if (savePackageManager) {
       await updatePackageManagerInPackageJson(host, packageJsonPath, {
-        ...spec,
+        name: spec.name,
+        range: manifest.version,
         hash: extractResult.hash,
       });
     }
