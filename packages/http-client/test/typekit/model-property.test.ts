@@ -110,7 +110,7 @@ describe("isOnClient", () => {
 
       // base operation
       const params = $.operation.getClientSignature(client, constructor);
-      const endpointParam = params.find((p) => p.name === "endpoint");
+      const endpointParam = params.find((p) => p.name === "name");
       ok(endpointParam);
       expect($.modelProperty.isOnClient(client, endpointParam)).toBe(true);
 

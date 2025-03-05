@@ -13,7 +13,7 @@ export interface JsonModelPropertyTransformProps {
   target: "transport" | "application";
 }
 
-export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProps): ay.Component {
+export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProps): ay.Children {
   const transformNamer = useTransformNamePolicy();
   const propertyValueType = unpackProperty(props.type);
 

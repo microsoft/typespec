@@ -266,14 +266,12 @@ describe("getConstructor", () => {
       // base operation
       expect(constructor.returnType).toEqual($.program.checker.voidType);
       const params = $.operation.getClientSignature(client, constructor);
-      expect(params).toHaveLength(2);
-      const endpointParam = params.find((p) => p.name === "endpoint");
-      ok(endpointParam);
-      expect(endpointParam.optional).toBeTruthy();
-
+      // Only expect name to fill in the parametrized host
+      expect(params).toHaveLength(1);
+      // Endpoint is optional but name is required to fill in the template
       const nameParam = params.find((p) => p.name === "name");
       ok(nameParam);
-      expect(nameParam.optional).toBeTruthy();
+      expect(nameParam.optional).toBeFalsy();
 
       // should have two overloads, one for completely overriding endpoint, one for just the parameter name
       expect($.operation.getOverloads(client, constructor)).toHaveLength(2);
@@ -322,7 +320,8 @@ describe("getConstructor", () => {
       expect(params).toHaveLength(1);
       const endpointParam = params.find((p) => p.name === "endpoint");
       ok(endpointParam);
-      expect(endpointParam.optional).toBeFalsy();
+      // Server defines a default endpoint so the endpoint param is optional
+      expect(endpointParam.optional).toBeTruthy();
       // TODO: i'm getting a ProxyRef to a String type instead of an actual string type, so $.isString is failing
       ok(endpointParam.type.kind === "Scalar" && endpointParam.type.name === "string");
 

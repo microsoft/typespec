@@ -5,7 +5,7 @@ export function getEncodeUint8ArrayRef(): ay.Refkey {
   return ay.refkey("encodeUint8Array");
 }
 
-export function EncodeUint8Array(): string {
+export function EncodeUint8Array(): ay.Children {
   const valueRef = ay.refkey();
   const encodingRef = ay.refkey();
   const refkey = getEncodeUint8ArrayRef();
@@ -22,7 +22,7 @@ export function EncodeUint8Array(): string {
 export function getDecodeUint8ArrayRef(): ay.Refkey {
   return ay.refkey("decodeUint8Array");
 }
-export function DecodeBase64(): string {
+export function DecodeBase64(): ay.Children {
   const refkey = getDecodeUint8ArrayRef();
   const valueRef = ay.refkey();
   return <ts.FunctionDeclaration export name="decodeBase64"  parameters={{value: {type: "string", refkey: valueRef}}} returnType="Uint8Array | undefined"  refkey={refkey}>

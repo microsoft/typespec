@@ -7,6 +7,7 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "jsxImportSource": "@alloy-js/core",
     "emitDeclarationOnly": true,
     "outDir": "dist"
   },

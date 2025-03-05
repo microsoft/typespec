@@ -32,7 +32,7 @@ export function HttpResponses(props: HttpResponsesProps) {
     ({ statusCode, contentType, responseContent, type }) => {
       const body = responseContent.body;
 
-      let expression = code`return;`;
+      let expression: Children = code`return;`;
 
       const contentTypeCheck = body
         ? ` && response.headers["content-type"]?.includes("${contentType}")`

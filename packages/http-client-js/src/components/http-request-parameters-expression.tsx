@@ -13,7 +13,7 @@ export interface HttpRequestParametersExpressionProps {
 }
 
 export function HttpRequestParametersExpression(props: HttpRequestParametersExpressionProps) {
-  const parameters: (ModelProperty | Children)[] = [];
+  const parameters: Children[] = [];
   const transformNamer = useTransformNamePolicy();
 
   if (props.children || (Array.isArray(props.children) && props.children.length)) {
