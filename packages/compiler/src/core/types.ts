@@ -1339,9 +1339,6 @@ export interface ParseOptions {
   readonly docs?: boolean;
 }
 
-/** @deprecated Use TypeSpecScriptNode */
-export type CadlScriptNode = TypeSpecScriptNode;
-
 export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.TypeSpecScript;
   readonly statements: readonly Statement[];
@@ -2592,12 +2589,6 @@ export interface JSONSchemaValidator {
     target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget,
   ): Diagnostic[];
 }
-
-/** @deprecated Use TypeSpecLibraryDef */
-export type CadlLibraryDef<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>,
-> = TypeSpecLibraryDef<T, E>;
 
 export interface StateDef {
   /**
