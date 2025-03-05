@@ -1,6 +1,7 @@
 ---
 changeKind: internal
 packages:
+  - "@typespec/playground"
   - "@typespec/http-server-csharp"
   - "@typespec/http-server-js"
   - "@typespec/json-schema"
