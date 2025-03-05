@@ -1150,6 +1150,52 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
           },
         },
       ],
+      [
+        "scalar deeply, is arrays: true",
+        "model Book { author: AuthorScalar[]; }",
+        `scalar AuthorScalar extends Author; @name("XmlAuthor") scalar Author extends string;`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                items: {
+                  type: "string",
+                  xml: { name: "AuthorScalar" },
+                },
+                type: "array",
+                xml: { wrapped: true },
+              },
+            },
+            required: ["author"],
+          },
+          AuthorScalar: {
+            type: "string",
+            xml: { name: "XmlAuthor" },
+          },
+        },
+      ],
+      [
+        "scalar deeply, is arrays: false",
+        "model Book { author: AuthorScalar; }",
+        `scalar AuthorScalar extends Author; @name("XmlAuthor") scalar Author extends string;`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                allOf: [{ $ref: "#/components/schemas/AuthorScalar" }],
+                xml: { name: "author" },
+              },
+            },
+            required: ["author"],
+          },
+          AuthorScalar: {
+            type: "string",
+            xml: { name: "XmlAuthor" },
+          },
+        },
+      ],
     ];
     it.each(testCases)("%s", async (_, mainModel, refModel, expected) => {
       const res = await oapiForModel(
@@ -1159,91 +1205,6 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
       );
 
       deepStrictEqual(res?.schemas, expected);
-    });
-  });
-
-  it("test.", async () => {
-    const res = await oapiForModel(
-      "Author",
-      `
-      model Book {
-        author: Author[];
-      }
-
-      model Author {
-      book?: Book[];
-    }`,
-    );
-
-    deepStrictEqual(res.schemas.Author, {
-      properties: {
-        book: {
-          items: {
-            $ref: "#/components/schemas/Book",
-          },
-          type: "array",
-        },
-      },
-      type: "object",
-    });
-  });
-
-  it("test scalar", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
-      scalar A extends string;
-
-      @name("B_xml")
-      scalar B extends A;
-
-      model Book {
-        arr: B[];
-      }`,
-    );
-
-    deepStrictEqual(res.schemas.Book, {
-      properties: {
-        arr: {
-          items: {
-            type: "string",
-            xml: { name: "B_xml" },
-          },
-          type: "array",
-          xml: { wrapped: true },
-        },
-      },
-      type: "object",
-      required: ["arr"],
-    });
-  });
-
-  it("test scalar2", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
-      @name("A_xml")
-      scalar A extends string;
-      scalar B extends A;
-
-      model Book {
-        arr: B[];
-      }`,
-    );
-
-    deepStrictEqual(res.schemas.Book, {
-      properties: {
-        arr: {
-          items: {
-            type: "string",
-            xml: { name: "B" },
-          },
-          type: "array",
-          xml: { wrapped: true },
-        },
-      },
-      type: "object",
-      required: ["arr"],
     });
   });
 });
