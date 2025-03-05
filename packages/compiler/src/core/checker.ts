@@ -4822,7 +4822,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const defaultValue = checkDefaultValue(prop.default, type.type);
         if (defaultValue !== null) {
           type.defaultValue = defaultValue;
-          type.default = checkLegacyDefault(prop.default);
         }
       }
       if (links) {
@@ -4881,21 +4880,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       return { ...defaultValue, type };
     }
-  }
-
-  /**
-   * Fill in the legacy `.default` property.
-   * We do do checking here we just keep existing behavior.
-   */
-  function checkLegacyDefault(defaultNode: Node): Type | undefined {
-    const resolved = checkNode(defaultNode, undefined);
-    if (resolved === null || isValue(resolved)) {
-      return undefined;
-    }
-    if (resolved.entityKind === "Indeterminate") {
-      return resolved.type;
-    }
-    return resolved;
   }
 
   function checkDecoratorApplication(

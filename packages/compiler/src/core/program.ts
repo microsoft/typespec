@@ -1,5 +1,4 @@
 import { EmitterOptions } from "../config/types.js";
-import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { setCurrentProgram } from "../experimental/typekit/index.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
@@ -483,8 +482,7 @@ async function createProgram(
 
     const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint?.esmExports.$lib;
     const metadata = computeLibraryMetadata(module, libDefinition);
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const linterDef = entrypoint?.esmExports.$linter ?? libDefinition?.linter;
+    const linterDef = entrypoint?.esmExports.$linter;
     return {
       ...resolution,
       metadata,
@@ -931,9 +929,6 @@ async function runEmitter(emitter: EmitterRef, program: Program) {
     program,
     emitterOutputDir: emitter.emitterOutputDir,
     options: emitter.options,
-    getAssetEmitter(TypeEmitterClass) {
-      return createAssetEmitter(program, TypeEmitterClass, this);
-    },
   };
   try {
     await emitter.emitFunction(context);

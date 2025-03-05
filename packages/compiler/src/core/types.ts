@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-deprecated*/
 // ^  TODO: remove when removing projection
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import type { TypeEmitter } from "../emitter-framework/type-emitter.js";
-import type { AssetEmitter } from "../emitter-framework/types.js";
 import type { ModuleResolutionResult } from "../module-resolver/module-resolver.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import type { Numeric } from "./numeric.js";
@@ -374,8 +372,6 @@ export interface ModelProperty extends BaseType, DecoratedType {
   // this tracks the property we copied from.
   sourceProperty?: ModelProperty;
   optional: boolean;
-  /** @deprecated use {@link defaultValue} instead. */
-  default?: Type;
   defaultValue?: Value;
   model?: Model;
 }
@@ -708,10 +704,6 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   variants: RekeyableMap<string | symbol, UnionVariant>;
 
   expression: boolean;
-  /**
-   * @deprecated use variants
-   */
-  readonly options: Type[];
 
   /**
    * Late-bound symbol of this interface type.
@@ -2620,12 +2612,6 @@ export interface TypeSpecLibraryDef<
     options?: JSONSchemaType<E>;
   };
 
-  /**
-   * Configuration if library is providing linting rules/rulesets.
-   * @deprecated Use `export const $linter` instead. This will cause circular reference with linters.
-   */
-  readonly linter?: LinterDefinition;
-
   readonly state?: Record<State, StateDef>;
 }
 
@@ -2826,15 +2812,6 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * Emitter custom options defined in createTypeSpecLibrary
    */
   options: TOptions;
-
-  /**
-   * Get an asset emitter to write emitted output to disk using a TypeEmitter
-   *
-   * @deprecated call {@link createAssetEmitter} directly instead.
-   *
-   * @param TypeEmitterClass The TypeEmitter to construct your emitted output
-   */
-  getAssetEmitter<T>(TypeEmitterClass: typeof TypeEmitter<T, TOptions>): AssetEmitter<T, TOptions>;
 }
 
 export type LogLevel = "trace" | "warning" | "error";
