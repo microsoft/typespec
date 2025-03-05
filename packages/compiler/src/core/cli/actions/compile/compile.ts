@@ -181,7 +181,7 @@ function logProgramResult(
     logDiagnostics(program.diagnostics, host.logSink);
     logDiagnosticCount(program.diagnostics);
   } else {
-    log("Compilation completed successfully.");
+    log("\nCompilation completed successfully.");
   }
   // eslint-disable-next-line no-console
   console.log(); // Insert a newline

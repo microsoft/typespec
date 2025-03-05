@@ -14,6 +14,11 @@ namespace TspTest.ErrorModel;
 model Diagnostic {
   name: string;
   error: Error;
+  subError: SubError;
+}
+
+model SubError extends Error {
+  subCode: string;
 }
 
 @error

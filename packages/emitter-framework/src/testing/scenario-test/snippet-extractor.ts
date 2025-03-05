@@ -100,7 +100,7 @@ class SnippetExtractorImpl implements SnippetExtractor {
 
   constructor(languageConfiguration: LanguageConfiguration) {
     this.parser = new Parser();
-    this.parser.setLanguage(languageConfiguration.language);
+    this.parser.setLanguage(languageConfiguration.language as any);
     this.languageConfiguration = languageConfiguration;
   }
 

@@ -125,7 +125,7 @@ function updateSdkTypeReferences(
   if ("crossLanguageDefinitionId" in sdkType) {
     sdkContext.__typeCache.crossLanguageDefinitionIds.set(
       sdkType.crossLanguageDefinitionId,
-      sdkType,
+      sdkType.__raw,
     );
   }
 }

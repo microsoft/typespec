@@ -124,12 +124,6 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Each operation routed at "${"verb"} ${"path"}" needs to have the @sharedRoute decorator.`,
       },
     },
-    "write-visibility-not-supported": {
-      severity: "warning",
-      messages: {
-        default: `@visibility("write") is not supported. Use @visibility("update"), @visibility("create") or @visibility("create", "update") as appropriate.`,
-      },
-    },
     "multipart-invalid-content-type": {
       severity: "error",
       messages: {
@@ -166,12 +160,6 @@ export const $lib = createTypeSpecLibrary({
         default: "Part used in multipart/form-data must have a name.",
       },
     },
-    "header-format-required": {
-      severity: "error",
-      messages: {
-        default: `A format must be specified for @header when type is an array. e.g. @header({format: "csv"})`,
-      },
-    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },
@@ -185,6 +173,7 @@ export const $lib = createTypeSpecLibrary({
     multipartBody: { description: "State for the @bodyIgnore decorator" },
     statusCode: { description: "State for the @statusCode decorator" },
     verbs: { description: "State for the verb decorators (@get, @post, @put, etc.)" },
+    patchOptions: { description: "State for the options of the @patch decorator" },
     servers: { description: "State for the @server decorator" },
     includeInapplicableMetadataInPayload: {
       description: "State for the @includeInapplicableMetadataInPayload decorator",

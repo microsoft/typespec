@@ -83,6 +83,6 @@ model OmitDefaults<Source> {
  */
 @doc("The template for setting the default visibility of key properties.")
 @withDefaultKeyVisibility(Visibility)
-model DefaultKeyVisibility<Source, Visibility extends valueof string> {
+model DefaultKeyVisibility<Source, Visibility extends valueof Reflection.EnumMember> {
   ...Source;
 }
