@@ -3,12 +3,11 @@
 # --------------------------------
 FROM mcr.microsoft.com/mirror/docker/library/node:20 AS builder
 
-RUN apk add --no-cache git
 COPY . /app
 
 WORKDIR /app
 ENV TYPESPEC_SKIP_VS_BUILD=1
-RUN npm install -g corepack@latest && corepack enable && corepack prepare
+RUN npm install -g pnpm
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter "@typespec/compiler..." run build
 
