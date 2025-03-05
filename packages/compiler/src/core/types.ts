@@ -1044,8 +1044,6 @@ export interface RekeyableMap<K, V> extends Map<K, V> {
  */
 export enum SyntaxKind {
   TypeSpecScript,
-  /** @deprecated Use TypeSpecScript */
-  CadlScript = TypeSpecScript,
   JsSourceFile,
   ImportStatement,
   Identifier,
@@ -1340,9 +1338,6 @@ export interface ParseOptions {
   /** When true, parse doc comments into {@link Node.docs}. */
   readonly docs?: boolean;
 }
-
-/** @deprecated Use TypeSpecScriptNode */
-export type CadlScriptNode = TypeSpecScriptNode;
 
 export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.TypeSpecScript;
@@ -2595,12 +2590,6 @@ export interface JSONSchemaValidator {
   ): Diagnostic[];
 }
 
-/** @deprecated Use TypeSpecLibraryDef */
-export type CadlLibraryDef<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>,
-> = TypeSpecLibraryDef<T, E>;
-
 export interface StateDef {
   /**
    * Description for this state.
@@ -2754,12 +2743,6 @@ export type LinterRuleDiagnosticReport<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
 > = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
-
-/** @deprecated Use TypeSpecLibrary */
-export type CadlLibrary<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>,
-> = TypeSpecLibrary<T, E>;
 
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },

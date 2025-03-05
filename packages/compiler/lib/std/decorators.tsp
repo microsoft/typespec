@@ -56,26 +56,6 @@ extern dec returnsDoc(target: Operation, doc: valueof string);
 extern dec errorsDoc(target: Operation, doc: valueof string);
 
 /**
- * Mark this type as deprecated.
- *
- * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
- *
- * @deprecated Use the `#deprecated` [directive](https://typespec.io/docs/language-basics/directives/#deprecated) instead.
- * @param message Deprecation message.
- *
- * @example
- *
- * Use the `#deprecated` directive instead:
- *
- * ```typespec
- * #deprecated "Use ActionV2"
- * op Action<Result>(): Result;
- * ```
- */
-#deprecated "@deprecated decorator is deprecated. Use the `#deprecated` directive instead."
-extern dec deprecated(target: unknown, message: valueof string);
-
-/**
  * Service options.
  */
 model ServiceOptions {

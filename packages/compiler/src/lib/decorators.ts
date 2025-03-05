@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
 // TODO: remove after projection removal
 import type {
-  DeprecatedDecorator,
   DiscriminatedDecorator,
   DiscriminatedOptions,
   DiscriminatorDecorator,
@@ -42,7 +41,7 @@ import {
   isIntrinsicType,
   validateDecoratorNotOnType,
 } from "../core/decorator-utils.js";
-import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
+import { getDeprecationDetails } from "../core/deprecation.js";
 import {
   Numeric,
   StdTypeName,
@@ -1067,25 +1066,6 @@ export const $key: KeyDecorator = (
 };
 
 export { getKeyName, isKey } from "./key.js";
-
-/**
- * Mark a type as deprecated
- * @param context DecoratorContext
- * @param target Decorator target
- * @param message Deprecation target.
- *
- * @example
- * ``` @deprecated("Foo is deprecated, use Bar instead.")
- *     model Foo {}
- * ```
- */
-export const $deprecated: DeprecatedDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  message: string,
-) => {
-  markDeprecated(context.program, target, { message });
-};
 
 /**
  * Return the deprecated message or undefined if not deprecated

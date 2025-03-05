@@ -18,9 +18,6 @@ export {
   TwoLevelMap,
 } from "./utils/index.js";
 
-/** @deprecated Use TypeSpecPrettierPlugin */
-export const CadlPrettierPlugin = TypeSpecPrettierPlugin;
-
 import { $decorators as intrinsicDecorators } from "./lib/intrinsic/tsp-index.js";
 import { $decorators as stdDecorators } from "./lib/tsp-index.js";
 /** @internal for Typespec compiler */
@@ -32,6 +29,3 @@ export const $decorators = {
     ...intrinsicDecorators["TypeSpec.Prototypes"],
   },
 };
-
-/** @deprecated use `PackageJson` */
-export { PackageJson as NodePackage } from "./types/package-json.js";
