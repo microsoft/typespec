@@ -746,8 +746,8 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/http-specs':
-        specifier: 0.1.0-alpha.9
-        version: 0.1.0-alpha.9(@types/node@22.13.9)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)(@typespec/xml@0.66.0(@typespec/compiler@packages+compiler))
+        specifier: 0.1.0-alpha.11
+        version: 0.1.0-alpha.11(@types/node@22.13.9)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)(@typespec/xml@0.66.0(@typespec/compiler@packages+compiler))
       '@typespec/spector':
         specifier: workspace:~
         version: link:../spector
@@ -6276,15 +6276,15 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@typespec/http-specs@0.1.0-alpha.9':
-    resolution: {integrity: sha512-IIzW606BcfVzAz9U6cWf4u4lGXlTy+UQI69mvW3qM5x2XfcMQJ5RRk/7vnjiendv2zVHBtW7ZRBMezqXkM6nNg==}
+  '@typespec/http-specs@0.1.0-alpha.11':
+    resolution: {integrity: sha512-VOE84qmxKA5PJtb+xYXuhZT5d/JBuKIN3EQlt1+g256/gl4HuImMl3SEoGtO+gCn7pJ/rkRiVodELNQY6c6fbw==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
-      '@typespec/compiler': ~0.65.0
-      '@typespec/http': ~0.65.0
-      '@typespec/rest': ~0.65.0
-      '@typespec/versioning': ~0.65.0
-      '@typespec/xml': ~0.65.0
+      '@typespec/compiler': ~0.66.0
+      '@typespec/http': ~0.66.0
+      '@typespec/rest': ~0.66.0
+      '@typespec/versioning': ~0.66.0
+      '@typespec/xml': ~0.66.0
 
   '@typespec/http@0.66.0':
     resolution: {integrity: sha512-IKD5FMvnjbZ5cdQ3wTXXAnnQgDcqFuPtVphpTdnYER87gGEa8YNLocgK44CLFB+GvVkTecDltG0CNKPSPQ0RMw==}
@@ -18778,7 +18778,7 @@ snapshots:
       - bluebird
       - supports-color
 
-  '@typespec/http-specs@0.1.0-alpha.9(@types/node@22.13.9)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)(@typespec/xml@0.66.0(@typespec/compiler@packages+compiler))':
+  '@typespec/http-specs@0.1.0-alpha.11(@types/node@22.13.9)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)(@typespec/xml@0.66.0(@typespec/compiler@packages+compiler))':
     dependencies:
       '@typespec/compiler': link:packages/compiler
       '@typespec/http': link:packages/http

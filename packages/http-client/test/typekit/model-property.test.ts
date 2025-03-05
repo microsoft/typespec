@@ -1,4 +1,4 @@
-import { Namespace } from "@typespec/compiler";
+import { Namespace, StringValue } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { ok } from "assert";
@@ -110,42 +110,19 @@ describe("isOnClient", () => {
 
       // base operation
       const params = $.operation.getClientSignature(client, constructor);
-      const endpointParam = params.find((p) => p.name === "name");
-      ok(endpointParam);
-      expect($.modelProperty.isOnClient(client, endpointParam)).toBe(true);
+      const nameParam = params.find((p) => p.name === "name");
+      const endpointParam = params.find((p) => p.name === "endpoint");
+      expect(nameParam).toBeDefined();
+      expect(nameParam?.defaultValue).toBeUndefined();
+      expect(endpointParam).toBeDefined();
 
-      // should have two overloads, one for completely overriding endpoint, one for just the parameter name
-      expect($.operation.getOverloads(client, constructor)).toHaveLength(2);
+      const endpointDefaultValue = endpointParam?.defaultValue as StringValue;
+      expect(endpointDefaultValue.value).toEqual("https://example.com/{name}/foo");
+      ok(nameParam);
+      expect($.modelProperty.isOnClient(client, nameParam)).toBe(true);
 
-      // parameter name overload
-      const paramNameOverload = $.operation
-        .getOverloads(client, constructor)
-        .find((o) => $.operation.getClientSignature(client, o).find((p) => p.name === "name"));
-      ok(paramNameOverload);
-
-      const paramNameOverloadParams = $.operation.getClientSignature(client, paramNameOverload);
-      expect(paramNameOverloadParams).toHaveLength(1);
-      expect(paramNameOverloadParams[0].name).toEqual("name");
-      paramNameOverloadParams.forEach((p) =>
-        expect($.modelProperty.isOnClient(client, p)).toBe(true),
-      );
-
-      // endpoint overload
-      const endpointOverload = $.operation
-        .getOverloads(client, constructor)
-        .find((o) => $.operation.getClientSignature(client, o).find((p) => p.name === "endpoint"));
-      ok(endpointOverload);
-
-      const endpointOverloadParams = $.operation.getClientSignature(client, endpointOverload);
-      expect(endpointOverloadParams).toHaveLength(1);
-      endpointOverloadParams.forEach((p) =>
-        expect($.modelProperty.isOnClient(client, p)).toBe(true),
-      );
-
-      expect(endpointOverloadParams[0].name).toEqual("endpoint");
-      expect(endpointOverloadParams[0].optional).toBeFalsy();
-
-      expect(endpointOverload.returnType).toEqual($.program.checker.voidType);
+      // should have no overloads
+      expect($.operation.getOverloads(client, constructor)).toHaveLength(0);
     });
   });
   describe("credential", () => {

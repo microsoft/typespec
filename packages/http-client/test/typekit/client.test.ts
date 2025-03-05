@@ -1,4 +1,4 @@
-import { Interface, Namespace } from "@typespec/compiler";
+import { Interface, Namespace, StringLiteral, StringValue, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { ok } from "assert";
@@ -188,6 +188,12 @@ describe("getConstructor", () => {
     });
 
     it("bearer", async () => {
+      /**
+       * This test validates that:
+       * - There are no overloads
+       * - A single constructor with an endpoint parameter that is required
+       * - A single constructor with a credential parameter that is required.
+       */
       const { DemoService } = (await runner.compile(`
         @service(#{
           title: "Widget Service",
@@ -252,6 +258,13 @@ describe("getConstructor", () => {
       expect(clientDefaultValue.value).toEqual("https://example.com");
     });
     it("one server with parameter", async () => {
+      /**
+       * This test validates that:
+       *  - There are no overloads
+       *  - A single constructor with an endpoint parameter that is required but has a default value
+       *  - The endpoint default value is the url template https://example.com/{name}/foo
+       *  - There is a required name parameter of type string
+       */
       const { DemoService } = (await runner.compile(`
         @server("https://example.com/{name}/foo", "My service url", { name: string })
         @service(#{
@@ -263,46 +276,77 @@ describe("getConstructor", () => {
       const client = $.clientLibrary.listClients(DemoService)[0];
       const constructor = $.client.getConstructor(client);
 
-      // base operation
+      // base operation.
+      // The base operation needs to satisfy all overloads, so it should have the most parameters
+      // In this test, the base operation should have the endpoint and name parameters both optional
+      // in the base constructor.
       expect(constructor.returnType).toEqual($.program.checker.voidType);
       const params = $.operation.getClientSignature(client, constructor);
-      // Only expect name to fill in the parametrized host
-      expect(params).toHaveLength(1);
-      // Endpoint is optional but name is required to fill in the template
+      expect(params).toHaveLength(2);
+      // Endpoint is required with a default value
+      const endpointParam = params.find((p) => p.name === "endpoint");
+      ok(endpointParam);
+      expect(endpointParam.optional).toBeFalsy();
+      const defaultEndpointValue = endpointParam.defaultValue as StringValue;
+      expect(defaultEndpointValue.value).toEqual("https://example.com/{name}/foo");
+
+      // Name parameter is required
       const nameParam = params.find((p) => p.name === "name");
       ok(nameParam);
       expect(nameParam.optional).toBeFalsy();
+      // Name parameter has no default value
+      expect(nameParam.defaultValue).toBeUndefined();
 
-      // should have two overloads, one for completely overriding endpoint, one for just the parameter name
-      expect($.operation.getOverloads(client, constructor)).toHaveLength(2);
+      // Should have no overloads
+      expect($.operation.getOverloads(client, constructor)).toHaveLength(0);
+    });
+    it("one server with parameter named endpoint", async () => {
+      /**
+       * This test validates that:
+       *  - There are no overloads
+       *  - A constructor parameter named endpoint which maps to the template variable that is required but has a default value
+       *  - A constructor parameter named _endpoint (due to collission) which has a default value which is the url template https://{endpoint}/foo
+       */
+      const { DemoService } = (await runner.compile(`
+        @server("https://{endpoint}/foo", "My service url", { endpoint: string })
+        @service(#{
+          title: "Widget Service",
+        })
+        @test namespace DemoService;
+        `)) as { DemoService: Namespace };
 
-      // parameter name overload
-      const paramNameOverload = $.operation
-        .getOverloads(client, constructor)
-        .find((o) => $.operation.getClientSignature(client, o).find((p) => p.name === "name"));
-      ok(paramNameOverload);
+      const client = $.clientLibrary.listClients(DemoService)[0];
+      const constructor = $.client.getConstructor(client);
 
-      const paramNameOverloadParams = $.operation.getClientSignature(client, paramNameOverload);
-      expect(paramNameOverloadParams).toHaveLength(1);
-      expect(paramNameOverloadParams[0].name).toEqual("name");
-      expect(paramNameOverloadParams[0].optional).toBeFalsy();
+      expect(constructor.returnType).toEqual($.program.checker.voidType);
+      const params = $.operation.getClientSignature(client, constructor);
+      expect(params).toHaveLength(2);
+      // Endpoint is required with a default value
+      const endpointParam = params.find((p) => p.name === "endpoint");
+      ok(endpointParam);
+      expect(endpointParam.optional).toBeFalsy();
+      expect(endpointParam.defaultValue).toBeUndefined();
 
-      expect(paramNameOverload.returnType).toEqual($.program.checker.voidType);
+      // Name parameter is required
+      const internalEndpointParam = params.find((p) => p.name === "_endpoint");
+      ok(internalEndpointParam);
+      expect(internalEndpointParam.optional).toBeFalsy();
+      // Name parameter has no default value
+      expect(internalEndpointParam.defaultValue).toBeDefined();
+      const internalEndpointDefaultValue = internalEndpointParam.defaultValue as StringValue;
+      expect(internalEndpointDefaultValue.value).toEqual("https://{endpoint}/foo");
 
-      // endpoint overload
-      const endpointOverload = $.operation
-        .getOverloads(client, constructor)
-        .find((o) => $.operation.getClientSignature(client, o).find((p) => p.name === "endpoint"));
-      ok(endpointOverload);
-
-      const endpointOverloadParams = $.operation.getClientSignature(client, endpointOverload);
-      expect(endpointOverloadParams).toHaveLength(1);
-      expect(endpointOverloadParams[0].name).toEqual("endpoint");
-      expect(endpointOverloadParams[0].optional).toBeFalsy();
-
-      expect(endpointOverload.returnType).toEqual($.program.checker.voidType);
+      // Should have no overloads
+      expect($.operation.getOverloads(client, constructor)).toHaveLength(0);
     });
     it("multiple servers", async () => {
+      /**
+       * This test validates that:
+       *  - There are no overloads
+       *  - The base constructor has a single endpoint parameter that is required
+       *  - The endpoint parameter has a type of union including the 2 clientDefaultValues plus string.
+       */
+
       const { DemoService } = (await runner.compile(`
         @server("https://example.com", "The service endpoint")
         @server("https://example.org", "The service endpoint")
@@ -312,27 +356,27 @@ describe("getConstructor", () => {
         @test namespace DemoService;
         `)) as { DemoService: Namespace };
       const client = $.clientLibrary.listClients(DemoService)[0];
-      const constructor = $.client.getConstructor(client);
 
-      // base operation
-      expect(constructor.returnType).toEqual($.program.checker.voidType);
-      const params = $.operation.getClientSignature(client, constructor);
-      expect(params).toHaveLength(1);
-      const endpointParam = params.find((p) => p.name === "endpoint");
-      ok(endpointParam);
-      // Server defines a default endpoint so the endpoint param is optional
-      expect(endpointParam.optional).toBeTruthy();
-      // TODO: i'm getting a ProxyRef to a String type instead of an actual string type, so $.isString is failing
-      ok(endpointParam.type.kind === "Scalar" && endpointParam.type.name === "string");
+      // There is a single constructor so no overloads.
+      const overloads = $.operation.getOverloads(client, $.client.getConstructor(client));
+      expect(overloads).toHaveLength(0);
 
-      // should have two overloads, one for each server
-      const overloads = $.operation.getOverloads(client, constructor);
-      expect(overloads).toHaveLength(2);
+      // The base constructor should have a single endpoint parameter that is required
+      const baseConstructor = $.client.getConstructor(client);
+      const baseParams = $.operation.getClientSignature(client, baseConstructor);
+      expect(baseParams).toHaveLength(1);
+      const endpointParam = baseParams.find((p) => p.name === "endpoint");
+      expect(endpointParam?.optional).toBeFalsy();
 
-      // .com overload
-      const comOverload = overloads[0];
-      const comOverloadParams = $.operation.getClientSignature(client, comOverload);
-      expect(comOverloadParams).toHaveLength(1);
+      // The endpoint parameter should have a type of union including the 2 default client parameters
+      // plus string.
+      expect(endpointParam?.type.kind).toEqual("Union");
+      const typeVariants = (endpointParam?.type as Union).variants;
+      expect(typeVariants.size).toBe(3);
+      const values = Array.from(typeVariants.values());
+      expect((values[0].type as StringLiteral).value).toEqual("https://example.org");
+      expect((values[1].type as StringLiteral).value).toEqual("https://example.com");
+      expect(values[2].type).toEqual($.builtin.string);
     });
   });
 });
