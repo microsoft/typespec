@@ -18,7 +18,7 @@ RUN npm pack
 # --------------------------------
 #  Setup final image
 # --------------------------------
-FROM mcr.microsoft.com/mirror/docker/library/node:18-alpine
+FROM mcr.microsoft.com/mirror/docker/library/node:22-alpine
 
 COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
 
