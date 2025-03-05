@@ -196,27 +196,6 @@ export type ErrorsDocDecorator = (
 ) => void;
 
 /**
- * Mark this type as deprecated.
- *
- * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
- *
- * @deprecated Use the `#deprecated` [directive](https://typespec.io/docs/language-basics/directives/#deprecated) instead.
- * @param message Deprecation message.
- * @example
- * Use the `#deprecated` directive instead:
- *
- * ```typespec
- * #deprecated "Use ActionV2"
- * op Action<Result>(): Result;
- * ```
- */
-export type DeprecatedDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  message: string,
-) => void;
-
-/**
  * Mark this namespace as describing a service and configure service properties.
  *
  * @param options Optional configuration for the service.
@@ -1130,7 +1109,6 @@ export type TypeSpecDecorators = {
   summary: SummaryDecorator;
   returnsDoc: ReturnsDocDecorator;
   errorsDoc: ErrorsDocDecorator;
-  deprecated: DeprecatedDecorator;
   service: ServiceDecorator;
   error: ErrorDecorator;
   format: FormatDecorator;
