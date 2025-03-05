@@ -66,7 +66,7 @@ import {
   ensureTrailingDirectorySeparator,
   getBaseFileName,
   getDirectoryPath,
-  getPathComponents,
+  getRelativePathFromDirectory,
   joinPaths,
   normalizePath,
 } from "../core/path-utils.js";
@@ -348,37 +348,12 @@ export function createServer(host: ServerHost): Server {
     const filePathChangedMap = new Map<string, string>();
 
     if (tspChanges.length === 0 || tspChanges.length % 2 !== 0) {
-      log({
-        level: "debug",
-        message:
-          "The arguments are empty or do not contain pairs of TSP files marked for deletion(type=3) and creation(type=1)",
-      });
       return;
     }
 
     // type 1: created, type 3: deleted
     // Modify file name or move the file to a new location,
     // the original file is marked as delete, and the new file is marked as Create
-    let type1Count = 0;
-    let type3Count = 0;
-    tspChanges.forEach((change) => {
-      if (change.type === 1) {
-        type1Count++;
-      } else if (change.type === 3) {
-        type3Count++;
-      }
-    });
-    if (type1Count !== type3Count) {
-      log({
-        level: "debug",
-        message:
-          "The number of files marked for deletion(type=3) and creation(type=1) is not equal, " +
-          "see the input parameters for details:" +
-          JSON.stringify(tspChanges),
-      });
-      return;
-    }
-
     if (tspChanges.length === 2) {
       // Only one file is renamed or moved
       const oldFilePath = tspChanges.find((c) => c.type === 3);
@@ -403,13 +378,12 @@ export function createServer(host: ServerHost): Server {
       }
     }
 
-    if (filePathChangedMap.size === 0) {
+    if (filePathChangedMap.size !== tspChanges.length / 2) {
       log({
         level: "debug",
         message:
-          "Moving a file location will definitely get the key-value pairs before(type=3) and after(type=1) the move according to its file name, " +
-          "and this message indicates that the corresponding file key-value pairs were not found, " +
-          "see the input parameters for details:" +
+          "The number of files marked for deletion(type=3) and creation(type=1) is not equal, " +
+          "they must appear in pairs, see the input parameters for details: \n" +
           JSON.stringify(tspChanges),
       });
       return;
@@ -433,21 +407,20 @@ export function createServer(host: ServerHost): Server {
         const target = diagnostic.target as Node;
         if (target.kind === SyntaxKind.ImportStatement && target.parent) {
           const filePath = target.parent.file.path;
-          const oldFileImpVal = getRelativePath(filePath, oldFilePath);
-          if (oldFileImpVal && target.path.value === oldFileImpVal) {
+          const fileDir = getDirectoryPath(filePath);
+          const oldFileImpVal = getRelativePathFromDirectory(fileDir, oldFilePath, false);
+
+          if (
+            target.path.value ===
+            (oldFileImpVal.startsWith(".") ? oldFileImpVal : `./${oldFileImpVal}`)
+          ) {
             const targetPath = target.path;
             const changeImpLineAndOffset = target.parent.file.getLineAndCharacterOfPosition(
               targetPath.pos,
             );
 
-            const replaceText = getRelativePath(filePath, newFilePath);
-            if (!replaceText) {
-              log({
-                level: "debug",
-                message: `Unable to get the relative path of the imported content '${target.path.value}' through '${filePath}' and '${newFilePath}`,
-              });
-              continue;
-            }
+            let replaceText = getRelativePathFromDirectory(fileDir, newFilePath, false);
+            replaceText = replaceText.startsWith(".") ? replaceText : `./${replaceText}`;
 
             log({
               level: "info",
@@ -474,32 +447,6 @@ export function createServer(host: ServerHost): Server {
         }
       }
     }
-  }
-
-  function getRelativePath(from: string, to: string): string | undefined {
-    if (from.length === 0 || to.length === 0 || from === to) {
-      return undefined;
-    }
-
-    const fromComponents = getPathComponents(from);
-    const toComponents = getPathComponents(to);
-    let commonLength = 0;
-
-    while (
-      commonLength < fromComponents.length &&
-      commonLength < toComponents.length &&
-      fromComponents[commonLength] === toComponents[commonLength]
-    ) {
-      commonLength++;
-    }
-
-    const fromPaths = fromComponents.slice(commonLength);
-    const toPaths = toComponents.slice(commonLength);
-
-    const result = fromPaths.length === 1 ? ["."] : Array(fromPaths.length - 1).fill("..");
-    result.push(...toPaths);
-
-    return result.join("/");
   }
 
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {

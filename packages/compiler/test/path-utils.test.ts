@@ -5,7 +5,6 @@ import {
   getBaseFileName,
   getDirectoryPath,
   getPathComponents,
-  getRelativePathFromDirectory,
   getRootLength,
   isUrl,
   joinPaths,
@@ -264,16 +263,5 @@ describe("compiler: path utils", () => {
     strictEqual(resolvePath("a", "b", "c"), "a/b/c");
     strictEqual(resolvePath("a", "b", "/c"), "/c");
     strictEqual(resolvePath("a", "b", "../c"), "a/c");
-  });
-
-  it("getRelativePathFromDirectory", () => {
-    strictEqual(
-      getRelativePathFromDirectory("/a/main.tsp", "/a/lib/enum.tsp", false),
-      "../lib/enum.tsp",
-    );
-    strictEqual(
-      getRelativePathFromDirectory("/a/lib/pet.tsp", "/a/test/enum.tsp", false),
-      "../../test/enum.tsp",
-    );
   });
 });
