@@ -2,9 +2,7 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service(#{
-  title: "SpecialChars",
-})
+@service(#{ title: "SpecialChars" })
 namespace TspTest.SpecialChars;
 
 model Resource {

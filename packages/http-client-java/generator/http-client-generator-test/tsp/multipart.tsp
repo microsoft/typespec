@@ -4,9 +4,7 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
-@service(#{
-  title: "Multipart",
-})
+@service(#{ title: "Multipart" })
 namespace TspTest.Multipart;
 
 union ImageType {

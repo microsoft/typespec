@@ -10,9 +10,7 @@ using Azure.Core.Traits;
 using Azure.Core.Foundations;
 using Azure.ClientGenerator.Core;
 
-@service(#{
-  title: "Union",
-})
+@service(#{ title: "Union" })
 @server(
   "{endpoint}/openai",
   "Union",

@@ -9,9 +9,7 @@ using Azure.Core;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service(#{
-  title: "Response",
-})
+@service(#{ title: "Response" })
 @versioned(ApiVersions)
 namespace TspTest.Response;
 

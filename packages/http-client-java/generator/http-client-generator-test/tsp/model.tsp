@@ -3,9 +3,7 @@ import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
 
-@service(#{
-  title: "Model",
-})
+@service(#{ title: "Model" })
 namespace TspTest.Model;
 
 // input-output
