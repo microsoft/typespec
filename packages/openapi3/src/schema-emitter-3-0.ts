@@ -5,7 +5,6 @@ import {
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
-  IntrinsicScalarName,
   IntrinsicType,
   isNullType,
   Model,
@@ -23,7 +22,6 @@ import {
   Placeholder,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
@@ -186,7 +184,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       }
     }
 
-    const stdScalarNames = getStdScalarNames(schemaMembers);
     const wrapWithObjectBuilder = (
       schemaMember: UnionSchemaMember,
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
@@ -198,7 +195,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
         ? this.applyConstraints(union, {})
         : {};
 
-      if (mergeUnionWideConstraints && nullable) {
+      if (schemaMembers.length === 1 && mergeUnionWideConstraints && nullable) {
         additionalProps.nullable = true;
       }
 
@@ -209,36 +206,12 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
           (schema instanceof Placeholder || "$ref" in schema) &&
           !(type && shouldInline(program, type))
         ) {
-          if (type && type.kind === "Model") {
+          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
             return new ObjectBuilder({
               type: "object",
               allOf: Builders.array([schema]),
               ...additionalProps,
             });
-          } else if (type && type.kind === "Scalar") {
-            let objectInitializer: Record<string, unknown> = {};
-            const stdScalar = $.scalar.getStdBase(type);
-            if (stdScalar?.name) {
-              // already has same std scalar member, use $ref
-              if (stdScalarNames.has(stdScalar.name) && "$ref" in schema) {
-                objectInitializer = { $ref: schema.$ref };
-              } else {
-                const stdSchema = this.getSchemaForStdScalars(
-                  stdScalar as Scalar & { name: IntrinsicScalarName },
-                );
-                objectInitializer = {
-                  ...stdSchema,
-                  ...additionalProps,
-                };
-              }
-            } else {
-              // scalar without extends
-              objectInitializer = {
-                type: "object",
-                ...additionalProps,
-              };
-            }
-            return new ObjectBuilder<OpenAPI3Schema>(objectInitializer);
           } else {
             return new ObjectBuilder({ allOf: Builders.array([schema]), ...additionalProps });
           }
@@ -250,17 +223,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
           return merged;
         }
       }
-    };
-
-    const checkMerge = (schemaMembers: { schema: any; type: Type | null }[]): boolean => {
-      if (nullable) {
-        for (const m of schemaMembers) {
-          if (m.schema instanceof Placeholder || "$ref" in m.schema) {
-            return true;
-          }
-        }
-      }
-      return false;
     };
 
     if (schemaMembers.length === 0) {
@@ -279,16 +241,25 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
-    const isMerge = checkMerge(schemaMembers);
-
     const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
-        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: isMerge }),
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false }),
       ),
     };
-
-    if (!isMerge && nullable) {
-      schema.nullable = true;
+    if (nullable) {
+      schema[ofType]?.push(
+        new ObjectBuilder({
+          not: {
+            anyOf: [
+              { type: "string" },
+              { type: "number" },
+              { type: "boolean" },
+              { type: "object" },
+              { type: "array" },
+            ],
+          },
+        }),
+      );
     }
 
     this.applyDiscriminator(union, schema);
@@ -298,17 +269,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     interface UnionSchemaMember {
       schema: any;
       type: Type | null;
-    }
-
-    function getStdScalarNames(scalarMembers: UnionSchemaMember[]): Set<string> {
-      const stdScalarNames = new Set<string>();
-      for (const member of scalarMembers) {
-        if (member.type?.kind === "Scalar") {
-          const stdScalarName = $.scalar.getStdBase(member.type)?.name;
-          if (member.type.name === stdScalarName) stdScalarNames.add(stdScalarName);
-        }
-      }
-      return stdScalarNames;
     }
   }
 

@@ -692,38 +692,30 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         scalar NoExtends;
         model Test {
           a: NoExtends| Str | Int16 | Num | Mol | More | null | int32 | string;
+          b: Str | null;
         }
       `);
 
       expect(openApi.components.schemas.Test).toMatchObject({
         type: "object",
-        required: ["a"],
+        required: ["a", "b"],
         properties: {
           a: {
             anyOf: [
               {
-                type: "object",
-                nullable: true,
+                $ref: "#/components/schemas/NoExtends",
               },
               {
                 $ref: "#/components/schemas/Str",
               },
               {
-                type: "integer",
-                format: "int16",
-                nullable: true,
+                $ref: "#/components/schemas/Int16",
               },
               {
                 $ref: "#/components/schemas/Num",
               },
               {
-                type: "object",
-                allOf: [
-                  {
-                    $ref: "#/components/schemas/Mol",
-                  },
-                ],
-                nullable: true,
+                $ref: "#/components/schemas/Mol",
               },
               {
                 $ref: "#/components/schemas/More",
@@ -731,13 +723,41 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
               {
                 type: "integer",
                 format: "int32",
-                nullable: true,
               },
               {
                 type: "string",
-                nullable: true,
+              },
+              {
+                not: {
+                  anyOf: [
+                    {
+                      type: "string",
+                    },
+                    {
+                      type: "number",
+                    },
+                    {
+                      type: "boolean",
+                    },
+                    {
+                      type: "object",
+                    },
+                    {
+                      type: "array",
+                    },
+                  ],
+                },
               },
             ],
+          },
+          b: {
+            type: "object",
+            allOf: [
+              {
+                $ref: "#/components/schemas/Str",
+              },
+            ],
+            nullable: true,
           },
         },
       });
