@@ -1044,8 +1044,6 @@ export interface RekeyableMap<K, V> extends Map<K, V> {
  */
 export enum SyntaxKind {
   TypeSpecScript,
-  /** @deprecated Use TypeSpecScript */
-  CadlScript = TypeSpecScript,
   JsSourceFile,
   ImportStatement,
   Identifier,
@@ -2754,12 +2752,6 @@ export type LinterRuleDiagnosticReport<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
 > = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
-
-/** @deprecated Use TypeSpecLibrary */
-export type CadlLibrary<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>,
-> = TypeSpecLibrary<T, E>;
 
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
