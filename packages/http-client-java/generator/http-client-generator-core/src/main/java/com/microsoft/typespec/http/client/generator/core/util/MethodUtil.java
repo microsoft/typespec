@@ -19,6 +19,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsPageable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -297,6 +298,25 @@ public class MethodUtil {
     }
 
     /**
+     * Checks if the parameter should be hidden from API, for pageable operation.
+     *
+     * @param parameter the parameter
+     * @param xmsPageable the detail of pageable operation in CodeModel
+     * @return whether the parameter should be hidden from API
+     */
+    public static boolean shouldHideParameterInPageable(Parameter parameter, XmsPageable xmsPageable) {
+        boolean hide = false;
+        if (xmsPageable.getContinuationToken() != null
+            && parameter == xmsPageable.getContinuationToken().getParameter()) {
+            hide = true;
+        }
+        if (JavaSettings.getInstance().isPageSizeEnabled() && isMaxPageSizeParameter(parameter)) {
+            hide = true;
+        }
+        return hide;
+    }
+
+    /**
      * Checks if the parameter is "maxpagesize".
      * <p>
      * It checks if the serialized name is "maxpagesize", or client name is "maxPageSize".
@@ -304,7 +324,7 @@ public class MethodUtil {
      * @param parameter the parameter
      * @return whether the parameter is "maxpagesize".
      */
-    public static boolean isMaxPageSizeParameter(Parameter parameter) {
+    private static boolean isMaxPageSizeParameter(Parameter parameter) {
         return parameter.getProtocol() != null && parameter.getProtocol().getHttp() != null
         // query parameter
             && parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY
