@@ -1473,7 +1473,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Conditionally serialize based on whether the property is a collection or a single value and whether it is readonly
-            return CreateSerializationStatementForReadOnlyProperties(
+            return CreateConditionalSerializationStatement(
                 propertyType,
                 propertyExpression,
                 propertyIsReadOnly,
@@ -1740,7 +1740,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool IsNonNullableValueType(CSharpType propertyType)
             => propertyType is { IsNullable: false, IsValueType: true } && !propertyType.Equals(typeof(JsonElement));
 
-        private MethodBodyStatement CreateSerializationStatementForReadOnlyProperties(
+        private MethodBodyStatement CreateConditionalSerializationStatement(
             CSharpType propertyType,
             MemberExpression propertyMemberExpression,
             bool isReadOnly,
