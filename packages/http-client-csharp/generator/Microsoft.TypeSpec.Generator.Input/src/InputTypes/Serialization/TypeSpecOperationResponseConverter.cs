@@ -30,7 +30,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             var isFirstProperty = id == null;
             IReadOnlyList<int>? statusCodes = null;
             InputType? bodyType = null;
-            string? bodyMediaTypeString = null;
             IReadOnlyList<OperationResponseHeader>? headers = null;
             bool isErrorResponse = default;
             IReadOnlyList<string>? contentTypes = null;
@@ -39,7 +38,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadComplexType(nameof(OperationResponse.StatusCodes), options, ref statusCodes)
                     || reader.TryReadComplexType(nameof(OperationResponse.BodyType), options, ref bodyType)
-                    || reader.TryReadString(nameof(OperationResponse.BodyMediaType), ref bodyMediaTypeString)
                     || reader.TryReadComplexType(nameof(OperationResponse.Headers), options, ref headers)
                     || reader.TryReadBoolean(nameof(OperationResponse.IsErrorResponse), ref isErrorResponse)
                     || reader.TryReadComplexType(nameof(OperationResponse.ContentTypes), options, ref contentTypes);
@@ -54,12 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             contentTypes ??= [];
             headers ??= [];
 
-            if (!Enum.TryParse<BodyMediaType>(bodyMediaTypeString, true, out var bodyMediaType))
-            {
-                throw new JsonException();
-            }
-
-            var result = new OperationResponse(statusCodes, bodyType, bodyMediaType, headers, isErrorResponse, contentTypes);
+            var result = new OperationResponse(statusCodes, bodyType, headers, isErrorResponse, contentTypes);
 
             if (id != null)
             {

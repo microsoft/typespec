@@ -45,7 +45,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputParameter>? parameters = null;
             IReadOnlyList<OperationResponse>? responses = null;
             string? httpMethod = null;
-            BodyMediaType requestBodyMediaType = default;
             string? uri = null;
             string? path = null;
             string? externalDocsUrl = null;
@@ -97,7 +96,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             operation.Parameters = parameters ?? Array.Empty<InputParameter>();
             operation.Responses = responses ?? Array.Empty<OperationResponse>();
             operation.HttpMethod = httpMethod ?? throw new JsonException("InputOperation must have HttpMethod");
-            operation.RequestBodyMediaType = requestBodyMediaType;
             operation.Uri = uri ?? throw new JsonException("InputOperation must have Uri");
             operation.Path = path ?? throw new JsonException("InputOperation must have Path");
             operation.ExternalDocsUrl = externalDocsUrl;
