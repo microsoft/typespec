@@ -1,7 +1,7 @@
 # --------------------------------
 #  Build compiler
 # --------------------------------
-FROM mcr.microsoft.com/mirror/docker/library/node:18-alpine AS builder
+FROM mcr.microsoft.com/mirror/docker/library/node:22-alpine AS builder
 
 RUN apk add --no-cache git
 COPY . /app
