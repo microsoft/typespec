@@ -23,7 +23,6 @@ import {
   getDoc,
   getEncode,
   getFormat,
-  getKnownValues,
   getMaxItems,
   getMaxLength,
   getMaxValue,
@@ -766,13 +765,6 @@ export class OpenAPI3SchemaEmitterBase<
 
     this.applyXml(type, schema as any, refSchema);
     attachExtensions(program, type, schema);
-
-    const values = getKnownValues(program, type as any);
-    if (values) {
-      return new ObjectBuilder({
-        oneOf: [schema, this.enumSchema(values)],
-      });
-    }
 
     return new ObjectBuilder<Schema>(schema);
   }

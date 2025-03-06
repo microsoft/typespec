@@ -9,9 +9,9 @@ namespace Microsoft.TypeSpec.Generator.Input
     /// <summary>
     /// Represents an operation response.
     /// </summary>
-    public sealed class OperationResponse
+    public sealed class InputOperationResponse
     {
-        public OperationResponse(IReadOnlyList<int> statusCodes, InputType? bodyType, IReadOnlyList<OperationResponseHeader> headers, bool isErrorResponse, IReadOnlyList<string> contentTypes)
+        public InputOperationResponse(IReadOnlyList<int> statusCodes, InputType? bodyType, IReadOnlyList<InputOperationResponseHeader> headers, bool isErrorResponse, IReadOnlyList<string> contentTypes)
         {
             StatusCodes = statusCodes;
             BodyType = bodyType;
@@ -20,11 +20,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             ContentTypes = contentTypes;
         }
 
-        public OperationResponse() : this(Array.Empty<int>(), null,  Array.Empty<OperationResponseHeader>(), false, Array.Empty<string>()) { }
+        public InputOperationResponse() : this(Array.Empty<int>(), null,  Array.Empty<InputOperationResponseHeader>(), false, Array.Empty<string>()) { }
 
         public IReadOnlyList<int> StatusCodes { get; }
         public InputType? BodyType { get; }
-        public IReadOnlyList<OperationResponseHeader> Headers { get; }
+        public IReadOnlyList<InputOperationResponseHeader> Headers { get; }
         public bool IsErrorResponse { get; }
         public IReadOnlyList<string> ContentTypes { get; }
     }

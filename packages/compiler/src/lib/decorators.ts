@@ -26,7 +26,6 @@ import type {
   OpExampleDecorator,
   OverloadDecorator,
   PatternDecorator,
-  ProjectedNameDecorator,
   ReturnsDocDecorator,
   SecretDecorator,
   SummaryDecorator,
@@ -77,7 +76,7 @@ import {
   setMinValue,
   setMinValueExclusive,
 } from "../core/intrinsic-type-state.js";
-import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
+import { reportDiagnostic } from "../core/messages.js";
 import { Program, ProjectedProgram } from "../core/program.js";
 import {
   AugmentDecoratorStatementNode,
@@ -85,7 +84,6 @@ import {
   DecoratorExpressionNode,
   DiagnosticTarget,
   Enum,
-  EnumMember,
   EnumValue,
   Interface,
   Model,
@@ -879,7 +877,6 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
 ) => {
   // remove all read-only properties from the target type
   target.properties.forEach((p) => {
-    delete p.default;
     delete p.defaultValue;
   });
 };
@@ -975,66 +972,6 @@ export const $friendlyName: FriendlyNameDecorator = (
 };
 
 export { getFriendlyName };
-
-const [getKnownValues, setKnownValues] = useStateMap<Type, Enum>(createStateSymbol("knownValues"));
-
-/**
- * `@knownValues` marks a string type with an enum that contains all known values
- *
- * The first parameter is a reference to an enum type that describes all possible values that the
- * type accepts.
- *
- * `@knownValues` can only be applied to model types that extend `string`.
- *
- * @param target Decorator target. Must be a string. (model Foo extends string)
- * @param knownValues Must be an enum.
- */
-export const $knownValues = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  knownValues: Enum,
-) => {
-  const type = getPropertyType(target);
-  if (!isStringType(context.program, type) && !isNumericType(context.program, type)) {
-    context.program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@knownValues", to: "type, it is  not a string or numeric" },
-        target,
-      }),
-    );
-    return;
-  }
-
-  for (const member of knownValues.members.values()) {
-    const propertyType = getPropertyType(target);
-    if (!isEnumMemberAssignableToType(context.program, propertyType, member)) {
-      reportDiagnostic(context.program, {
-        code: "known-values-invalid-enum",
-        format: {
-          member: member.name,
-          type: getTypeName(propertyType),
-        },
-        target,
-      });
-      return;
-    }
-  }
-  setKnownValues(context.program, target, knownValues);
-};
-
-function isEnumMemberAssignableToType(program: Program, typeName: Type, member: EnumMember) {
-  const memberType = member.value !== undefined ? typeof member.value : "string";
-  switch (memberType) {
-    case "string":
-      return isStringType(program, typeName);
-    case "number":
-      return isNumericType(program, typeName);
-    default:
-      return false;
-  }
-}
-export { getKnownValues };
 
 /**
  * `@key` - mark a model property as the key to identify instances of that type
@@ -1162,65 +1099,6 @@ export {
    */
   getOverloads,
 };
-
-const projectedNameKey = createStateSymbol("projectedNameKey");
-
-/**
- * `@projectedName` - Indicate that this entity should be renamed according to the given projection.
- * @param context DecoratorContext
- * @param target The that should have a different name.
- * @param projectionName Name of the projection (e.g. "toJson", "toCSharp")
- * @param projectedName Name of the type should have in the scope of the projection specified.
- */
-export const $projectedName: ProjectedNameDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  projectionName: string,
-  projectedName: string,
-) => {
-  let map: Map<string, string> = context.program.stateMap(projectedNameKey).get(target);
-  if (map === undefined) {
-    map = new Map();
-    context.program.stateMap(projectedNameKey).set(target, map);
-  }
-  map.set(projectionName, projectedName);
-};
-
-/**
- * @param program Program
- * @param target Target
- * @returns Map of the projected names for the given entity.
- */
-export function getProjectedNames(
-  program: Program,
-  target: Type,
-): ReadonlyMap<string, string> | undefined {
-  return program.stateMap(projectedNameKey).get(target);
-}
-
-/**
- * Get the projected name of the given entity for the given projection.
- * @param program Program
- * @param target Target
- * @returns Projected name for the given projection
- */
-export function getProjectedName(
-  program: Program,
-  target: Type,
-  projectionName: string,
-): string | undefined {
-  return getProjectedNames(program, target)?.get(projectionName);
-}
-
-/**
- * Get the projected name of the given entity for the given projection.
- * @param program Program
- * @param target Target
- * @returns Projected name for the given projection
- */
-export function hasProjectedName(program: Program, target: Type, projectionName: string): boolean {
-  return getProjectedNames(program, target)?.has(projectionName) ?? false;
-}
 
 function validateRange(
   context: DecoratorContext,

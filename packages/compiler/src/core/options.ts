@@ -16,11 +16,6 @@ export interface CompilerOptions {
   config?: string;
 
   /**
-   * @deprecated use outputDir.
-   */
-  outputPath?: string;
-
-  /**
    * List or path to emitters to use.
    */
   emit?: string[];
@@ -35,13 +30,6 @@ export interface CompilerOptions {
    * Key value pair where the key must be the emitter name.
    */
   options?: Record<string, EmitterOptions>;
-
-  /**
-   * @deprecated use {@link emit} and {@link options} instead.
-   *
-   * Will be removed in March 2022 sprint.
-   */
-  emitters?: Record<string, EmitterOptions>;
 
   /**
    * Suppress all `deprecated` warnings.
