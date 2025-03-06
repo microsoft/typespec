@@ -129,13 +129,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         InputFactory.Parameter(
                             "spread",
                             _spreadModel,
-                            location: RequestLocation.Body,
+                            location: InputRequestLocation.Body,
                             isRequired: true,
                             kind: InputOperationParameterKind.Spread),
                         InputFactory.Parameter(
                             "p1",
                             InputPrimitiveType.Boolean,
-                            location: RequestLocation.Path,
+                            location: InputRequestLocation.Path,
                             isRequired: true,
                             kind: InputOperationParameterKind.Method)
                     ]));
