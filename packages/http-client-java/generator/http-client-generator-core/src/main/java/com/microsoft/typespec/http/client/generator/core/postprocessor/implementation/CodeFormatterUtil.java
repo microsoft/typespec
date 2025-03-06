@@ -41,10 +41,10 @@ public final class CodeFormatterUtil {
      *
      * @param files The files to format. The entry is filename and content.
      * @return the files after format.
-     * @throws Exception If code formatting fails.
+     * @throws RuntimeException If code formatting fails.
      */
-    public static List<String> formatCode(Collection<Map.Entry<String, String>> files) throws Exception {
-        return formatCodeInternal(files).stream().map(Map.Entry::getValue).collect(Collectors.toList());
+    public static List<String> formatCode(Map<String, String> files) {
+        return formatCodeInternal(files.entrySet()).stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
 
     private static List<Map.Entry<String, String>> formatCodeInternal(Collection<Map.Entry<String, String>> files) {
