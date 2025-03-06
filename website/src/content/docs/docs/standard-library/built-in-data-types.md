@@ -193,20 +193,6 @@ model ExampleOptions
 | title? | [`string`](#string) | The title of the example |
 | description? | [`string`](#string) | Description of the example |
 
-### `object` {#object}
-:::caution
-**Deprecated**: object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
-:::
-
-Represent a model
-```typespec
-model object
-```
-
-
-#### Properties
-None
-
 ### `OmitDefaults` {#OmitDefaults}
 
 Represents a collection of properties with default values omitted.

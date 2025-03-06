@@ -10,7 +10,6 @@ import {
   getAnyExtensionFromPath,
   getDoc,
   getFormat,
-  getKnownValues,
   getMaxItems,
   getMaxLength,
   getMaxValue,
@@ -42,7 +41,7 @@ import {
   TypeNameOptions,
 } from "@typespec/compiler";
 
-import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
 import {
   unsafe_mutateSubgraphWithNamespace,
   unsafe_MutatorWithNamespace,
@@ -163,9 +162,6 @@ export async function getOpenAPI3(
     emitterOutputDir: "tsp-output",
 
     options: options,
-    getAssetEmitter(TypeEmitterClass) {
-      return createAssetEmitter(program, TypeEmitterClass, this);
-    },
   };
 
   const resolvedOptions = resolveOptions(context);
@@ -1737,13 +1733,6 @@ function createOAPIEmitter(
     const title = getSummary(program, typespecType);
     if (title) {
       newTarget.title = title;
-    }
-
-    const values = getKnownValues(program, typespecType as any);
-    if (values) {
-      return {
-        oneOf: [newTarget, callSchemaEmitter(values, Visibility.Read, false, "application/json")],
-      };
     }
 
     attachExtensions(program, typespecType, newTarget);

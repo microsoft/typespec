@@ -5,19 +5,19 @@ using System.Linq;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    public sealed class OperationLongRunning
+    public sealed class InputOperationLongRunning
     {
-        public OperationLongRunning(int finalStateVia, OperationResponse finalResponse, string? resultPath)
+        public InputOperationLongRunning(int finalStateVia, InputOperationResponse finalResponse, string? resultPath)
         {
             FinalStateVia = finalStateVia;
             FinalResponse = finalResponse;
             ResultPath = resultPath;
         }
 
-        public OperationLongRunning() : this(1, new OperationResponse(), null) { }
+        public InputOperationLongRunning() : this(1, new InputOperationResponse(), null) { }
 
         public int FinalStateVia { get; }
-        public OperationResponse FinalResponse { get; }
+        public InputOperationResponse FinalResponse { get; }
         public string? ResultPath { get; }
 
         /// <summary>
