@@ -1521,3 +1521,116 @@ it("emits correct code for GET requests with explicit body parameters", async ()
     ],
   );
 });
+
+it("generates one line `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        @doc("Pet name in the format of a string")
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      @doc("""
+        Pet name in the format of a string.
+        The name will be the main identifier for the dog. It is suggested to keep it short and simple.
+        Pets have a difficult time understanding and learning complex names.
+        """)
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. The name will be the main identifier",
+      "/// for the dog. It is suggested to keep it short and simple. Pets have a",
+      "/// difficult time understanding and learning complex names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline `@doc` decorator comments with long non-space words", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      @doc("""
+        Pet name in the format of a string.
+        Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.
+        """)
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. Visit",
+      "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
+      "/// where you can find many unique names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates single line `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        @doc("Pet name in the format of a string")
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates jsdoc comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        /**
+         * Pet name in the format of a string
+        **/
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
