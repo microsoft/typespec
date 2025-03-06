@@ -143,7 +143,7 @@ public final class CodeFormatterUtil {
             if (process.isAlive() || process.exitValue() != 0) {
                 process.destroyForcibly();
                 throw new SpotlessException(
-                    "Spotless failed to complete within 300 seconds or failed with an error code. "
+                    "Spotless failed to complete within 300 seconds or failed with an error code. Output:\n"
                         + Files.readString(outputFile.toPath()));
             }
         } catch (IOException | InterruptedException ex) {
