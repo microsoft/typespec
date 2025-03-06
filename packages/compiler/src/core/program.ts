@@ -171,7 +171,7 @@ export async function compile(
     await emit(emitter, program, options);
 
     if (options.listFiles) {
-      logEmittedFilesPath(program.projectRoot, emitter.emitterOutputDir);
+      logEmittedFilesPath(program.projectRoot);
     }
   }
   return program;
@@ -937,10 +937,9 @@ async function runEmitter(emitter: EmitterRef, program: Program) {
   }
 }
 
-function logEmittedFilesPath(projectRoot: string, emitterOutputDir: string) {
-  const relativePathForEmittedFiles = `./${getRelativePathFromDirectory(projectRoot, emitterOutputDir, false)}/`;
-  flushEmittedFilesPaths().forEach((message) =>
+function logEmittedFilesPath(projectRoot: string) {
+  flushEmittedFilesPaths().forEach((filePath) => {
     // eslint-disable-next-line no-console
-    console.log(`\t${relativePathForEmittedFiles}${message}`),
-  );
+    console.log(`\t./${getRelativePathFromDirectory(projectRoot, filePath, false)}`);
+  });
 }
