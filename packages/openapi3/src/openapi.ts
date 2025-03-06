@@ -1515,34 +1515,7 @@ function createOAPIEmitter(
       // For query parameters(style: form) the default is explode: true https://spec.openapis.org/oas/v3.0.2#fixed-fields-9
       attributes.explode = false;
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    switch (parameter.format) {
-      case "ssv":
-        return { style: "spaceDelimited", explode: false };
-      case "pipes":
-        return { style: "pipeDelimited", explode: false };
-      case "csv":
-      case "simple":
-        return { explode: false };
-      case undefined:
-      case "multi":
-      case "form":
-        return attributes;
-      default:
-        diagnostics.add(
-          createDiagnostic({
-            code: "invalid-format",
-            format: {
-              paramType: "query",
-              // eslint-disable-next-line @typescript-eslint/no-deprecated
-              value: parameter.format,
-            },
-            target: parameter.param,
-          }),
-        );
-        return undefined;
-    }
+    return attributes;
   }
 
   function getHeaderParameterAttributes(
@@ -1554,29 +1527,6 @@ function createOAPIEmitter(
     if (parameter.explode) {
       // The default for headers is false, so only need to specify when true https://spec.openapis.org/oas/v3.0.4.html#fixed-fields-for-use-with-schema-0
       attributes.explode = true;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    switch (parameter.format) {
-      case undefined:
-        return attributes;
-      case "csv":
-      case "simple":
-        attributes.style = "simple";
-        break;
-      default:
-        diagnostics.add(
-          createDiagnostic({
-            code: "invalid-format",
-            format: {
-              paramType: "header",
-              // eslint-disable-next-line @typescript-eslint/no-deprecated
-              value: parameter.format,
-            },
-            target: parameter.param,
-          }),
-        );
-        return undefined;
     }
     return attributes;
   }
