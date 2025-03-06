@@ -41,7 +41,7 @@ import {
   TypeNameOptions,
 } from "@typespec/compiler";
 
-import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import { AssetEmitter, EmitEntity } from "@typespec/asset-emitter";
 import {
   unsafe_mutateSubgraphWithNamespace,
   unsafe_MutatorWithNamespace,

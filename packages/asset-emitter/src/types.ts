@@ -1,4 +1,3 @@
-import { Program } from "../core/program.js";
 import type {
   Enum,
   Interface,
@@ -6,11 +5,12 @@ import type {
   Model,
   ModelProperty,
   Operation,
+  Program,
   Scalar,
   Tuple,
   Type,
   Union,
-} from "../core/types.js";
+} from "@typespec/compiler";
 import { Placeholder } from "./placeholder.js";
 import type { TypeEmitter } from "./type-emitter.js";
 

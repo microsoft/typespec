@@ -15,7 +15,7 @@ The also solves complex problems such as constructing references between types, 
 
 Before you start, make sure to read the 'Getting Started' section under the [emitter basics](./emitters-basics.md) topic. To use the framework, you will need an emitter library and a `$onEmit` function.
 
-All of the emitter framework functionality can be found in `@typespec/compiler/emitter-framework`
+All of the emitter framework functionality can be found in `@typespec/asset-emitter`
 
 ## Creating your own emitter
 
@@ -35,7 +35,7 @@ The asset emitter drives the emit process. It has methods for taking TypeSpec ty
 To create your asset emitter, call `getAssetEmitter` on your emit context in `$onEmit`. It takes the TypeEmitter which is covered in the next section. Once created, you can call `emitProgram()` to emit every type in the TypeSpec graph. Alternatively, you can call `emitType(someType)` to emit specific types.
 
 ```typescript
-import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
+import { createAssetEmitter } from "@typespec/asset-emitter";
 
 export async function $onEmit(context: EmitContext) {
   const assetEmitter = createAssetEmitter(MyTypeEmitter);

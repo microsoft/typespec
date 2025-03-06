@@ -1,3 +1,4 @@
+import { ArrayBuilder, ObjectBuilder } from "@typespec/asset-emitter";
 import {
   ArrayModelType,
   IntrinsicScalarName,
@@ -8,7 +9,6 @@ import {
   isArrayModelType,
   resolveEncodedName,
 } from "@typespec/compiler";
-import { ArrayBuilder, ObjectBuilder } from "@typespec/compiler/emitter-framework";
 import { reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";

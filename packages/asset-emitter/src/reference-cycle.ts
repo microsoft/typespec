@@ -1,5 +1,4 @@
-import { getTypeName } from "../core/helpers/type-name-utils.js";
-import type { Type } from "../core/types.js";
+import { getTypeName, type Type } from "@typespec/compiler";
 import type { EmitEntity } from "./types.js";
 
 export interface ReferenceCycleEntry {

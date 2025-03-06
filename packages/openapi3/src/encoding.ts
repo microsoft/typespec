@@ -1,5 +1,5 @@
+import { ObjectBuilder } from "@typespec/asset-emitter";
 import { type ModelProperty, Program, type Scalar, getEncode } from "@typespec/compiler";
-import { ObjectBuilder } from "@typespec/compiler/emitter-framework";
 import { isHeader } from "@typespec/http";
 import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";

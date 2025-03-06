@@ -1,33 +1,33 @@
-import { compilerAssert } from "../core/diagnostics.js";
-import { emitFile } from "../core/emitter-utils.js";
-import type { Program } from "../core/program.js";
-import { isTemplateDeclaration } from "../core/type-utils.js";
-import type {
-  BooleanLiteral,
-  Enum,
-  EnumMember,
-  Interface,
-  IntrinsicType,
-  Model,
-  ModelProperty,
-  Namespace,
-  NumericLiteral,
-  Operation,
-  Scalar,
-  StringLiteral,
-  StringTemplate,
-  Tuple,
-  Type,
-  Union,
-  UnionVariant,
-} from "../core/types.js";
+import {
+  compilerAssert,
+  emitFile,
+  isTemplateDeclaration,
+  type BooleanLiteral,
+  type Enum,
+  type EnumMember,
+  type Interface,
+  type IntrinsicType,
+  type Model,
+  type ModelProperty,
+  type Namespace,
+  type NumericLiteral,
+  type Operation,
+  type Program,
+  type Scalar,
+  type StringLiteral,
+  type StringTemplate,
+  type Tuple,
+  type Type,
+  type Union,
+  type UnionVariant,
+} from "@typespec/compiler";
+import type { Context } from "vm";
 import { StringBuilder, code } from "./builders/string-builder.js";
-import { Placeholder } from "./placeholder.js";
+import type { Placeholder } from "./placeholder.js";
 import { resolveDeclarationReferenceScope } from "./ref-scope.js";
 import { ReferenceCycle } from "./reference-cycle.js";
-import {
+import type {
   AssetEmitter,
-  Context,
   Declaration,
   EmitEntity,
   EmittedSourceFile,

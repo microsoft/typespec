@@ -1,32 +1,32 @@
-import { compilerAssert } from "../core/diagnostics.js";
-import { getTypeName } from "../core/helpers/type-name-utils.js";
-import { joinPaths } from "../core/path-utils.js";
-import type { Program } from "../core/program.js";
-import { isTemplateDeclaration } from "../core/type-utils.js";
-import type { EmitContext, Model, Namespace, Type } from "../core/types.js";
+import { compilerAssert } from "../../compiler/src/core/diagnostics.js";
+import { getTypeName } from "../../compiler/src/core/helpers/type-name-utils.js";
+import { joinPaths } from "../../compiler/src/core/path-utils.js";
+import type { Program } from "../../compiler/src/core/program.js";
+import { isTemplateDeclaration } from "../../compiler/src/core/type-utils.js";
+import type { EmitContext, Model, Namespace, Type } from "../../compiler/src/core/types.js";
 import { CustomKeyMap } from "./custom-key-map.js";
 import { Placeholder } from "./placeholder.js";
 import { resolveDeclarationReferenceScope } from "./ref-scope.js";
 import { ReferenceCycle } from "./reference-cycle.js";
 import { TypeEmitter } from "./type-emitter.js";
 import {
-  AssetEmitter,
+  type AssetEmitter,
   CircularEmit,
-  ContextState,
+  type ContextState,
   Declaration,
-  EmitEntity,
-  EmitTypeReferenceOptions,
+  type EmitEntity,
+  type EmitTypeReferenceOptions,
   EmitterResult,
-  EmitterState,
-  LexicalTypeStackEntry,
-  NamespaceScope,
+  type EmitterState,
+  type LexicalTypeStackEntry,
+  type NamespaceScope,
   NoEmit,
   RawCode,
-  Scope,
-  SourceFile,
-  SourceFileScope,
-  TypeEmitterMethod,
-  TypeSpecDeclaration,
+  type Scope,
+  type SourceFile,
+  type SourceFileScope,
+  type TypeEmitterMethod,
+  type TypeSpecDeclaration,
 } from "./types.js";
 
 /**

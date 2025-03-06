@@ -119,6 +119,33 @@ importers:
 
   e2e: {}
 
+  packages/asset-emitter:
+    devDependencies:
+      '@types/node':
+        specifier: ~22.13.9
+        version: 22.13.9
+      '@typespec/compiler':
+        specifier: workspace:^
+        version: link:../compiler
+      '@vitest/coverage-v8':
+        specifier: ^3.0.7
+        version: 3.0.7(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.13.9)(@vitest/ui@3.0.7)(happy-dom@17.2.2)(jiti@2.4.2)(jsdom@26.0.0)(tsx@4.19.3)(yaml@2.7.0))
+      '@vitest/ui':
+        specifier: ^3.0.7
+        version: 3.0.7(vitest@3.0.7)
+      c8:
+        specifier: ^10.1.3
+        version: 10.1.3
+      rimraf:
+        specifier: ~6.0.1
+        version: 6.0.1
+      typescript:
+        specifier: ~5.8.2
+        version: 5.8.2
+      vitest:
+        specifier: ^3.0.7
+        version: 3.0.7(@types/debug@4.1.12)(@types/node@22.13.9)(@vitest/ui@3.0.7)(happy-dom@17.2.2)(jiti@2.4.2)(jsdom@26.0.0)(tsx@4.19.3)(yaml@2.7.0)
+
   packages/astro-utils:
     dependencies:
       '@astrojs/check':
@@ -805,6 +832,9 @@ importers:
 
   packages/http-server-csharp:
     dependencies:
+      '@typespec/asset-emitter':
+        specifier: workspace:^
+        version: link:../asset-emitter
       change-case:
         specifier: ~5.4.4
         version: 5.4.4
@@ -1007,6 +1037,9 @@ importers:
 
   packages/json-schema:
     dependencies:
+      '@typespec/asset-emitter':
+        specifier: workspace:^
+        version: link:../asset-emitter
       yaml:
         specifier: ~2.7.0
         version: 2.7.0
@@ -1153,6 +1186,9 @@ importers:
       '@apidevtools/swagger-parser':
         specifier: ~10.1.1
         version: 10.1.1(openapi-types@12.1.3)
+      '@typespec/asset-emitter':
+        specifier: workspace:^
+        version: link:../asset-emitter
       openapi-types:
         specifier: ~12.1.3
         version: 12.1.3
@@ -6062,9 +6098,6 @@ packages:
 
   '@types/node@17.0.45':
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
-
-  '@types/node@18.19.75':
-    resolution: {integrity: sha512-UIksWtThob6ZVSyxcOqCLOUNg/dyO1Qvx4McgeuhrEtHTLFTf7BBhEazaE4K806FGTPtzd/2sE90qn4fVr7cyw==}
 
   '@types/node@18.19.79':
     resolution: {integrity: sha512-90K8Oayimbctc5zTPHPfZloc/lGVs7f3phUAAMcTgEPtg8kKquGZDERC8K4vkBYkQQh48msiYUslYtxTWvqcAg==}
@@ -18485,10 +18518,6 @@ snapshots:
 
   '@types/node@17.0.45': {}
 
-  '@types/node@18.19.75':
-    dependencies:
-      undici-types: 5.26.5
-
   '@types/node@18.19.79':
     dependencies:
       undici-types: 5.26.5
@@ -19666,7 +19695,7 @@ snapshots:
 
   '@yarnpkg/pnp@4.0.8':
     dependencies:
-      '@types/node': 18.19.75
+      '@types/node': 18.19.79
       '@yarnpkg/fslib': 3.1.1
 
   '@yarnpkg/pnp@4.0.9':

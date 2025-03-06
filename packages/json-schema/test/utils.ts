@@ -1,5 +1,5 @@
+import { createAssetEmitter } from "@typespec/asset-emitter";
 import type { Diagnostic } from "@typespec/compiler";
-import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
 import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { parse } from "yaml";
 import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";

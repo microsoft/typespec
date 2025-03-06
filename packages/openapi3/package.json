@@ -58,6 +58,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
+    "@typespec/asset-emitter": "workspace:^",
     "@apidevtools/swagger-parser": "~10.1.1",
     "openapi-types": "~12.1.3",
     "yaml": "~2.7.0"
