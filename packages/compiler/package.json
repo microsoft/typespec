@@ -95,6 +95,7 @@
     "@inquirer/prompts": "^7.3.1",
     "ajv": "~8.17.1",
     "change-case": "~5.4.4",
+    "env-paths": "^3.0.0",
     "globby": "~14.1.0",
     "is-unicode-supported": "^2.1.0",
     "mustache": "~4.2.0",

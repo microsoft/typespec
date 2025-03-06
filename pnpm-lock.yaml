@@ -310,6 +310,9 @@ importers:
       change-case:
         specifier: ~5.4.4
         version: 5.4.4
+      env-paths:
+        specifier: ^3.0.0
+        version: 3.0.0
       globby:
         specifier: ~14.1.0
         version: 14.1.0

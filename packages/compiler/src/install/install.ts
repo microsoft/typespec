@@ -1,6 +1,6 @@
 import { fork } from "child_process";
+import envPaths from "env-paths";
 import { mkdir, rename, rm } from "fs/promises";
-import { homedir } from "os";
 import type { CliCompilerHost } from "../core/cli/types.js";
 import { DiagnosticError } from "../core/diagnostic-error.js";
 import { createDiagnosticCollector } from "../core/index.js";
@@ -10,10 +10,16 @@ import { NoTarget, type Diagnostic, type Tracer } from "../core/types.js";
 import {
   downloadAndExtractPackage,
   fetchPackageManifest,
+  NpmManifest,
 } from "../package-manger/npm-registry-utils.js";
 import { mkTempDir } from "../utils/fs-utils.js";
-import { getPackageManagerConfig, type PackageManagerConfig } from "./config.js";
 import {
+  getPackageManagerConfig,
+  SupportedPackageManager,
+  type PackageManagerConfig,
+} from "./config.js";
+import {
+  Descriptor,
   resolvePackageManagerSpec,
   updatePackageManagerInPackageJson,
   type ResolvedSpecResult,
@@ -27,8 +33,8 @@ interface SpawnError {
   spawnArgs: string[];
 }
 
-const tspDir = joinPaths(homedir(), ".tsp");
-const pmDir = joinPaths(tspDir, "pm");
+const paths = envPaths("tsp");
+const pmDir = joinPaths(paths.cache, "pm");
 
 export class InstallDependenciesError extends DiagnosticError {
   constructor(message: string) {
@@ -85,6 +91,41 @@ async function resolvePackageManagerSpecOrFail(
   }
 }
 
+async function installPackageManager(
+  host: CliCompilerHost,
+  tracer: Tracer,
+  packageManager: SupportedPackageManager,
+  spec: Descriptor,
+  installDir: string,
+  manifest: NpmManifest,
+) {
+  await rm(installDir, { recursive: true, force: true });
+  await mkdir(installDir, { recursive: true });
+  const tempDir = await mkTempDir(host, pmDir, `tsp-pm-${packageManager}-${manifest.version}`);
+
+  tracer.trace(
+    "downloading-extracting",
+    `Downloading and extracting ${packageManager} at version ${manifest.version} in ${tempDir}`,
+  );
+  const extractResult = await downloadAndExtractPackage(manifest, tempDir, spec.hash?.algorithm);
+  if (spec.hash) {
+    if (spec.hash.value !== extractResult.hash.value) {
+      throw new InstallDependenciesError(
+        `Mismatch hash for package manager. (${spec.hash.algorithm})\n  Expected: ${spec.hash.value}\n  Actual:   ${extractResult.hash}`,
+      );
+    }
+  }
+
+  tracer.trace(
+    "move-temp-to-install",
+    `Move temporary directory ${tempDir} to install directory ${installDir}`,
+  );
+
+  await rename(tempDir, installDir);
+  tracer.trace("downloaded", `Downloaded and extracted at ${installDir}`);
+  return extractResult;
+}
+
 export async function installTypeSpecDependencies(
   host: CliCompilerHost,
   options: InstallTypeSpecDependenciesOptions,
@@ -105,37 +146,26 @@ export async function installTypeSpecDependencies(
     );
 
     const installDir = joinPaths(pmDir, packageManager, manifest.version);
-    await rm(installDir, { recursive: true, force: true });
-    await mkdir(installDir, { recursive: true });
-    const tempDir = await mkTempDir(host, pmDir, `tsp-pm-${packageManager}-${manifest.version}`);
-
-    tracer.trace(
-      "downloading-extracting",
-      `Downloading and extracting ${packageManager} at version ${manifest.version} in ${tempDir}`,
-    );
-    const extractResult = await downloadAndExtractPackage(manifest, tempDir, spec.hash?.algorithm);
-    if (spec.hash) {
-      if (spec.hash.value !== extractResult.hash.value) {
-        throw new InstallDependenciesError(
-          `Mismatch hash for package manager. (${spec.hash.algorithm})\n  Expected: ${spec.hash.value}\n  Actual:   ${extractResult.hash}`,
-        );
+    if ((await isDirectory(host, installDir)) && !savePackageManager) {
+      tracer.trace("reusing", `Reusing cached package manager in ${installDir}`);
+    } else {
+      const extractResult = await installPackageManager(
+        host,
+        tracer,
+        packageManager,
+        spec,
+        installDir,
+        manifest,
+      );
+      if (savePackageManager) {
+        await updatePackageManagerInPackageJson(host, packageJsonPath, {
+          name: spec.name,
+          range: manifest.version,
+          hash: extractResult.hash,
+        });
       }
     }
 
-    tracer.trace(
-      "move-temp-to-install",
-      `Move temporary directory ${tempDir} to install directory ${installDir}`,
-    );
-
-    await rename(tempDir, installDir);
-    if (savePackageManager) {
-      await updatePackageManagerInPackageJson(host, packageJsonPath, {
-        name: spec.name,
-        range: manifest.version,
-        hash: extractResult.hash,
-      });
-    }
-    tracer.trace("downloaded", `Downloaded and extracted at ${installDir}`);
     const bin = manifest.bin![packageManager];
     const binPath = joinPaths(installDir, bin);
     tracer.trace("running-binary", `Running binary ${binPath}`);
@@ -195,4 +225,16 @@ async function runPackageManager(
       }
     });
   });
+}
+
+async function isDirectory(host: CliCompilerHost, path: string) {
+  try {
+    const stats = await host.stat(path);
+    return stats.isDirectory();
+  } catch (e: any) {
+    if (e.code === "ENOENT" || e.code === "ENOTDIR") {
+      return false;
+    }
+    throw e;
+  }
 }
