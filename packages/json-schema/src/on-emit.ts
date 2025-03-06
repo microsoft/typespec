@@ -1,5 +1,5 @@
+import { createAssetEmitter } from "@typespec/asset-emitter";
 import type { EmitContext, Enum, Model, Scalar, Union } from "@typespec/compiler";
-import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
 import { getJsonSchemaTypes } from "./decorators.js";
 import { JsonSchemaEmitter } from "./json-schema-emitter.js";
 import type { JSONSchemaEmitterOptions } from "./lib.js";

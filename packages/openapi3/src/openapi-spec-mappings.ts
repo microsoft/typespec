@@ -1,5 +1,5 @@
+import { AssetEmitter } from "@typespec/asset-emitter";
 import { EmitContext, ModelProperty, Namespace, Program, Scalar } from "@typespec/compiler";
-import { AssetEmitter } from "@typespec/compiler/emitter-framework";
 import { MetadataInfo } from "@typespec/http";
 import { getExternalDocs, resolveInfo } from "@typespec/openapi";
 import { JsonSchemaModule } from "./json-schema.js";

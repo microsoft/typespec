@@ -72,6 +72,7 @@
     "vitest": "^3.0.7"
   },
   "dependencies": {
+    "@typespec/asset-emitter": "workspace:^",
     "yaml": "~2.7.0"
   }
 }

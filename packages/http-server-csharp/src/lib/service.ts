@@ -1,4 +1,18 @@
 import {
+  CodeTypeEmitter,
+  Context,
+  Declaration,
+  EmitEntity,
+  EmittedSourceFile,
+  EmitterOutput,
+  Scope,
+  SourceFile,
+  StringBuilder,
+  TypeSpecDeclaration,
+  code,
+  createAssetEmitter,
+} from "@typespec/asset-emitter";
+import {
   BooleanLiteral,
   EmitContext,
   Enum,
@@ -27,20 +41,6 @@ import {
   isVoidType,
   serializeValueAsJson,
 } from "@typespec/compiler";
-import {
-  CodeTypeEmitter,
-  Context,
-  Declaration,
-  EmitEntity,
-  EmittedSourceFile,
-  EmitterOutput,
-  Scope,
-  SourceFile,
-  StringBuilder,
-  TypeSpecDeclaration,
-  code,
-  createAssetEmitter,
-} from "@typespec/compiler/emitter-framework";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import {
   HttpOperation,

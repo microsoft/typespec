@@ -1,4 +1,3 @@
-import { Model } from "@typespec/compiler";
 import {
   AssetEmitter,
   Context,
@@ -6,7 +5,8 @@ import {
   EmitterOutput,
   Scope,
   SourceFile,
-} from "@typespec/compiler/emitter-framework";
+} from "@typespec/asset-emitter";
+import { Model } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
 

@@ -1,4 +1,18 @@
 import {
+  ArrayBuilder,
+  type Context,
+  Declaration,
+  type EmitEntity,
+  type EmittedSourceFile,
+  type EmitterOutput,
+  ObjectBuilder,
+  Placeholder,
+  type Scope,
+  type SourceFile,
+  type SourceFileScope,
+  TypeEmitter,
+} from "@typespec/asset-emitter";
+import {
   type BooleanLiteral,
   type DiagnosticTarget,
   type Enum,
@@ -39,20 +53,6 @@ import {
   joinPaths,
   serializeValueAsJson,
 } from "@typespec/compiler";
-import {
-  ArrayBuilder,
-  type Context,
-  Declaration,
-  type EmitEntity,
-  type EmittedSourceFile,
-  type EmitterOutput,
-  ObjectBuilder,
-  Placeholder,
-  type Scope,
-  type SourceFile,
-  type SourceFileScope,
-  TypeEmitter,
-} from "@typespec/compiler/emitter-framework";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { stringify } from "yaml";
 import {
