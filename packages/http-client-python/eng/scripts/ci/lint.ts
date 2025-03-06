@@ -1,6 +1,5 @@
 import { parseArgs } from "util";
 import { runCommand } from "./utils.js";
-import { execSync } from "child_process";
 
 // PARSE INPUT ARGUMENTS
 
@@ -13,11 +12,6 @@ const argv = parseArgs({
 });
 
 export function pylint() {
-  const version = execSync("python --version", { encoding: "utf8" });
-  if (version.includes("Python 3.13")) {
-    console.info("skip pylint check for Python 3.13 until it fix pylint issue");
-    return;
-  }
   runCommand(`pylint ${argv.values.folderName}/ --rcfile ./eng/scripts/ci/pylintrc`, "pylint");
 }
 
