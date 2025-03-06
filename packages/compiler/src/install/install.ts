@@ -3,7 +3,7 @@ import envPaths from "env-paths";
 import { mkdir, rename, rm } from "fs/promises";
 import type { CliCompilerHost } from "../core/cli/types.js";
 import { DiagnosticError } from "../core/diagnostic-error.js";
-import { createDiagnosticCollector } from "../core/index.js";
+import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createTracer } from "../core/logger/tracer.js";
 import { joinPaths } from "../core/path-utils.js";
 import { NoTarget, type Diagnostic, type Tracer } from "../core/types.js";

@@ -1,5 +1,5 @@
-import { CompilerHost } from "../core/index.js";
 import { joinPaths } from "../core/path-utils.js";
+import type { CompilerHost } from "../core/types.js";
 
 export async function mkTempDir(host: CompilerHost, base: string, prefix: string): Promise<string> {
   const rnd = Math.random() * 0x100000000;
