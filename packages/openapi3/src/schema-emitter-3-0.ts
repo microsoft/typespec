@@ -233,9 +233,12 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
               }
             } else {
               // scalar without extends
-              objectInitializer = {
-                type: "object",
+              const scalarWithoutExtends = {
                 ...additionalProps,
+              };
+              delete scalarWithoutExtends.nullable;
+              objectInitializer = {
+                anyOf: [scalarWithoutExtends, createNullSchema()],
               };
             }
             return new ObjectBuilder<OpenAPI3Schema>(objectInitializer);
@@ -309,6 +312,20 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
         }
       }
       return stdScalarNames;
+    }
+
+    function createNullSchema() {
+      return new ObjectBuilder({
+        not: {
+          anyOf: [
+            { type: "string" },
+            { type: "number" },
+            { type: "boolean" },
+            { type: "object" },
+            { type: "array" },
+          ],
+        },
+      });
     }
   }
 

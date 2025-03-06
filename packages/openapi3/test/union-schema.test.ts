@@ -702,8 +702,30 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
           a: {
             anyOf: [
               {
-                type: "object",
-                nullable: true,
+                anyOf: [
+                  {},
+                  {
+                    not: {
+                      anyOf: [
+                        {
+                          type: "string",
+                        },
+                        {
+                          type: "number",
+                        },
+                        {
+                          type: "boolean",
+                        },
+                        {
+                          type: "object",
+                        },
+                        {
+                          type: "array",
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
               {
                 $ref: "#/components/schemas/Str",
