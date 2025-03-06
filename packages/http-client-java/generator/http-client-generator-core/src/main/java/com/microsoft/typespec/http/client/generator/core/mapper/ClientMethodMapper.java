@@ -35,6 +35,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodTransformationDetail;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
@@ -42,7 +43,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ReturnTypeDescriptionAssembler;
@@ -54,6 +54,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -220,11 +221,14 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 final boolean isPageable = operation.getExtensions() != null
                     && operation.getExtensions().getXmsPageable() != null
                     && shouldGeneratePagingMethods();
-                if (isPageable && JavaSettings.getInstance().isPageSizeEnabled()) {
-                    // remove maxpagesize parameter from client method API, it would be in e.g.
+                if (isPageable) {
+                    // remove maxpagesize parameter from client method API, for Azure, it would be in e.g.
                     // PagedIterable.iterableByPage(int)
+
+                    // also remove continuationToken etc. for unbranded
                     codeModelParameters = codeModelParameters.stream()
-                        .filter(p -> !MethodUtil.isMaxPageSizeParameter(p))
+                        .filter(p -> !MethodUtil.shouldHideParameterInPageable(p,
+                            operation.getExtensions().getXmsPageable()))
                         .collect(Collectors.toList());
                 }
 
@@ -327,11 +331,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     .methodPageDetails(null);
 
                 if (isPageable) {
-                    String pageableItemName = getPageableItemName(operation.getExtensions().getXmsPageable(),
-                        proxyMethod.getRawResponseBodyType() != null
-                            ? proxyMethod.getRawResponseBodyType()
-                            : proxyMethod.getResponseBodyType());
-                    if (pageableItemName == null) {
+                    IType responseType = proxyMethod.getRawResponseBodyType() != null
+                        ? proxyMethod.getRawResponseBodyType()
+                        : proxyMethod.getResponseBodyType();
+                    ModelPropertySegment itemPropertyReference
+                        = getPageableItem(operation.getExtensions().getXmsPageable(), responseType);
+                    if (itemPropertyReference == null) {
                         // There is no pageable item name for this operation, skip it.
                         continue;
                     }
@@ -339,19 +344,19 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     // If the ProxyMethod is synchronous perform a complete generation of synchronous pageable APIs.
                     if (proxyMethod.isSync()) {
                         createSyncPageableClientMethods(operation, isProtocolMethod, settings, methods, builder,
-                            returnTypeHolder, proxyMethod, parameters, pageableItemName, generateOnlyRequiredParameters,
-                            defaultOverloadType);
+                            returnTypeHolder, proxyMethod, parameters, itemPropertyReference,
+                            generateOnlyRequiredParameters, defaultOverloadType);
                     } else {
                         // Otherwise, perform a complete generation of asynchronous pageable APIs.
                         // Then if SyncMethodsGeneration is enabled and Sync Stack is not perform synchronous pageable
                         // API generation based on SyncMethodsGeneration configuration.
                         createAsyncPageableClientMethods(operation, isProtocolMethod, settings, methods, builder,
-                            returnTypeHolder, proxyMethod, parameters, pageableItemName, generateOnlyRequiredParameters,
-                            defaultOverloadType);
+                            returnTypeHolder, proxyMethod, parameters, itemPropertyReference,
+                            generateOnlyRequiredParameters, defaultOverloadType);
 
                         if (settings.isGenerateSyncMethods() && !settings.isSyncStackEnabled()) {
                             createSyncPageableClientMethods(operation, isProtocolMethod, settings, methods, builder,
-                                returnTypeHolder, proxyMethod, parameters, pageableItemName,
+                                returnTypeHolder, proxyMethod, parameters, itemPropertyReference,
                                 generateOnlyRequiredParameters, defaultOverloadType);
                         }
                     }
@@ -566,12 +571,24 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             mapping
                 .setInputParameter(Mappers.getClientParameterMapper().map(parameter.getGroupedBy(), isProtocolMethod));
             ClientModel groupModel = Mappers.getModelMapper().map((ObjectSchema) parameter.getGroupedBy().getSchema());
-            ClientModelProperty inputProperty = groupModel.getProperties()
+            Optional<ClientModelProperty> inputProperty = groupModel.getProperties()
                 .stream()
                 .filter(p -> parameter.getLanguage().getJava().getName().equals(p.getName()))
-                .findFirst()
-                .get();
-            mapping.setInputParameterProperty(inputProperty);
+                .findFirst();
+            if (inputProperty.isEmpty()) {
+                /*
+                 * try again, find by serializedName, as a fallback
+                 *
+                 * The reason is that for parameter of reserved name, on parameter it would be renamed to "#Parameter",
+                 * but on property it would be renamed to "#Property".
+                 * Transformer.java have handled above case, but we don't know if there is any other case.
+                 */
+                inputProperty = groupModel.getProperties()
+                    .stream()
+                    .filter(p -> parameter.getLanguage().getDefault().getSerializedName().equals(p.getSerializedName()))
+                    .findFirst();
+            }
+            mapping.setInputParameterProperty(inputProperty.get());
         } else {
             mapping.setInputParameter(clientMethodParameter);
         }
@@ -698,7 +715,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     private void createAsyncPageableClientMethods(Operation operation, boolean isProtocolMethod, JavaSettings settings,
         List<ClientMethod> methods, ClientMethod.Builder builder, ReturnTypeHolder returnTypeHolder,
-        ProxyMethod proxyMethod, List<ClientMethodParameter> parameters, String pageableItemName,
+        ProxyMethod proxyMethod, List<ClientMethodParameter> parameters, ModelPropertySegment itemPropertyReference,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
         ReturnValue singlePageReturnValue = createPagingAsyncSinglePageReturnValue(operation,
@@ -710,13 +727,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             includesContext, isProtocolMethod);
 
         createPageableClientMethods(operation, isProtocolMethod, settings, methods, builder, proxyMethod, parameters,
-            pageableItemName, false, singlePageReturnValue, nextPageReturnValue, visibilityFunction,
+            itemPropertyReference, false, singlePageReturnValue, nextPageReturnValue, visibilityFunction,
             getContextParameter(isProtocolMethod), generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
     }
 
     private void createSyncPageableClientMethods(Operation operation, boolean isProtocolMethod, JavaSettings settings,
         List<ClientMethod> methods, Builder builder, ReturnTypeHolder returnTypeHolder, ProxyMethod proxyMethod,
-        List<ClientMethodParameter> parameters, String pageableItemName,
+        List<ClientMethodParameter> parameters, ModelPropertySegment itemPropertyReference,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType) {
 
         ReturnValue singlePageReturnValue = createPagingSyncSinglePageReturnValue(operation,
@@ -727,13 +744,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             includesContext, isProtocolMethod);
 
         createPageableClientMethods(operation, isProtocolMethod, settings, methods, builder, proxyMethod, parameters,
-            pageableItemName, true, singlePageReturnValue, nextPageReturnValue, visibilityFunction,
+            itemPropertyReference, true, singlePageReturnValue, nextPageReturnValue, visibilityFunction,
             getContextParameter(isProtocolMethod), generateClientMethodWithOnlyRequiredParameters, defaultOverloadType);
     }
 
     private static void createPageableClientMethods(Operation operation, boolean isProtocolMethod,
         JavaSettings settings, List<ClientMethod> methods, Builder builder, ProxyMethod proxyMethod,
-        List<ClientMethodParameter> parameters, String pageableItemName, boolean isSync,
+        List<ClientMethodParameter> parameters, ModelPropertySegment itemPropertyReference, boolean isSync,
         ReturnValue singlePageReturnValue, ReturnValue nextPageReturnValue, MethodVisibilityFunction visibilityFunction,
         ClientMethodParameter contextParameter, boolean generateClientMethodWithOnlyRequiredParameters,
         MethodOverloadType defaultOverloadType) {
@@ -741,8 +758,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         MethodNamer methodNamer = resolveMethodNamer(proxyMethod, operation.getConvenienceApi(), isProtocolMethod);
 
         Operation nextOperation = operation.getExtensions().getXmsPageable().getNextOperation();
-        String nextLinkName = operation.getExtensions().getXmsPageable().getNextLinkName();
-        String itemName = operation.getExtensions().getXmsPageable().getItemName();
         ClientMethodType nextMethodType
             = isSync ? ClientMethodType.PagingSyncSinglePage : ClientMethodType.PagingAsyncSinglePage;
 
@@ -760,13 +775,15 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             ? null
             : nextMethods.stream().filter(m -> m.getType() == nextMethodType).findFirst().orElse(null);
 
-        IType nextLinkType = getPageableNextLinkType(operation.getExtensions().getXmsPageable(),
-            (proxyMethod.getRawResponseBodyType() != null
-                ? proxyMethod.getRawResponseBodyType()
-                : proxyMethod.getResponseBodyType()).toString());
+        IType responseType = proxyMethod.getRawResponseBodyType() != null
+            ? proxyMethod.getRawResponseBodyType()
+            : proxyMethod.getResponseBodyType();
+        ModelPropertySegment nextLinkPropertyReference
+            = getPageableNextLink(operation.getExtensions().getXmsPageable(), responseType);
 
-        MethodPageDetails details = new MethodPageDetails(CodeNamer.getPropertyName(nextLinkName), nextLinkType,
-            pageableItemName, nextMethod, lroIntermediateType, nextLinkName, itemName);
+        MethodPageDetails details = new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod,
+            lroIntermediateType, MethodPageDetails.ContinuationToken.fromContinuationToken(
+                operation.getExtensions().getXmsPageable().getContinuationToken(), responseType));
         builder.methodPageDetails(details);
 
         String pageMethodName
@@ -835,8 +852,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 .orElse(null);
 
             if (nextMethod != null) {
-                detailsWithContext = new MethodPageDetails(CodeNamer.getPropertyName(nextLinkName), nextLinkType,
-                    pageableItemName, nextMethod, lroIntermediateType, nextLinkName, itemName);
+                detailsWithContext = new MethodPageDetails(itemPropertyReference, nextLinkPropertyReference, nextMethod,
+                    lroIntermediateType, MethodPageDetails.ContinuationToken.fromContinuationToken(
+                        operation.getExtensions().getXmsPageable().getContinuationToken(), responseType));
             }
         }
 
@@ -1587,30 +1605,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         builder.parameters(parameters);
     }
 
-    private static String getPageableItemName(XmsPageable xmsPageable, IType responseBodyType) {
-        ClientModel responseBodyModel = ClientModelUtil.getClientModel(responseBodyType.toString());
-        return Stream
-            .concat(responseBodyModel.getProperties().stream(),
-                ClientModelUtil.getParentProperties(responseBodyModel).stream())
-            .filter(p -> p.getSerializedName().equals(xmsPageable.getItemName()))
-            .map(ClientModelProperty::getName)
-            .findAny()
-            .orElse(null);
+    private static ModelPropertySegment getPageableItem(XmsPageable xmsPageable, IType responseBodyType) {
+        return ClientModelUtil.getModelPropertySegment(responseBodyType, xmsPageable.getItemName());
     }
 
-    private static IType getPageableNextLinkType(XmsPageable xmsPageable, String clientModelName) {
-        ClientModel responseBodyModel = ClientModelUtil.getClientModel(clientModelName);
-        IType nextLinkType = responseBodyModel.getProperties()
-            .stream()
-            .filter(p -> p.getSerializedName().equals(xmsPageable.getNextLinkName()))
-            .map(ClientModelProperty::getClientType)
-            .findAny()
-            .orElse(null);
-        if (nextLinkType == null && !CoreUtils.isNullOrEmpty(responseBodyModel.getParentModelName())) {
-            // try find nextLink property in parent model
-            nextLinkType = getPageableNextLinkType(xmsPageable, responseBodyModel.getParentModelName());
-        }
-        return nextLinkType;
+    private static ModelPropertySegment getPageableNextLink(XmsPageable xmsPageable, IType responseBodyType) {
+        return ClientModelUtil.getModelPropertySegment(responseBodyType, xmsPageable.getNextLinkName());
     }
 
     private IType getPollingIntermediateType(JavaSettings.PollingDetails details, IType syncReturnType) {

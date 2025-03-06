@@ -8,13 +8,6 @@ namespace TypeSpec;
 scalar unixTimestamp32 extends utcDateTime;
 
 /**
- * Represent a model
- */
-// Deprecated June 2023 sprint
-#deprecated "object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array."
-model object {}
-
-/**
  * Represent a URL string as described by https://url.spec.whatwg.org/
  */
 scalar url extends string;
@@ -83,6 +76,6 @@ model OmitDefaults<Source> {
  */
 @doc("The template for setting the default visibility of key properties.")
 @withDefaultKeyVisibility(Visibility)
-model DefaultKeyVisibility<Source, Visibility extends valueof string> {
+model DefaultKeyVisibility<Source, Visibility extends valueof Reflection.EnumMember> {
   ...Source;
 }

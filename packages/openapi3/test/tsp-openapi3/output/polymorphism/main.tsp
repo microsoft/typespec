@@ -5,12 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "Polymorphism sample",
-})
-@info({
-  version: "0.0.0",
-})
+@service(#{ title: "Polymorphism sample" })
+@info(#{ version: "0.0.0" })
 namespace Polymorphismsample;
 
 model Cat extends Pet {

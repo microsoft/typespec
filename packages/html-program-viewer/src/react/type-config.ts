@@ -42,7 +42,6 @@ export const TypeConfig: TypeGraphConfig = {
     type: "ref",
     optional: "value",
     sourceProperty: "ref",
-    default: "value",
     defaultValue: "value",
   },
   Enum: {
@@ -55,7 +54,6 @@ export const TypeConfig: TypeGraphConfig = {
   },
   Union: {
     expression: "skip",
-    options: "skip",
     variants: "nested",
   },
   UnionVariant: {

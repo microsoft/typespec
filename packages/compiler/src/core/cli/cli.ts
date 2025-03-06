@@ -29,9 +29,6 @@ import {
 } from "./utils.js";
 
 async function main() {
-  // eslint-disable-next-line no-console
-  console.log(`TypeSpec compiler v${typespecVersion}\n`);
-
   await yargs(process.argv.slice(2))
     .scriptName("tsp")
     .help()
@@ -60,11 +57,6 @@ async function main() {
             description: "The path to the main.tsp file or directory containing main.tsp.",
             type: "string",
             demandOption: true,
-          })
-          .option("output-path", {
-            type: "string",
-            deprecated: "Use `output-dir` instead.",
-            hidden: true,
           })
           .option("output-dir", {
             type: "string",
@@ -98,6 +90,11 @@ async function main() {
             type: "array",
             string: true,
             describe: "Name of the emitters",
+          })
+          .option("list-files", {
+            type: "boolean",
+            default: false,
+            describe: "List paths of emitted files.",
           })
           .option("trace", {
             type: "array",

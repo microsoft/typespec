@@ -51,14 +51,9 @@ import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
-import {
-  NoTarget,
-  ProcessedLog,
-  resolveModule,
-  ResolveModuleHost,
-  typespecVersion,
-} from "../core/index.js";
-import { builtInLinterLibraryName, builtInLinterRule_UnusedUsing } from "../core/linter.js";
+import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
+import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
+import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
@@ -81,7 +76,9 @@ import {
   DiagnosticTarget,
   IdentifierNode,
   Node,
+  NoTarget,
   PositionDetail,
+  ProcessedLog,
   SourceFile,
   SyntaxKind,
   TextRange,
@@ -92,7 +89,8 @@ import { getTypeSpecCoreTemplates } from "../init/core-templates.js";
 import { validateTemplateDefinitions } from "../init/init-template-validate.js";
 import { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
-import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
+import { resolveModule, ResolveModuleHost } from "../module-resolver/module-resolver.js";
+import { getNormalizedRealPath, resolveTspMain, typespecVersion } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
@@ -498,6 +496,7 @@ export function createServer(host: ServerHost): Server {
           };
         }
         const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
+        const unusedTemlateParameterRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedTemplateParameter}`;
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
         } else if (each.code === unusedUsingRule) {
@@ -510,6 +509,18 @@ export function createServer(host: ServerHost): Server {
             optionsFromConfig.linterRuleSet?.disable?.[unusedUsingRule] === undefined
           ) {
             // if the unused using is not configured by user explicitly, report it as hint by default
+            diagnostic.severity = DiagnosticSeverity.Hint;
+          }
+        } else if (each.code === unusedTemlateParameterRule) {
+          // Unused or unnecessary code. Diagnostics with this tag are rendered faded out, so no extra work needed from IDE side
+          // https://vscode-api.js.org/enums/vscode.DiagnosticTag.html#google_vignette
+          // https://learn.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.languageserver.protocol.diagnostictag?view=visualstudiosdk-2022
+          diagnostic.tags = [DiagnosticTag.Unnecessary];
+          if (
+            optionsFromConfig.linterRuleSet?.enable?.[unusedTemlateParameterRule] === undefined &&
+            optionsFromConfig.linterRuleSet?.disable?.[unusedTemlateParameterRule] === undefined
+          ) {
+            // if the unused template parameter is not configured by user explicitly, report it as hint by default
             diagnostic.severity = DiagnosticSeverity.Hint;
           }
         }

@@ -48,12 +48,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
         const serviceNamespace = projectedProgram.projector.projectedTypes.get(service.type);
         assert.strictEqual(serviceNamespace?.kind, "Namespace" as const);
         const details = getService(projectedProgram, serviceNamespace);
-        emitService(
-          projectedProgram,
-          serviceNamespace,
-          details?.title,
-          versionProjection.version ?? details?.version,
-        );
+        emitService(projectedProgram, serviceNamespace, details?.title, versionProjection.version);
       }
     }
   }

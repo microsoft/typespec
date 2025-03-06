@@ -3,7 +3,7 @@ import { ExtensionContext, workspace } from "vscode";
 import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 import { SettingName } from "./types.js";
-import { isFile, loadModule, useShellInExec } from "./utils.js";
+import { checkInstalledNode, isFile, loadModule, useShellInExec } from "./utils.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
 
 /**
@@ -43,6 +43,7 @@ export async function resolveTypeSpecCli(
 }
 
 export async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executable> {
+  const checkNodePromise = checkInstalledNode();
   const nodeOptions = process.env.TYPESPEC_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
 
@@ -112,7 +113,15 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
   }
 
   options.env["TYPESPEC_SKIP_COMPILER_RESOLVE"] = "1";
-  return { command: "node", args: [serverPath, ...args], options };
+  const nodeInstallPath = await checkNodePromise;
+  if (nodeInstallPath.length > 0) {
+    logger.debug(`Start tsp server using node at ${nodeInstallPath}`);
+    return { command: "node", args: [serverPath, ...args], options };
+  } else {
+    // otherwise the local compiler should be installed by standalone tsp cli
+    logger.debug("Start tsp server using standalone tsp cli");
+    return { command: "tsp", args: ["--server", serverPath, ...args], options };
+  }
 }
 
 async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {

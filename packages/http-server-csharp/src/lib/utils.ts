@@ -144,6 +144,7 @@ export function getCSharpType(
           namespace: namespace || "Models",
           isBuiltIn: false,
           isValueType: false,
+          isClass: true,
         }),
       };
     case "Enum":
@@ -152,7 +153,7 @@ export function getCSharpType(
           name: ensureCSharpIdentifier(program, type, type.name, NameCasingType.Class),
           namespace: `${namespace}.Models`,
           isBuiltIn: false,
-          isValueType: false,
+          isValueType: true,
         }),
       };
     case "Model":
@@ -167,6 +168,8 @@ export function getCSharpType(
             namespace: itemType.namespace,
             isBuiltIn: itemType.isBuiltIn,
             isValueType: false,
+            isClass: itemType.isClass,
+            isCollection: true,
           }),
         };
       }
@@ -180,6 +183,7 @@ export function getCSharpType(
           namespace: `${namespace}.Models`,
           isBuiltIn: false,
           isValueType: false,
+          isClass: true,
         }),
       };
     default:
@@ -439,20 +443,25 @@ export function formatComment(
 ): string {
   function getNextLine(target: string): string {
     for (let i = lineLength - 1; i > 0; i--) {
-      if ([" ", ".", "?", ",", ";"].includes(target.charAt(i))) {
-        return `/// ${text.substring(0, i).replaceAll("\n", " ")}`;
+      if ([" ", ";"].includes(target.charAt(i))) {
+        return `${target.substring(0, i)}`;
+      }
+    }
+    for (let i = lineLength - 1; i < target.length; i++) {
+      if ([" ", ";"].includes(target.charAt(i))) {
+        return `${target.substring(0, i)}`;
       }
     }
 
-    return `/// ${text.substring(0, lineLength)}`;
+    return `${target.substring(0, lineLength)}`;
   }
-  let remaining: string = text;
+  let remaining: string = text.replaceAll("\n", " ");
   const lines: string[] = [];
   while (remaining.length > lineLength) {
     const currentLine = getNextLine(remaining);
     remaining =
       remaining.length > currentLine.length ? remaining.substring(currentLine.length + 1) : "";
-    lines.push(currentLine);
+    lines.push(`/// ${currentLine}`);
   }
 
   if (remaining.length > 0) lines.push(`/// ${remaining}`);
@@ -970,6 +979,16 @@ export class CSharpOperationHelpers {
     const bodyParam = operation.parameters.body;
     const isExplicitBodyParam: boolean = bodyParam?.property !== undefined;
     const result: CSharpOperationParameter[] = [];
+    if (operation.verb === "get" && operation.parameters.body !== undefined) {
+      reportDiagnostic(program, {
+        code: "get-request-body",
+        target: operation.operation,
+        format: {},
+      });
+
+      this.#opCache.set(operation.operation, result);
+      return result;
+    }
     const validParams: HttpOperationParameter[] = operation.parameters.parameters.filter((p) =>
       isValidParameter(program, p.param),
     );
@@ -1422,7 +1441,7 @@ export function coalesceTsTypes(program: Program, types: Type[]): [CSharpType, b
       return defaultValue;
   }
 
-  if (current !== undefined && nullable) current.isNullable = true;
+  if (current !== undefined && nullable === true) current.isNullable = true;
   return current === undefined ? defaultValue : [current, false];
 }
 

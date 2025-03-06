@@ -2,7 +2,7 @@ import {
   DiscriminatedUnion,
   getDiscriminatedUnion,
 } from "../../../core/helpers/discriminator-utils.js";
-import { getLocationContext } from "../../../core/index.js";
+import { getLocationContext } from "../../../core/helpers/location-context.js";
 import {
   Discriminator,
   getDiscriminator,
@@ -155,6 +155,7 @@ defineKit<TypekitExtension>({
             ...type,
             decorators: [...type.decorators],
             derivedModels: [...type.derivedModels],
+            sourceModels: type.sourceModels.map((x) => ({ ...x })),
             properties: copyMap(type.properties),
             indexer: type.indexer ? { ...type.indexer } : undefined,
           });

@@ -14,13 +14,14 @@ interface SpawnError {
 export async function installTypeSpecDependencies(
   host: CliCompilerHost,
   directory: string,
+  stdio: "inherit" | "pipe" = "inherit",
 ): Promise<void> {
   // Only use the builtin npm when running in standalone tsp mode.
   // TBD how we'll change this as we move to a more integrated setup and resolve the user package manager.
   if (getTypeSpecEngine() === "tsp") {
     await installWithBuiltinNpm(host, directory);
   } else {
-    await installWithNpmExe(host, directory);
+    await installWithNpmExe(host, directory, stdio);
   }
 }
 
@@ -34,15 +35,31 @@ async function installWithBuiltinNpm(host: CliCompilerHost, directory: string): 
   await arb.reify();
 }
 
-async function installWithNpmExe(host: CliCompilerHost, directory: string): Promise<void> {
+async function installWithNpmExe(
+  host: CliCompilerHost,
+  directory: string,
+  stdio: "inherit" | "pipe",
+): Promise<void> {
   const child = spawn("npm", ["install"], {
     shell: process.platform === "win32",
-    stdio: "inherit",
+    stdio: "pipe",
     cwd: directory,
     env: process.env,
   });
 
-  return new Promise(() => {
+  const stdout: string[] = [];
+  if (child.stdout) {
+    child.stdout.on("data", (data) => {
+      stdout.push(data.toString());
+    });
+  }
+  if (child.stderr) {
+    child.stderr.on("data", (data) => {
+      stdout.push(data.toString());
+    });
+  }
+
+  return new Promise((resolve, reject) => {
     child.on("error", (error: SpawnError) => {
       if (error.code === "ENOENT") {
         host.logger.error(
@@ -54,7 +71,11 @@ async function installWithNpmExe(host: CliCompilerHost, directory: string): Prom
       process.exit(error.errno);
     });
     child.on("exit", (exitCode) => {
-      process.exit(exitCode ?? -1);
+      if (exitCode !== 0) {
+        reject(new Error(`Npm installed failed with exit code ${exitCode}\n${stdout.join("\n")}`));
+      } else {
+        resolve();
+      }
     });
   });
 }

@@ -279,6 +279,8 @@ ignorePaths:
   - packages/compiler/test/formatter/scenarios/**
   - packages/http-client-java/generator/http-client-generator-test/**
   - packages/http-client-java/generator/http-client-generator-clientcore-test/**
+  - packages/http-client-js/test/e2e/**
+  - packages/http-client-js/sample/**
   - pnpm-lock.yaml
   - "**/*.mp4"
   - "**/*.plist"

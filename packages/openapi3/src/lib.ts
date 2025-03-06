@@ -13,10 +13,11 @@ export interface OpenAPI3EmitterOptions {
   /**
    * Name of the output file.
    * Output file will interpolate the following values:
-   *  - service-name: Name of the service if multiple
+   *  - service-name: Name of the service
+   *  - service-name-if-multiple: Name of the service if multiple
    *  - version: Version of the service if multiple
    *
-   * @default `{service-name}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
+   * @default `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
    *
    * @example Single service no versioning
    *  - `openapi.yaml`
@@ -99,10 +100,11 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       description: [
         "Name of the output file.",
         " Output file will interpolate the following values:",
-        "  - service-name: Name of the service if multiple",
+        "  - service-name: Name of the service",
+        "  - service-name-if-multiple: Name of the service if multiple",
         "  - version: Version of the service if multiple",
         "",
-        ' Default: `{service-name}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`',
+        ' Default: `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`',
         "",
         " Example Single service no versioning",
         "  - `openapi.yaml`",
@@ -316,7 +318,7 @@ export const libDef = {
       },
     },
     "invalid-component-fixed-field-key": {
-      severity: "error",
+      severity: "warning",
       messages: {
         default: paramMessage`Invalid key '${"value"}' used in a fixed field of the Component object. Only alphanumerics, dot (.), hyphen (-), and underscore (_) characters are allowed in keys.`,
       },

@@ -97,7 +97,7 @@ export const $lib = createTypeSpecLibrary({
     "unknown-error": {
       severity: "error",
       messages: {
-        default: paramMessage`An unknown error occurred. '${"errorMessage"}'`,
+        default: paramMessage`An unknown error occurred. ${"errorMessage"}`,
       },
     },
     "invalid-java-sdk-dependency": {
@@ -164,6 +164,12 @@ export const $lib = createTypeSpecLibrary({
       severity: "warning",
       messages: {
         default: paramMessage`Header parameter format '${"format"}' is not supported.`,
+      },
+    },
+    "unknown-encode": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Encode '${"encode"}' is not supported.`,
       },
     },
   },

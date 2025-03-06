@@ -89,6 +89,12 @@ configuration:
                   label: tspd
           - if:
               - includesModifiedFiles:
+                  files: []
+            then:
+              - addLabel:
+                  label: emitter:client:all
+          - if:
+              - includesModifiedFiles:
                   files:
                     - packages/http-client-csharp/**/*
             then:
@@ -153,7 +159,7 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/http-server-javascript
+                    - packages/http-server-js
             then:
               - addLabel:
                   label: emitter:service:js

@@ -17,7 +17,7 @@ namespace TypeSpec;
 extern dec summary(target: unknown, summary: valueof string);
 
 /**
- * Attach a documentation string.
+ * Attach a documentation string. Content support CommonMark markdown formatting.
  * @param doc Documentation string
  * @param formatArgs Record with key value pair that can be interpolated in the doc.
  *
@@ -56,26 +56,6 @@ extern dec returnsDoc(target: Operation, doc: valueof string);
 extern dec errorsDoc(target: Operation, doc: valueof string);
 
 /**
- * Mark this type as deprecated.
- *
- * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
- *
- * @deprecated Use the `#deprecated` [directive](https://typespec.io/docs/language-basics/directives/#deprecated) instead.
- * @param message Deprecation message.
- *
- * @example
- *
- * Use the `#deprecated` directive instead:
- *
- * ```typespec
- * #deprecated "Use ActionV2"
- * op Action<Result>(): Result;
- * ```
- */
-#deprecated "@deprecated decorator is deprecated. Use the `#deprecated` directive instead."
-extern dec deprecated(target: unknown, message: valueof string);
-
-/**
  * Service options.
  */
 model ServiceOptions {
@@ -102,17 +82,17 @@ model ServiceOptions {
  *
  * @example Setting service title
  * ```typespec
- * @service({title: "Pet store"})
+ * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
  *
  * @example Setting service version
  * ```typespec
- * @service({version: "1.0"})
+ * @service(#{version: "1.0"})
  * namespace PetStore;
  * ```
  */
-extern dec service(target: Namespace, options?: ServiceOptions);
+extern dec service(target: Namespace, options?: valueof ServiceOptions);
 
 /**
  * Specify that this model is an error type. Operations return error types when the operation has failed.
@@ -300,24 +280,6 @@ extern dec tag(target: Namespace | Interface | Operation, tag: valueof string);
 extern dec friendlyName(target: unknown, name: valueof string, formatArgs?: unknown);
 
 /**
- * Provide a set of known values to a string type.
- * @param values Known values enum.
- *
- * @example
- * ```typespec
- * @knownValues(KnownErrorCode)
- * scalar ErrorCode extends string;
- *
- * enum KnownErrorCode {
- *   NotFound,
- *   Invalid,
- * }
- * ```
- */
-#deprecated "This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator."
-extern dec knownValues(target: string | numeric | ModelProperty, values: Enum);
-
-/**
  * Mark a model property as the key to identify instances of that type
  * @param altName Name of the property. If not specified, the decorated property name is used.
  *
@@ -344,28 +306,6 @@ extern dec key(target: ModelProperty, altName?: valueof string);
  * ```
  */
 extern dec overload(target: Operation, overloadbase: Operation);
-
-/**
- * DEPRECATED: Use `@encodedName` instead.
- *
- * Provide an alternative name for this type.
- * @param targetName Projection target
- * @param projectedName Alternative name
- *
- * @example
- * ```typespec
- * model Certificate {
- *   @projectedName("json", "exp")
- *   expireAt: int32;
- * }
- * ```
- */
-#deprecated "Use `@encodedName` instead for changing the name over the wire."
-extern dec projectedName(
-  target: unknown,
-  targetName: valueof string,
-  projectedName: valueof string
-);
 
 /**
  * Provide an alternative name for this type when serialized to the given mime type.

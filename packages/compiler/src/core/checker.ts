@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
+import { Realm } from "../experimental/realm.js";
+import { $ } from "../experimental/typekit/index.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
@@ -14,12 +16,7 @@ import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
-import {
-  getEntityName,
-  getNamespaceFullName,
-  getTypeName,
-  type TypeNameOptions,
-} from "./helpers/type-name-utils.js";
+import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import { legacyMarshallTypeForJS, marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { NameResolver } from "./name-resolver.js";
@@ -199,25 +196,10 @@ export interface Checker {
   checkProgram(): void;
   checkSourceFile(file: TypeSpecScriptNode): void;
   getGlobalNamespaceType(): Namespace;
-  /** @internal @deprecated */
-  getGlobalNamespaceNode(): NamespaceStatementNode;
-  /** @internal @deprecated */
-  getMergedSymbol(sym: Sym | undefined): Sym | undefined;
-
   getLiteralType(node: StringLiteralNode): StringLiteral;
   getLiteralType(node: NumericLiteralNode): NumericLiteral;
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   getLiteralType(node: LiteralNode): LiteralType;
-
-  /**
-   * @deprecated use `import { getTypeName } from "@typespec/compiler";`
-   */
-  getTypeName(type: Type, options?: TypeNameOptions): string;
-
-  /**
-   * @deprecated use `import { getNamespaceFullName } from "@typespec/compiler";`
-   */
-  getNamespaceString(type: Namespace | undefined, options?: TypeNameOptions): string;
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
   evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
   project(
@@ -300,6 +282,9 @@ export interface Checker {
   /** @internal */
   getTypeOrValueForNode(node: Node): Type | Value | null;
 
+  /** @internal */
+  getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean>;
+
   readonly errorType: ErrorType;
   readonly voidType: VoidType;
   readonly neverType: NeverType;
@@ -311,9 +296,6 @@ interface TypePrototype {
   projections: ProjectionStatementNode[];
   projectionsByName(name: string): ProjectionStatementNode[];
 }
-
-/** @deprecated Use TypeSpecCompletionItem */
-export type CadlCompletionItem = TypeSpecCompletionItem;
 
 export interface TypeSpecCompletionItem {
   sym: Sym;
@@ -401,16 +383,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   let evalContext: EvalContext | undefined = undefined;
 
+  /**
+   * Tracking the template parameters used or not.
+   */
+  const templateParameterUsageMap = new Map<TemplateParameterDeclarationNode, boolean>();
+
   const checker: Checker = {
     getTypeForNode,
     checkProgram,
     checkSourceFile,
     getLiteralType,
-    getTypeName,
-    getNamespaceString: getNamespaceFullName,
     getGlobalNamespaceType,
-    getGlobalNamespaceNode,
-    getMergedSymbol,
     cloneType,
     resolveRelatedSymbols,
     resolveCompletions,
@@ -433,6 +416,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueForNode,
     getTypeOrValueForNode,
     getValueExactType,
+    getTemplateParameterUsageMap,
     isTypeAssignableTo: undefined!,
   };
   const relation = createTypeRelationChecker(program, checker);
@@ -440,6 +424,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   const projectionMembers = createProjectionMembers(checker);
   return checker;
+
+  function getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean> {
+    return templateParameterUsageMap;
+  }
 
   function wrapInstantiationDiagnostic(
     diagnostic: Diagnostic,
@@ -1066,6 +1054,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const grandParentNode = parentNode.parent;
     const links = getSymbolLinks(node.symbol);
 
+    if (!templateParameterUsageMap.has(node)) {
+      templateParameterUsageMap.set(node, false);
+    }
+
     if (pendingResolutions.has(getNodeSym(node), ResolutionKind.Constraint)) {
       if (mapper === undefined) {
         reportCheckerDiagnostic(
@@ -1112,7 +1104,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
       }
     }
-
     return mapper ? mapper.getMappedType(type) : type;
   }
 
@@ -1512,6 +1503,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkTypeOrValueReferenceSymbol(
+    sym: Sym,
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+    mapper: TypeMapper | undefined,
+    instantiateTemplates = true,
+  ): Type | Value | IndeterminateEntity | null {
+    const entity = checkTypeOrValueReferenceSymbolWorker(sym, node, mapper, instantiateTemplates);
+
+    if (entity !== null && isType(entity) && entity.kind === "TemplateParameter") {
+      templateParameterUsageMap.set(entity.node, true);
+    }
+    return entity;
+  }
+
+  function checkTypeOrValueReferenceSymbolWorker(
     sym: Sym,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
@@ -4817,7 +4822,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const defaultValue = checkDefaultValue(prop.default, type.type);
         if (defaultValue !== null) {
           type.defaultValue = defaultValue;
-          type.default = checkLegacyDefault(prop.default);
         }
       }
       if (links) {
@@ -4876,21 +4880,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       return { ...defaultValue, type };
     }
-  }
-
-  /**
-   * Fill in the legacy `.default` property.
-   * We do do checking here we just keep existing behavior.
-   */
-  function checkLegacyDefault(defaultNode: Node): Type | undefined {
-    const resolved = checkNode(defaultNode, undefined);
-    if (resolved === null || isValue(resolved)) {
-      return undefined;
-    }
-    if (resolved.entityKind === "Indeterminate") {
-      return resolved.type;
-    }
-    return resolved;
   }
 
   function checkDecoratorApplication(
@@ -5222,6 +5211,34 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         createDiagnostic({
           code: "augment-decorator-target",
           messageId: "noInstance",
+          target: node.targetType,
+        }),
+      );
+    } else if (
+      links.finalSymbol?.flags &&
+      ~links.finalSymbol.flags & SymbolFlags.Declaration &&
+      ~links.finalSymbol.flags & SymbolFlags.Member
+    ) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "augment-decorator-target",
+          messageId:
+            links.finalSymbol.flags & SymbolFlags.Model
+              ? "noModelExpression"
+              : links.finalSymbol.flags & SymbolFlags.Union
+                ? "noUnionExpression"
+                : "default",
+          target: node.targetType,
+        }),
+      );
+    } else if (links.finalSymbol?.flags && links.finalSymbol.flags & SymbolFlags.Alias) {
+      const aliasNode: AliasStatementNode = getSymNode(links.finalSymbol) as AliasStatementNode;
+
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "augment-decorator-target",
+          messageId:
+            aliasNode.value.kind === SyntaxKind.UnionExpression ? "noUnionExpression" : "default",
           target: node.targetType,
         }),
       );
@@ -7124,13 +7141,12 @@ export function filterModelProperties(
     return model;
   }
 
-  const properties = createRekeyableMap<string, ModelProperty>();
-  const newModel: Model = program.checker.createType({
-    kind: "Model",
-    node: undefined,
+  const realm = Realm.realmForType.get(model);
+  const typekit = realm ? $(realm) : $;
+  const newModel: Model = typekit.model.create({
     name: "",
     indexer: undefined,
-    properties,
+    properties: {},
     decorators: [],
     derivedModels: [],
     sourceModels: [{ usage: "spread", model }],
@@ -7138,11 +7154,13 @@ export function filterModelProperties(
 
   for (const property of walkPropertiesInherited(model)) {
     if (filter(property)) {
-      const newProperty = program.checker.cloneType(property, {
+      const newProperty = typekit.type.clone(property);
+      Object.assign(newProperty, {
         sourceProperty: property,
         model: newModel,
       });
-      properties.set(property.name, newProperty);
+      newModel.properties.set(property.name, newProperty);
+      typekit.type.finishType(newProperty);
     }
   }
 

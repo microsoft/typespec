@@ -102,7 +102,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Client.Structure.Service",
+   "namespace": "Client.Structure.Service",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input",
@@ -114,7 +114,7 @@
   {
    "$id": "14",
    "Name": "FirstClient",
-   "ClientNamespace": "Client.Structure.ClientOperationGroup",
+   "Namespace": "Client.Structure.ClientOperationGroup",
    "Operations": [
     {
      "$id": "15",
@@ -128,13 +128,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/one",
      "BufferResponse": true,
@@ -188,12 +186,13 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.ClientOperationGroup"
   },
   {
    "$id": "21",
    "Name": "Group3",
-   "ClientNamespace": "Client.Structure.ClientOperationGroup",
+   "Namespace": "Client.Structure.ClientOperationGroup",
    "Operations": [
     {
      "$id": "22",
@@ -207,13 +206,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/two",
      "BufferResponse": true,
@@ -234,13 +231,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/three",
      "BufferResponse": true,
@@ -295,12 +290,13 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group3"
   },
   {
    "$id": "30",
    "Name": "Group4",
-   "ClientNamespace": "Client.Structure.ClientOperationGroup",
+   "Namespace": "Client.Structure.ClientOperationGroup",
    "Operations": [
     {
      "$id": "31",
@@ -314,13 +310,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/four",
      "BufferResponse": true,
@@ -375,12 +369,13 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group4"
   },
   {
    "$id": "37",
    "Name": "SubNamespace.SecondClient",
-   "ClientNamespace": "Client.Structure.AnotherClientOperationGroup",
+   "Namespace": "Client.Structure.AnotherClientOperationGroup",
    "Operations": [
     {
      "$id": "38",
@@ -394,13 +389,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/five",
      "BufferResponse": true,
@@ -454,12 +447,13 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup"
   },
   {
    "$id": "44",
    "Name": "Group5",
-   "ClientNamespace": "Client.Structure.AnotherClientOperationGroup",
+   "Namespace": "Client.Structure.AnotherClientOperationGroup",
    "Operations": [
     {
      "$id": "45",
@@ -473,13 +467,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/six",
      "BufferResponse": true,
@@ -534,7 +526,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup.Group5"
   }
  ]
 }

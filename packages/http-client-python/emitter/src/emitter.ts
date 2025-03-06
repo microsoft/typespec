@@ -8,6 +8,7 @@ import { EmitContext, NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
+import process from "process";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
 import { emitCodeModel } from "./code-model.js";
@@ -24,9 +25,11 @@ export function getModelsMode(context: SdkContext): "dpg" | "none" {
     if (modelModes.includes(specifiedModelsMode)) {
       return specifiedModelsMode;
     }
-    throw new Error(
-      `Need to specify models mode with the following values: ${modelModes.join(", ")}`,
-    );
+    reportDiagnostic(context.program, {
+      code: "invalid-models-mode",
+      target: NoTarget,
+      format: { inValidValue: specifiedModelsMode },
+    });
   }
   return "dpg";
 }
@@ -185,52 +188,68 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       }
     }
 
-    if (resolvedOptions["use-pyodide"]) {
-      // here we run with pyodide
-      const pyodide = await setupPyodideCall(root);
-      // create the output folder if not exists
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-      }
-      // mount output folder to pyodide
-      pyodide.FS.mkdirTree("/output");
-      pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: outputDir }, "/output");
-      // mount yaml file to pyodide
-      pyodide.FS.mkdirTree("/yaml");
-      pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: path.dirname(yamlPath) }, "/yaml");
-      const globals = pyodide.toPy({
-        outputFolder: "/output",
-        yamlFile: `/yaml/${path.basename(yamlPath)}`,
-        commandArgs,
-      });
-      const pythonCode = `
-        async def main():
-          import warnings
-          with warnings.catch_warnings():
-            from pygen import preprocess, codegen, black
-          preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
-          codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
-          black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
-    
-        await main()`;
-      await pyodide.runPythonAsync(pythonCode, { globals });
-    } else {
-      // here we run with native python
-      let venvPath = path.join(root, "venv");
-      if (fs.existsSync(path.join(venvPath, "bin"))) {
-        venvPath = path.join(venvPath, "bin", "python");
-      } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
-        venvPath = path.join(venvPath, "Scripts", "python.exe");
+    try {
+      if (resolvedOptions["use-pyodide"]) {
+        // here we run with pyodide
+        const pyodide = await setupPyodideCall(root);
+        // create the output folder if not exists
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir, { recursive: true });
+        }
+        // mount output folder to pyodide
+        pyodide.FS.mkdirTree("/output");
+        pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: outputDir }, "/output");
+        // mount yaml file to pyodide
+        pyodide.FS.mkdirTree("/yaml");
+        pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: path.dirname(yamlPath) }, "/yaml");
+        const globals = pyodide.toPy({
+          outputFolder: "/output",
+          yamlFile: `/yaml/${path.basename(yamlPath)}`,
+          commandArgs,
+        });
+        const pythonCode = `
+          async def main():
+            import warnings
+            with warnings.catch_warnings():
+              from pygen import preprocess, codegen, black
+            preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
+            codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
+            black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
+      
+          await main()`;
+        await pyodide.runPythonAsync(pythonCode, { globals });
       } else {
-        throw new Error("Virtual environment doesn't exist.");
+        // here we run with native python
+        let venvPath = path.join(root, "venv");
+        if (fs.existsSync(path.join(venvPath, "bin"))) {
+          venvPath = path.join(venvPath, "bin", "python");
+        } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
+          venvPath = path.join(venvPath, "Scripts", "python.exe");
+        } else {
+          reportDiagnostic(program, {
+            code: "pyodide-flag-conflict",
+            target: NoTarget,
+          });
+        }
+        commandArgs["output-folder"] = outputDir;
+        commandArgs["cadl-file"] = yamlPath;
+        const commandFlags = Object.entries(commandArgs)
+          .map(([key, value]) => `--${key}=${value}`)
+          .join(" ");
+        const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
+        execSync(command, { stdio: [process.stdin, process.stdout] });
       }
-      commandArgs["output-folder"] = outputDir;
-      commandArgs["cadl-file"] = yamlPath;
-      const commandFlags = Object.entries(commandArgs)
-        .map(([key, value]) => `--${key}=${value}`)
-        .join(" ");
-      const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
-      execSync(command);
+    } catch (error: any) {
+      const errStackStart =
+        "========================================= error stack start ================================================";
+      const errStackEnd =
+        "========================================= error stack end ================================================";
+      const errStack = error.stack ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}` : "";
+      reportDiagnostic(program, {
+        code: "unknown-error",
+        target: NoTarget,
+        format: { stack: errStack },
+      });
     }
   }
 }

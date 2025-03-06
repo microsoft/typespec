@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "ErrorInRange",
-   "clientNamespace": "Response.StatusCodeRange",
+   "namespace": "Response.StatusCodeRange",
    "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange",
    "usage": "Error,Json,Exception",
    "decorators": [],
@@ -71,7 +71,7 @@
    "$id": "11",
    "kind": "model",
    "name": "DefaultError",
-   "clientNamespace": "Response.StatusCodeRange",
+   "namespace": "Response.StatusCodeRange",
    "crossLanguageDefinitionId": "Response.StatusCodeRange.DefaultError",
    "usage": "Error,Json,Exception",
    "decorators": [],
@@ -108,7 +108,7 @@
    "$id": "16",
    "kind": "model",
    "name": "NotFoundError",
-   "clientNamespace": "Response.StatusCodeRange",
+   "namespace": "Response.StatusCodeRange",
    "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError",
    "usage": "Error,Json,Exception",
    "decorators": [],
@@ -171,7 +171,7 @@
    "$id": "25",
    "kind": "model",
    "name": "Standard4XXError",
-   "clientNamespace": "Response.StatusCodeRange",
+   "namespace": "Response.StatusCodeRange",
    "crossLanguageDefinitionId": "Response.StatusCodeRange.Standard4XXError",
    "usage": "Error,Json,Exception",
    "decorators": [],
@@ -209,7 +209,7 @@
   {
    "$id": "30",
    "Name": "StatusCodeRangeClient",
-   "ClientNamespace": "Response.StatusCodeRange",
+   "Namespace": "Response.StatusCodeRange",
    "Doc": "Test for range of status code.",
    "Operations": [
     {
@@ -265,7 +265,6 @@
         "value": 204,
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -274,7 +273,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/response/status-code-range/error-response-status-code-in-range",
      "BufferResponse": true,
@@ -336,7 +334,6 @@
         "value": 204,
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -345,7 +342,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/response/status-code-range/error-response-status-code-404",
      "BufferResponse": true,
@@ -391,7 +387,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Response.StatusCodeRange"
   }
  ]
 }
