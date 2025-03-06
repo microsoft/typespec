@@ -1,6 +1,6 @@
-import { compilerAssert } from "../../core/diagnostics.js";
+import { compilerAssert } from "@typespec/compiler";
 import { Placeholder } from "../placeholder.js";
-import { EmitEntity, EmitterResult } from "../types.js";
+import { type EmitEntity, EmitterResult } from "../types.js";
 
 const placeholderSym = Symbol("placeholder");
 // eslint is confused by merging generic interface and classes

@@ -27,7 +27,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p . && pnpm api-extractor",
+    "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",

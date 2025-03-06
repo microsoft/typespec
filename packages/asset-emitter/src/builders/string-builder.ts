@@ -1,5 +1,5 @@
 import { Placeholder } from "../placeholder.js";
-import { EmitEntity } from "../types.js";
+import type { EmitEntity } from "../types.js";
 
 export class StringBuilder extends Placeholder<string> {
   public segments: (string | Placeholder<string>)[] = [];
