@@ -237,8 +237,8 @@ export async function createTypeSpecProject(
         .map(([k, e]) => `\t${k}: \n\t\t${e.message}`)
         .join("\n");
       const popupMessage = isWhitespaceStringOrUndefined(emitterMessage)
-        ? "Project created successfully! You can now compile to generate artifacts from your TypeSpec\n"
-        : `Project created successfully! You can now compile to generate artifacts from your TypeSpec. Click the button below to review the message from emitters installed.\n`;
+        ? "Project created! You can now compile to generate artifacts from your TypeSpec\n"
+        : `Project created! You can now compile to generate artifacts from your TypeSpec. Click the button below to review the message from emitters installed.\n`;
 
       if (nextStep === "Open in New Window") {
         // if we are going to open a new window, persist the message to extension state because
