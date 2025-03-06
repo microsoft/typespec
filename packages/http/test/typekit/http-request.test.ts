@@ -174,8 +174,7 @@ describe("HttpRequest Get Parameters", () => {
     const { createFoo } = (await runner.compile(`
       @test model Foo {
         @path(#{allowReserved: true}) id: string;
-        # suppress "deprecated" "Test"
-        @header(#{format: "csv"}) requestId: string[];
+        @header requestId: string[];
         @query(#{explode: true}) data: string[];
       }
 
@@ -194,7 +193,6 @@ describe("HttpRequest Get Parameters", () => {
     const dataProperty = query!.properties.get("data");
 
     expect($.modelProperty.getHttpHeaderOptions(requestIdProperty!)).toStrictEqual({
-      format: "csv",
       name: "request-id",
       type: "header",
     });
@@ -209,7 +207,6 @@ describe("HttpRequest Get Parameters", () => {
 
     expect($.modelProperty.getHttpQueryOptions(dataProperty!)).toStrictEqual({
       explode: true,
-      format: "multi",
       name: "data",
       type: "query",
     });
