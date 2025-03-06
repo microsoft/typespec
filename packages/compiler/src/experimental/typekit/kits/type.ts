@@ -1,8 +1,11 @@
+import { ignoreDiagnostics } from "../../../core/diagnostics.js";
 import {
   DiscriminatedUnion,
+  DiscriminatedUnionLegacy,
   getDiscriminatedUnion,
+  getDiscriminatedUnionFromInheritance,
 } from "../../../core/helpers/discriminator-utils.js";
-import { getLocationContext } from "../../../core/helpers/location-context.js";
+import { getLocationContext} from "../../../core/helpers/location-context.js";
 import {
   Discriminator,
   getDiscriminator,
@@ -20,6 +23,7 @@ import { Enum, Model, Scalar, Union, type Type } from "../../../core/types.js";
 import { getDoc, getSummary } from "../../../lib/decorators.js";
 import { resolveEncodedName } from "../../../lib/encoded-names.js";
 import { defineKit } from "../define-kit.js";
+import { $ } from "../index.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
@@ -69,7 +73,9 @@ export interface TypeTypekit {
    * Resolves a discriminated union for the given model or union.
    * @param type Model or Union to resolve the discriminated union for.
    */
-  getDiscriminatedUnion(type: Union): DiscriminatedUnion | undefined;
+  getDiscriminatedUnion(
+    type: Union | Model,
+  ): DiscriminatedUnion | DiscriminatedUnionLegacy | undefined;
   /**
    * Resolves the discriminator for a discriminated union. Returns undefined if the type is not a discriminated union.
    * @param type
@@ -239,11 +245,30 @@ defineKit<TypekitExtension>({
       return getPlausibleName(type);
     },
     getDiscriminator(type) {
-      return getDiscriminator(this.program, type);
+      let discriminator: Discriminator | undefined;
+      if ($.model.is(type)) {
+        discriminator = getDiscriminator(this.program, type);
+      } else {
+        const unionDiscriminator = ignoreDiagnostics(getDiscriminatedUnion(this.program, type));
+        const propertyName = unionDiscriminator?.options.discriminatorPropertyName;
+        if (propertyName) {
+          discriminator = { propertyName };
+        }
+      }
+
+      return discriminator;
     },
     getDiscriminatedUnion(type) {
-      const [union] = getDiscriminatedUnion(this.program, type);
-      return union;
+      if (type.kind === "Model") {
+        const discriminator = getDiscriminator(this.program, type);
+        if (!discriminator) {
+          return undefined;
+        }
+
+        return ignoreDiagnostics(getDiscriminatedUnionFromInheritance(type, discriminator));
+      }
+
+      return ignoreDiagnostics(getDiscriminatedUnion(this.program, type));
     },
     maxValue(type) {
       return getMaxValue(this.program, type);
