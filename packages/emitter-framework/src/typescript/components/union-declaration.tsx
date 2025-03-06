@@ -29,7 +29,7 @@ export function UnionDeclaration(props: UnionDeclarationProps) {
   const name = ts.useTSNamePolicy().getName(originalName!, "type");
 
   return <ts.TypeDeclaration {...props} name={name} refkey={refkey}>
-      <UnionExpression type={type} children={undefined}>{coreProps.children}</UnionExpression>
+      <UnionExpression type={type}>{coreProps.children}</UnionExpression>
     </ts.TypeDeclaration>;
 }
 

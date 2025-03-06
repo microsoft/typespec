@@ -105,6 +105,17 @@ export interface ModelKit {
     model: Model,
     options?: { includeExtended?: boolean },
   ): RekeyableMap<string, ModelProperty>;
+  /**
+   * Get the record representing additional properties, if there are additional properties.
+   * This method checks for additional properties in the following cases:
+   * 1. If the model is a Record type.
+   * 2. If the model extends a Record type.
+   * 3. If the model spreads a Record type.
+   *
+   * @param model The model to get the additional properties type of.
+   * @returns The record representing additional properties, or undefined if there are none.
+   */
+  getAdditionalPropertiesRecord(model: Model): Model | undefined;
 }
 
 interface TypekitExtension {
@@ -197,9 +208,31 @@ defineKit<TypekitExtension>({
           base = base.baseModel;
         }
       }
-
       // TODO: Add Spread?
       return properties;
+    },
+    getAdditionalPropertiesRecord(model) {
+      // model MyModel is Record<> {} should be model with additional properties
+      if (this.model.is(model) && model.sourceModel && this.record.is(model.sourceModel)) {
+        return model.sourceModel;
+      }
+
+      // model MyModel extends Record<> {} should be model with additional properties
+      if (model.baseModel && this.record.is(model.baseModel)) {
+        return model.baseModel;
+      }
+
+      // model MyModel { ...Record<>} should be model with additional properties
+      const spread = this.model.getSpreadType(model);
+      if (spread && this.model.is(spread) && this.record.is(spread)) {
+        return spread;
+      }
+
+      if (model.baseModel) {
+        return this.model.getAdditionalPropertiesRecord(model.baseModel);
+      }
+
+      return undefined;
     },
   },
 });

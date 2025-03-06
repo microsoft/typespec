@@ -35,11 +35,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString("name", ref name)
-                    || reader.TryReadWithConverter("value", options, ref rawValue)
-                    || reader.TryReadWithConverter("valueType", options, ref valueType)
+                    || reader.TryReadComplexType("value", options, ref rawValue)
+                    || reader.TryReadComplexType("valueType", options, ref valueType)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
-                    || reader.TryReadWithConverter("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {

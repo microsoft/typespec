@@ -112,8 +112,7 @@ export async function extractLibraryRefDocs(
         options: extractEmitterOptionsRefDoc(lib.emitter.options),
       };
     }
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const linter = entrypoint.$linter ?? lib?.linter;
+    const linter = entrypoint.$linter;
     if (lib && linter) {
       refDoc.linter = extractLinterRefDoc(lib.name, resolveLinterDefinition(lib.name, linter));
     }

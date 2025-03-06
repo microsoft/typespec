@@ -50,9 +50,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadString("usage", ref usageString)
                     || reader.TryReadBoolean("isFixed", ref isFixed)
-                    || reader.TryReadWithConverter("valueType", options, ref valueType)
-                    || reader.TryReadWithConverter("values", options, ref values)
-                    || reader.TryReadWithConverter("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("valueType", options, ref valueType)
+                    || reader.TryReadComplexType("values", options, ref values)
+                    || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {

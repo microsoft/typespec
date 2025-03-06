@@ -186,7 +186,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var inputParameter in operation.Parameters)
             {
-                if (inputParameter.Location != RequestLocation.Header)
+                if (inputParameter.Location != InputRequestLocation.Header)
                     continue;
 
                 CSharpType? type;
@@ -216,7 +216,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var inputParameter in operation.Parameters)
             {
-                if (inputParameter.Location != RequestLocation.Query)
+                if (inputParameter.Location != InputRequestLocation.Query)
                     continue;
 
                 string? format;
@@ -370,7 +370,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 else
                 {
                     inputParam = inputParamHash[paramName];
-                    if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
+                    if (inputParam.Location == InputRequestLocation.Path || inputParam.Location == InputRequestLocation.Uri)
                     {
                         GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
                     }
@@ -447,7 +447,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     property.Summary,
                     property.Doc,
                     property.Type,
-                    RequestLocation.Body,
+                    InputRequestLocation.Body,
                     null,
                     InputOperationParameterKind.Method,
                     property.IsRequired,
@@ -472,7 +472,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool TryGetSpecialHeaderParam(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameterProvider)
         {
-            if (inputParameter.Location == RequestLocation.Header)
+            if (inputParameter.Location == InputRequestLocation.Header)
             {
                 return _knownSpecialHeaderParams.TryGetValue(inputParameter.NameInRequest, out parameterProvider);
             }
@@ -529,7 +529,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (methodType is MethodType.Protocol or MethodType.CreateRequest)
                 {
-                    if (inputParam.Location == RequestLocation.Body)
+                    if (inputParam.Location == InputRequestLocation.Body)
                     {
                         if (methodType == MethodType.CreateRequest)
                         {
