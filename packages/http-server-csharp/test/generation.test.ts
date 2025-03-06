@@ -1523,7 +1523,7 @@ it("emits correct code for GET requests with explicit body parameters", async ()
   );
 });
 
-it("Validate one line `@doc` decorator comments generation", async () => {
+it("generates one line `@doc` decorator comments", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
@@ -1543,7 +1543,7 @@ it("Validate one line `@doc` decorator comments generation", async () => {
   );
 });
 
-it("Validate multiline `@doc` decorator comments generation", async () => {
+it("generates multiline `@doc` decorator comments", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
@@ -1569,7 +1569,7 @@ it("Validate multiline `@doc` decorator comments generation", async () => {
   );
 });
 
-it("Validate multiline `@doc` decorator comments generation where there is long non-space words", async () => {
+it("generates multiline `@doc` decorator comments with long non-space words", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
@@ -1594,7 +1594,7 @@ it("Validate multiline `@doc` decorator comments generation where there is long 
   );
 });
 
-it("Validate multiline `@doc` decorator comments generation", async () => {
+it("generates multiline `@doc` decorator comments", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
@@ -1614,7 +1614,7 @@ it("Validate multiline `@doc` decorator comments generation", async () => {
   );
 });
 
-it("Validate basic jsdoc comments generation", async () => {
+it("generates basic jsdoc comments", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
