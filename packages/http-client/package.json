@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@alloy-js/core": "^0.5.0",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/http": "workspace:~"
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^"
   },
   "devDependencies": {
     "@alloy-js/babel-preset": "^0.1.1",
