@@ -188,12 +188,7 @@ async function writeMain(host: SystemHost, config: ScaffoldingConfig) {
     dependencies[library.name] = await getPackageVersion(library);
   }
 
-  const lines = [
-    ...config.libraries
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((x) => `import "${x.name}";`),
-    "",
-  ];
+  const lines = [...config.libraries.map((x) => `import "${x.name}";`), ""];
   const content = lines.join("\n");
 
   return host.writeFile(joinPaths(config.directory, "main.tsp"), content);
