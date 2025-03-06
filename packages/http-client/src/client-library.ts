@@ -1,7 +1,7 @@
-import { Enum, Model, Namespace, Operation, Union } from "@typespec/compiler";
-import { unsafe_mutateSubgraph, unsafe_Mutator } from "@typespec/compiler/experimental";
+import { Enum, Model, Namespace, Union } from "@typespec/compiler";
+import { unsafe_Mutator } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import { Client, ClientOperation, InternalClient } from "./interfaces.js";
+import { Client, InternalClient } from "./interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 import { collectDataTypes } from "./utils/type-collector.js";
 
@@ -130,14 +130,23 @@ function visitClient(
   );
 
   // Now store the prepared operations
-  currentClient.operations = $.client
-    .listServiceOperations(client)
-    .map((o) => prepareOperation(currentClient, o, { mutators: options?.operationMutators }));
+  currentClient.operations = $.client.listHttpOperations(client).map((o) => {
+    return {
+      client: currentClient,
+      httpOperation: o,
+      kind: "ClientOperation",
+      name: o.operation.name,
+    };
+  });
+
+  $.client
+    .getConstructor(currentClient)
+    .parameters.properties.forEach((p) => collectDataTypes(p.type, dataTypes));
 
   // Collect data types
   for (const clientOperation of currentClient.operations) {
     // Collect operation parameters
-    collectDataTypes(clientOperation.operation.parameters, dataTypes);
+    collectDataTypes(clientOperation.httpOperation.operation.parameters, dataTypes);
 
     // Collect http operation return type
     const responseType = $.httpOperation.getReturnType(clientOperation.httpOperation);
@@ -145,31 +154,4 @@ function visitClient(
   }
 
   return currentClient;
-}
-
-interface PrepareClientOperationOptions {
-  mutators?: unsafe_Mutator[];
-}
-
-function prepareOperation(
-  client: Client,
-  operation: Operation,
-  options: PrepareClientOperationOptions = {},
-): ClientOperation {
-  let op: Operation = operation;
-
-  // We need to get the HttpOperation before running mutators to ensure that the httpOperation has full fidelity with the spec
-  const httpOperation = $.httpOperation.get(op);
-
-  if (options.mutators) {
-    op = unsafe_mutateSubgraph($.program, options.mutators, operation).type as Operation;
-  }
-
-  return {
-    kind: "ClientOperation",
-    client,
-    httpOperation,
-    name: op.name,
-    operation: op,
-  };
 }
