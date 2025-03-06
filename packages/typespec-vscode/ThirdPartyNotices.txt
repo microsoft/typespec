@@ -17,7 +17,7 @@ granted herein, whether by implication, estoppel or otherwise.
 7. json-schema-traverse version 1.0.0 (https://github.com/epoberezkin/json-schema-traverse)
 8. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
 9. mustache version 4.2.0 (https://github.com/janl/mustache.js)
-10. semver version 7.6.3 (https://github.com/npm/node-semver)
+4. semver version 7.7.1 (https://github.com/npm/node-semver)
 11. which version 5.0.0 (https://github.com/npm/node-which)
 12. yaml version 2.7.0 (github:eemeli/yaml)
 

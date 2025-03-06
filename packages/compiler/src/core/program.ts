@@ -1,5 +1,4 @@
 import { EmitterOptions } from "../config/types.js";
-import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { setCurrentProgram } from "../experimental/typekit/index.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
@@ -245,14 +244,8 @@ async function createProgram(
 
   await loadSources(resolvedMain);
 
-  let emit = options.emit;
-  let emitterOptions = options.options;
-  /* eslint-disable @typescript-eslint/no-deprecated */
-  if (options.emitters) {
-    emit ??= Object.keys(options.emitters);
-    emitterOptions ??= options.emitters;
-  }
-  /* eslint-enable @typescript-eslint/no-deprecated */
+  const emit = options.emit;
+  const emitterOptions = options.options;
 
   await loadEmitters(basedir, emit ?? [], emitterOptions ?? {});
 
@@ -490,8 +483,7 @@ async function createProgram(
 
     const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint?.esmExports.$lib;
     const metadata = computeLibraryMetadata(module, libDefinition);
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const linterDef = entrypoint?.esmExports.$linter ?? libDefinition?.linter;
+    const linterDef = entrypoint?.esmExports.$linter;
     return {
       ...resolution,
       metadata,
@@ -913,13 +905,7 @@ async function createProgram(
  * Resolve compiler options from input options.
  */
 function resolveOptions(options: CompilerOptions): CompilerOptions {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  const outputDir = options.outputDir ?? options.outputPath;
-  return {
-    ...options,
-    outputDir,
-    outputPath: outputDir,
-  };
+  return { ...options };
 }
 
 async function emit(emitter: EmitterRef, program: Program, options: CompilerOptions = {}) {
@@ -944,9 +930,6 @@ async function runEmitter(emitter: EmitterRef, program: Program) {
     program,
     emitterOutputDir: emitter.emitterOutputDir,
     options: emitter.options,
-    getAssetEmitter(TypeEmitterClass) {
-      return createAssetEmitter(program, TypeEmitterClass, this);
-    },
   };
   try {
     await emitter.emitFunction(context);

@@ -313,7 +313,6 @@ export function createProjector(
 
     if (model.templateMapper) {
       projectedModel.templateMapper = projectTemplateMapper(model.templateMapper);
-      projectedModel.templateArguments = mutate(projectedModel.templateMapper.args);
     }
 
     if (model.baseModel) {
@@ -382,7 +381,6 @@ export function createProjector(
 
     if (scalar.templateMapper) {
       projectedScalar.templateMapper = projectTemplateMapper(scalar.templateMapper);
-      projectedScalar.templateArguments = mutate(projectedScalar.templateMapper.args);
     }
 
     if (scalar.baseScalar) {
@@ -447,7 +445,6 @@ export function createProjector(
 
     if (op.templateMapper) {
       projectedOp.templateMapper = projectTemplateMapper(op.templateMapper);
-      projectedOp.templateArguments = mutate(projectedOp.templateMapper.args);
     }
 
     if (op.sourceOperation) {
@@ -478,7 +475,6 @@ export function createProjector(
 
     if (iface.templateMapper) {
       projectedIface.templateMapper = projectTemplateMapper(iface.templateMapper);
-      projectedIface.templateArguments = mutate(projectedIface.templateMapper.args);
     }
 
     for (const op of iface.operations.values()) {
@@ -508,7 +504,6 @@ export function createProjector(
 
     if (union.templateMapper) {
       projectedUnion.templateMapper = projectTemplateMapper(union.templateMapper);
-      projectedUnion.templateArguments = mutate(projectedUnion.templateMapper.args);
     }
 
     for (const variant of union.variants.values()) {

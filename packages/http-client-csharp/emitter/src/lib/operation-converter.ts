@@ -19,7 +19,6 @@ import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
-import { BodyMediaType } from "../type/body-media-type.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
 import { InputConstant } from "../type/input-constant.js";
@@ -71,7 +70,6 @@ export function fromSdkServiceMethod(
     Parameters: [...parameterMap.values()],
     Responses: [...responseMap.values()],
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
-    RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
     Uri: uri,
     Path: method.operation.path,
     ExternalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
@@ -221,7 +219,6 @@ function loadLongRunningOperation(
         method.lroMetadata.finalResponse?.envelopeResult !== undefined
           ? fromSdkModelType(sdkContext, method.lroMetadata.finalResponse.envelopeResult)
           : undefined,
-      BodyMediaType: BodyMediaType.Json,
     } as OperationResponse,
     ResultPath: method.lroMetadata.finalResponse?.resultPath,
   };
@@ -237,7 +234,6 @@ function fromSdkHttpOperationResponses(
     responses.set(r, {
       StatusCodes: toStatusCodesArray(range),
       BodyType: r.type ? fromSdkType(sdkContext, r.type) : undefined,
-      BodyMediaType: BodyMediaType.Json,
       Headers: fromSdkServiceResponseHeaders(sdkContext, r.headers),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
       ContentTypes: r.contentTypes,
@@ -270,21 +266,6 @@ function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
     statusCodes.push(i);
   }
   return statusCodes;
-}
-
-function getBodyMediaType(type: SdkType | undefined) {
-  if (type === undefined) {
-    return BodyMediaType.None;
-  }
-
-  if (type.kind === "model") {
-    return BodyMediaType.Json;
-  } else if (type.kind === "string") {
-    return BodyMediaType.Text;
-  } else if (type.kind === "bytes") {
-    return BodyMediaType.Binary;
-  }
-  return BodyMediaType.None;
 }
 
 function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {

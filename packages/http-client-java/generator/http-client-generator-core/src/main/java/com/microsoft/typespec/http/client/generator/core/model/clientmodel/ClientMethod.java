@@ -403,6 +403,7 @@ public class ClientMethod {
 
             // for query parameter modification in RequestOptions (UrlBuilder.parse)
             imports.add(UrlBuilder.class.getName());
+            imports.add("io.clientcore.core.utils.UriBuilder");
         }
 
         getReturnValue().addImportsTo(imports, includeImplementationImports);

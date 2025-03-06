@@ -46,13 +46,11 @@ export {
   type Discriminator,
 } from "./intrinsic-type-state.js";
 export {
-  createCadlLibrary,
   createLinterRule as createRule,
   createTypeSpecLibrary,
   defineLinter,
   definePackageFlags,
   paramMessage,
-  setCadlNamespace,
   setTypeSpecNamespace,
 } from "./library.js";
 export { resolveLinterDefinition } from "./linter.js";

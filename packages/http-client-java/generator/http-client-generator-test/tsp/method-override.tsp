@@ -12,9 +12,7 @@ using TypeSpec.Http;
 using TypeSpec.Rest;
 using TypeSpec.Versioning;
 
-@service({
-  title: "MethodOverride",
-})
+@service(#{ title: "MethodOverride" })
 @versioned(Versions)
 namespace MethodOverride {
   enum Versions {
