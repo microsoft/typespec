@@ -31,9 +31,9 @@
   "license": "MIT",
   "description": "",
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~",
-    "@typespec/http": "workspace:~",
-    "@typespec/rest": "workspace:~"
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/rest": "workspace:^"
   },
   "dependencies": {
     "@alloy-js/core": "^0.5.0",

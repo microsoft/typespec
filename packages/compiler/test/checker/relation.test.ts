@@ -6,7 +6,7 @@ import {
   Model,
   Type,
   definePackageFlags,
-} from "../../src/core/index.js";
+} from "../../src/index.js";
 import {
   BasicTestRunner,
   DiagnosticMatch,

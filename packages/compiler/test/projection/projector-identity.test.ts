@@ -1,7 +1,7 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { DecoratorContext, Namespace, Type, getTypeName, isType } from "../../src/core/index.js";
 import { createProjector } from "../../src/core/projector.js";
+import { DecoratorContext, Namespace, Type, getTypeName, isType } from "../../src/index.js";
 import { createTestHost, createTestRunner } from "../../src/testing/test-host.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
 
