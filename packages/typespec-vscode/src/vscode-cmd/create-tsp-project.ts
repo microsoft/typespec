@@ -6,9 +6,10 @@ import {
 import { NodeSystemHost, scaffoldNewProject } from "@typespec/compiler/internals/init";
 import { Ajv } from "ajv";
 import * as semver from "semver";
+import { inspect } from "util";
 import vscode, { ExtensionContext, QuickPickItem } from "vscode";
 import { InitTemplateSchema } from "../../../compiler/dist/src/init/init-template.js";
-import pkgJson from "../../package.json" assert { type: "json" };
+import pkgJson from "../../package.json" with { type: "json" };
 import { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
 import {
@@ -199,7 +200,9 @@ export async function createTypeSpecProject(
           logger.info("Installing dependencies cancelled.");
         } else if (r.code !== ResultCode.Success) {
           logger.warning(
-            "Failed to install dependencies for the project. Please check previous logs for details",
+            r.details === "skipped"
+              ? "Installing dependencies is skipped. Please check previous log for details"
+              : "Installing dependencies failed. Please check previous logs for details",
             [],
             {
               showOutput: true,
@@ -211,27 +214,22 @@ export async function createTypeSpecProject(
 
       type nextStepChoice = "Add to workspace" | "Open in New Window" | "Ignore";
       let nextStep: nextStepChoice = "Ignore";
-      if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-        logger.info("No workspace opened, just open the project folder without asking.");
-        nextStep = "Open in New Window";
-      } else if (vscode.workspace.workspaceFolders?.length > 0) {
-        const normalizedRootFolder = normalizePath(selectedRootFolder);
-        const isFolderOpenedInWorkspace =
-          vscode.workspace.workspaceFolders?.find(
-            (x) => normalizePath(x.uri.fsPath) === normalizedRootFolder,
-          ) !== undefined;
-        if (isFolderOpenedInWorkspace) {
-          logger.info("Project folder is already opened in workspace, just ignore.");
-          nextStep = "Ignore";
-        } else {
-          logger.info("Project folder is not opened in workspace, ask user to add or open.");
-          nextStep =
-            (await vscode.window.showInformationMessage<nextStepChoice>(
-              "Project created successfully! What would you like to do next?",
-              "Add to workspace",
-              "Open in New Window",
-            )) ?? "Ignore";
-        }
+      const normalizedRootFolder = normalizePath(selectedRootFolder);
+      const isFolderOpenedInWorkspace =
+        vscode.workspace.workspaceFolders?.find(
+          (x) => normalizePath(x.uri.fsPath) === normalizedRootFolder,
+        ) !== undefined;
+      if (isFolderOpenedInWorkspace) {
+        logger.info("Project folder is already opened in workspace.");
+        nextStep = "Ignore";
+      } else {
+        logger.info("Project folder is not opened in workspace, ask user to add or open.");
+        nextStep =
+          (await vscode.window.showInformationMessage<nextStepChoice>(
+            "Project created successfully! What would you like to do next?",
+            "Add to workspace",
+            "Open in New Window",
+          )) ?? "Ignore";
       }
 
       const emitterMessage = Object.entries(selectedEmitters)
@@ -260,9 +258,13 @@ export async function createTypeSpecProject(
         });
       } else {
         if (nextStep === "Add to workspace") {
-          vscode.workspace.updateWorkspaceFolders(vscode.workspace.workspaceFolders!.length, null, {
-            uri: vscode.Uri.file(selectedRootFolder),
-          });
+          vscode.workspace.updateWorkspaceFolders(
+            vscode.workspace.workspaceFolders?.length ?? 0,
+            null,
+            {
+              uri: vscode.Uri.file(selectedRootFolder),
+            },
+          );
         }
 
         logger.info(`Creating TypeSpec Project completed successfully in ${selectedRootFolder}.`);
@@ -322,37 +324,39 @@ async function selectEmitters(
 
 async function installDependencies(directory: string): Promise<Result<ExecOutput | undefined>> {
   logger.info("Installing project dependencies");
-  return await tryExecuteWithUi(
-    {
-      name: "Installing project dependencies",
-      progress: {
-        timeoutInMs: 5 * 60 * 1000, // 5 minutes
-        title: "Installing project dependencies",
-        withCancelAndTimeout: true,
+  const checkTspCliPromise = checkInstalledTspCli();
+  const checkNpmPromise = checkInstalledNpm();
+  const [checkTspCli, checkNpm] = await Promise.all([checkTspCliPromise, checkNpmPromise]);
+  if (checkTspCli || checkNpm) {
+    return await tryExecuteWithUi(
+      {
+        name: "Installing project dependencies",
+        progress: {
+          timeoutInMs: 5 * 60 * 1000, // 5 minutes
+          title: "Installing project dependencies",
+          withCancelAndTimeout: true,
+        },
       },
-    },
-    async (progress) => {
-      const checkTspCli = checkInstalledTspCli();
-      const checkNpm = checkInstalledNpm();
-
-      if (await checkTspCli) {
-        logger.info("tsp cli is installed, try to install dependencies with tsp install");
-        progress?.report({ message: "running 'tsp install' ..." });
-        return await spawnExecutionAndLogToOutput("tsp", ["install"], directory);
-      } else if (await checkNpm) {
-        logger.info("npm is installed, try to install dependencies with 'npm install'");
-        progress?.report({ message: "running 'npm install' ..." });
-        return await spawnExecutionAndLogToOutput("npm", ["install"], directory);
-      } else {
-        logger.warning(
-          "Neither TypeSpec CLI(tsp) nor npm is installed, so it's skipped to install dependencies. You can install dependencies manually by:\n" +
-            "  1. Install nodejs and npm from https://nodejs.org/ and then run 'npm install' from the project folder. OR\n" +
-            "  2. Install TypeSpec CLI(tsp) from https://typespec.io/docs/ and then run 'tsp install' from the project folder.",
-        );
-        return undefined;
-      }
-    },
-  );
+      async (progress) => {
+        if (checkTspCli) {
+          logger.info("tsp cli is installed, try to install dependencies with tsp install");
+          progress?.report({ message: "running 'tsp install' ..." });
+          return await spawnExecutionAndLogToOutput("tsp", ["install"], directory);
+        } else {
+          logger.info("npm is installed, try to install dependencies with 'npm install'");
+          progress?.report({ message: "running 'npm install' ..." });
+          return await spawnExecutionAndLogToOutput("npm", ["install"], directory);
+        }
+      },
+    );
+  } else {
+    logger.warning(
+      "Installing dependencies is skipped because neither TypeSpec CLI(tsp) nor npm is found. You can install dependencies manually by:\n" +
+        "  1. Install nodejs and npm from https://nodejs.org/ and then run 'npm install' from the project folder. OR\n" +
+        "  2. Install TypeSpec CLI(tsp) from https://typespec.io/docs/ and then run 'tsp install' from the project folder.",
+    );
+    return { code: ResultCode.Fail, details: "skipped" };
+  }
 }
 
 async function initProject(initTemplateConfig: InitProjectConfig): Promise<Result> {
@@ -416,8 +420,7 @@ async function validateTemplate(info: InitTemplateInfo): Promise<boolean> {
   const validateResult: boolean = await validateFunc(info.template);
 
   if (!validateResult) {
-    // TODO: verify the error message
-    logger.warning("Template validation failed: \n", [validateFunc.errors], {
+    logger.warning("Template validation failed: \n", [inspect(validateFunc.errors)], {
       showOutput: true,
       showPopup: true,
     });

@@ -2215,7 +2215,7 @@ importers:
         version: 28.0.2(rollup@4.34.9)
       '@rollup/plugin-json':
         specifier: ~6.1.0
-        version: 6.1.0(rollup@4.31.0)
+        version: 6.1.0(rollup@4.34.9)
       '@rollup/plugin-node-resolve':
         specifier: ~16.0.0
         version: 16.0.0(rollup@4.34.9)
