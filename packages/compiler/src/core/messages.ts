@@ -1023,21 +1023,6 @@ const diagnostics = {
       default: paramMessage`Visibility of property '${"propName"}' is sealed and cannot be changed.`,
     },
   },
-  "visibility-mixed-legacy": {
-    severity: "error",
-    messages: {
-      default:
-        "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers to a property.",
-    },
-  },
-  "visibility-legacy": {
-    severity: "warning",
-    messages: {
-      default: paramMessage`String (legacy) visibility modifier '${"modifier"}' is deprecated and will be removed in TypeSpec version 1.0-rc. Use '${"newModifier"}' instead.`,
-      unrecognized: paramMessage`String (legacy) visibility modifier '${"modifier"}' is not recognized. This warning will become an error in TypeSpec 1.0-rc.`,
-      none: "String (legacy) visibility modifier 'none' should be replaced with '@invisible(Lifecycle)'. This warning will become an error in TypeSpec 1.0-rc.",
-    },
-  },
   "default-visibility-not-member": {
     severity: "error",
     messages: {
@@ -1045,14 +1030,12 @@ const diagnostics = {
     },
   },
   "operation-visibility-constraint-empty": {
-    severity: "warning",
+    severity: "error",
     messages: {
-      default:
-        "Operation visibility constraints with no arguments are deprecated and will become an error in TypeSpec version 1.0-rc.",
-      returnType:
-        "Return type visibility constraints with no arguments are deprecated and will become an error in TypeSpec version 1.0-rc.",
+      default: "Operation visibility constraints with no arguments are not allowed.",
+      returnType: "Return type visibility constraints with no arguments are not allowed.",
       parameter:
-        "Parameter visibility constraints with no arguments are deprecated and will become an error in TypeSpec version 1.0-rc. To disable effective PATCH optionality, use @patch(#{ implicitOptionality: false }) instead.",
+        "Parameter visibility constraints with no arguments are not allowed. To disable effective PATCH optionality, use @patch(#{ implicitOptionality: false }) instead.",
     },
   },
   // #endregion

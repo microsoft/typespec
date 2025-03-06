@@ -62,7 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             => Parameter(
                 "contentType",
                 Literal.String(contentType),
-                location: RequestLocation.Header,
+                location: InputRequestLocation.Header,
                 isRequired: true,
                 defaultValue: Constant.String(contentType),
                 nameInRequest: "Content-Type",
@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputType type,
             string? nameInRequest = null,
             InputConstant? defaultValue = null,
-            RequestLocation location = RequestLocation.Body,
+            InputRequestLocation location = InputRequestLocation.Body,
             bool isRequired = false,
             InputOperationParameterKind kind = InputOperationParameterKind.Method,
             bool isEndpoint = false,
@@ -216,7 +216,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string name,
             string access = "public",
             IEnumerable<InputParameter>? parameters = null,
-            IEnumerable<OperationResponse>? responses = null,
+            IEnumerable<InputOperationResponse>? responses = null,
             IEnumerable<string>? requestMediaTypes = null,
             string uri = "",
             string path = "",
@@ -244,9 +244,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 name);
         }
 
-        public static OperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null)
+        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null)
         {
-            return new OperationResponse(
+            return new InputOperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
                 [],
