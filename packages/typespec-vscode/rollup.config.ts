@@ -1,13 +1,14 @@
 import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import { dirname } from "path";
-
 import { defineConfig } from "rollup";
 import { fileURLToPath } from "url";
+
 const projDir = dirname(fileURLToPath(import.meta.url));
 
-const plugins = [(resolve as any)({ preferBuiltins: true }), (commonjs as any)()];
+const plugins = [(resolve as any)({ preferBuiltins: true }), (commonjs as any)(), (json as any)()];
 const baseConfig = defineConfig({
   input: "src/extension.ts",
   output: {

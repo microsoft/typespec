@@ -1,6 +1,6 @@
 import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-import { readFile, realpath, stat } from "fs/promises";
+import { readdir, readFile, realpath, stat } from "fs/promises";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
@@ -125,6 +125,14 @@ export async function tryReadFile(path: string): Promise<string | undefined> {
     return content;
   } catch (e) {
     logger.debug(`Failed to read file: ${path}`, [e]);
+    return undefined;
+  }
+}
+
+export async function tryReadDir(path: string): Promise<string[] | undefined> {
+  try {
+    return await readdir(path);
+  } catch (e) {
     return undefined;
   }
 }
@@ -404,8 +412,20 @@ export async function loadPackageJsonFile(
  * @returns the path to the installed node executable, or empty string if not found.
  */
 export async function checkInstalledNode(): Promise<string> {
+  return checkInstalledExecutable("node");
+}
+
+export async function checkInstalledTspCli(): Promise<string> {
+  return checkInstalledExecutable("tsp");
+}
+
+export async function checkInstalledNpm(): Promise<string> {
+  return checkInstalledExecutable("npm");
+}
+
+export async function checkInstalledExecutable(exe: string): Promise<string> {
   try {
-    return await which("node");
+    return await which(exe);
   } catch (e) {
     return "";
   }

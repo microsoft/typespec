@@ -30,7 +30,7 @@ granted herein, whether by implication, estoppel or otherwise.
 
   for (const packageRoot of packageRoots) {
     const pkg = packages.get(packageRoot);
-    const license = await getLicense(packageRoot);
+    const license = await getLicense(pkg.name, packageRoot);
     text += `\n\n
 %% ${pkg.name} NOTICES AND INFORMATION BEGIN HERE
 =====================================================
@@ -127,15 +127,42 @@ function getUrl(pkg: any) {
   return url;
 }
 
-async function getLicense(packageRoot: string) {
+function processLicenseText(text: string) {
+  text = text.replace("&lt;", "<");
+  text = text.replace("&gt;", ">");
+  text = text.replace(/(\r\n|\r)/gm, "\n");
+  return text;
+}
+
+async function downloadLicenseForKnownPackages(packageName: string): Promise<string> {
+  const knownPackageList: Record<string, string> = {
+    // change-case package doesn't have license file in the npm package directly
+    "change-case":
+      "https://raw.githubusercontent.com/blakeembrey/change-case/refs/heads/main/LICENSE",
+  };
+
+  const url = knownPackageList[packageName];
+  if (!url) {
+    throw new Error(`Cannot get license for ${packageName} which is not in the knowPackageList.`);
+  }
+
+  const response = await fetch(url);
+  if (response.ok) {
+    const text = await response.text();
+    return processLicenseText(text);
+  } else {
+    throw new Error(
+      `Failed to fetch license from ${url} for ${packageName}. response status: ${response.status}`,
+    );
+  }
+}
+
+async function getLicense(packageName: string, packageRoot: string) {
   for (const licenseName of ["LICENSE", "LICENSE.txt", "LICENSE.md", "LICENSE-MIT"]) {
     const licensePath = join(packageRoot, licenseName);
     try {
-      let text = await readFile(licensePath, "utf-8");
-      text = text.replace("&lt;", "<");
-      text = text.replace("&gt;", ">");
-      text = text.replace(/(\r\n|\r)/gm, "\n");
-      return text;
+      const text = await readFile(licensePath, "utf-8");
+      return processLicenseText(text);
     } catch (err: any) {
       if (err.code === "ENOENT") {
         continue;
@@ -144,5 +171,5 @@ async function getLicense(packageRoot: string) {
     }
   }
 
-  throw new Error(`Cannot get license for ${packageRoot}, license file not found.`);
+  return await downloadLicenseForKnownPackages(packageName);
 }
