@@ -3,11 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.postprocessor.implementation;
 
-import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -30,8 +28,6 @@ import org.slf4j.Logger;
  */
 public final class CodeFormatterUtil {
 
-    private static final Logger LOGGER = new PluginLogger(Javagen.getPluginInstance(), CodeFormatterUtil.class);
-
     private static final Pattern SPOTLESS_ERROR_PATTERN
         = Pattern.compile("^(\\d+):\\d+: error: (.*)$", Pattern.MULTILINE);
     private static final int SPOTLESS_FILE_CONTENT_RANGE = 3;
@@ -42,7 +38,7 @@ public final class CodeFormatterUtil {
      * @param files The files to format.
      * @param plugin The plugin to use to write the formatted files.
      */
-    public static void formatCode(Map<String, String> files, NewPlugin plugin) {
+    public static void formatCode(Map<String, String> files, NewPlugin plugin, Logger logger) {
         try {
             for (Map.Entry<String, String> file : formatCodeInternal(files.entrySet())) {
                 plugin.writeFile(file.getKey(), file.getValue(), null);
@@ -59,11 +55,7 @@ public final class CodeFormatterUtil {
                         int lineNumber = Integer.parseInt(matcher.group(1));
 
                         StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append("line: ")
-                            .append(lineNumber)
-                            .append(", error: ")
-                            .append(matcher.group(2))
-                            .append("\n");
+                        stringBuilder.append(matcher.group(0)).append("\n");
 
                         // line number from log start from 1
                         String[] lines = content.split("\n");
@@ -74,7 +66,7 @@ public final class CodeFormatterUtil {
                         }
                         content = stringBuilder.toString();
                     }
-                    LOGGER.error("Failed to format file '{}'\n{}", file.getKey(), content);
+                    logger.error("Failed to format file '{}'\n{}", file.getKey(), content);
                 }
             }
             throw ex;
