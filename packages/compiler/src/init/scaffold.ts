@@ -1,3 +1,4 @@
+import { stringify } from "yaml";
 import type { TypeSpecRawConfig } from "../config/types.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import type { SystemHost } from "../core/types.js";
@@ -131,7 +132,10 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
     private: true,
   };
 
-  return host.writeFile("package.json", JSON.stringify(packageJson, null, 2));
+  return host.writeFile(
+    joinPaths(config.directory, "package.json"),
+    JSON.stringify(packageJson, null, 2),
+  );
 }
 
 const placeholderConfig = `
@@ -170,8 +174,8 @@ async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
       Object.entries(config.emitters).map(([key, emitter]) => [key, emitter.options]),
     );
   }
-  const content = rawConfig ? "" : placeholderConfig;
-  return host.writeFile(TypeSpecConfigFilename, content);
+  const content = rawConfig ? stringify(rawConfig) : placeholderConfig;
+  return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 
 async function writeMain(host: SystemHost, config: ScaffoldingConfig) {
@@ -184,10 +188,15 @@ async function writeMain(host: SystemHost, config: ScaffoldingConfig) {
     dependencies[library.name] = await getPackageVersion(library);
   }
 
-  const lines = [...config.libraries.map((x) => `import "${x.name}";`), ""];
+  const lines = [
+    ...config.libraries
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((x) => `import "${x.name}";`),
+    "",
+  ];
   const content = lines.join("\n");
 
-  // return host.writeFile(joinPaths(config.directory, "main.tsp"), await formatTypeSpec(content));
+  return host.writeFile(joinPaths(config.directory, "main.tsp"), content);
 }
 
 const defaultGitignore = `
@@ -206,7 +215,7 @@ async function writeGitignore(host: SystemHost, config: ScaffoldingConfig) {
     return;
   }
 
-  return host.writeFile(".gitignore", defaultGitignore);
+  return host.writeFile(joinPaths(config.directory, ".gitignore"), defaultGitignore);
 }
 
 async function writeFiles(host: SystemHost, config: ScaffoldingConfig) {

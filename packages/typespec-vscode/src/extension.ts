@@ -104,7 +104,7 @@ export async function activate(context: ExtensionContext) {
 
   context.subscriptions.push(
     commands.registerCommand(CommandName.CreateProject, async () => {
-      await createTypeSpecProject(stateManager);
+      await createTypeSpecProject(context, stateManager);
     }),
   );
 
@@ -190,6 +190,7 @@ function showStartUpMessages(stateManager: ExtensionStateManager) {
       if (isWhitespaceStringOrUndefined(msg.detail)) {
         logger.log(msg.level, msg.popupMessage, [], {
           showPopup: true,
+          popupButtonText: "",
         });
       } else {
         const SHOW_DETAIL = "View Details in Output";

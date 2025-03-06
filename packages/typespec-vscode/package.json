@@ -264,6 +264,7 @@
     "vitest": "^3.0.5",
     "vscode-languageclient": "~9.0.1",
     "which": "^5.0.0",
-    "yaml": "~2.7.0"
+    "yaml": "~2.7.0",
+    "ajv": "~8.17.1"
   }
 }

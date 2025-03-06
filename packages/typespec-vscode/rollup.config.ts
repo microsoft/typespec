@@ -20,7 +20,6 @@ const baseConfig = defineConfig({
   external: ["vscode"],
   onwarn: (warning, warn) => {
     if (warning.code === "CIRCULAR_DEPENDENCY") {
-      return;
       // filter out warnings about circular dependencies out of our control
       for (const each of ["node_modules/semver"]) {
         if (warning.message.includes(each)) {
