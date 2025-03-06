@@ -1,5 +1,5 @@
 import { fork } from "child_process";
-import { mkdir, mkdtemp, rename, rm } from "fs/promises";
+import { mkdir, rename, rm } from "fs/promises";
 import { homedir } from "os";
 import type { CliCompilerHost } from "../core/cli/types.js";
 import { DiagnosticError } from "../core/diagnostic-error.js";
@@ -11,6 +11,7 @@ import {
   downloadAndExtractPackage,
   fetchPackageManifest,
 } from "../package-manger/npm-registry-utils.js";
+import { mkTempDir } from "../utils/fs-utils.js";
 import { getPackageManagerConfig, type PackageManagerConfig } from "./config.js";
 import {
   resolvePackageManagerSpec,
@@ -106,7 +107,7 @@ export async function installTypeSpecDependencies(
     const installDir = joinPaths(pmDir, packageManager, manifest.version);
     await rm(installDir, { recursive: true, force: true });
     await mkdir(installDir, { recursive: true });
-    const tempDir = await mkdtemp(`tsp-pm-${packageManager}-${manifest.version}`);
+    const tempDir = await mkTempDir(host, tspDir, `tsp-pm-${packageManager}-${manifest.version}`);
 
     tracer.trace(
       "downloading-extracting",
