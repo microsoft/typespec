@@ -17,9 +17,9 @@ export {
   isStdNamespace,
 } from "./type-name-utils.js";
 export {
+  UsageFlags,
   resolveUsages,
   type OperationContainer,
   type TrackableType,
-  type UsageFlags,
   type UsageTracker,
 } from "./usage-resolver.js";

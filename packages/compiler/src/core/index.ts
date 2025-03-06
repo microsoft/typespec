@@ -1,6 +1,7 @@
 export { MANIFEST, typespecVersion, type TypeSpecManifest } from "../manifest.js";
 export {
   resolveModule,
+  type ModuleResolutionResult,
   type ResolveModuleHost,
   type ResolveModuleOptions,
 } from "../module-resolver/module-resolver.js";
@@ -60,6 +61,7 @@ export {
   DiscriminatedUnion,
   DiscriminatedUnionLegacy,
   TypeNameOptions,
+  UsageFlags,
   explainStringTemplateNotSerializable,
   printIdentifier as formatIdentifier,
   getDiscriminatedUnion,
@@ -75,7 +77,6 @@ export {
   type ListOperationOptions,
   type OperationContainer,
   type TrackableType,
-  type UsageFlags,
   type UsageTracker,
 } from "./helpers/index.js";
 export {
