@@ -203,6 +203,7 @@ describe("Typescript Interface", () => {
             }
             export interface DifferentSpreadModelDerived extends DifferentSpreadModelRecord {
               derivedProp: ModelForRecord;
+              additionalProperties?: Record<string, ModelForRecord>;
             }
             `,
           {
@@ -240,10 +241,11 @@ describe("Typescript Interface", () => {
         assert(testFile, "test.ts file not rendered");
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
-          `export interface Widget extends Record<string, unknown> {
+          `export interface Widget {
             id: string;
             weight: number;
             color: "blue" | "red";
+            additionalProperties?: Record<string, unknown>;
           }`,
           {
             parser: "typescript",

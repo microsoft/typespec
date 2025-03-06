@@ -53,37 +53,6 @@ The modifiers passed to this decorator _MUST_ be members of the target Enum.
 
 
 
-### `@deprecated` {#@deprecated}
-:::caution
-**Deprecated**: @deprecated decorator is deprecated. Use the `#deprecated` directive instead.
-:::
-
-Mark this type as deprecated.
-
-NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
-```typespec
-@deprecated(message: valueof string)
-```
-
-#### Target
-
-`unknown`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| message | [valueof `string`](#string) | Deprecation message. |
-
-#### Examples
-
-Use the `#deprecated` directive instead:
-
-```typespec
-#deprecated "Use ActionV2"
-op Action<Result>(): Result;
-```
-
-
 ### `@discriminated` {#@discriminated}
 
 Specify that this union is discriminated.

@@ -84,7 +84,6 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
-import { getVersioningMutators } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
@@ -122,6 +121,7 @@ import {
   isSharedHttpOperation,
   SharedHttpOperation,
 } from "./util.js";
+import { resolveVersioningModule } from "./versioning-module.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 import { resolveXmlModule, XmlModule } from "./xml-module.js";
 
@@ -453,13 +453,14 @@ function createOAPIEmitter(
   }
 
   async function getOpenAPI(): Promise<OpenAPI3ServiceRecord[]> {
+    const versioningModule = await resolveVersioningModule();
     const serviceRecords: OpenAPI3ServiceRecord[] = [];
     const services = listServices(program);
     if (services.length === 0) {
       services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
-      const versions = getVersioningMutators(program, service.type);
+      const versions = versioningModule?.getVersioningMutators(program, service.type);
       if (versions === undefined) {
         const document = await getOpenApiFromVersion(service);
         if (document === undefined) {

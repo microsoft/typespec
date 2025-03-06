@@ -34,8 +34,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
-                    || reader.TryReadWithConverter("valueType", options, ref valueType)
-                    || reader.TryReadWithConverter("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("valueType", options, ref valueType)
+                    || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {

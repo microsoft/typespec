@@ -15,7 +15,7 @@ export function InterfaceMember({ type, optional }: InterfaceMemberProps) {
   const name = namer.getName(type.name, "object-member-getter");
 
   if ($.modelProperty.is(type)) {
-    const optionality = (type.optional ?? optional) ? "?" : "";
+    const optionality = optional === true || type.optional === true ? "?" : "";
 
     if (isNeverType(type.type)) {
       return null;
