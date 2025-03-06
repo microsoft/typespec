@@ -33,7 +33,7 @@ interface SpawnError {
   spawnArgs: string[];
 }
 
-const paths = envPaths("tsp");
+const paths = envPaths("tsp", { suffix: "" });
 const pmDir = joinPaths(paths.cache, "pm");
 
 export class InstallDependenciesError extends DiagnosticError {
