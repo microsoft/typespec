@@ -100,6 +100,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`An unknown error occurred. ${"errorMessage"}`,
       },
     },
+    "jar-error": {
+      severity: "error",
+      messages: {
+        default: paramMessage`${"errorMessage"}`,
+      },
+    },
     "invalid-java-sdk-dependency": {
       severity: "error",
       messages: {
@@ -132,6 +138,12 @@ export const $lib = createTypeSpecLibrary({
     },
 
     // warning
+    "jar-warning": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`${"warningMessage"}`,
+      },
+    },
     "no-service": {
       severity: "warning",
       messages: {
