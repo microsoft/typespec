@@ -322,7 +322,7 @@ async function selectEmitters(template: InitTemplate): Promise<Record<string, Em
           ? `${emitter.label.padEnd(maxLabelLength + 3)} ${pc.dim(`[${name}]`)}`
           : name,
         description: emitter.description,
-        selected: emitter.selected ?? false,
+        checked: emitter.selected ?? false,
       };
     }),
     theme: {
