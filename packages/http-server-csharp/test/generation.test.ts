@@ -1594,7 +1594,7 @@ it("generates multiline `@doc` decorator comments with long non-space words", as
   );
 });
 
-it("generates multiline `@doc` decorator comments", async () => {
+it("generates single line `@doc` decorator comments", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
@@ -1614,7 +1614,7 @@ it("generates multiline `@doc` decorator comments", async () => {
   );
 });
 
-it("generates basic jsdoc comments", async () => {
+it("generates jsdoc comments", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
