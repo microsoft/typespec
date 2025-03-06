@@ -9,7 +9,6 @@ import {
   isNullType,
   Model,
   ModelProperty,
-  Program,
   Scalar,
   serializeValueAsJson,
   Type,
@@ -196,7 +195,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
         ? this.applyConstraints(union, {})
         : {};
 
-      if (mergeUnionWideConstraints && nullable) {
+      if (schemaMembers.length === 1 && mergeUnionWideConstraints && nullable) {
         additionalProps.nullable = true;
       }
 
@@ -242,13 +241,12 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       return wrapWithObjectBuilder(schemaMembers[0], { mergeUnionWideConstraints: true });
     }
 
-    const allStdScalars = areAllMembersStdScalars(this.emitter.getProgram(), schemaMembers);
     const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
-        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: allStdScalars }),
+        wrapWithObjectBuilder(m, { mergeUnionWideConstraints: false }),
       ),
     };
-    if (!allStdScalars && nullable) {
+    if (nullable) {
       schema[ofType]?.push(
         new ObjectBuilder({
           not: {
@@ -271,16 +269,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     interface UnionSchemaMember {
       schema: any;
       type: Type | null;
-    }
-
-    function areAllMembersStdScalars(
-      program: Program,
-      schemaMembers: UnionSchemaMember[],
-    ): boolean {
-      const tspNamespace = program.resolveTypeReference("TypeSpec")[0]!;
-      return schemaMembers.every(
-        (m) => m.type?.kind === "Scalar" && m.type.namespace === tspNamespace,
-      );
     }
   }
 

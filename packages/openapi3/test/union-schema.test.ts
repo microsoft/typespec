@@ -576,11 +576,30 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         {
           type: "integer",
           format: "int32",
-          nullable: true,
         },
         {
           type: "string",
-          nullable: true,
+        },
+        {
+          not: {
+            anyOf: [
+              {
+                type: "string",
+              },
+              {
+                type: "number",
+              },
+              {
+                type: "boolean",
+              },
+              {
+                type: "object",
+              },
+              {
+                type: "array",
+              },
+            ],
+          },
         },
       ]);
     });
