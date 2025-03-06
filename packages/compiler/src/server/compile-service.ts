@@ -1,5 +1,6 @@
 import { DiagnosticSeverity, Range, TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { isSeq, parseDocument } from "yaml";
 import {
   defaultConfig,
   findTypeSpecConfigPath,
@@ -8,16 +9,16 @@ import {
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
 import {
+  compilerAssert,
   CompilerHost,
   CompilerOptions,
-  Program,
-  Diagnostic as TypeSpecDiagnostic,
-  TypeSpecScriptNode,
-  compilerAssert,
   formatDiagnostic,
   getDirectoryPath,
   joinPaths,
   parse,
+  Program,
+  Diagnostic as TypeSpecDiagnostic,
+  TypeSpecScriptNode,
 } from "../core/index.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
@@ -79,6 +80,7 @@ export function createCompileService({
   const oldPrograms = new Map<string, Program>();
   const eventListeners = new Map<string, (...args: unknown[]) => void>();
   const updated = new UpdateManger((document) => compile(document));
+  let configFilePath: string | undefined;
 
   return { compile, getScript, on, notifyChange };
 
@@ -103,6 +105,7 @@ export function createCompileService({
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
     const config = await getConfig(mainFile);
+    configFilePath = config.filename;
     log({ level: "debug", message: `config resolved`, detail: config });
 
     const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
@@ -174,12 +177,48 @@ export function createCompileService({
       if (serverHost.throwInternalErrors) {
         throw err;
       }
+
+      let uri = document.uri;
+      let range = Range.create(0, 0, 0, 0);
+      if (err.info.kind === "emitter" && configFilePath) {
+        const sourceFile = await serverHost.compilerHost.readFile(configFilePath);
+        const emitterName = err.info.metadata.name;
+        const yamlDoc = parseDocument(sourceFile.text, {
+          keepSourceTokens: true,
+        });
+        if (yamlDoc) {
+          let emitOffset = 0;
+          const emitNode = yamlDoc.get("emit");
+          if (isSeq(emitNode) && emitNode.srcToken?.type === "block-seq") {
+            const found = emitNode.srcToken.items.find(
+              (item) =>
+                item.value && "source" in item.value && item.value.source.includes(emitterName),
+            )?.value;
+            if (found) {
+              emitOffset = found.offset;
+            }
+          }
+
+          if (emitOffset > 0) {
+            const lineAndChar = sourceFile.getLineAndCharacterOfPosition(emitOffset + 1);
+
+            uri = fileService.getURL(configFilePath);
+            range = Range.create(
+              lineAndChar.line,
+              lineAndChar.character,
+              lineAndChar.line,
+              lineAndChar.character + emitterName.length,
+            );
+          }
+        }
+      }
+
       serverHost.sendDiagnostics({
-        uri: document.uri,
+        uri,
         diagnostics: [
           {
             severity: DiagnosticSeverity.Error,
-            range: Range.create(0, 0, 0, 0),
+            range,
             message:
               `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n` +
               err.stack,
