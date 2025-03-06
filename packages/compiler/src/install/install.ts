@@ -27,7 +27,7 @@ interface SpawnError {
   spawnArgs: string[];
 }
 
-const tspDir = homedir() + "/.tsp";
+const tspDir = joinPaths(homedir(), ".tsp");
 const pmDir = joinPaths(tspDir, "pm");
 
 export class InstallDependenciesError extends DiagnosticError {
@@ -107,7 +107,7 @@ export async function installTypeSpecDependencies(
     const installDir = joinPaths(pmDir, packageManager, manifest.version);
     await rm(installDir, { recursive: true, force: true });
     await mkdir(installDir, { recursive: true });
-    const tempDir = await mkTempDir(host, tspDir, `tsp-pm-${packageManager}-${manifest.version}`);
+    const tempDir = await mkTempDir(host, pmDir, `tsp-pm-${packageManager}-${manifest.version}`);
 
     tracer.trace(
       "downloading-extracting",
