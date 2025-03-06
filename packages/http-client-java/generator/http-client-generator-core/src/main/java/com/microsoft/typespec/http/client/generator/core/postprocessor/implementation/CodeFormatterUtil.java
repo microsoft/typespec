@@ -49,20 +49,24 @@ public final class CodeFormatterUtil {
                 try {
                     formatCodeInternal(List.of(file));
                 } catch (RuntimeException e) {
-                    Matcher matcher = SPOTLESS_ERROR_PATTERN.matcher(e.getMessage());
+                    // by default, log the whole file
                     String content = file.getValue();
+
+                    // if we can find the line number from the error message, refine the "content" to the part of file
+                    // around the line
+                    Matcher matcher = SPOTLESS_ERROR_PATTERN.matcher(e.getMessage());
                     if (matcher.find()) {
                         int lineNumber = Integer.parseInt(matcher.group(1));
 
                         StringBuilder stringBuilder = new StringBuilder();
                         stringBuilder.append(matcher.group(0)).append("\n");
 
-                        // line number from log start from 1
+                        // line number from log starts from 1
                         String[] lines = content.split("\n");
-                        int lineBegin = Math.max(0, lineNumber - 1 - SPOTLESS_FILE_CONTENT_RANGE);
-                        int lineEnd = Math.min(lines.length - 1, lineNumber - 1 + SPOTLESS_FILE_CONTENT_RANGE);
-                        for (int i = lineBegin; i <= lineEnd; ++i) {
-                            stringBuilder.append(i + 1).append(" ").append(lines[i]).append("\n");
+                        int lineIndexBegin = Math.max(0, lineNumber - 1 - SPOTLESS_FILE_CONTENT_RANGE);
+                        int lineIndexEnd = Math.min(lines.length - 1, lineNumber - 1 + SPOTLESS_FILE_CONTENT_RANGE);
+                        for (int lineIndex = lineIndexBegin; lineIndex <= lineIndexEnd; ++lineIndex) {
+                            stringBuilder.append(lineIndex + 1).append(" ").append(lines[lineIndex]).append("\n");
                         }
                         content = stringBuilder.toString();
                     }
