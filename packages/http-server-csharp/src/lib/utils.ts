@@ -1449,3 +1449,7 @@ export function coalesceTsTypes(program: Program, types: Type[]): [CSharpType, b
 export function isRecord(type: Type): boolean {
   return type.kind === "Model" && type.name === "Record" && type.indexer !== undefined;
 }
+
+export function getPorts(httpPort?: number, httpsPort?: number): [number, number] {
+  return [httpPort || 5000, httpsPort || 7000];
+}

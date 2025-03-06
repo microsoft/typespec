@@ -67,11 +67,13 @@ import {
   ResponseInfo,
 } from "./interfaces.js";
 import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
+import { getProjectHelpers } from "./project.js";
 import {
   BusinessLogicImplementation,
   BusinessLogicMethod,
   BusinessLogicRegistrations,
   getBusinessLogicImplementations,
+  getScaffoldingHelpers,
 } from "./scaffolding.js";
 import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
 import {
@@ -96,6 +98,7 @@ import {
   getModelDeclarationName,
   getModelInstantiationName,
   getOperationVerbDecorator,
+  getPorts,
   isEmptyResponseModel,
   isValueType,
 } from "./utils.js";
@@ -1221,7 +1224,43 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const options = emitter.getOptions();
   processNameSpace(context.program, ns);
   if (!doNotEmit) {
+    const mockFiles: LibrarySourceFile[] = [];
     await ensureCleanDirectory(context.program, options.emitterOutputDir);
+
+    if (options["emit-mocks"] !== "none") {
+      mockFiles.push(
+        ...getScaffoldingHelpers(
+          emitter,
+          options["use-swaggerui"] || false,
+          options["openapi-path"] || "",
+          true,
+        ),
+      );
+    }
+    if (options["emit-mocks"] === "all") {
+      const [httpPort, httpsPort] = getPorts(options["http-port"], options["https-port"]);
+      mockFiles.push(
+        ...getProjectHelpers(
+          emitter,
+          options["project-name"] || "ServiceProject",
+          options["use-swaggerui"] || false,
+          httpPort,
+          httpsPort,
+        ),
+      );
+    }
+
+    for (const file of mockFiles) {
+      if (file.conditional && !options["overwrite"]) {
+        const fileInfo = await context.program.host.stat(file.path);
+        if (!fileInfo.isDirectory() && !fileInfo.isFile()) {
+          await emitter.emitSourceFile(file.source);
+        }
+      } else {
+        await emitter.emitSourceFile(file.source);
+      }
+    }
+
     await emitter.writeOutput();
     if (options["skip-format"] === undefined || options["skip-format"] === false) {
       await execFile("dotnet", [

@@ -9,6 +9,7 @@ import {
 import { Model } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
+import { CSharpServiceEmitterOptions } from "./lib.js";
 
 export const HelperNamespace: string = "TypeSpec.Helpers.JsonConverters";
 
@@ -288,7 +289,7 @@ export class LibrarySourceFile {
   constructor(params: {
     filename: string;
     getContents: () => string;
-    emitter: AssetEmitter<string, Record<string, never>>;
+    emitter: AssetEmitter<string, CSharpServiceEmitterOptions>;
     path?: string;
     conditional?: boolean;
   }) {

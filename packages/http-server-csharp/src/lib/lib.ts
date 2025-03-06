@@ -13,6 +13,12 @@ export interface CSharpServiceEmitterOptions {
   "openapi-path"?: string;
   /** When generating mock files, overwrite any existing files with the same name. */
   overwrite?: boolean;
+  /** The generated project name. */
+  "project-name"?: string;
+  /** The http port number to use when hosting the service locally */
+  "http-port"?: number;
+  /** The https port number to use when hosting the service locally */
+  "https-port"?: number;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
@@ -59,6 +65,22 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
       nullable: true,
       default: false,
       description: "When generating mock files, overwrite any existing files with the same name.",
+    },
+    "project-name": {
+      type: "string",
+      nullable: true,
+      default: "ServiceProject",
+      description: "The name of the generated project.",
+    },
+    "http-port": {
+      type: "number",
+      nullable: true,
+      description: "The service http port when hosting the project locally.",
+    },
+    "https-port": {
+      type: "number",
+      nullable: true,
+      description: "The service https port when hosting the project locally.",
     },
   },
   required: [],

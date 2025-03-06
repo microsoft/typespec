@@ -1,6 +1,7 @@
 import { AssetEmitter, code } from "@typespec/asset-emitter";
 import { GeneratedFileHeaderWithNullable } from "./boilerplate.js";
 import { CSharpType, LibrarySourceFile } from "./interfaces.js";
+import { CSharpServiceEmitterOptions } from "./lib.js";
 
 export interface BusinessLogicImplementation {
   namespace: string;
@@ -22,7 +23,7 @@ export type BusinessLogicRegistrations = Map<string, BusinessLogicImplementation
 export type BusinessLogicRegistration = [string, BusinessLogicImplementation];
 
 export function getScaffoldingHelpers(
-  emitter: AssetEmitter<string, Record<string, never>>,
+  emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
   useSwagger: boolean,
   openApiPath: string,
   hasMockRegistration: boolean,

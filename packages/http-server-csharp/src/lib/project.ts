@@ -1,5 +1,6 @@
 import { AssetEmitter } from "@typespec/compiler/emitter-framework";
 import { CSharpType, LibrarySourceFile } from "./interfaces.js";
+import { CSharpServiceEmitterOptions } from "./lib.js";
 
 export interface BusinessLogicImplementation {
   namespace: string;
@@ -21,7 +22,7 @@ export type BusinessLogicRegistrations = Map<string, BusinessLogicImplementation
 export type BusinessLogicRegistration = [string, BusinessLogicImplementation];
 
 export function getProjectHelpers(
-  emitter: AssetEmitter<string, Record<string, never>>,
+  emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
   projectName: string,
   useSwaggerUI: boolean,
   httpPort: number,
