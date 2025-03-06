@@ -225,7 +225,23 @@ function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
 
 async function getOutputFolder(mainTspFile: string): Promise<string | undefined> {
   let tmpFolder = openApi3TempFolders.get(mainTspFile);
-  if (!tmpFolder) {
+  if (tmpFolder) {
+    let files: string[] = [];
+    // Clear the contents of the existing tmpFolder
+    try {
+      files = await readdir(tmpFolder);
+    } catch (e) {
+      logger.error(`Failed to read temporary folder: ${tmpFolder}`, [e]);
+      return;
+    }
+    for (const file of files) {
+      try {
+        await rm(joinPaths(tmpFolder, file), { recursive: true, force: true });
+      } catch (e) {
+        logger.error(`Failed to delete file: ${file}`, [e]);
+      }
+    }
+  } else {
     tmpFolder = await createTempDir();
     if (tmpFolder) {
       openApi3TempFolders.set(mainTspFile, tmpFolder);
