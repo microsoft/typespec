@@ -11,7 +11,6 @@ import {
   Program,
   Type,
   typespecTypeToJson,
-  TypeSpecValue,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
 import { setStatusCode } from "@typespec/http";
@@ -169,13 +168,8 @@ const infoKey = createStateSymbol("info");
 export const $info: InfoDecorator = (
   context: DecoratorContext,
   entity: Namespace,
-  model: TypeSpecValue,
+  data: AdditionalInfo & Record<ExtensionKey, unknown>,
 ) => {
-  const [data, diagnostics] = typespecTypeToJson<AdditionalInfo & Record<ExtensionKey, unknown>>(
-    model,
-    context.getArgumentTarget(0)!,
-  );
-  context.program.reportDiagnostics(diagnostics);
   if (data === undefined) {
     return;
   }
@@ -224,8 +218,7 @@ export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo
   return omitUndefined({
     ...info,
     title: info?.title ?? service?.title,
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    version: info?.version ?? service?.version,
+    version: info?.version,
     summary: info?.summary ?? getSummary(program, entity),
     description: info?.description ?? getDoc(program, entity),
   });

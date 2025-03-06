@@ -1023,17 +1023,19 @@ const diagnostics = {
       default: paramMessage`Visibility of property '${"propName"}' is sealed and cannot be changed.`,
     },
   },
-  "visibility-mixed-legacy": {
-    severity: "error",
-    messages: {
-      default:
-        "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers to a property.",
-    },
-  },
   "default-visibility-not-member": {
     severity: "error",
     messages: {
       default: "The default visibility modifiers of a class must be members of the class enum.",
+    },
+  },
+  "operation-visibility-constraint-empty": {
+    severity: "error",
+    messages: {
+      default: "Operation visibility constraints with no arguments are not allowed.",
+      returnType: "Return type visibility constraints with no arguments are not allowed.",
+      parameter:
+        "Parameter visibility constraints with no arguments are not allowed. To disable effective PATCH optionality, use @patch(#{ implicitOptionality: false }) instead.",
     },
   },
   // #endregion

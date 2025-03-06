@@ -1,4 +1,4 @@
-import { Namespace } from "@typespec/compiler";
+import { Namespace, StringValue } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { ok } from "assert";
@@ -15,7 +15,7 @@ beforeEach(async () => {
 describe("getCredentialAuth", () => {
   it("should return the correct http scheme", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
@@ -37,7 +37,7 @@ describe("getCredentialAuth", () => {
 
   it("should return the correct http schemes", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key"> | OAuth2Auth<[{
@@ -67,7 +67,7 @@ describe("isOnClient", () => {
   describe("endpoint", () => {
     it("no servers", async () => {
       const { DemoService } = (await runner.compile(`
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -83,7 +83,7 @@ describe("isOnClient", () => {
     it("one server, no params", async () => {
       const { DemoService } = (await runner.compile(`
         @server("https://example.com", "The service endpoint")
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -99,7 +99,7 @@ describe("isOnClient", () => {
     it("one server with parameter", async () => {
       const { DemoService } = (await runner.compile(`
         @server("https://example.com/{name}/foo", "My service url", { name: string })
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @test namespace DemoService;
@@ -110,48 +110,25 @@ describe("isOnClient", () => {
 
       // base operation
       const params = $.operation.getClientSignature(client, constructor);
+      const nameParam = params.find((p) => p.name === "name");
       const endpointParam = params.find((p) => p.name === "endpoint");
-      ok(endpointParam);
-      expect($.modelProperty.isOnClient(client, endpointParam)).toBe(true);
+      expect(nameParam).toBeDefined();
+      expect(nameParam?.defaultValue).toBeUndefined();
+      expect(endpointParam).toBeDefined();
 
-      // should have two overloads, one for completely overriding endpoint, one for just the parameter name
-      expect($.operation.getOverloads(client, constructor)).toHaveLength(2);
+      const endpointDefaultValue = endpointParam?.defaultValue as StringValue;
+      expect(endpointDefaultValue.value).toEqual("https://example.com/{name}/foo");
+      ok(nameParam);
+      expect($.modelProperty.isOnClient(client, nameParam)).toBe(true);
 
-      // parameter name overload
-      const paramNameOverload = $.operation
-        .getOverloads(client, constructor)
-        .find((o) => $.operation.getClientSignature(client, o).find((p) => p.name === "name"));
-      ok(paramNameOverload);
-
-      const paramNameOverloadParams = $.operation.getClientSignature(client, paramNameOverload);
-      expect(paramNameOverloadParams).toHaveLength(1);
-      expect(paramNameOverloadParams[0].name).toEqual("name");
-      paramNameOverloadParams.forEach((p) =>
-        expect($.modelProperty.isOnClient(client, p)).toBe(true),
-      );
-
-      // endpoint overload
-      const endpointOverload = $.operation
-        .getOverloads(client, constructor)
-        .find((o) => $.operation.getClientSignature(client, o).find((p) => p.name === "endpoint"));
-      ok(endpointOverload);
-
-      const endpointOverloadParams = $.operation.getClientSignature(client, endpointOverload);
-      expect(endpointOverloadParams).toHaveLength(1);
-      endpointOverloadParams.forEach((p) =>
-        expect($.modelProperty.isOnClient(client, p)).toBe(true),
-      );
-
-      expect(endpointOverloadParams[0].name).toEqual("endpoint");
-      expect(endpointOverloadParams[0].optional).toBeFalsy();
-
-      expect(endpointOverload.returnType).toEqual($.program.checker.voidType);
+      // should have no overloads
+      expect($.operation.getOverloads(client, constructor)).toHaveLength(0);
     });
   });
   describe("credential", () => {
     it("apikey", async () => {
       const { DemoService } = (await runner.compile(`
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
@@ -169,7 +146,7 @@ describe("isOnClient", () => {
     });
     it("bearer", async () => {
       const { DemoService } = (await runner.compile(`
-        @service({
+        @service(#{
           title: "Widget Service",
         })
         @useAuth(OAuth2Auth<[{
@@ -196,7 +173,7 @@ describe("isOnClient", () => {
 describe("isCredential", () => {
   it("apikey", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
@@ -214,7 +191,7 @@ describe("isCredential", () => {
   });
   it("bearer", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @useAuth(OAuth2Auth<[{

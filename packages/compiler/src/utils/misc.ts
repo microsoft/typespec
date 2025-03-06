@@ -328,17 +328,13 @@ export async function findProjectRoot(
 }
 
 /**
- * Extract package.json's tspMain entry point in a given path. Note, it takes into
- * back compat for deprecated cadlMain
+ * Extract package.json's tspMain entry point in a given path.
  * @param path Path that contains package.json
  * @param reportDiagnostic optional diagnostic handler.
  */
 export function resolveTspMain(packageJson: any): string | undefined {
   if (packageJson?.tspMain !== undefined) {
     return packageJson.tspMain;
-  }
-  if (packageJson?.cadlMain !== undefined) {
-    return packageJson.cadlMain;
   }
   return undefined;
 }

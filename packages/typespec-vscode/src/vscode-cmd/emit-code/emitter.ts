@@ -51,8 +51,8 @@ const PreDefinedEmitters: ReadonlyArray<Emitter> = [
   },
   {
     language: "JavaScript",
-    package: "@azure-tools/typespec-ts",
-    sourceRepo: "https://github.com/Azure/autorest.typescript/tree/main/packages/typespec-ts",
+    package: "@typespec/http-client-js",
+    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-client-js",
     kind: EmitterKind.Client,
   },
   {

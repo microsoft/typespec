@@ -189,8 +189,6 @@ export class TspLanguageClient {
     const exe = await resolveTypeSpecServer(context);
     logger.debug("TypeSpec server resolved as ", [exe]);
     const watchers = [
-      workspace.createFileSystemWatcher("**/*.cadl"),
-      workspace.createFileSystemWatcher("**/cadl-project.yaml"),
       workspace.createFileSystemWatcher("**/*.tsp"),
       workspace.createFileSystemWatcher(`**/${TspConfigFileName}`),
       // please be aware that the vscode watch with '**' will honer the files.watcherExclude settings

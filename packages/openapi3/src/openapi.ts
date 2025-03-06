@@ -10,7 +10,6 @@ import {
   getAnyExtensionFromPath,
   getDoc,
   getFormat,
-  getKnownValues,
   getMaxItems,
   getMaxLength,
   getMaxValue,
@@ -42,7 +41,7 @@ import {
   TypeNameOptions,
 } from "@typespec/compiler";
 
-import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
 import {
   unsafe_mutateSubgraphWithNamespace,
   unsafe_MutatorWithNamespace,
@@ -84,7 +83,6 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
-import { getVersioningMutators } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
@@ -122,6 +120,7 @@ import {
   isSharedHttpOperation,
   SharedHttpOperation,
 } from "./util.js";
+import { resolveVersioningModule } from "./versioning-module.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 import { resolveXmlModule, XmlModule } from "./xml-module.js";
 
@@ -163,9 +162,6 @@ export async function getOpenAPI3(
     emitterOutputDir: "tsp-output",
 
     options: options,
-    getAssetEmitter(TypeEmitterClass) {
-      return createAssetEmitter(program, TypeEmitterClass, this);
-    },
   };
 
   const resolvedOptions = resolveOptions(context);
@@ -200,7 +196,7 @@ export function resolveOptions(
     resolvedOptions["file-type"] ?? findFileTypeFromFilename(resolvedOptions["output-file"]);
 
   const outputFile =
-    resolvedOptions["output-file"] ?? `openapi.{service-name}.{version}.${fileType}`;
+    resolvedOptions["output-file"] ?? `openapi.{service-name-if-multiple}.{version}.${fileType}`;
 
   const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
 
@@ -453,13 +449,14 @@ function createOAPIEmitter(
   }
 
   async function getOpenAPI(): Promise<OpenAPI3ServiceRecord[]> {
+    const versioningModule = await resolveVersioningModule();
     const serviceRecords: OpenAPI3ServiceRecord[] = [];
     const services = listServices(program);
     if (services.length === 0) {
       services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
-      const versions = getVersioningMutators(program, service.type);
+      const versions = versioningModule?.getVersioningMutators(program, service.type);
       if (versions === undefined) {
         const document = await getOpenApiFromVersion(service);
         if (document === undefined) {
@@ -533,7 +530,8 @@ function createOAPIEmitter(
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
     return interpolatePath(options.outputFile, {
       "openapi-version": specVersion,
-      "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
+      "service-name-if-multiple": multipleService ? getNamespaceFullName(service.type) : undefined,
+      "service-name": getNamespaceFullName(service.type),
       version,
     });
   }
@@ -709,7 +707,10 @@ function createOAPIEmitter(
   }
 
   function computeSharedOperationId(shared: SharedHttpOperation) {
-    return shared.operations.map((op) => resolveOperationId(program, op.operation)).join("_");
+    const operationIds = shared.operations.map((op) => resolveOperationId(program, op.operation));
+    const uniqueOpIds = new Set<string>(operationIds);
+    if (uniqueOpIds.size === 1) return uniqueOpIds.values().next().value;
+    return operationIds.join("_");
   }
 
   function getOperationOrSharedOperation(operation: HttpOperation | SharedHttpOperation):
@@ -1453,7 +1454,7 @@ function createOAPIEmitter(
   ): { style?: string; explode?: boolean } | undefined {
     switch (parameter.type) {
       case "header":
-        return mapHeaderParameterFormat(parameter);
+        return getHeaderParameterAttributes(parameter);
       case "cookie":
         // style and explode options are omitted from cookies
         // https://github.com/microsoft/typespec/pull/4761#discussion_r1803365689
@@ -1540,23 +1541,32 @@ function createOAPIEmitter(
     }
   }
 
-  function mapHeaderParameterFormat(
+  function getHeaderParameterAttributes(
     parameter: HeaderFieldOptions & {
       param: ModelProperty;
     },
-  ): { style?: string; explode?: boolean } | undefined {
+  ) {
+    const attributes: { style?: "simple"; explode?: boolean } = {};
+    if (parameter.explode) {
+      // The default for headers is false, so only need to specify when true https://spec.openapis.org/oas/v3.0.4.html#fixed-fields-for-use-with-schema-0
+      attributes.explode = true;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     switch (parameter.format) {
       case undefined:
-        return {};
+        return attributes;
       case "csv":
       case "simple":
-        return { style: "simple" };
+        attributes.style = "simple";
+        break;
       default:
         diagnostics.add(
           createDiagnostic({
             code: "invalid-format",
             format: {
               paramType: "header",
+              // eslint-disable-next-line @typescript-eslint/no-deprecated
               value: parameter.format,
             },
             target: parameter.param,
@@ -1564,6 +1574,7 @@ function createOAPIEmitter(
         );
         return undefined;
     }
+    return attributes;
   }
 
   function emitParameters() {
@@ -1722,13 +1733,6 @@ function createOAPIEmitter(
     const title = getSummary(program, typespecType);
     if (title) {
       newTarget.title = title;
-    }
-
-    const values = getKnownValues(program, typespecType as any);
-    if (values) {
-      return {
-        oneOf: [newTarget, callSchemaEmitter(values, Visibility.Read, false, "application/json")],
-      };
     }
 
     attachExtensions(program, typespecType, newTarget);

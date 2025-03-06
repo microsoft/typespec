@@ -138,7 +138,7 @@ export async function oapiForModel(
   const oapi = await openApiFor(
     `
     ${modelDef};
-    @service({title: "Testing model"})
+    @service(#{title: "Testing model"})
     @route("/")
     namespace root {
       op read(): { @body body: ${name} };

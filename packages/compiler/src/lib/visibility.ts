@@ -15,6 +15,7 @@ import type {
   WithVisibilityFilterDecorator,
 } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorTarget, validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
+import { compilerAssert } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import type { Program } from "../core/program.js";
 import {
@@ -32,73 +33,36 @@ import {
 } from "../core/types.js";
 import {
   addVisibilityModifiers,
-  clearLegacyVisibility,
   clearVisibilityModifiersForClass,
   GeneratedVisibilityFilter,
-  getLegacyVisibility,
-  getVisibility,
+  getRawVisibilityStore,
   isVisible,
   removeVisibilityModifiers,
   resetVisibilityModifiersForClass,
   setDefaultModifierSetForVisibilityClass,
-  setLegacyVisibility,
   VisibilityFilter,
 } from "../core/visibility/core.js";
-import {
-  getLifecycleVisibilityEnum,
-  normalizeLegacyLifecycleVisibilityString,
-  normalizeVisibilityToLegacyLifecycleString,
-} from "../core/visibility/lifecycle.js";
+import { getLifecycleVisibilityEnum } from "../core/visibility/lifecycle.js";
 import { isMutableType, mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
 import { useStateMap } from "../utils/index.js";
 import { isKey } from "./key.js";
 import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
 
-// #region Legacy Visibility Utilities
-
-/**
- * Takes a list of visibilities that possibly include both legacy visibility
- * strings and visibility class members, and returns two lists containing only
- * each type.
- *
- * @param visibilities - The list of visibilities to split
- * @returns a tuple containing visibility enum members in the first position and
- *         legacy visibility strings in the second position
- */
-function splitLegacyVisibility(visibilities: (string | EnumValue)[]): [EnumMember[], string[]] {
-  const legacyVisibilities = [] as string[];
-  const modifiers = [] as EnumMember[];
-
-  for (const visibility of visibilities) {
-    if (typeof visibility === "string") {
-      legacyVisibilities.push(visibility);
-    } else {
-      modifiers.push(visibility.value);
-    }
-  }
-
-  return [modifiers, legacyVisibilities] as const;
-}
-
 export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   entity: Model,
-  visibility: string | EnumValue,
+  visibility: EnumValue,
 ) => {
-  const keyProperties: ModelProperty[] = [];
-  entity.properties.forEach((prop: ModelProperty) => {
+  const keyProperties = [...entity.properties].filter(([_, prop]: [string, ModelProperty]) => {
     // Keep track of any key property without a visibility
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    if (isKey(context.program, prop) && !getVisibility(context.program, prop)) {
-      keyProperties.push(prop);
-    }
+    return isKey(context.program, prop) && !getRawVisibilityStore(context.program, prop);
   });
 
   // For each key property without a visibility, clone it and add the specified
   // default visibility value
-  keyProperties.forEach((keyProp) => {
+  for (const [name, keyProp] of keyProperties) {
     entity.properties.set(
-      keyProp.name,
+      name,
       context.program.checker.cloneType(keyProp, {
         decorators: [
           ...keyProp.decorators,
@@ -106,10 +70,7 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
             decorator: $visibility,
             args: [
               {
-                value:
-                  typeof visibility === "string"
-                    ? context.program.checker.createLiteralType(visibility)
-                    : visibility,
+                value: visibility,
                 jsValue: visibility,
               },
             ],
@@ -117,7 +78,7 @@ export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
         ],
       }),
     );
-  });
+  }
 };
 
 /**
@@ -127,11 +88,11 @@ interface OperationVisibilityConfig {
   /**
    * Stored parameter visibility configuration.
    */
-  parameters?: string[] | EnumMember[];
+  parameters?: EnumMember[];
   /**
    * Stored return type visibility configuration.
    */
-  returnType?: string[] | EnumMember[];
+  returnType?: EnumMember[];
 }
 
 const [getOperationVisibilityConfigRaw, setOperationVisibilityConfigRaw] = useStateMap<
@@ -154,54 +115,26 @@ function getOperationVisibilityConfig(
   return config;
 }
 
-// Hidden internal symbol to mark that parameter visibility was empty. This is used by HTTP
-// to set the LegacyParameterVisibility flag. This is a hack.
-const parameterVisibilityIsEmpty = Symbol.for("TypeSpec.Visibility.ParameterVisibilityIsEmpty");
-
 export const $parameterVisibility: ParameterVisibilityDecorator = (
   context: DecoratorContext,
   operation: Operation,
-  ...visibilities: (string | EnumValue)[]
+  ...modifiers: EnumValue[]
 ) => {
   validateDecoratorUniqueOnNode(context, operation, $parameterVisibility);
 
-  if (visibilities.length === 0) {
-    context.program.stateSet(parameterVisibilityIsEmpty).add(operation);
-  }
-
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
-
-  if (modifiers.length > 0 && legacyVisibilities.length > 0) {
+  if (modifiers.length === 0) {
     reportDiagnostic(context.program, {
-      code: "visibility-mixed-legacy",
+      code: "operation-visibility-constraint-empty",
+      messageId: "parameter",
       target: context.decoratorTarget,
     });
-
     return;
   }
 
-  if (modifiers.length > 0) {
-    getOperationVisibilityConfig(context.program, operation).parameters = modifiers;
-  } else {
-    getOperationVisibilityConfig(context.program, operation).parameters = legacyVisibilities;
-  }
+  getOperationVisibilityConfig(context.program, operation).parameters = modifiers.map(
+    (m) => m.value,
+  );
 };
-
-/**
- * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
- *
- * @deprecated Use `getParameterVisibilityFilter` instead.
- *
- * @see {@link getParameterVisibilityFilter}
- * @see {@link $parameterVisibility}
- */
-export function getParameterVisibility(program: Program, entity: Operation): string[] | undefined {
-  return getOperationVisibilityConfig(program, entity)
-    .parameters?.map((p) =>
-      typeof p === "string" ? p : normalizeVisibilityToLegacyLifecycleString(program, p),
-    )
-    .filter((p) => !!p) as string[];
-}
 
 /**
  * A context-specific provider for visibility information that applies when parameter or return type visibility
@@ -252,65 +185,40 @@ export function getParameterVisibilityFilter(
 
   if (!operationVisibilityConfig.parameters) return defaultProvider.parameters(program, operation);
 
-  // If there are no parameters, return an empty filter. This has the effect of allowing `@parameterVisibility()` to
-  // disable the default visibility provider for an operation.
-  if (operationVisibilityConfig.parameters.length === 0) return {};
+  compilerAssert(
+    operationVisibilityConfig.parameters.length !== 0,
+    "Empty parameter visibility constraint.",
+  );
 
   return {
     // WARNING: the HTTP library depends on `any` being the only key in the filter object returned by this method.
     //          if you change this logic, you will need to update the HTTP library to account for differences in the
     //          returned object. HTTP does not currently have a way to express `all` or `none` constraints in the same
     //          way that the core visibility system does.
-    any: new Set(
-      operationVisibilityConfig.parameters
-        .map((v) =>
-          typeof v === "string" ? normalizeLegacyLifecycleVisibilityString(program, v) : v,
-        )
-        .filter((v) => !!v),
-    ),
+    any: new Set(operationVisibilityConfig.parameters),
   };
 }
 
 export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
   operation: Operation,
-  ...visibilities: (string | EnumValue)[]
+  ...modifiers: EnumValue[]
 ) => {
   validateDecoratorUniqueOnNode(context, operation, $parameterVisibility);
 
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
-
-  if (modifiers.length > 0 && legacyVisibilities.length > 0) {
+  if (modifiers.length === 0) {
     reportDiagnostic(context.program, {
-      code: "visibility-mixed-legacy",
+      code: "operation-visibility-constraint-empty",
+      messageId: "returnType",
       target: context.decoratorTarget,
     });
-
     return;
   }
 
-  if (modifiers.length > 0) {
-    getOperationVisibilityConfig(context.program, operation).returnType = modifiers;
-  } else {
-    getOperationVisibilityConfig(context.program, operation).returnType = legacyVisibilities;
-  }
+  getOperationVisibilityConfig(context.program, operation).returnType = modifiers.map(
+    (m) => m.value,
+  );
 };
-
-/**
- * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
- *
- * @deprecated Use `getReturnTypeVisibilityFilter` instead.
- *
- * @see {@link getReturnTypeVisibilityFilter}
- * @see {@link $returnTypeVisibility}
- */
-export function getReturnTypeVisibility(program: Program, entity: Operation): string[] | undefined {
-  return getOperationVisibilityConfig(program, entity)
-    .returnType?.map((p) =>
-      typeof p === "string" ? p : normalizeVisibilityToLegacyLifecycleString(program, p),
-    )
-    .filter((p) => !!p) as string[];
-}
 
 /**
  * Get the visibility filter that should apply to the return type of the given operation, or `undefined` if no return
@@ -331,22 +239,17 @@ export function getReturnTypeVisibilityFilter(
 
   if (!visibilityConfig.returnType) return defaultProvider.returnType(program, operation);
 
-  // If there are no return type visibilities, return an empty filter. This has the effect of allowing
-  // `@returnTypeVisibility()` to disable the default visibility provider for an operation.
-  if (visibilityConfig.returnType.length === 0) return {};
+  compilerAssert(
+    visibilityConfig.returnType.length !== 0,
+    "Empty return type visibility constraint.",
+  );
 
   return {
     // WARNING: the HTTP library depends on `any` being the only key in the filter object returned by this method.
     //          if you change this logic, you will need to update the HTTP library to account for differences in the
     //          returned object. HTTP does not currently have a way to express `all` or `none` constraints in the same
     //          way that the core visibility system does.
-    any: new Set(
-      visibilityConfig.returnType
-        .map((v) =>
-          typeof v === "string" ? normalizeLegacyLifecycleVisibilityString(program, v) : v,
-        )
-        .filter((v) => !!v),
-    ),
+    any: new Set(visibilityConfig.returnType),
   };
 }
 
@@ -359,34 +262,14 @@ export function getReturnTypeVisibilityFilter(
 export const $visibility: VisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  ...visibilities: (string | EnumValue)[]
+  ...modifiers: EnumValue[]
 ) => {
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
-
-  if (legacyVisibilities.length > 0 || visibilities.length === 0) {
-    const isUnique = validateDecoratorUniqueOnNode(context, target, $visibility);
-
-    if (modifiers.length > 0) {
-      reportDiagnostic(context.program, {
-        code: "visibility-mixed-legacy",
-        target: context.decoratorTarget,
-      });
-
-      return;
-    }
-
-    // Only attempt to set the legacy visibility modifiers if the visibility invocation is unique. Otherwise, a compiler
-    // assertion will fail inside the legacy visibility management API.
-    if (isUnique) setLegacyVisibility(context, target, legacyVisibilities);
-  } else {
-    if (getLegacyVisibility(context.program, target)) {
-      reportDiagnostic(context.program, {
-        code: "visibility-mixed-legacy",
-        target: context.decoratorTarget,
-      });
-    }
-    addVisibilityModifiers(context.program, target, modifiers, context);
-  }
+  addVisibilityModifiers(
+    context.program,
+    target,
+    modifiers.map((m) => m.value),
+    context,
+  );
 };
 
 // -- @removeVisibility decorator ---------------------
@@ -447,48 +330,18 @@ export const $defaultVisibility: DefaultVisibilityDecorator = (
 export const $withVisibility: WithVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  ...visibilities: (string | EnumValue)[]
+  ...modifiers: EnumValue[]
 ) => {
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
+  const modifierMembers = modifiers.map((m) => m.value);
+  const filter: VisibilityFilter = {
+    all: new Set(modifierMembers),
+  };
 
-  if (legacyVisibilities.length > 0) {
-    if (modifiers.length > 0) {
-      reportDiagnostic(context.program, {
-        code: "visibility-mixed-legacy",
-        target: context.decoratorTarget,
-      });
-
-      return;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, legacyVisibilities));
-
-    for (const p of target.properties.values()) {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      const legacyModifiers = getVisibility(context.program, p);
-
-      if (legacyModifiers && legacyModifiers.length > 0) {
-        clearLegacyVisibility(context.program, p);
-      } else {
-        resetVisibilityModifiersForClass(
-          context.program,
-          p,
-          getLifecycleVisibilityEnum(context.program),
-        );
-      }
-    }
-  } else {
-    const filter: VisibilityFilter = {
-      all: new Set(modifiers),
-    };
-
-    const visibilityClasses = new Set(modifiers.map((m) => m.enum));
-    filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, filter));
-    for (const p of target.properties.values()) {
-      for (const c of visibilityClasses) {
-        resetVisibilityModifiersForClass(context.program, p, c);
-      }
+  const visibilityClasses = new Set(modifierMembers.map((m) => m.enum));
+  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, filter));
+  for (const p of target.properties.values()) {
+    for (const c of visibilityClasses) {
+      resetVisibilityModifiersForClass(context.program, p, c);
     }
   }
 };
@@ -509,8 +362,11 @@ export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, ["update"]));
+  const filter: VisibilityFilter = {
+    all: new Set([getLifecycleVisibilityEnum(context.program).members.get("Update")!]),
+  };
+
+  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, filter));
 };
 
 // #endregion

@@ -59,8 +59,7 @@ async function compileAndValidateMultiple(
   fileChecks: [string, string[]][],
 ): Promise<void> {
   const spec = getStandardService(code);
-  const [_, diagnostics] = await runner.compileAndDiagnose(spec);
-  assert.ok(diagnostics === undefined || diagnostics.length === 0);
+  await runner.compile(spec);
   for (const [fileToCheck, expectedContent] of fileChecks) {
     const [modelKey, modelContents] = getGeneratedFile(runner, fileToCheck);
     expectedContent.forEach((element) => {
@@ -1393,7 +1392,7 @@ it("Handles bodyRoot parameters", async () => {
     await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
     `
     model Widget {
-      @visibility("update", "read")
+      @visibility(Lifecycle.Update, Lifecycle.Read)
       @path id: string;
       @query kind?: string;
       color: string;
@@ -1436,7 +1435,7 @@ it("Initializes enum types", async () => {
       Green
     }
     model Widget {
-      @visibility("update", "read")
+      @visibility(Lifecycle.Update, Lifecycle.Read)
       @path id: string;
       @query kind?: string;
       color: Color;

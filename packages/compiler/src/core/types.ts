@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-deprecated*/
 // ^  TODO: remove when removing projection
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import type { TypeEmitter } from "../emitter-framework/type-emitter.js";
-import type { AssetEmitter } from "../emitter-framework/types.js";
 import type { ModuleResolutionResult } from "../module-resolver/module-resolver.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import type { Numeric } from "./numeric.js";
@@ -107,10 +105,6 @@ export interface TypeMapper {
 
 export interface TemplatedTypeBase {
   templateMapper?: TypeMapper;
-  /**
-   * @deprecated use templateMapper instead.
-   */
-  templateArguments?: (Type | Value | IndeterminateEntity)[];
   templateNode?: Node;
 }
 
@@ -378,8 +372,6 @@ export interface ModelProperty extends BaseType, DecoratedType {
   // this tracks the property we copied from.
   sourceProperty?: ModelProperty;
   optional: boolean;
-  /** @deprecated use {@link defaultValue} instead. */
-  default?: Type;
   defaultValue?: Value;
   model?: Model;
 }
@@ -712,10 +704,6 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   variants: RekeyableMap<string | symbol, UnionVariant>;
 
   expression: boolean;
-  /**
-   * @deprecated use variants
-   */
-  readonly options: Type[];
 
   /**
    * Late-bound symbol of this interface type.
@@ -1044,8 +1032,6 @@ export interface RekeyableMap<K, V> extends Map<K, V> {
  */
 export enum SyntaxKind {
   TypeSpecScript,
-  /** @deprecated Use TypeSpecScript */
-  CadlScript = TypeSpecScript,
   JsSourceFile,
   ImportStatement,
   Identifier,
@@ -1340,9 +1326,6 @@ export interface ParseOptions {
   /** When true, parse doc comments into {@link Node.docs}. */
   readonly docs?: boolean;
 }
-
-/** @deprecated Use TypeSpecScriptNode */
-export type CadlScriptNode = TypeSpecScriptNode;
 
 export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.TypeSpecScript;
@@ -2595,12 +2578,6 @@ export interface JSONSchemaValidator {
   ): Diagnostic[];
 }
 
-/** @deprecated Use TypeSpecLibraryDef */
-export type CadlLibraryDef<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>,
-> = TypeSpecLibraryDef<T, E>;
-
 export interface StateDef {
   /**
    * Description for this state.
@@ -2634,12 +2611,6 @@ export interface TypeSpecLibraryDef<
   readonly emitter?: {
     options?: JSONSchemaType<E>;
   };
-
-  /**
-   * Configuration if library is providing linting rules/rulesets.
-   * @deprecated Use `export const $linter` instead. This will cause circular reference with linters.
-   */
-  readonly linter?: LinterDefinition;
 
   readonly state?: Record<State, StateDef>;
 }
@@ -2755,12 +2726,6 @@ export type LinterRuleDiagnosticReport<
   M extends keyof T = "default",
 > = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
 
-/** @deprecated Use TypeSpecLibrary */
-export type CadlLibrary<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>,
-> = TypeSpecLibrary<T, E>;
-
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
@@ -2847,15 +2812,6 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * Emitter custom options defined in createTypeSpecLibrary
    */
   options: TOptions;
-
-  /**
-   * Get an asset emitter to write emitted output to disk using a TypeEmitter
-   *
-   * @deprecated call {@link createAssetEmitter} directly instead.
-   *
-   * @param TypeEmitterClass The TypeEmitter to construct your emitted output
-   */
-  getAssetEmitter<T>(TypeEmitterClass: typeof TypeEmitter<T, TOptions>): AssetEmitter<T, TOptions>;
 }
 
 export type LogLevel = "trace" | "warning" | "error";
@@ -2889,6 +2845,10 @@ export interface RelatedSourceLocation {
 
 export interface LogSink {
   log(log: ProcessedLog): void;
+  /**
+   * @internal
+   */
+  trackAction?<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
 }
 
 export interface Logger {
@@ -2896,6 +2856,7 @@ export interface Logger {
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
+  trackAction<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
 }
 
 export interface TracerOptions {
