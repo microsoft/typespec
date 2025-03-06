@@ -1,5 +1,6 @@
 import { Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import * as ay from "@alloy-js/core";
 import { Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
@@ -34,9 +35,9 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   const extendsType = props.extends ?? getExtendsType(props.type);
 
-  const members = props.type ? membersFromType(props.type) : [];
+  const members = props.type ? [membersFromType(props.type)] : [];
 
-  const children = [...members];
+  const children = [...members];  
 
   if (Array.isArray(props.children)) {
     children.push(...props.children);
@@ -112,10 +113,10 @@ function getExtendsType(type: Model | Interface): Children | undefined {
     return undefined;
   }
 
-  return mapJoin(extending, (ext) => ext, { joiner: "," });
+  return mapJoin(() => extending, (ext) => ext, { joiner: "," });
 }
 
-function membersFromType(type: Model | Interface) {
+function membersFromType(type: Model | Interface): Children {
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
   if ($.model.is(type)) {
     typeMembers = $.model.getProperties(type);
@@ -134,7 +135,9 @@ function membersFromType(type: Model | Interface) {
     typeMembers = createRekeyableMap(type.operations);
   }
 
-  return mapJoin(typeMembers, (_, prop) => <InterfaceMember type={prop} />, {
-    joiner: "\n",
-  });
+  return <ay.For each={Array.from(typeMembers.entries())} line>
+    {([_, prop]) => {
+      return <InterfaceMember type={prop} />;
+    }}
+  </ay.For>
 }

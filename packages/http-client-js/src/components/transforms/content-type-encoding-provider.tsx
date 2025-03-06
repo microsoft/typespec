@@ -22,7 +22,5 @@ export function ContentTypeEncodingProvider(props: ContentTypeEncodingProviderPr
     };
   }
 
-  return <EncodingProvider defaults={defaults}>
-    {props.children}
-  </EncodingProvider>;
+  return <EncodingProvider defaults={defaults}>{props.children}</EncodingProvider>;
 }

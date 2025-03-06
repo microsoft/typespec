@@ -11,7 +11,7 @@ export interface HttpPartTransformProps {
 
 export function HttpPartTransform(props: HttpPartTransformProps) {
   if (props.part.multi) {
-    return <ArrayPartTransform part={props.part} itemRef={props.itemRef}/>;
+    return <ArrayPartTransform part={props.part} itemRef={props.itemRef} />;
   }
 
   if (props.part.filename) {

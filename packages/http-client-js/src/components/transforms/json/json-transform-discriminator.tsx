@@ -42,24 +42,23 @@ export function JsonTransformDiscriminator(props: JsonTransformDiscriminatorProp
   // type in the discriminator are compatible.
   const itemRef = ay.code`${props.itemRef} as any`;
   const discriminatingCases = ay.mapJoin(
-    discriminatedUnion.variants,
+    () => discriminatedUnion.variants,
     (name, variant) => {
       return ay.code`
     if( discriminatorValue === ${JSON.stringify(name)}) {
-      return ${<JsonTransform type={variant} target={props.target} itemRef={itemRef} />}!
+      return ${(<JsonTransform type={variant} target={props.target} itemRef={itemRef} />)}!
     }
     `;
     },
     { joiner: "\n\n" },
   );
 
-  return <>
-      const discriminatorValue = {discriminatorRef};
-      {discriminatingCases}
-      <>
-      console.warn(`Received unknown kind: ` + discriminatorValue); 
-      return {itemRef}</>
-    </>;
+  return (
+    <>
+      const discriminatorValue = {discriminatorRef};{discriminatingCases}
+      <>console.warn(`Received unknown kind: ` + discriminatorValue); return {itemRef}</>
+    </>
+  );
 }
 
 export function getJsonTransformDiscriminatorRefkey(
@@ -97,7 +96,8 @@ export function JsonTransformDiscriminatorDeclaration(
     input_: { type: inputType, refkey: inputRef, optional: true },
   };
 
-  return <ts.FunctionDeclaration
+  return (
+    <ts.FunctionDeclaration
       name={transformName}
       export
       returnType={returnType}
@@ -110,5 +110,6 @@ export function JsonTransformDiscriminatorDeclaration(
     }
     `}
       <JsonTransformDiscriminator {...props} itemRef={inputRef} discriminator={discriminator} />
-    </ts.FunctionDeclaration>;
+    </ts.FunctionDeclaration>
+  );
 }

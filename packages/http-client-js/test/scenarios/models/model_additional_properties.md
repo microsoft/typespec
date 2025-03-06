@@ -47,10 +47,8 @@ export function jsonDogToTransportTransform(input_?: Dog | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonRecordExtraFeatureToTransportTransform(input_.additionalProperties),
-
     id: input_.id,
     name: input_.name,
     color: input_.color,
@@ -65,12 +63,10 @@ export function jsonDogToApplicationTransform(input_?: any): Dog {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     additionalProperties: jsonRecordExtraFeatureToApplicationTransform(
       (({ id, name, color, ...rest }) => rest)(input_),
     ),
-
     id: input_.id,
     name: input_.name,
     color: input_.color,

@@ -1,4 +1,4 @@
-import { refkey } from "@alloy-js/core";
+import { List, refkey, StatementList } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
 import { Enum, Union } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
@@ -61,11 +61,14 @@ describe("Typescript Enum Declaration", () => {
 
     const output = await getEmitOutput(code, (program) => {
       const Foo = program.resolveTypeReference("Foo")[0]! as Enum;
-      return <>
+      return (
+      <List hardline>
         <EnumDeclaration type={Foo} />
-        {refkey(Foo)};
-        {refkey(Foo.members.get("one"))};
-      </>;
+        <StatementList> 
+          {refkey(Foo)}
+          {refkey(Foo.members.get("one"))}
+        </StatementList>
+      </List>);
     });
 
     expect(output).toBe(d`
@@ -90,11 +93,13 @@ describe("Typescript Enum Declaration", () => {
 
     const output = await getEmitOutput(code, (program) => {
       const Foo = program.resolveTypeReference("Foo")[0]! as Union;
-      return <>
+      return <List hardline>
         <EnumDeclaration type={Foo} />
-        {refkey(Foo)};
-        {refkey(Foo.variants.get("one"))};
-      </>;
+        <StatementList>
+          {refkey(Foo)}
+          {refkey(Foo.variants.get("one"))}
+        </StatementList>
+      </List>;
     });
 
     expect(output).toBe(d`

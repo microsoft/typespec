@@ -25,7 +25,6 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     my_values: jsonRecordInt32ToTransportTransform(input_.myValues),
   }!;
@@ -37,7 +36,6 @@ export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     myValues: jsonRecordInt32ToApplicationTransform(input_.my_values),
   }!;
@@ -81,7 +79,6 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     my_values: jsonRecordBarToTransportTransform(input_.myValues),
   }!;
@@ -93,7 +90,6 @@ export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     myValues: jsonRecordBarToApplicationTransform(input_.my_values),
   }!;
