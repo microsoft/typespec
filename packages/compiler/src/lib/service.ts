@@ -8,8 +8,6 @@ import { useStateMap } from "../utils/index.js";
 
 export interface ServiceDetails {
   title?: string;
-  /** @deprecated Service version is deprecated. If wanting to describe a service versioning you can use the `@typespec/versioning` library. If wanting to describe the project version you can use the package.json version */
-  version?: string;
 }
 
 export interface Service extends ServiceDetails {
