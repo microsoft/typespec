@@ -2,7 +2,7 @@ import {
   DiscriminatedUnion,
   getDiscriminatedUnion,
 } from "../../../core/helpers/discriminator-utils.js";
-import { getLocationContext } from "../../../core/index.js";
+import { getLocationContext } from "../../../core/helpers/location-context.js";
 import {
   Discriminator,
   getDiscriminator,

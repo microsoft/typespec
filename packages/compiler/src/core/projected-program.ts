@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
-import type { Program, ProjectedProgram } from "./index.js";
+import type { Program, ProjectedProgram } from "./program.js";
 
 export function isProjectedProgram(
   program: Program | ProjectedProgram,
