@@ -57,8 +57,14 @@ try {
 
     Invoke-LoggedCommand "npm run build" -GroupOutput
 
-    Write-Host "run lint check for pygen"
-    Invoke-LoggedCommand "npm run lint:py" -GroupOutput
+    $pythonVersion = & python --version 2>&1
+    if ($pythonVersion -notmatch '^Python 3\.13\.') {
+        Write-Host "run lint check for pygen"
+        Invoke-LoggedCommand "npm run lint:py" -GroupOutput
+    }
+    else {
+        Write-Host "Skipping lint check for pygen until python 3.13 fix error for pylint"
+    }
 
     # pack the emitter
     Invoke-LoggedCommand "npm pack"
