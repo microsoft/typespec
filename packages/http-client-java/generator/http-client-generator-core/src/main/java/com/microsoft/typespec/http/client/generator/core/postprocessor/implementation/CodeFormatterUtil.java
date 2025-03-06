@@ -3,9 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.core.postprocessor.implementation;
 
+import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -18,12 +20,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 /**
  * Utility class that handles code formatting.
  */
 public final class CodeFormatterUtil {
+
+    private static final Logger LOGGER = new PluginLogger(Javagen.getPluginInstance(), CodeFormatterUtil.class);
+
+    private static final Pattern SPOTLESS_ERROR_PATTERN
+        = Pattern.compile("^(\\d+):\\d+: error: (.*)$", Pattern.MULTILINE);
+    private static final int SPOTLESS_FILE_CONTENT_RANGE = 3;
+
     /**
      * Formats the given files by removing unused imports and applying Eclipse code formatting.
      *
@@ -31,8 +43,41 @@ public final class CodeFormatterUtil {
      * @param plugin The plugin to use to write the formatted files.
      */
     public static void formatCode(Map<String, String> files, NewPlugin plugin) {
-        for (Map.Entry<String, String> file : formatCodeInternal(files.entrySet())) {
-            plugin.writeFile(file.getKey(), file.getValue(), null);
+        try {
+            for (Map.Entry<String, String> file : formatCodeInternal(files.entrySet())) {
+                plugin.writeFile(file.getKey(), file.getValue(), null);
+            }
+        } catch (SpotlessException ex) {
+            // format one file at a time, to give better error diagnostics
+            for (Map.Entry<String, String> file : files.entrySet()) {
+                try {
+                    formatCodeInternal(List.of(file));
+                } catch (RuntimeException e) {
+                    Matcher matcher = SPOTLESS_ERROR_PATTERN.matcher(e.getMessage());
+                    String content = file.getValue();
+                    if (matcher.find()) {
+                        int lineNumber = Integer.parseInt(matcher.group(1));
+
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append("line: ")
+                            .append(lineNumber)
+                            .append(", error: ")
+                            .append(matcher.group(2))
+                            .append("\n");
+
+                        // line number from log start from 1
+                        String[] lines = content.split("\n");
+                        int lineBegin = Math.max(0, lineNumber - 1 - SPOTLESS_FILE_CONTENT_RANGE);
+                        int lineEnd = Math.min(lines.length - 1, lineNumber - 1 + SPOTLESS_FILE_CONTENT_RANGE);
+                        for (int i = lineBegin; i <= lineEnd; ++i) {
+                            stringBuilder.append(i + 1).append(" ").append(lines[i]).append("\n");
+                        }
+                        content = stringBuilder.toString();
+                    }
+                    LOGGER.error("Failed to format file '{}'\n{}", file.getKey(), content);
+                }
+            }
+            throw ex;
         }
     }
 
@@ -101,12 +146,18 @@ public final class CodeFormatterUtil {
 
             if (process.isAlive() || process.exitValue() != 0) {
                 process.destroyForcibly();
-                throw new RuntimeException(
+                throw new SpotlessException(
                     "Spotless failed to complete within 300 seconds or failed with an error code. "
                         + Files.readString(outputFile.toPath()));
             }
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException("Failed to run Spotless on generated code.", ex);
+        }
+    }
+
+    private static final class SpotlessException extends RuntimeException {
+        public SpotlessException(String message) {
+            super(message);
         }
     }
 }
