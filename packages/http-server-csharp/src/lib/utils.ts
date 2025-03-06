@@ -443,12 +443,12 @@ export function formatComment(
 ): string {
   function getNextLine(target: string): string {
     for (let i = lineLength - 1; i > 0; i--) {
-      if (target.charAt(i) === " ") {
+      if ([" ", ";"].includes(target.charAt(i))) {
         return `${target.substring(0, i)}`;
       }
     }
     for (let i = lineLength - 1; i < target.length; i++) {
-      if (target.charAt(i) === " ") {
+      if ([" ", ";"].includes(target.charAt(i))) {
         return `${target.substring(0, i)}`;
       }
     }
