@@ -141,7 +141,7 @@ const sidebar: SidebarItem[] = [
       ]),
       {
         label: "Clients",
-        items: ["emitters/clients/introduction"],
+        items: ["emitters/clients/introduction", "emitters/clients/advanced-configurations"],
       },
     ],
   },
