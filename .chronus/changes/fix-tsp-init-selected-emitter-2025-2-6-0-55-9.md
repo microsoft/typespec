@@ -2,7 +2,7 @@
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
 changeKind: fix
 packages:
-  - "@typespec/http-client-python"
+  - "@typespec/compiler"
 ---
 
-[python] remove useless docstring for models
+Fix `tsp init` not respecting default selected emitters

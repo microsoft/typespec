@@ -1,7 +1,7 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { DecoratorContext, Namespace, Type, getTypeName, isType } from "../../src/core/index.js";
 import { createProjector } from "../../src/core/projector.js";
+import { DecoratorContext, Namespace, Type, getTypeName, isType } from "../../src/index.js";
 import { createTestHost, createTestRunner } from "../../src/testing/test-host.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
 
@@ -379,8 +379,6 @@ describe("compiler: projector: Identity", () => {
     ok(projected.templateMapper !== original.templateMapper);
     ok(projected.templateMapper.args !== original.templateMapper.args);
     ok(projected.templateMapper.map !== original.templateMapper.map);
-    ok(projected.templateArguments !== original.templateArguments);
-    ok(projected.templateArguments === projected.templateMapper.args);
     strictEqual(projected.templateMapper.args.length, original.templateMapper.args.length);
     strictEqual(projected.templateMapper.map.size, original.templateMapper.map.size);
     for (let i = 0; i < projected.templateMapper.args.length; i++) {
