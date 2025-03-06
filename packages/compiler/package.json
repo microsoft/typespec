@@ -73,6 +73,7 @@
     "clean": "rimraf ./dist ./temp",
     "build:init-templates-index": "tsx ./.scripts/build-init-templates.ts",
     "build": "npm run gen-manifest && npm run build:init-templates-index && npm run compile && npm run generate-tmlanguage",
+    "api-extractor": "api-extractor run --local --verbose",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
     "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
