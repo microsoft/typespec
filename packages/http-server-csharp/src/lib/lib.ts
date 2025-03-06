@@ -6,11 +6,13 @@ export interface CSharpServiceEmitterOptions {
   /** Choose which service artifacts to emit.  Default is 'all'.*/
   "output-type"?: "models" | "all";
   /** Emit mock implementations of business logic and setup code. Allows the service to respond to requests with mock responses.*/
-  "emit-mocks"?: "none" | "all";
+  "emit-mocks"?: "none" | "no-project" | "all";
   /** Configure a Swagger UI endpoint in the development configuration. */
   "use-swaggerui"?: boolean;
   /** Use openapi at the given path for generating SwaggerUI endpoints. By default, this will be 'openapi/openapi.yaml' if the 'use-swaggerui' option is enabled. */
   "openapi-path"?: string;
+  /** When generating mock files, overwrite any existing files with the same name. */
+  overwrite?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
@@ -33,7 +35,7 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
     },
     "emit-mocks": {
       type: "string",
-      enum: ["all", "none"],
+      enum: ["all", "no-project", "none"],
       nullable: true,
       default: "none",
       description:
@@ -51,6 +53,12 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
       default: null,
       description:
         "Use openapi at the given path for generating SwaggerUI endpoints. By default, this will be 'openapi/openapi.yaml' if the 'use-swaggerui' option is enabled. ",
+    },
+    overwrite: {
+      type: "boolean",
+      nullable: true,
+      default: false,
+      description: "When generating mock files, overwrite any existing files with the same name.",
     },
   },
   required: [],
