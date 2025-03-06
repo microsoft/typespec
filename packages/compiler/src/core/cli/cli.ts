@@ -58,11 +58,6 @@ async function main() {
             type: "string",
             demandOption: true,
           })
-          .option("output-path", {
-            type: "string",
-            deprecated: "Use `output-dir` instead.",
-            hidden: true,
-          })
           .option("output-dir", {
             type: "string",
             describe:

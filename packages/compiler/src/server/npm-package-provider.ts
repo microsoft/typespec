@@ -2,7 +2,7 @@ import { FileEvent } from "vscode-languageserver";
 import { getDirectoryPath, joinPaths, normalizePath } from "../core/path-utils.js";
 import { loadJsFile } from "../core/source-loader.js";
 import { CompilerHost, NoTarget } from "../core/types.js";
-import { NodePackage, resolveModule } from "../index.js";
+import { PackageJson, resolveModule } from "../index.js";
 import { distinctArray, isWhitespaceStringOrUndefined, tryParseJson } from "../utils/misc.js";
 export class NpmPackageProvider {
   private pkgCache = new Map<string, NpmPackage>();
@@ -102,10 +102,10 @@ export class NpmPackage {
   private constructor(
     private host: CompilerHost,
     private packageJsonFolder: string,
-    private packageJsonData: NodePackage | undefined,
+    private packageJsonData: PackageJson | undefined,
   ) {}
 
-  async getPackageJsonData(): Promise<NodePackage | undefined> {
+  async getPackageJsonData(): Promise<PackageJson | undefined> {
     if (!this.packageJsonData) {
       this.packageJsonData = await NpmPackage.loadNodePackage(this.host, this.packageJsonFolder);
     }
@@ -158,7 +158,7 @@ export class NpmPackage {
   private static async loadNodePackage(
     host: CompilerHost,
     packageJsonFolder: string,
-  ): Promise<NodePackage | undefined> {
+  ): Promise<PackageJson | undefined> {
     if (!packageJsonFolder) {
       return undefined;
     }
@@ -169,7 +169,7 @@ export class NpmPackage {
       }
 
       const content = await host.readFile(packageJsonPath);
-      const data = tryParseJson(content.text) as NodePackage;
+      const data = tryParseJson(content.text) as PackageJson;
 
       if (!data || !data.name) {
         return undefined;

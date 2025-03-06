@@ -50,10 +50,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("Namespace", ref @namespace)
                     || reader.TryReadString("Summary", ref summary)
                     || reader.TryReadString("Doc", ref doc)
-                    || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
-                    || reader.TryReadWithConverter(nameof(InputClient.Parameters), options, ref parameters)
+                    || reader.TryReadComplexType(nameof(InputClient.Operations), options, ref operations)
+                    || reader.TryReadComplexType(nameof(InputClient.Parameters), options, ref parameters)
                     || reader.TryReadString(nameof(InputClient.Parent), ref parent)
-                    || reader.TryReadWithConverter(nameof(InputClient.Decorators), options, ref decorators)
+                    || reader.TryReadComplexType(nameof(InputClient.Decorators), options, ref decorators)
                     || reader.TryReadString("CrossLanguageDefinitionId", ref crossLanguageDefinitionId);
 
                 if (!isKnownProperty)
