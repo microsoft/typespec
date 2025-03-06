@@ -51,6 +51,39 @@ $emitterVersion = node -p -e "require('$packageRoot/package.json').version"
 Push-Location "$packageRoot/generator"
 
 # build and pack the emitter with the generator jar
+
+try {
+  Write-Host "& python --version"
+  & python --version
+}
+
+try {
+  Write-Host "python --version"
+  python --version
+}
+
+try {
+  Write-Host "& python3 --version"
+  & python3 --version
+}
+
+try {
+  Write-Host "python3 --version"
+  python3 --version
+}
+
+
+try {
+  Write-Host "& py3 --version"
+  & py3 --version
+}
+
+try {
+  Write-Host "py3 --version"
+  py3 --version
+}
+
+
 Push-Location "$packageRoot"
 try {
     Write-Host "Working in $PWD"
