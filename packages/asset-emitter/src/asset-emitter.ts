@@ -1,9 +1,14 @@
-import { compilerAssert } from "../../compiler/src/core/diagnostics.js";
-import { getTypeName } from "../../compiler/src/core/helpers/type-name-utils.js";
-import { joinPaths } from "../../compiler/src/core/path-utils.js";
-import type { Program } from "../../compiler/src/core/program.js";
-import { isTemplateDeclaration } from "../../compiler/src/core/type-utils.js";
-import type { EmitContext, Model, Namespace, Type } from "../../compiler/src/core/types.js";
+import {
+  type EmitContext,
+  type Model,
+  type Namespace,
+  type Program,
+  type Type,
+  compilerAssert,
+  getTypeName,
+  isTemplateDeclaration,
+  joinPaths,
+} from "@typespec/compiler";
 import { CustomKeyMap } from "./custom-key-map.js";
 import { Placeholder } from "./placeholder.js";
 import { resolveDeclarationReferenceScope } from "./ref-scope.js";
