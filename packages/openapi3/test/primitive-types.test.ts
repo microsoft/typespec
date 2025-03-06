@@ -323,11 +323,8 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
 
   describe("using @header decorator on date-time", () => {
     async function testHeaderDecorator(body: string, expectedFormat: string) {
-      const res = await openApiFor(
-        `model Pet { @header("Created-At") ${body} }
-        @route("/pet") @get op single(...Pet): string;`,
-      );
-      deepStrictEqual(res.components.parameters.Pet.schema, {
+      const res = await openApiFor(`op single(@header("Created-At") ${body} ): void;`);
+      deepStrictEqual(res.paths["/"].get.parameters[0].schema, {
         type: "string",
         format: expectedFormat,
       });
