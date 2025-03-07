@@ -1,12 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {
-  DiscriminatedUnion,
-  DiscriminatedUnionLegacy,
-  Discriminator,
-  Model,
-  Union,
-} from "@typespec/compiler";
+import { Discriminator, Model, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { JsonTransform } from "./json-transform.jsx";
 
@@ -18,8 +12,9 @@ export interface JsonTransformDiscriminatorProps {
 }
 
 export function JsonTransformDiscriminator(props: JsonTransformDiscriminatorProps) {
-  const discriminatedUnion: DiscriminatedUnion | DiscriminatedUnionLegacy | undefined =
-    $.type.getDiscriminatedUnion(props.type);
+  const discriminatedUnion = $.model.is(props.type)
+    ? $.model.getDiscriminatedUnion(props.type)
+    : $.union.getDiscriminatedUnion(props.type);
 
   const propertyName = props.discriminator.propertyName;
 

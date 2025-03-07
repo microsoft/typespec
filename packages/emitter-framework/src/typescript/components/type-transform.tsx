@@ -2,7 +2,6 @@ import { Children, code, For, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   Discriminator,
-  getDiscriminatedUnion,
   Model,
   ModelProperty,
   RekeyableMap,
@@ -57,7 +56,13 @@ interface DiscriminateExpressionProps {
 }
 
 function DiscriminateExpression(props: DiscriminateExpressionProps) {
-  const [discriminatedUnion] = getDiscriminatedUnion(props.type, props.discriminator)!;
+  const discriminatedUnion = $.model.is(props.type)
+    ? $.model.getDiscriminatedUnion(props.type)
+    : $.union.getDiscriminatedUnion(props.type);
+
+  if (!discriminatedUnion) {
+    return code`return item as any`;
+  }
 
   const discriminatorRef = `item.${props.discriminator.propertyName}`;
 

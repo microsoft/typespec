@@ -70,13 +70,6 @@ export interface TypeTypekit {
    */
   getPlausibleName(type: Model | Union | Enum | Scalar): string;
   /**
-   * Resolves a discriminated union for the given model or union.
-   * @param type Model or Union to resolve the discriminated union for.
-   */
-  getDiscriminatedUnion(
-    type: Union | Model,
-  ): DiscriminatedUnion | DiscriminatedUnionLegacy | undefined;
-  /**
    * Resolves the discriminator for a discriminated union. Returns undefined if the type is not a discriminated union.
    * @param type
    */
@@ -257,18 +250,6 @@ defineKit<TypekitExtension>({
       }
 
       return discriminator;
-    },
-    getDiscriminatedUnion(type) {
-      if (type.kind === "Model") {
-        const discriminator = getDiscriminator(this.program, type);
-        if (!discriminator) {
-          return undefined;
-        }
-
-        return ignoreDiagnostics(getDiscriminatedUnionFromInheritance(type, discriminator));
-      }
-
-      return ignoreDiagnostics(getDiscriminatedUnion(this.program, type));
     },
     maxValue(type) {
       return getMaxValue(this.program, type);
