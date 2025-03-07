@@ -49,7 +49,7 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 Generation from a TypeSpec can be triggered in two ways:
 
-_Option 1_. Clicking `Generate from TypeSpec` in the _Context Menu_ for a .tsp file in the extended TypeSpec project.
+_Option 1_. Clicking `Generate from TypeSpec` in the _Context Menu_ for a .tsp file in the extended TypeSpec project, will skip to [step 4](#step-4-select-an-emitter-for-code-generationoptional).
 
 ![alt text](./images/TriggerGeneratefromTypeSpec_ContextMenu.png)
 

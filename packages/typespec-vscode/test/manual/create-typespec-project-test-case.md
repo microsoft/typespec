@@ -195,6 +195,8 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
    ![alt text](./images/CreateTypeSpecProject_StandAlone_InstallLibraries.png)
 
+   > Note: Depending on the template, different libraries need to be installed. The specific libraries that need to be installed take `tsp init` as the baseline.
+
 5. Input your `service namespace` or `ARM Resource Provider Name` - _(Text input)_ requires Pascal format.
 
    - For Data Plane API - Input service namespace.

@@ -88,7 +88,7 @@ _Option 3_. Typing `>TypeSpec: Import TypeSpec from OpenApi3` in the _Command Pa
 
 ### Step 4: Verify that `@typespec/openapi3` are installed.
 
-- If `@typespec/openapi3` is not installed. it will prompt `'@typespec/openapi3' is required to import OpenAPI. Do you want to install it?`. Click `Install @typespec/openapi3 globally` to install.
+- If `@typespec/openapi3` is not installed. it will prompt `'@typespec/openapi3' is required to import OpenApi3. Do you want to install it?`. Click `Install @typespec/openapi3` to install.
 
   ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyInstallaDependencies.png)
 
