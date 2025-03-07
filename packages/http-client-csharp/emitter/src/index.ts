@@ -15,4 +15,3 @@ export {
 } from "./options.js";
 export { setSDKContextOptions } from "./sdk-context-options.js";
 export { CSharpEmitterContext } from "./sdk-context.js";
-export { InputType } from "./type/input-type.js";
