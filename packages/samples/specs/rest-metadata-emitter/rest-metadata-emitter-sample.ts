@@ -43,9 +43,14 @@ export async function $onEmit(context: EmitContext): Promise<void> {
     const services = listServices(context.program);
     for (const service of services) {
       const mutators = getVersioningMutators(context.program, service.type);
-      if (mutators === undefined || mutators.kind === "transient") {
-        return;
+      if (mutators === undefined) {
+        emitService(context.program, service.type, service.title, undefined);
+        continue;
       }
+      if (mutators.kind === "transient") {
+        continue;
+      }
+
       for (const snapshot of mutators.snapshots) {
         const subgraph = unsafe_mutateSubgraphWithNamespace(
           context.program,
