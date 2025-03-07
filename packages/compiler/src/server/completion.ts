@@ -4,6 +4,7 @@ import {
   CompletionList,
   CompletionParams,
   MarkupKind,
+  Range,
   TextEdit,
 } from "vscode-languageserver";
 import { getSymNode } from "../core/binder.js";
@@ -22,6 +23,7 @@ import {
   TypeSpecScriptNode,
   compilerAssert,
   getFirstAncestor,
+  getSourceLocation,
   positionInRange,
   printIdentifier,
 } from "../core/index.js";
@@ -411,20 +413,25 @@ function addIdentifierCompletion(
   for (const [key, { sym, label, suffix }] of result) {
     let kind: CompletionItemKind;
     let deprecated = false;
-    const node = getSymNode(sym);
-    const type = sym.type ?? program.checker.getTypeForNode(node);
+    const symNode = getSymNode(sym);
+    const type = sym.type ?? program.checker.getTypeForNode(symNode);
     if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
       kind = CompletionItemKind.Function;
-    } else if (sym.flags & SymbolFlags.Namespace && node.kind !== SyntaxKind.NamespaceStatement) {
+    } else if (
+      sym.flags & SymbolFlags.Namespace &&
+      symNode.kind !== SyntaxKind.NamespaceStatement
+    ) {
       kind = CompletionItemKind.Module;
-    } else if (node?.kind === SyntaxKind.AliasStatement) {
+    } else if (symNode?.kind === SyntaxKind.AliasStatement) {
       kind = CompletionItemKind.Variable;
-      deprecated = getDeprecationDetails(program, node) !== undefined;
+      deprecated = getDeprecationDetails(program, symNode) !== undefined;
     } else {
       kind = getCompletionItemKind(program, type);
       deprecated = getDeprecationDetails(program, type) !== undefined;
     }
     const documentation = getSymbolDetails(program, sym);
+    const targetNode = getSourceLocation(node);
+    const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
     const item: CompletionItem = {
       label: label ?? key,
       documentation: documentation
@@ -434,7 +441,10 @@ function addIdentifierCompletion(
           }
         : undefined,
       kind,
-      insertText: printIdentifier(key) + (suffix ?? ""),
+      textEdit: TextEdit.replace(
+        Range.create(lineAndChar, lineAndChar),
+        printIdentifier(key) + (suffix ?? ""),
+      ),
     };
     if (deprecated) {
       // hide these deprecated items to discourage the usage
