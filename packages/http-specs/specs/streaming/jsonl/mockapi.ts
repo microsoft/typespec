@@ -2,8 +2,8 @@ import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-Scenarios.Streaming_Jsonl_Basic_send = passOnSuccess({
-  uri: "/streaming/jsonl/send",
+Scenarios.Streaming_Jsonl_AsBinary_send = passOnSuccess({
+  uri: "/streaming/jsonl/as-binary/send",
   method: "post",
   request: {
     headers: {
@@ -17,8 +17,8 @@ Scenarios.Streaming_Jsonl_Basic_send = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-Scenarios.Streaming_Jsonl_Basic_receive = passOnSuccess({
-  uri: "/streaming/jsonl/receive",
+Scenarios.Streaming_Jsonl_AsBinary_receive = passOnSuccess({
+  uri: "/streaming/jsonl/as-binary/receive",
   method: "get",
   request: {},
   response: {

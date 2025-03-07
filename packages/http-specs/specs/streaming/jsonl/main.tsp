@@ -10,11 +10,11 @@ using Spector;
 @scenarioService("/streaming/jsonl")
 namespace Streaming.Jsonl;
 
-@route("basic")
-namespace Basic {
+@route("as-binary")
+namespace AsBinary {
   @scenario
   @scenarioDoc("""
-    Basic case of jsonl streaming for request.
+    Jsonl streaming for request as binary.
     """)
   @route("send")
   @post
@@ -22,7 +22,7 @@ namespace Basic {
 
   @scenario
   @scenarioDoc("""
-    Basic case of jsonl streaming for response.
+    Jsonl streaming for response as binary.
     """)
   @route("receive")
   op receive(): JsonlStream<Info>;
