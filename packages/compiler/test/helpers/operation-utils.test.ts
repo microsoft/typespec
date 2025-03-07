@@ -1,11 +1,6 @@
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import {
-  Interface,
-  ListOperationOptions,
-  Namespace,
-  listOperationsIn,
-} from "../../src/core/index.js";
+import { Interface, ListOperationOptions, Namespace, listOperationsIn } from "../../src/index.js";
 import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 
 describe("compiler: operation-utils", () => {

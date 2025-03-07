@@ -1,6 +1,6 @@
 import type { ServiceDecorator, ServiceOptions } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
-import { reportDeprecated } from "../core/index.js";
+import { reportDeprecated } from "../core/diagnostics.js";
 import type { Program } from "../core/program.js";
 import { DecoratorContext, Namespace } from "../core/types.js";
 import { Realm } from "../experimental/realm.js";
@@ -8,8 +8,6 @@ import { useStateMap } from "../utils/index.js";
 
 export interface ServiceDetails {
   title?: string;
-  /** @deprecated Service version is deprecated. If wanting to describe a service versioning you can use the `@typespec/versioning` library. If wanting to describe the project version you can use the package.json version */
-  version?: string;
 }
 
 export interface Service extends ServiceDetails {

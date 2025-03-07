@@ -6,6 +6,8 @@
   "scripts": {
     "build-src": "babel src -d dist/src --extensions .ts,.tsx",
     "build": "tsc -p . && npm run build-src",
+    "clean": "rimraf ./dist",
+    "format": "prettier . --write",
     "watch-src": "babel src -d dist/src --extensions .ts,.tsx --watch",
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
@@ -29,16 +31,16 @@
   "license": "MIT",
   "description": "",
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~",
-    "@typespec/http": "workspace:~",
-    "@typespec/rest": "workspace:~"
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/rest": "workspace:^"
   },
   "dependencies": {
-    "@alloy-js/core": "^0.5.0",
-    "@alloy-js/typescript": "^0.5.0"
+    "@alloy-js/core": "^0.6.0",
+    "@alloy-js/typescript": "^0.6.0"
   },
   "devDependencies": {
-    "@alloy-js/babel-preset": "^0.1.1",
+    "@alloy-js/babel-preset": "^0.2.0",
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.26.9",
     "@rollup/plugin-babel": "^6.0.4",

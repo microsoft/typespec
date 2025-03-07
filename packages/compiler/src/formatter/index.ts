@@ -9,7 +9,7 @@ export const languages: SupportLanguage[] = [
   {
     name: "TypeSpec",
     parsers: ["typespec"],
-    extensions: [".tsp", ".cadl"],
+    extensions: [".tsp"],
     vscodeLanguageIds: ["typespec"],
   },
 ];
