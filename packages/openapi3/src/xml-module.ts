@@ -121,23 +121,20 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
           ? xmlName
           : resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
 
-        const items = new ArrayBuilder();
-        items.push(refSchema.items);
-        if (propValue.kind === "Scalar") {
-          if ("$ref" in refSchema.items) {
-            refSchema.items = new ObjectBuilder({
-              allOf: items,
-            });
-          }
-          refSchema.items.xml = { name: propXmlName };
+        if ("type" in refSchema.items) {
+          refSchema.items = new ObjectBuilder({
+            ...refSchema.items,
+            xml: { name: propXmlName },
+          });
         } else {
+          const items = new ArrayBuilder();
+          items.push(refSchema.items);
           refSchema.items = new ObjectBuilder({
             allOf: items,
             xml: { name: propXmlName },
           });
         }
 
-        // Handle unwrapped decorator
         if (!hasUnwrappedDecorator) {
           xmlObject.wrapped = true;
         }
