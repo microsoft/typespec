@@ -1,5 +1,9 @@
 # Change Log - @typespec/bundler
 
+## 0.2.1
+
+No changes, version bump only.
+
 ## 0.2.0
 
 ### Bump dependencies

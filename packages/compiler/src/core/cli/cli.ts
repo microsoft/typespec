@@ -7,9 +7,9 @@ try {
 }
 
 import yargs from "yargs";
+import { installTypeSpecDependencies } from "../../install/install.js";
 import { typespecVersion } from "../../utils/misc.js";
 import { getTypeSpecEngine } from "../engine.js";
-import { installTypeSpecDependencies } from "../install.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { formatAction } from "./actions/format.js";
 import { printInfoAction } from "./actions/info.js";
@@ -57,11 +57,6 @@ async function main() {
             description: "The path to the main.tsp file or directory containing main.tsp.",
             type: "string",
             demandOption: true,
-          })
-          .option("output-path", {
-            type: "string",
-            deprecated: "Use `output-dir` instead.",
-            hidden: true,
           })
           .option("output-dir", {
             type: "string",
@@ -217,8 +212,17 @@ async function main() {
     .command(
       "install",
       "Install TypeSpec dependencies",
-      () => {},
-      withCliHost((host) => installTypeSpecDependencies(host, process.cwd())),
+      (cmd) =>
+        cmd.option("save-package-manager", {
+          type: "boolean",
+          description: "Update the packageManager field with the package manger version and hash",
+        }),
+      withCliHostAndDiagnostics((host, args) =>
+        installTypeSpecDependencies(host, {
+          directory: process.cwd(),
+          savePackageManager: args["save-package-manager"],
+        }),
+      ),
     )
     .command(
       "info",

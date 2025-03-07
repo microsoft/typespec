@@ -1,18 +1,14 @@
+import { compilerAssert } from "../core/diagnostics.js";
+import { visitChildren } from "../core/parser.js";
+import { createScanner, isKeyword, isPunctuation, Token, TokenFlags } from "../core/scanner.js";
 import {
   IdentifierNode,
   Node,
   StringLiteralNode,
   SyntaxKind,
   TextRange,
-  Token,
-  TokenFlags,
   TypeSpecScriptNode,
-  compilerAssert,
-  createScanner,
-  isKeyword,
-  isPunctuation,
-  visitChildren,
-} from "../core/index.js";
+} from "../core/types.js";
 import { SemanticToken, SemanticTokenKind } from "./types.js";
 
 /**

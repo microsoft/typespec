@@ -1,4 +1,6 @@
-import { navigateProgram, Type, type Program } from "../core/index.js";
+import type { Program } from "../core/program.js";
+import { navigateProgram } from "../core/semantic-walker.js";
+import type { Type } from "../core/types.js";
 
 export function freezeGraph(program: Program) {
   function freeze(type: Type) {

@@ -1,4 +1,5 @@
-import { compilerAssert, getLocationContext, TemplatedType } from "../core/index.js";
+import { compilerAssert } from "../core/diagnostics.js";
+import { getLocationContext } from "../core/helpers/location-context.js";
 import { Program } from "../core/program.js";
 import { isTemplateInstance, isType } from "../core/type-utils.js";
 import {
@@ -12,6 +13,7 @@ import {
   Namespace,
   ObjectType,
   Projection,
+  TemplatedType,
   TemplateParameter,
   Type,
   TypeMapper,

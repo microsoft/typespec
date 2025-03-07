@@ -1,4 +1,4 @@
-import { Children, code, refkey as getRefkey, mapJoin } from "@alloy-js/core";
+import { Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
@@ -84,14 +84,13 @@ function getExtendsType(type: Model | Interface): Children | undefined {
 
   const extending: Children[] = [];
 
-  const recordExtends = code`Record<string, unknown>`;
-
   if (type.baseModel) {
     if ($.array.is(type.baseModel)) {
       extending.push(<TypeExpression type={type.baseModel} />);
     } else if ($.record.is(type.baseModel)) {
-      extending.push(recordExtends);
-      // When extending a record we need to override the element type to be unknown to avoid type errors
+      // Here we are in the additional properties land.
+      // Instead of extending we need to create an envelope property
+      // do nothing here.
     } else {
       extending.push(getRefkey(type.baseModel));
     }
@@ -120,11 +119,15 @@ function membersFromType(type: Model | Interface) {
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
   if ($.model.is(type)) {
     typeMembers = $.model.getProperties(type);
-    const spread = $.model.getSpreadType(type);
-    if (spread && $.model.is(spread) && $.record.is(spread)) {
+    const additionalProperties = $.model.getAdditionalPropertiesRecord(type);
+    if (additionalProperties) {
       typeMembers.set(
         "additionalProperties",
-        $.modelProperty.create({ name: "additionalProperties", optional: true, type: spread }),
+        $.modelProperty.create({
+          name: "additionalProperties",
+          optional: true,
+          type: additionalProperties,
+        }),
       );
     }
   } else {

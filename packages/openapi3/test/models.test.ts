@@ -40,25 +40,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
     });
   });
 
-  it("uses json name specified via @encodedName even if @projectedName is provided", async () => {
-    const res = await oapiForModel(
-      "Foo",
-      `model Foo {
-        #suppress "deprecated" "for testing"
-        @encodedName("application/json", "xJson")
-        @projectedName("json", "projectedJson")
-        x: int32;
-      };`,
-    );
-
-    expect(res.schemas.Foo).toMatchObject({
-      required: ["xJson"],
-      properties: {
-        xJson: { type: "integer", format: "int32" },
-      },
-    });
-  });
-
   it("errors on duplicate model names", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
@@ -612,27 +593,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
     ok(res.isRef);
     strictEqual(res.schemas.Pet.properties.type.$ref, "#/components/schemas/PetType");
     deepStrictEqual(res.schemas.PetType.enum, [0, 1]);
-  });
-
-  it("defines known values", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      enum KnownPetType {
-        Dog, Cat
-      }
-
-      #suppress "deprecated" "For testing"
-      @knownValues(KnownPetType)
-      scalar PetType extends string;
-      model Pet { type: PetType };
-      `,
-    );
-    ok(res.isRef);
-    strictEqual(res.schemas.Pet.properties.type.$ref, "#/components/schemas/PetType");
-    deepStrictEqual(res.schemas.PetType, {
-      oneOf: [{ type: "string" }, { type: "string", enum: ["Dog", "Cat"] }],
-    });
   });
 
   it("defines request bodies as unions of models", async () => {

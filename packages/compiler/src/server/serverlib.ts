@@ -51,13 +51,6 @@ import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
-import {
-  NoTarget,
-  ProcessedLog,
-  resolveModule,
-  ResolveModuleHost,
-  typespecVersion,
-} from "../core/index.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
@@ -83,7 +76,9 @@ import {
   DiagnosticTarget,
   IdentifierNode,
   Node,
+  NoTarget,
   PositionDetail,
+  ProcessedLog,
   SourceFile,
   SyntaxKind,
   TextRange,
@@ -94,7 +89,8 @@ import { getTypeSpecCoreTemplates } from "../init/core-templates.js";
 import { validateTemplateDefinitions } from "../init/init-template-validate.js";
 import { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
-import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
+import { resolveModule, ResolveModuleHost } from "../module-resolver/module-resolver.js";
+import { getNormalizedRealPath, resolveTspMain, typespecVersion } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";

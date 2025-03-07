@@ -1,5 +1,14 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.10
+
+### Features
+
+- [#5996](https://github.com/microsoft/typespec/pull/5996) Emitter Framework V2
+- [#6164](https://github.com/microsoft/typespec/pull/6164) Renamed package `@typespec/http-server-javascript` to `@typespec/http-server-js`.
+- [#6006](https://github.com/microsoft/typespec/pull/6006) Implement Swagger UI support when generating Express server model.
+
+
 ## 0.58.0-alpha.9
 
 ### Features

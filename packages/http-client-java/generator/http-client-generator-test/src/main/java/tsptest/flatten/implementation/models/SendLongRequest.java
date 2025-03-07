@@ -62,6 +62,12 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
     private Double dataFloat;
 
     /*
+     * The long property.
+     */
+    @Generated
+    private Long longProperty;
+
+    /*
      * The item's title
      */
     @Generated
@@ -228,6 +234,28 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
     }
 
     /**
+     * Get the longProperty property: The long property.
+     * 
+     * @return the longProperty value.
+     */
+    @Generated
+    public Long getLongProperty() {
+        return this.longProperty;
+    }
+
+    /**
+     * Set the longProperty property: The long property.
+     * 
+     * @param longProperty the longProperty value to set.
+     * @return the SendLongRequest object itself.
+     */
+    @Generated
+    public SendLongRequest setLongProperty(Long longProperty) {
+        this.longProperty = longProperty;
+        return this;
+    }
+
+    /**
      * Get the title property: The item's title.
      * 
      * @return the title value.
@@ -318,6 +346,7 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
         jsonWriter.writeNumberField("dataIntOptional", this.dataIntOptional);
         jsonWriter.writeNumberField("dataLong", this.dataLong);
         jsonWriter.writeNumberField("data_float", this.dataFloat);
+        jsonWriter.writeNumberField("long", this.longProperty);
         jsonWriter.writeStringField("description", this.description);
         jsonWriter.writeStringField("_dummy", this.dummy);
         return jsonWriter.writeEndObject();
@@ -344,6 +373,7 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
             Integer dataIntOptional = null;
             Long dataLong = null;
             Double dataFloat = null;
+            Long longProperty = null;
             String description = null;
             String dummy = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
@@ -368,6 +398,8 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
                     dataLong = reader.getNullable(JsonReader::getLong);
                 } else if ("data_float".equals(fieldName)) {
                     dataFloat = reader.getNullable(JsonReader::getDouble);
+                } else if ("long".equals(fieldName)) {
+                    longProperty = reader.getNullable(JsonReader::getLong);
                 } else if ("description".equals(fieldName)) {
                     description = reader.getString();
                 } else if ("_dummy".equals(fieldName)) {
@@ -382,6 +414,7 @@ public final class SendLongRequest implements JsonSerializable<SendLongRequest> 
             deserializedSendLongRequest.dataIntOptional = dataIntOptional;
             deserializedSendLongRequest.dataLong = dataLong;
             deserializedSendLongRequest.dataFloat = dataFloat;
+            deserializedSendLongRequest.longProperty = longProperty;
             deserializedSendLongRequest.description = description;
             deserializedSendLongRequest.dummy = dummy;
 
