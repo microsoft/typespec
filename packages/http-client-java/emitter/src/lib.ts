@@ -100,7 +100,7 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`An unknown error occurred. ${"errorMessage"}`,
       },
     },
-    "jar-error": {
+    "generator-error": {
       severity: "error",
       messages: {
         default: paramMessage`${"errorMessage"}`,
@@ -138,7 +138,7 @@ export const $lib = createTypeSpecLibrary({
     },
 
     // warning
-    "jar-warning": {
+    "generator-warning": {
       severity: "warning",
       messages: {
         default: paramMessage`${"warningMessage"}`,

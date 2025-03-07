@@ -174,7 +174,7 @@ function reportJarOutput(program: Program, jarOutput: string) {
   for (const log of logs) {
     if (log.startsWith("ERROR ")) {
       reportDiagnostic(program, {
-        code: "jar-error",
+        code: "generator-error",
         format: {
           errorMessage: log.substring(6),
         },
@@ -182,7 +182,7 @@ function reportJarOutput(program: Program, jarOutput: string) {
       });
     } else if (log.startsWith("WARN ")) {
       reportDiagnostic(program, {
-        code: "jar-warning",
+        code: "generator-warning",
         format: {
           warningMessage: log.substring(5),
         },
