@@ -4,6 +4,7 @@ changeKind: feature
 packages:
   - "@typespec/html-program-viewer"
   - "@typespec/http-server-js"
+  - "@typespec/http-server-csharp"
   - "@typespec/http-specs"
   - "@typespec/http"
   - "@typespec/openapi3"
