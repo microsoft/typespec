@@ -84,8 +84,6 @@ function getTypeSignature(type: Type): string {
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
       return `(tuple)\n[${fence(type.values.map(getTypeSignature).join(", "))}]`;
-    case "Projection":
-      return "(projection)";
     case "Object":
       return "(object)";
     default:

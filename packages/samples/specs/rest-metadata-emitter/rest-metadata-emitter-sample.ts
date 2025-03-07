@@ -9,9 +9,9 @@ import {
   ModelProperty,
   Namespace,
   Program,
-  projectProgram,
   Type,
 } from "@typespec/compiler";
+import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
 import {
   createMetadataInfo,
   getHttpService,
@@ -23,7 +23,7 @@ import {
   resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
-import { buildVersionProjections } from "@typespec/versioning";
+import { getVersioningMutators } from "@typespec/versioning";
 import assert from "assert";
 
 export async function $onEmit(context: EmitContext): Promise<void> {
@@ -42,13 +42,25 @@ export async function $onEmit(context: EmitContext): Promise<void> {
   function emitAllServiceVersions() {
     const services = listServices(context.program);
     for (const service of services) {
-      const versionProjections = buildVersionProjections(context.program, service.type);
-      for (const versionProjection of versionProjections) {
-        const projectedProgram = projectProgram(context.program, versionProjection.projections);
-        const serviceNamespace = projectedProgram.projector.projectedTypes.get(service.type);
+      const versionProjections = getVersioningMutators(context.program, service.type);
+      if (versionProjections === undefined || versionProjections.kind === "transient") {
+        return;
+      }
+      for (const snapshot of versionProjections.snapshots) {
+        const subgraph = unsafe_mutateSubgraphWithNamespace(
+          context.program,
+          [snapshot.mutator],
+          service.type,
+        );
+        const serviceNamespace = subgraph.type;
         assert.strictEqual(serviceNamespace?.kind, "Namespace" as const);
-        const details = getService(projectedProgram, serviceNamespace);
-        emitService(projectedProgram, serviceNamespace, details?.title, versionProjection.version);
+        const details = getService(context.program, serviceNamespace);
+        emitService(
+          context.program,
+          serviceNamespace,
+          details?.title,
+          snapshot.version.value ?? snapshot.version.name,
+        );
       }
     }
   }

@@ -38,7 +38,6 @@ import {
   joinPaths,
   resolvePath,
 } from "./path-utils.js";
-import { createProjector } from "./projector.js";
 import {
   SourceLoader,
   SourceResolution,
@@ -64,8 +63,6 @@ import {
   Namespace,
   NoTarget,
   Node,
-  ProjectionApplication,
-  Projector,
   SourceFile,
   Sym,
   SymbolFlags,
@@ -77,21 +74,6 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
-
-/** @deprecated */
-export interface ProjectedProgram extends Program {
-  projector: Projector;
-}
-
-/** @deprecated use Mutators instead */
-export function projectProgram(
-  program: Program,
-  projections: ProjectionApplication[],
-  startNode?: Type,
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-): ProjectedProgram {
-  return createProjector(program, projections, startNode);
-}
 
 export interface Program {
   compilerOptions: CompilerOptions;

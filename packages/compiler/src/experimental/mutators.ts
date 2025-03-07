@@ -12,7 +12,6 @@ import {
   Model,
   Namespace,
   ObjectType,
-  Projection,
   TemplatedType,
   TemplateParameter,
   Type,
@@ -217,7 +216,6 @@ export type MutableType = Exclude<
   | Decorator
   | FunctionParameter
   | ObjectType
-  | Projection
   | Namespace
 >;
 
@@ -234,7 +232,6 @@ function isMutableTypeWithNamespace(type: Type): type is MutableTypeWithNamespac
     case "Decorator":
     case "FunctionParameter":
     case "Object":
-    case "Projection":
       return false;
     default:
       void (type satisfies MutableTypeWithNamespace);
@@ -255,7 +252,6 @@ export function isMutableType(type: Type): type is MutableType {
     case "Decorator":
     case "FunctionParameter":
     case "Object":
-    case "Projection":
     case "Namespace":
       return false;
     default:

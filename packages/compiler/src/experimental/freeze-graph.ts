@@ -25,6 +25,5 @@ export function freezeGraph(program: Program) {
     intrinsic: freeze,
     function: freeze,
     object: freeze,
-    projection: freeze,
   });
 }

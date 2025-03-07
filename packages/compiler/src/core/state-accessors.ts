@@ -1,30 +1,28 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
-import type { Projector, Type } from "./types.js";
+import type { Type } from "./types.js";
 
-export class StateMap extends Map<undefined | Projector, Map<Type, unknown>> {}
-export class StateSet extends Map<undefined | Projector, Set<Type>> {}
+export class StateMap extends Map<undefined, Map<Type, unknown>> {}
+export class StateSet extends Map<undefined, Set<Type>> {}
 
+// TODO: need to remove the dispatch logic not needed anymore
 class StateMapView<V> implements Map<Type, V> {
-  public constructor(
-    private state: StateMap,
-    private projector?: Projector,
-  ) {}
+  public constructor(private state: StateMap) {}
 
   has(t: Type) {
-    return this.dispatch(t)?.has(t) ?? false;
+    return this.dispatch()?.has(t) ?? false;
   }
 
   set(t: Type, v: any) {
-    this.dispatch(t).set(t, v);
+    this.dispatch().set(t, v);
     return this;
   }
 
   get(t: Type) {
-    return this.dispatch(t).get(t);
+    return this.dispatch().get(t);
   }
 
   delete(t: Type) {
-    return this.dispatch(t).delete(t);
+    return this.dispatch().delete(t);
   }
 
   forEach(cb: (value: V, key: Type, map: Map<Type, V>) => void, thisArg?: any) {
@@ -58,33 +56,29 @@ class StateMapView<V> implements Map<Type, V> {
 
   [Symbol.toStringTag] = "StateMap";
 
-  dispatch(keyType?: Type): Map<Type, V> {
-    const key = keyType ? keyType.projector : this.projector;
-    if (!this.state.has(key)) {
-      this.state.set(key, new Map());
+  dispatch(): Map<Type, V> {
+    if (!this.state.has(undefined)) {
+      this.state.set(undefined, new Map());
     }
 
-    return this.state.get(key)! as any;
+    return this.state.get(undefined)! as any;
   }
 }
 
 class StateSetView implements Set<Type> {
-  public constructor(
-    private state: StateSet,
-    private projector?: Projector,
-  ) {}
+  public constructor(private state: StateSet) {}
 
   has(t: Type) {
-    return this.dispatch(t)?.has(t) ?? false;
+    return this.dispatch()?.has(t) ?? false;
   }
 
   add(t: Type) {
-    this.dispatch(t).add(t);
+    this.dispatch().add(t);
     return this;
   }
 
   delete(t: Type) {
-    return this.dispatch(t).delete(t);
+    return this.dispatch().delete(t);
   }
 
   forEach(cb: (value: Type, value2: Type, set: Set<Type>) => void, thisArg?: any) {
@@ -118,20 +112,18 @@ class StateSetView implements Set<Type> {
 
   [Symbol.toStringTag] = "StateSet";
 
-  dispatch(keyType?: Type): Set<Type> {
-    const key = keyType ? keyType.projector : this.projector;
-    if (!this.state.has(key)) {
-      this.state.set(key, new Set());
+  dispatch(): Set<Type> {
+    if (!this.state.has(undefined)) {
+      this.state.set(undefined, new Set());
     }
 
-    return this.state.get(key)!;
+    return this.state.get(undefined)!;
   }
 }
 
 export function createStateAccessors(
   stateMaps: Map<symbol, StateMap>,
   stateSets: Map<symbol, StateSet>,
-  projector?: Projector,
 ) {
   function stateMap<T>(key: symbol): StateMapView<T> {
     let m = stateMaps.get(key);
@@ -141,7 +133,7 @@ export function createStateAccessors(
       stateMaps.set(key, m);
     }
 
-    return new StateMapView(m, projector);
+    return new StateMapView(m);
   }
 
   function stateSet(key: symbol): StateSetView {
@@ -152,7 +144,7 @@ export function createStateAccessors(
       stateSets.set(key, s);
     }
 
-    return new StateSetView(s, projector);
+    return new StateSetView(s);
   }
 
   return { stateMap, stateSet };

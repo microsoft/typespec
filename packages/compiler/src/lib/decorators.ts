@@ -71,7 +71,7 @@ import {
 } from "../core/intrinsic-type-state.js";
 import { reportDiagnostic } from "../core/messages.js";
 import { Numeric } from "../core/numeric.js";
-import { Program, ProjectedProgram } from "../core/program.js";
+import { Program } from "../core/program.js";
 import { isArrayModelType, isValue } from "../core/type-utils.js";
 import {
   AugmentDecoratorStatementNode,
@@ -248,17 +248,15 @@ export const $inspectTypeName: InspectTypeNameDecorator = (context, target: Type
   console.log(getTypeName(target));
 };
 
-export function isStringType(program: Program | ProjectedProgram, target: Type): target is Scalar {
-  const coreType = program.checker.getStdType("string");
-  const stringType = target.projector ? target.projector.projectType(coreType) : coreType;
+export function isStringType(program: Program, target: Type): target is Scalar {
+  const stringType = program.checker.getStdType("string");
   return (
     target.kind === "Scalar" && program.checker.isTypeAssignableTo(target, stringType, target)[0]
   );
 }
 
-export function isNumericType(program: Program | ProjectedProgram, target: Type): target is Scalar {
-  const coreType = program.checker.getStdType("numeric");
-  const numericType = target.projector ? target.projector.projectType(coreType) : coreType;
+export function isNumericType(program: Program, target: Type): target is Scalar {
+  const numericType = program.checker.getStdType("numeric");
   return (
     target.kind === "Scalar" && program.checker.isTypeAssignableTo(target, numericType, target)[0]
   );
@@ -724,7 +722,7 @@ function computeEncoding(
       return { encoding: getTypeName(member), type: resolvedEncodeAs };
     }
   } else {
-    const originalType = encodingOrEncodeAs.projectionBase ?? encodingOrEncodeAs;
+    const originalType = encodingOrEncodeAs;
     if (originalType !== strType) {
       reportDiagnostic(program, {
         code: "invalid-encode",
@@ -741,7 +739,7 @@ function computeEncoding(
 function validateEncodeData(context: DecoratorContext, target: Type, encodeData: EncodeData) {
   function check(validTargets: StdTypeName[], validEncodeTypes: StdTypeName[]) {
     const checker = context.program.checker;
-    const isTargetValid = isTypeIn(target.projectionBase ?? target, (type) =>
+    const isTargetValid = isTypeIn(target, (type) =>
       validTargets.some((validTarget) => {
         return ignoreDiagnostics(
           checker.isTypeAssignableTo(type, checker.getStdType(validTarget), target),
@@ -763,16 +761,12 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
     }
     const isEncodingTypeValid = validEncodeTypes.some((validEncoding) => {
       return ignoreDiagnostics(
-        checker.isTypeAssignableTo(
-          encodeData.type.projectionBase ?? encodeData.type,
-          checker.getStdType(validEncoding),
-          target,
-        ),
+        checker.isTypeAssignableTo(encodeData.type, checker.getStdType(validEncoding), target),
       );
     });
 
     if (!isEncodingTypeValid) {
-      const typeName = getTypeName(encodeData.type.projectionBase ?? encodeData.type);
+      const typeName = getTypeName(encodeData.type);
       reportDiagnostic(context.program, {
         code: "invalid-encode",
         messageId: ["unixTimestamp", "seconds"].includes(encodeData.encoding ?? "string")
@@ -1028,15 +1022,15 @@ export const $overload: OverloadDecorator = (
 ) => {
   // Ensure that the overloaded method arguments are a subtype of the original operation.
   const [paramValid, paramDiagnostics] = context.program.checker.isTypeAssignableTo(
-    target.parameters.projectionBase ?? target.parameters,
-    overloadBase.parameters.projectionBase ?? overloadBase.parameters,
+    target.parameters,
+    overloadBase.parameters,
     target,
   );
   if (!paramValid) context.program.reportDiagnostics(paramDiagnostics);
 
   const [returnTypeValid, returnTypeDiagnostics] = context.program.checker.isTypeAssignableTo(
-    target.returnType.projectionBase ?? target.returnType,
-    overloadBase.returnType.projectionBase ?? overloadBase.returnType,
+    target.returnType,
+    overloadBase.returnType,
     target,
   );
   if (!returnTypeValid) context.program.reportDiagnostics(returnTypeDiagnostics);
@@ -1056,26 +1050,8 @@ export const $overload: OverloadDecorator = (
 
 function areOperationsInSameContainer(op1: Operation, op2: Operation): boolean {
   return op1.interface || op2.interface
-    ? equalsWithoutProjection(op1.interface, op2.interface)
+    ? op1.interface === op2.interface
     : op1.namespace === op2.namespace;
-}
-
-// note: because the 'interface' property of Operation types is projected after the
-// type is finalized, the target operation or overloadBase may reference an un-projected
-// interface at the time of decorator execution during projections.  This normalizes
-// the interfaces to their unprojected form before comparison.
-function equalsWithoutProjection(
-  interface1: Interface | undefined,
-  interface2: Interface | undefined,
-): boolean {
-  if (interface1 === undefined || interface2 === undefined) return false;
-  return getBaseInterface(interface1) === getBaseInterface(interface2);
-}
-
-function getBaseInterface(int1: Interface): Interface {
-  return int1.projectionSource === undefined
-    ? int1
-    : getBaseInterface(int1.projectionSource as Interface);
 }
 
 export {
@@ -1178,7 +1154,7 @@ export const $example: ExampleDecorator = (
   compilerAssert(decorator, `Couldn't find @example decorator`, context.decoratorTarget);
   const rawExample = decorator.args[0].value as Value;
   // skip validation in projections
-  if (target.projectionBase === undefined && Realm.realmForType.get(target) === undefined) {
+  if (Realm.realmForType.get(target) === undefined) {
     if (
       !checkExampleValid(
         context.program,
@@ -1224,7 +1200,7 @@ export const $opExample: OpExampleDecorator = (
   const returnType = rawExampleConfig.properties.get("returnType")?.value;
 
   // skip validation in projections
-  if (target.projectionBase === undefined && Realm.realmForType.get(target) === undefined) {
+  if (Realm.realmForType.get(target) === undefined) {
     if (
       parameters &&
       !checkExampleValid(

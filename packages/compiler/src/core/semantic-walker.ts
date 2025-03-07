@@ -427,7 +427,6 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
     case "ScalarConstructor":
       return navigateScalarConstructor(type, context);
     case "Object":
-    case "Projection":
     case "Function":
     case "FunctionParameter":
     case "Boolean":
@@ -515,6 +514,4 @@ const eventNames: Array<keyof SemanticNodeListener> = [
   "exitFunction",
   "object",
   "exitObject",
-  "projection",
-  "exitProjection",
 ];

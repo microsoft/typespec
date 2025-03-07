@@ -101,7 +101,6 @@ export const TypeConfig: TypeGraphConfig = {
   Function: null,
   Object: null,
   Intrinsic: null,
-  Projection: null,
 };
 
 type PropsToDefine<T extends Type> = Exclude<
