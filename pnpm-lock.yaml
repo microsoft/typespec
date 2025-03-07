@@ -131,7 +131,7 @@ importers:
         specifier: ^0.40.2
         version: 0.40.2
       '@typespec/playground':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../playground
       astro-expressive-code:
         specifier: ^0.40.2
@@ -159,7 +159,7 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -192,7 +192,7 @@ importers:
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@1000.0.0)
       '@typespec/bundler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../bundler
       json5:
         specifier: ^2.2.3
@@ -253,7 +253,7 @@ importers:
         specifier: ~3.0.2
         version: 3.0.2(rollup@4.34.9)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       node-stdlib-browser:
         specifier: ~1.3.1
@@ -304,15 +304,15 @@ importers:
       '@inquirer/prompts':
         specifier: ^7.3.1
         version: 7.3.2(@types/node@22.13.9)
-      '@npmcli/arborist':
-        specifier: ^8.0.0
-        version: 8.0.0
       ajv:
         specifier: ~8.17.1
         version: 8.17.1
       change-case:
         specifier: ~5.4.4
         version: 5.4.4
+      env-paths:
+        specifier: ^3.0.0
+        version: 3.0.0
       globby:
         specifier: ~14.1.0
         version: 14.1.0
@@ -331,6 +331,9 @@ importers:
       semver:
         specifier: ^7.7.1
         version: 7.7.1
+      tar:
+        specifier: ^7.4.3
+        version: 7.4.3
       temporal-polyfill:
         specifier: ^0.2.5
         version: 0.2.5
@@ -356,9 +359,6 @@ importers:
       '@types/node':
         specifier: ~22.13.9
         version: 22.13.9
-      '@types/npmcli__arborist':
-        specifier: ^6.3.0
-        version: 6.3.0
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
@@ -366,7 +366,7 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -390,7 +390,7 @@ importers:
         specifier: ~0.5.21
         version: 0.5.21
       tmlanguage-generator:
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tmlanguage-generator
       typescript:
         specifier: ~5.8.2
@@ -414,13 +414,13 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
     devDependencies:
       '@alloy-js/babel-preset':
@@ -518,13 +518,13 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -588,10 +588,10 @@ importers:
         specifier: ~18.3.0
         version: 18.3.5(@types/react@18.3.18)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/react-components':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../react-components
       '@vitejs/plugin-react':
         specifier: ~4.3.4
@@ -633,16 +633,16 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/streams':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../streams
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -669,10 +669,10 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
     devDependencies:
       '@alloy-js/babel-preset':
@@ -712,19 +712,19 @@ importers:
         specifier: ^0.5.0
         version: 0.5.0
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/emitter-framework':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../emitter-framework
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/http-client':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http-client
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       prettier:
         specifier: ~3.5.3
@@ -749,13 +749,13 @@ importers:
         specifier: 0.1.0-alpha.11
         version: 0.1.0-alpha.11(@types/node@22.13.9)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)(@typespec/xml@0.66.0(@typespec/compiler@packages+compiler))
       '@typespec/spector':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spector
       '@typespec/ts-http-runtime':
         specifier: 0.1.0
         version: 0.1.0
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       '@vitest/ui':
         specifier: ^3.0.7
@@ -828,25 +828,25 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -880,13 +880,13 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi3
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -907,25 +907,25 @@ importers:
   packages/http-specs:
     dependencies:
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/spec-api':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spec-api
       '@typespec/spector':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spector
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       '@typespec/xml':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../xml
     devDependencies:
       '@types/multer':
@@ -935,10 +935,10 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi3
       concurrently:
         specifier: ^9.1.2
@@ -1015,16 +1015,16 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1057,7 +1057,7 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1115,19 +1115,19 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1167,31 +1167,31 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../json-schema
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       '@typespec/xml':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../xml
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1224,31 +1224,31 @@ importers:
         specifier: ^2.0.279
         version: 2.0.279(react@18.3.1)
       '@typespec/bundler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../bundler
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/html-program-viewer':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi3
       '@typespec/protobuf':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       clsx:
         specifier: ^2.1.1
@@ -1321,7 +1321,7 @@ importers:
         specifier: ~3.30.5
         version: 3.30.5
       '@typespec/react-components':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../react-components
       '@vitejs/plugin-react':
         specifier: ~4.3.4
@@ -1360,46 +1360,46 @@ importers:
         specifier: ^2.0.279
         version: 2.0.279(react@18.3.1)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../events
       '@typespec/html-program-viewer':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../json-schema
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi3
       '@typespec/playground':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../playground
       '@typespec/protobuf':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/sse':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../sse
       '@typespec/streams':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../streams
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       '@typespec/xml':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../xml
       es-module-shims:
         specifier: ~2.0.10
@@ -1488,10 +1488,10 @@ importers:
         specifier: ~6.0.2
         version: 6.0.2(rollup@4.34.9)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       rollup:
         specifier: ~4.34.9
@@ -1509,10 +1509,10 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1609,16 +1609,16 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1642,56 +1642,56 @@ importers:
   packages/samples:
     dependencies:
       '@typespec/best-practices':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../best-practices
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../events
       '@typespec/html-program-viewer':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/http-server-csharp':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http-server-csharp
       '@typespec/http-server-js':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http-server-js
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../json-schema
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi3
       '@typespec/protobuf':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/sse':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../sse
       '@typespec/streams':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../streams
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
     devDependencies:
       '@types/node':
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1721,7 +1721,7 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       ecmarkup:
         specifier: ~21.0.0
@@ -1834,7 +1834,7 @@ importers:
         specifier: ^2.0.279
         version: 2.0.279(react@18.3.1)
       '@typespec/spec-coverage-sdk':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spec-coverage-sdk
       react:
         specifier: ~18.3.1
@@ -1883,22 +1883,22 @@ importers:
         specifier: ^4.0.5
         version: 4.0.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/spec-api':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spec-api
       '@typespec/spec-coverage-sdk':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spec-coverage-sdk
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       ajv:
         specifier: ~8.17.1
@@ -1983,7 +1983,7 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       rimraf:
         specifier: ~6.0.1
@@ -1998,22 +1998,22 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../events
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/streams':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../streams
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2095,13 +2095,13 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2147,7 +2147,7 @@ importers:
   packages/tspd:
     dependencies:
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       picocolors:
         specifier: ~1.1.1
@@ -2169,7 +2169,7 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/prettier-plugin-typespec':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../prettier-plugin-typespec
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2202,10 +2202,10 @@ importers:
   packages/typespec-vs:
     devDependencies:
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       typespec-vscode:
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../typespec-vscode
 
   packages/typespec-vscode:
@@ -2235,10 +2235,10 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2289,13 +2289,13 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2322,13 +2322,13 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2376,10 +2376,10 @@ importers:
         specifier: ^2.0.279
         version: 2.0.279(react@18.3.1)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/compiler
       '@typespec/playground':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/playground
       astro:
         specifier: ^5.4.2
@@ -2425,55 +2425,55 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       '@typespec/astro-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/astro-utils
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/events
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/http
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/internal-build-utils
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/json-schema
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/openapi3
       '@typespec/playground-website':
         specifier: workspace:*
         version: link:../packages/playground-website
       '@typespec/protobuf':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/rest
       '@typespec/spec':
         specifier: workspace:*
         version: link:../packages/spec
       '@typespec/spec-dashboard':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/spec-dashboard
       '@typespec/sse':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/sse
       '@typespec/streams':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/streams
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/tspd
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/versioning
       '@typespec/xml':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/xml
       astro-expressive-code:
         specifier: ^0.40.2
@@ -4990,9 +4990,6 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@npm/types@1.0.2':
-    resolution: {integrity: sha512-KXZccTDEnWqNrrx6JjpJKU/wJvNeg9BDgjS0XhmlZab7br921HtyVbsYzJr4L+xIvjdJ20Wh9dgxgCI2a5CEQw==}
-
   '@npmcli/agent@3.0.0':
     resolution: {integrity: sha512-S79NdEgDQd/NGCay6TCoVzXSj74skRZIKJcpJjC5lOq34SZzyI6MqtiiWoiVWoVrTcGjNeC4ipbh1VIHlpfF5Q==}
     engines: {node: ^18.17.0 || >=20.5.0}
@@ -5858,9 +5855,6 @@ packages:
   '@types/braces@3.0.5':
     resolution: {integrity: sha512-SQFof9H+LXeWNz8wDe7oN5zu7ket0qwMu5vZubW4GCJ8Kkeh6nBWUz87+KTz/G3Kqsrp0j/W253XJb3KMEeg3w==}
 
-  '@types/cacache@17.0.2':
-    resolution: {integrity: sha512-IrqHzVX2VRMDQQKa7CtKRnuoCLdRJiLW6hWU+w7i7+AaQ0Ii5bKwJxd5uRK4zBCyrHd3tG6G8zOm2LplxbSfQg==}
-
   '@types/cacheable-request@6.0.3':
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
 
@@ -6077,24 +6071,6 @@ packages:
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
-
-  '@types/npm-package-arg@6.1.4':
-    resolution: {integrity: sha512-vDgdbMy2QXHnAruzlv68pUtXCjmqUk3WrBAsRboRovsOmxbfn/WiYCjmecyKjGztnMps5dWp4Uq2prp+Ilo17Q==}
-
-  '@types/npm-registry-fetch@8.0.7':
-    resolution: {integrity: sha512-db9iBh7kDDg4lRT4k4XZ6IiecTEgFCID4qk+VDVPbtzU855q3KZLCn08ATr4H27ntRJVhulQ7GWjl24H42x96w==}
-
-  '@types/npmcli__arborist@6.3.0':
-    resolution: {integrity: sha512-CXkuOBZDlcb+r0UMlmEAq3XOUZrL9XfZ2MXIwCSo726OBkkg+UIWlZ9h3n6To9w1WqMEIOZT2LkerhLgnsPV+Q==}
-
-  '@types/npmcli__package-json@4.0.4':
-    resolution: {integrity: sha512-6QjlFUSHBmZJWuC08bz1ZCx6tm4t+7+OJXAdvM6tL2pI7n6Bh5SIp/YxQvnOLFf8MzCXs2ijyFgrzaiu1UFBGA==}
-
-  '@types/npmlog@7.0.0':
-    resolution: {integrity: sha512-hJWbrKFvxKyWwSUXjZMYTINsSOY6IclhvGOZ97M8ac2tmR9hMwmTnYaMdpGhvju9ctWLTPhCS+eLfQNluiEjQQ==}
-
-  '@types/pacote@11.1.8':
-    resolution: {integrity: sha512-/XLR0VoTh2JEO0jJg1q/e6Rh9bxjBq9vorJuQmtT7rRrXSiWz7e7NsvXVYJQ0i8JxMlBMPPYDTnrRe7MZRFA8Q==}
 
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
@@ -17120,8 +17096,6 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@npm/types@1.0.2': {}
-
   '@npmcli/agent@3.0.0':
     dependencies:
       agent-base: 7.1.3
@@ -18250,10 +18224,6 @@ snapshots:
 
   '@types/braces@3.0.5': {}
 
-  '@types/cacache@17.0.2':
-    dependencies:
-      '@types/node': 22.13.9
-
   '@types/cacheable-request@6.0.3':
     dependencies:
       '@types/http-cache-semantics': 4.0.4
@@ -18502,37 +18472,6 @@ snapshots:
       undici-types: 6.20.0
 
   '@types/normalize-package-data@2.4.4': {}
-
-  '@types/npm-package-arg@6.1.4': {}
-
-  '@types/npm-registry-fetch@8.0.7':
-    dependencies:
-      '@types/node': 22.13.9
-      '@types/node-fetch': 2.6.12
-      '@types/npm-package-arg': 6.1.4
-      '@types/npmlog': 7.0.0
-      '@types/ssri': 7.1.5
-
-  '@types/npmcli__arborist@6.3.0':
-    dependencies:
-      '@npm/types': 1.0.2
-      '@types/cacache': 17.0.2
-      '@types/node': 22.13.9
-      '@types/npmcli__package-json': 4.0.4
-      '@types/pacote': 11.1.8
-
-  '@types/npmcli__package-json@4.0.4': {}
-
-  '@types/npmlog@7.0.0':
-    dependencies:
-      '@types/node': 22.13.9
-
-  '@types/pacote@11.1.8':
-    dependencies:
-      '@types/node': 22.13.9
-      '@types/npm-registry-fetch': 8.0.7
-      '@types/npmlog': 7.0.0
-      '@types/ssri': 7.1.5
 
   '@types/parse-json@4.0.2': {}
 
