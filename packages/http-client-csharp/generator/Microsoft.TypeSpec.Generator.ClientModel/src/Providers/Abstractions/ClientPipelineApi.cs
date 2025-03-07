@@ -21,8 +21,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
         }
 
-        public abstract MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options);
-        public abstract MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options);
+        public abstract MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options, out HttpResponseApi response);
+        public abstract MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options, out HttpResponseApi response);
 
         public abstract ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier);
 

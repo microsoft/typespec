@@ -55,23 +55,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public override ClientPipelineApi ToExpression() => this;
 
-        public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
-            =>
-            [
-                Original.Invoke(nameof(ClientPipeline.Send), [message]).Terminate(),
-                MethodBodyStatement.EmptyLine,
-                new IfStatement(message.Response().IsError().And(new BinaryOperatorExpression("&", options.NullConditional().Property("ErrorOptions"), options.NoThrow()).NotEqual(options.NoThrow())))
+        public override MethodBodyStatement[] ProcessMessage(
+            HttpMessageApi message,
+            HttpRequestOptionsApi options,
+            out HttpResponseApi response)
+        {
+            var statements = new[]
+            {
+                Original.Invoke(nameof(ClientPipeline.Send), [message]).Terminate(), MethodBodyStatement.EmptyLine,
+                new IfStatement(message.Response().IsError()
+                    .And(new BinaryOperatorExpression("&", options.NullConditional().Property("ErrorOptions"),
+                            options.NoThrow())
+                        .NotEqual(options.NoThrow())))
                 {
-                    Throw(New.Instance(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, message.Response()))
+                    Throw(New.Instance(
+                        ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType,
+                        message.Response()))
                 },
                 MethodBodyStatement.EmptyLine,
-                Declare("response", ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, new TernaryConditionalExpression(message.BufferResponse(), message.Response(), message.Invoke(nameof(PipelineMessage.ExtractResponse))), out var response),
-                Return(response)
-            ];
+                Declare("response", ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType,
+                    new TernaryConditionalExpression(message.BufferResponse(), message.Response(),
+                        message.Invoke(nameof(PipelineMessage.ExtractResponse))), out var responseVariable),
+                Return(responseVariable)
+            };
+            response = responseVariable.ToApi<HttpResponseApi>();
+            return statements;
+        }
 
-        public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
-            =>
-            [
+        public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options, out HttpResponseApi response)
+        {
+            var statements = new[]
+            {
                 Original.Invoke(nameof(ClientPipeline.SendAsync), [message], true).Terminate(),
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(message.Response().IsError().And(new BinaryOperatorExpression("&", options.NullConditional().Property("ErrorOptions"), options.NoThrow()).NotEqual(options.NoThrow())))
@@ -79,8 +93,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Throw(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().CreateAsync(message.Response()))
                 },
                 MethodBodyStatement.EmptyLine,
-                Declare("response", ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, new TernaryConditionalExpression(message.BufferResponse(), message.Response(), message.Invoke(nameof(PipelineMessage.ExtractResponse))), out var response),
-                Return(response)
-            ];
+                Declare("response", ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, new TernaryConditionalExpression(message.BufferResponse(), message.Response(), message.Invoke(nameof(PipelineMessage.ExtractResponse))), out var responseVariable),
+                Return(responseVariable)
+            };
+            response = responseVariable.ToApi<HttpResponseApi>();
+            return statements;
+        }
     }
 }
