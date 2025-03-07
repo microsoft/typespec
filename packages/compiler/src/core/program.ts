@@ -45,7 +45,7 @@ import {
   loadJsFile,
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
-import { StateMap, StateSet, createStateAccessors } from "./state-accessors.js";
+import { createStateAccessors } from "./state-accessors.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -95,9 +95,11 @@ export interface Program {
   ): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
-  stateSets: Map<symbol, StateSet>;
+  /** @internal */
+  stateSets: Map<symbol, Set<Type>>;
   stateMap(key: symbol): Map<Type, any>;
-  stateMaps: Map<symbol, StateMap>;
+  /** @internal */
+  stateMaps: Map<symbol, Map<Type, unknown>>;
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
@@ -166,8 +168,8 @@ async function createProgram(
   oldProgram?: Program,
 ): Promise<{ program: Program; shouldAbort: boolean }> {
   const validateCbs: Validator[] = [];
-  const stateMaps = new Map<symbol, StateMap>();
-  const stateSets = new Map<symbol, StateSet>();
+  const stateMaps = new Map<symbol, Map<Type, unknown>>();
+  const stateSets = new Map<symbol, Set<Type>>();
   const diagnostics: Diagnostic[] = [];
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];

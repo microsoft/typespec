@@ -3,143 +3,171 @@ import type { Type } from "./types.js";
 export class StateMap extends Map<undefined, Map<Type, unknown>> {}
 export class StateSet extends Map<undefined, Set<Type>> {}
 
-// TODO: need to remove the dispatch logic not needed anymore
 class StateMapView<V> implements Map<Type, V> {
-  public constructor(private state: StateMap) {}
+  public constructor(private map: Map<Type, V>) {}
 
+  /** Check if the given type has state */
   has(t: Type) {
-    return this.dispatch()?.has(t) ?? false;
+    return this.map.has(t) ?? false;
   }
 
   set(t: Type, v: any) {
-    this.dispatch().set(t, v);
+    this.map.set(t, v);
     return this;
   }
 
   get(t: Type) {
-    return this.dispatch().get(t);
+    return this.map.get(t);
   }
 
   delete(t: Type) {
-    return this.dispatch().delete(t);
+    return this.map.delete(t);
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   forEach(cb: (value: V, key: Type, map: Map<Type, V>) => void, thisArg?: any) {
-    this.dispatch().forEach(cb, thisArg);
+    this.map.forEach(cb, thisArg);
     return this;
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   get size() {
-    return this.dispatch().size;
+    return this.map.size;
   }
 
   clear() {
-    return this.dispatch().clear();
+    return this.map.clear();
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   entries() {
-    return this.dispatch().entries();
+    return this.map.entries();
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   values() {
-    return this.dispatch().values();
+    return this.map.values();
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   keys() {
-    return this.dispatch().keys();
+    return this.map.keys();
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   [Symbol.iterator]() {
     return this.entries();
   }
 
   [Symbol.toStringTag] = "StateMap";
-
-  dispatch(): Map<Type, V> {
-    if (!this.state.has(undefined)) {
-      this.state.set(undefined, new Map());
-    }
-
-    return this.state.get(undefined)! as any;
-  }
 }
 
 class StateSetView implements Set<Type> {
-  public constructor(private state: StateSet) {}
+  public constructor(private set: Set<Type>) {}
 
   has(t: Type) {
-    return this.dispatch()?.has(t) ?? false;
+    return this.set.has(t) ?? false;
   }
 
   add(t: Type) {
-    this.dispatch().add(t);
+    this.set.add(t);
     return this;
   }
 
   delete(t: Type) {
-    return this.dispatch().delete(t);
+    return this.set.delete(t);
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   forEach(cb: (value: Type, value2: Type, set: Set<Type>) => void, thisArg?: any) {
-    this.dispatch().forEach(cb, thisArg);
+    this.set.forEach(cb, thisArg);
     return this;
   }
 
   get size() {
-    return this.dispatch().size;
+    return this.set.size;
   }
 
   clear() {
-    return this.dispatch().clear();
+    return this.set.clear();
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   values() {
-    return this.dispatch().values();
+    return this.set.values();
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   keys() {
-    return this.dispatch().keys();
+    return this.set.keys();
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   entries() {
-    return this.dispatch().entries();
+    return this.set.entries();
   }
 
+  /**
+   * Danger: Iterating over all types in the state map is not recommended.
+   * This occur unexpected result when types are dynamically created, cloned, or removed.
+   */
   [Symbol.iterator]() {
     return this.values();
   }
 
   [Symbol.toStringTag] = "StateSet";
-
-  dispatch(): Set<Type> {
-    if (!this.state.has(undefined)) {
-      this.state.set(undefined, new Set());
-    }
-
-    return this.state.get(undefined)!;
-  }
 }
 
 export function createStateAccessors(
-  stateMaps: Map<symbol, StateMap>,
-  stateSets: Map<symbol, StateSet>,
+  stateMaps: Map<symbol, Map<Type, unknown>>,
+  stateSets: Map<symbol, Set<Type>>,
 ) {
   function stateMap<T>(key: symbol): StateMapView<T> {
     let m = stateMaps.get(key);
 
     if (!m) {
-      m = new StateMap();
+      m = new Map<Type, T>();
       stateMaps.set(key, m);
     }
 
-    return new StateMapView(m);
+    return new StateMapView<T>(m as any);
   }
 
   function stateSet(key: symbol): StateSetView {
     let s = stateSets.get(key);
 
     if (!s) {
-      s = new StateSet();
+      s = new Set();
       stateSets.set(key, s);
     }
 
