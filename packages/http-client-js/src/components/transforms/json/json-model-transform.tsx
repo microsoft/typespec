@@ -27,13 +27,31 @@ export function JsonModelTransform(props: JsonModelTransformProps) {
 
   const discriminate = getJsonTransformDiscriminatorRefkey(props.type, props.target);
 
-  return <ts.ObjectExpression>
-    <JsonAdditionalPropertiesTransform itemRef={props.itemRef} target={props.target} type={props.type} />
-    {discriminator ? <>...{discriminate}({props.itemRef}),</>: null}
-    {ay.mapJoin(properties, (property) => {
-      return <JsonModelPropertyTransform itemRef={props.itemRef} type={property} target={props.target} />;
-    }, {joiner: ",\n"})}
-  </ts.ObjectExpression>;
+  return (
+    <ts.ObjectExpression>
+      <JsonAdditionalPropertiesTransform
+        itemRef={props.itemRef}
+        target={props.target}
+        type={props.type}
+      />
+      {discriminator ? (
+        <>
+          ...{discriminate}({props.itemRef}),
+        </>
+      ) : null}
+      <ay.For each={properties} joiner="," line>
+        {(property) => {
+          return (
+            <JsonModelPropertyTransform
+              itemRef={props.itemRef}
+              type={property}
+              target={props.target}
+            />
+          );
+        }}
+      </ay.For>
+    </ts.ObjectExpression>
+  );
 }
 
 export function getJsonModelTransformRefkey(
@@ -70,18 +88,28 @@ export function JsonModelTransformDeclaration(
   const hasAdditionalProperties = spread && $.model.is(spread) && $.record.is(spread);
 
   const declarationRefkey = getJsonModelTransformRefkey(props.type, props.target);
-  return <>
-
-    {hasAdditionalProperties ? <JsonRecordTransformDeclaration target={props.target} type={spread} /> : null}
-    <JsonTransformDiscriminatorDeclaration type={props.type} target={props.target} />
-    <ts.FunctionDeclaration name={transformName} export returnType={returnType} parameters={parameters} refkey={declarationRefkey} >
-      {ay.code`
+  return (
+    <>
+      {hasAdditionalProperties ? (
+        <JsonRecordTransformDeclaration target={props.target} type={spread} />
+      ) : null}
+      <JsonTransformDiscriminatorDeclaration type={props.type} target={props.target} />
+      <ts.FunctionDeclaration
+        name={transformName}
+        export
+        returnType={returnType}
+        parameters={parameters}
+        refkey={declarationRefkey}
+      >
+        {ay.code`
       if(!${inputRef}) {
         return ${inputRef} as any;
       }
         
       `}
-      return <JsonModelTransform {...props} itemRef={inputRef} />!;
-    </ts.FunctionDeclaration>
-  </>;
+        return <JsonModelTransform {...props} itemRef={inputRef} />
+        !;
+      </ts.FunctionDeclaration>
+    </>
+  );
 }

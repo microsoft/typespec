@@ -30,11 +30,18 @@ export function OperationTransformExpression(props: OperationTransformToTranspor
   // And multiple content types
   const contentType = body.contentTypes[0];
   const payloadType = body.type;
-  return <ContentTypeEncodingProvider contentType={contentType}>
-    <TransformNamePolicyContext.Provider value={{ getTransportName: defaultTransportNameGetter, getApplicationName: payloadApplicationNameGetter }}>
-      <JsonTransform itemRef={itemRef} target="transport" type={payloadType}  />
-    </TransformNamePolicyContext.Provider>
-  </ContentTypeEncodingProvider>;
+  return (
+    <ContentTypeEncodingProvider contentType={contentType}>
+      <TransformNamePolicyContext.Provider
+        value={{
+          getTransportName: defaultTransportNameGetter,
+          getApplicationName: payloadApplicationNameGetter,
+        }}
+      >
+        <JsonTransform itemRef={itemRef} target="transport" type={payloadType} />
+      </TransformNamePolicyContext.Provider>
+    </ContentTypeEncodingProvider>
+  );
 }
 
 function payloadApplicationNameGetter(type: HasName<Type>) {

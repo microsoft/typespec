@@ -11,9 +11,6 @@ importers:
 
   .:
     devDependencies:
-      '@alloy-js/prettier-plugin-alloy':
-        specifier: ^0.1.0
-        version: 0.1.0
       '@chronus/chronus':
         specifier: ^0.17.0
         version: 0.17.0
@@ -131,7 +128,7 @@ importers:
         specifier: ^0.40.2
         version: 0.40.2
       '@typespec/playground':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../playground
       astro-expressive-code:
         specifier: ^0.40.2
@@ -159,7 +156,7 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -192,7 +189,7 @@ importers:
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.2.0)
       '@typespec/bundler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../bundler
       json5:
         specifier: ^2.2.3
@@ -253,7 +250,7 @@ importers:
         specifier: ~3.0.2
         version: 3.0.2(rollup@4.34.9)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       node-stdlib-browser:
         specifier: ~1.3.1
@@ -304,15 +301,15 @@ importers:
       '@inquirer/prompts':
         specifier: ^7.3.1
         version: 7.3.2(@types/node@22.13.9)
-      '@npmcli/arborist':
-        specifier: ^8.0.0
-        version: 8.0.0
       ajv:
         specifier: ~8.17.1
         version: 8.17.1
       change-case:
         specifier: ~5.4.4
         version: 5.4.4
+      env-paths:
+        specifier: ^3.0.0
+        version: 3.0.0
       globby:
         specifier: ~14.1.0
         version: 14.1.0
@@ -331,6 +328,9 @@ importers:
       semver:
         specifier: ^7.7.1
         version: 7.7.1
+      tar:
+        specifier: ^7.4.3
+        version: 7.4.3
       temporal-polyfill:
         specifier: ^0.2.5
         version: 0.2.5
@@ -356,9 +356,6 @@ importers:
       '@types/node':
         specifier: ~22.13.9
         version: 22.13.9
-      '@types/npmcli__arborist':
-        specifier: ^6.3.0
-        version: 6.3.0
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
@@ -366,7 +363,7 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -390,7 +387,7 @@ importers:
         specifier: ~0.5.21
         version: 0.5.21
       tmlanguage-generator:
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tmlanguage-generator
       typescript:
         specifier: ~5.8.2
@@ -408,24 +405,24 @@ importers:
   packages/emitter-framework:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.6.0
+        version: 0.6.0
       '@alloy-js/typescript':
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.6.0
+        version: 0.6.0
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
     devDependencies:
       '@alloy-js/babel-preset':
-        specifier: ^0.1.1
-        version: 0.1.1(@babel/core@7.26.9)
+        specifier: ^0.2.0
+        version: 0.2.0(@babel/core@7.26.9)
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.26.4(@babel/core@7.26.9)
@@ -518,13 +515,13 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -588,10 +585,10 @@ importers:
         specifier: ~18.3.0
         version: 18.3.1
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/react-components':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../react-components
       '@vitejs/plugin-react':
         specifier: ~4.3.4
@@ -633,16 +630,16 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/streams':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../streams
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -666,18 +663,18 @@ importers:
   packages/http-client:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.6.0
+        version: 0.6.0
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
     devDependencies:
       '@alloy-js/babel-preset':
-        specifier: ^0.1.1
-        version: 0.1.1(@babel/core@7.26.9)
+        specifier: ^0.2.0
+        version: 0.2.0(@babel/core@7.26.9)
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.26.4(@babel/core@7.26.9)
@@ -706,33 +703,33 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.6.0
+        version: 0.6.0
       '@alloy-js/typescript':
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.6.0
+        version: 0.6.0
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/emitter-framework':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../emitter-framework
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/http-client':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http-client
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       prettier:
         specifier: ~3.5.3
         version: 3.5.3
     devDependencies:
       '@alloy-js/babel-preset':
-        specifier: ^0.1.1
-        version: 0.1.1(@babel/core@7.26.9)
+        specifier: ^0.2.0
+        version: 0.2.0(@babel/core@7.26.9)
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.26.4(@babel/core@7.26.9)
@@ -749,13 +746,13 @@ importers:
         specifier: 0.1.0-alpha.11
         version: 0.1.0-alpha.11(@types/node@22.13.9)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)(@typespec/xml@0.66.0(@typespec/compiler@packages+compiler))
       '@typespec/spector':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spector
       '@typespec/ts-http-runtime':
         specifier: 0.1.0
         version: 0.1.0
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       '@vitest/ui':
         specifier: ^3.0.7
@@ -828,25 +825,25 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -880,13 +877,13 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi3
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -907,25 +904,25 @@ importers:
   packages/http-specs:
     dependencies:
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/spec-api':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spec-api
       '@typespec/spector':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spector
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       '@typespec/xml':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../xml
     devDependencies:
       '@types/multer':
@@ -935,10 +932,10 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi3
       concurrently:
         specifier: ^9.1.2
@@ -1015,16 +1012,16 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1057,7 +1054,7 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1115,19 +1112,19 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1167,31 +1164,31 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../json-schema
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       '@typespec/xml':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../xml
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1224,31 +1221,31 @@ importers:
         specifier: ^2.0.279
         version: 2.0.279(react@18.3.1)
       '@typespec/bundler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../bundler
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/html-program-viewer':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi3
       '@typespec/protobuf':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       clsx:
         specifier: ^2.1.1
@@ -1321,7 +1318,7 @@ importers:
         specifier: ~3.30.5
         version: 3.30.5
       '@typespec/react-components':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../react-components
       '@vitejs/plugin-react':
         specifier: ~4.3.4
@@ -1360,46 +1357,46 @@ importers:
         specifier: ^2.0.279
         version: 2.0.279(react@18.3.1)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../events
       '@typespec/html-program-viewer':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../json-schema
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi3
       '@typespec/playground':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../playground
       '@typespec/protobuf':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/sse':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../sse
       '@typespec/streams':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../streams
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       '@typespec/xml':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../xml
       es-module-shims:
         specifier: ~2.0.10
@@ -1488,10 +1485,10 @@ importers:
         specifier: ~6.0.2
         version: 6.0.2(rollup@4.34.9)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       rollup:
         specifier: ~4.34.9
@@ -1509,10 +1506,10 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1609,16 +1606,16 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1642,56 +1639,56 @@ importers:
   packages/samples:
     dependencies:
       '@typespec/best-practices':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../best-practices
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../events
       '@typespec/html-program-viewer':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/http-server-csharp':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http-server-csharp
       '@typespec/http-server-js':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http-server-js
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../json-schema
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../openapi3
       '@typespec/protobuf':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/sse':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../sse
       '@typespec/streams':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../streams
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
     devDependencies:
       '@types/node':
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -1721,7 +1718,7 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       ecmarkup:
         specifier: ~21.0.0
@@ -1834,7 +1831,7 @@ importers:
         specifier: ^2.0.279
         version: 2.0.279(react@18.3.1)
       '@typespec/spec-coverage-sdk':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spec-coverage-sdk
       react:
         specifier: ~18.3.1
@@ -1883,22 +1880,22 @@ importers:
         specifier: ^4.0.5
         version: 4.0.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../rest
       '@typespec/spec-api':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spec-api
       '@typespec/spec-coverage-sdk':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../spec-coverage-sdk
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../versioning
       ajv:
         specifier: ~8.17.1
@@ -1983,7 +1980,7 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       rimraf:
         specifier: ~6.0.1
@@ -1998,22 +1995,22 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../events
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/streams':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../streams
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2095,13 +2092,13 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2147,7 +2144,7 @@ importers:
   packages/tspd:
     dependencies:
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       picocolors:
         specifier: ~1.1.1
@@ -2169,7 +2166,7 @@ importers:
         specifier: ~17.0.33
         version: 17.0.33
       '@typespec/prettier-plugin-typespec':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../prettier-plugin-typespec
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2202,10 +2199,10 @@ importers:
   packages/typespec-vs:
     devDependencies:
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       typespec-vscode:
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../typespec-vscode
 
   packages/typespec-vscode:
@@ -2235,10 +2232,10 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2295,13 +2292,13 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2328,13 +2325,13 @@ importers:
         specifier: ~22.13.9
         version: 22.13.9
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.7
@@ -2382,10 +2379,10 @@ importers:
         specifier: ^2.0.279
         version: 2.0.279(react@18.3.1)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/compiler
       '@typespec/playground':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/playground
       astro:
         specifier: ^5.4.2
@@ -2431,55 +2428,55 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       '@typespec/astro-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/astro-utils
       '@typespec/events':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/events
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/http
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/internal-build-utils
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/json-schema
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/openapi3
       '@typespec/playground-website':
         specifier: workspace:*
         version: link:../packages/playground-website
       '@typespec/protobuf':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/rest
       '@typespec/spec':
         specifier: workspace:*
         version: link:../packages/spec
       '@typespec/spec-dashboard':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/spec-dashboard
       '@typespec/sse':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/sse
       '@typespec/streams':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/streams
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/tspd
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/versioning
       '@typespec/xml':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../packages/xml
       astro-expressive-code:
         specifier: ^0.40.2
@@ -2619,28 +2616,24 @@ packages:
   '@algolia/transporter@4.24.0':
     resolution: {integrity: sha512-86nI7w6NzWxd1Zp9q3413dRshDqAzSbsQjhcDhPIatEFiZrL1/TjnHL8S7jVKFePlIMzDsZWXAXwXzcok9c5oA==}
 
-  '@alloy-js/babel-plugin-jsx-dom-expressions@0.37.21':
-    resolution: {integrity: sha512-1ULoB6jxSgeRBnR9ktOqj6jewUc3zNRzx4sk8shyqwaD9kLKJ03cObmTFn0xDR3Y3JOP3TmhobL4/niycPyWYA==}
+  '@alloy-js/babel-plugin-jsx-dom-expressions@0.38.0':
+    resolution: {integrity: sha512-iq6Pndj40y/ehBuAxxYT7l8HfagXpiKKz2yrZnbog1jJFIY1Fjnvzkl5dLYAQIUk1t28wj4tiLi+D6A/sqwggA==}
     peerDependencies:
       '@babel/core': ^7.24.7
 
-  '@alloy-js/babel-plugin@0.1.0':
-    resolution: {integrity: sha512-G4Is8ZECXVkbbSXvitMqJOfWeWYmd+ZRdnLxk9MGOrw/N2Sh/d8QXx9rI1DNJuMNf3wi3iE60p5srhtUGNLt8g==}
+  '@alloy-js/babel-plugin@0.2.0':
+    resolution: {integrity: sha512-cTcRePmUWU5rQtXp89XQsyggWX72SjfWADoz3meieuvgPE/BOMXC7QU9VHscZCXyRbJKRX/S4fnRiO34fe1N4w==}
     peerDependencies:
       '@babel/core': ^7.24.7
 
-  '@alloy-js/babel-preset@0.1.1':
-    resolution: {integrity: sha512-sX3nb9+qciBXTaafIYYa/aW3FFZPcSIWm7VFwz134nFJu79jMS+JgsBgcL+md6zH4Vf9WPE/8V1E4LX9WdxS1A==}
+  '@alloy-js/babel-preset@0.2.0':
+    resolution: {integrity: sha512-EbIQiXyRa2Osd5iBwFT2C7s8IBKhQlgMaGA9sasFTo31KGYa5Tim51on8tjdlvGUEWUmJz7KlKA/hjWpchTgDQ==}
 
-  '@alloy-js/core@0.5.0':
-    resolution: {integrity: sha512-EGmjQ8f02xeKPchq3fLlRhK5mt1acce9x0eG1MLOGidNY/PNPlwm6McgT4kSlTIvqGB1R8S64MQQIh86fOpDhQ==}
+  '@alloy-js/core@0.6.0':
+    resolution: {integrity: sha512-t11kEP2lyD5eYk17rcgcFerZIHQwRuEJW3vnKxTTXWCZPcknKyV8STDtqx9B1G0rE01E8tz1cYFpCTiWXIv/Kg==}
 
-  '@alloy-js/prettier-plugin-alloy@0.1.0':
-    resolution: {integrity: sha512-mFfag8sQm5gPJMoGvJNc1fx66Z3X3nxCeoiitBeFnd5nkBMsMnvVw6LZSrVyybt2qTzY+G/9Qvz3ULkW7RB15Q==}
-    engines: {node: '>=18.0.0'}
-
-  '@alloy-js/typescript@0.5.0':
-    resolution: {integrity: sha512-asIUIxqCJDBw3HINDdy+mj5vWm3FUCLlXxfSuydyCzmFvVIfMz2TLQGa660CNx98KLsNzCWegmXnsC5QYH3rbg==}
+  '@alloy-js/typescript@0.6.0':
+    resolution: {integrity: sha512-vGhBm9Vr90uwtsGeeA/89EKxBUe/p/+hZ3ozLO6jm72Ph1nJZbd5+spFs9V/CPfDt0KaR6jruwcJaqHO08AEBw==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -2849,10 +2842,6 @@ packages:
 
   '@babel/core@7.26.9':
     resolution: {integrity: sha512-lWBYIrF7qK5+GjY5Uy+/hEgp8OJWOD/rpy74GplYRhEauvbHDeFB8t5hPOZxCZ0Oxf4Cc36tK51/l3ymJysrKw==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/generator@7.26.2':
-    resolution: {integrity: sha512-zevQbhbau95nkoxSq3f/DC/SC+EEOUZd3DYqfSkMhY2/wfSeaHV1Ew4vk8e+x8lja31IbyuUa2uQ3JONqKbysw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/generator@7.26.9':
@@ -3420,10 +3409,6 @@ packages:
 
   '@babel/traverse@7.26.9':
     resolution: {integrity: sha512-ZYW7L+pL8ahU5fXmNbPF+iZFHCv5scFak7MZ9bwaRPLUhHh7QQEMjZUg0HevihoqCM5iSYHN61EyCoZvqC+bxg==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/types@7.26.0':
-    resolution: {integrity: sha512-Z/yiTPj+lDVnF7lWeKCIJzaIkI0vYO87dMpZ4bg4TDrFe4XXLFWL1TbXU27gBP3QccxV9mZICCrnjnYlJjXHOA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/types@7.26.5':
@@ -4874,10 +4859,6 @@ packages:
       typescript:
         optional: true
 
-  '@jridgewell/gen-mapping@0.3.5':
-    resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}
-    engines: {node: '>=6.0.0'}
-
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
     engines: {node: '>=6.0.0'}
@@ -4940,9 +4921,6 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
-
-  '@npm/types@1.0.2':
-    resolution: {integrity: sha512-KXZccTDEnWqNrrx6JjpJKU/wJvNeg9BDgjS0XhmlZab7br921HtyVbsYzJr4L+xIvjdJ20Wh9dgxgCI2a5CEQw==}
 
   '@npmcli/agent@3.0.0':
     resolution: {integrity: sha512-S79NdEgDQd/NGCay6TCoVzXSj74skRZIKJcpJjC5lOq34SZzyI6MqtiiWoiVWoVrTcGjNeC4ipbh1VIHlpfF5Q==}
@@ -5819,9 +5797,6 @@ packages:
   '@types/braces@3.0.5':
     resolution: {integrity: sha512-SQFof9H+LXeWNz8wDe7oN5zu7ket0qwMu5vZubW4GCJ8Kkeh6nBWUz87+KTz/G3Kqsrp0j/W253XJb3KMEeg3w==}
 
-  '@types/cacache@17.0.2':
-    resolution: {integrity: sha512-IrqHzVX2VRMDQQKa7CtKRnuoCLdRJiLW6hWU+w7i7+AaQ0Ii5bKwJxd5uRK4zBCyrHd3tG6G8zOm2LplxbSfQg==}
-
   '@types/cacheable-request@6.0.3':
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
 
@@ -6044,24 +6019,6 @@ packages:
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
-
-  '@types/npm-package-arg@6.1.4':
-    resolution: {integrity: sha512-vDgdbMy2QXHnAruzlv68pUtXCjmqUk3WrBAsRboRovsOmxbfn/WiYCjmecyKjGztnMps5dWp4Uq2prp+Ilo17Q==}
-
-  '@types/npm-registry-fetch@8.0.7':
-    resolution: {integrity: sha512-db9iBh7kDDg4lRT4k4XZ6IiecTEgFCID4qk+VDVPbtzU855q3KZLCn08ATr4H27ntRJVhulQ7GWjl24H42x96w==}
-
-  '@types/npmcli__arborist@6.3.0':
-    resolution: {integrity: sha512-CXkuOBZDlcb+r0UMlmEAq3XOUZrL9XfZ2MXIwCSo726OBkkg+UIWlZ9h3n6To9w1WqMEIOZT2LkerhLgnsPV+Q==}
-
-  '@types/npmcli__package-json@4.0.4':
-    resolution: {integrity: sha512-6QjlFUSHBmZJWuC08bz1ZCx6tm4t+7+OJXAdvM6tL2pI7n6Bh5SIp/YxQvnOLFf8MzCXs2ijyFgrzaiu1UFBGA==}
-
-  '@types/npmlog@7.0.0':
-    resolution: {integrity: sha512-hJWbrKFvxKyWwSUXjZMYTINsSOY6IclhvGOZ97M8ac2tmR9hMwmTnYaMdpGhvju9ctWLTPhCS+eLfQNluiEjQQ==}
-
-  '@types/pacote@11.1.8':
-    resolution: {integrity: sha512-/XLR0VoTh2JEO0jJg1q/e6Rh9bxjBq9vorJuQmtT7rRrXSiWz7e7NsvXVYJQ0i8JxMlBMPPYDTnrRe7MZRFA8Q==}
 
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
@@ -13518,47 +13475,46 @@ snapshots:
       '@algolia/logger-common': 4.24.0
       '@algolia/requester-common': 4.24.0
 
-  '@alloy-js/babel-plugin-jsx-dom-expressions@0.37.21(@babel/core@7.26.9)':
+  '@alloy-js/babel-plugin-jsx-dom-expressions@0.38.0(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-module-imports': 7.18.6
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.26.9)
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
       html-entities: 2.3.3
       validate-html-nesting: 1.2.2
 
-  '@alloy-js/babel-plugin@0.1.0(@babel/core@7.26.9)':
+  '@alloy-js/babel-plugin@0.2.0(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
-      '@babel/generator': 7.26.2
+      '@babel/generator': 7.26.9
       '@babel/helper-module-imports': 7.18.6
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.26.9)
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
 
-  '@alloy-js/babel-preset@0.1.1(@babel/core@7.26.9)':
+  '@alloy-js/babel-preset@0.2.0(@babel/core@7.26.9)':
     dependencies:
-      '@alloy-js/babel-plugin': 0.1.0(@babel/core@7.26.9)
-      '@alloy-js/babel-plugin-jsx-dom-expressions': 0.37.21(@babel/core@7.26.9)
+      '@alloy-js/babel-plugin': 0.2.0(@babel/core@7.26.9)
+      '@alloy-js/babel-plugin-jsx-dom-expressions': 0.38.0(@babel/core@7.26.9)
     transitivePeerDependencies:
       - '@babel/core'
 
-  '@alloy-js/core@0.5.0':
+  '@alloy-js/core@0.6.0':
     dependencies:
-      '@alloy-js/babel-preset': 0.1.1(@babel/core@7.26.9)
+      '@alloy-js/babel-preset': 0.2.0(@babel/core@7.26.9)
       '@babel/core': 7.26.9
       '@babel/preset-typescript': 7.26.0(@babel/core@7.26.9)
       '@vue/reactivity': 3.5.13
       chalk: 5.4.1
       cli-table3: 0.6.5
       pathe: 1.1.2
+      prettier: 3.5.3
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/prettier-plugin-alloy@0.1.0': {}
-
-  '@alloy-js/typescript@0.5.0':
+  '@alloy-js/typescript@0.6.0':
     dependencies:
-      '@alloy-js/core': 0.5.0
+      '@alloy-js/core': 0.6.0
       change-case: 5.4.4
       pathe: 1.1.2
     transitivePeerDependencies:
@@ -14003,14 +13959,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/generator@7.26.2':
-    dependencies:
-      '@babel/parser': 7.26.2
-      '@babel/types': 7.26.0
-      '@jridgewell/gen-mapping': 0.3.5
-      '@jridgewell/trace-mapping': 0.3.25
-      jsesc: 3.1.0
-
   '@babel/generator@7.26.9':
     dependencies:
       '@babel/parser': 7.26.9
@@ -14021,12 +13969,12 @@ snapshots:
 
   '@babel/helper-annotate-as-pure@7.25.9':
     dependencies:
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
 
   '@babel/helper-builder-binary-assignment-operator-visitor@7.25.9':
     dependencies:
-      '@babel/traverse': 7.25.9
-      '@babel/types': 7.26.5
+      '@babel/traverse': 7.26.9
+      '@babel/types': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14054,7 +14002,7 @@ snapshots:
       '@babel/helper-optimise-call-expression': 7.25.9
       '@babel/helper-replace-supers': 7.25.9(@babel/core@7.26.9)
       '@babel/helper-skip-transparent-expression-wrappers': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.9
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
@@ -14079,14 +14027,14 @@ snapshots:
 
   '@babel/helper-member-expression-to-functions@7.25.9':
     dependencies:
-      '@babel/traverse': 7.25.9
-      '@babel/types': 7.26.5
+      '@babel/traverse': 7.26.9
+      '@babel/types': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-module-imports@7.18.6':
     dependencies:
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
 
   '@babel/helper-module-imports@7.25.9':
     dependencies:
@@ -14106,7 +14054,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.25.9':
     dependencies:
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
 
   '@babel/helper-plugin-utils@7.25.9': {}
 
@@ -14115,7 +14063,7 @@ snapshots:
       '@babel/core': 7.26.9
       '@babel/helper-annotate-as-pure': 7.25.9
       '@babel/helper-wrap-function': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14124,21 +14072,21 @@ snapshots:
       '@babel/core': 7.26.9
       '@babel/helper-member-expression-to-functions': 7.25.9
       '@babel/helper-optimise-call-expression': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-simple-access@7.25.9':
     dependencies:
-      '@babel/traverse': 7.25.9
-      '@babel/types': 7.26.5
+      '@babel/traverse': 7.26.9
+      '@babel/types': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-skip-transparent-expression-wrappers@7.25.9':
     dependencies:
-      '@babel/traverse': 7.25.9
-      '@babel/types': 7.26.5
+      '@babel/traverse': 7.26.9
+      '@babel/types': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14151,8 +14099,8 @@ snapshots:
   '@babel/helper-wrap-function@7.25.9':
     dependencies:
       '@babel/template': 7.25.9
-      '@babel/traverse': 7.25.9
-      '@babel/types': 7.26.5
+      '@babel/traverse': 7.26.9
+      '@babel/types': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14170,11 +14118,11 @@ snapshots:
 
   '@babel/parser@7.26.2':
     dependencies:
-      '@babel/types': 7.26.0
+      '@babel/types': 7.26.9
 
   '@babel/parser@7.26.5':
     dependencies:
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
 
   '@babel/parser@7.26.9':
     dependencies:
@@ -14184,7 +14132,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14211,7 +14159,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14260,7 +14208,7 @@ snapshots:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.25.9
       '@babel/helper-remap-async-to-generator': 7.25.9(@babel/core@7.26.9)
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14306,7 +14254,7 @@ snapshots:
       '@babel/helper-compilation-targets': 7.25.9
       '@babel/helper-plugin-utils': 7.25.9
       '@babel/helper-replace-supers': 7.25.9(@babel/core@7.26.9)
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.9
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -14376,7 +14324,7 @@ snapshots:
       '@babel/core': 7.26.9
       '@babel/helper-compilation-targets': 7.25.9
       '@babel/helper-plugin-utils': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14423,7 +14371,7 @@ snapshots:
       '@babel/helper-module-transforms': 7.26.0(@babel/core@7.26.9)
       '@babel/helper-plugin-utils': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14686,7 +14634,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.25.9
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
       esutils: 2.0.3
 
   '@babel/preset-typescript@7.26.0(@babel/core@7.26.9)':
@@ -14717,7 +14665,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.26.2
       '@babel/parser': 7.26.2
-      '@babel/types': 7.26.0
+      '@babel/types': 7.26.9
 
   '@babel/template@7.26.9':
     dependencies:
@@ -14728,10 +14676,10 @@ snapshots:
   '@babel/traverse@7.25.9':
     dependencies:
       '@babel/code-frame': 7.26.2
-      '@babel/generator': 7.26.2
+      '@babel/generator': 7.26.9
       '@babel/parser': 7.26.2
       '@babel/template': 7.25.9
-      '@babel/types': 7.26.0
+      '@babel/types': 7.26.9
       debug: 4.4.0(supports-color@8.1.1)
       globals: 11.12.0
     transitivePeerDependencies:
@@ -14748,11 +14696,6 @@ snapshots:
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
-
-  '@babel/types@7.26.0':
-    dependencies:
-      '@babel/helper-string-parser': 7.25.9
-      '@babel/helper-validator-identifier': 7.25.9
 
   '@babel/types@7.26.5':
     dependencies:
@@ -16801,12 +16744,6 @@ snapshots:
     optionalDependencies:
       typescript: 5.8.2
 
-  '@jridgewell/gen-mapping@0.3.5':
-    dependencies:
-      '@jridgewell/set-array': 1.2.1
-      '@jridgewell/sourcemap-codec': 1.5.0
-      '@jridgewell/trace-mapping': 0.3.25
-
   '@jridgewell/gen-mapping@0.3.8':
     dependencies:
       '@jridgewell/set-array': 1.2.1
@@ -16919,8 +16856,6 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
-
-  '@npm/types@1.0.2': {}
 
   '@npmcli/agent@3.0.0':
     dependencies:
@@ -17837,7 +17772,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.9
       '@babel/preset-env': 7.26.0(@babel/core@7.26.9)
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
       '@storybook/core': 8.6.4(prettier@3.5.3)(storybook@8.6.4(prettier@3.5.3))
       '@types/cross-spawn': 6.0.6
       cross-spawn: 7.0.6
@@ -18043,16 +17978,16 @@ snapshots:
 
   '@types/babel__generator@7.6.8':
     dependencies:
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
 
   '@types/babel__template@7.4.4':
     dependencies:
       '@babel/parser': 7.26.5
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
 
   '@types/babel__traverse@7.20.6':
     dependencies:
-      '@babel/types': 7.26.5
+      '@babel/types': 7.26.9
 
   '@types/body-parser@1.19.5':
     dependencies:
@@ -18060,10 +17995,6 @@ snapshots:
       '@types/node': 22.13.9
 
   '@types/braces@3.0.5': {}
-
-  '@types/cacache@17.0.2':
-    dependencies:
-      '@types/node': 22.13.9
 
   '@types/cacheable-request@6.0.3':
     dependencies:
@@ -18320,37 +18251,6 @@ snapshots:
       undici-types: 6.20.0
 
   '@types/normalize-package-data@2.4.4': {}
-
-  '@types/npm-package-arg@6.1.4': {}
-
-  '@types/npm-registry-fetch@8.0.7':
-    dependencies:
-      '@types/node': 22.13.9
-      '@types/node-fetch': 2.6.12
-      '@types/npm-package-arg': 6.1.4
-      '@types/npmlog': 7.0.0
-      '@types/ssri': 7.1.5
-
-  '@types/npmcli__arborist@6.3.0':
-    dependencies:
-      '@npm/types': 1.0.2
-      '@types/cacache': 17.0.2
-      '@types/node': 22.13.9
-      '@types/npmcli__package-json': 4.0.4
-      '@types/pacote': 11.1.8
-
-  '@types/npmcli__package-json@4.0.4': {}
-
-  '@types/npmlog@7.0.0':
-    dependencies:
-      '@types/node': 22.13.9
-
-  '@types/pacote@11.1.8':
-    dependencies:
-      '@types/node': 22.13.9
-      '@types/npm-registry-fetch': 8.0.7
-      '@types/npmlog': 7.0.0
-      '@types/ssri': 7.1.5
 
   '@types/parse-json@4.0.2': {}
 
@@ -25110,8 +25010,8 @@ snapshots:
   react-docgen@7.1.0:
     dependencies:
       '@babel/core': 7.26.9
-      '@babel/traverse': 7.25.9
-      '@babel/types': 7.26.5
+      '@babel/traverse': 7.26.9
+      '@babel/types': 7.26.9
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.20.6
       '@types/doctrine': 0.0.9

@@ -41,13 +41,13 @@
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/protobuf/reference"
   },
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~"
+    "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
     "@types/micromatch": "^4.0.9",
     "@types/node": "~22.13.9",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/tspd": "workspace:~",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/tspd": "workspace:^",
     "@vitest/coverage-v8": "^3.0.7",
     "@vitest/ui": "^3.0.7",
     "c8": "^10.1.3",

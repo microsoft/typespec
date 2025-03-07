@@ -1,14 +1,14 @@
 import { ok, strictEqual } from "assert";
 import { applyCodeFix as applyCodeFixReal } from "../core/code-fixes.js";
+import { createDiagnosticCollector } from "../core/diagnostics.js";
+import { createLinterRuleContext } from "../core/linter.js";
+import { navigateProgram } from "../core/semantic-walker.js";
 import {
   CompilerHost,
   Diagnostic,
   DiagnosticMessages,
   LinterRuleDefinition,
-  createDiagnosticCollector,
-  navigateProgram,
-} from "../core/index.js";
-import { createLinterRuleContext } from "../core/linter.js";
+} from "../core/types.js";
 import { DiagnosticMatch, expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
 import { resolveVirtualPath, trimBlankLines } from "./test-utils.js";
 import { BasicTestRunner } from "./types.js";

@@ -43,27 +43,27 @@
   "license": "MIT",
   "description": "TypeSpec library for emitting Http Client libraries for JavaScript/TypeScript",
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~",
-    "@typespec/emitter-framework": "workspace:~",
-    "@typespec/http": "workspace:~",
-    "@typespec/http-client": "workspace:~",
-    "@typespec/rest": "workspace:~"
+    "@typespec/compiler": "workspace:^",
+    "@typespec/emitter-framework": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/http-client": "workspace:^",
+    "@typespec/rest": "workspace:^"
   },
   "dependencies": {
-    "@alloy-js/core": "^0.5.0",
-    "@alloy-js/typescript": "^0.5.0",
+    "@alloy-js/core": "^0.6.0",
+    "@alloy-js/typescript": "^0.6.0",
     "prettier": "~3.5.3"
   },
   "devDependencies": {
-    "@alloy-js/babel-preset": "^0.1.1",
+    "@alloy-js/babel-preset": "^0.2.0",
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.26.9",
     "@rollup/plugin-babel": "^6.0.4",
     "@types/yargs": "~17.0.33",
     "@typespec/http-specs": "0.1.0-alpha.11",
-    "@typespec/spector": "workspace:~",
+    "@typespec/spector": "workspace:^",
     "@typespec/ts-http-runtime": "0.1.0",
-    "@typespec/versioning": "workspace:~",
+    "@typespec/versioning": "workspace:^",
     "@vitest/ui": "^3.0.7",
     "picocolors": "~1.1.1",
     "concurrently": "^9.1.2",
