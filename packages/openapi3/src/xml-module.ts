@@ -120,18 +120,24 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
         const propXmlName = hasUnwrappedDecorator
           ? xmlName
           : resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
+
+        const items = new ArrayBuilder();
+        items.push(refSchema.items);
         if (propValue.kind === "Scalar") {
-          refSchema.items = { ...refSchema.items, xml: { name: propXmlName } };
+          if ("$ref" in refSchema.items) {
+            refSchema.items = new ObjectBuilder({
+              allOf: items,
+            });
+          }
+          refSchema.items.xml = { name: propXmlName };
         } else {
-          const items = new ArrayBuilder();
-          items.push(refSchema.items);
           refSchema.items = new ObjectBuilder({
             allOf: items,
             xml: { name: propXmlName },
           });
         }
 
-        // handel unwrapped decorator
+        // Handle unwrapped decorator
         if (!hasUnwrappedDecorator) {
           xmlObject.wrapped = true;
         }
