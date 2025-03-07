@@ -186,7 +186,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       }
     }
 
-    const stdScalarTypes = getStdScalarTypes(schemaMembers);
+    const existingStdScalarTypesAsMember = getRootStdScalarTypes(schemaMembers);
     const wrapWithObjectBuilder = (
       schemaMember: UnionSchemaMember,
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
@@ -194,6 +194,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       // we can just return the single schema member after applying nullable
       const schema = schemaMember.schema;
       const type = schemaMember.type;
+
       const additionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
         ? this.applyConstraints(union, {})
         : {};
@@ -216,32 +217,28 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
               ...additionalProps,
             });
           } else if (type && type.kind === "Scalar") {
-            let objectInitializer: Record<string, unknown> = {};
-            const stdScalar = $.scalar.getStdBase(type);
-            if (stdScalar?.name) {
-              // already has same std scalar member, use $ref
-              if (stdScalarTypes.has(stdScalar) && "$ref" in schema) {
-                objectInitializer = { $ref: schema.$ref };
-              } else {
-                const stdSchema = this.getSchemaForStdScalars(
-                  stdScalar as Scalar & { name: IntrinsicScalarName },
-                );
-                objectInitializer = {
-                  ...stdSchema,
-                  ...additionalProps,
-                };
-              }
-            } else {
-              // scalar without extends
-              const scalarWithoutExtends = {
-                ...additionalProps,
-              };
-              delete scalarWithoutExtends.nullable;
-              objectInitializer = {
-                anyOf: [scalarWithoutExtends, createNullSchema()],
-              };
+            const currentRootScalar = $.scalar.getStdBase(type);
+
+            // case 0: current schema use {} as root scalar
+            if (!currentRootScalar) {
+              const { nullable, ...additional } = additionalProps;
+              return new ObjectBuilder({ ...additional });
             }
-            return new ObjectBuilder<OpenAPI3Schema>(objectInitializer);
+
+            // case 1: current schema extends a std scalar,
+            //         and the extended std scalar is also a union schema member
+            //         Note: 1. std scalar should be inline, so here is unreachable and no need to consider here
+            //               2. The scalar cannot be placeholder, then it must has $ref
+            if (existingStdScalarTypesAsMember.has(currentRootScalar)) {
+              return new ObjectBuilder({ $ref: schema.$ref });
+            }
+
+            // case 2: current schema extends std scalar
+            //         while the extended std scalar does no exist in current union members
+            const rootSchema = this.getSchemaForStdScalars(
+              currentRootScalar as unknown as Scalar & { name: IntrinsicScalarName },
+            );
+            return new ObjectBuilder({ ...rootSchema, ...additionalProps });
           } else {
             return new ObjectBuilder({ allOf: Builders.array([schema]), ...additionalProps });
           }
@@ -296,6 +293,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
 
     this.applyDiscriminator(union, schema);
 
+    // return new ObjectBuilder(schema);
     return this.applyConstraints(union, schema);
 
     interface UnionSchemaMember {
@@ -303,7 +301,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       type: Type | null;
     }
 
-    function getStdScalarTypes(scalarMembers: UnionSchemaMember[]): Set<Type> {
+    function getRootStdScalarTypes(scalarMembers: UnionSchemaMember[]): Set<Type> {
       const stdScalarTypes = new Set<Type>();
       for (const member of scalarMembers) {
         if (member.type?.kind === "Scalar") {

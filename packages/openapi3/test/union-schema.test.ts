@@ -690,78 +690,58 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         scalar More extends Num;
         scalar Int16 extends int16;
         scalar NoExtends;
+        scalar NoRoot extends NoExtends;
+        
         model Test {
-          a: NoExtends| Str | Int16 | Num | Mol | More | null | int32 | string;
+          @minValue(1)
+          a: NoRoot | NoExtends | Str | Int16 | Num | Mol | More | null | int32 | string;
+        }
+        
+        @minValue(1)
+        union u {
+        NoRoot, NoExtends, Str , Int16 , Num , Mol , More , null , int32 , string
         }
       `);
 
-      expect(openApi.components.schemas.Test).toMatchObject({
+      expect(openApi.components.schemas.Test).toEqual({
         type: "object",
         required: ["a"],
         properties: {
           a: {
+            minimum: 1,
             anyOf: [
-              {
-                anyOf: [
-                  {},
-                  {
-                    not: {
-                      anyOf: [
-                        {
-                          type: "string",
-                        },
-                        {
-                          type: "number",
-                        },
-                        {
-                          type: "boolean",
-                        },
-                        {
-                          type: "object",
-                        },
-                        {
-                          type: "array",
-                        },
-                      ],
-                    },
-                  },
-                ],
-              },
-              {
-                $ref: "#/components/schemas/Str",
-              },
-              {
-                type: "integer",
-                format: "int16",
-                nullable: true,
-              },
-              {
-                $ref: "#/components/schemas/Num",
-              },
-              {
-                type: "object",
-                allOf: [
-                  {
-                    $ref: "#/components/schemas/Mol",
-                  },
-                ],
-                nullable: true,
-              },
-              {
-                $ref: "#/components/schemas/More",
-              },
-              {
-                type: "integer",
-                format: "int32",
-                nullable: true,
-              },
-              {
-                type: "string",
-                nullable: true,
-              },
+              {},
+              {},
+              { $ref: "#/components/schemas/Str" },
+              { type: "integer", format: "int16", nullable: true },
+              { $ref: "#/components/schemas/Num" },
+              { type: "object", allOf: [{ $ref: "#/components/schemas/Mol" }], nullable: true },
+              { $ref: "#/components/schemas/More" },
+              { type: "integer", format: "int32", nullable: true },
+              { type: "string", nullable: true },
             ],
           },
         },
+      });
+
+      expect(openApi.components.schemas.u).toEqual({
+        minimum: 1,
+        anyOf: [
+          { minimum: 1 },
+          { minimum: 1 },
+          { $ref: "#/components/schemas/Str", minimum: 1 },
+          { type: "integer", format: "int16", nullable: true, minimum: 1 },
+          { $ref: "#/components/schemas/Num", minimum: 1 },
+          {
+            type: "object",
+            allOf: [{ $ref: "#/components/schemas/Mol" }],
+            nullable: true,
+            minimum: 1,
+          },
+          { $ref: "#/components/schemas/More", minimum: 1 },
+          { type: "integer", format: "int32", nullable: true, minimum: 1 },
+          { type: "string", nullable: true, minimum: 1 },
+        ],
       });
     });
   });
