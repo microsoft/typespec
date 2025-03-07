@@ -666,10 +666,10 @@ importers:
         specifier: ^0.6.0
         version: 0.6.0
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../compiler
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:^
         version: link:../http
     devDependencies:
       '@alloy-js/babel-preset':
