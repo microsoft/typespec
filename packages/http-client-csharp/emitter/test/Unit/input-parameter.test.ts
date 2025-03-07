@@ -631,7 +631,7 @@ describe("Test Parameter Explode", () => {
       it("cookie parameter is not supported", async () => {
         const program = await typeSpecCompile(
           `
-                @service({
+                @service(#{
                   title: "Azure Csharp emitter Testing",
                 })
                 @server(
