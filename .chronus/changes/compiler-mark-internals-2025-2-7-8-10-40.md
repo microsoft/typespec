@@ -26,6 +26,7 @@ Stop exposing APIs that were not meant for external users. Please file issue if 
 - `validateDecoratorParamCount`: Same as above
 - `altDirectorySeparator`: Internal path utils
 - `directorySeparator`: Internal path utils
+- `getFullyQualifiedSymbolName` Symbols are an internal piece of the compiler
 - Scanner related APIs:
   - `createScanner`
   - `isComment`
