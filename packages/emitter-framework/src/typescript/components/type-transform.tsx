@@ -62,12 +62,12 @@ function DiscriminateExpression(props: DiscriminateExpressionProps) {
   const discriminatorRef = `item.${props.discriminator.propertyName}`;
 
   const unhandledVariant = `
-  \n\nconsole.warn(\`Received unknown snake kind: \${${discriminatorRef}}\`); 
+  \n\nconsole.warn(\`Received unknown kind: \${${discriminatorRef}}\`); 
   return item as any;
   `;
 
   return (
-    <For each={discriminatedUnion.variants}>
+    <For each={discriminatedUnion.variants} ender={unhandledVariant}>
       {(name, variant) => {
         return code`
       if( ${discriminatorRef} === ${JSON.stringify(name)}) {

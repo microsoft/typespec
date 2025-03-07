@@ -45,7 +45,12 @@ describe.skip("Typescript Type Transform", () => {
               {code`
                 const wireWidget = {id: "1", birth_year: 1988, color: "blue"};
                 `}
-              const clientWidget = <ModelTransformExpression type={Widget} target="application" itemPath={["wireWidget"]} />
+              const clientWidget ={" "}
+              <ModelTransformExpression
+                type={Widget}
+                target="application"
+                itemPath={["wireWidget"]}
+              />
             </SourceFile>
           </Output>,
         );
@@ -81,7 +86,12 @@ describe.skip("Typescript Type Transform", () => {
               {code`
                 const clientWidget = {id: "1", birthYear: 1988, color: "blue"};
                 `}
-              const wireWidget = <ModelTransformExpression type={Widget} target="transport" itemPath={["clientWidget"]} />
+              const wireWidget ={" "}
+              <ModelTransformExpression
+                type={Widget}
+                target="transport"
+                itemPath={["clientWidget"]}
+              />
             </SourceFile>
           </Output>,
         );
@@ -120,7 +130,12 @@ describe.skip("Typescript Type Transform", () => {
               {code`
                 const wireWidget = {id: "1", birth_date: "1988-04-29T19:30:00Z", color: "blue"};
                 `}
-              const clientWidget = <ModelTransformExpression type={Widget} target="application" itemPath={["wireWidget"]} />
+              const clientWidget ={" "}
+              <ModelTransformExpression
+                type={Widget}
+                target="application"
+                itemPath={["wireWidget"]}
+              />
             </SourceFile>
           </Output>,
         );
@@ -329,7 +344,7 @@ describe.skip("Typescript Type Transform", () => {
             <SourceFile path="test.ts">
               {code`
                 const clientWidget = {id: "1", my_color: "blue"};
-                const wireWidget = ${<TypeTransformCall itemPath={["clientWidget"]} type={Widget} collapse={true} target="transport" />}
+                const wireWidget = ${(<TypeTransformCall itemPath={["clientWidget"]} type={Widget} collapse={true} target="transport" />)}
                 `}
             </SourceFile>
           </Output>,
@@ -366,8 +381,8 @@ describe.skip("Typescript Type Transform", () => {
             <SourceFile path="test.ts">
               {code`
                 const wireWidget = {id: "1", my_color: "blue"};
-                const clientWidget = ${<ts.FunctionCallExpression target={getTypeTransformerRefkey(Widget, "application")} args={[<>wireWidget</>]}/>};
-                const wireWidget2 = ${<ts.FunctionCallExpression target={getTypeTransformerRefkey(Widget, "transport")} args={["clientWidget"]}/>};
+                const clientWidget = ${(<ts.FunctionCallExpression target={getTypeTransformerRefkey(Widget, "application")} args={[<>wireWidget</>]} />)};
+                const wireWidget2 = ${(<ts.FunctionCallExpression target={getTypeTransformerRefkey(Widget, "transport")} args={["clientWidget"]} />)};
                 `}
             </SourceFile>
           </Output>,

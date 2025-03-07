@@ -1,5 +1,5 @@
+import * as ay from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
-import * as ay from  "@alloy-js/core";
 import { Enum, Model, Union } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
 import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
@@ -21,10 +21,12 @@ describe("Typescript Enum Member Expression", () => {
     `;
     const output = await getEmitOutput(code, (program) => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
-      return <ay.List hardline>
-        <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
-        <InterfaceDeclaration type={Bar} />
-      </ay.List>;
+      return (
+        <ay.List hardline>
+          <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
+          <InterfaceDeclaration type={Bar} />
+        </ay.List>
+      );
     });
 
     expect(output).toBe(d`
@@ -53,10 +55,12 @@ describe("Typescript Enum Member Expression", () => {
     `;
     const output = await getEmitOutput(code, (program) => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
-      return <ay.List hardline>
-        <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
-        <InterfaceDeclaration type={Bar} />
-      </ay.List>;
+      return (
+        <ay.List hardline>
+          <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
+          <InterfaceDeclaration type={Bar} />
+        </ay.List>
+      );
     });
 
     expect(output).toBe(d`
@@ -87,10 +91,12 @@ describe("Typescript Union Member Expression", () => {
     `;
     const output = await getEmitOutput(code, (program) => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
-      return <ay.List hardline>
-        <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
-        <InterfaceDeclaration type={Bar} />
-      </ay.List>;
+      return (
+        <ay.List hardline>
+          <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
+          <InterfaceDeclaration type={Bar} />
+        </ay.List>
+      );
     });
 
     expect(output).toBe(d`
@@ -115,10 +121,12 @@ describe("Typescript Union Member Expression", () => {
     `;
     const output = await getEmitOutput(code, (program) => {
       const Bar = program.resolveTypeReference("Bar")[0]! as Model;
-      return <ay.List hardline>
-        <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
-        <InterfaceDeclaration type={Bar} />
-      </ay.List>;
+      return (
+        <ay.List hardline>
+          <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
+          <InterfaceDeclaration type={Bar} />
+        </ay.List>
+      );
     });
 
     expect(output).toBe(d`

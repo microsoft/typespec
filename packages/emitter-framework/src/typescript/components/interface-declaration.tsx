@@ -1,6 +1,6 @@
+import * as ay from "@alloy-js/core";
 import { Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import * as ay from "@alloy-js/core";
 import { Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
@@ -37,7 +37,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   const members = props.type ? [membersFromType(props.type)] : [];
 
-  const children = [...members];  
+  const children = [...members];
 
   if (Array.isArray(props.children)) {
     children.push(...props.children);
@@ -45,7 +45,8 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
     children.push(props.children);
   }
 
-  return <ts.InterfaceDeclaration
+  return (
+    <ts.InterfaceDeclaration
       default={props.default}
       export={props.export}
       kind={props.kind}
@@ -54,7 +55,8 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
       extends={extendsType}
     >
       {children}
-    </ts.InterfaceDeclaration>;
+    </ts.InterfaceDeclaration>
+  );
 }
 
 function isTypedInterfaceDeclarationProps(
@@ -70,12 +72,14 @@ export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
 export function InterfaceExpression({ type, children }: InterfaceExpressionProps) {
   const members = type ? membersFromType(type) : [];
 
-  return <>
+  return (
+    <>
       {"{"}
       {members}
       {children}
       {"}"}
-    </>;
+    </>
+  );
 }
 
 function getExtendsType(type: Model | Interface): Children | undefined {
@@ -113,7 +117,11 @@ function getExtendsType(type: Model | Interface): Children | undefined {
     return undefined;
   }
 
-  return mapJoin(() => extending, (ext) => ext, { joiner: "," });
+  return mapJoin(
+    () => extending,
+    (ext) => ext,
+    { joiner: "," },
+  );
 }
 
 function membersFromType(type: Model | Interface): Children {
@@ -135,9 +143,11 @@ function membersFromType(type: Model | Interface): Children {
     typeMembers = createRekeyableMap(type.operations);
   }
 
-  return <ay.For each={Array.from(typeMembers.entries())} line>
-    {([_, prop]) => {
-      return <InterfaceMember type={prop} />;
-    }}
-  </ay.For>
+  return (
+    <ay.For each={Array.from(typeMembers.entries())} line>
+      {([_, prop]) => {
+        return <InterfaceMember type={prop} />;
+      }}
+    </ay.For>
+  );
 }

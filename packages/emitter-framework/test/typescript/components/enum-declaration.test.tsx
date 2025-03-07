@@ -62,13 +62,14 @@ describe("Typescript Enum Declaration", () => {
     const output = await getEmitOutput(code, (program) => {
       const Foo = program.resolveTypeReference("Foo")[0]! as Enum;
       return (
-      <List hardline>
-        <EnumDeclaration type={Foo} />
-        <StatementList> 
-          {refkey(Foo)}
-          {refkey(Foo.members.get("one"))}
-        </StatementList>
-      </List>);
+        <List hardline>
+          <EnumDeclaration type={Foo} />
+          <StatementList>
+            {refkey(Foo)}
+            {refkey(Foo.members.get("one"))}
+          </StatementList>
+        </List>
+      );
     });
 
     expect(output).toBe(d`
@@ -93,13 +94,15 @@ describe("Typescript Enum Declaration", () => {
 
     const output = await getEmitOutput(code, (program) => {
       const Foo = program.resolveTypeReference("Foo")[0]! as Union;
-      return <List hardline>
-        <EnumDeclaration type={Foo} />
-        <StatementList>
-          {refkey(Foo)}
-          {refkey(Foo.variants.get("one"))}
-        </StatementList>
-      </List>;
+      return (
+        <List hardline>
+          <EnumDeclaration type={Foo} />
+          <StatementList>
+            {refkey(Foo)}
+            {refkey(Foo.variants.get("one"))}
+          </StatementList>
+        </List>
+      );
     });
 
     expect(output).toBe(d`
