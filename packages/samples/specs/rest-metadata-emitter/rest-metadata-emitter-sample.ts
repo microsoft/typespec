@@ -131,7 +131,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
     function emitResponses(responses: HttpOperationResponse[]) {
       for (const response of responses) {
         for (const content of response.responses) {
-          writeLine(`response: ${response.statusCode}${getContentTypeRemark(content.body)}`);
+          writeLine(`response: ${response.statusCodes}${getContentTypeRemark(content.body)}`);
           indent();
 
           // NOTE: For response data, the visibility to apply is always Read.
