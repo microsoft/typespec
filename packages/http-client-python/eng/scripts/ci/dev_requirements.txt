@@ -1,5 +1,5 @@
 pyright==1.1.391
-pylint==3.2.7
+pylint==3.3.4
 tox==4.16.0
 mypy==1.14.1
 colorama==0.4.6
