@@ -136,6 +136,12 @@ export const $lib = createTypeSpecLibrary({
         multipartFormData: paramMessage`Unrecognized type for multipart form data, kind '${"typeKind"}'.`,
       },
     },
+    "empty-name": {
+      severity: "error",
+      messages: {
+        default: "Name from TCGC is empty.",
+      },
+    },
 
     // warning
     "generator-warning": {
