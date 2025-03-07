@@ -110,3 +110,57 @@ it("Move files and update the content of the corresponding import at the same ti
     "No changes expected",
   );
 });
+
+it("Just adding a file will not trigger file renaming", async () => {
+  const host = await createTestServerHost();
+
+  host.addTypeSpecFile(
+    "./main.tsp",
+    `
+    import "./lib/test.tsp";
+    `,
+  );
+  host.addTypeSpecFile("./lib/test.tsp", "model Base {}");
+  host.addTypeSpecFile("./subfile.tsp", "model SubFile {}");
+
+  await host.server.watchedFilesChanged({
+    changes: [{ uri: host.getURL("./subfile.tsp"), type: 1 }],
+  });
+
+  const mainDoc = await host.compilerHost.readFile("./main.tsp");
+  deepStrictEqual(
+    mainDoc.text,
+    `
+    import "./lib/test.tsp";
+    `,
+    "No changes expected",
+  );
+});
+
+it("Just removing a file will not trigger file renaming", async () => {
+  const host = await createTestServerHost();
+
+  host.addTypeSpecFile(
+    "./main.tsp",
+    `
+    import "./lib/test.tsp";
+    `,
+  );
+  host.addTypeSpecFile("./lib/test.tsp", "model Base {}");
+  host.addTypeSpecFile("./subfile.tsp", "model SubFile {}");
+
+  await host.compilerHost.rm("./subfile.tsp", { recursive: false });
+
+  await host.server.watchedFilesChanged({
+    changes: [{ uri: host.getURL("./subfile.tsp"), type: 3 }],
+  });
+
+  const mainDoc = await host.compilerHost.readFile("./main.tsp");
+  deepStrictEqual(
+    mainDoc.text,
+    `
+    import "./lib/test.tsp";
+    `,
+    "No changes expected",
+  );
+});

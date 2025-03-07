@@ -383,7 +383,7 @@ export function createServer(host: ServerHost): Server {
         level: "debug",
         message:
           "The number of files marked for deletion(type=3) and creation(type=1) is not equal, " +
-          "they must appear in pairs, see the input parameters for details: \n" +
+          "see the input parameters for details: \n" +
           JSON.stringify(tspChanges),
       });
       return;
@@ -395,7 +395,7 @@ export function createServer(host: ServerHost): Server {
     if (!result) {
       log({
         level: "debug",
-        message: `The main tsp file '${mainFile}' does not have any diagnostics.`,
+        message: `The main tsp file '${mainFile}' compilation failed, please check the detailed compilation message`,
       });
       return;
     }
@@ -412,7 +412,8 @@ export function createServer(host: ServerHost): Server {
 
           if (
             target.path.value ===
-            (oldFileImpVal.startsWith(".") ? oldFileImpVal : `./${oldFileImpVal}`)
+              (oldFileImpVal.startsWith(".") ? oldFileImpVal : `./${oldFileImpVal}`) ||
+            target.path.value === oldFilePath
           ) {
             const targetPath = target.path;
             const changeImpLineAndOffset = target.parent.file.getLineAndCharacterOfPosition(
