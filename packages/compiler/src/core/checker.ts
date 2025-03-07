@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
+import { Realm } from "../experimental/realm.js";
+import { $ } from "../experimental/typekit/index.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
@@ -14,12 +16,7 @@ import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
-import {
-  getEntityName,
-  getNamespaceFullName,
-  getTypeName,
-  type TypeNameOptions,
-} from "./helpers/type-name-utils.js";
+import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import { legacyMarshallTypeForJS, marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { NameResolver } from "./name-resolver.js";
@@ -199,25 +196,10 @@ export interface Checker {
   checkProgram(): void;
   checkSourceFile(file: TypeSpecScriptNode): void;
   getGlobalNamespaceType(): Namespace;
-  /** @internal @deprecated */
-  getGlobalNamespaceNode(): NamespaceStatementNode;
-  /** @internal @deprecated */
-  getMergedSymbol(sym: Sym | undefined): Sym | undefined;
-
   getLiteralType(node: StringLiteralNode): StringLiteral;
   getLiteralType(node: NumericLiteralNode): NumericLiteral;
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   getLiteralType(node: LiteralNode): LiteralType;
-
-  /**
-   * @deprecated use `import { getTypeName } from "@typespec/compiler";`
-   */
-  getTypeName(type: Type, options?: TypeNameOptions): string;
-
-  /**
-   * @deprecated use `import { getNamespaceFullName } from "@typespec/compiler";`
-   */
-  getNamespaceString(type: Namespace | undefined, options?: TypeNameOptions): string;
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
   evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
   project(
@@ -315,9 +297,6 @@ interface TypePrototype {
   projectionsByName(name: string): ProjectionStatementNode[];
 }
 
-/** @deprecated Use TypeSpecCompletionItem */
-export type CadlCompletionItem = TypeSpecCompletionItem;
-
 export interface TypeSpecCompletionItem {
   sym: Sym;
 
@@ -414,11 +393,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     checkProgram,
     checkSourceFile,
     getLiteralType,
-    getTypeName,
-    getNamespaceString: getNamespaceFullName,
     getGlobalNamespaceType,
-    getGlobalNamespaceNode,
-    getMergedSymbol,
     cloneType,
     resolveRelatedSymbols,
     resolveCompletions,
@@ -4847,7 +4822,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const defaultValue = checkDefaultValue(prop.default, type.type);
         if (defaultValue !== null) {
           type.defaultValue = defaultValue;
-          type.default = checkLegacyDefault(prop.default);
         }
       }
       if (links) {
@@ -4906,21 +4880,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       return { ...defaultValue, type };
     }
-  }
-
-  /**
-   * Fill in the legacy `.default` property.
-   * We do do checking here we just keep existing behavior.
-   */
-  function checkLegacyDefault(defaultNode: Node): Type | undefined {
-    const resolved = checkNode(defaultNode, undefined);
-    if (resolved === null || isValue(resolved)) {
-      return undefined;
-    }
-    if (resolved.entityKind === "Indeterminate") {
-      return resolved.type;
-    }
-    return resolved;
   }
 
   function checkDecoratorApplication(
@@ -7182,13 +7141,12 @@ export function filterModelProperties(
     return model;
   }
 
-  const properties = createRekeyableMap<string, ModelProperty>();
-  const newModel: Model = program.checker.createType({
-    kind: "Model",
-    node: undefined,
+  const realm = Realm.realmForType.get(model);
+  const typekit = realm ? $(realm) : $;
+  const newModel: Model = typekit.model.create({
     name: "",
     indexer: undefined,
-    properties,
+    properties: {},
     decorators: [],
     derivedModels: [],
     sourceModels: [{ usage: "spread", model }],
@@ -7196,11 +7154,13 @@ export function filterModelProperties(
 
   for (const property of walkPropertiesInherited(model)) {
     if (filter(property)) {
-      const newProperty = program.checker.cloneType(property, {
+      const newProperty = typekit.type.clone(property);
+      Object.assign(newProperty, {
         sourceProperty: property,
         model: newModel,
       });
-      properties.set(property.name, newProperty);
+      newModel.properties.set(property.name, newProperty);
+      typekit.type.finishType(newProperty);
     }
   }
 

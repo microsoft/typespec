@@ -128,13 +128,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/one",
      "BufferResponse": true,
@@ -188,7 +186,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.ClientOperationGroup"
   },
   {
    "$id": "21",
@@ -207,13 +206,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/two",
      "BufferResponse": true,
@@ -234,13 +231,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/three",
      "BufferResponse": true,
@@ -295,7 +290,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group3"
   },
   {
    "$id": "30",
@@ -314,13 +310,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/four",
      "BufferResponse": true,
@@ -375,7 +369,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.ClientOperationGroup.Group4"
   },
   {
    "$id": "37",
@@ -394,13 +389,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/five",
      "BufferResponse": true,
@@ -454,7 +447,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup"
   },
   {
    "$id": "44",
@@ -473,13 +467,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/six",
      "BufferResponse": true,
@@ -534,7 +526,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Client.Structure.AnotherClientOperationGroup.Group5"
   }
  ]
 }

@@ -1,7 +1,6 @@
 import {
   NoTarget,
   getNamespaceFullName,
-  getService,
   getTypeName,
   isTemplateInstance,
   isType,
@@ -135,21 +134,7 @@ export function $onValidate(program: Program) {
         }
       },
       namespace: (namespace) => {
-        const [_, versionMap] = getVersions(program, namespace);
         validateVersionEnumValuesUnique(program, namespace);
-        const serviceProps = getService(program, namespace);
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
-        if (serviceProps?.version !== undefined && versionMap !== undefined) {
-          reportDiagnostic(program, {
-            code: "no-service-fixed-version",
-            format: {
-              name: getNamespaceFullName(namespace),
-              // eslint-disable-next-line @typescript-eslint/no-deprecated
-              version: serviceProps.version,
-            },
-            target: namespace,
-          });
-        }
         const versionedNamespace = findVersionedNamespace(program, namespace);
         const dependencies = getVersionDependencies(program, namespace);
         if (dependencies === undefined) {

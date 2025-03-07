@@ -110,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public CSharpType Type => _type ??=
             new(
                 _name ??= CustomCodeView?.Name ?? BuildName(),
-                CustomCodeView?.BuildNamespace() ?? BuildNamespace(),
+                CustomCodeView?.Type.Namespace ?? BuildNamespace(),
                 this is EnumProvider ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum),
@@ -125,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
 
-        protected virtual string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.PackageName;
+        protected virtual string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.PrimaryNamespace;
 
         private TypeSignatureModifiers? _declarationModifiers;
 

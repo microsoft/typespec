@@ -1,4 +1,5 @@
-import { compilerAssert, getLocationContext, TemplatedType } from "../core/index.js";
+import { compilerAssert } from "../core/diagnostics.js";
+import { getLocationContext } from "../core/helpers/location-context.js";
 import { Program } from "../core/program.js";
 import { isTemplateInstance, isType } from "../core/type-utils.js";
 import {
@@ -12,6 +13,7 @@ import {
   Namespace,
   ObjectType,
   Projection,
+  TemplatedType,
   TemplateParameter,
   Type,
   TypeMapper,
@@ -616,10 +618,17 @@ function createMutatorEngine(
       mutateSubMap(root, "properties", mutating, newMutators);
       if (root.indexer) {
         const res = mutateSubgraphWorker(root.indexer.value as any, newMutators);
-        if (clone) {
-          (clone as any).indexer.value = res;
+        if (mutating) {
+          (root as any).indexer.value = res;
         }
       }
+      for (const [index, prop] of root.sourceModels.entries()) {
+        const newModel: any = mutateSubgraphWorker(prop.model, newMutators);
+        if (mutating) {
+          mutate(root.sourceModels[index]).model = newModel;
+        }
+      }
+      mutateProperty(root, "sourceModel", mutating, newMutators);
       mutateProperty(root, "baseModel", mutating, newMutators);
       mutateSubArray(root, "derivedModels", mutating, newMutators);
     }

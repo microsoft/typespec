@@ -23,10 +23,6 @@ import { compilerAssert } from "../diagnostics.js";
 import { reportDiagnostic } from "../messages.js";
 import type { Program } from "../program.js";
 import type { DecoratorContext, Enum, EnumMember, ModelProperty } from "../types.js";
-import {
-  getLifecycleVisibilityEnum,
-  normalizeLegacyLifecycleVisibilityString,
-} from "./lifecycle.js";
 
 import type { VisibilityFilter as GeneratedVisibilityFilter } from "../../../generated-defs/TypeSpec.js";
 import { createStateSymbol } from "../../lib/utils.js";
@@ -36,8 +32,9 @@ export { GeneratedVisibilityFilter };
 
 /**
  * A set of active visibility modifiers per visibility class.
+ * @internal
  */
-type VisibilityModifiers = Map<Enum, Set<EnumMember>>;
+export type VisibilityModifiers = Map<Enum, Set<EnumMember>>;
 
 /**
  * The global visibility store.
@@ -47,6 +44,16 @@ type VisibilityModifiers = Map<Enum, Set<EnumMember>>;
 const [getVisibilityStore, setVisibilityStore] = useStateMap<ModelProperty, VisibilityModifiers>(
   createStateSymbol("visibilityStore"),
 );
+
+/**
+ * Provides access to the visibility store.
+ * @internal
+ */
+export function getRawVisibilityStore(
+  ...params: Parameters<typeof getVisibilityStore>
+): ReturnType<typeof getVisibilityStore> {
+  return getVisibilityStore(...params);
+}
 
 /**
  * Returns the visibility modifiers for a given `property` within a `program`.
@@ -148,13 +155,14 @@ const [getDefaultModifiers, setDefaultModifiers] = useStateMap<Enum, Set<EnumMem
 function getDefaultModifierSetForClass(program: Program, visibilityClass: Enum): Set<EnumMember> {
   const cached = getDefaultModifiers(program, visibilityClass);
 
-  if (cached) return cached;
+  if (cached) return new Set(cached);
 
   const defaultModifierSet = new Set<EnumMember>(visibilityClass.members.values());
 
   setDefaultModifiers(program, visibilityClass, defaultModifierSet);
 
-  return defaultModifierSet;
+  // Explicitly clone the set again to prevent accidental modification of the default set.
+  return new Set(defaultModifierSet);
 }
 
 /**
@@ -202,99 +210,6 @@ function groupModifiersByVisibilityClass(modifiers: EnumMember[]): Map<Enum, Set
 
   return enumMap;
 }
-
-// #region Legacy Visibility API
-
-const [getLegacyVisibility, setLegacyVisibilityModifiers, getLegacyVisibilityStateMap] =
-  useStateMap<ModelProperty, string[]>(createStateSymbol("legacyVisibility"));
-
-export { getLegacyVisibility };
-
-/**
- * Sets the legacy visibility modifiers for a property.
- *
- * This function will also set the visibility modifiers for the property in the Lifecycle visibility class for any
- * strings in the visibility array that are recognized as lifecycle visibility strings.
- *
- * Calling this function twice on the same property will result in a failed compiler assertion.
- *
- * @param program - the program in which the property occurs
- * @param property - the property to set visibility modifiers for
- * @param visibilities - the legacy visibility strings to set
- */
-export function setLegacyVisibility(
-  context: DecoratorContext,
-  property: ModelProperty,
-  visibilities: string[],
-) {
-  const { program } = context;
-
-  setLegacyVisibilityModifiers(program, property, visibilities);
-
-  const lifecycleClass = getLifecycleVisibilityEnum(program);
-
-  clearVisibilityModifiersForClass(program, property, lifecycleClass, context);
-
-  const isEmpty =
-    visibilities.length === 0 || (visibilities.length === 1 && visibilities[0] === "none");
-
-  if (!isEmpty) {
-    const lifecycleVisibilities = visibilities
-      .map((v) => normalizeLegacyLifecycleVisibilityString(program, v))
-      .filter((v) => !!v);
-
-    addVisibilityModifiers(program, property, lifecycleVisibilities);
-  }
-}
-
-/**
- * Removes legacy visibility modifiers from a property.
- *
- * @param program - the program in which the property occurs
- * @param property - the property to remove visibility modifiers from
- */
-export function clearLegacyVisibility(program: Program, property: ModelProperty) {
-  getLegacyVisibilityStateMap(program).delete(property);
-}
-
-/**
- * Returns the legacy visibility modifiers for a property.
- *
- * For a property using the enum-driven visibility system, the active Lifecycle visibility modifiers will be converted
- * to strings for backwards compatibility as follows:
- *
- * - If Lifecycle visibility is not explicitly set, and no legacy visibility is set, this function will return `undefined`.
- * - If the property has no active Lifecycle visibility modifiers, this function will return `["none"]`.
- * - Otherwise, this function will return an array of lowercase strings representing the active Lifecycle visibility
- *   modifiers ("create", "read", "update").
- *
- * @deprecated Use `getVisibilityForClass` instead.
- *
- * @param program - the program in which the property occurs
- * @param property - the property to get legacy visibility modifiers for
- */
-export function getVisibility(program: Program, property: ModelProperty): string[] | undefined {
-  const legacyModifiers = getLegacyVisibility(program, property);
-
-  if (legacyModifiers) return legacyModifiers;
-
-  // Now check for applied lifecycle visibility modifiers and coerce them if necessary.
-
-  const lifecycleModifiers = getVisibilityStore(program, property)?.get(
-    getLifecycleVisibilityEnum(program),
-  );
-
-  // Visibility is completely uninitialized, so return undefined to mimic legacy behavior.
-  if (!lifecycleModifiers) return undefined;
-
-  // Visibility has been cleared explicitly, so return [] to mimic legacy behavior.
-  if (lifecycleModifiers.size === 0) return [];
-
-  // Otherwise we just convert the modifiers to strings.
-  return Array.from(lifecycleModifiers).map((v) => v.name.toLowerCase());
-}
-
-// #endregion
 
 // #region Visibility Management API
 
@@ -669,35 +584,7 @@ export function isVisible(
   program: Program,
   property: ModelProperty,
   filter: VisibilityFilter,
-): boolean;
-
-/**
- * Determines if a property has any of the specified (legacy) visibility strings.
- *
- * @deprecated Calling `isVisible` with an array of legacy visibility strings is deprecated. Use a `VisibilityFilter`
- * object instead.
- *
- * @param program - the program in which the property occurs
- * @param property - the property to check
- * @param visibilities - the visibility strings to check for
- */
-export function isVisible(
-  program: Program,
-  property: ModelProperty,
-  visibilities: readonly string[],
-): boolean;
-
-export function isVisible(
-  program: Program,
-  property: ModelProperty,
-  _filterOrLegacyVisibilities: VisibilityFilter | readonly string[],
 ): boolean {
-  if (Array.isArray(_filterOrLegacyVisibilities)) {
-    return isVisibleLegacy(_filterOrLegacyVisibilities);
-  }
-
-  const filter = _filterOrLegacyVisibilities as VisibilityFilter;
-
   // Validate that property has ALL of the required visibilities of filter.all
   if (filter.all) {
     for (const modifier of filter.all) {
@@ -721,12 +608,6 @@ export function isVisible(
   }
 
   return true;
-
-  function isVisibleLegacy(visibilities: readonly string[]) {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const propertyVisibilities = getVisibility(program, property);
-    return !propertyVisibilities || propertyVisibilities.some((v) => visibilities.includes(v));
-  }
 }
 
 // #endregion
