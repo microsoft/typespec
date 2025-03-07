@@ -23,6 +23,5 @@ export function freezeGraph(program: Program) {
     union: freeze,
     unionVariant: freeze,
     intrinsic: freeze,
-    object: freeze,
   });
 }

@@ -497,7 +497,6 @@ export type {
   ObjectLiteralNode,
   ObjectLiteralPropertyNode,
   ObjectLiteralSpreadPropertyNode,
-  ObjectType,
   ObjectValue,
   ObjectValuePropertyDescriptor,
   Operation,

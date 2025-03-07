@@ -116,7 +116,6 @@ export type Type =
   | ModelProperty
   | Namespace
   | NumericLiteral
-  | ObjectType
   | Operation
   | Scalar
   | ScalarConstructor

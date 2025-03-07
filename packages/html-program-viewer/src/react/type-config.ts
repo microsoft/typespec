@@ -12,7 +12,6 @@ export const TypeConfig: TypeGraphConfig = {
     unions: "nested",
     enums: "nested",
     decoratorDeclarations: "nested",
-    functionDeclarations: "nested",
   },
   Interface: {
     operations: "nested",
@@ -98,8 +97,6 @@ export const TypeConfig: TypeGraphConfig = {
   },
 
   // Don't want to expose those for now
-  Function: null,
-  Object: null,
   Intrinsic: null,
 };
 

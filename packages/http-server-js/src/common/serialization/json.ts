@@ -263,7 +263,6 @@ function transposeExpressionToJson(
     case "UnionVariant":
     case "Decorator":
     case "FunctionParameter":
-    case "Object":
     case "ScalarConstructor":
     default:
       throw new UnimplementedError(`transformJsonExprForType: ${type.kind}`);
@@ -423,7 +422,6 @@ function transposeExpressionFromJson(
     case "UnionVariant":
     case "Decorator":
     case "FunctionParameter":
-    case "Object":
     case "ScalarConstructor":
     default:
       throw new UnimplementedError(`transformJsonExprForType: ${type.kind}`);

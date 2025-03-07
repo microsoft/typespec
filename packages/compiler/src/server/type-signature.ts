@@ -81,8 +81,6 @@ function getTypeSignature(type: Type): string {
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
       return `(tuple)\n[${fence(type.values.map(getTypeSignature).join(", "))}]`;
-    case "Object":
-      return "(object)";
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
