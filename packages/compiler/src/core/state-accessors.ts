@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import type { Type } from "./types.js";
 
 export class StateMap extends Map<undefined, Map<Type, unknown>> {}

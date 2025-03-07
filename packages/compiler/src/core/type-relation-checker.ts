@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import { MultiKeyMap } from "../utils/misc.js";
 import { Checker, walkPropertiesInherited } from "./checker.js";
 import { compilerAssert, reportDeprecated } from "./diagnostics.js";
