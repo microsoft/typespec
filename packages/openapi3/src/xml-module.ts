@@ -1,6 +1,5 @@
 import {
   ArrayModelType,
-  IntrinsicScalarName,
   Model,
   ModelProperty,
   Program,
@@ -9,10 +8,8 @@ import {
   resolveEncodedName,
 } from "@typespec/compiler";
 import { ArrayBuilder, ObjectBuilder } from "@typespec/compiler/emitter-framework";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
-import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import { OpenAPI3Schema, OpenAPI3XmlSchema, OpenAPISchema3_1 } from "./types.js";
 
 export interface XmlModule {
@@ -124,14 +121,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
           ? xmlName
           : resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
         if (propValue.kind === "Scalar") {
-          let scalarSchema: OpenAPI3Schema = {};
-          const root = $.scalar.getStdBase(propValue);
-          scalarSchema = getSchemaForStdScalars(
-            root as Scalar & { name: IntrinsicScalarName },
-            options,
-          );
-          scalarSchema.xml = { name: propXmlName };
-          refSchema.items = scalarSchema;
+          refSchema.items = { ...refSchema.items, xml: { name: propXmlName } };
         } else {
           const items = new ArrayBuilder();
           items.push(refSchema.items);

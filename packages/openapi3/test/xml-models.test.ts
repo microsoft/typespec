@@ -467,7 +467,7 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
             tags: {
               type: "array",
               items: {
-                type: `${type}`,
+                $ref: "#/components/schemas/tag",
                 xml: { name: "tags" },
               },
             },
@@ -516,10 +516,7 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
                 wrapped: true,
               },
               items: {
-                type: `${type}`,
-                xml: {
-                  name: "ItemsName",
-                },
+                $ref: "#/components/schemas/tag",
               },
             },
           },
@@ -1160,7 +1157,7 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
             properties: {
               author: {
                 items: {
-                  type: "string",
+                  $ref: "#/components/schemas/AuthorScalar",
                   xml: { name: "AuthorScalar" },
                 },
                 type: "array",
