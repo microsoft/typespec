@@ -686,6 +686,7 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
       const openApi = await openApiFor(`
         scalar Str extends string;
         model Mol {x: string}
+        /** this is my Num */
         scalar Num extends int32;
         scalar More extends Num;
         scalar Int16 extends int16;
@@ -702,6 +703,18 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         NoRoot, NoExtends, Str , Int16 , Num , Mol , More , null , int32 , string
         }
       `);
+
+      expect(openApi.components.schemas.Num).toEqual({
+        type: "integer",
+        format: "int32",
+        description: "this is my Num",
+      })
+
+      expect(openApi.components.schemas.More).toEqual({
+        type: "integer",
+        format: "int32",
+        description: "this is my Num",
+      })
 
       expect(openApi.components.schemas.Test).toEqual({
         type: "object",
