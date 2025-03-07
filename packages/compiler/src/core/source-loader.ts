@@ -146,8 +146,10 @@ export async function createSourceLoader(
   async function loadTypeSpecScript(file: SourceFile): Promise<TypeSpecScriptNode> {
     // This is not a diagnostic because the compiler should never reuse the same path.
     // It's the caller's responsibility to use unique paths.
+    
+    // Dedup sourceFiles loading in virtualFs
     if (sourceFiles.has(file.path)) {
-      throw new RangeError("Duplicate script path: " + file.path);
+      return sourceFiles.get(file.path)!!;
     }
 
     const script = parseOrReuse(file);
