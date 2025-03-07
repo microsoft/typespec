@@ -500,12 +500,7 @@ function resolveDefaultContentTypeForPart(program: Program, type: Type): string[
 
       if (
         ignoreDiagnostics(
-          program.checker.isTypeAssignableTo(
-            // eslint-disable-next-line @typescript-eslint/no-deprecated
-            type.projectionBase ?? type,
-            program.checker.getStdType("bytes"),
-            type,
-          ),
+          program.checker.isTypeAssignableTo(type, program.checker.getStdType("bytes"), type),
         )
       ) {
         return ["application/octet-stream"];
