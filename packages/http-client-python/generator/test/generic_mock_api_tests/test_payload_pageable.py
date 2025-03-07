@@ -31,20 +31,24 @@ def test_link(client: PageableClient):
 
 
 def test_request_query_response_body(client: PageableClient):
-    result = list(client.server_driven_pagination.continuation_token.request_query_response_body())
+    result = list(client.server_driven_pagination.continuation_token.request_query_response_body(foo="foo", bar="bar"))
     assert_result(result)
 
 
 def test_request_header_response_body(client: PageableClient):
-    result = list(client.server_driven_pagination.continuation_token.request_header_response_body())
+    result = list(client.server_driven_pagination.continuation_token.request_header_response_body(foo="foo", bar="bar"))
     assert_result(result)
 
 
 def test_request_query_response_header(client: PageableClient):
-    result = list(client.server_driven_pagination.continuation_token.request_query_response_header())
+    result = list(
+        client.server_driven_pagination.continuation_token.request_query_response_header(foo="foo", bar="bar")
+    )
     assert_result(result)
 
 
 def test_request_header_response_header(client: PageableClient):
-    result = list(client.server_driven_pagination.continuation_token.request_header_response_header())
+    result = list(
+        client.server_driven_pagination.continuation_token.request_header_response_header(foo="foo", bar="bar")
+    )
     assert_result(result)
