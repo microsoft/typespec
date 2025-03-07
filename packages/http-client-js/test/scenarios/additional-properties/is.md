@@ -26,21 +26,17 @@ export async function foo(
   options?: FooOptions,
 ): Promise<Record<string, string>> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonRecordStringToApplicationTransform(response.body)!;
   }
-
   throw createRestError(response);
 }
 ```
