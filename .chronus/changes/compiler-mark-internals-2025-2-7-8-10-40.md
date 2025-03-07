@@ -1,0 +1,45 @@
+---
+changeKind: breaking
+packages:
+  - "@typespec/compiler"
+---
+
+Stop exposing APIs that were not meant for external users. Please file issue if you had legitmate use of some of those APIs.
+- `Checker`: The check itself should be used very carefully and its wouldn't be covered under the compatibility guarantees. There is some apis that were explicitly marked as internal while other remained until we provide a better way to do the same thing:
+  - `getGlobalNamespaceType();` -> `program.getGlobalNamespaceType();`
+  - `getTypeForNode()`  This isn't meant to be used by external users.
+  - `checkProgram();` This isn't meant to be used by external users.
+  - `getLiteralType()` This isn't meant to be used by external users.
+  - `resolveRelatedSymbols()` This isn't meant to be used by external users.
+  - `resolveCompletions()` This isn't meant to be used by external users.
+
+- `Program`: Exposed functions on the program are safe to use but a few have been updated to be internal:
+  - `mainFile` -> Use `projectRoot` instead.
+  - `literalTypes` This isn't meant to be used by external users.
+  - `checker`: This is still exposed but to be used carefully, see above.
+  - `loadTypeSpecScript`: This isn't meant to be used by external users.
+  - `onValidate`: This isn't meant to be used by external users.
+  - `reportDuplicateSymbols`: This isn't meant to be used by external users.
+
+- `logVerboseTestOutput` Internal test util, not meant for external users
+- `validateDecoratorTarget` -> migrate to `extern dec` declaration
+- `validateDecoratorParamCount`: Same as above
+- `altDirectorySeparator`: Internal path utils
+- `directorySeparator`: Internal path utils
+- Scanner related APIs:
+  - `createScanner`
+  - `isComment`
+  - `isKeyword`
+  - `isModifier`
+  - `isPunctuation`
+  - `isStatementKeyword`
+  - `isTrivia`
+  - `skipContinuousIdentifier`
+  - `skipTrivia`
+  - `skipTriviaBackward`
+  - `skipWhiteSpace`
+  - `Token`
+  - `TokenFlags`
+  - `type`DocToken,
+  - `type`Scanner,
+  - `type`StringTemplateToken,

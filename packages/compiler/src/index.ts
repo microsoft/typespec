@@ -203,7 +203,7 @@ export {
   type ExampleOptions,
   type OpExample,
 } from "./lib/decorators.js";
-export { MANIFEST, typespecVersion, type TypeSpecManifest } from "./manifest.js";
+export { MANIFEST, type TypeSpecManifest } from "./manifest.js";
 export {
   resolveModule,
   type ModuleResolutionResult,
@@ -261,8 +261,6 @@ export {
 } from "./core/parser.js";
 
 export {
-  altDirectorySeparator,
-  directorySeparator,
   ensureTrailingDirectorySeparator,
   getAnyExtensionFromPath,
   getBaseFileName,
@@ -287,24 +285,6 @@ export {
 } from "./core/path-utils.js";
 export { compile, projectProgram, type Program, type ProjectedProgram } from "./core/program.js";
 export { isProjectedProgram } from "./core/projected-program.js";
-export {
-  createScanner,
-  isComment,
-  isKeyword,
-  isModifier,
-  isPunctuation,
-  isStatementKeyword,
-  isTrivia,
-  skipContinuousIdentifier,
-  skipTrivia,
-  skipTriviaBackward,
-  skipWhiteSpace,
-  Token,
-  TokenFlags,
-  type DocToken,
-  type Scanner,
-  type StringTemplateToken,
-} from "./core/scanner.js";
 export {
   getProperty,
   mapEventEmitterToNodeListener,
