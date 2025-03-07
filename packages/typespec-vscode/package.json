@@ -274,7 +274,7 @@
     "rollup": "~4.34.9",
     "rollup-plugin-copy": "^3.5.0",
     "semver": "^7.7.1",
-    "swagger-ui-dist": "^5.18.2",
+    "swagger-ui-dist": "^5.20.0",
     "typescript": "~5.8.2",
     "vitest": "^3.0.7",
     "vscode-languageclient": "~9.0.1",

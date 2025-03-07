@@ -2268,8 +2268,8 @@ importers:
         specifier: ^7.7.1
         version: 7.7.1
       swagger-ui-dist:
-        specifier: ^5.18.2
-        version: 5.18.2
+        specifier: ^5.20.0
+        version: 5.20.0
       typescript:
         specifier: ~5.8.2
         version: 5.8.2
@@ -12085,9 +12085,6 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
-
-  swagger-ui-dist@5.18.2:
-    resolution: {integrity: sha512-J+y4mCw/zXh1FOj5wGJvnAajq6XgHOyywsa9yITmwxIlJbMqITq3gYRZHaeqLVH/eV/HOPphE6NjF+nbSNC5Zw==}
 
   swagger-ui-dist@5.20.0:
     resolution: {integrity: sha512-V5pozVTZxivdoQq/SQWxj3A4cOu5opk9MEbcZANX3Pj8X8xCrD1QCtBT7744Pz9msOvt0nnmy9JvM/9PGonCdg==}
@@ -26108,10 +26105,6 @@ snapshots:
       has-flag: 4.0.0
 
   supports-preserve-symlinks-flag@1.0.0: {}
-
-  swagger-ui-dist@5.18.2:
-    dependencies:
-      '@scarf/scarf': 1.4.0
 
   swagger-ui-dist@5.20.0:
     dependencies:
