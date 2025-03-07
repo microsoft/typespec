@@ -430,22 +430,39 @@ function addIdentifierCompletion(
       deprecated = getDeprecationDetails(program, type) !== undefined;
     }
     const documentation = getSymbolDetails(program, sym);
-    const targetNode = getSourceLocation(node);
-    const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
-    const item: CompletionItem = {
-      label: label ?? key,
-      documentation: documentation
-        ? {
-            kind: MarkupKind.Markdown,
-            value: documentation,
-          }
-        : undefined,
-      kind,
-      textEdit: TextEdit.replace(
+    let edit: TextEdit | undefined;
+    const startWith$ = sym.name.startsWith("$");
+    if (startWith$) {
+      const targetNode = getSourceLocation(node);
+      const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
+      edit = TextEdit.replace(
         Range.create(lineAndChar, lineAndChar),
         printIdentifier(key) + (suffix ?? ""),
-      ),
-    };
+      );
+    }
+    const item: CompletionItem = startWith$
+      ? {
+          label: label ?? key,
+          documentation: documentation
+            ? {
+                kind: MarkupKind.Markdown,
+                value: documentation,
+              }
+            : undefined,
+          kind,
+          textEdit: edit,
+        }
+      : {
+          label: label ?? key,
+          documentation: documentation
+            ? {
+                kind: MarkupKind.Markdown,
+                value: documentation,
+              }
+            : undefined,
+          kind,
+          insertText: printIdentifier(key) + (suffix ?? ""),
+        };
     if (deprecated) {
       // hide these deprecated items to discourage the usage
       // not using CompletionItemTag.Deprecated because the strike-through is a little confusing
