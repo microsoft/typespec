@@ -57,7 +57,7 @@ public interface ErrorsClient {
      * with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<ConfidentialResourceInner> createOrReplaceWithResponse(String resourceGroupName,
+    Response<ConfidentialResourceInner> createForUserDefinedErrorWithResponse(String resourceGroupName,
         String confidentialResourceName, ConfidentialResourceInner resource, Context context);
 
     /**
@@ -73,6 +73,6 @@ public interface ErrorsClient {
      * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    ConfidentialResourceInner createOrReplace(String resourceGroupName, String confidentialResourceName,
+    ConfidentialResourceInner createForUserDefinedError(String resourceGroupName, String confidentialResourceName,
         ConfidentialResourceInner resource);
 }

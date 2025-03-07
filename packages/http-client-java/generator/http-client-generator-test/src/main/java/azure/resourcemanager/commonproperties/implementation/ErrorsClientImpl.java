@@ -72,7 +72,7 @@ public final class ErrorsClientImpl implements ErrorsClient {
         @Put("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.CommonProperties/confidentialResources/{confidentialResourceName}")
         @ExpectedResponses({ 200, 201 })
         @UnexpectedResponseExceptionType(ApiErrorException.class)
-        Mono<Response<ConfidentialResourceInner>> createOrReplace(@HostParam("endpoint") String endpoint,
+        Mono<Response<ConfidentialResourceInner>> createForUserDefinedError(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("confidentialResourceName") String confidentialResourceName,
@@ -214,8 +214,8 @@ public final class ErrorsClientImpl implements ErrorsClient {
      * with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ConfidentialResourceInner>> createOrReplaceWithResponseAsync(String resourceGroupName,
-        String confidentialResourceName, ConfidentialResourceInner resource) {
+    private Mono<Response<ConfidentialResourceInner>> createForUserDefinedErrorWithResponseAsync(
+        String resourceGroupName, String confidentialResourceName, ConfidentialResourceInner resource) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
                 new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
@@ -240,9 +240,9 @@ public final class ErrorsClientImpl implements ErrorsClient {
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil
-            .withContext(context -> service.createOrReplace(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, confidentialResourceName, contentType, accept,
-                resource, context))
+            .withContext(context -> service.createForUserDefinedError(this.client.getEndpoint(),
+                this.client.getApiVersion(), this.client.getSubscriptionId(), resourceGroupName,
+                confidentialResourceName, contentType, accept, resource, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
@@ -260,8 +260,9 @@ public final class ErrorsClientImpl implements ErrorsClient {
      * with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ConfidentialResourceInner>> createOrReplaceWithResponseAsync(String resourceGroupName,
-        String confidentialResourceName, ConfidentialResourceInner resource, Context context) {
+    private Mono<Response<ConfidentialResourceInner>> createForUserDefinedErrorWithResponseAsync(
+        String resourceGroupName, String confidentialResourceName, ConfidentialResourceInner resource,
+        Context context) {
         if (this.client.getEndpoint() == null) {
             return Mono.error(
                 new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
@@ -286,7 +287,7 @@ public final class ErrorsClientImpl implements ErrorsClient {
         final String contentType = "application/json";
         final String accept = "application/json";
         context = this.client.mergeContext(context);
-        return service.createOrReplace(this.client.getEndpoint(), this.client.getApiVersion(),
+        return service.createForUserDefinedError(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, confidentialResourceName, contentType, accept, resource,
             context);
     }
@@ -304,9 +305,9 @@ public final class ErrorsClientImpl implements ErrorsClient {
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<ConfidentialResourceInner> createOrReplaceAsync(String resourceGroupName,
+    private Mono<ConfidentialResourceInner> createForUserDefinedErrorAsync(String resourceGroupName,
         String confidentialResourceName, ConfidentialResourceInner resource) {
-        return createOrReplaceWithResponseAsync(resourceGroupName, confidentialResourceName, resource)
+        return createForUserDefinedErrorWithResponseAsync(resourceGroupName, confidentialResourceName, resource)
             .flatMap(res -> Mono.justOrEmpty(res.getValue()));
     }
 
@@ -324,9 +325,10 @@ public final class ErrorsClientImpl implements ErrorsClient {
      * with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<ConfidentialResourceInner> createOrReplaceWithResponse(String resourceGroupName,
+    public Response<ConfidentialResourceInner> createForUserDefinedErrorWithResponse(String resourceGroupName,
         String confidentialResourceName, ConfidentialResourceInner resource, Context context) {
-        return createOrReplaceWithResponseAsync(resourceGroupName, confidentialResourceName, resource, context).block();
+        return createForUserDefinedErrorWithResponseAsync(resourceGroupName, confidentialResourceName, resource,
+            context).block();
     }
 
     /**
@@ -341,9 +343,9 @@ public final class ErrorsClientImpl implements ErrorsClient {
      * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public ConfidentialResourceInner createOrReplace(String resourceGroupName, String confidentialResourceName,
-        ConfidentialResourceInner resource) {
-        return createOrReplaceWithResponse(resourceGroupName, confidentialResourceName, resource, Context.NONE)
-            .getValue();
+    public ConfidentialResourceInner createForUserDefinedError(String resourceGroupName,
+        String confidentialResourceName, ConfidentialResourceInner resource) {
+        return createForUserDefinedErrorWithResponse(resourceGroupName, confidentialResourceName, resource,
+            Context.NONE).getValue();
     }
 }

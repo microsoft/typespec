@@ -85,7 +85,8 @@ public final class ConfidentialResourceImpl implements ConfidentialResource, Con
     public ConfidentialResource create() {
         this.innerObject = serviceManager.serviceClient()
             .getErrors()
-            .createOrReplaceWithResponse(resourceGroupName, confidentialResourceName, this.innerModel(), Context.NONE)
+            .createForUserDefinedErrorWithResponse(resourceGroupName, confidentialResourceName, this.innerModel(),
+                Context.NONE)
             .getValue();
         return this;
     }
@@ -93,7 +94,8 @@ public final class ConfidentialResourceImpl implements ConfidentialResource, Con
     public ConfidentialResource create(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getErrors()
-            .createOrReplaceWithResponse(resourceGroupName, confidentialResourceName, this.innerModel(), context)
+            .createForUserDefinedErrorWithResponse(resourceGroupName, confidentialResourceName, this.innerModel(),
+                context)
             .getValue();
         return this;
     }

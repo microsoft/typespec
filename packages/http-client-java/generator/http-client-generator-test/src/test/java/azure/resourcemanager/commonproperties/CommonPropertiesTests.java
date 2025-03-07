@@ -72,13 +72,14 @@ public class CommonPropertiesTests {
             manager.errors().define("confidential")
                 .withRegion(Region.US_EAST)
                 .withExistingResourceGroup("test-rg")
-                .withProperties(new ConfidentialResourceProperties().withUsername("myusername").withPassword("mypassword"))
+                .withProperties(new ConfidentialResourceProperties().withUsername("00"))
                 .create();
         } catch (ApiErrorException e) {
             apiErrorException = e;
         }
         Assertions.assertNotNull(apiErrorException);
-        Assertions.assertEquals("AuthorizationFailed", apiErrorException.getValue().getCode());
+        Assertions.assertEquals("BadRequest", apiErrorException.getValue().getCode());
+        Assertions.assertEquals("Username should not contain only numbers.", apiErrorException.getValue().getMessage());
         Assertions.assertEquals("general", apiErrorException.getValue().getInnererror().exceptiontype());
 
         ManagementException exception = null;

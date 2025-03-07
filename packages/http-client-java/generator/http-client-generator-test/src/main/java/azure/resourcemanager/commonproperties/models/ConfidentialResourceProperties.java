@@ -27,11 +27,6 @@ public final class ConfidentialResourceProperties implements JsonSerializable<Co
      */
     private String username;
 
-    /*
-     * The password property.
-     */
-    private String password;
-
     /**
      * Creates an instance of ConfidentialResourceProperties class.
      */
@@ -68,26 +63,6 @@ public final class ConfidentialResourceProperties implements JsonSerializable<Co
     }
 
     /**
-     * Get the password property: The password property.
-     * 
-     * @return the password value.
-     */
-    public String password() {
-        return this.password;
-    }
-
-    /**
-     * Set the password property: The password property.
-     * 
-     * @param password the password value to set.
-     * @return the ConfidentialResourceProperties object itself.
-     */
-    public ConfidentialResourceProperties withPassword(String password) {
-        this.password = password;
-        return this;
-    }
-
-    /**
      * Validates the instance.
      * 
      * @throws IllegalArgumentException thrown if the instance is not valid.
@@ -97,11 +72,6 @@ public final class ConfidentialResourceProperties implements JsonSerializable<Co
             throw LOGGER.atError()
                 .log(new IllegalArgumentException(
                     "Missing required property username in model ConfidentialResourceProperties"));
-        }
-        if (password() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property password in model ConfidentialResourceProperties"));
         }
     }
 
@@ -114,7 +84,6 @@ public final class ConfidentialResourceProperties implements JsonSerializable<Co
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("username", this.username);
-        jsonWriter.writeStringField("password", this.password);
         return jsonWriter.writeEndObject();
     }
 
@@ -139,8 +108,6 @@ public final class ConfidentialResourceProperties implements JsonSerializable<Co
                     deserializedConfidentialResourceProperties.provisioningState = reader.getString();
                 } else if ("username".equals(fieldName)) {
                     deserializedConfidentialResourceProperties.username = reader.getString();
-                } else if ("password".equals(fieldName)) {
-                    deserializedConfidentialResourceProperties.password = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
