@@ -7,12 +7,12 @@ using System.Threading;
 namespace Sample
 {
     /// <summary> DogClient description. </summary>
-    public partial class Dog
+    public partial class AnimalDog
     {
-        /// <summary> Initializes a new instance of Husky. </summary>
-        public virtual global::Sample.Husky GetHuskyClient()
+        /// <summary> Initializes a new instance of AnimalDogHusky. </summary>
+        public virtual global::Sample.AnimalDogHusky GetAnimalDogHuskyClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedHusky) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedHusky, new global::Sample.Husky(), null) ?? _cachedHusky));
+            return (global::System.Threading.Volatile.Read(ref _cachedAnimalDogHusky) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedAnimalDogHusky, new global::Sample.AnimalDogHusky(), null) ?? _cachedAnimalDogHusky));
         }
     }
 }

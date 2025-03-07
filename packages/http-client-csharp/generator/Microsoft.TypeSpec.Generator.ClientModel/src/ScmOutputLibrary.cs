@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel
@@ -15,21 +16,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             var clients = new List<TypeProvider>(inputClients.Count * 3);
             foreach (var inputClient in inputClients)
             {
-                var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
-                if (client == null)
-                {
-                    continue;
-                }
-                clients.Add(client);
-                clients.Add(client.RestClient);
-                var clientOptions = client.ClientOptions.Value;
-                if (clientOptions != null)
-                {
-                    clients.Add(clientOptions);
-                }
+                BuildClient(inputClient, clients);
             }
 
             return [.. clients];
+        }
+
+        private static void BuildClient(InputClient inputClient, IList<TypeProvider> clients)
+        {
+            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            if (client == null)
+            {
+                return;
+            }
+            clients.Add(client);
+            clients.Add(client.RestClient);
+            var clientOptions = client.ClientOptions.Value;
+            if (clientOptions != null)
+            {
+                clients.Add(clientOptions);
+            }
+
+            foreach (var child in inputClient.Children)
+            {
+                BuildClient(child, clients);
+            }
         }
 
         protected override TypeProvider[] BuildTypeProviders()
