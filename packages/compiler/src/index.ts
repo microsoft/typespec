@@ -45,7 +45,6 @@ export {
   reportDeprecated,
   type DiagnosticCollector,
   type DiagnosticHandler,
-  type ProjectionError,
   type SourceLocationOptions,
   type WriteLine,
 } from "./core/diagnostics.js";

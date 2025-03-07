@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
-// TODO: remove after projection removal
 import type {
   DiscriminatedDecorator,
   DiscriminatedOptions,
@@ -1121,6 +1119,7 @@ export const $discriminator: DiscriminatorDecorator = (
       context.decoratorTarget,
     );
     // we can validate discriminator up front for unions. Models are validated in the accessor as we might not have the reference to all derived types at this time.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const [, diagnostics] = getDiscriminatedUnion(entity, discriminator);
     if (diagnostics.length > 0) {
       context.program.reportDiagnostics(diagnostics);
@@ -1153,7 +1152,7 @@ export const $example: ExampleDecorator = (
   );
   compilerAssert(decorator, `Couldn't find @example decorator`, context.decoratorTarget);
   const rawExample = decorator.args[0].value as Value;
-  // skip validation in projections
+  // skip validation in cloned types
   if (Realm.realmForType.get(target) === undefined) {
     if (
       !checkExampleValid(
@@ -1199,7 +1198,7 @@ export const $opExample: OpExampleDecorator = (
   const parameters = rawExampleConfig.properties.get("parameters")?.value;
   const returnType = rawExampleConfig.properties.get("returnType")?.value;
 
-  // skip validation in projections
+  // skip validation in cloned types
   if (Realm.realmForType.get(target) === undefined) {
     if (
       parameters &&

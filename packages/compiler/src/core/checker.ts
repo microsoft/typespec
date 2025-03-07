@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import { Realm } from "../experimental/realm.js";
 import { $ } from "../experimental/typekit/index.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
@@ -11,7 +10,7 @@ import {
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
+import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -321,8 +320,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     initializeTypeSpecIntrinsics();
   }
 
-  let evalContext: EvalContext | undefined = undefined;
-
   /**
    * Tracking the template parameters used or not.
    */
@@ -393,7 +390,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       flags: SymbolFlags.Function,
       name: "log",
       value(p: Program, ...strs: string[]): Type {
-        program.trace("projection.log", strs.join(" "));
+        program.trace("log", strs.join(" "));
         return voidType;
       },
       declarations: [],
@@ -5873,8 +5870,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   /**
    * Given the own-properties of a type, returns a fully-initialized type.
-   * So far, that amounts to setting the prototype to typePrototype which
-   * contains the `projections` getter.
    */
   function createType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T,
@@ -6082,12 +6077,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return clone;
   }
 
-  interface EvalContext {
-    node: Node;
-    locals: Map<string, Type>;
-    parent?: EvalContext;
-  }
-
   function createFunctionType(fn: (...args: Type[]) => Type): FunctionType {
     const parameters: MixedFunctionParameter[] = [];
     return createType({
@@ -6150,39 +6139,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     program.literalTypes.set(value, type);
     return type;
-  }
-
-  interface MarshalOptions {
-    /**
-     * Name of the function in case of error.
-     */
-    functionName?: string;
-  }
-
-  function marshalProjectionReturn(value: unknown, options: MarshalOptions = {}): Type {
-    if (typeof value === "boolean" || typeof value === "string" || typeof value === "number") {
-      return createLiteralType(value);
-    }
-
-    if (typeof value === "object" && value !== null) {
-      if ("kind" in value) {
-        return value as Type;
-      } else {
-        // this could probably be more robust
-        return createType({
-          kind: "Object",
-          properties: value as any,
-        });
-      }
-    }
-
-    if (options.functionName) {
-      throw new ProjectionError(
-        `Can't marshal value "${value}" returned from JS function "${options.functionName}" into typespec`,
-      );
-    } else {
-      throw new ProjectionError(`Can't marshal value "${value}" into typespec`);
-    }
   }
 
   /**
@@ -6784,21 +6740,6 @@ const defaultSymbolResolutionOptions: SymbolResolutionOptions = {
   resolveDecorators: false,
   checkTemplateTypes: true,
 };
-
-/**
- * Convert LEGACY for projection.
- * THIS IS BROKEN. Some decorators will not receive the correct type.
- * It has been broken since the introduction of valueof.
- * As projection as put on hold as long as versioning works we are in a good state.
- */
-function unsafe_projectionArgumentMarshalForJS(arg: Type): any {
-  if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
-    return arg.value;
-  } else if (arg.kind === "StringTemplate") {
-    return arg.stringValue;
-  }
-  return arg as any;
-}
 
 function printTypeReferenceNode(
   node: TypeReferenceNode | IdentifierNode | MemberExpressionNode,

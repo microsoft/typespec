@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import type { AstPath, Doc, Printer } from "prettier";
 import { builders } from "prettier/doc";
 import { compilerAssert } from "../../core/diagnostics.js";
@@ -1546,35 +1545,6 @@ function printBooleanLiteral(
   return node.value ? "true" : "false";
 }
 
-function printProjectionExpressionStatements<T extends Node>(
-  path: AstPath<T>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-  key: keyof T,
-) {
-  const parts: Doc[] = [hardline];
-  const lastIndex = (path.node[key] as any).length - 1;
-  path.each((statementPath, index) => {
-    const node = path.node;
-
-    if (node.kind === SyntaxKind.EmptyStatement) {
-      return;
-    }
-
-    const printed = print(statementPath);
-    parts.push(printed);
-    parts.push(";");
-    if (index < lastIndex) {
-      parts.push(hardline);
-
-      if (isNextLineEmpty(options.originalText, node, options.locEnd)) {
-        parts.push(hardline);
-      }
-    }
-  }, key as any);
-  return parts;
-}
-
 export function printStringTemplateExpression(
   path: AstPath<StringTemplateExpressionNode>,
   options: TypeSpecPrettierOptions,
@@ -1624,15 +1594,6 @@ function trimMultilineString(lines: string[], whitespaceIndent: number): Doc[] {
     }
   }
   return newLines;
-}
-
-function printItemList<T extends Node>(
-  path: AstPath<T>,
-  options: TypeSpecPrettierOptions,
-  print: PrettierChildPrint,
-  key: keyof T,
-) {
-  return join(", ", path.map(print, key as any));
 }
 
 /**

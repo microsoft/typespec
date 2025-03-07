@@ -127,11 +127,7 @@ const HiddenProps = [
   "templateMapper",
   "instantiationParameters",
   "decorators",
-  "projectionBase",
-  "projectionsByName",
-  "projectionSource",
   "projector",
-  "projections",
   "isFinished",
 ] as const;
 type HiddenPropsType = (typeof HiddenProps)[number];

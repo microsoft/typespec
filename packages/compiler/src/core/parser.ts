@@ -295,20 +295,6 @@ namespace ListKind {
     close: Token.CloseParen,
     invalidAnnotationTarget: "expression",
   } as const;
-
-  export const ProjectionExpression = {
-    ...ExpresionsBase,
-    allowEmpty: true,
-    open: Token.OpenParen,
-    close: Token.CloseParen,
-  } as const;
-
-  export const ProjectionParameter = {
-    ...ExpresionsBase,
-    allowEmpty: true,
-    open: Token.OpenParen,
-    close: Token.CloseParen,
-  } as const;
 }
 
 const enum ParseMode {

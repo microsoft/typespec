@@ -42,11 +42,11 @@ export async function $onEmit(context: EmitContext): Promise<void> {
   function emitAllServiceVersions() {
     const services = listServices(context.program);
     for (const service of services) {
-      const versionProjections = getVersioningMutators(context.program, service.type);
-      if (versionProjections === undefined || versionProjections.kind === "transient") {
+      const mutators = getVersioningMutators(context.program, service.type);
+      if (mutators === undefined || mutators.kind === "transient") {
         return;
       }
-      for (const snapshot of versionProjections.snapshots) {
+      for (const snapshot of mutators.snapshots) {
         const subgraph = unsafe_mutateSubgraphWithNamespace(
           context.program,
           [snapshot.mutator],
