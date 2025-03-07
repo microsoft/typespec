@@ -186,7 +186,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       }
     }
 
-    const existingStdScalarTypesAsMember = getRootStdScalarTypes(schemaMembers);
     const wrapWithObjectBuilder = (
       schemaMember: UnionSchemaMember,
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
@@ -217,24 +216,14 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
               ...additionalProps,
             });
           } else if (type && type.kind === "Scalar") {
+            // TODO: remove duplicate schemas
             const currentRootScalar = $.scalar.getStdBase(type);
 
-            // case 0: current schema use {} as root scalar
             if (!currentRootScalar) {
               const { nullable, ...additional } = additionalProps;
               return new ObjectBuilder({ ...additional });
             }
 
-            // case 1: current schema extends a std scalar,
-            //         and the extended std scalar is also a union schema member
-            //         Note: 1. std scalar should be inline, so here is unreachable and no need to consider here
-            //               2. The scalar cannot be placeholder, then it must has $ref
-            if (existingStdScalarTypesAsMember.has(currentRootScalar)) {
-              return new ObjectBuilder({ $ref: schema.$ref });
-            }
-
-            // case 2: current schema extends std scalar
-            //         while the extended std scalar does no exist in current union members
             const rootSchema = this.getSchemaForStdScalars(
               currentRootScalar as unknown as Scalar & { name: IntrinsicScalarName },
             );
@@ -299,31 +288,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     interface UnionSchemaMember {
       schema: any;
       type: Type | null;
-    }
-
-    function getRootStdScalarTypes(scalarMembers: UnionSchemaMember[]): Set<Type> {
-      const stdScalarTypes = new Set<Type>();
-      for (const member of scalarMembers) {
-        if (member.type?.kind === "Scalar") {
-          const type = $.scalar.getStdBase(member.type);
-          if (member.type === type) stdScalarTypes.add(type);
-        }
-      }
-      return stdScalarTypes;
-    }
-
-    function createNullSchema() {
-      return new ObjectBuilder({
-        not: {
-          anyOf: [
-            { type: "string" },
-            { type: "number" },
-            { type: "boolean" },
-            { type: "object" },
-            { type: "array" },
-          ],
-        },
-      });
     }
   }
 
