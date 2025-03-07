@@ -110,7 +110,6 @@ export type Type =
   | Enum
   | EnumMember
   | FunctionParameter
-  | FunctionType
   | Interface
   | IntrinsicType
   | Model
@@ -574,13 +573,6 @@ export interface Namespace extends BaseType, DecoratedType {
    * Order is implementation-defined and may change.
    */
   decoratorDeclarations: Map<string, Decorator>;
-
-  /**
-   * The functions declared in the namespace.
-   *
-   * Order is implementation-defined and may change.
-   */
-  functionDeclarations: Map<string, FunctionType>;
 }
 
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
@@ -680,16 +672,6 @@ export interface Decorator extends BaseType {
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
   implementation: (...args: unknown[]) => void;
-}
-
-export interface FunctionType extends BaseType {
-  kind: "Function";
-  node?: FunctionDeclarationStatementNode;
-  namespace?: Namespace;
-  name: string;
-  parameters: MixedFunctionParameter[];
-  returnType: Type;
-  implementation: (...args: unknown[]) => unknown;
 }
 
 export interface FunctionParameterBase extends BaseType {

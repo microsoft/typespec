@@ -3,7 +3,6 @@ import {
   Decorator,
   EnumMember,
   FunctionParameter,
-  FunctionType,
   getEntityName,
   getTypeName,
   Interface,
@@ -32,8 +31,6 @@ export function getTypeSignature(type: Type): string {
       return getInterfaceSignature(type);
     case "Decorator":
       return getDecoratorSignature(type);
-    case "Function":
-      return getFunctionSignature(type);
     case "Operation":
       return getOperationSignature(type);
     case "String":
@@ -87,12 +84,6 @@ function getDecoratorSignature(type: Decorator) {
     signature += `(${parameters.join(", ")})`;
   }
   return signature;
-}
-
-function getFunctionSignature(type: FunctionType) {
-  const ns = getQualifier(type.namespace);
-  const parameters = type.parameters.map((x) => getFunctionParameterSignature(x));
-  return `fn ${ns}${type.name}(${parameters.join(", ")}): ${getTypeName(type.returnType)}`;
 }
 
 function getInterfaceSignature(type: Interface) {

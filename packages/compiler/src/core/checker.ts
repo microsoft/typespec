@@ -71,7 +71,6 @@ import {
   FunctionDeclarationStatementNode,
   FunctionParameter,
   FunctionParameterNode,
-  FunctionType,
   IdentifierKind,
   IdentifierNode,
   IndeterminateEntity,
@@ -185,7 +184,6 @@ export interface Checker {
     typeDef: T,
   ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
-  createFunctionType(fn: (...args: Type[]) => Type): FunctionType;
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
   createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
   createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
@@ -342,7 +340,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     typePrototype,
     createType,
     createAndFinishType,
-    createFunctionType,
     createLiteralType,
     finishType,
     isStdType,
@@ -1888,44 +1885,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkFunctionDeclaration(
     node: FunctionDeclarationStatementNode,
     mapper: TypeMapper | undefined,
-  ): FunctionType {
-    const symbol = getMergedSymbol(node.symbol);
-    const links = getSymbolLinks(symbol);
-    if (links.declaredType && mapper === undefined) {
-      // we're not instantiating this operation and we've already checked it
-      return links.declaredType as FunctionType;
-    }
-
-    const namespace = getParentNamespaceType(node);
-    compilerAssert(
-      namespace,
-      `Decorator ${node.id.sv} should have resolved a namespace or found the global namespace.`,
-    );
-    const name = node.id.sv;
-
-    if (!(node.modifierFlags & ModifierFlags.Extern)) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "function-extern", target: node }));
-    }
-
-    const implementation = symbol.value;
-    if (implementation === undefined) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
-    }
-    const functionType: FunctionType = createType({
-      kind: "Function",
-      name,
-      namespace,
-      node,
-      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper, true)),
-      returnType: node.returnType ? getTypeForNode(node.returnType, mapper) : unknownType,
-      implementation: implementation ?? (() => {}),
-    });
-
-    namespace.functionDeclarations.set(name, functionType);
-
-    linkType(links, functionType, mapper);
-
-    return functionType;
+  ) {
+    reportCheckerDiagnostic(createDiagnostic({ code: "function-unsupported", target: node }));
+    return errorType;
   }
 
   function checkFunctionParameter(
@@ -6075,17 +6037,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
     return clone;
-  }
-
-  function createFunctionType(fn: (...args: Type[]) => Type): FunctionType {
-    const parameters: MixedFunctionParameter[] = [];
-    return createType({
-      kind: "Function",
-      name: "",
-      parameters,
-      returnType: unknownType,
-      implementation: fn as any,
-    } as const);
   }
 
   function createLiteralType(

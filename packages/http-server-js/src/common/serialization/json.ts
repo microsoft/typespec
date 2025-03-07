@@ -261,7 +261,6 @@ function transposeExpressionToJson(
     case "StringTemplateSpan":
     case "Tuple":
     case "UnionVariant":
-    case "Function":
     case "Decorator":
     case "FunctionParameter":
     case "Object":
@@ -422,7 +421,6 @@ function transposeExpressionFromJson(
     case "StringTemplateSpan":
     case "Tuple":
     case "UnionVariant":
-    case "Function":
     case "Decorator":
     case "FunctionParameter":
     case "Object":

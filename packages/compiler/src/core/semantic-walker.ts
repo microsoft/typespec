@@ -427,7 +427,6 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
     case "ScalarConstructor":
       return navigateScalarConstructor(type, context);
     case "Object":
-    case "Function":
     case "FunctionParameter":
     case "Boolean":
     case "EnumMember":
@@ -510,8 +509,6 @@ const eventNames: Array<keyof SemanticNodeListener> = [
   "exitUnionVariant",
   "intrinsic",
   "exitIntrinsic",
-  "function",
-  "exitFunction",
   "object",
   "exitObject",
 ];

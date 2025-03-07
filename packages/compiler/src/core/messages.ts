@@ -537,6 +537,12 @@ const diagnostics = {
       default: "A function declaration must be prefixed with the 'extern' modifier.",
     },
   },
+  "function-unsupported": {
+    severity: "error",
+    messages: {
+      default: "Function are currently not supported.",
+    },
+  },
   "missing-implementation": {
     severity: "error",
     messages: {

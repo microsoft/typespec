@@ -425,7 +425,6 @@ export type {
   FunctionParameter,
   FunctionParameterBase,
   FunctionParameterNode,
-  FunctionType,
   IdentifierContext,
   IdentifierKind,
   IdentifierNode,

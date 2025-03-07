@@ -7,7 +7,6 @@ import {
   Decorator,
   DecoratorArgument,
   FunctionParameter,
-  FunctionType,
   IntrinsicType,
   Model,
   Namespace,
@@ -210,13 +209,7 @@ export enum MutatorFlow {
  */
 export type MutableType = Exclude<
   Type,
-  | TemplateParameter
-  | IntrinsicType
-  | FunctionType
-  | Decorator
-  | FunctionParameter
-  | ObjectType
-  | Namespace
+  TemplateParameter | IntrinsicType | Decorator | FunctionParameter | ObjectType | Namespace
 >;
 
 /**
@@ -228,7 +221,6 @@ function isMutableTypeWithNamespace(type: Type): type is MutableTypeWithNamespac
   switch (type.kind) {
     case "TemplateParameter":
     case "Intrinsic":
-    case "Function":
     case "Decorator":
     case "FunctionParameter":
     case "Object":
@@ -248,7 +240,6 @@ export function isMutableType(type: Type): type is MutableType {
   switch (type.kind) {
     case "TemplateParameter":
     case "Intrinsic":
-    case "Function":
     case "Decorator":
     case "FunctionParameter":
     case "Object":

@@ -198,7 +198,6 @@ defineKit<TypekitExtension>({
             unions: copyMap(type.unions as any),
             operations: copyMap(type.operations as any),
             interfaces: copyMap(type.interfaces as any),
-            functionDeclarations: copyMap(type.functionDeclarations as any),
             namespaces: copyMap(type.namespaces as any),
             scalars: copyMap(type.scalars as any),
           });
