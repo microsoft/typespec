@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import logger from "../log/logger.js";
 import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
 import { TspLanguageClient } from "../tsp-language-client.js";
-import { TraverseMainTspFileInWorkspace } from "../typespec-utils.js";
+import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../typespec-utils.js";
 import { createTempDir, parseJsonFromFile, throttle } from "../utils.js";
 
 const TITLE = "Preview in OpenAPI3";
@@ -27,7 +27,9 @@ export async function showOpenApi3(
     return;
   }
 
-  const mainTspFile = selectedFile.endsWith("main.tsp") ? selectedFile : await getMainTspFile();
+  // TODO: need to support `exports`, also we should unify the logic of finding the entrypoint file
+  // for both emitting codes and openapi3 preview
+  const mainTspFile = (await getEntrypointTspFile(selectedFile)) ?? (await getMainTspFile());
   if (mainTspFile === undefined) {
     logger.error(`No 'main.tsp' file can be determined from '${selectedFile}' in workspace.`, [], {
       showOutput: true,
