@@ -24,10 +24,12 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
   }
 
   const name = ts.useTSNamePolicy().getName(originalName, "type");
-  return <ts.TypeDeclaration {...props} name={name}  refkey={props.refkey ?? getRefkey(props.type)}>
-    <TypeExpression type={props.type} />
-    {props.children}
-  </ts.TypeDeclaration>;
+  return (
+    <ts.TypeDeclaration {...props} name={name} refkey={props.refkey ?? getRefkey(props.type)}>
+      <TypeExpression type={props.type} />
+      {props.children}
+    </ts.TypeDeclaration>
+  );
 }
 
 function isTypedAliasDeclarationProps(

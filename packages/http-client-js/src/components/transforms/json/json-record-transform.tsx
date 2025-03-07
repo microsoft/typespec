@@ -27,7 +27,7 @@ export function JsonRecordTransform(props: JsonRecordTransformProps) {
     const _transformedRecord: any = {};
 
     for (const [key, value] of Object.entries(${props.itemRef} ?? {})) {
-      const transformedItem = ${<JsonTransform type={elementType} target={props.target} itemRef="value as any" />};
+      const transformedItem = ${(<JsonTransform type={elementType} target={props.target} itemRef="value as any" />)};
       _transformedRecord[key] = transformedItem;
     }
 
@@ -72,7 +72,8 @@ export function JsonRecordTransformDeclaration(props: JsonRecordTransformDeclara
   };
 
   const declarationRefkey = getJsonRecordTransformRefkey(props.type, props.target);
-  return <ts.FunctionDeclaration
+  return (
+    <ts.FunctionDeclaration
       name={transformName}
       export
       returnType={returnType}
@@ -80,5 +81,6 @@ export function JsonRecordTransformDeclaration(props: JsonRecordTransformDeclara
       refkey={declarationRefkey}
     >
       <JsonRecordTransform {...props} itemRef={inputRef} />
-    </ts.FunctionDeclaration>;
+    </ts.FunctionDeclaration>
+  );
 }

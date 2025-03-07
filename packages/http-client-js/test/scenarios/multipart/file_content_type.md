@@ -28,24 +28,20 @@ export async function imageJpegContentType(
   options?: ImageJpegContentTypeOptions,
 ): Promise<void> {
   const path = parse("/check-filename-and-specific-content-type-with-httppart").expand({});
-
   const httpRequestOptions = {
     headers: {
       "content-type": options?.contentType ?? "multipart/form-data",
     },
     body: [createFilePartDescriptor("profileImage", body.profileImage, "image/jpg")],
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -59,7 +55,6 @@ export function jsonFileWithHttpPartSpecificContentTypeRequestToApplicationTrans
   if (!input_) {
     return input_ as any;
   }
-
   return {
     profileImage: jsonFileSpecificContentTypeToApplicationTransform(input_.profileImage),
   }!;

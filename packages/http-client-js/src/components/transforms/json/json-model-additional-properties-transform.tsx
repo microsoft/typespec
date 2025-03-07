@@ -19,10 +19,14 @@ export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertie
 
   if (props.target === "application") {
     const properties = $.model.getProperties(props.type, { includeExtended: true });
-    const destructuredProperties = ay.mapJoin(properties, (name) => name, {
-      joiner: ",",
-      ender: ",",
-    });
+    const destructuredProperties = ay.mapJoin(
+      () => properties,
+      (name) => name,
+      {
+        joiner: ",",
+        ender: ",",
+      },
+    );
 
     // Inline destructuring that extracts the properties and passes the rest to jsonRecordUnknownToApplicationTransform_2
     const inlineDestructure = ay.code`
@@ -31,17 +35,18 @@ export function JsonAdditionalPropertiesTransform(props: JsonAdditionalPropertie
     ),
     `;
 
-    return <>
-      <ts.ObjectProperty name="additionalProperties">
-        {inlineDestructure}
-      </ts.ObjectProperty>
-    </>;
+    return (
+      <>
+        <ts.ObjectProperty name="additionalProperties">{inlineDestructure}</ts.ObjectProperty>
+      </>
+    );
   }
 
   const itemRef = ay.code`${props.itemRef}.additionalProperties`;
 
-  return <>
-          ...({getJsonRecordTransformRefkey(additionalProperties, props.target)}({itemRef})
-          ),
-  </>;
+  return (
+    <>
+      ...({getJsonRecordTransformRefkey(additionalProperties, props.target)}({itemRef}) ),
+    </>
+  );
 }
