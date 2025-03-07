@@ -186,7 +186,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       }
     }
 
-    const stdScalarNames = getStdScalarNames(schemaMembers);
+    const stdScalarTypes = getStdScalarTypes(schemaMembers);
     const wrapWithObjectBuilder = (
       schemaMember: UnionSchemaMember,
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
@@ -220,7 +220,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
             const stdScalar = $.scalar.getStdBase(type);
             if (stdScalar?.name) {
               // already has same std scalar member, use $ref
-              if (stdScalarNames.has(stdScalar.name) && "$ref" in schema) {
+              if (stdScalarTypes.has(stdScalar) && "$ref" in schema) {
                 objectInitializer = { $ref: schema.$ref };
               } else {
                 const stdSchema = this.getSchemaForStdScalars(
@@ -303,15 +303,15 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       type: Type | null;
     }
 
-    function getStdScalarNames(scalarMembers: UnionSchemaMember[]): Set<string> {
-      const stdScalarNames = new Set<string>();
+    function getStdScalarTypes(scalarMembers: UnionSchemaMember[]): Set<Type> {
+      const stdScalarTypes = new Set<Type>();
       for (const member of scalarMembers) {
         if (member.type?.kind === "Scalar") {
-          const stdScalarName = $.scalar.getStdBase(member.type)?.name;
-          if (member.type.name === stdScalarName) stdScalarNames.add(stdScalarName);
+          const type = $.scalar.getStdBase(member.type);
+          if (member.type === type) stdScalarTypes.add(type);
         }
       }
-      return stdScalarNames;
+      return stdScalarTypes;
     }
 
     function createNullSchema() {
