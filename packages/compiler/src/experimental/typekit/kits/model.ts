@@ -1,9 +1,9 @@
 import { getEffectiveModelType } from "../../../core/checker.js";
+import { ignoreDiagnostics } from "../../../core/diagnostics.js";
 import {
   DiscriminatedUnionLegacy,
   getDiscriminatedUnionFromInheritance,
 } from "../../../core/helpers/discriminator-utils.js";
-import { ignoreDiagnostics } from "../../../core/index.js";
 import { getDiscriminator } from "../../../core/intrinsic-type-state.js";
 import type {
   Model,

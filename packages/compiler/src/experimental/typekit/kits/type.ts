@@ -1,11 +1,6 @@
 import { ignoreDiagnostics } from "../../../core/diagnostics.js";
-import {
-  DiscriminatedUnion,
-  DiscriminatedUnionLegacy,
-  getDiscriminatedUnion,
-  getDiscriminatedUnionFromInheritance,
-} from "../../../core/helpers/discriminator-utils.js";
-import { getLocationContext} from "../../../core/helpers/location-context.js";
+import { getDiscriminatedUnion } from "../../../core/helpers/discriminator-utils.js";
+import { getLocationContext } from "../../../core/helpers/location-context.js";
 import {
   Discriminator,
   getDiscriminator,

@@ -1,5 +1,8 @@
 import { ignoreDiagnostics } from "../../../core/diagnostics.js";
-import { DiscriminatedUnion, getDiscriminatedUnion } from "../../../core/index.js";
+import {
+  DiscriminatedUnion,
+  getDiscriminatedUnion,
+} from "../../../core/helpers/discriminator-utils.js";
 import type { Type, Union, UnionVariant } from "../../../core/types.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
