@@ -192,7 +192,9 @@ export function createCompileService({
           if (isSeq(emitNode) && emitNode.srcToken?.type === "block-seq") {
             const found = emitNode.srcToken.items.find(
               (item) =>
-                item.value && "source" in item.value && item.value.source.includes(emitterName),
+                item.value &&
+                "source" in item.value &&
+                item.value.source.replace(/^['"]|['"]$/g, "") === emitterName,
             )?.value;
             if (found) {
               emitOffset = found.offset;
