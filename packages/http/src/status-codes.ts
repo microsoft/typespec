@@ -10,6 +10,7 @@ import {
   getMinValue,
   ignoreDiagnostics,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { createDiagnostic } from "./lib.js";
 import { HttpStatusCodeRange, HttpStatusCodes } from "./types.js";
 
@@ -120,7 +121,7 @@ function isInt32(program: Program, type: Type) {
     program.checker.isTypeAssignableTo(
       // eslint-disable-next-line @typescript-eslint/no-deprecated
       type.projectionBase ?? type,
-      program.checker.getStdType("int32"),
+      $.builtin.int32,
       type,
     ),
   );

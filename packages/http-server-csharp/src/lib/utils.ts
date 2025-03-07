@@ -555,11 +555,7 @@ export function ensureCSharpIdentifier(
       location = `union ${target.name}`;
       break;
     case "UnionVariant": {
-      if (target.node !== undefined) {
-        const parent = program.checker.getTypeForNode(target.node.parent!);
-        if (parent?.kind === "Union")
-          location = `variant ${String(target.name)} in union ${parent?.name}`;
-      }
+      location = `variant ${String(target.name)} in union ${target.union.name}`;
       break;
     }
   }

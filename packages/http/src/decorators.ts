@@ -18,7 +18,6 @@ import {
   isArrayModelType,
   reportDeprecated,
   typespecTypeToJson,
-  validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
@@ -780,15 +779,6 @@ export function $includeInapplicableMetadataInPayload(
   entity: Type,
   value: boolean,
 ) {
-  if (
-    !validateDecoratorTarget(context, entity, "@includeInapplicableMetadataInPayload", [
-      "Namespace",
-      "Model",
-      "ModelProperty",
-    ])
-  ) {
-    return;
-  }
   const state = context.program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayload);
   state.set(entity, value);
 }

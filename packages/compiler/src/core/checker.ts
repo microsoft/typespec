@@ -188,17 +188,25 @@ import {
 export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
 
 export interface Checker {
+  /** @internal */
   typePrototype: TypePrototype;
 
+  /** @internal */
   getTypeForNode(node: Node): Type;
 
-  // TODO: decide if we expose resolver and deprecate those marked with @internal @deprecated
+  /** @internal */
   checkProgram(): void;
+  /** @internal */
   checkSourceFile(file: TypeSpecScriptNode): void;
+  /** @internal */
   getGlobalNamespaceType(): Namespace;
+  /** @internal */
   getLiteralType(node: StringLiteralNode): StringLiteral;
+  /** @internal */
   getLiteralType(node: NumericLiteralNode): NumericLiteral;
+  /** @internal */
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
+  /** @internal */
   getLiteralType(node: LiteralNode): LiteralType;
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
   evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
@@ -207,7 +215,9 @@ export interface Checker {
     projection: ProjectionNode,
     args?: (Type | string | number | boolean)[],
   ): Type;
+  /** @internal */
   resolveRelatedSymbols(node: IdentifierNode): Sym[] | undefined;
+  /** @internal */
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
   createType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T,

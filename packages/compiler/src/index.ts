@@ -1,13 +1,10 @@
 export { resolveCompilerOptions, ResolveCompilerOptionsOptions } from "./config/index.js";
 export {
   Checker,
-  createChecker,
   CreateTypeProps,
+  // TODO: feels like all of those should move to a separate file
   filterModelProperties,
-  finishTypeForProgram,
   getEffectiveModelType,
-  getOverriddenProperty,
-  TypeSpecCompletionItem,
   walkPropertiesInherited,
 } from "./core/checker.js";
 export {
@@ -16,8 +13,10 @@ export {
   isTypeSpecValueTypeOf,
   typespecTypeToJson,
   validateDecoratorNotOnType,
-  validateDecoratorParamCount,
-  validateDecoratorTarget,
+  // TODO: decide what to do with those, dec should use extern dec instead
+  // if we remove, remove from decorator-utils too
+  // validateDecoratorParamCount,
+  // validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
   type DecoratorDefinition,
   type DecoratorParamDefinition,
@@ -41,7 +40,8 @@ export {
   getSourceLocation,
   ignoreDiagnostics,
   logDiagnostics,
-  logVerboseTestOutput,
+  // TODO: this feels internal and is only used in compiler
+  // logVerboseTestOutput,
   reportDeprecated,
   type DiagnosticCollector,
   type DiagnosticHandler,

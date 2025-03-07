@@ -2,7 +2,7 @@ import { Namespace, Program, Sym, SymbolFlags, SyntaxKind, Type } from "@typespe
 import { reportDiagnostic } from "./lib.js";
 
 export function $onValidate(program: Program) {
-  const root = program.checker!.getGlobalNamespaceType();
+  const root = program.getGlobalNamespaceType();
 
   validateNoExportAtRoot(program, root);
   validateDecoratorSignature(program);
