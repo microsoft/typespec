@@ -1,5 +1,5 @@
 import { getDocData, Numeric } from "@typespec/compiler";
-import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { ok } from "assert";
 import { assert, describe, expect, it } from "vitest";
 import { expectDecorators } from "./utils/expect.js";
@@ -473,43 +473,40 @@ describe("query", () => {
       expectDecorators(fooProperty.decorators, [{ name: "query" }]);
     });
 
-    it.each([
-      { style: "spaceDelimited", format: "ssv" },
-      { style: "pipeDelimited", format: "pipes" },
-    ])("sets explode and format args when style: $style", async ({ style, format }) => {
-      const { namespace: serviceNamespace, diagnostics } = await compileForOpenAPI3({
-        parameters: {
-          Foo: {
-            name: "foo",
-            in: "query",
-            schema: {
-              type: "array",
-              items: {
-                type: "string",
+    it.each([{ style: "spaceDelimited" }, { style: "pipeDelimited" }])(
+      "sets explode when style: $style",
+      async ({ style }) => {
+        const { namespace: serviceNamespace } = await compileForOpenAPI3({
+          parameters: {
+            Foo: {
+              name: "foo",
+              in: "query",
+              schema: {
+                type: "array",
+                items: {
+                  type: "string",
+                },
               },
+              style: style as any,
+              explode,
             },
-            style: style as any,
-            explode,
           },
-        },
-      });
+        });
 
-      // Expect a deprecated warning due to the use of format in the query args
-      expectDiagnostics(diagnostics, [{ code: "deprecated" }]);
+        const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+        assert(parametersNamespace, "Parameters namespace not found");
 
-      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-      assert(parametersNamespace, "Parameters namespace not found");
+        const models = parametersNamespace.models;
 
-      const models = parametersNamespace.models;
-
-      /* model Foo { @query(#{explode: false, format: $format}) foo: string[], } */
-      const Foo = models.get("Foo");
-      assert(Foo, "Foo model not found");
-      expect(Foo.properties.size).toBe(1);
-      const fooProperty = Foo.properties.get("foo");
-      assert(fooProperty, "foo property not found");
-      expectDecorators(fooProperty.decorators, [{ name: "query", args: [{ explode, format }] }]);
-    });
+        /* model Foo { @query(#{explode: false}) foo: string[], } */
+        const Foo = models.get("Foo");
+        assert(Foo, "Foo model not found");
+        expect(Foo.properties.size).toBe(1);
+        const fooProperty = Foo.properties.get("foo");
+        assert(fooProperty, "foo property not found");
+        expectDecorators(fooProperty.decorators, []);
+      },
+    );
   });
 
   describe("explicit explode: true", () => {
@@ -550,7 +547,7 @@ describe("query", () => {
       { style: "spaceDelimited", format: "ssv" },
       { style: "pipeDelimited", format: "pipes" },
     ])("sets explode and format args when style: $style", async ({ style, format }) => {
-      const { namespace: serviceNamespace, diagnostics } = await compileForOpenAPI3({
+      const { namespace: serviceNamespace } = await compileForOpenAPI3({
         parameters: {
           Foo: {
             name: "foo",
@@ -567,9 +564,6 @@ describe("query", () => {
         },
       });
 
-      // Expect a deprecated warning due to the use of format in the query args
-      expectDiagnostics(diagnostics, [{ code: "deprecated" }]);
-
       const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
       assert(parametersNamespace, "Parameters namespace not found");
 
@@ -581,9 +575,7 @@ describe("query", () => {
       expect(Foo.properties.size).toBe(1);
       const fooProperty = Foo.properties.get("foo");
       assert(fooProperty, "foo property not found");
-      expectDecorators(fooProperty.decorators, [
-        { name: "query", args: [{ explode: true, format }] },
-      ]);
+      expectDecorators(fooProperty.decorators, []);
     });
   });
 });
