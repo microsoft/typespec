@@ -13,7 +13,6 @@ import {
   isArrayModelType,
   navigateType,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes } from "./content-types.js";
 import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
@@ -501,12 +500,7 @@ function resolveDefaultContentTypeForPart(program: Program, type: Type): string[
 
       if (
         ignoreDiagnostics(
-          program.checker.isTypeAssignableTo(
-            // eslint-disable-next-line @typescript-eslint/no-deprecated
-            type.projectionBase ?? type,
-            $.builtin.bytes,
-            type,
-          ),
+          program.checker.isTypeAssignableTo(type, program.checker.getStdType("bytes"), type),
         )
       ) {
         return ["application/octet-stream"];

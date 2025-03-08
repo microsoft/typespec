@@ -38,10 +38,8 @@ export function jsonWidgetToTransportTransform(input_?: Widget | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonRecordStringToTransportTransform(input_.additionalProperties),
-
     name: input_.name,
     age: input_.age,
     optional: input_.optional,
@@ -58,12 +56,10 @@ export function jsonWidgetToApplicationTransform(input_?: any): Widget {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     additionalProperties: jsonRecordStringToApplicationTransform(
       (({ name, age, optional, ...rest }) => rest)(input_),
     ),
-
     name: input_.name,
     age: input_.age,
     optional: input_.optional,

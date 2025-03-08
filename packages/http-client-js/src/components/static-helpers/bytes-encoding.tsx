@@ -9,14 +9,25 @@ export function EncodeUint8Array(): ay.Children {
   const valueRef = ay.refkey();
   const encodingRef = ay.refkey();
   const refkey = getEncodeUint8ArrayRef();
-  return <ts.FunctionDeclaration export refkey={refkey} name="encodeUint8Array" parameters={{value: {type: "Uint8Array | undefined | null", refkey: valueRef,}, encoding: {type: "BufferEncoding", refkey: encodingRef}}} returnType="string | undefined">
-   {ay.code`
+  return (
+    <ts.FunctionDeclaration
+      export
+      refkey={refkey}
+      name="encodeUint8Array"
+      parameters={{
+        value: { type: "Uint8Array | undefined | null", refkey: valueRef },
+        encoding: { type: "BufferEncoding", refkey: encodingRef },
+      }}
+      returnType="string | undefined"
+    >
+      {ay.code`
       if (!${valueRef}) {
         return ${valueRef} as any;
       }
       return Buffer.from(${valueRef}).toString(${encodingRef});
-   `} 
-  </ts.FunctionDeclaration>;
+   `}
+    </ts.FunctionDeclaration>
+  );
 }
 
 export function getDecodeUint8ArrayRef(): ay.Refkey {
@@ -25,8 +36,15 @@ export function getDecodeUint8ArrayRef(): ay.Refkey {
 export function DecodeBase64(): ay.Children {
   const refkey = getDecodeUint8ArrayRef();
   const valueRef = ay.refkey();
-  return <ts.FunctionDeclaration export name="decodeBase64"  parameters={{value: {type: "string", refkey: valueRef}}} returnType="Uint8Array | undefined"  refkey={refkey}>
-    {ay.code` 
+  return (
+    <ts.FunctionDeclaration
+      export
+      name="decodeBase64"
+      parameters={{ value: { type: "string", refkey: valueRef } }}
+      returnType="Uint8Array | undefined"
+      refkey={refkey}
+    >
+      {ay.code` 
       if(!${valueRef}) {
         return ${valueRef} as any;
       }
@@ -36,6 +54,6 @@ export function DecodeBase64(): ay.Children {
       
       return new Uint8Array(Buffer.from(base64, 'base64'));
     `}
-
-  </ts.FunctionDeclaration>;
+    </ts.FunctionDeclaration>
+  );
 }

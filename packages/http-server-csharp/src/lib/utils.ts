@@ -112,8 +112,6 @@ export function getCSharpType(
       else return { type: standardScalars.get("numeric")!, value: new NumericValue(enumValue) };
     case "Intrinsic":
       return getCSharpTypeForIntrinsic(program, type);
-    case "Object":
-      return { type: UnknownType };
     case "ModelProperty":
       return getCSharpType(program, type.type, namespace);
     case "Scalar":
@@ -1275,8 +1273,6 @@ export class CSharpOperationHelpers {
           defaultValue: `[${defaults.join(", ")}]`,
           nullableType: csharpType.isNullable,
         };
-      case "Object":
-        return { typeReference: code`object`, defaultValue: undefined, nullableType: false };
       case "Model":
         let modelResult: EmittedTypeInfo;
         const cachedResult = this.#anonymousModels.get(tsType);
