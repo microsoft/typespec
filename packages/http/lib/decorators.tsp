@@ -21,12 +21,6 @@ model HeaderOptions {
    *
    */
   explode?: boolean;
-
-  /**
-   * Determines the format of the array if type array is used.
-   * **DEPRECATED**: use explode: true instead of `csv` or `@encode`
-   */
-  format?: "csv" | "multi" | "tsv" | "ssv" | "pipes" | "simple" | "form";
 }
 
 /**
@@ -103,12 +97,6 @@ model QueryOptions {
    *
    */
   explode?: boolean;
-
-  /**
-   * Determines the format of the array if type array is used.
-   * **DEPRECATED**: use explode: true instead of `multi` or `@encode`
-   */
-  format?: "multi" | "csv" | "ssv" | "tsv" | "simple" | "form" | "pipes";
 }
 
 /**
@@ -400,7 +388,6 @@ extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof 
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
  * @param uriTemplate Uri template for this operation.
- * @param options _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
  *
  * @example Simple path parameter
  *
@@ -419,13 +406,7 @@ extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof 
  * @route("/files{?select,filter}") op listFullUriTemplate(select?: string, filter?: string): Files[];
  * ```
  */
-extern dec route(
-  target: Namespace | Interface | Operation,
-  path: valueof string,
-  options?: {
-    shared?: boolean,
-  }
-);
+extern dec route(target: Namespace | Interface | Operation, path: valueof string);
 
 /**
  * `@sharedRoute` marks the operation as sharing a route path with other operations.
