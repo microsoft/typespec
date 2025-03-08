@@ -15,12 +15,13 @@ import {
   NodeFlags,
   ResolutionResult,
   ResolutionResultFlags,
+  Sym,
   SymbolFlags,
   SymbolLinks,
   SyntaxKind,
   TypeReferenceNode,
 } from "../src/core/types.js";
-import { createSourceFile, Program, Sym } from "../src/index.js";
+import { createSourceFile, Program } from "../src/index.js";
 
 let binder: Binder;
 let resolver: ReturnType<typeof createResolver>;

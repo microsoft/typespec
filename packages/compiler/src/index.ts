@@ -296,7 +296,6 @@ export {
 } from "./core/semantic-walker.js";
 export { createSourceFile, getSourceFileKindFromExt } from "./core/source-file.js";
 export {
-  getFullyQualifiedSymbolName,
   getParentTemplateNode,
   isArrayModelType,
   isDeclaredInNamespace,
@@ -314,14 +313,7 @@ export {
   isValue,
   isVoidType,
 } from "./core/type-utils.js";
-export {
-  ListenerFlow,
-  NodeFlags,
-  NoTarget,
-  ResolutionResultFlags,
-  SymbolFlags,
-  SyntaxKind,
-} from "./core/types.js";
+export { ListenerFlow, NodeFlags, NoTarget, SyntaxKind } from "./core/types.js";
 export type {
   AliasStatementNode,
   AnyKeywordNode,
@@ -447,8 +439,6 @@ export type {
   MemberExpressionNode,
   MemberNode,
   MemberType,
-  MetaMemberKey,
-  MetaMembersTable,
   MixedFunctionParameter,
   MixedParameterConstraint,
   Model,
@@ -461,14 +451,11 @@ export type {
   Modifier,
   ModifierFlags,
   ModuleLibraryMetadata,
-  MutableSymbolTable,
   Namespace,
   NamespaceStatementNode,
   NeverIndexer,
   NeverKeywordNode,
   NeverType,
-  Node,
-  NodeLinks,
   NullType,
   NullValue,
   NumericLiteral,
@@ -493,7 +480,6 @@ export type {
   ReferenceExpression,
   RekeyableMap,
   ReplaceTextCodeFixEdit,
-  ResolutionResult,
   RmOptions,
   RuleRef,
   Scalar,
@@ -526,9 +512,6 @@ export type {
   StringTemplateTailNode,
   StringValue,
   SuppressDirective,
-  Sym,
-  SymbolLinks,
-  SymbolTable,
   SyntheticLocationContext,
   TemplateableNode,
   TemplateArgumentNode,

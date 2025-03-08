@@ -1,4 +1,4 @@
-import { Namespace, Program, Sym, SymbolFlags, SyntaxKind, Type } from "@typespec/compiler";
+import { Namespace, Program, SyntaxKind, Type } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
 
 export function $onValidate(program: Program) {
@@ -24,29 +24,22 @@ function validateNoExportAtRoot(program: Program, root: Namespace) {
   validateFor(root.operations);
   validateFor(root.unions);
 
-  for (const [name, sym] of root.node.symbol.exports?.entries() ?? []) {
-    if (sym.flags & SymbolFlags.Decorator) {
-      reportDiagnostic(program, {
-        code: "missing-namespace",
-        format: { type: "Decorator", name },
-        target: sym,
-      });
-    } else if (sym.flags & SymbolFlags.Function) {
-      reportDiagnostic(program, {
-        code: "missing-namespace",
-        format: { type: "Function", name },
-        target: sym,
-      });
-    }
+  for (const [name, dec] of root.decoratorDeclarations) {
+    reportDiagnostic(program, {
+      code: "missing-namespace",
+      format: { type: "Decorator", name },
+      target: dec,
+    });
   }
 }
 
 const excludeDecoratorSignature = new Set(["@docFromComment", "@indexer", "@test"]);
 function validateDecoratorSignature(program: Program) {
-  function navigate(sym: Sym) {
-    if (sym.flags & SymbolFlags.Decorator) {
+  function navigate(sym: any) {
+    // SymbolFlags.Decorator = 1 << 9
+    if (sym.flags & (1 << 9)) {
       const hasSignature = sym.declarations.some(
-        (x) => x.kind === SyntaxKind.DecoratorDeclarationStatement,
+        (x: any) => x.kind === SyntaxKind.DecoratorDeclarationStatement,
       );
       if (!hasSignature && !excludeDecoratorSignature.has(sym.name)) {
         reportDiagnostic(program, {
@@ -60,7 +53,8 @@ function validateDecoratorSignature(program: Program) {
       navigate(exp);
     }
   }
+
   for (const jsFile of program.jsSourceFiles.values()) {
-    navigate(jsFile.symbol);
+    navigate((jsFile as any).symbol);
   }
 }

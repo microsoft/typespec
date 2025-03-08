@@ -27,7 +27,7 @@ Stop exposing APIs that were not meant for external users. Please file issue if 
 - `validateDecoratorParamCount`: Same as above
 - `altDirectorySeparator`: Internal path utils
 - `directorySeparator`: Internal path utils
-- `getFullyQualifiedSymbolName` Symbols are an internal piece of the compiler
+- `getFullyQualifiedSymbolName` Symbols are an internal aspect of the compiler
 - Scanner related APIs:
   - `createScanner`
   - `isComment`
@@ -45,3 +45,14 @@ Stop exposing APIs that were not meant for external users. Please file issue if 
   - `type`DocToken,
   - `type`Scanner,
   - `type`StringTemplateToken,
+- Types
+  - `Sym` Symbols are an internal aspect of the compiler 
+  - `SymbolLinks` Symbols are an internal aspect of the compiler 
+  - `SymbolTable` Symbols are an internal aspect of the compiler 
+  - `SymbolFlags` Symbols are an internal aspect of the compiler 
+  - `MutableSymbolTable` Symbols are an internal aspect of the compiler 
+  - `ResolutionResult` Internal type used in non exposed resolver 
+  - `NodeLinks` Internal type used in non exposed resolver 
+  - `ResolutionResultFlags` Internal type used in non exposed resolver 
+  - `MetaMemberKey` Unused type
+  - `MetaMembersTable` Unused type
