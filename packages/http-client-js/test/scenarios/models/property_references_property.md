@@ -38,7 +38,6 @@ export function jsonBarToTransportTransform(input_?: Bar | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     address: input_.address,
     parentId: input_.parentId,
@@ -114,23 +113,19 @@ export function dateUnixTimestampDeserializer(date?: number | null): Date {
 
   return new Date(date * 1000);
 }
-
 export function jsonBarToTransportTransform(input_?: Bar | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     address: input_.address,
     parentId: input_.parentId,
   }!;
 }
-
 export function jsonBarToApplicationTransform(input_?: any): Bar {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     address: input_.address,
     parentId: input_.parentId,
@@ -147,7 +142,6 @@ export function jsonBarToApplicationTransform(input_?: any): Bar {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     address: input_.address,
     parentId: input_.parentId,
