@@ -3,7 +3,6 @@
 
 import { compilerAssert } from "../diagnostics.js";
 import type { Program } from "../program.js";
-import { isProjectedProgram } from "../projected-program.js";
 import type { Enum } from "../types.js";
 
 /**
@@ -31,20 +30,7 @@ export function getLifecycleVisibilityEnum(program: Program): Enum {
 
   compilerAssert(type!.kind === "Enum", "Expected `TypeSpec.Visibility.Lifecycle` to be an enum");
 
-  if (isProjectedProgram(program)) {
-    const projectedType = program.projector.projectType(type);
+  LIFECYCLE_ENUM_CACHE.set(program, type);
 
-    compilerAssert(
-      projectedType.entityKind === "Type" && projectedType.kind === "Enum",
-      "Expected `TypeSpec.Visibility.Lifecycle` to be an Enum (projected)",
-    );
-
-    LIFECYCLE_ENUM_CACHE.set(program, projectedType);
-
-    return projectedType;
-  } else {
-    LIFECYCLE_ENUM_CACHE.set(program, type);
-
-    return type;
-  }
+  return type;
 }

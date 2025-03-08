@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 /**
  * The name resolver is responsible for resolving identifiers to symbols and
  * creating symbols for types that become known during this process. After name
@@ -81,8 +80,6 @@ import {
   NodeFlags,
   NodeLinks,
   OperationStatementNode,
-  ProjectionDecoratorReferenceExpressionNode,
-  ProjectionStatementNode,
   ResolutionResult,
   ResolutionResultFlags,
   ScalarStatementNode,
@@ -1243,7 +1240,6 @@ export function createResolver(program: Program): NameResolver {
         bindTemplateParameter(node);
         break;
       case SyntaxKind.DecoratorExpression:
-      case SyntaxKind.ProjectionDecoratorReferenceExpression:
         resolveDecoratorTarget(node);
         break;
       case SyntaxKind.AugmentDecoratorStatement:
@@ -1252,8 +1248,6 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.CallExpression:
         resolveTypeReference(node.target);
         break;
-      case SyntaxKind.ProjectionStatement:
-        resolveProjection(node);
         break;
     }
 
@@ -1264,19 +1258,8 @@ export function createResolver(program: Program): NameResolver {
     visitChildren(node, bindAndResolveNode);
   }
 
-  function resolveProjection(projection: ProjectionStatementNode) {
-    switch (projection.selector.kind) {
-      case SyntaxKind.Identifier:
-      case SyntaxKind.MemberExpression:
-        resolveTypeReference(projection.selector);
-    }
-  }
-
   function resolveDecoratorTarget(
-    decorator:
-      | DecoratorExpressionNode
-      | AugmentDecoratorStatementNode
-      | ProjectionDecoratorReferenceExpressionNode,
+    decorator: DecoratorExpressionNode | AugmentDecoratorStatementNode,
   ) {
     resolveTypeReference(decorator.target, { resolveDecorators: true });
   }
