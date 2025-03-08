@@ -456,6 +456,7 @@ export type {
   NeverIndexer,
   NeverKeywordNode,
   NeverType,
+  Node,
   NullType,
   NullValue,
   NumericLiteral,
