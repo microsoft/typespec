@@ -27,7 +27,7 @@ function validateNoExportAtRoot(program: Program, root: Namespace) {
   for (const [name, dec] of root.decoratorDeclarations) {
     reportDiagnostic(program, {
       code: "missing-namespace",
-      format: { type: "Decorator", name },
+      format: { type: "Decorator", name: `@${name}` },
       target: dec,
     });
   }
