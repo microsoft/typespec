@@ -3,6 +3,7 @@ import isUnicodeSupported from "is-unicode-supported";
 import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
+import { getRelativePathFromDirectory } from "../path-utils.js";
 import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
 import { supportsHyperlink } from "./support-hyperlinks.js";
 
@@ -12,7 +13,10 @@ export interface FormatLogOptions {
   excludeLogLevel?: boolean;
 }
 
-export interface ConsoleSinkOptions extends FormatLogOptions {}
+export interface ConsoleSinkOptions extends FormatLogOptions {
+  /** @internal */
+  trackAction?: boolean;
+}
 
 export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
   function log(data: ProcessedLog) {
@@ -27,8 +31,13 @@ export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
 
   return {
     log,
-    trackAction: (message, finalMessage, action) =>
-      trackAction(message, finalMessage, action, options),
+    getPath: (path) =>
+      options.pathRelativeTo
+        ? getRelativePathFromDirectory(options.pathRelativeTo, path, false)
+        : path,
+    trackAction: options.trackAction
+      ? (message, finalMessage, action) => trackAction(message, finalMessage, action, options)
+      : undefined,
   };
 }
 
@@ -80,7 +89,7 @@ function formatLevel(options: FormatLogOptions, level: LogLevel) {
 function formatSourceLocation(options: FormatLogOptions, location: SourceLocation) {
   const postition = getLineAndColumn(location);
   const prePath = options.pathRelativeTo
-    ? relative(process.cwd(), location.file.path)
+    ? relative(options.pathRelativeTo, location.file.path)
     : location.file.path;
 
   const path = color(options, prePath, pc.cyan);

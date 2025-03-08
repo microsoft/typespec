@@ -2499,6 +2499,10 @@ export interface RelatedSourceLocation {
 
 export interface LogSink {
   log(log: ProcessedLog): void;
+
+  /** @internal */
+  getPath?(path: string): string;
+
   /**
    * @internal
    */
@@ -2510,6 +2514,8 @@ export interface Logger {
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
+
+  /** @internal */
   trackAction<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
 }
 
