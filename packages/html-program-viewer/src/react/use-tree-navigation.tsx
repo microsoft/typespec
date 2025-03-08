@@ -94,7 +94,7 @@ function computeReferences(node: TypeGraphNode): {
 }
 
 function computeTree(program: Program): TypeGraphListNode {
-  const root = program.checker!.getGlobalNamespaceType();
+  const root = program.getGlobalNamespaceType();
 
   const namespaces = expandNamespaces(root);
 
