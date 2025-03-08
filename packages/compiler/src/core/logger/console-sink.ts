@@ -4,7 +4,7 @@ import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
 import { getRelativePathFromDirectory } from "../path-utils.js";
-import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
+import { LogLevel, LogSink, ProcessedLog, SourceLocation, TrackActionTask } from "../types.js";
 import { supportsHyperlink } from "./support-hyperlinks.js";
 
 export interface FormatLogOptions {
@@ -147,12 +147,31 @@ function getLineAndColumn(location: SourceLocation): RealLocation {
   return result;
 }
 
+type ActionStatus = "pending" | "success" | "failed" | "warn";
+
 export async function trackAction<T>(
   message: string,
   finalMessage: string,
-  asyncAction: () => Promise<T>,
+  asyncAction: (task: TrackActionTask) => Promise<T>,
   options: FormatLogOptions,
 ): Promise<T> {
+  const task = {
+    message,
+    status: "pending" as ActionStatus,
+    fail(message?: string) {
+      if (message) {
+        task.message = message;
+      }
+      task.status = "failed";
+    },
+    warn(message?: string) {
+      if (message) {
+        task.message = message;
+      }
+      task.status = "warn";
+    },
+  };
+
   const isTTY = process.stdout?.isTTY && !process.env.CI;
   let interval;
   if (isTTY) {
@@ -161,7 +180,7 @@ export async function trackAction<T>(
     interval = setInterval(() => {
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`\r${color(options, spinner(), pc.yellow)} ${message}`);
+      process.stdout.write(`\r${color(options, spinner(), pc.yellow)} ${task.message}`);
     }, 200);
   } else {
     // eslint-disable-next-line no-console
@@ -169,13 +188,25 @@ export async function trackAction<T>(
   }
 
   try {
-    const result = await asyncAction();
+    const result = await asyncAction(task);
     if (interval) {
       clearInterval(interval);
       clearLastLine();
     }
-    // eslint-disable-next-line no-console
-    console.log(`${color(options, "✔", pc.green)} ${finalMessage}`);
+
+    switch (task.status) {
+      case "failed":
+        // eslint-disable-next-line no-console
+        console.log(`${color(options, "x", pc.red)} ${task.message}`);
+        break;
+      case "warn":
+        // eslint-disable-next-line no-console
+        console.log(`${color(options, "⚠", pc.yellow)} ${finalMessage}`);
+        break;
+      default:
+        // eslint-disable-next-line no-console
+        console.log(`${color(options, "✔", pc.green)} ${finalMessage}`);
+    }
     return result;
   } catch (error) {
     if (interval) {
@@ -184,7 +215,7 @@ export async function trackAction<T>(
     }
 
     // eslint-disable-next-line no-console
-    console.log(`${color(options, "x", pc.red)} ${message}`);
+    console.log(`${color(options, "x", pc.red)} ${task.message}`);
     throw error;
   }
 }

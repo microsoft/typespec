@@ -139,8 +139,18 @@ export async function compile(
   oldProgram?: Program, // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ) {
   const logger = createLogger({ sink: host.logSink });
-  const { program, shouldAbort } = await logger.trackAction("Compiling...", "Compiling", () =>
-    createProgram(host, mainFile, options, oldProgram),
+  const { program, shouldAbort } = await logger.trackAction(
+    "Compiling...",
+    "Compiling",
+    async (task) => {
+      const result = await createProgram(host, mainFile, options, oldProgram);
+      if (result.program.hasError()) {
+        task.fail();
+      } else if (result.program.diagnostics.length > 0) {
+        task.warn();
+      }
+      return result;
+    },
   );
 
   if (shouldAbort) {
@@ -893,11 +903,23 @@ async function emit(emitter: EmitterRef, program: Program) {
   const relativePathForEmittedFiles =
     transformPathForSink(program.host.logSink, emitter.emitterOutputDir) + "/";
 
+  const errorCount = program.diagnostics.filter((x) => x.severity === "error").length;
+  const warnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
   const logger = createLogger({ sink: program.host.logSink });
   await logger.trackAction(
     `Running ${emitterName}...`,
     `${emitterName}    ${pc.dim(relativePathForEmittedFiles)}`,
-    () => runEmitter(emitter, program),
+    async (task) => {
+      await runEmitter(emitter, program);
+
+      const newErrorCount = program.diagnostics.filter((x) => x.severity === "error").length;
+      const newWarnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
+      if (newErrorCount > errorCount) {
+        task.fail();
+      } else if (newWarnCount > warnCount) {
+        task.warn();
+      }
+    },
   );
 }
 

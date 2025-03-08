@@ -31,7 +31,9 @@ export function createLogger(options: LoggerOptions): Logger {
     warn: (message) => log({ level: "warning", message }),
     error: (message) => log({ level: "error", message }),
     trackAction: async (message, finalMessage, action) =>
-      config.sink.trackAction ? config.sink.trackAction(message, finalMessage, action) : action(),
+      config.sink.trackAction
+        ? config.sink.trackAction(message, finalMessage, action)
+        : action({ message: "", fail() {}, warn() {} }),
   };
 }
 

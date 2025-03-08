@@ -2497,6 +2497,13 @@ export interface RelatedSourceLocation {
   readonly location: SourceLocation;
 }
 
+/** @internal */
+export interface TrackActionTask {
+  message: string;
+  fail(message?: string): void;
+  warn(message?: string): void;
+}
+
 export interface LogSink {
   log(log: ProcessedLog): void;
 
@@ -2506,7 +2513,11 @@ export interface LogSink {
   /**
    * @internal
    */
-  trackAction?<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
+  trackAction?<T>(
+    message: string,
+    finalMessage: string,
+    asyncAction: (task: TrackActionTask) => Promise<T>,
+  ): Promise<T>;
 }
 
 export interface Logger {
@@ -2516,7 +2527,11 @@ export interface Logger {
   log(log: LogInfo): void;
 
   /** @internal */
-  trackAction<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
+  trackAction<T>(
+    message: string,
+    finalMessage: string,
+    asyncAction: (task: TrackActionTask) => Promise<T>,
+  ): Promise<T>;
 }
 
 export interface TracerOptions {
