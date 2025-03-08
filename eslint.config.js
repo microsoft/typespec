@@ -152,6 +152,7 @@ export default tsEslint.config(
       "packages/http-client-js/sample/output/**/*", // Ignore the generated http client
       "**/venv/**/*", // Ignore python virtual env
       "**/.vscode-test-web/**/*", // Ignore VSCode test web project
+      "packages/typespec-vscode/swagger-ui/swagger-ui*", // Ignore swagger-ui-dist files
       // TODO: enable
       "**/.scripts/**/*",
       "eng/tsp-core/scripts/**/*",
