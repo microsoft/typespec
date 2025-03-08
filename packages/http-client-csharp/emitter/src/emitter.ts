@@ -56,13 +56,11 @@ function findProjectRoot(path: string): string | undefined {
  */
 export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const program: Program = context.program;
-  const options = resolveOptions(context);
-  const outputFolder = _resolveOutputFolder(context);
-
-  /* set the log level. */
-  const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
-
   if (!program.compilerOptions.noEmit && !program.hasError()) {
+    const options = resolveOptions(context);
+    /* set the log level. */
+    const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
+    
     // Write out the dotnet model to the output path
     const sdkContext = {
       ...(await createSdkContext(
@@ -83,6 +81,22 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
     const root = createModel(sdkContext);
 
     if (root) {
+      emit(options, logger, sdkContext, context, root);
+    }
+  }
+}
+
+/**
+ * Emit the code model. This function is used if the sub-plugin needs to manipulate the code model.
+ * @param options - The emitter options
+ * @param logger - The logger
+ * @param sdkContext - The SDK context
+ * @param context - The emit context
+ * @param root - The code model
+ * @beta
+ */
+export async function emit(options: any, logger: Logger, sdkContext: CSharpEmitterContext, context: EmitContext<CSharpEmitterOptions>, root: CodeModel) {
+  const outputFolder = _resolveOutputFolder(context);
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {
@@ -102,7 +116,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       };
 
       //emit configuration.json
-      await program.host.writeFile(
+      await context.program.host.writeFile(
         resolvePath(outputFolder, configurationFileName),
         prettierOutput(JSON.stringify(configurations, null, 2)),
       );
@@ -147,8 +161,6 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
         context.program.host.rm(resolvePath(outputFolder, configurationFileName));
       }
-    }
-  }
 }
 
 /**
