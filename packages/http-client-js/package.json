@@ -67,7 +67,6 @@
     "@vitest/ui": "^3.0.7",
     "picocolors": "~1.1.1",
     "concurrently": "^9.1.2",
-    "dotenv": "^16.4.7",
     "execa": "^9.5.2",
     "fs-extra": "^11.2.0",
     "globby": "~14.1.0",
