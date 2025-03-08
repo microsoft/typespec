@@ -3,12 +3,15 @@ import {
   type InitProjectTemplate,
   type InitProjectTemplateEmitterTemplate,
 } from "@typespec/compiler";
-import { NodeSystemHost, scaffoldNewProject } from "@typespec/compiler/internals/init";
+import {
+  InitTemplateSchema,
+  NodeSystemHost,
+  scaffoldNewProject,
+} from "@typespec/compiler/internals/init";
 import { Ajv } from "ajv";
 import * as semver from "semver";
 import { inspect } from "util";
 import vscode, { ExtensionContext, QuickPickItem } from "vscode";
-import { InitTemplateSchema } from "../../../compiler/dist/src/init/init-template.js";
 import pkgJson from "../../package.json" with { type: "json" };
 import { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
