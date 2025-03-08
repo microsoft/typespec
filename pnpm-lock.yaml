@@ -763,9 +763,6 @@ importers:
       concurrently:
         specifier: ^9.1.2
         version: 9.1.2
-      dotenv:
-        specifier: ^16.4.7
-        version: 16.4.7
       execa:
         specifier: ^9.5.2
         version: 9.5.2

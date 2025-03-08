@@ -1,7 +1,4 @@
 import * as ay from "@alloy-js/core";
-import { config } from "dotenv";
-
-config();
 
 export interface ClientTestOptions {}
 
