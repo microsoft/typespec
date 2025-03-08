@@ -28,14 +28,7 @@ export function getDiscriminatedUnion(
   program: Program,
   type: Union,
 ): [DiscriminatedUnion | undefined, readonly Diagnostic[]];
-/**
- * @deprecated Discriminated unions created with `@discriminator` are deprecated.
- * Call `getDiscriminatedUnionFromInheritance` for the legacy model version.
- */
-export function getDiscriminatedUnion(
-  type: Model | Union,
-  discriminator: Discriminator,
-): [DiscriminatedUnionLegacy, readonly Diagnostic[]];
+
 export function getDiscriminatedUnion(
   typeOrProgram: Model | Union | Program,
   typeOrDiscriminator: Union | Discriminator,
