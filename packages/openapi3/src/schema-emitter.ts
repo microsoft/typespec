@@ -19,6 +19,7 @@ import {
   compilerAssert,
   explainStringTemplateNotSerializable,
   getDeprecated,
+  getDiscriminatedUnionFromInheritance,
   getDiscriminator,
   getDoc,
   getEncode,
@@ -62,7 +63,6 @@ import {
   isReadonlyProperty,
   shouldInline,
 } from "@typespec/openapi";
-import { getDiscriminatedUnionFromInheritance } from "../../compiler/src/core/helpers/discriminator-utils.js";
 import { attachExtensions } from "./attach-extensions.js";
 import { getOneOf, getRef } from "./decorators.js";
 import { JsonSchemaModule } from "./json-schema.js";
