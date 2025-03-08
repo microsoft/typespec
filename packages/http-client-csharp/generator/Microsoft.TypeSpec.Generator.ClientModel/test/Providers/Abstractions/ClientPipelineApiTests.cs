@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
         }
 
         [Test]
-        public void ProcessMessageIsOverriden()
+        public void ProcessMessageIsOverridden()
         {
             CreateTestClient();
             var clientPipelineExtensions = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.
