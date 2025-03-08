@@ -8,7 +8,6 @@ Stop exposing APIs that were not meant for external users. Please file issue if 
 - `Checker`: The check itself should be used very carefully and its wouldn't be covered under the compatibility guarantees. There is some apis that were explicitly marked as internal while other remained until we provide a better way to do the same thing:
   - `getGlobalNamespaceType();` -> `program.getGlobalNamespaceType();`
   - `resolveTypeReference();` -> `program.resolveTypeReference();`
-  - `getTypeForNode()`  This isn't meant to be used by external users.
   - `checkProgram();` This isn't meant to be used by external users.
   - `getLiteralType()` This isn't meant to be used by external users.
   - `resolveRelatedSymbols()` This isn't meant to be used by external users.

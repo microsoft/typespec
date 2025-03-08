@@ -90,7 +90,7 @@ export interface Program {
   trace(area: string, message: string): void;
   /**
    * **DANGER** Using the checker is reserved for advanced usage and should be used with caution.
-   * API are not subject to the same stability guarantees see <replace breaking change policy url>
+   * API are not subject to the same stability guarantees see See https://typespec.io/docs/handbook/breaking-change-policy/
    */
   checker: Checker;
   emitters: EmitterRef[];

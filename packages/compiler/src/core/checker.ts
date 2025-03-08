@@ -165,8 +165,10 @@ export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof Typ
 export interface Checker {
   /** @internal */
   typePrototype: TypePrototype;
-
-  /** @internal */
+  /**
+   * Using this API involve working with the TypeSpec Ast and may change at any time.
+   * See https://typespec.io/docs/handbook/breaking-change-policy/
+   */
   getTypeForNode(node: Node): Type;
 
   /** @internal */
