@@ -1,13 +1,10 @@
 export { resolveCompilerOptions, ResolveCompilerOptionsOptions } from "./config/index.js";
 export {
   Checker,
-  createChecker,
   CreateTypeProps,
+  // TODO: feels like all of those should move to a separate file
   filterModelProperties,
-  finishTypeForProgram,
   getEffectiveModelType,
-  getOverriddenProperty,
-  TypeSpecCompletionItem,
   walkPropertiesInherited,
 } from "./core/checker.js";
 export {
@@ -16,8 +13,10 @@ export {
   isTypeSpecValueTypeOf,
   typespecTypeToJson,
   validateDecoratorNotOnType,
-  validateDecoratorParamCount,
-  validateDecoratorTarget,
+  // TODO: decide what to do with those, dec should use extern dec instead
+  // if we remove, remove from decorator-utils too
+  // validateDecoratorParamCount,
+  // validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
   type DecoratorDefinition,
   type DecoratorParamDefinition,
@@ -41,7 +40,8 @@ export {
   getSourceLocation,
   ignoreDiagnostics,
   logDiagnostics,
-  logVerboseTestOutput,
+  // TODO: this feels internal and is only used in compiler
+  // logVerboseTestOutput,
   reportDeprecated,
   type DiagnosticCollector,
   type DiagnosticHandler,
@@ -202,7 +202,7 @@ export {
   type ExampleOptions,
   type OpExample,
 } from "./lib/decorators.js";
-export { MANIFEST, typespecVersion, type TypeSpecManifest } from "./manifest.js";
+export { MANIFEST, type TypeSpecManifest } from "./manifest.js";
 export {
   resolveModule,
   type ModuleResolutionResult,
@@ -260,8 +260,6 @@ export {
 } from "./core/parser.js";
 
 export {
-  altDirectorySeparator,
-  directorySeparator,
   ensureTrailingDirectorySeparator,
   getAnyExtensionFromPath,
   getBaseFileName,
@@ -286,24 +284,6 @@ export {
 } from "./core/path-utils.js";
 export { compile, type Program } from "./core/program.js";
 export {
-  createScanner,
-  isComment,
-  isKeyword,
-  isModifier,
-  isPunctuation,
-  isStatementKeyword,
-  isTrivia,
-  skipContinuousIdentifier,
-  skipTrivia,
-  skipTriviaBackward,
-  skipWhiteSpace,
-  Token,
-  TokenFlags,
-  type DocToken,
-  type Scanner,
-  type StringTemplateToken,
-} from "./core/scanner.js";
-export {
   getProperty,
   mapEventEmitterToNodeListener,
   navigateProgram,
@@ -316,7 +296,6 @@ export {
 } from "./core/semantic-walker.js";
 export { createSourceFile, getSourceFileKindFromExt } from "./core/source-file.js";
 export {
-  getFullyQualifiedSymbolName,
   getParentTemplateNode,
   isArrayModelType,
   isDeclaredInNamespace,
@@ -334,14 +313,7 @@ export {
   isValue,
   isVoidType,
 } from "./core/type-utils.js";
-export {
-  ListenerFlow,
-  NodeFlags,
-  NoTarget,
-  ResolutionResultFlags,
-  SymbolFlags,
-  SyntaxKind,
-} from "./core/types.js";
+export { ListenerFlow, NodeFlags, NoTarget, SyntaxKind } from "./core/types.js";
 export type {
   AliasStatementNode,
   AnyKeywordNode,
@@ -467,8 +439,6 @@ export type {
   MemberExpressionNode,
   MemberNode,
   MemberType,
-  MetaMemberKey,
-  MetaMembersTable,
   MixedFunctionParameter,
   MixedParameterConstraint,
   Model,
@@ -481,14 +451,12 @@ export type {
   Modifier,
   ModifierFlags,
   ModuleLibraryMetadata,
-  MutableSymbolTable,
   Namespace,
   NamespaceStatementNode,
   NeverIndexer,
   NeverKeywordNode,
   NeverType,
   Node,
-  NodeLinks,
   NullType,
   NullValue,
   NumericLiteral,
@@ -513,7 +481,6 @@ export type {
   ReferenceExpression,
   RekeyableMap,
   ReplaceTextCodeFixEdit,
-  ResolutionResult,
   RmOptions,
   RuleRef,
   Scalar,
@@ -546,9 +513,6 @@ export type {
   StringTemplateTailNode,
   StringValue,
   SuppressDirective,
-  Sym,
-  SymbolLinks,
-  SymbolTable,
   SyntheticLocationContext,
   TemplateableNode,
   TemplateArgumentNode,

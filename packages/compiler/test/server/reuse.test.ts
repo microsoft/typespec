@@ -1,6 +1,7 @@
 import { ok } from "assert";
 import { describe, it } from "vitest";
-import { Program, SymbolTable, visitChildren } from "../../src/index.js";
+import type { SymbolTable } from "../../src/core/types.js";
+import { Program, visitChildren } from "../../src/index.js";
 import {
   createTestServerHost,
   expectDiagnosticEmpty,

@@ -1217,7 +1217,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     CSharpCodeEmitter,
     context,
   );
-  const ns = context.program.checker.getGlobalNamespaceType();
+  const ns = context.program.getGlobalNamespaceType();
   const options = emitter.getOptions();
   processNameSpace(context.program, ns);
   if (!doNotEmit) {

@@ -63,7 +63,7 @@ defineKit<TypekitExtension>({
       if (namespace) {
         return [...namespace.namespaces.values()].filter((ns) => this.type.isUserDefined(ns));
       }
-      return [...this.program.checker.getGlobalNamespaceType().namespaces.values()].filter(
+      return [...this.program.getGlobalNamespaceType().namespaces.values()].filter(
         (n) => getLocationContext(this.program, n).type === "project",
       );
     },

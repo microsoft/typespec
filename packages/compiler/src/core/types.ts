@@ -214,20 +214,6 @@ export type IntrinsicScalarName =
   | "boolean"
   | "url";
 
-/**
- * Valid keys when looking up meta members for a particular type.
- * Array is a special case because it doesn't have a unique type, but does
- * carry unique meta-members.
- */
-export type MetaMemberKey = Type["kind"] | "Array";
-
-/**
- * A table to ease lookup of meta member interfaces during identifier resolution.
- * Only `type` exists today, but `value` will be added in the future.
- */
-export interface MetaMembersTable {
-  type: Partial<Record<MetaMemberKey, Sym>>;
-}
 export type NeverIndexer = {
   readonly key: NeverType;
   readonly value: undefined;
@@ -1068,6 +1054,7 @@ export interface BaseNode extends TextRange {
   /**
    * Could be undefined but making this optional creates a lot of noise. In practice,
    * you will likely only access symbol in cases where you know the node has a symbol.
+   * @internal
    */
   readonly symbol: Sym;
   /** Unique id across the process used to look up NodeLinks */
@@ -1797,6 +1784,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
   readonly esmExports: any;
 
   /* Any namespaces declared by decorators. */
+  /** @internal */
   readonly namespaceSymbols: Sym[];
 }
 
