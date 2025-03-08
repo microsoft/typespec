@@ -119,14 +119,14 @@
           "group": "typespec@2"
         },
         {
-          "command": "typespec.generateCode",
+          "command": "typespec.emitCode",
           "when": "explorerResourceIsFolder || resourceLangId == typespec",
           "group": "typespec@1"
         }
       ],
       "editor/context": [
         {
-          "command": "typespec.generateCode",
+          "command": "typespec.emitCode",
           "when": "resourceLangId == typespec",
           "group": "typespec@1"
         }
@@ -162,8 +162,8 @@
         "category": "TypeSpec"
       },
       {
-        "command": "typespec.generateCode",
-        "title": "Generate from TypeSpec",
+        "command": "typespec.emitCode",
+        "title": "Emit from TypeSpec",
         "category": "TypeSpec"
       },
       {
