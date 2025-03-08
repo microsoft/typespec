@@ -1,7 +1,7 @@
 import { Children, code, For, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
-  DiscriminatedUnion,
+  Discriminator,
   Model,
   ModelProperty,
   RekeyableMap,
@@ -33,9 +33,9 @@ export interface UnionTransformProps {
   target: "application" | "transport";
 }
 function UnionTransformExpression(props: UnionTransformProps) {
-  const [discriminatedUnion] = getDiscriminatedUnion($.program, props.type)!;
+  const discriminator = $.type.getDiscriminator(props.type);
 
-  if (!discriminatedUnion) {
+  if (!discriminator) {
     // TODO: Handle non-discriminated unions
     reportTypescriptDiagnostic($.program, {
       code: "typescript-unsupported-nondiscriminated-union",
@@ -50,8 +50,8 @@ function UnionTransformExpression(props: UnionTransformProps) {
 }
 
 interface DiscriminateExpressionProps {
-  type: Union;
-  discriminatedUnion: DiscriminatedUnion;
+  type: Union | Model;
+  discriminator: Discriminator;
   target: "application" | "transport";
 }
 
