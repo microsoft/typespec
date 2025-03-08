@@ -710,19 +710,19 @@ importers:
         version: 0.6.0
       '@typespec/compiler':
         specifier: workspace:^
-        version: link:../compiler
+        version: 0.66.0(@types/node@22.13.9)
       '@typespec/emitter-framework':
         specifier: workspace:^
         version: link:../emitter-framework
       '@typespec/http':
         specifier: workspace:^
-        version: link:../http
+        version: 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))
       '@typespec/http-client':
         specifier: workspace:^
         version: link:../http-client
       '@typespec/rest':
         specifier: workspace:^
-        version: link:../rest
+        version: 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))))
       prettier:
         specifier: ~3.5.3
         version: 3.5.3
@@ -744,7 +744,7 @@ importers:
         version: 17.0.33
       '@typespec/http-specs':
         specifier: 0.1.0-alpha.11
-        version: 0.1.0-alpha.11(@types/node@22.13.9)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)(@typespec/xml@0.66.0(@typespec/compiler@packages+compiler))
+        version: 0.1.0-alpha.11(@types/node@22.13.9)(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))))(@typespec/rest@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))(@typespec/versioning@packages+versioning)(@typespec/xml@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))
       '@typespec/spector':
         specifier: workspace:^
         version: link:../spector
@@ -1899,7 +1899,7 @@ importers:
         version: 8.17.1
       axios:
         specifier: ^1.8.1
-        version: 1.8.1
+        version: 1.8.2
       body-parser:
         specifier: ^1.20.3
         version: 1.20.3
@@ -7022,8 +7022,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  axios@1.8.1:
-    resolution: {integrity: sha512-NN+fvwH/kV01dYUQ3PTOZns4LWtWhOFCAhQ/pHb88WQ1hNe5V/dvFwc4VJcDL11LT9xSX0QtsR8sWUuyOuOq7g==}
+  axios@1.8.2:
+    resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -18706,15 +18706,15 @@ snapshots:
       - bluebird
       - supports-color
 
-  '@typespec/http-specs@0.1.0-alpha.11(@types/node@22.13.9)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)(@typespec/xml@0.66.0(@typespec/compiler@packages+compiler))':
+  '@typespec/http-specs@0.1.0-alpha.11(@types/node@22.13.9)(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))))(@typespec/rest@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))(@typespec/versioning@packages+versioning)(@typespec/xml@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))':
     dependencies:
-      '@typespec/compiler': link:packages/compiler
-      '@typespec/http': link:packages/http
-      '@typespec/rest': link:packages/rest
+      '@typespec/compiler': 0.66.0(@types/node@22.13.9)
+      '@typespec/http': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))
+      '@typespec/rest': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))))
       '@typespec/spec-api': 0.1.0-alpha.1
-      '@typespec/spector': 0.1.0-alpha.8(@types/node@22.13.9)(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))
+      '@typespec/spector': 0.1.0-alpha.8(@types/node@22.13.9)(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))
       '@typespec/versioning': link:packages/versioning
-      '@typespec/xml': 0.66.0(@typespec/compiler@packages+compiler)
+      '@typespec/xml': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))
     transitivePeerDependencies:
       - '@types/express'
       - '@types/node'
@@ -18723,16 +18723,16 @@ snapshots:
       - debug
       - supports-color
 
-  '@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))':
+  '@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))':
     dependencies:
       '@typespec/compiler': 0.66.0(@types/node@22.13.9)
     optionalDependencies:
-      '@typespec/streams': 0.66.0(@typespec/compiler@packages+compiler)
+      '@typespec/streams': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))
 
-  '@typespec/rest@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler)))':
+  '@typespec/rest@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))))':
     dependencies:
       '@typespec/compiler': 0.66.0(@types/node@22.13.9)
-      '@typespec/http': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))
+      '@typespec/http': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))
 
   '@typespec/spec-api@0.1.0-alpha.1':
     dependencies:
@@ -18759,18 +18759,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typespec/spector@0.1.0-alpha.8(@types/node@22.13.9)(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))':
+  '@typespec/spector@0.1.0-alpha.8(@types/node@22.13.9)(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))':
     dependencies:
       '@azure/identity': 4.6.0
       '@types/js-yaml': 4.0.9
       '@typespec/compiler': 0.66.0(@types/node@22.13.9)
-      '@typespec/http': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler))
-      '@typespec/rest': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@packages+compiler)))
+      '@typespec/http': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9)))
+      '@typespec/rest': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/http@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))(@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))))
       '@typespec/spec-api': 0.1.0-alpha.1
       '@typespec/spec-coverage-sdk': 0.1.0-alpha.3
       '@typespec/versioning': 0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))
       ajv: 8.17.1
-      axios: 1.8.1
+      axios: 1.8.2
       body-parser: 1.20.3
       deep-equal: 2.2.3
       express: 4.21.2
@@ -18795,9 +18795,9 @@ snapshots:
       - debug
       - supports-color
 
-  '@typespec/streams@0.66.0(@typespec/compiler@packages+compiler)':
+  '@typespec/streams@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))':
     dependencies:
-      '@typespec/compiler': link:packages/compiler
+      '@typespec/compiler': 0.66.0(@types/node@22.13.9)
     optional: true
 
   '@typespec/ts-http-runtime@0.1.0':
@@ -18812,9 +18812,9 @@ snapshots:
     dependencies:
       '@typespec/compiler': 0.66.0(@types/node@22.13.9)
 
-  '@typespec/xml@0.66.0(@typespec/compiler@packages+compiler)':
+  '@typespec/xml@0.66.0(@typespec/compiler@0.66.0(@types/node@22.13.9))':
     dependencies:
-      '@typespec/compiler': link:packages/compiler
+      '@typespec/compiler': 0.66.0(@types/node@22.13.9)
 
   '@ungap/structured-clone@1.2.0': {}
 
@@ -20019,7 +20019,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  axios@1.8.1:
+  axios@1.8.2:
     dependencies:
       follow-redirects: 1.15.9
       form-data: 4.0.2
