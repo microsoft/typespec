@@ -1,6 +1,6 @@
 import { CompilerPackageRoot } from "../core/node-host.js";
 import { resolvePath } from "../core/path-utils.js";
-import type { SystemHost } from "../index.js";
+import type { SystemHost } from "../core/types.js";
 
 export const templatesDir = resolvePath(CompilerPackageRoot, "templates");
 export interface LoadedCoreTemplates {

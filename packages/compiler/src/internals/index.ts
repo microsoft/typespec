@@ -7,6 +7,6 @@ if (!(globalThis as any).enableCompilerInternalsExport) {
   throw new Error("Importing @typespec/compiler/internals is reserved for internal use only.");
 }
 
-export type { NodeSystemHost } from "../core/node-system-host.js";
-export type { InitTemplateSchema } from "../init/init-template.js";
+export { NodeSystemHost } from "../core/node-system-host.js";
+export { InitTemplateSchema } from "../init/init-template.js";
 export { scaffoldNewProject } from "../init/scaffold.js";
