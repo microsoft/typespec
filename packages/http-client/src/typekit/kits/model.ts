@@ -1,10 +1,4 @@
-import {
-  getDiscriminatedUnion,
-  getDiscriminator,
-  ignoreDiagnostics,
-  Model,
-  ModelProperty,
-} from "@typespec/compiler";
+import { getDiscriminator, Model, ModelProperty } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { AccessKit, getAccess, getName, getUsage, NameKit, UsageKit } from "./utils.js";
 
@@ -83,7 +77,7 @@ defineKit<SdkKit>({
     getDiscriminatedSubtypes(model) {
       const disc = getDiscriminator(this.program, model);
       if (!disc) return {};
-      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(model, disc));
+      const discriminatedUnion = this.model.getDiscriminatedUnion(model);
       return discriminatedUnion?.variants || {};
     },
     getBaseModel(model) {
