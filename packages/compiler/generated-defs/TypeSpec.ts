@@ -12,7 +12,7 @@ import type {
   Type,
   Union,
   UnionVariant,
-} from "../src/core/index.js";
+} from "../src/index.js";
 
 export interface ServiceOptions {
   readonly title?: string;

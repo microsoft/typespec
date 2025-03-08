@@ -62,12 +62,7 @@ export function isIntrinsicType(
   kind: IntrinsicScalarName,
 ): boolean {
   return ignoreDiagnostics(
-    program.checker.isTypeAssignableTo(
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      type.projectionBase ?? type,
-      program.checker.getStdType(kind),
-      type,
-    ),
+    program.checker.isTypeAssignableTo(type, program.checker.getStdType(kind), type),
   );
 }
 

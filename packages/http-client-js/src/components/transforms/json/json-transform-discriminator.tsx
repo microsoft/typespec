@@ -1,14 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {
-  DiscriminatedUnion,
-  DiscriminatedUnionLegacy,
-  Discriminator,
-  getDiscriminatedUnion,
-  ignoreDiagnostics,
-  Model,
-  Union,
-} from "@typespec/compiler";
+import { Discriminator, Model, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { JsonTransform } from "./json-transform.jsx";
 
@@ -20,17 +12,11 @@ export interface JsonTransformDiscriminatorProps {
 }
 
 export function JsonTransformDiscriminator(props: JsonTransformDiscriminatorProps) {
-  let discriminatedUnion: DiscriminatedUnion | DiscriminatedUnionLegacy | undefined = $.union.is(
-    props.type,
-  )
-    ? $.type.getDiscriminatedUnion(props.type)
-    : undefined;
+  const discriminatedUnion = $.model.is(props.type)
+    ? $.model.getDiscriminatedUnion(props.type)
+    : $.union.getDiscriminatedUnion(props.type);
 
-  let propertyName: string | undefined = discriminatedUnion?.options.discriminatorPropertyName;
-  if (!discriminatedUnion && props.discriminator) {
-    discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(props.type, props.discriminator));
-    propertyName = props.discriminator.propertyName;
-  }
+  const propertyName = props.discriminator.propertyName;
 
   if (!discriminatedUnion || !propertyName) {
     return ay.code`${props.itemRef}`;
@@ -42,24 +28,23 @@ export function JsonTransformDiscriminator(props: JsonTransformDiscriminatorProp
   // type in the discriminator are compatible.
   const itemRef = ay.code`${props.itemRef} as any`;
   const discriminatingCases = ay.mapJoin(
-    discriminatedUnion.variants,
+    () => discriminatedUnion.variants,
     (name, variant) => {
       return ay.code`
     if( discriminatorValue === ${JSON.stringify(name)}) {
-      return ${<JsonTransform type={variant} target={props.target} itemRef={itemRef} />}!
+      return ${(<JsonTransform type={variant} target={props.target} itemRef={itemRef} />)}!
     }
     `;
     },
     { joiner: "\n\n" },
   );
 
-  return <>
-      const discriminatorValue = {discriminatorRef};
-      {discriminatingCases}
-      <>
-      console.warn(`Received unknown kind: ` + discriminatorValue); 
-      return {itemRef}</>
-    </>;
+  return (
+    <>
+      const discriminatorValue = {discriminatorRef};{discriminatingCases}
+      <>console.warn(`Received unknown kind: ` + discriminatorValue); return {itemRef}</>
+    </>
+  );
 }
 
 export function getJsonTransformDiscriminatorRefkey(
@@ -97,7 +82,8 @@ export function JsonTransformDiscriminatorDeclaration(
     input_: { type: inputType, refkey: inputRef, optional: true },
   };
 
-  return <ts.FunctionDeclaration
+  return (
+    <ts.FunctionDeclaration
       name={transformName}
       export
       returnType={returnType}
@@ -110,5 +96,6 @@ export function JsonTransformDiscriminatorDeclaration(
     }
     `}
       <JsonTransformDiscriminator {...props} itemRef={inputRef} discriminator={discriminator} />
-    </ts.FunctionDeclaration>;
+    </ts.FunctionDeclaration>
+  );
 }

@@ -50,13 +50,13 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~"
+    "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "~22.13.9",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/library-linter": "workspace:~",
-    "@typespec/tspd": "workspace:~",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/library-linter": "workspace:^",
+    "@typespec/tspd": "workspace:^",
     "@vitest/coverage-v8": "^3.0.7",
     "@vitest/ui": "^3.0.7",
     "c8": "^10.1.3",
