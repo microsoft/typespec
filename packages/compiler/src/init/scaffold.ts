@@ -4,7 +4,11 @@ import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import type { SystemHost } from "../core/types.js";
 import type { PackageJson } from "../types/package-json.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../utils/misc.js";
-import { createFileTemplatingContext, render } from "./file-templating.js";
+import {
+  createFileTemplatingContext,
+  type FileTemplatingContext,
+  render,
+} from "./file-templating.js";
 import type {
   InitTemplate,
   InitTemplateFile,
@@ -228,7 +232,7 @@ async function writeFiles(host: SystemHost, config: ScaffoldingConfig) {
 async function writeFile(
   host: SystemHost,
   config: ScaffoldingConfig,
-  context: any,
+  context: FileTemplatingContext,
   file: InitTemplateFile,
 ) {
   const baseDir = config.baseUri + "/";
