@@ -2498,10 +2498,17 @@ export interface RelatedSourceLocation {
 }
 
 /** @internal */
+export type TaskStatus = "success" | "failure" | "skipped" | "warn";
+
+/** @internal */
 export interface TrackActionTask {
   message: string;
+  readonly isStopped: boolean;
+  succeed(message?: string): void;
   fail(message?: string): void;
   warn(message?: string): void;
+  skip(message?: string): void;
+  stop(status: TaskStatus, message?: string): void;
 }
 
 export interface LogSink {

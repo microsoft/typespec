@@ -33,7 +33,15 @@ export function createLogger(options: LoggerOptions): Logger {
     trackAction: async (message, finalMessage, action) =>
       config.sink.trackAction
         ? config.sink.trackAction(message, finalMessage, action)
-        : action({ message: "", fail() {}, warn() {} }),
+        : action({
+            message: "",
+            fail() {},
+            warn() {},
+            succeed() {},
+            skip() {},
+            stop() {},
+            isStopped: false,
+          }),
   };
 }
 

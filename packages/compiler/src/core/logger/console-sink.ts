@@ -1,10 +1,10 @@
 import { codeFrameColumns } from "@babel/code-frame";
-import isUnicodeSupported from "is-unicode-supported";
 import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
 import { getRelativePathFromDirectory } from "../path-utils.js";
 import { LogLevel, LogSink, ProcessedLog, SourceLocation, TrackActionTask } from "../types.js";
+import { DynamicTask } from "./dynamic-task.js";
 import { supportsHyperlink } from "./support-hyperlinks.js";
 
 export interface FormatLogOptions {
@@ -147,92 +147,24 @@ function getLineAndColumn(location: SourceLocation): RealLocation {
   return result;
 }
 
-type ActionStatus = "pending" | "success" | "failed" | "warn";
-
 export async function trackAction<T>(
   message: string,
   finalMessage: string,
   asyncAction: (task: TrackActionTask) => Promise<T>,
   options: FormatLogOptions,
 ): Promise<T> {
-  const task = {
-    message,
-    status: "pending" as ActionStatus,
-    fail(message?: string) {
-      if (message) {
-        task.message = message;
-      }
-      task.status = "failed";
-    },
-    warn(message?: string) {
-      if (message) {
-        task.message = message;
-      }
-      task.status = "warn";
-    },
-  };
-
-  const isTTY = process.stdout?.isTTY && !process.env.CI;
-  let interval;
-  if (isTTY) {
-    const spinner = createSpinner();
-
-    interval = setInterval(() => {
-      process.stdout.clearLine(0);
-      process.stdout.cursorTo(0);
-      process.stdout.write(`\r${color(options, spinner(), pc.yellow)} ${task.message}`);
-    }, 200);
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(message);
-  }
+  const task = new DynamicTask(message, finalMessage, process.stdout);
+  task.start();
 
   try {
     const result = await asyncAction(task);
-    if (interval) {
-      clearInterval(interval);
-      clearLastLine();
+    if (!task.isStopped) {
+      task.succeed();
     }
 
-    switch (task.status) {
-      case "failed":
-        // eslint-disable-next-line no-console
-        console.log(`${color(options, "x", pc.red)} ${task.message}`);
-        break;
-      case "warn":
-        // eslint-disable-next-line no-console
-        console.log(`${color(options, "⚠", pc.yellow)} ${finalMessage}`);
-        break;
-      default:
-        // eslint-disable-next-line no-console
-        console.log(`${color(options, "✔", pc.green)} ${finalMessage}`);
-    }
     return result;
   } catch (error) {
-    if (interval) {
-      clearInterval(interval);
-      clearLastLine();
-    }
-
-    // eslint-disable-next-line no-console
-    console.log(`${color(options, "x", pc.red)} ${task.message}`);
+    task.fail(message);
     throw error;
   }
 }
-
-function clearLastLine(): void {
-  process.stdout.write("\r\x1b[K");
-}
-
-function createSpinner(): () => string {
-  let index = 0;
-
-  return () => {
-    index = ++index % spinnerFrames.length;
-    return spinnerFrames[index];
-  };
-}
-
-export const spinnerFrames = isUnicodeSupported()
-  ? ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-  : ["-", "\\", "|", "/"];
