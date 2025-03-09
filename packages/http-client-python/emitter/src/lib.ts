@@ -83,6 +83,48 @@ const libDef = {
         default: "Can't generate Python SDK since no client defined in typespec file.",
       },
     },
+    "no-valid-paging-items": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`No valid paging items for operation '${"operationId"}'.`,
+      },
+    },
+    "no-valid-nextlink": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`No valid next link for operation '${"operationId"}'.`,
+      },
+    },
+    "no-valid-lro-result": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`No valid LRO result for operation '${"operationId"}'.`,
+      },
+    },
+    "no-valid-wire-name-for-continuation-token-in-request": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`No valid wire name of continuation token in request for operation '${"operationId"}'.`,
+      },
+    },
+    "no-valid-wire-name-for-continuation-token-in-response": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`No valid wire name of continuation token in response for operation '${"operationId"}'.`,
+      },
+    },
+    "no-valid-position-for-continuation-token-in-request": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`No valid position of continuation token in request for operation '${"operationId"}'.`,
+      },
+    },
+    "no-valid-position-for-continuation-token-in-response": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`No valid position of continuation token in response for operation '${"operationId"}'.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<PythonEmitterOptions>,
