@@ -36,7 +36,7 @@ export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
         ? getRelativePathFromDirectory(options.pathRelativeTo, path, false)
         : path,
     trackAction: options.trackAction
-      ? (message, finalMessage, action) => trackAction(message, finalMessage, action, options)
+      ? (message, finalMessage, action) => trackAction(message, finalMessage, action)
       : undefined,
   };
 }
@@ -151,7 +151,6 @@ export async function trackAction<T>(
   message: string,
   finalMessage: string,
   asyncAction: (task: TrackActionTask) => Promise<T>,
-  options: FormatLogOptions,
 ): Promise<T> {
   const task = new DynamicTask(message, finalMessage, process.stdout);
   task.start();
