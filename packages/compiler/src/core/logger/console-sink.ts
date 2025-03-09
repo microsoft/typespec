@@ -152,7 +152,7 @@ export async function trackAction<T>(
   finalMessage: string,
   asyncAction: (task: TrackActionTask) => Promise<T>,
 ): Promise<T> {
-  const task = new DynamicTask(message, finalMessage, process.stdout);
+  const task = new DynamicTask(message, finalMessage, process.stderr);
   task.start();
 
   try {
