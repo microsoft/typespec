@@ -619,8 +619,7 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         x: {
           anyOf: [
             {
-              type: "object",
-              allOf: [{ $ref: "#/components/schemas/MyStr" }],
+              type: "string",
               nullable: true,
             },
             {
@@ -680,6 +679,82 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/openapi3/union-null",
         message: "Cannot have a union containing only null types.",
+      });
+    });
+
+    it("should keep original type with null", async () => {
+      const openApi = await openApiFor(`
+        scalar Str extends string;
+        model Mol {x: string}
+        /** this is my Num */
+        scalar Num extends int32;
+        scalar More extends Num;
+        scalar Int16 extends int16;
+        scalar NoExtends;
+        scalar NoRoot extends NoExtends;
+        
+        model Test {
+          @minValue(1)
+          a: NoRoot | NoExtends | Str | Int16 | Num | Mol | More | null | int32 | string;
+        }
+        
+        @minValue(1)
+        union u {
+        NoRoot, NoExtends, Str , Int16 , Num , Mol , More , null , int32 , string
+        }
+      `);
+
+      expect(openApi.components.schemas.Num).toEqual({
+        type: "integer",
+        format: "int32",
+        description: "this is my Num",
+      })
+
+      expect(openApi.components.schemas.More).toEqual({
+        type: "integer",
+        format: "int32",
+        description: "this is my Num",
+      })
+
+      expect(openApi.components.schemas.Test).toEqual({
+        type: "object",
+        required: ["a"],
+        properties: {
+          a: {
+            minimum: 1,
+            anyOf: [
+              {},
+              {},
+              { type: "string", nullable: true },
+              { type: "integer", format: "int16", nullable: true },
+              { type: "integer", format: "int32", nullable: true },
+              { type: "object", allOf: [{ $ref: "#/components/schemas/Mol" }], nullable: true },
+              { type: "integer", format: "int32", nullable: true },
+              { type: "integer", format: "int32", nullable: true },
+              { type: "string", nullable: true },
+            ],
+          },
+        },
+      });
+
+      expect(openApi.components.schemas.u).toEqual({
+        minimum: 1,
+        anyOf: [
+          { minimum: 1 },
+          { minimum: 1 },
+          { type: "string", nullable: true, minimum: 1 },
+          { type: "integer", format: "int16", nullable: true, minimum: 1 },
+          { type: "integer", format: "int32", nullable: true, minimum: 1 },
+          {
+            type: "object",
+            allOf: [{ $ref: "#/components/schemas/Mol" }],
+            nullable: true,
+            minimum: 1,
+          },
+          { type: "integer", format: "int32", nullable: true, minimum: 1 },
+          { type: "integer", format: "int32", nullable: true, minimum: 1 },
+          { type: "string", nullable: true, minimum: 1 },
+        ],
       });
     });
   });
