@@ -4,13 +4,11 @@ import {
   getDoc,
   getService,
   getSummary,
-  isType,
   Model,
   Namespace,
   Operation,
   Program,
   Type,
-  typespecTypeToJson,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
 import { setStatusCode } from "@typespec/http";
@@ -56,18 +54,9 @@ export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: unknown,
+  value: Type | unknown,
 ) => {
-  let data = value;
-  if (value && isType(value as any)) {
-    const [result, diagnostics] = typespecTypeToJson(value as Type, entity);
-    if (diagnostics.length > 0) {
-      context.program.reportDiagnostics(diagnostics);
-    }
-    data = result;
-  }
-
-  setExtension(context.program, entity, extensionName as ExtensionKey, data);
+  setExtension(context.program, entity, extensionName as ExtensionKey, value);
 };
 
 /**
@@ -91,7 +80,12 @@ export function setInfo(
  * @param extensionName Extension key
  * @param data Extension value
  */
-export function setExtension(program: Program, entity: Type, extensionName: string, data: unknown) {
+export function setExtension(
+  program: Program,
+  entity: Type,
+  extensionName: string,
+  data: Type | unknown,
+) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
   typeExtensions.set(extensionName, data);
@@ -103,7 +97,10 @@ export function setExtension(program: Program, entity: Type, extensionName: stri
  * @param program Program
  * @param entity Type
  */
-export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
+export function getExtensions(
+  program: Program,
+  entity: Type,
+): ReadonlyMap<ExtensionKey, Type | any> {
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
 }
 
