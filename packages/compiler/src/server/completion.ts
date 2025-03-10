@@ -8,23 +8,9 @@ import {
 } from "vscode-languageserver";
 import { getSymNode } from "../core/binder.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
-import {
-  CompilerHost,
-  IdentifierNode,
-  Node,
-  NodeFlags,
-  PositionDetail,
-  Program,
-  StringLiteralNode,
-  SymbolFlags,
-  SyntaxKind,
-  Type,
-  TypeSpecScriptNode,
-  compilerAssert,
-  getFirstAncestor,
-  positionInRange,
-  printIdentifier,
-} from "../core/index.js";
+import { compilerAssert } from "../core/diagnostics.js";
+import { printIdentifier } from "../core/helpers/syntax-utils.js";
+import { getFirstAncestor, positionInRange } from "../core/parser.js";
 import {
   getAnyExtensionFromPath,
   getBaseFileName,
@@ -32,6 +18,19 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
+import { Program } from "../core/program.js";
+import {
+  CompilerHost,
+  IdentifierNode,
+  Node,
+  NodeFlags,
+  PositionDetail,
+  StringLiteralNode,
+  SymbolFlags,
+  SyntaxKind,
+  Type,
+  TypeSpecScriptNode,
+} from "../core/types.js";
 import { PackageJson } from "../types/package-json.js";
 import { findProjectRoot, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";

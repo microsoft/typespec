@@ -7,22 +7,19 @@ import {
 } from "../config/config-loader.js";
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
-import {
-  CompilerHost,
-  CompilerOptions,
-  Program,
-  Diagnostic as TypeSpecDiagnostic,
-  TypeSpecScriptNode,
-  compilerAssert,
-  formatDiagnostic,
-  getDirectoryPath,
-  joinPaths,
-  parse,
-} from "../core/index.js";
+import { compilerAssert, formatDiagnostic } from "../core/diagnostics.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
-import { compile as compileProgram } from "../core/program.js";
+import { CompilerOptions } from "../core/options.js";
+import { parse } from "../core/parser.js";
+import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
+import { compile as compileProgram, Program } from "../core/program.js";
+import type {
+  CompilerHost,
+  Diagnostic as TypeSpecDiagnostic,
+  TypeSpecScriptNode,
+} from "../core/types.js";
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
 import { serverOptions } from "./constants.js";

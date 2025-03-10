@@ -377,7 +377,10 @@ describe("Missing AdditionalProperties Endpoints", () => {
     });
   });
 
-  describe("SpreadRecordDiscriminatedUnion", () => {
+  /**
+   * Deprecated @discriminator in unions
+   */
+  describe.skip("SpreadRecordDiscriminatedUnion", () => {
     const client = new SpreadRecordDiscriminatedUnionClient(clientOptions);
     const expected: SpreadRecordForDiscriminatedUnion = {
       name: "abc",

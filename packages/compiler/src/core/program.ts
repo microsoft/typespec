@@ -39,7 +39,6 @@ import {
   joinPaths,
   resolvePath,
 } from "./path-utils.js";
-import { createProjector } from "./projector.js";
 import {
   SourceLoader,
   SourceResolution,
@@ -47,7 +46,7 @@ import {
   loadJsFile,
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
-import { StateMap, StateSet, createStateAccessors } from "./state-accessors.js";
+import { createStateAccessors } from "./state-accessors.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -65,8 +64,6 @@ import {
   Namespace,
   NoTarget,
   Node,
-  ProjectionApplication,
-  Projector,
   SourceFile,
   Sym,
   SymbolFlags,
@@ -78,21 +75,6 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
-
-/** @deprecated */
-export interface ProjectedProgram extends Program {
-  projector: Projector;
-}
-
-/** @deprecated use Mutators instead */
-export function projectProgram(
-  program: Program,
-  projections: ProjectionApplication[],
-  startNode?: Type,
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-): ProjectedProgram {
-  return createProjector(program, projections, startNode);
-}
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -114,9 +96,11 @@ export interface Program {
   ): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
-  stateSets: Map<symbol, StateSet>;
+  /** @internal */
+  stateSets: Map<symbol, Set<Type>>;
   stateMap(key: symbol): Map<Type, any>;
-  stateMaps: Map<symbol, StateMap>;
+  /** @internal */
+  stateMaps: Map<symbol, Map<Type, unknown>>;
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
@@ -172,7 +156,7 @@ export async function compile(
     await emit(emitter, program, options);
 
     if (options.listFiles) {
-      logEmittedFilesPath(program.projectRoot, emitter.emitterOutputDir);
+      logEmittedFilesPath(program.projectRoot);
     }
   }
   return program;
@@ -185,8 +169,8 @@ async function createProgram(
   oldProgram?: Program,
 ): Promise<{ program: Program; shouldAbort: boolean }> {
   const validateCbs: Validator[] = [];
-  const stateMaps = new Map<symbol, StateMap>();
-  const stateSets = new Map<symbol, StateSet>();
+  const stateMaps = new Map<symbol, Map<Type, unknown>>();
+  const stateSets = new Map<symbol, Set<Type>>();
   const diagnostics: Diagnostic[] = [];
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
@@ -938,10 +922,9 @@ async function runEmitter(emitter: EmitterRef, program: Program) {
   }
 }
 
-function logEmittedFilesPath(projectRoot: string, emitterOutputDir: string) {
-  const relativePathForEmittedFiles = `./${getRelativePathFromDirectory(projectRoot, emitterOutputDir, false)}/`;
-  flushEmittedFilesPaths().forEach((message) =>
+function logEmittedFilesPath(projectRoot: string) {
+  flushEmittedFilesPaths().forEach((filePath) => {
     // eslint-disable-next-line no-console
-    console.log(`\t${relativePathForEmittedFiles}${message}`),
-  );
+    console.log(`\t./${getRelativePathFromDirectory(projectRoot, filePath, false)}`);
+  });
 }

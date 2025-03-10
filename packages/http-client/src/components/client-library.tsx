@@ -10,7 +10,9 @@ export interface ClientLibraryProps {
 
 export function ClientLibrary(props: ClientLibraryProps) {
   const clientLibrary = createClientLibrary({ operationMutators: props.operationMutators });
-  return <ClientLibraryContext.Provider value={clientLibrary}>
+  return (
+    <ClientLibraryContext.Provider value={clientLibrary}>
       {props.children}
-    </ClientLibraryContext.Provider>;
+    </ClientLibraryContext.Provider>
+  );
 }

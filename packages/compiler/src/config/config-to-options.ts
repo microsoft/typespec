@@ -1,6 +1,7 @@
-import { createDiagnosticCollector, getDirectoryPath, normalizePath } from "../core/index.js";
+import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
 import { CompilerOptions } from "../core/options.js";
+import { getDirectoryPath, normalizePath } from "../core/path-utils.js";
 import { CompilerHost, Diagnostic, NoTarget } from "../core/types.js";
 import { doIO } from "../utils/io.js";
 import { deepClone, omitUndefined } from "../utils/misc.js";
