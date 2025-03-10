@@ -1,4 +1,8 @@
 import { ignoreDiagnostics } from "../../../core/diagnostics.js";
+import {
+  DiscriminatedUnion,
+  getDiscriminatedUnion,
+} from "../../../core/helpers/discriminator-utils.js";
 import type { Type, Union, UnionVariant } from "../../../core/types.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
@@ -73,6 +77,11 @@ export interface UnionKit {
    * @param type Uniton to check if it is an expression
    */
   isExpression(type: Union): boolean;
+  /**
+   * Resolves a discriminated union for the given union.
+   * @param type Union to resolve the discriminated union for.
+   */
+  getDiscriminatedUnion(type: Union): DiscriminatedUnion | undefined;
 }
 
 interface TypekitExtension {
@@ -171,6 +180,9 @@ export const UnionKit = defineKit<TypekitExtension>({
 
     isExpression(type) {
       return type.name === undefined || type.name === "";
+    },
+    getDiscriminatedUnion(type) {
+      return ignoreDiagnostics(getDiscriminatedUnion(this.program, type));
     },
   },
 });

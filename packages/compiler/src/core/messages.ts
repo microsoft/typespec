@@ -142,7 +142,6 @@ const diagnostics = {
       unexpected: paramMessage`Unexpected token ${"token"}`,
       numericOrStringLiteral: "Expected numeric or string literal.",
       identifier: "Identifier expected.",
-      projectionDirection: "from or to expected.",
       expression: "Expression expected.",
       statement: "Statement expected.",
       property: "Property expected.",
@@ -193,15 +192,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
-    },
-  },
-  "invalid-projection": {
-    severity: "error",
-    messages: {
-      default: "Invalid projection",
-      wrongType: "Non-projection can't be used to project",
-      noTo: "Projection missing to projection",
-      projectionError: paramMessage`An error occurred when projecting this type: ${"message"}`,
     },
   },
   "default-required": {
@@ -545,6 +535,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "A function declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "function-unsupported": {
+    severity: "error",
+    messages: {
+      default: "Function are currently not supported.",
     },
   },
   "missing-implementation": {

@@ -53,10 +53,12 @@ export function JsonTransform(props: JsonTransformProps) {
     case "Union":
       return <JsonUnionTransform type={type} itemRef={props.itemRef} target={props.target} />;
     case "ModelProperty": {
-      return <JsonModelPropertyTransform type={type} itemRef={props.itemRef} target={props.target} />;
+      return (
+        <JsonModelPropertyTransform type={type} itemRef={props.itemRef} target={props.target} />
+      );
     }
     case "Scalar": {
-      return <ScalarDataTransform type={type} itemRef={props.itemRef} target={props.target}/>;
+      return <ScalarDataTransform type={type} itemRef={props.itemRef} target={props.target} />;
     }
     default:
       return props.itemRef;
@@ -79,7 +81,7 @@ export function JsonTransformDeclaration(props: JsonTransformDeclarationProps) {
     }
 
     if ($.record.is(props.type)) {
-      return <JsonRecordTransformDeclaration target={props.target} type={props.type}  />;
+      return <JsonRecordTransformDeclaration target={props.target} type={props.type} />;
     }
 
     return <JsonModelTransformDeclaration type={props.type} target={props.target} />;
