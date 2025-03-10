@@ -18,11 +18,11 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 {
     internal class MultipartTests : SpectorTestBase
     {
-        private string SamplePngPath = Path.Combine(CadlRanchServer.GetSpecDirectory(), "assets", "image.png");
-        private string SampleJpgPath = Path.Combine(CadlRanchServer.GetSpecDirectory(), "assets", "image.jpg");
-        private string SampleWriteablePath = Path.Combine(CadlRanchServer.GetSpecDirectory(), "assets", "model.txt");
+        private string SamplePngPath = Path.Combine(SpectorServer.GetSpecDirectory(), "assets", "image.png");
+        private string SampleJpgPath = Path.Combine(SpectorServer.GetSpecDirectory(), "assets", "image.jpg");
+        private string SampleWriteablePath = Path.Combine(SpectorServer.GetSpecDirectory(), "assets", "model.txt");
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task BasicProtocol() => Test(async (host) =>
         {
             // use the internal BCL type to create a MultipartFormDataContent
@@ -48,7 +48,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task BasicConv() => Test(async (host) =>
         {
             var id = "123";
@@ -62,7 +62,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task BasicConvUsingBinaryData() => Test(async (host) =>
         {
             var id = "123";
@@ -86,7 +86,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var profileImage = new MultiPartFile(imageStream, "profileImage.jpg");
             var request = new MultiPartRequest(id, profileImage);
 
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
         });
@@ -103,7 +103,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             // get the content type
             var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType"));
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
             var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(BinaryContent.Create(serialized), contentType.ToString());
@@ -124,7 +124,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             // get the content type
             var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType"));
             using var customStream = new MemoryStream();
-            ModelReaderWriter.Write(request, customStream, ModelSerializationExtensions.WireOptions);
+            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
 
             var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(BinaryContent.Create(customStream), contentType.ToString());
 
@@ -145,7 +145,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType"));
             using (var fileToWrite = File.OpenWrite(SampleWriteablePath))
             {
-                ModelReaderWriter.Write(request, fileToWrite, ModelSerializationExtensions.WireOptions);
+                ModelReaderWriter.Write(request, fileToWrite, new ModelReaderWriterOptions("W"));
             }
 
             // read the file and check the contents
@@ -154,7 +154,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task JsonPartConv() => Test(async (host) =>
         {
             Address address = new Address("X");
@@ -169,7 +169,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task JsonPartConvUsingBinaryData() => Test(async (host) =>
         {
             Address address = new Address("X");
@@ -193,12 +193,12 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var profileImage = new MultiPartFile(imageStream, "profileImage.jpg");
             var request = new JsonPartRequest(address, profileImage);
 
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task CheckFileNameAndContentTypeConv() => Test(async (host) =>
         {
             var id = "123";
@@ -212,7 +212,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task CheckFileNameAndContentTypeConvUsingBinaryData() => Test(async (host) =>
         {
             var id = "123";
@@ -226,7 +226,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task FileArrayAndBasicConv() => Test(async (host) =>
         {
             var id = "123";
@@ -250,7 +250,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task FileArrayAndBasicConvUsingBinaryData() => Test(async (host) =>
         {
             var id = "123";
@@ -293,7 +293,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             var request = new ComplexPartsRequest(id, address, profileImage, pictures);
 
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
         });
@@ -317,7 +317,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             var request = new ComplexPartsRequest(id, address, profileImage, pictures);
             using MemoryStream customStream = new();
-            ModelReaderWriter.Write(request, customStream, ModelSerializationExtensions.WireOptions);
+            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
 
             var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
 
@@ -343,7 +343,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             var request = new ComplexPartsRequest(id, address, profileImage, pictures);
 
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
         });
@@ -366,7 +366,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var request = new ComplexPartsRequest(id, address, profileImage, pictures);
             using MemoryStream customStream = new();
             using BufferedStream bufferedStream = new(customStream, bufferSize: 1024);
-            ModelReaderWriter.Write(request, bufferedStream, ModelSerializationExtensions.WireOptions);
+            ModelReaderWriter.Write(request, bufferedStream, new ModelReaderWriterOptions("W"));
             bufferedStream.Flush();
 
             // At this point, your MemoryStream contains the full data.
@@ -405,12 +405,12 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             var request = new ComplexPartsRequest(id, address, profileImage, pictures);
 
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task HttpPartsImageJpegContentTypeConv() => Test(async (host) =>
         {
             await using var imageStream = File.OpenRead(SampleJpgPath);
@@ -425,7 +425,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task HttpPartsImageJpegContentTypeConvUsingBinaryData() => Test(async (host) =>
         {
             await using var imageStream1 = File.OpenRead(SampleJpgPath);
@@ -446,12 +446,12 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var profileImage = new FileSpecificContentType(imageStream, "hello.jpg");
             var request = new FileWithHttpPartSpecificContentTypeRequest(profileImage);
 
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task HttpPartsOptionalContentTypeConv() => Test(async (host) =>
         {
             await using var imageStream1 = File.OpenRead(SampleJpgPath);
@@ -465,7 +465,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
 
-            using MultiPartFormDataBinaryContent contentWithContentType = new MultiPartFormDataBinaryContent();
             await using var imageStream2 = File.OpenRead(SampleJpgPath);
             var profileImage2 = new FileOptionalContentType(imageStream2, "hello.jpg", "application/octet-stream");
             request = new FileWithHttpPartOptionalContentTypeRequest(profileImage2);
@@ -478,7 +477,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task HttpPartsRequiredContentTypeConv() => Test(async (host) =>
         {
             await using var imageStream = File.OpenRead(SampleJpgPath);
@@ -494,7 +493,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task HttpPartsRequiredContentTypeConvUsingBinaryData() => Test(async (host) =>
         {
             await using var imageStream = File.OpenRead(SampleJpgPath);
@@ -518,7 +517,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var file = new MultiPartFile(imageStream, "hello.jpg");
             var request = new FileWithHttpPartRequiredContentTypeRequest(profileImage);
 
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
             Assert.IsNotNull(serialized);
             var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
 
@@ -539,7 +538,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var request = new FileWithHttpPartRequiredContentTypeRequest(profileImage);
 
             using var customStream = new MemoryStream();
-            ModelReaderWriter.Write(request, customStream, ModelSerializationExtensions.WireOptions);
+            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
             var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
 
             var response = await new MultiPartClient(host, null).GetFormDataClient()
@@ -550,7 +549,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         [Ignore("")]
         public Task HttpPartsJsonArrayAndFileArrayConv() => Test(async (host) =>
         {
@@ -599,7 +598,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             };
 
             var request = new ComplexHttpPartsModelRequest(id, address1, profileImage, previousAddresses, pictures);
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
         });
@@ -625,12 +624,12 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             var request = new ComplexHttpPartsModelRequest(id, address1, profileImage, previousAddresses, pictures);
             using var customStream = new MemoryStream();
-            ModelReaderWriter.Write(request, customStream, ModelSerializationExtensions.WireOptions);
+            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(customStream);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task HttpPartsNonStringFloatAsync() => Test(async (host) =>
         {
             var temperature = new FloatRequestTemperature(0.5f);
@@ -642,7 +641,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task BinaryArrayPartsConv() => Test(async (host) =>
         {
             var id = "123";
@@ -660,7 +659,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task BinaryArrayConvUsingBinaryData() => Test(async (host) =>
         {
             var id = "123";
@@ -679,7 +678,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task BinaryArrayPartsMRW() => Test(async (host) =>
         {
             var id = "123";
@@ -692,12 +691,12 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             };
             var request = new BinaryArrayPartsRequest(id, pictures);
 
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task AnonymousModelConv() => Test(async (host) =>
         {
             await using var imageStream = File.OpenRead(SampleJpgPath);
@@ -708,7 +707,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task AnonymousModelConvUsingBinaryData() => Test(async (host) =>
         {
             await using var imageStream = File.OpenRead(SampleJpgPath);
@@ -719,18 +718,18 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task MultiBinaryPartsWithPictureConv()
             => MultiBinaryPartsConv(true);
-        [CadlRanchTest]
+        [SpectorTest]
         public Task MultiBinaryPartsWithPictureConvUsingBinaryData()
             => MultiBinaryPartsConvUsingBinaryData(true);
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task MultiBinaryPartsWithoutPictureConv()
             => MultiBinaryPartsConv(false);
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task MultiBinaryPartsWithoutPictureConvUsingBinaryData()
             => MultiBinaryPartsConvUsingBinaryData(false);
 
@@ -743,7 +742,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             await using var imageStream2 = File.OpenRead(SamplePngPath);
             var picture = new MultiPartFile(imageStream2, "picture.jpg");
             var request = new MultiBinaryPartsRequest(profileImage);
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
         });
@@ -779,185 +778,5 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var response = await new MultiPartClient(host, null).GetFormDataClient().MultiBinaryPartsAsync(request);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
-
-        internal partial class MultiPartFormDataBinaryContent : BinaryContent
-        {
-            private readonly MultipartFormDataContent _multipartContent;
-            private static readonly Random _random = new Random();
-            private static readonly char[] _boundaryValues = "0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".ToCharArray();
-
-            public MultiPartFormDataBinaryContent()
-            {
-                _multipartContent = new MultipartFormDataContent(CreateBoundary());
-            }
-
-            public string? ContentType
-            {
-                get
-                {
-                    return _multipartContent.Headers.ContentType?.ToString();
-                }
-            }
-
-            internal HttpContent HttpContent => _multipartContent;
-
-            private static string CreateBoundary()
-            {
-                Span<char> chars = new char[70];
-                byte[] random = new byte[70];
-                _random.NextBytes(random);
-                int mask = 255 >> 2;
-                int i = 0;
-                for (; i < 70; i++)
-                {
-                    chars[i] = _boundaryValues[random[i] & mask];
-                }
-                return chars.ToString();
-            }
-
-            public void Add(string content, string name, string? filename = default, string? contentType = default)
-            {
-                ArgumentNullException.ThrowIfNull(content, nameof(content));
-                ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-
-                Add(new StringContent(content), name, filename, contentType);
-            }
-
-            public void Add(int content, string name, string? filename = default, string? contentType = default)
-            {
-                ArgumentNullException.ThrowIfNull(content, nameof(content));
-                ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-
-                string value = content.ToString("G", CultureInfo.InvariantCulture);
-                Add(new StringContent(value), name, filename, contentType);
-            }
-
-            public void Add(long content, string name, string? filename = default, string? contentType = default)
-            {
-                ArgumentNullException.ThrowIfNull(content, nameof(content));
-                ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-
-                string value = content.ToString("G", CultureInfo.InvariantCulture);
-                Add(new StringContent(value), name, filename, contentType);
-            }
-
-            public void Add(float content, string name, string? filename = default, string? contentType = default)
-            {
-                ArgumentNullException.ThrowIfNull(content, nameof(content));
-                ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-
-                string value = content.ToString("G", CultureInfo.InvariantCulture);
-                Add(new StringContent(value), name, filename, contentType);
-            }
-
-            public void Add(double content, string name, string? filename = default, string? contentType = default)
-            {
-                ArgumentNullException.ThrowIfNull(content, nameof(content));
-                ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-
-                string value = content.ToString("G", CultureInfo.InvariantCulture);
-                Add(new StringContent(value), name, filename, contentType);
-            }
-
-            public void Add(decimal content, string name, string? filename = default, string? contentType = default)
-            {
-                ArgumentNullException.ThrowIfNull(content, nameof(content));
-                ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-
-                string value = content.ToString("G", CultureInfo.InvariantCulture);
-                Add(new StringContent(value), name, filename, contentType);
-            }
-
-            public void Add(bool content, string name, string? filename = default, string? contentType = default)
-            {
-                ArgumentNullException.ThrowIfNull(content, nameof(content));
-                ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-
-                string value = content ? "true" : "false";
-                Add(new StringContent(value), name, filename, contentType);
-            }
-
-            public void Add(Stream content, string name, string? filename = default, string? contentType = default)
-            {
-                ArgumentNullException.ThrowIfNull(content, nameof(content));
-                ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-
-                Add(new StreamContent(content), name, filename, contentType);
-            }
-
-            public void Add(byte[] content, string name, string? filename = default, string? contentType = default)
-            {
-                ArgumentNullException.ThrowIfNull(content, nameof(content));
-                ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-
-                Add(new ByteArrayContent(content), name, filename, contentType);
-            }
-
-            public void Add(BinaryData content, string name, string? filename = default, string? contentType = default)
-            {
-                ArgumentNullException.ThrowIfNull(content, nameof(content));
-                ArgumentNullException.ThrowIfNullOrEmpty(name, nameof(name));
-
-                Add(new ByteArrayContent(content.ToArray()), name, filename, contentType);
-            }
-
-            private void Add(HttpContent content, string name, string? filename, string? contentType)
-            {
-                if (contentType != null)
-                {
-                    ArgumentNullException.ThrowIfNullOrEmpty(contentType, nameof(contentType));
-                    AddContentTypeHeader(content, contentType);
-                }
-                if (filename != null)
-                {
-                    ArgumentNullException.ThrowIfNullOrEmpty(filename, nameof(filename));
-                    _multipartContent.Add(content, name, filename);
-                }
-                else
-                {
-                    _multipartContent.Add(content, name);
-                }
-            }
-
-            public static void AddContentTypeHeader(HttpContent content, string contentType)
-            {
-                MediaTypeHeaderValue header = new MediaTypeHeaderValue(contentType);
-                content.Headers.ContentType = header;
-            }
-
-            public override bool TryComputeLength(out long length)
-            {
-                if (_multipartContent.Headers.ContentLength is long contentLength)
-                {
-                    length = contentLength;
-                    return true;
-                }
-                length = 0;
-                return false;
-            }
-
-            public override void WriteTo(Stream stream, CancellationToken cancellationToken = default)
-            {
-#if NET6_0_OR_GREATER
-                _multipartContent.CopyTo(stream, default, cancellationToken);
-#else
-            _multipartContent.CopyToAsync(stream).GetAwaiter().GetResult();
-#endif
-            }
-
-            public override async Task WriteToAsync(Stream stream, CancellationToken cancellationToken = default)
-            {
-#if NET6_0_OR_GREATER
-                await _multipartContent.CopyToAsync(stream).ConfigureAwait(false);
-#else
-            await _multipartContent.CopyToAsync(stream).ConfigureAwait(false);
-#endif
-            }
-
-            public override void Dispose()
-            {
-                _multipartContent.Dispose();
-            }
-        }
     }
 }
