@@ -844,7 +844,7 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -869,7 +869,7 @@ describe("http: decorators", () => {
                 id: "MyAuth",
                 description: "My custom basic auth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -891,7 +891,7 @@ describe("http: decorators", () => {
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1027,7 +1027,7 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1037,7 +1037,7 @@ describe("http: decorators", () => {
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1059,13 +1059,13 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1087,7 +1087,7 @@ describe("http: decorators", () => {
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1104,7 +1104,7 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1130,7 +1130,7 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1140,7 +1140,7 @@ describe("http: decorators", () => {
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1166,13 +1166,13 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
