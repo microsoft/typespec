@@ -176,7 +176,6 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
         Type: parameterType,
         Location: RequestLocation.Uri,
         IsApiVersion: parameter.isApiVersionParam,
-        IsResourceParameter: false,
         IsContentType: false,
         IsRequired: !parameter.optional,
         IsEndpoint: isEndpoint,

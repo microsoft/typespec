@@ -22,7 +22,6 @@ export interface InputParameter {
   Kind: InputOperationParameterKind;
   IsRequired: boolean;
   IsApiVersion: boolean;
-  IsResourceParameter: boolean;
   IsContentType: boolean;
   IsEndpoint: boolean;
   SkipUrlEncoding: boolean;
