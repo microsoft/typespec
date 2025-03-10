@@ -100,7 +100,10 @@ function addLroInformation(
 
 function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): string | undefined {
   if (segments[0]?.kind === "property") {
-    return segments.filter(s=>s.kind === "property").map(s=>s.serializationOptions.json?.name ?? "").join(".");
+    return segments
+      .filter((s) => s.kind === "property")
+      .map((s) => s.serializationOptions.json?.name ?? "")
+      .join(".");
   }
 
   return undefined;

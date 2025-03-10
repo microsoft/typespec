@@ -1528,9 +1528,7 @@ class LROPagingOperationSerializer(
 
     def get_long_running_output(self, builder: LROPagingOperation) -> List[str]:
         retval = ["def get_long_running_output(pipeline_response):"]
-        retval.append(
-            f"    {self._function_def} internal_get_next({builder.next_variable_name}=None):"
-        )
+        retval.append(f"    {self._function_def} internal_get_next({builder.next_variable_name}=None):")
         retval.append(f"        if {builder.next_variable_name} is None:")
         retval.append("            return pipeline_response")
         retval.append(f"        return {self._call_method}get_next({builder.next_variable_name})")
