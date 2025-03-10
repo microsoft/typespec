@@ -48,7 +48,7 @@ By default, the `Content-Type` of individual request parts is set automatically 
 | ---------------------------------------- | -------------------------- | ---------------------------------------------------------------- |
 | Primitive                                | `text/plain`               | `HttpPart<string>`<br> `HttpPart<number>`<br>`HttpPart<boolean>` |
 | Complex value or array of complex values | `application/json`         | `HttpPart<Address>`<br>`HttpPart<Address[]>`                     |
-| `File`, `bytes`                          | `application/octet-stream` | `HttpPart<bytes>`<br>`HttpPart<bytes>`                           |
+| `File`, `bytes`                          | `application/octet-stream` | `HttpPart<File>`<br>`HttpPart<bytes>`                            |
 
 ## Part names
 
