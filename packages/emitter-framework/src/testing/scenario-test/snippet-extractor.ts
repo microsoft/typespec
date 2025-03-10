@@ -71,8 +71,8 @@ export function createTypeScriptExtractorConfig(): LanguageConfiguration {
 
 export type Language = {
   name: string;
-  language: unknown;
-  nodeTypeInfo: unknown[];
+  language: any;
+  nodeTypeInfo: any[];
 };
 
 export interface LanguageConfiguration {
@@ -100,7 +100,8 @@ class SnippetExtractorImpl implements SnippetExtractor {
 
   constructor(languageConfiguration: LanguageConfiguration) {
     this.parser = new Parser();
-    this.parser.setLanguage(languageConfiguration.language);
+    const languageConfig: Language = languageConfiguration.language;
+    this.parser.setLanguage(languageConfig);
     this.languageConfiguration = languageConfiguration;
   }
 

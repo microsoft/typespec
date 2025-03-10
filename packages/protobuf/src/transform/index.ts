@@ -1050,9 +1050,6 @@ function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget 
       return node.id;
     case SyntaxKind.ModelSpreadProperty:
       return node;
-    case SyntaxKind.ProjectionModelProperty:
-    case SyntaxKind.ProjectionModelSpreadProperty:
-      return property;
     default:
       const __exhaust: never = node;
       throw new Error(

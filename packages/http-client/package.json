@@ -19,26 +19,28 @@
     }
   },
   "dependencies": {
-    "@alloy-js/core": "^0.5.0",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/http": "workspace:~"
+    "@alloy-js/core": "^0.6.0",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^"
   },
   "devDependencies": {
+    "@alloy-js/babel-preset": "^0.2.0",
     "@babel/cli": "^7.24.8",
-    "@babel/core": "^7.26.0",
+    "@babel/core": "^7.26.9",
     "@rollup/plugin-babel": "^6.0.4",
-    "@alloy-js/babel-preset": "^0.1.1",
-    "@types/node": "~22.10.10",
-    "eslint": "^9.18.0",
-    "prettier": "~3.4.2",
-    "typescript": "~5.7.3",
-    "vitest": "^3.0.5"
+    "@types/node": "~22.13.9",
+    "eslint": "^9.21.0",
+    "prettier": "~3.5.3",
+    "typescript": "~5.8.2",
+    "vitest": "^3.0.7"
   },
   "scripts": {
     "build-src": "babel src -d dist/src --extensions .ts,.tsx",
     "build": "tsc -p . && npm run build-src",
-    "watch": "tsc --watch",
-    "build:tsp": "tsp compile . --no-emit",
+    "clean": "rimraf ./dist",
+    "watch-src": "babel src -d dist/src --extensions .ts,.tsx --watch",
+    "watch-tsc": "tsc -p . --watch",
+    "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
     "test": "vitest run",
     "lint": "eslint src/ test/ --report-unused-disable-directives --max-warnings=0",
     "lint:fix": "eslint . --report-unused-disable-directives --fix",

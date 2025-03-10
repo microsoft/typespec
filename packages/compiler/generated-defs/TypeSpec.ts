@@ -12,7 +12,7 @@ import type {
   Type,
   Union,
   UnionVariant,
-} from "../src/core/index.js";
+} from "../src/index.js";
 
 export interface ServiceOptions {
   readonly title?: string;
@@ -193,27 +193,6 @@ export type ErrorsDocDecorator = (
   context: DecoratorContext,
   target: Operation,
   doc: string,
-) => void;
-
-/**
- * Mark this type as deprecated.
- *
- * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
- *
- * @deprecated Use the `#deprecated` [directive](https://typespec.io/docs/language-basics/directives/#deprecated) instead.
- * @param message Deprecation message.
- * @example
- * Use the `#deprecated` directive instead:
- *
- * ```typespec
- * #deprecated "Use ActionV2"
- * op Action<Result>(): Result;
- * ```
- */
-export type DeprecatedDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  message: string,
 ) => void;
 
 /**
@@ -491,27 +470,6 @@ export type FriendlyNameDecorator = (
 ) => void;
 
 /**
- * Provide a set of known values to a string type.
- *
- * @param values Known values enum.
- * @example
- * ```typespec
- * @knownValues(KnownErrorCode)
- * scalar ErrorCode extends string;
- *
- * enum KnownErrorCode {
- *   NotFound,
- *   Invalid,
- * }
- * ```
- */
-export type KnownValuesDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  values: Enum,
-) => void;
-
-/**
  * Mark a model property as the key to identify instances of that type
  *
  * @param altName Name of the property. If not specified, the decorated property name is used.
@@ -545,28 +503,6 @@ export type OverloadDecorator = (
   context: DecoratorContext,
   target: Operation,
   overloadbase: Operation,
-) => void;
-
-/**
- * DEPRECATED: Use `@encodedName` instead.
- *
- * Provide an alternative name for this type.
- *
- * @param targetName Projection target
- * @param projectedName Alternative name
- * @example
- * ```typespec
- * model Certificate {
- *   @projectedName("json", "exp")
- *   expireAt: int32;
- * }
- * ```
- */
-export type ProjectedNameDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  targetName: string,
-  projectedName: string,
 ) => void;
 
 /**
@@ -1148,7 +1084,6 @@ export type TypeSpecDecorators = {
   summary: SummaryDecorator;
   returnsDoc: ReturnsDocDecorator;
   errorsDoc: ErrorsDocDecorator;
-  deprecated: DeprecatedDecorator;
   service: ServiceDecorator;
   error: ErrorDecorator;
   mediaTypeHint: MediaTypeHintDecorator;
@@ -1165,10 +1100,8 @@ export type TypeSpecDecorators = {
   secret: SecretDecorator;
   tag: TagDecorator;
   friendlyName: FriendlyNameDecorator;
-  knownValues: KnownValuesDecorator;
   key: KeyDecorator;
   overload: OverloadDecorator;
-  projectedName: ProjectedNameDecorator;
   encodedName: EncodedNameDecorator;
   discriminated: DiscriminatedDecorator;
   discriminator: DiscriminatorDecorator;

@@ -37,23 +37,23 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@typespec/spec-api": "workspace:~",
-    "@typespec/spector": "workspace:~"
+    "@typespec/spec-api": "workspace:^",
+    "@typespec/spector": "workspace:^"
   },
   "devDependencies": {
     "@types/multer": "^1.4.10",
-    "@types/node": "~22.10.10",
-    "@typespec/openapi": "workspace:~",
-    "@typespec/openapi3": "workspace:~",
+    "@types/node": "~22.13.9",
+    "@typespec/openapi": "workspace:^",
+    "@typespec/openapi3": "workspace:^",
     "concurrently": "^9.1.2",
     "rimraf": "~6.0.1",
-    "typescript": "~5.7.3"
+    "typescript": "~5.8.2"
   },
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~",
-    "@typespec/http": "workspace:~",
-    "@typespec/rest": "workspace:~",
-    "@typespec/versioning": "workspace:~",
-    "@typespec/xml": "workspace:~"
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/rest": "workspace:^",
+    "@typespec/versioning": "workspace:^",
+    "@typespec/xml": "workspace:^"
   }
 }

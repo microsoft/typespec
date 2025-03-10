@@ -60,7 +60,6 @@ import {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
-  SdkMethod,
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
@@ -103,7 +102,11 @@ import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
 import pkg from "lodash";
-import { Client as CodeModelClient, EncodedSchema } from "./common/client.js";
+import {
+  Client as CodeModelClient,
+  EncodedSchema,
+  PageableContinuationToken,
+} from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
@@ -984,7 +987,7 @@ export class CodeModelBuilder {
     }
 
     // check for paged
-    this.processRouteForPaged(codeModelOperation, sdkMethod.operation.responses, sdkMethod);
+    this.processRouteForPaged(codeModelOperation, sdkMethod);
 
     // check for long-running operation
     this.processRouteForLongRunning(codeModelOperation, lroMetadata);
@@ -996,49 +999,153 @@ export class CodeModelBuilder {
 
   private processRouteForPaged(
     op: CodeModelOperation,
-    responses: SdkHttpResponse[],
-    sdkMethod: SdkMethod<SdkHttpOperation>,
+    sdkMethod: SdkServiceMethod<SdkHttpOperation>,
   ) {
-    if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
-      for (const response of responses) {
-        const bodyType = response.type;
-        if (bodyType && bodyType.kind === "model") {
-          let itemSerializedName: string | undefined = undefined;
-          let nextLinkSerializedName: string | undefined = undefined;
+    if (sdkMethod.kind !== "paging" && sdkMethod.kind !== "lropaging") {
+      return;
+    }
+    // TCGC should already verified that there is 1 response, and response body is a model
+    const responses = sdkMethod.operation.responses;
+    if (responses.length === 0) {
+      return;
+    }
+    const response = responses[0];
+    const bodyType = response.type;
+    if (!bodyType || bodyType.kind !== "model") {
+      return;
+    }
 
-          const itemSegments = sdkMethod.response.resultSegments;
-          const nextLinkSegments = sdkMethod.pagingMetadata.nextLinkSegments;
+    op.responses?.forEach((r) => {
+      if (r instanceof SchemaResponse) {
+        this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+      }
+    });
 
-          // TODO: in future the property could be nested, so that the "itemSegments" or "nextLinkSegments" would contain more than 1 element
-          if (itemSegments) {
-            // "itemsSegments" should exist for "paging"/"lropaging"
-            const lastSegment = itemSegments[itemSegments.length - 1];
-            if (lastSegment.kind === "property") {
-              itemSerializedName = getPropertySerializedName(lastSegment);
+    function getLastPropertySegment(
+      segments: SdkModelPropertyType[] | undefined,
+    ): SdkBodyModelPropertyType | undefined {
+      if (segments) {
+        const lastSegment = segments[segments.length - 1];
+        if (lastSegment.kind === "property") {
+          return lastSegment;
+        }
+      }
+      return undefined;
+    }
+    function getLastSegment(
+      segments: SdkModelPropertyType[] | undefined,
+    ): SdkModelPropertyType | undefined {
+      if (segments) {
+        return segments[segments.length - 1];
+      }
+      return undefined;
+    }
+    function getLastSegmentSerializedName(
+      segments: SdkModelPropertyType[] | undefined,
+    ): string | undefined {
+      const lastSegment = getLastPropertySegment(segments);
+      return lastSegment ? getPropertySerializedName(lastSegment) : undefined;
+    }
+
+    // TODO: in future the property could be nested, so that the "itemSegments" or "nextLinkSegments" would contain more than 1 element
+    // item/result
+    // "itemsSegments" should exist for "paging"/"lropaging"
+    const itemSerializedName = getLastSegmentSerializedName(sdkMethod.response.resultSegments);
+    // nextLink
+    const nextLinkSerializedName = getLastSegmentSerializedName(
+      sdkMethod.pagingMetadata.nextLinkSegments,
+    );
+
+    // continuationToken
+    let continuationTokenParameter: Parameter | undefined;
+    let continuationTokenResponseProperty: Property[] | undefined;
+    let continuationTokenResponseHeader: HttpHeader | undefined;
+    if (!this.isBranded()) {
+      const continuationTokenParameterSegment = getLastSegment(
+        sdkMethod.pagingMetadata.continuationTokenParameterSegments,
+      );
+      const continuationTokenResponseSegment = getLastSegment(
+        sdkMethod.pagingMetadata.continuationTokenResponseSegments,
+      );
+      if (continuationTokenParameterSegment && op.parameters) {
+        // for now, continuationToken is either request query or header parameter
+        const parameter = getHttpOperationParameter(sdkMethod, continuationTokenParameterSegment);
+        if (parameter) {
+          for (const param of op.parameters) {
+            if (param.protocol.http?.in === parameter.kind) {
+              if (
+                parameter.kind === "header" &&
+                param.language.default.serializedName.toLowerCase() ===
+                  parameter.serializedName.toLowerCase()
+              ) {
+                continuationTokenParameter = param;
+                break;
+              } else if (param.language.default.serializedName === parameter.serializedName) {
+                continuationTokenParameter = param;
+                break;
+              }
             }
           }
-          if (nextLinkSegments) {
-            const lastSegment = nextLinkSegments[nextLinkSegments.length - 1];
-            if (lastSegment.kind === "property") {
-              nextLinkSerializedName = getPropertySerializedName(lastSegment);
+        }
+      }
+      if (continuationTokenResponseSegment && op.responses) {
+        if (continuationTokenResponseSegment?.kind === "responseheader") {
+          // continuationToken is response header
+          for (const response of op.responses) {
+            if (response instanceof SchemaResponse && response.protocol.http) {
+              for (const header of response.protocol.http.headers) {
+                if (
+                  header.header.toLowerCase() ===
+                  continuationTokenResponseSegment.serializedName.toLowerCase()
+                ) {
+                  continuationTokenResponseHeader = header;
+                  break;
+                }
+              }
+            }
+            if (continuationTokenResponseHeader) {
+              break;
             }
           }
-
-          op.responses?.forEach((r) => {
-            if (r instanceof SchemaResponse) {
-              this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+        } else if (continuationTokenResponseSegment?.kind === "property") {
+          // continuationToken is response body property
+          // TODO: the property could be nested
+          for (const response of op.responses) {
+            if (
+              response instanceof SchemaResponse &&
+              response.schema instanceof ObjectSchema &&
+              response.schema.properties
+            ) {
+              for (const property of response.schema.properties) {
+                if (
+                  property.serializedName ===
+                  getPropertySerializedName(continuationTokenResponseSegment)
+                ) {
+                  continuationTokenResponseProperty = [property];
+                  break;
+                }
+              }
             }
-          });
-
-          op.extensions = op.extensions ?? {};
-          op.extensions["x-ms-pageable"] = {
-            itemName: itemSerializedName,
-            nextLinkName: nextLinkSerializedName,
-          };
-          break;
+            if (continuationTokenResponseProperty) {
+              break;
+            }
+          }
         }
       }
     }
+
+    op.extensions = op.extensions ?? {};
+    op.extensions["x-ms-pageable"] = {
+      itemName: itemSerializedName,
+      nextLinkName: nextLinkSerializedName,
+      continuationToken: continuationTokenParameter
+        ? new PageableContinuationToken(
+            continuationTokenParameter,
+            continuationTokenResponseProperty,
+            continuationTokenResponseHeader,
+          )
+        : undefined,
+    };
   }
 
   private processLroMetadata(
@@ -2365,8 +2472,14 @@ export class CodeModelBuilder {
 
   private processObjectSchema(type: SdkModelType, name: string): ObjectSchema {
     const rawModelType = type.__raw;
+    if (!name && !type.name) {
+      reportDiagnostic(this.program, {
+        code: "empty-name",
+        target: rawModelType ?? NoTarget,
+      });
+    }
     const namespace = getNamespace(rawModelType);
-    const objectSchema = new ObjectSchema(name, type.doc ?? "", {
+    const objectSchema = new ObjectSchema(type.name ?? name, type.doc ?? "", {
       summary: type.summary,
       language: {
         default: {

@@ -53,37 +53,6 @@ The modifiers passed to this decorator _MUST_ be members of the target Enum.
 
 
 
-### `@deprecated` {#@deprecated}
-:::caution
-**Deprecated**: @deprecated decorator is deprecated. Use the `#deprecated` directive instead.
-:::
-
-Mark this type as deprecated.
-
-NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
-```typespec
-@deprecated(message: valueof string)
-```
-
-#### Target
-
-`unknown`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| message | [valueof `string`](#string) | Deprecation message. |
-
-#### Examples
-
-Use the `#deprecated` directive instead:
-
-```typespec
-#deprecated "Use ActionV2"
-op Action<Result>(): Result;
-```
-
-
 ### `@discriminated` {#@discriminated}
 
 Specify that this union is discriminated.
@@ -537,38 +506,6 @@ Mark a model property as the key to identify instances of that type
 ```typespec
 model Pet {
   @key id: string;
-}
-```
-
-
-### `@knownValues` {#@knownValues}
-:::caution
-**Deprecated**: This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator.
-:::
-
-Provide a set of known values to a string type.
-```typespec
-@knownValues(values: Enum)
-```
-
-#### Target
-
-`string | numeric | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| values | `Enum` | Known values enum. |
-
-#### Examples
-
-```typespec
-@knownValues(KnownErrorCode)
-scalar ErrorCode extends string;
-
-enum KnownErrorCode {
-  NotFound,
-  Invalid,
 }
 ```
 
@@ -1073,38 +1010,6 @@ model Page<T> {
   @lastLink last: url;
 }
 @list op listPets(): Page<Pet>;
-```
-
-
-### `@projectedName` {#@projectedName}
-:::caution
-**Deprecated**: Use `@encodedName` instead for changing the name over the wire.
-:::
-
-DEPRECATED: Use `@encodedName` instead.
-
-Provide an alternative name for this type.
-```typespec
-@projectedName(targetName: valueof string, projectedName: valueof string)
-```
-
-#### Target
-
-`unknown`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| targetName | [valueof `string`](#string) | Projection target |
-| projectedName | [valueof `string`](#string) | Alternative name |
-
-#### Examples
-
-```typespec
-model Certificate {
-  @projectedName("json", "exp")
-  expireAt: int32;
-}
 ```
 
 

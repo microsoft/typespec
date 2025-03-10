@@ -1,5 +1,5 @@
 import { DocumentSymbol, Range, SymbolKind } from "vscode-languageserver";
-import {
+import type {
   EnumSpreadMemberNode,
   EnumStatementNode,
   IdentifierNode,
@@ -10,7 +10,7 @@ import {
   StringLiteralNode,
   TypeSpecScriptNode,
   UnionStatementNode,
-} from "../core/index.js";
+} from "../core/types.js";
 import { NamespaceStatementNode, Node, SyntaxKind } from "../core/types.js";
 import { isArray, isDefined } from "../utils/misc.js";
 

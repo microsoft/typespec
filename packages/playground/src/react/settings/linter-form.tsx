@@ -15,8 +15,7 @@ export const LinterForm: FunctionComponent<LinterFormProps> = ({
   onLinterRuleSetChanged,
 }) => {
   const rulesets = Object.values(libraries).flatMap((lib) => {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const linter = lib.linter ?? lib.definition?.linter;
+    const linter = lib.linter;
     return Object.keys(linter?.ruleSets ?? {}).map((x) => `${lib.name}/${x}`) as RuleRef[];
   });
   if (rulesets.length === 0) {
