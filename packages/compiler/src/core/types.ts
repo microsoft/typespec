@@ -2497,12 +2497,34 @@ export interface RelatedSourceLocation {
   readonly location: SourceLocation;
 }
 
+/** @internal */
+export type TaskStatus = "success" | "failure" | "skipped" | "warn";
+
+/** @internal */
+export interface TrackActionTask {
+  message: string;
+  readonly isStopped: boolean;
+  succeed(message?: string): void;
+  fail(message?: string): void;
+  warn(message?: string): void;
+  skip(message?: string): void;
+  stop(status: TaskStatus, message?: string): void;
+}
+
 export interface LogSink {
   log(log: ProcessedLog): void;
+
+  /** @internal */
+  getPath?(path: string): string;
+
   /**
    * @internal
    */
-  trackAction?<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
+  trackAction?<T>(
+    message: string,
+    finalMessage: string,
+    asyncAction: (task: TrackActionTask) => Promise<T>,
+  ): Promise<T>;
 }
 
 export interface Logger {
@@ -2510,7 +2532,13 @@ export interface Logger {
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
-  trackAction<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
+
+  /** @internal */
+  trackAction<T>(
+    message: string,
+    finalMessage: string,
+    asyncAction: (task: TrackActionTask) => Promise<T>,
+  ): Promise<T>;
 }
 
 export interface TracerOptions {
