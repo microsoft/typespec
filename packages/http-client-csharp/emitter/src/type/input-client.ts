@@ -8,6 +8,7 @@ import { Protocols } from "./protocols.js";
 
 export interface InputClient {
   Name: string;
+  Namespace: string;
   Summary?: string;
   Doc?: string;
   Operations: InputOperation[];
@@ -15,4 +16,5 @@ export interface InputClient {
   Parent?: string;
   Parameters?: InputParameter[];
   Decorators?: DecoratorInfo[];
+  CrossLanguageDefinitionId: string;
 }

@@ -26,11 +26,6 @@ import {
   Node,
   NodeFlags,
   OperationStatementNode,
-  ProjectionLambdaExpressionNode,
-  ProjectionLambdaParameterDeclarationNode,
-  ProjectionNode,
-  ProjectionParameterDeclarationNode,
-  ProjectionStatementNode,
   ScalarConstructorNode,
   ScalarStatementNode,
   ScopeNode,
@@ -107,10 +102,6 @@ export function createBinder(program: Program): Binder {
   let parentNode: Node | undefined;
   let fileNamespace: NamespaceStatementNode | undefined;
   let scope: ScopeNode;
-
-  // tracks which selectors were used with which projection symbols
-  // for reporting duplicates
-  const projectionSymbolSelectors = new Map<Sym, Set<string>>();
 
   return {
     bindSourceFile,
@@ -365,20 +356,6 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.FunctionParameter:
         bindFunctionParameter(node);
         break;
-      case SyntaxKind.Projection:
-        bindProjection(node);
-        break;
-      case SyntaxKind.ProjectionStatement:
-        bindProjectionStatement(node);
-        break;
-      case SyntaxKind.ProjectionParameterDeclaration:
-        bindProjectionParameterDeclaration(node);
-        break;
-      case SyntaxKind.ProjectionLambdaParameterDeclaration:
-        bindProjectionLambdaParameterDeclaration(node);
-        break;
-      case SyntaxKind.ProjectionLambdaExpression:
-        bindProjectionLambdaExpression(node);
     }
 
     const prevParent = parentNode;
@@ -401,116 +378,6 @@ export function createBinder(program: Program): Binder {
 
     // restore parent node
     parentNode = prevParent;
-  }
-
-  function bindProjection(node: ProjectionNode) {
-    mutate(node).locals = createSymbolTable();
-  }
-
-  /**
-   * Binding projection statements is interesting because there may be
-   * multiple declarations spread across various source files that all
-   * contribute to the same symbol because they declare the same
-   * projection on different selectors.
-   *
-   * There is presently an issue where we do not check for duplicate
-   * projections when they're applied to a specific type. This could
-   * be done with ease in the checker during evaluation, but could
-   * probably instead be done in a post-bind phase - we just need
-   * all the symbols in place so we know if a projection was declared
-   * multiple times for the same symbol.
-   *
-   */
-  function bindProjectionStatement(node: ProjectionStatementNode) {
-    const name = node.id.sv;
-    const table: SymbolTable = (scope as NamespaceStatementNode | TypeSpecScriptNode).symbol
-      .exports!;
-    let sym: Sym;
-    if (table.has(name)) {
-      sym = table.get(name)!;
-      if (!(sym.flags & SymbolFlags.Projection)) {
-        // clashing with some other decl, report duplicate symbol
-        declareSymbol(node, SymbolFlags.Projection);
-        return;
-      }
-      mutate(sym.declarations).push(node);
-    } else {
-      sym = createSymbol(
-        node,
-        name,
-        SymbolFlags.Projection | SymbolFlags.Declaration,
-        scope.symbol,
-      );
-      mutate(table).set(name, sym);
-    }
-
-    mutate(node).symbol = sym;
-
-    if (
-      node.selector.kind !== SyntaxKind.Identifier &&
-      node.selector.kind !== SyntaxKind.MemberExpression
-    ) {
-      let selectorString: string;
-      switch (node.selector.kind) {
-        case SyntaxKind.ProjectionModelSelector:
-          selectorString = "model";
-          break;
-        case SyntaxKind.ProjectionModelPropertySelector:
-          selectorString = "modelproperty";
-          break;
-        case SyntaxKind.ProjectionScalarSelector:
-          selectorString = "scalar";
-          break;
-        case SyntaxKind.ProjectionOperationSelector:
-          selectorString = "op";
-          break;
-        case SyntaxKind.ProjectionUnionSelector:
-          selectorString = "union";
-          break;
-        case SyntaxKind.ProjectionUnionVariantSelector:
-          selectorString = "unionvariant";
-          break;
-        case SyntaxKind.ProjectionEnumSelector:
-          selectorString = "enum";
-          break;
-        case SyntaxKind.ProjectionEnumMemberSelector:
-          selectorString = "enummember";
-          break;
-        case SyntaxKind.ProjectionInterfaceSelector:
-          selectorString = "interface";
-          break;
-        default:
-          const _never: never = node.selector;
-          compilerAssert(false, "Unreachable");
-      }
-
-      let existingSelectors = projectionSymbolSelectors.get(sym);
-      if (!existingSelectors) {
-        existingSelectors = new Set();
-        projectionSymbolSelectors.set(sym, existingSelectors);
-      }
-      if (existingSelectors.has(selectorString)) {
-        // clashing with a like-named decl with this selector, so throw.
-        declareSymbol(node, SymbolFlags.Projection);
-        return;
-      }
-
-      existingSelectors.add(selectorString);
-    }
-  }
-
-  function bindProjectionParameterDeclaration(node: ProjectionParameterDeclarationNode) {
-    declareSymbol(node, SymbolFlags.ProjectionParameter | SymbolFlags.Declaration);
-  }
-
-  function bindProjectionLambdaParameterDeclaration(
-    node: ProjectionLambdaParameterDeclarationNode,
-  ) {
-    declareSymbol(node, SymbolFlags.FunctionParameter | SymbolFlags.Declaration);
-  }
-
-  function bindProjectionLambdaExpression(node: ProjectionLambdaExpressionNode) {
-    mutate(node).locals = new SymbolTable();
   }
 
   function bindTemplateParameterDeclaration(node: TemplateParameterDeclarationNode) {
@@ -745,8 +612,6 @@ function hasScope(node: Node): node is ScopeNode {
     case SyntaxKind.InterfaceStatement:
     case SyntaxKind.OperationStatement:
     case SyntaxKind.UnionStatement:
-    case SyntaxKind.Projection:
-    case SyntaxKind.ProjectionLambdaExpression:
     case SyntaxKind.EnumStatement:
       return true;
     case SyntaxKind.NamespaceStatement:

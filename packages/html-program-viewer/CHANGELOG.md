@@ -1,5 +1,23 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.66.0
+
+### Features
+
+- [#5996](https://github.com/microsoft/typespec/pull/5996) Emitter Framework V2
+
+
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+
+## 0.64.0
+
+No changes, version bump only.
+
 ## 0.63.0
 
 No changes, version bump only.

@@ -1,5 +1,171 @@
 # Change Log - @typespec/compiler
 
+## 0.66.0
+
+### Deprecations
+
+- [#6059](https://github.com/microsoft/typespec/pull/6059) Deprecate use of `@discriminator` on union. Migrate to `@discriminated`
+
+```diff lang="tsp"
+-@discriminator("type")
++@discriminated(#{envelope: "none", discriminatorPropertyName: "type"})
+union Pet;
+```
+- [#6088](https://github.com/microsoft/typespec/pull/6088) Deprecate use of string-based visibility modifiers using warnings.
+
+String-based visibilities can be replaced as follows:
+
+- `"create"`, `"read"`, `"update"`, `"delete"`, and `"query"` can be replaced with `Lifecycle.Create`, `Lifecycle.Read`, `Lifecycle.Update`, `Lifecycle.Delete`, and `Lifecycle.Query` respectively.
+- `@visibility("none")` can be replaced with `@invisible(Lifecycle)`.
+
+For example:
+
+```tsp
+@visibility("create", "read")
+example: string;
+```
+
+can be replaced with:
+
+```tsp
+@visibility(Lifecycle.Create, Lifecycle.Read)
+example: string;
+```
+
+```tsp
+@visibility("none")
+example: string;
+```
+
+can be replaced with:
+
+```tsp
+@invisible(Lifecycle)
+example: string;
+```
+
+Additionally, `@parameterVisibility` with no arguments is deprecated.
+
+```tsp
+@parameterVisibility
+@patch
+op example(@bodyRoot resource: Resource): Resource;
+```
+
+The effect of `@parameterVisibility` is to disable effective PATCH optionality. If you wish
+to disable effective PATCH optionality in `@typespec/http`, preventing it from treating all
+properties of the request body as effectively optional, you can now do so explicitly:
+
+```tsp
+@patch(#{ implicitOptionality: false })
+op example(@bodyRoot resource: Resource): Resource;
+```
+
+- [#6108](https://github.com/microsoft/typespec/pull/6108) Migrate `@service` decorator options to take in a value
+
+```diff lang="tsp"
+-@service({title: "My service"})
++@service(#{title: "My service"})
+```
+- [#6047](https://github.com/microsoft/typespec/pull/6047) `--version` shows if tsp is running from the standalone version
+- [#5453](https://github.com/microsoft/typespec/pull/5453) Report unused `using` in language server
+- [#6164](https://github.com/microsoft/typespec/pull/6164) Renamed package `@typespec/http-server-javascript` to `@typespec/http-server-js`.
+
+### Features
+
+- [#5483](https://github.com/microsoft/typespec/pull/5483) Add autocomplete of model properties for union type
+- [#5458](https://github.com/microsoft/typespec/pull/5458) Add codefix for for various triple quoted string syntax issues
+- [#6082](https://github.com/microsoft/typespec/pull/6082) Introduced `list-files` flag to log all emitted files.
+- [#6082](https://github.com/microsoft/typespec/pull/6082) Added a progress indicator to show the current stage of tsp compilation process.
+- [#6059](https://github.com/microsoft/typespec/pull/6059) Add new `@discriminated` decorator to represent discriminated union with implicit envelopes
+- [#5494](https://github.com/microsoft/typespec/pull/5494) Report unused template parameters in language server
+- [#6045](https://github.com/microsoft/typespec/pull/6045) Redesign and simplification of `tsp init`
+- [#5996](https://github.com/microsoft/typespec/pull/5996) Add Typekits to support EFV2
+- [#5986](https://github.com/microsoft/typespec/pull/5986) Tsp init template with both config and emitters merge in tspconfig.yaml
+
+### Bug Fixes
+
+- [#4926](https://github.com/microsoft/typespec/pull/4926) Augmenting an expression will now report an error instead of silently failing to apply.
+- [#5937](https://github.com/microsoft/typespec/pull/5937) Fix: StringTemplate type not supported in typespecValueToJson
+- [#6204](https://github.com/microsoft/typespec/pull/6204) Fix `@example` reporting assignability error when using mix metadata(http) models
+- [#6125](https://github.com/microsoft/typespec/pull/6125) Fix tmlanguage syntax highlighting when using decorator before escaped identifier
+- [#6192](https://github.com/microsoft/typespec/pull/6192) Fix `tsp info` crash
+- [#6203](https://github.com/microsoft/typespec/pull/6203) Fix mutator not mutating sourceModel(s)
+
+
+## 0.65.3
+
+### Bug Fixes
+
+- [#6041](https://github.com/microsoft/typespec/pull/6041) Fix validation issue in `@opExample` when using versioning/mutators
+
+
+## 0.65.2
+
+### Bug Fixes
+
+- [#6003](https://github.com/microsoft/typespec/pull/6003) Fix regression where enum values would report not being assignable to their enum when using versioning
+
+
+## 0.65.1
+
+### Bug Fixes
+
+- [#5975](https://github.com/microsoft/typespec/pull/5975) Downgrade arborist dependency which added node20+ requirement
+
+
+## 0.65.0
+
+### Bug Fixes
+
+- [#5940](https://github.com/microsoft/typespec/pull/5940) Fix: Infinite loop in language server due to not caching indeterminate entities in templates
+- [#5186](https://github.com/microsoft/typespec/pull/5186) Fix issue that extra " will be added when auto completing emitter options inside ""
+- [#5833](https://github.com/microsoft/typespec/pull/5833) Fix tracing in `SourceLoader`
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5572](https://github.com/microsoft/typespec/pull/5572) Add support for [ESM subpath imports](https://nodejs.org/api/packages.html#subpath-imports)
+- [#5790](https://github.com/microsoft/typespec/pull/5790) Add option for semantic walker to visit model derived types
+- [#5340](https://github.com/microsoft/typespec/pull/5340) Add Experimental Typekit helpers for `@typespec/http`
+- [#5716](https://github.com/microsoft/typespec/pull/5716) Updated Rest init template to include additional emitters(client, server) and a basic sample.
+- [#5186](https://github.com/microsoft/typespec/pull/5186) Support the auto completion for extends, imports, rule, rule sets and variables in tspconfig.yaml
+- [#5186](https://github.com/microsoft/typespec/pull/5186) Show required/optional information in the details of emitter's options completion item in tspconfig.yaml
+- [#5342](https://github.com/microsoft/typespec/pull/5342) Convert model/tuple expression to value code fix is applied to the entire value.
+- [#5699](https://github.com/microsoft/typespec/pull/5699) Promote `unsafe_useStateMap` and `unsafe_useStateSet` experimental APIs to stable version `useStateMap` and `useStateSet`. Old ones are deprecated
+- [#5794](https://github.com/microsoft/typespec/pull/5794) Use local version of npm to manage dependencies when running `tsp install`
+- [#5824](https://github.com/microsoft/typespec/pull/5824) `tsp init` will not automatically run `tsp install` if a `package.json` file is created.
+- [#4931](https://github.com/microsoft/typespec/pull/4931) [Experimental] Update to subgraph mutator to visit all missing relations
+- [#5416](https://github.com/microsoft/typespec/pull/5416) Added APIs for getting parameterVisibility and returnTypeVisibility as VisibilityFilter objects.
+
+### Deprecations
+
+- [#4931](https://github.com/microsoft/typespec/pull/4931) Deprecate experimental projection.
+
+
+## 0.64.0
+
+### Bug Fixes
+
+- [#5295](https://github.com/microsoft/typespec/pull/5295) Fix incorrectly returning a positive `BigInt` for a negative `Numeric`.
+- [#5353](https://github.com/microsoft/typespec/pull/5353) Meta property are auto-completed, current only supported '::type', '::parameters', '::returnType'
+- [#5180](https://github.com/microsoft/typespec/pull/5180) Fixed serialization of object examples on unions
+- [#5525](https://github.com/microsoft/typespec/pull/5525) Enum-driven visibility decorators and projections now interact correctly.
+
+Projections now project EnumValue values to preserve consistency with projected Enum/EnumMember types using a best-effort
+strategy.
+
+### Features
+
+- [#5415](https://github.com/microsoft/typespec/pull/5415) Added support for emitter selections for init template.
+- [#5316](https://github.com/microsoft/typespec/pull/5316) Compiler trace will be sent to IDE as trace log through language server
+- [#5594](https://github.com/microsoft/typespec/pull/5594) Support Emitters section in Init Template when creating TypeSpec project in vscode
+- [#5294](https://github.com/microsoft/typespec/pull/5294) Add capacities in TypeSpec Language Server to support "Scaffolding new TypeSpec project" in IDE
+
+
 ## 0.63.0
 
 ### Bug Fixes

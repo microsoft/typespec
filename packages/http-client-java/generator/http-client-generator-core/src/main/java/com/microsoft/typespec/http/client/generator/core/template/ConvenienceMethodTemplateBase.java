@@ -538,7 +538,7 @@ abstract class ConvenienceMethodTemplateBase {
                     return name;
                 } else {
                     if (type == ClassType.BASE_64_URL) {
-                        return "BinaryData.fromObject(Base64Url.encode(" + name + "))";
+                        return "BinaryData.fromObject(" + ClassType.BASE_64_URL.getName() + ".encode(" + name + "))";
                     } else if (type instanceof EnumType) {
                         return "BinaryData.fromObject(" + name + " == null ? null : " + name + "."
                             + ((EnumType) type).getToMethodName() + "())";

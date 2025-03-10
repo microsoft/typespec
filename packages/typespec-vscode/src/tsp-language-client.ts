@@ -7,6 +7,7 @@ import type {
 } from "@typespec/compiler";
 import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
+import { TspConfigFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
 import {
@@ -160,7 +161,7 @@ export class TspLanguageClient {
             `TypeSpec server executable was not found: '${this.exe.command}' is not found. Make sure either:`,
             ` - TypeSpec is installed locally at the root of this workspace ("${workspaceFolder}") or in a parent directory.`,
             " - TypeSpec is installed globally with `npm install -g @typespec/compiler'.",
-            " - TypeSpec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
+            " - TypeSpec server path is configured with https://typespec.io/docs/introduction/editor/vscode/#configure.",
           ].join("\n"),
           [],
           { showOutput: false, showPopup: true },
@@ -188,10 +189,8 @@ export class TspLanguageClient {
     const exe = await resolveTypeSpecServer(context);
     logger.debug("TypeSpec server resolved as ", [exe]);
     const watchers = [
-      workspace.createFileSystemWatcher("**/*.cadl"),
-      workspace.createFileSystemWatcher("**/cadl-project.yaml"),
       workspace.createFileSystemWatcher("**/*.tsp"),
-      workspace.createFileSystemWatcher("**/tspconfig.yaml"),
+      workspace.createFileSystemWatcher(`**/${TspConfigFileName}`),
       // please be aware that the vscode watch with '**' will honer the files.watcherExclude settings
       // so we won't get notification for those package.json under node_modules
       // if our customers exclude the node_modules folder in files.watcherExclude settings.
@@ -213,7 +212,7 @@ export class TspLanguageClient {
       documentSelector: [
         { scheme: "file", language: "typespec" },
         { scheme: "untitled", language: "typespec" },
-        { scheme: "file", language: "yaml", pattern: "**/tspconfig.yaml" },
+        { scheme: "file", language: "yaml", pattern: `**/${TspConfigFileName}` },
       ],
       outputChannel,
     };
@@ -222,5 +221,25 @@ export class TspLanguageClient {
     const id = "typespec";
     const lc = new LanguageClient(id, name, { run: exe, debug: exe }, options);
     return new TspLanguageClient(lc, exe);
+  }
+
+  async compileOpenApi3(
+    mainTspFile: string,
+    srcFolder: string,
+    outputFolder: string,
+  ): Promise<ExecOutput | undefined> {
+    const result = await this.runCliCommand(
+      [
+        "compile",
+        mainTspFile,
+        "--emit=@typespec/openapi3",
+        "--option",
+        "@typespec/openapi3.file-type=json",
+        "--option",
+        `@typespec/openapi3.emitter-output-dir=${outputFolder}`,
+      ],
+      srcFolder,
+    );
+    return result;
   }
 }

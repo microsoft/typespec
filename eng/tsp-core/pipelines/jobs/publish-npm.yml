@@ -34,6 +34,31 @@ jobs:
         env:
           NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
+      - pwsh: |
+          $publishSummary = Get-Content "./publish-summary.json" | ConvertFrom-Json
+          if ($publishSummary.packages.'@typespec/http-specs'.published -eq $true) {
+            Write-Output "Setting PublishHttpSpecs variable to true."
+            Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]true"
+          } else {
+            Write-Output "Setting PublishHttpSpecs variable to false."
+            Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]false"
+          }
+        displayName: "Check if @typespec/http-specs was published"
+
+      - script: pnpm -r --filter '@typespec/http-specs...' build
+        condition: eq(variables['PublishHttpSpecs'], 'true')
+        displayName: Build spector
+
+      - task: AzureCLI@2
+        displayName: Upload scenario manifest
+        condition: eq(variables['PublishHttpSpecs'], 'true')
+        inputs:
+          workingDirectory: packages/http-specs
+          azureSubscription: "TypeSpec Storage"
+          scriptType: "bash"
+          scriptLocation: "inlineScript"
+          inlineScript: "pnpm upload-manifest"
+
       - ${{ if eq(parameters.publishGithubRelease, true) }}:
           - script: |
               echo "Publish summary:"

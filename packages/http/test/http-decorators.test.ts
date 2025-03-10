@@ -37,7 +37,7 @@ describe("http: decorators", () => {
   });
 
   describe("emit diagnostic if passing arguments to verb decorators", () => {
-    ["get", "post", "put", "patch", "delete", "head"].forEach((verb) => {
+    ["get", "post", "put", "delete", "head"].forEach((verb) => {
       it(`@${verb}`, async () => {
         const diagnostics = await runner.diagnose(`
           @${verb}("/test") op test(): string;
@@ -47,6 +47,17 @@ describe("http: decorators", () => {
           code: "invalid-argument-count",
           message: "Expected 0 arguments, but got 1.",
         });
+      });
+    });
+
+    it(`@patch`, async () => {
+      const diagnostics = await runner.diagnose(`
+        @patch("/test") op test(): string;
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: `Argument of type '"/test"' is not assignable to parameter of type 'valueof TypeSpec.Http.PatchOptions'`,
       });
     });
   });
@@ -73,11 +84,12 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when header name is not a string or of type HeaderOptions", async () => {
+    it("emit diagnostics when header name is not a string or of value HeaderOptions", async () => {
       const diagnostics = await runner.diagnose(`
           op test(@header(123) MyHeader: string): string;
-          op test2(@header({ name: 123 }) MyHeader: string): string;
-          op test3(@header({ format: "invalid" }) MyHeader: string): string;
+          op test2(@header(#{ name: 123 }) MyHeader: string): string;
+          op test3(@header(#{ format: "invalid" }) MyHeader: string): string;
+          op test4(@header(#{ explode: "invalid" }) MyHeader: string): string;
         `);
 
       expectDiagnostics(diagnostics, [
@@ -90,18 +102,10 @@ describe("http: decorators", () => {
         {
           code: "invalid-argument",
         },
+        {
+          code: "invalid-argument",
+        },
       ]);
-    });
-
-    it("emit diagnostics when header is not specifing format but is an array", async () => {
-      const diagnostics = await runner.diagnose(`
-          op test(@header MyHeader: string[]): string;
-        `);
-
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/http/header-format-required",
-        message: `A format must be specified for @header when type is an array. e.g. @header({format: "csv"})`,
-      });
     });
 
     it("generate header name from property name", async () => {
@@ -123,7 +127,7 @@ describe("http: decorators", () => {
 
     it("override header with HeaderOptions", async () => {
       const { SingleString } = await runner.compile(`
-          @put op test(@test @header({name: "x-single-string"}) SingleString: string): string;
+          @put op test(@test @header(#{name: "x-single-string"}) SingleString: string): string;
         `);
 
       deepStrictEqual(getHeaderFieldOptions(runner.program, SingleString), {
@@ -131,6 +135,19 @@ describe("http: decorators", () => {
         name: "x-single-string",
       });
       strictEqual(getHeaderFieldName(runner.program, SingleString), "x-single-string");
+    });
+
+    it("specify explode", async () => {
+      const { MyHeader } = await runner.compile(`
+        @put op test(@test @header(#{ explode: true }) MyHeader: string): string;
+      `);
+
+      deepStrictEqual(getHeaderFieldOptions(runner.program, MyHeader), {
+        type: "header",
+        name: "my-header",
+        explode: true,
+      });
+      strictEqual(getHeaderFieldName(runner.program, MyHeader), "my-header");
     });
   });
 
@@ -1165,23 +1182,6 @@ describe("http: decorators", () => {
     });
   });
 
-  describe("@visibility", () => {
-    it("warns on unsupported write visibility", async () => {
-      const diagnostics = await runner.diagnose(`
-        @test model M {
-          @visibility("write") w: string;
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          severity: "warning",
-          code: "@typespec/http/write-visibility-not-supported",
-        },
-      ]);
-    });
-  });
-
   describe("@includeInapplicableMetadataInPayload", () => {
     it("defaults to true", async () => {
       const { M } = await runner.compile(`
@@ -1262,7 +1262,7 @@ describe("http: decorators", () => {
 
     it("ensures getRequestVisibility and resolveRequestVisibility return expected values for customized PATCH operations", async () => {
       const { testPatch } = await runner.compile(`
-      @parameterVisibility("create", "update")
+      @parameterVisibility(Lifecycle.Create, Lifecycle.Update)
       @patch
       @test op testPatch(): void;
       `);

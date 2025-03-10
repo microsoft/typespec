@@ -99,17 +99,17 @@ Here's what would be produced:
 | ------------------ | ------------- | ------------------------- |
 | `"PetStore"`       | `"v1"`        | `PetStore/output.v1.json` |
 | `"PetStore"`       | `undefined`   | `PetStore/output.json`    |
-| `undefined`        | `"v1"`        | `output.v1.json`          |
-| `undefined`        | `undefined`   | `output.json`             |
 
 #### Built-in variables
 
-| Variable name  | Scope           | Description                                                                          |
-| -------------- | --------------- | ------------------------------------------------------------------------------------ |
-| `cwd`          | \*              | Points to the current working directory                                              |
-| `project-root` | \*              | Points to the the tspconfig.yaml file containing folder.                             |
-| `output-dir`   | emitter options | Common `output-dir` See [output-dir](#output-dir---configure-the-default-output-dir) |
-| `emitter-name` | emitter options | Name of the emitter                                                                  |
+| Variable name              | Scope                    | Description                                                                          |
+| -------------------------- | ------------------------ | ------------------------------------------------------------------------------------ |
+| `cwd`                      | \*                       | Points to the current working directory                                              |
+| `project-root`             | \*                       | Points to the the tspconfig.yaml file containing folder.                             |
+| `output-dir`               | emitter options          | Common `output-dir` See [output-dir](#output-dir---configure-the-default-output-dir) |
+| `emitter-name`             | emitter options          | Name of the emitter                                                                  |
+| `service-name`             | service name             | Name of the service                                                                  |
+| `service-name-if-multiple` | service name if multiple | Name of the service if multiple, undefined if one                                    |
 
 #### Project Parameters
 
@@ -441,7 +441,7 @@ You can change the compiler's `output-dir` with `--output-dir` or by setting tha
 To change a specific emitter's output directory, you can set the `emitter-output-dir` option for that emitter:
 
 ```bash
---option "@typespec/openapi3.output-dir={project-root}/openapispec"
+--option "@typespec/openapi3.emitter-output-dir={project-root}/openapispec"
 ```
 
 {/* prettier-ignore */}

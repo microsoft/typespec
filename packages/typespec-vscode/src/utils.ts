@@ -1,12 +1,17 @@
-import type { ModuleResolutionResult, ResolveModuleHost } from "@typespec/compiler";
+import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-import { readFile, realpath, stat } from "fs/promises";
+import { mkdtemp, readFile, realpath, stat } from "fs/promises";
+import { tmpdir } from "os";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
+import which from "which";
+import { parseDocument } from "yaml";
 import logger from "./log/logger.js";
-import { isUrl } from "./path-utils.js";
+import { getDirectoryPath, isUrl, joinPaths } from "./path-utils.js";
 import { ResultCode } from "./types.js";
+
+const ERROR_CODE_ENOENT = "ENOENT";
 
 export async function isFile(path: string) {
   try {
@@ -23,6 +28,15 @@ export async function isDirectory(path: string) {
     return stats.isDirectory();
   } catch {
     return false;
+  }
+}
+
+export async function createTempDir(): Promise<string | undefined> {
+  try {
+    return await mkdtemp(joinPaths(tmpdir(), "tsp-openapi3-preview-"));
+  } catch (e) {
+    logger.error("Failed to create temp folder", [e]);
+    return undefined;
   }
 }
 
@@ -138,6 +152,13 @@ export async function tryReadUrl(
   }
 }
 
+export function tryParseYaml(str: string): any | undefined {
+  try {
+    return parseDocument(str);
+  } catch {
+    return undefined;
+  }
+}
 export interface ExecOutput {
   stdout: string;
   stderr: string;
@@ -164,8 +185,9 @@ export function spawnExecutionAndLogToOutput(
   exe: string,
   args: string[],
   cwd: string,
+  env?: NodeJS.ProcessEnv,
 ): Promise<ExecOutput> {
-  return spawnExecution(exe, args, cwd, {
+  return spawnExecution(exe, args, cwd, env, {
     onStdioOut: (data) => {
       logger.info(data.trim());
     },
@@ -173,7 +195,7 @@ export function spawnExecutionAndLogToOutput(
       logger.error(error.trim());
     },
     onError: (error) => {
-      if (error?.code === "ENOENT") {
+      if (error?.code === ERROR_CODE_ENOENT) {
         logger.error(`Cannot find ${exe} executable. Make sure it can be found in your path.`);
       }
     },
@@ -193,6 +215,7 @@ export function spawnExecution(
   exe: string,
   args: string[],
   cwd: string,
+  env?: NodeJS.ProcessEnv,
   on?: spawnExecutionEvents,
 ): Promise<ExecOutput> {
   const shell = process.platform === "win32";
@@ -206,6 +229,9 @@ export function spawnExecution(
     windowsHide: true,
     cwd,
   };
+  if (env) {
+    options.env = { ...process.env, ...env };
+  }
   const child = spawn(cmd, args, options);
 
   child.stdout!.on("data", (data) => {
@@ -278,6 +304,20 @@ export function spawnExecution(
   });
 }
 
+export function isExecOutputCmdNotFound(output: ExecOutput): boolean {
+  if (output.exitCode === 0 || output.exitCode === null) {
+    return false;
+  }
+  if (output.error?.code === ERROR_CODE_ENOENT) {
+    return true;
+  }
+  if (output.spawnOptions.shell) {
+    // when starting with shell, our cmd will be wrapped so can't get the error code, so check the stderr
+    return output.stderr.includes("not recognized as an internal or external command");
+  }
+  return false;
+}
+
 /**
  * if the operation is cancelled, the promise will be rejected with {@link ResultCode.Cancelled}
  * if the operation is timeout, the promise will be rejected with {@link ResultCode.Timeout}
@@ -301,4 +341,112 @@ export function createPromiseWithCancelAndTimeout<T>(
     }, timeoutInMs);
     action.then(resolve, reject);
   });
+}
+
+export function* listParentFolders(from: string, includeSelf: boolean) {
+  if (includeSelf) {
+    yield from;
+  }
+  let last = from;
+  let current = getDirectoryPath(from);
+  while (current !== last) {
+    yield current;
+    last = current;
+    current = getDirectoryPath(current);
+  }
+}
+
+/**
+ *
+ * @param folder the folder (inclusive) to start searching (up) for package.json
+ * @returns
+ */
+export async function searchAndLoadPackageJson(
+  folder: string,
+): Promise<{ packageJsonFolder?: string; packageJsonFile?: string; packageJson?: PackageJson }> {
+  for (const f of listParentFolders(folder, true /* include self */)) {
+    const path = joinPaths(f, "package.json");
+    if (await isFile(path)) {
+      const json = await loadPackageJsonFile(path);
+      if (json) {
+        return { packageJsonFolder: f, packageJsonFile: path, packageJson: json };
+      } else {
+        return { packageJsonFolder: undefined, packageJsonFile: undefined, packageJson: undefined };
+      }
+    }
+  }
+  return { packageJsonFolder: undefined, packageJsonFile: undefined, packageJson: undefined };
+}
+
+/**
+ *
+ * @param rootPackageJsonFolder the folder containing package.json.
+ * @param depPackageName
+ * @returns
+ */
+export async function loadDependencyPackageJson(
+  rootPackageJsonFolder: string,
+  depPackageName: string,
+): Promise<PackageJson | undefined> {
+  const path = joinPaths(rootPackageJsonFolder, "node_modules", depPackageName, "package.json");
+  if (!(await isFile(path))) {
+    return undefined;
+  }
+  return await loadPackageJsonFile(path);
+}
+
+/**
+ *
+ * @param packageJsonPath the path to the package.json file. Please be aware that it's the caller's responsibility to ensure the path given is package.json, no further check will be done.
+ * @returns
+ */
+export async function loadPackageJsonFile(
+  packageJsonPath: string,
+): Promise<PackageJson | undefined> {
+  const content = await tryReadFile(packageJsonPath);
+  if (!content) return undefined;
+  const packageJson = tryParseJson(content);
+  if (!packageJson) return undefined;
+  return packageJson as PackageJson;
+}
+
+/**
+ * @returns the path to the installed node executable, or empty string if not found.
+ */
+export async function checkInstalledNode(): Promise<string> {
+  try {
+    return await which("node");
+  } catch (e) {
+    return "";
+  }
+}
+
+export async function parseJsonFromFile(filePath: string): Promise<string | undefined> {
+  try {
+    const fileContent = await readFile(filePath, "utf-8");
+    const content = JSON.parse(fileContent);
+    return content;
+  } catch (e) {
+    logger.error(`Failed to load JSON file: ${filePath}`, [e]);
+    return;
+  }
+}
+
+/**
+ * Throttle the function to be called at most once in every blockInMs milliseconds. This utility
+ * is useful when your event handler will trigger the same event multiple times in a short period.
+ *
+ * @param fn Underlying function to be throttled
+ * @param blockInMs Block time in milliseconds
+ * @returns a throttled function
+ */
+export function throttle<T extends (...args: any[]) => any>(fn: T, blockInMs: number): T {
+  let time: number | undefined;
+  return function (this: any, ...args: Parameters<T>) {
+    const now = Date.now();
+    if (time === undefined || now - time >= blockInMs) {
+      time = now;
+      fn.apply(this, args);
+    }
+  } as T;
 }

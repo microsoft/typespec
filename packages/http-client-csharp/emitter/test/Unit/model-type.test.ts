@@ -3,9 +3,9 @@ import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
+  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -47,7 +47,7 @@ op test(@body input: Pet): Pet;
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
     const petModel = models.find((m) => m.name === "Pet");
@@ -65,7 +65,6 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
     // assert we will NOT have a DiscriminatorProperty on the derived models
     assert(
       catModel?.discriminatorProperty === undefined,
@@ -130,7 +129,7 @@ op test(@body input: Pet): Pet;
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
     const pet = models.find((m) => m.name === "Pet");
@@ -148,7 +147,6 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
 
     // verify derived model Cat
     const cat = models.find((m) => m.name === "Cat");
@@ -223,7 +221,7 @@ op test(@body input: Pet): Pet;
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
     const pet = models.find((m) => m.name === "Pet");
@@ -241,7 +239,6 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
 
     // verify derived model Cat
     const cat = models.find((m) => m.name === "Cat");
@@ -343,7 +340,7 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
     const extendsUnknownModel = models.find((m) => m.name === "ExtendsUnknown");
@@ -435,7 +432,7 @@ op op5(@body body: IsFooArray): IsFooArray;
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
     const isUnknownModel = models.find((m) => m.name === "IsUnknown");
@@ -486,7 +483,7 @@ op op1(): void;
       { IsTCGCNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
     const isEmptyModel = models.find((m) => m.name === "Empty");
@@ -515,7 +512,7 @@ describe("typespec-client-generator-core: general decorators list", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const models = root.Models;
     strictEqual(models.length, 1);

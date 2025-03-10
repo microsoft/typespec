@@ -1,5 +1,40 @@
 # Change Log - @typespec/versioning
 
+## 0.66.0
+
+No changes, version bump only.
+
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5459](https://github.com/microsoft/typespec/pull/5459) add code fixes for incompatible version errors
+- [#4931](https://github.com/microsoft/typespec/pull/4931) Provide new mutator based way of getting version snapshot
+
+### Deprecations
+
+- [#4931](https://github.com/microsoft/typespec/pull/4931) Deprecate versioning projection, switch to the mutator approach
+
+```diff lang="tsp"
+// Step 1: Update to retrieve the mutation instead of projections
+-const versions = buildVersionProjections(program, service.type);
++const versions = getVersioningMutators(program, service.type);
+
+// Step 2: call mutator instead of projection api
+-const projectedProgram = projectProgram(originalProgram, versionRecord.projections);
++const subgraph = unsafe_mutateSubgraphWithNamespace(program, [mutator], service.type);
++subgraph.type // this is the mutated service namespace
+```
+
+
+## 0.64.0
+
+No changes, version bump only.
+
 ## 0.63.0
 
 ### Bug Fixes

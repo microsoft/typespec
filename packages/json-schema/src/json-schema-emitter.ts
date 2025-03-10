@@ -15,6 +15,7 @@ import {
   type Type,
   type Union,
   type UnionVariant,
+  type Value,
   compilerAssert,
   emitFile,
   explainStringTemplateNotSerializable,
@@ -34,8 +35,6 @@ import {
   getPattern,
   getRelativePathFromDirectory,
   getSummary,
-  isArrayModelType,
-  isNullType,
   isType,
   joinPaths,
   serializeValueAsJson,
@@ -76,11 +75,25 @@ import {
   isOneOf,
 } from "./index.js";
 import { type JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
+import { includeDerivedModel } from "./utils.js";
 
 /** @internal */
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #idDuplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
+
+  #applyModelIndexer(schema: ObjectBuilder<unknown>, model: Model) {
+    if (model.indexer) {
+      schema.set("unevaluatedProperties", this.emitter.emitTypeReference(model.indexer.value));
+      return;
+    }
+    if (!this.emitter.getOptions()["seal-object-schemas"]) return;
+
+    const derivedModels = model.derivedModels.filter(includeDerivedModel);
+    if (!derivedModels.length) {
+      schema.set("unevaluatedProperties", { not: {} });
+    }
+  }
 
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     const schema = this.#initializeSchema(model, name, {
@@ -95,9 +108,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       schema.set("allOf", allOf);
     }
 
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
-    }
+    this.#applyModelIndexer(schema, model);
 
     this.#applyConstraints(model, schema);
     return this.#createDeclaration(model, name, schema);
@@ -110,9 +121,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       required: this.#requiredModelProperties(model),
     });
 
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
-    }
+    this.#applyModelIndexer(schema, model);
 
     return schema;
   }
@@ -172,10 +181,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const result = new ObjectBuilder(propertyType.value);
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    if (property.default) {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      result.default = this.#getDefaultValue(property.type, property.default);
+    if (property.defaultValue) {
+      result.default = this.#getDefaultValue(property, property.defaultValue);
     }
 
     if (result.anyOf && isOneOf(this.emitter.getProgram(), property)) {
@@ -188,51 +195,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return result;
   }
 
-  #getDefaultValue(type: Type, defaultType: Type): any {
-    const program = this.emitter.getProgram();
-
-    switch (defaultType.kind) {
-      case "String":
-        return defaultType.value;
-      case "Number":
-        return defaultType.value;
-      case "Boolean":
-        return defaultType.value;
-      case "Tuple":
-        compilerAssert(
-          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
-          "setting tuple default to non-tuple value",
-        );
-
-        if (type.kind === "Tuple") {
-          return defaultType.values.map((defaultTupleValue, index) =>
-            this.#getDefaultValue(type.values[index], defaultTupleValue),
-          );
-        } else {
-          return defaultType.values.map((defaultTuplevalue) =>
-            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue),
-          );
-        }
-
-      case "Intrinsic":
-        return isNullType(defaultType)
-          ? null
-          : reportDiagnostic(program, {
-              code: "invalid-default",
-              format: { type: defaultType.kind },
-              target: defaultType,
-            });
-      case "EnumMember":
-        return defaultType.value ?? defaultType.name;
-      case "UnionVariant":
-        return this.#getDefaultValue(type, defaultType.type);
-      default:
-        reportDiagnostic(program, {
-          code: "invalid-default",
-          format: { type: defaultType.kind },
-          target: defaultType,
-        });
-    }
+  #getDefaultValue(modelProperty: ModelProperty, defaultType: Value): any {
+    return serializeValueAsJson(this.emitter.getProgram(), defaultType, modelProperty);
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {

@@ -7,19 +7,19 @@ import {
 } from "../config/config-loader.js";
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
-import {
+import { compilerAssert, formatDiagnostic } from "../core/diagnostics.js";
+import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
+import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
+import { builtInLinterLibraryName } from "../core/linter.js";
+import { CompilerOptions } from "../core/options.js";
+import { parse } from "../core/parser.js";
+import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
+import { compile as compileProgram, Program } from "../core/program.js";
+import type {
   CompilerHost,
-  CompilerOptions,
-  Program,
   Diagnostic as TypeSpecDiagnostic,
   TypeSpecScriptNode,
-  compilerAssert,
-  formatDiagnostic,
-  getDirectoryPath,
-  joinPaths,
-  parse,
-} from "../core/index.js";
-import { compile as compileProgram } from "../core/program.js";
+} from "../core/types.js";
 import { doIO, loadFile, resolveTspMain } from "../utils/misc.js";
 import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
@@ -107,6 +107,28 @@ export function createCompileService({
       ...optionsFromConfig,
       ...serverOptions,
     };
+    // add linter rule for unused using if user didn't configure it explicitly
+    const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
+    if (
+      options.linterRuleSet?.enable?.[unusedUsingRule] === undefined &&
+      options.linterRuleSet?.disable?.[unusedUsingRule] === undefined
+    ) {
+      options.linterRuleSet ??= {};
+      options.linterRuleSet.enable ??= {};
+      options.linterRuleSet.enable[unusedUsingRule] = true;
+    }
+
+    // add linter rule for unused template parameter if user didn't configure it explicitly
+    const unusedTemplateParameterRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedTemplateParameter}`;
+    if (
+      options.linterRuleSet?.enable?.[unusedTemplateParameterRule] === undefined &&
+      options.linterRuleSet?.disable?.[unusedTemplateParameterRule] === undefined
+    ) {
+      options.linterRuleSet ??= {};
+      options.linterRuleSet.enable ??= {};
+      options.linterRuleSet.enable[unusedTemplateParameterRule] = true;
+    }
+
     log({ level: "debug", message: `compiler options resolved`, detail: options });
 
     if (!fileService.upToDate(document)) {
@@ -142,7 +164,7 @@ export function createCompileService({
       const script = program.sourceFiles.get(resolvedPath);
       compilerAssert(script, "Failed to get script.");
 
-      const result: CompileResult = { program, document: doc, script };
+      const result: CompileResult = { program, document: doc, script, optionsFromConfig };
       notify("compileEnd", result);
       return result;
     } catch (err: any) {
@@ -180,13 +202,13 @@ export function createCompileService({
     }
 
     const cached = await fileSystemCache.get(configPath);
+    const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
     if (cached?.data) {
-      return cached.data;
+      return deepCopy(cached.data);
     }
 
     const config = await loadTypeSpecConfigFile(compilerHost, configPath);
-    await fileSystemCache.setData(configPath, config);
-    return config;
+    return deepCopy(config);
   }
 
   async function getScript(

@@ -259,7 +259,7 @@ describe("packages", () => {
           resolveModule(host, "test-lib/named", { baseDir: "/ws/proj" }),
         ).rejects.toThrowError(
           new ResolveModuleError(
-            "MODULE_NOT_FOUND",
+            "INVALID_MODULE",
             `Could not resolve import "test-lib/named"  using exports defined in file:///ws/proj/node_modules/test-lib.`,
           ),
         );
@@ -364,7 +364,7 @@ describe("packages", () => {
               }),
             ).rejects.toThrowError(
               new ResolveModuleError(
-                "MODULE_NOT_FOUND",
+                "INVALID_MODULE",
                 `Could not resolve import "test-lib/named"  using exports defined in file:///ws/proj/node_modules/test-lib.`,
               ),
             );
@@ -424,6 +424,180 @@ describe("resolve self", () => {
       type: "module",
       path,
       mainFile: `${path}/entry.js`,
+    });
+  });
+
+  describe("when imports is defined", () => {
+    describe("no condition", () => {
+      const { host } = mkFs({
+        "/ws/proj/package.json": JSON.stringify({
+          imports: {
+            "#utils": "./utils.js",
+            "#test-lib": "test-lib",
+          },
+        }),
+        "/ws/proj/utils.js": "",
+        "/ws/proj/node_modules/test-lib/package.json": JSON.stringify({ main: "entry.js" }),
+        "/ws/proj/node_modules/test-lib/entry.js": "",
+      });
+
+      it("resolve named import without condition", async () => {
+        const resolved = await resolveModule(host, "#utils", {
+          baseDir: "/ws/proj",
+        });
+        expect(resolved).toMatchObject({
+          type: "module",
+          path: "/ws/proj",
+          mainFile: "/ws/proj/utils.js",
+        });
+      });
+
+      it("resolve another package reference", async () => {
+        const resolved = await resolveModule(host, "#test-lib", {
+          baseDir: "/ws/proj",
+        });
+        expect(resolved).toMatchObject({
+          type: "module",
+          path: "/ws/proj",
+          mainFile: "/ws/proj/node_modules/test-lib/entry.js",
+        });
+      });
+    });
+
+    describe("condition", () => {
+      const { host } = mkFs({
+        "/ws/proj/package.json": JSON.stringify({
+          imports: {
+            "#utils": {
+              import: "./utils.js",
+              require: "./utils.cjs",
+              default: "./utils.default.js",
+            },
+            "#test-lib": {
+              import: "test-lib-esm",
+              require: "test-lib-cjs",
+              default: "test-lib-default",
+            },
+          },
+        }),
+        "/ws/proj/utils.js": "",
+        "/ws/proj/utils.cjs": "",
+        "/ws/proj/utils.default.js": "",
+        "/ws/proj/node_modules/test-lib-esm/package.json": JSON.stringify({ main: "entry.js" }),
+        "/ws/proj/node_modules/test-lib-esm/entry.js": "",
+        "/ws/proj/node_modules/test-lib-cjs/package.json": JSON.stringify({ main: "entry.js" }),
+        "/ws/proj/node_modules/test-lib-cjs/entry.js": "",
+        "/ws/proj/node_modules/test-lib-default/package.json": JSON.stringify({ main: "entry.js" }),
+        "/ws/proj/node_modules/test-lib-default/entry.js": "",
+      });
+
+      it("resolve default condition if no condition are specified", async () => {
+        const resolved = await resolveModule(host, "#utils", {
+          baseDir: "/ws/proj",
+        });
+        expect(resolved).toMatchObject({
+          type: "module",
+          path: "/ws/proj",
+          mainFile: "/ws/proj/utils.default.js",
+        });
+      });
+
+      it("respect condition order", async () => {
+        const resolved = await resolveModule(host, "#utils", {
+          baseDir: "/ws/proj",
+          conditions: ["require", "import"],
+        });
+        expect(resolved).toMatchObject({
+          type: "module",
+          path: "/ws/proj",
+          mainFile: "/ws/proj/utils.js",
+        });
+      });
+
+      it("resolve another package reference", async () => {
+        const resolved = await resolveModule(host, "#test-lib", {
+          baseDir: "/ws/proj",
+          conditions: ["require", "import"],
+        });
+        expect(resolved).toMatchObject({
+          type: "module",
+          path: "/ws/proj",
+          mainFile: "/ws/proj/node_modules/test-lib-esm/entry.js",
+        });
+      });
+    });
+
+    describe("invalid imports", () => {
+      it("throws error if export path point to invalid file", async () => {
+        const { host } = mkFs({
+          "/ws/proj/package.json": JSON.stringify({
+            imports: { "#utils": "./missing.js" },
+          }),
+        });
+        await expect(resolveModule(host, "#utils", { baseDir: "/ws/proj" })).rejects.toThrowError(
+          new ResolveModuleError(
+            "INVALID_MODULE_IMPORT_TARGET",
+            `Import "#utils" resolving to "/ws/proj/missing.js" is not a file.`,
+          ),
+        );
+      });
+
+      it("throws error if import path is not starting with ./", async () => {
+        const { host } = mkFs({
+          "/ws/proj/package.json": JSON.stringify({
+            imports: { "#utils": "utils.js" },
+          }),
+          "/ws/proj/utils.js": "",
+        });
+        await expect(resolveModule(host, "#utils", { baseDir: "/ws/proj" })).rejects.toThrowError(
+          new ResolveModuleError(
+            "INVALID_MODULE",
+            `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
+          ),
+        );
+      });
+
+      it("throws error if import is missing", async () => {
+        const { host } = mkFs({
+          "/ws/proj/package.json": JSON.stringify({ imports: {} }),
+        });
+        await expect(resolveModule(host, "#utils", { baseDir: "/ws/proj" })).rejects.toThrowError(
+          new ResolveModuleError(
+            "INVALID_MODULE",
+            `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
+          ),
+        );
+      });
+
+      describe("missing condition with fallbackOnMissingCondition", () => {
+        describe("for named export", () => {
+          it("throws an error for named path", async () => {
+            const { host } = mkFs({
+              "/ws/proj/package.json": JSON.stringify({
+                imports: {
+                  "#utils": {
+                    import: "./utils.js",
+                  },
+                },
+              }),
+              "/ws/proj/utils.js": "",
+            });
+
+            await expect(
+              resolveModule(host, "#utils", {
+                baseDir: "/ws/proj",
+                conditions: ["typespec"],
+                fallbackOnMissingCondition: true,
+              }),
+            ).rejects.toThrowError(
+              new ResolveModuleError(
+                "INVALID_MODULE",
+                `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
+              ),
+            );
+          });
+        });
+      });
     });
   });
 });

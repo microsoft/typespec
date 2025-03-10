@@ -1,5 +1,23 @@
 # Change Log - @typespec/internal-build-utils
 
+## 0.66.0
+
+No changes, version bump only.
+
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+
+## 0.64.0
+
+### Bug Fixes
+
+- [#5312](https://github.com/microsoft/typespec/pull/5312) resolve the program crash when there is no package name in package.json
+
+
 ## 0.63.0
 
 No changes, version bump only.

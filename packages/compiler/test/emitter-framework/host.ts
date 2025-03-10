@@ -1,9 +1,8 @@
 import { fileURLToPath } from "url";
-import { resolvePath } from "../../src/core/index.js";
-import { createAssetEmitter, TypeEmitter } from "../../src/emitter-framework/index.js";
-import { createTestHost, TypeSpecTestLibrary } from "../../src/testing/index.js";
-
 import { expect, MockInstance, vi } from "vitest";
+import { createAssetEmitter, TypeEmitter } from "../../src/emitter-framework/index.js";
+import { resolvePath } from "../../src/index.js";
+import { createTestHost, TypeSpecTestLibrary } from "../../src/testing/index.js";
 
 export const lib: TypeSpecTestLibrary = {
   name: "typespec-ts-interface-emitter",

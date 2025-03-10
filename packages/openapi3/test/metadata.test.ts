@@ -1,15 +1,15 @@
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
-import { openApiFor } from "./test-host.js";
+import { it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: metadata", () => {
+worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
   it("will expose all properties on unreferenced models but filter properties on referenced models", async () => {
     const res = await openApiFor(`
       model M {
-        @visibility("read") r: string;
-        @visibility("create", "update") uc?: string;
-        @visibility("read", "create") rc?: string;
-        @visibility("read", "update", "create") ruc?: string;
+        @visibility(Lifecycle.Read) r: string;
+        @visibility(Lifecycle.Create, Lifecycle.Update) uc?: string;
+        @visibility(Lifecycle.Read, Lifecycle.Create) rc?: string;
+        @visibility(Lifecycle.Read, Lifecycle.Update, Lifecycle.Create) ruc?: string;
       }
     `);
 
@@ -30,19 +30,19 @@ describe("openapi3: metadata", () => {
   it("prioritizes read visibility when referenced and unreferenced models share schemas", async () => {
     const res = await openApiFor(`
       model Shared {
-        @visibility("create", "update") password: string;
+        @visibility(Lifecycle.Create, Lifecycle.Update) password: string;
         prop: string;
       }
 
       model Unreferenced {
-        @visibility("read") r: string;
-        @visibility("create") c: string;
+        @visibility(Lifecycle.Read) r: string;
+        @visibility(Lifecycle.Create) c: string;
         shared: Shared;
       }
 
       model Referenced {
-        @visibility("read") r: string;
-        @visibility("create") c: string;
+        @visibility(Lifecycle.Read) r: string;
+        @visibility(Lifecycle.Create) c: string;
         shared: Shared;
       }
 
@@ -94,11 +94,11 @@ describe("openapi3: metadata", () => {
   it("will expose create visibility properties on PATCH model using @requestVisibility", async () => {
     const res = await openApiFor(`
       model M {
-        @visibility("read") r: string;
-        @visibility("read", "create") rc?: string;
-        @visibility("read", "update", "create") ruc?: string;
+        @visibility(Lifecycle.Read) r: string;
+        @visibility(Lifecycle.Read, Lifecycle.Create) rc?: string;
+        @visibility(Lifecycle.Read, Lifecycle.Update, Lifecycle.Create) ruc?: string;
       }
-      @parameterVisibility("create", "update")
+      @parameterVisibility(Lifecycle.Create, Lifecycle.Update)
       @route("/") @patch op createOrUpdate(...M): M; 
     `);
 
@@ -130,9 +130,9 @@ describe("openapi3: metadata", () => {
   it("will expose create visibility properties on PUT model", async () => {
     const res = await openApiFor(`
       model M {
-        @visibility("read") r: string;
-        @visibility("read", "create") rc?: string;
-        @visibility("read", "update", "create") ruc?: string;
+        @visibility(Lifecycle.Read) r: string;
+        @visibility(Lifecycle.Read, Lifecycle.Create) rc?: string;
+        @visibility(Lifecycle.Read, Lifecycle.Update, Lifecycle.Create) ruc?: string;
       }
       @route("/") @put op createOrUpdate(...M): M; 
     `);
@@ -158,17 +158,17 @@ describe("openapi3: metadata", () => {
   it("ensures properties are required for array updates", async () => {
     const res = await openApiFor(`
       model Person {
-        @visibility("read") id: string;
-        @visibility("create") secret: string;
+        @visibility(Lifecycle.Read) id: string;
+        @visibility(Lifecycle.Create) secret: string;
         name: string;
       
-        @visibility("read", "create")
+        @visibility(Lifecycle.Read, Lifecycle.Create)
         test: string;
       
-        @visibility("other", "read", "update")
+        @visibility(Lifecycle.Read, Lifecycle.Update)
         other: string;
       
-        @visibility("read", "create", "update")
+        @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Update)
         relatives: PersonRelative[];
       }
       
@@ -232,7 +232,7 @@ describe("openapi3: metadata", () => {
   it("can share readonly properties", async () => {
     const res = await openApiFor(`
       model M {
-        @visibility("read") r?: string;
+        @visibility(Lifecycle.Read) r?: string;
         d?: string;
       }
       @route("/") @post op create(...M): M; 
@@ -258,9 +258,9 @@ describe("openapi3: metadata", () => {
   it("does not emit invisible, unshared readonly properties", async () => {
     const res = await openApiFor(`
     model M {
-      @visibility("read") r?: string;
-      @visibility("create") c?: string;
-      @visibility("update") u?: string;
+      @visibility(Lifecycle.Read) r?: string;
+      @visibility(Lifecycle.Create) c?: string;
+      @visibility(Lifecycle.Update) u?: string;
     }
     @route("/") @post op create(...M): M; 
   `);
@@ -292,9 +292,9 @@ describe("openapi3: metadata", () => {
     using TypeSpec.Rest.Resource;
 
     model M {
-      @visibility("read") r?: string;
-      @visibility("create") c?: string;
-      @visibility("update") u?: string;
+      @visibility(Lifecycle.Read) r?: string;
+      @visibility(Lifecycle.Create) c?: string;
+      @visibility(Lifecycle.Update) u?: string;
       all: string;
     }
 
@@ -328,11 +328,11 @@ describe("openapi3: metadata", () => {
     const res = await openApiFor(
       `
     model M {
-      @visibility("read") r?: string;
-      @visibility("create") c?: string;
-      @visibility("update") u?: string;
-      @visibility("delete") d?: string;
-      @visibility("query") q?: string;
+      @visibility(Lifecycle.Read) r?: string;
+      @visibility(Lifecycle.Create) c?: string;
+      @visibility(Lifecycle.Update) u?: string;
+      @visibility(Lifecycle.Delete) d?: string;
+      @visibility(Lifecycle.Query) q?: string;
     }
 
     // base model
@@ -846,7 +846,7 @@ describe("openapi3: metadata", () => {
       model Thing {
         @header etag: string;
         name: string;
-        @visibility("delete") d: string;
+        @visibility(Lifecycle.Delete) d: string;
       }
       @route("/") @post op createMultiple(...Thing): Thing[];
       `,
@@ -919,8 +919,8 @@ describe("openapi3: metadata", () => {
     const res = await openApiFor(
       `
       model Thing {
-        @visibility("update") u?: string;
-        @visibility("create") c?: string;
+        @visibility(Lifecycle.Update) u?: string;
+        @visibility(Lifecycle.Create) c?: string;
         inner?: Thing;
       }
 
@@ -1080,40 +1080,6 @@ describe("openapi3: metadata", () => {
     });
   });
 
-  it("supports nested bodies", async () => {
-    const res = await openApiFor(
-      `
-      model Image {
-        @header contentType: "application/octet-stream";
-        @body body: bytes;
-      }
-      op doStuffWithBytes(data: Image): int32;
-      `,
-    );
-
-    const requestSchema =
-      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
-
-    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
-  });
-
-  it("supports deeply nested bodies", async () => {
-    const res = await openApiFor(
-      `
-      model Image {
-        @header contentType: "application/octet-stream";
-        moreNesting: { @body body: bytes };
-      }
-      op doStuffWithBytes(data: Image): int32;
-      `,
-    );
-
-    const requestSchema =
-      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
-
-    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
-  });
-
   it("don't create multiple scalars with different visibility if they are the same", async () => {
     const res = await openApiFor(`
       scalar uuid extends string;
@@ -1177,7 +1143,7 @@ describe("openapi3: metadata", () => {
   it("base models used in different visibility gets distinct names", async () => {
     const res = await openApiFor(`
       model Widget {
-        @visibility("read", "update")
+        @visibility(Lifecycle.Read, Lifecycle.Update)
         @path
         id: string;
       
@@ -1240,5 +1206,77 @@ describe("openapi3: metadata", () => {
       },
       required: ["name"],
     });
+  });
+});
+
+worksFor(["3.0.0"], ({ openApiFor }) => {
+  it("supports nested bodies (binary payloads)", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        @body body: bytes;
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `,
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
+  });
+
+  it("supports deeply nested bodies (binary payloads)", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        moreNesting: { @body body: bytes };
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `,
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
+  });
+});
+
+worksFor(["3.1.0"], ({ openApiFor }) => {
+  it("supports nested bodies (unencoded binary payloads)", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        @body body: bytes;
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `,
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { contentMediaType: "application/octet-stream" });
+  });
+
+  it("supports deeply nested bodies (unencoded binary payloads)", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        moreNesting: { @body body: bytes };
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `,
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { contentMediaType: "application/octet-stream" });
   });
 });

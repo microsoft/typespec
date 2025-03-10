@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { beforeEach, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   mutateSubgraph,
   mutateSubgraphWithNamespace,
@@ -7,9 +7,10 @@ import {
   MutatorFlow,
   MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
-import { Model, ModelProperty, Namespace } from "../../src/index.js";
+import { Model, ModelProperty, Namespace, Operation } from "../../src/index.js";
+import { expectIdenticalTypes } from "../../src/testing/expect.js";
 import { createTestHost } from "../../src/testing/test-host.js";
-import { createTestWrapper } from "../../src/testing/test-utils.js";
+import { createTestWrapper, expectTypeEquals } from "../../src/testing/test-utils.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
 
 let host: TestHost;
@@ -79,6 +80,117 @@ it("recurses the model", async () => {
   expect(visited).toStrictEqual(["Foo", "Bar"]);
 });
 
+it("propagate mutated model to model property", async () => {
+  const code = `
+    @test model Foo {
+      a: string;
+    }
+    
+  `;
+
+  const visited: string[] = [];
+  const { Foo } = (await runner.compile(code)) as { Foo: Model };
+  const mutator: Mutator = {
+    name: "test",
+    Model: (_, clone) => {
+      visited.push(clone.name);
+    },
+    ModelProperty: (_, clone) => {
+      // Just to force mutation
+    },
+  };
+  const MutatedFoo = mutateSubgraph(runner.program, [mutator], Foo).type as Model;
+  expectTypeEquals(MutatedFoo.properties.get("a")!.model, MutatedFoo);
+});
+
+describe("handles circular references", () => {
+  it("reference itself", async () => {
+    const code = `
+    @test model Foo {
+      foo: Foo
+    };
+  `;
+
+    const visited: string[] = [];
+    const { Foo } = (await runner.compile(code)) as { Foo: Model };
+    const mutator: Mutator = {
+      name: "test",
+      Model: {
+        mutate: (clone) => {
+          visited.push(clone.name);
+        },
+      },
+    };
+    mutateSubgraph(runner.program, [mutator], Foo);
+
+    expect(visited).toStrictEqual(["Foo"]);
+  });
+});
+
+// We said we didn't actually want model properties to be cloned if they are not explicitly mutated.`¡
+it.skip("doesn't duplicate references", async () => {
+  const code = `
+    @test model Bar {
+      bar: string;
+    }
+    @test model Baz {
+      bar: Bar;
+    }
+    @test model Foo {
+      baz: Baz;
+      bar: Bar;
+    };
+  `;
+
+  const visited: Model[] = [];
+  const { Foo } = (await runner.compile(code)) as { Foo: Model };
+  const mutator: Mutator = {
+    name: "test",
+    Model: {
+      mutate: (_, clone) => {
+        visited.push(clone);
+      },
+    },
+  };
+  mutateSubgraph(runner.program, [mutator], Foo);
+
+  expect(visited.map((x) => x.name)).toEqual(["Foo", "Baz", "Bar"]);
+  const [MutatedFoo, _MutatedBaz, MutatedBar] = visited;
+  expectIdenticalTypes(MutatedFoo.properties.get("bar")!.type, MutatedBar);
+  expectIdenticalTypes(
+    (MutatedFoo.properties.get("baz")!.type as Model).properties.get("bar")?.type!,
+    MutatedBar,
+  );
+});
+
+it("doesn't duplicate references from different types", async () => {
+  const code = `
+    @test model Common {}
+    @test op test(bar: Common): Common;
+  `;
+
+  const visited: (Model | Operation)[] = [];
+  const { test } = await runner.compile(code);
+  const mutator: Mutator = {
+    name: "test",
+    Operation: {
+      mutate: (_, clone) => {
+        visited.push(clone);
+      },
+    },
+    Model: {
+      mutate: (_, clone) => {
+        visited.push(clone);
+      },
+    },
+  };
+  mutateSubgraph(runner.program, [mutator], test as any);
+
+  expect(visited.map((x) => x.name)).toEqual(["test", "", "Common"]);
+  const [MutatedTest, _, MutatedCommon] = visited;
+  expectIdenticalTypes((MutatedTest as Operation).returnType, MutatedCommon);
+});
+
 it("removes model reference from namespace", async () => {
   const code = `
   @test namespace Foo;
@@ -108,13 +220,43 @@ it("removes model reference from namespace", async () => {
 
   //Original namespace should have Bar model
   expect(Foo.models.has("Bar")).toBeTruthy();
+  expectIdenticalTypes(Foo.models.get("Baz")!.namespace!, Foo);
   // Mutated namespace should not have Bar model
   expect(mutatedNs.models.has("Bar")).toBeFalsy();
   // Mutated namespace is propagated to the models
+  expectTypeEquals(mutatedNs, mutatedNs.models.get("Baz")!.namespace!);
   expect(mutatedNs.models.get("Baz")!.namespace?.models.get("Bar")).toBeUndefined();
   // Original should be unchanged
   expect(Foo.models.get("Baz")!.namespace?.models.get("Bar")).toBeDefined();
   expect(Foo.models.get("Baz")!.namespace).toBe(Foo);
+});
+
+it("doesn't mutate the same type twice when mutating namespace", async () => {
+  const code = `
+  @test namespace Foo;
+  @test model Bar {}
+  @test model Baz {
+    z: Bar;
+  };
+  `;
+
+  const visited: string[] = [];
+
+  const { Foo } = (await runner.compile(code)) as { Foo: Namespace; Bar: Model; Baz: Model };
+  const mutator: MutatorWithNamespace = {
+    name: "test",
+    Namespace: {
+      mutate: (_ns, clone) => {},
+    },
+    Model: {
+      mutate: (model, clone) => {
+        visited.push(clone.name);
+      },
+    },
+  };
+
+  mutateSubgraphWithNamespace(runner.program, [mutator], Foo);
+  expect(visited).toEqual(["Bar", "Baz"]);
 });
 
 it("do not recurse the model", async () => {
@@ -187,4 +329,68 @@ it("can mutate literals", async () => {
 
   strictEqual(mutatedC.kind, "Boolean");
   strictEqual(mutatedC.value, true);
+});
+
+// When mutating everything verify all reference between types are kept in the new realm.
+describe("global graph mutation", () => {
+  const noop = { mutate: () => {} };
+  const mutator: MutatorWithNamespace = {
+    name: "test",
+    Namespace: noop,
+    Interface: noop,
+    Model: noop,
+    Union: noop,
+    UnionVariant: noop,
+    Enum: noop,
+    Scalar: noop,
+    EnumMember: noop,
+    Operation: noop,
+    ModelProperty: noop,
+  };
+
+  async function globalMutate(code: string): Promise<Namespace> {
+    await runner.compile(code);
+
+    const { type } = mutateSubgraphWithNamespace(
+      runner.program,
+      [mutator],
+      runner.program.getGlobalNamespaceType(),
+    );
+    strictEqual(type.kind, "Namespace");
+
+    return type;
+  }
+  it("mutate sourceProperty", async () => {
+    const type = await globalMutate(`
+      model Spread {
+        prop: string;
+      }
+      model Foo { ...Spread };
+    `);
+
+    const MutatedSpread = type.models.get("Spread")!;
+    const MutatedFoo = type.models.get("Foo")!;
+    expectTypeEquals(
+      MutatedFoo.properties.get("prop")?.sourceProperty,
+      MutatedSpread.properties.get("prop")!,
+    );
+    expectTypeEquals(MutatedFoo.sourceModels[0].model, MutatedSpread);
+  });
+
+  it("mutate sourceProperty and sourceModels in operation", async () => {
+    const type = await globalMutate(`
+      model Spread {
+        prop: string;
+      }
+      op foo(...Spread): void;
+    `);
+
+    const MutatedSpread = type.models.get("Spread")!;
+    const MutatedFoo = type.operations.get("foo")!;
+    expectTypeEquals(
+      MutatedFoo.parameters.properties.get("prop")?.sourceProperty,
+      MutatedSpread.properties.get("prop")!,
+    );
+    expectTypeEquals(MutatedFoo.parameters.sourceModels[0].model, MutatedSpread);
+  });
 });

@@ -4,7 +4,7 @@ import "@typespec/spector";
 using Http;
 using Spector;
 
-@doc("Projection")
+@doc("Encoded names")
 @scenarioService("/serialization/encoded-name/json")
 namespace Serialization.EncodedName.Json;
 

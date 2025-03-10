@@ -597,9 +597,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
 
   function isNumericAssignableToNumericScalar(source: Numeric, target: Scalar) {
     // if the target does not derive from numeric, then it can't be assigned a numeric literal
-    if (
-      !areScalarsRelated((target.projectionBase as any) ?? target, checker.getStdType("numeric"))
-    ) {
+    if (!areScalarsRelated(target, checker.getStdType("numeric"))) {
       return false;
     }
 
@@ -627,9 +625,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
   }
 
   function isStringLiteralRelatedTo(source: StringLiteral | StringTemplate, target: Scalar) {
-    if (
-      !areScalarsRelated((target.projectionBase as any) ?? target, checker.getStdType("string"))
-    ) {
+    if (!areScalarsRelated(target, checker.getStdType("string"))) {
       return false;
     }
     if (source.kind === "StringTemplate") {
@@ -946,9 +942,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     namespace: Namespace,
   ): namespace is Namespace & { name: "TypeSpec"; namespace: Namespace } {
     return (
-      namespace.name === "TypeSpec" &&
-      (namespace.namespace === checker.getGlobalNamespaceType() ||
-        namespace.namespace?.projectionBase === checker.getGlobalNamespaceType())
+      namespace.name === "TypeSpec" && namespace.namespace === checker.getGlobalNamespaceType()
     );
   }
 }

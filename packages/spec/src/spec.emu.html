@@ -372,7 +372,7 @@ ModelSpreadProperty :
     `...` ReferenceExpression
 
 InterfaceStatement :
-    `interface` Identifier TemplateParameters? InterfaceHeritage? `{` InterfaceBody? `}`
+    DecoratorList? `interface` Identifier TemplateParameters? InterfaceHeritage? `{` InterfaceBody? `}`
 
 InterfaceHeritage :
     `extends` ReferenceExpressionList;
@@ -529,9 +529,6 @@ IdentifierOrMemberExpression :
 TemplateArguments :
     `<` ExpressionList `>`
 
-ProjectionArguments :
-    `(` ExpressionList? `)`
-
 ParenthesizedExpression[InParameter] :
     [~InParameter] `(` Expression `)`
     [+InParameter] `(` MixedParameterConstraint `)`
@@ -608,155 +605,5 @@ FunctionParameterList :
 FunctionParameter :
   `...`? Identifier `?`? TypeAnnotation?
 
-ProjectionStatement :
-    `projection` ProjectionSelector ProjectionDirection ProjectionTag ProjectionParameters? `{` ProjectionBody `}`
-
-ProjectionSelector :
-    `model`
-    `interface`
-    `op`
-    `union`
-    `modelproperty`
-    `enummember`
-    `unionvariant`
-    ReferenceExpression
-
-ProjectionDirection :
-    `pre`? `to`
-    `pre`? `from`
-
-ProjectionTag :
-    `#` Identifier
-
-ProjectionParameters :
-    `(` IdentifierList? `)`
-
-ProjectionBody :
-    ProjectionStatementList
-
-ProjectionStatementList :
-    ProjectionStatementItem
-    ProjectionStatementList `;` ProjectionStatementItem
-
-ProjectionStatementItem :
-    ProjectionExpressionStatement
-
-ProjectionExpression :
-    ProjectionReturnExpression
-
-ProjectionReturnExpression :
-    ProjectionLogicalOrExpression
-    `return` ProjectionExpression
-
-ProjectionLogicalOrExpression :
-    ProjectionLogicalAndExpression
-    ProjectionLogicalOrExpression `||` ProjectionLogicalAndExpression
-
-ProjectionLogicalAndExpression :
-    ProjectionEqualityExpression
-    ProjectionLogicalAndExpression `&&` ProjectionEqualityExpression
-
-ProjectionEqualityExpression :
-    ProjectionRelationalExpression
-    ProjectionEqualityExpression `==` ProjectionRelationalExpression
-    ProjectionEqualityExpression `!=` ProjectionRelationalExpression
-
-ProjectionRelationalExpression :
-    ProjectionAdditiveExpression
-    ProjectionRelationalExpression `<` ProjectionAdditiveExpression
-    ProjectionRelationalExpression `>` ProjectionAdditiveExpression
-    ProjectionRelationalExpression `<=` ProjectionAdditiveExpression
-    ProjectionRelationalExpression `>=` ProjectionAdditiveExpression
-
-ProjectionAdditiveExpression :
-    ProjectionMultiplicativeExpression
-    ProjectionAdditiveExpression `+` ProjectionMultiplicativeExpression
-    ProjectionAdditiveExpression `-` ProjectionMultiplicativeExpression
-
-ProjectionMultiplicativeExpression :
-    ProjectionUnaryExpression
-    ProjectionMultiplicativeExpression `*` ProjectionUnaryExpression
-    ProjectionMultiplicativeExpression `/` ProjectionUnaryExpression
-
-ProjectionUnaryExpression :
-    ProjectionCallExpression
-    `!` ProjectionUnaryExpression
-
-ProjectionCallExpression :
-    ProjectionDecoratorReferenceExpression
-    ProjectionCallExpression ProjectionCallArguments
-    ProjectionCallExpression `.` Identifier
-    ProjectionCallExpression `::` Identifier
-
-ProjectionCallArguments :
-    `(` ProjectionExpressionList? `)`
-
-ProjectionDecoratorReferenceExpression :
-    ProjectionMemberExpression
-    `@` IdentifierOrMemberExpression
-
-ProjectionMemberExpression :
-    ProjectionPrimaryExpression
-    ProjectionMemberExpression `.` Identifier
-    ProjectionMemberExpression `::` Identifier
-
-ProjectionPrimaryExpression :
-    `self`
-    Identifier
-    ProjectionIfExpression
-    ProjectionLambdaExpression
-    Literal
-    ProjectionModelExpression
-    ProjectionTupleExpression
-    CoverProjectionParenthesizedExpressionAndLambdaParameterList
-
-CoverProjectionParenthesizedExpressionAndLambdaParameterList:
-    `(` ProjectionExpressionList `)`
-
-ProjectionExpressionList :
-    ProjectionExpression
-    ProjectionExpressionList `,` ProjectionExpression
-    
-ProjectionIfExpression :
-    `if` ProjectionExpression BlockExpression
-    `if` ProjectionExpression BlockExpression `else` ProjectionBlockExpression
-    `if` ProjectionExpression BlockExpression `else` ProjectionIfExpression
-
-ProjectionModelExpression :
-    `{` ProjectionModelBody? `}`
-
-ProjectionModelBody :
-    ProjectionModelPropertyList `,`?
-    ProjectionModelPropertyList `;`?
-
-ProjectionModelPropertyList :
-    ProjectionModelProperty
-    ProjectionModelPropertyList `,` ProjectionModelProperty
-    ProjectionModelPropertyList `;` ProjectionModelProperty
-
-ProjectionModelProperty :
-    ProjectionModelSpreadProperty
-    DecoratorList? Identifier `?`? `:` ProjectionExpression
-    DecoratorList? StringLiteral `?`? `:` ProjectionExpression
-
-ProjectionModelSpreadProperty :
-    `...` ProjectionExpression
-
-ProjectionTupleExpression :
-    `[` ProjectionExpressionList? `]`
-
-ProjectionLambdaExpression :
-    CoverProjectionParenthesizedExpressionAndLambdaParameterList `=>` ProjectionBlockExpression
-
-ProjectionBlockExpression :
-    `{` ProjectionExpressionList `}`
-
-// When processing the production
-// ProjectionLambdaExpression : CoverProjectionParenthesizedExpressionAndLambdaParameterList
-// the interpretation is refined using the following grammar:
-
-LambdaParameters :
-    `(` IdentifierList? `)`
-]]>
 </emu-grammar>
 </emu-clause>
