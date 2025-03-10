@@ -25,25 +25,10 @@ export interface DiscriminatedUnionLegacy {
 }
 
 export function getDiscriminatedUnion(
-  program: Program,
-  type: Union,
-): [DiscriminatedUnion | undefined, readonly Diagnostic[]];
-
-export function getDiscriminatedUnion(
-  typeOrProgram: Model | Union | Program,
-  typeOrDiscriminator: Union | Discriminator,
+  typeOrProgram: Program,
+  typeOrDiscriminator: Union,
 ): [DiscriminatedUnion | DiscriminatedUnionLegacy | undefined, readonly Diagnostic[]] {
-  if ("propertyName" in typeOrDiscriminator) {
-    const type = typeOrProgram as Model | Union;
-    switch (type.kind) {
-      case "Model":
-        return getDiscriminatedUnionFromInheritance(type, typeOrDiscriminator);
-      case "Union":
-        return getDiscriminatedUnionForUnionLegacy(type, typeOrDiscriminator);
-    }
-  } else {
-    return getDiscriminatedUnionForUnion(typeOrProgram as Program, typeOrDiscriminator as Union);
-  }
+  return getDiscriminatedUnionForUnion(typeOrProgram, typeOrDiscriminator);
 }
 
 /**
@@ -132,64 +117,6 @@ function getDiscriminatedUnionForUnion(
     },
     diagnostics,
   ];
-}
-
-function getDiscriminatedUnionForUnionLegacy(
-  type: Union,
-  discriminator: Discriminator,
-): [DiscriminatedUnionLegacy, readonly Diagnostic[]] {
-  const variants = new Map<string, Model>();
-  const diagnostics: Diagnostic[] = [];
-  const duplicates = new DuplicateTracker<string, Model>();
-
-  for (const variant of type.variants.values()) {
-    if (variant.type.kind !== "Model") {
-      diagnostics.push(
-        createDiagnostic({
-          code: "invalid-discriminated-union-variant",
-          format: { name: variant.name.toString() },
-          target: variant,
-        }),
-      );
-      continue;
-    }
-
-    const prop = getDiscriminatorProperty(variant.type, discriminator, diagnostics);
-    if (prop === undefined) {
-      diagnostics.push(
-        createDiagnostic({
-          code: "invalid-discriminated-union-variant",
-          messageId: "noDiscriminant",
-          format: { name: variant.name.toString(), discriminant: discriminator.propertyName },
-          target: variant,
-        }),
-      );
-      continue;
-    }
-
-    const key = getStringValue(prop.type);
-    if (key) {
-      duplicates.track(key, variant.type);
-      variants.set(key, variant.type);
-    } else {
-      diagnostics.push(
-        createDiagnostic({
-          code: "invalid-discriminated-union-variant",
-          messageId: "wrongDiscriminantType",
-          format: { name: variant.name.toString(), discriminant: discriminator.propertyName },
-          target: variant.type,
-        }),
-      );
-    }
-  }
-  reportDuplicateDiscriminatorValues(duplicates, diagnostics);
-
-  const discriminatedUnion: DiscriminatedUnionLegacy = {
-    kind: "legacy",
-    propertyName: discriminator.propertyName,
-    variants,
-  };
-  return [discriminatedUnion, diagnostics];
 }
 
 export function getDiscriminatedUnionFromInheritance(
