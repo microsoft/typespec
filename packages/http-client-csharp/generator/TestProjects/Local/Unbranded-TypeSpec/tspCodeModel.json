@@ -2186,11 +2186,11 @@
   {
    "$id": "279",
    "kind": "model",
-   "name": "ProjectedModel",
+   "name": "RenamedModel",
    "namespace": "UnbrandedTypeSpec",
-   "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName",
+   "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithClientName",
    "usage": "Output,Spread,Json",
-   "doc": "this is a model with a projected name",
+   "doc": "this is a model with a client name",
    "decorators": [],
    "properties": [
     {
@@ -2198,7 +2198,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "doc": "name of the ModelWithProjectedName",
+     "doc": "name of the ModelWithClientName",
      "type": {
       "$id": "281",
       "kind": "string",
@@ -2211,7 +2211,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName.name",
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithClientName.name",
      "serializationOptions": {
       "$id": "282",
       "json": {
@@ -3718,8 +3718,8 @@
       },
       {
        "$id": "423",
-       "Name": "projectedModel",
-       "NameInRequest": "projectedModel",
+       "Name": "renamedModel",
+       "NameInRequest": "renamedModel",
        "Type": {
         "$ref": "279"
        },

@@ -2472,8 +2472,14 @@ export class CodeModelBuilder {
 
   private processObjectSchema(type: SdkModelType, name: string): ObjectSchema {
     const rawModelType = type.__raw;
+    if (!name && !type.name) {
+      reportDiagnostic(this.program, {
+        code: "empty-name",
+        target: rawModelType ?? NoTarget,
+      });
+    }
     const namespace = getNamespace(rawModelType);
-    const objectSchema = new ObjectSchema(name, type.doc ?? "", {
+    const objectSchema = new ObjectSchema(type.name ?? name, type.doc ?? "", {
       summary: type.summary,
       language: {
         default: {

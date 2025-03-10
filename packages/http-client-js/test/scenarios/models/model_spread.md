@@ -39,7 +39,6 @@ export function jsonDogToTransportTransform(input_?: Dog | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     id: input_.id,
     name: input_.name,
@@ -55,7 +54,6 @@ export function jsonDogToApplicationTransform(input_?: any): Dog {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     id: input_.id,
     name: input_.name,

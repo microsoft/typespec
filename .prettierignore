@@ -67,5 +67,8 @@ packages/http-client-js/test/e2e/generated/
 # built test files for http-client-js
 packages/http-client-js/dist-test
 
+# swagger-ui-dist lib files
+packages/typespec-vscode/swagger-ui/swagger-ui*
+
 .gitattributes
 CODEOWNERS

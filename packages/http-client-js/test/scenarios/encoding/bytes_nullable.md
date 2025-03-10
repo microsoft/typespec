@@ -27,21 +27,17 @@ export async function get(
   options?: GetOptions,
 ): Promise<ModelWithBytes> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonModelWithBytesToApplicationTransform(response.body)!;
   }
-
   throw createRestError(response);
 }
 ```
@@ -55,7 +51,6 @@ export function jsonModelWithBytesToApplicationTransform(input_?: any): ModelWit
   if (!input_) {
     return input_ as any;
   }
-
   return {
     requiredProperty: input_.requiredProperty,
     nullableProperty: decodeBase64(input_.nullableProperty)!,
@@ -77,7 +72,6 @@ export async function put(
   options?: PutOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: {
@@ -85,17 +79,14 @@ export async function put(
       nullableProperty: encodeUint8Array(nullableProperty, "base64")!,
     },
   };
-
   const response = await client.pathUnchecked(path).put(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -113,24 +104,20 @@ export async function post(
   options?: PostOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: {
       body: jsonModelWithBytesToTransportTransform(body),
     },
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -144,7 +131,6 @@ export function jsonModelWithBytesToTransportTransform(input_?: ModelWithBytes |
   if (!input_) {
     return input_ as any;
   }
-
   return {
     requiredProperty: input_.requiredProperty,
     nullableProperty: encodeUint8Array(input_.nullableProperty, "base64")!,

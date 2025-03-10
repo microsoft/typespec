@@ -51,12 +51,12 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("namespace", ref @namespace)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
-                    || reader.TryReadWithConverter("operations", options, ref operations)
-                    || reader.TryReadWithConverter("parameters", options, ref parameters)
-                    || reader.TryReadWithConverter("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("operations", options, ref operations)
+                    || reader.TryReadComplexType("parameters", options, ref parameters)
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
-                    || reader.TryReadWithConverter("parent", options, ref parent)
-                    || reader.TryReadWithConverter("children", options, ref children);
+                    || reader.TryReadComplexType("parent", options, ref parent)
+                    || reader.TryReadComplexType("children", options, ref children);
 
                 if (!isKnownProperty)
                 {

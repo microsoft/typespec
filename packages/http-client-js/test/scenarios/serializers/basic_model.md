@@ -34,7 +34,6 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     name: input_.name,
     age: input_.age,
@@ -51,7 +50,6 @@ export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     name: input_.name,
     age: input_.age,
@@ -89,7 +87,6 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     name: input_.name,
     age: input_.age,
@@ -107,7 +104,6 @@ export function jsonBarToTransportTransform(input_?: Bar | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     address: input_.address,
   }!;
