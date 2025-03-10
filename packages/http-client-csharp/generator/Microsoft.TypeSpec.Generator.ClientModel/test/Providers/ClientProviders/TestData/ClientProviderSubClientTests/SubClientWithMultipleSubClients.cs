@@ -9,22 +9,22 @@ namespace Sample
     /// <summary> AnimalClient description. </summary>
     public partial class Animal
     {
-        /// <summary> Initializes a new instance of AnimalDog. </summary>
-        public virtual global::Sample.AnimalDog GetAnimalDogClient()
+        /// <summary> Initializes a new instance of Dog. </summary>
+        public virtual global::Sample.Dog GetDogClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedAnimalDog) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedAnimalDog, new global::Sample.AnimalDog(), null) ?? _cachedAnimalDog));
+            return (global::System.Threading.Volatile.Read(ref _cachedDog) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedDog, new global::Sample.Dog(), null) ?? _cachedDog));
         }
 
-        /// <summary> Initializes a new instance of AnimalCat. </summary>
-        public virtual global::Sample.AnimalCat GetAnimalCatClient()
+        /// <summary> Initializes a new instance of Cat. </summary>
+        public virtual global::Sample.Cat GetCatClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedAnimalCat) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedAnimalCat, new global::Sample.AnimalCat(), null) ?? _cachedAnimalCat));
+            return (global::System.Threading.Volatile.Read(ref _cachedCat) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCat, new global::Sample.Cat(), null) ?? _cachedCat));
         }
 
-        /// <summary> Initializes a new instance of AnimalHawkClient. </summary>
-        public virtual global::Sample.AnimalHawkClient GetAnimalHawkClient()
+        /// <summary> Initializes a new instance of HawkClient. </summary>
+        public virtual global::Sample.HawkClient GetHawkClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedAnimalHawkClient) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedAnimalHawkClient, new global::Sample.AnimalHawkClient(), null) ?? _cachedAnimalHawkClient));
+            return (global::System.Threading.Volatile.Read(ref _cachedHawkClient) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedHawkClient, new global::Sample.HawkClient(), null) ?? _cachedHawkClient));
         }
     }
 }

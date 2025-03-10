@@ -2365,10 +2365,10 @@
   "Clients": [
     {
       "$id": "303",
-      "Name": "UnbrandedTypeSpecClient",
-      "Namespace": "UnbrandedTypeSpec",
-      "Doc": "This is a sample typespec project.",
-      "Operations": [
+      "name": "UnbrandedTypeSpecClient",
+      "namespace": "UnbrandedTypeSpec",
+      "doc": "This is a sample typespec project.",
+      "operations": [
         {
           "$id": "457",
           "Name": "ListWithNextLink",
@@ -2538,10 +2538,7 @@
           "Decorators": []
         }
       ],
-      "Protocol": {
-        "$id": "474"
-      },
-      "Parameters": [
+      "parameters": [
         {
           "$id": "475",
           "Name": "unbrandedTypeSpecUrl",
@@ -2563,8 +2560,8 @@
           "Kind": "Client"
         }
       ],
-      "Decorators": [],
-      "CrossLanguageDefinitionId": "UnbrandedTypeSpec"
+      "decorators": [],
+      "crossLanguageDefinitionId": "UnbrandedTypeSpec"
     }
   ],
   "Auth": {

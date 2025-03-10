@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void SubClientWithSingleSubClient()
         {
-            string[] expectedSubClientFactoryMethodNames = [$"Get{_animalClient.Name.ToCleanName()}{_dogClient.Name.ToCleanName()}{_huskyClient.Name.ToCleanName()}Client"];
+            string[] expectedSubClientFactoryMethodNames = [$"Get{_huskyClient.Name.ToCleanName()}Client"];
             var clientProvider = new MockClientProvider(_dogClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
             var file = writer.Write();
@@ -56,9 +56,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             string[] expectedSubClientFactoryMethodNames =
             [
-                $"Get{_animalClient.Name.ToCleanName()}{_dogClient.Name.ToCleanName()}Client",
-                $"Get{_animalClient.Name.ToCleanName()}{_catClient.Name.ToCleanName()}Client",
-                $"Get{_animalClient.Name.ToCleanName()}{_hawkClient.Name.ToCleanName()}"
+                $"Get{_dogClient.Name.ToCleanName()}Client",
+                $"Get{_catClient.Name.ToCleanName()}Client",
+                $"Get{_hawkClient.Name.ToCleanName()}"
             ];
             var clientProvider = new MockClientProvider(_animalClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);

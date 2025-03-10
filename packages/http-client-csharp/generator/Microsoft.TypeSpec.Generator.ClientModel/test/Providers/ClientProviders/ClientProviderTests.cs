@@ -1026,12 +1026,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 yield return new TestCaseData(_animalClient, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
-                    new(FieldModifiers.Private, new ExpectedCSharpType("AnimalDog", "Sample", false), "_cachedAnimalDog"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Dog", "Sample", false), "_cachedDog"),
                 });
                 yield return new TestCaseData(_dogClient, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
-                    new(FieldModifiers.Private, new ExpectedCSharpType("AnimalDogHusky", "Sample", false), "_cachedAnimalDogHusky"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Husky", "Sample", false), "_cachedHusky"),
                 });
                 yield return new TestCaseData(_huskyClient, new List<ExpectedFieldProvider>
                 {
