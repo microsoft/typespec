@@ -66,6 +66,7 @@
   },
   "dependencies": {
     "js-yaml": "~4.1.0",
+    "marked": "^15.0.6",
     "pyodide": "0.26.2",
     "semver": "~7.6.2",
     "tsx": "~4.19.1"
