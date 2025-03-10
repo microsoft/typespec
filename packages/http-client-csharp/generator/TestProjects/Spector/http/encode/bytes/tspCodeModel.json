@@ -215,6 +215,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Encode.Bytes",
+   "decorators": [],
    "children": [
     {
      "$id": "29",
@@ -466,6 +467,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Bytes.Query",
+     "decorators": [],
      "parent": {
       "$ref": "24"
      }
@@ -940,6 +942,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Bytes.Property",
+     "decorators": [],
      "parent": {
       "$ref": "24"
      }
@@ -1194,6 +1197,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Bytes.Header",
+     "decorators": [],
      "parent": {
       "$ref": "24"
      }
@@ -1631,6 +1635,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Bytes.RequestBody",
+     "decorators": [],
      "parent": {
       "$ref": "24"
      }
@@ -2041,6 +2046,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Bytes.ResponseBody",
+     "decorators": [],
      "parent": {
       "$ref": "24"
      }

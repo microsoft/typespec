@@ -236,6 +236,7 @@
    ],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Client.Structure.RenamedOperation",
+   "decorators": [],
    "children": [
     {
      "$id": "24",
@@ -362,6 +363,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Client.Structure.RenamedOperation.Group",
+     "decorators": [],
      "parent": {
       "$ref": "14"
      }

@@ -992,6 +992,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Type.Property.Optional",
+   "decorators": [],
    "children": [
     {
      "$id": "119",
@@ -1305,6 +1306,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.String",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -1621,6 +1623,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.Bytes",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -1937,6 +1940,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.Datetime",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -2253,6 +2257,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.Duration",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -2569,6 +2574,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.PlainDate",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -2885,6 +2891,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.PlainTime",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -3201,6 +3208,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByte",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -3517,6 +3525,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModel",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -3833,6 +3842,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -4149,6 +4159,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -4465,6 +4476,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -4781,6 +4793,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -5097,6 +5110,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -5413,6 +5427,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -5729,6 +5744,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }
@@ -6046,6 +6062,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptional",
+     "decorators": [],
      "parent": {
       "$ref": "114"
      }

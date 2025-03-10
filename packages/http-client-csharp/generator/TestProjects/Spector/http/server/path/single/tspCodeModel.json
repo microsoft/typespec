@@ -62,7 +62,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Server.Path.Single"
+   "crossLanguageDefinitionId": "Server.Path.Single",
+   "decorators": []
   }
  ]
 }

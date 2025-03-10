@@ -194,6 +194,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Type.Enum.Extensible",
+   "decorators": [],
    "children": [
     {
      "$id": "23",
@@ -503,6 +504,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Enum.Extensible.String",
+     "decorators": [],
      "parent": {
       "$ref": "18"
      }

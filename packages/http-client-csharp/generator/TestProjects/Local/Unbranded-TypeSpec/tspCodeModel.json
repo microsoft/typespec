@@ -4343,7 +4343,8 @@
     "2024-07-16-preview",
     "2024-08-16-preview"
    ],
-   "crossLanguageDefinitionId": "UnbrandedTypeSpec"
+   "crossLanguageDefinitionId": "UnbrandedTypeSpec",
+   "decorators": []
   }
  ],
  "Auth": {

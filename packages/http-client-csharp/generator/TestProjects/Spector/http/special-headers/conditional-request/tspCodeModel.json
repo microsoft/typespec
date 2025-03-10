@@ -259,7 +259,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "SpecialHeaders.ConditionalRequest"
+   "crossLanguageDefinitionId": "SpecialHeaders.ConditionalRequest",
+   "decorators": []
   }
  ]
 }

@@ -234,6 +234,7 @@
    ],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Parameters.BodyOptionality",
+   "decorators": [],
    "children": [
     {
      "$id": "24",
@@ -425,6 +426,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Parameters.BodyOptionality.OptionalExplicit",
+     "decorators": [],
      "parent": {
       "$ref": "7"
      }

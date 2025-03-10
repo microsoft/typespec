@@ -1642,6 +1642,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Type.Property.ValueTypes",
+   "decorators": [],
    "children": [
     {
      "$id": "197",
@@ -1821,6 +1822,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -2003,6 +2005,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.String",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -2185,6 +2188,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -2367,6 +2371,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -2549,6 +2554,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -2731,6 +2737,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -2913,6 +2920,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -3095,6 +3103,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -3277,6 +3286,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -3459,6 +3469,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -3641,6 +3652,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -3823,6 +3835,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -4005,6 +4018,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -4187,6 +4201,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -4369,6 +4384,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -4551,6 +4567,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -4733,6 +4750,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -4915,6 +4933,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -5097,6 +5116,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -5279,6 +5299,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -5461,6 +5482,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -5643,6 +5665,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -5825,6 +5848,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -6007,6 +6031,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -6189,6 +6214,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -6371,6 +6397,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -6553,6 +6580,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -6735,6 +6763,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }
@@ -6917,6 +6946,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue",
+     "decorators": [],
      "parent": {
       "$ref": "192"
      }

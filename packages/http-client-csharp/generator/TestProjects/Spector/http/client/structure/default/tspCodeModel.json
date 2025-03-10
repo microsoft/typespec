@@ -212,6 +212,7 @@
    ],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Client.Structure.Service",
+   "decorators": [],
    "children": [
     {
      "$id": "22",
@@ -262,6 +263,7 @@
      "operations": [],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Client.Structure.Service.Baz",
+     "decorators": [],
      "parent": {
       "$ref": "14"
      },
@@ -340,6 +342,7 @@
         }
        ],
        "crossLanguageDefinitionId": "Client.Structure.Service.Baz.Foo",
+       "decorators": [],
        "parent": {
         "$ref": "22"
        }
@@ -421,6 +424,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Client.Structure.Service.Qux",
+     "decorators": [],
      "parent": {
       "$ref": "14"
      },
@@ -499,6 +503,7 @@
         }
        ],
        "crossLanguageDefinitionId": "Client.Structure.Service.Qux.Bar",
+       "decorators": [],
        "parent": {
         "$ref": "32"
        }
@@ -605,6 +610,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Client.Structure.Service.Foo",
+     "decorators": [],
      "parent": {
       "$ref": "14"
      }
@@ -709,6 +715,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Client.Structure.Service.Bar",
+     "decorators": [],
      "parent": {
       "$ref": "14"
      }

@@ -295,6 +295,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Encode.Datetime",
+   "decorators": [],
    "children": [
     {
      "$id": "40",
@@ -636,6 +637,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Datetime.Query",
+     "decorators": [],
      "parent": {
       "$ref": "35"
      }
@@ -1217,6 +1219,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Datetime.Property",
+     "decorators": [],
      "parent": {
       "$ref": "35"
      }
@@ -1561,6 +1564,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Datetime.Header",
+     "decorators": [],
      "parent": {
       "$ref": "35"
      }
@@ -1791,6 +1795,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Datetime.ResponseHeader",
+     "decorators": [],
      "parent": {
       "$ref": "35"
      }

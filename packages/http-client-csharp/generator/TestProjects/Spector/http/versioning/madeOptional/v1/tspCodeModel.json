@@ -291,7 +291,8 @@
    "apiVersions": [
     "v1"
    ],
-   "crossLanguageDefinitionId": "Versioning.MadeOptional"
+   "crossLanguageDefinitionId": "Versioning.MadeOptional",
+   "decorators": []
   }
  ]
 }

@@ -1400,6 +1400,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Payload.MultiPart",
+   "decorators": [],
    "children": [
     {
      "$id": "5783",
@@ -1961,6 +1962,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.FormData",
+     "decorators": [],
      "parent": {
       "$ref": "5778"
      },
@@ -2080,6 +2082,7 @@
         }
        ],
        "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts",
+       "decorators": [],
        "parent": {
         "$ref": "5783"
        },
@@ -2347,6 +2350,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.ContentType",
+         "decorators": [],
          "parent": {
           "$ref": "5830"
          }
@@ -2466,6 +2470,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString",
+         "decorators": [],
          "parent": {
           "$ref": "5830"
          }

@@ -73,6 +73,7 @@
    ],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Routes",
+   "decorators": [],
    "children": [
     {
      "$id": "9",
@@ -257,6 +258,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Routes.PathParameters",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      },
@@ -396,6 +398,7 @@
         }
        ],
        "crossLanguageDefinitionId": "Routes.PathParameters.ReservedExpansion",
+       "decorators": [],
        "parent": {
         "$ref": "9"
        }
@@ -440,6 +443,7 @@
        ],
        "operations": [],
        "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion",
+       "decorators": [],
        "parent": {
         "$ref": "9"
        },
@@ -645,6 +649,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard",
+         "decorators": [],
          "parent": {
           "$ref": "39"
          }
@@ -850,6 +855,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode",
+         "decorators": [],
          "parent": {
           "$ref": "39"
          }
@@ -896,6 +902,7 @@
        ],
        "operations": [],
        "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion",
+       "decorators": [],
        "parent": {
         "$ref": "9"
        },
@@ -1101,6 +1108,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard",
+         "decorators": [],
          "parent": {
           "$ref": "84"
          }
@@ -1306,6 +1314,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode",
+         "decorators": [],
          "parent": {
           "$ref": "84"
          }
@@ -1352,6 +1361,7 @@
        ],
        "operations": [],
        "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion",
+       "decorators": [],
        "parent": {
         "$ref": "9"
        },
@@ -1557,6 +1567,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard",
+         "decorators": [],
          "parent": {
           "$ref": "129"
          }
@@ -1762,6 +1773,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode",
+         "decorators": [],
          "parent": {
           "$ref": "129"
          }
@@ -1808,6 +1820,7 @@
        ],
        "operations": [],
        "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion",
+       "decorators": [],
        "parent": {
         "$ref": "9"
        },
@@ -2013,6 +2026,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard",
+         "decorators": [],
          "parent": {
           "$ref": "174"
          }
@@ -2218,6 +2232,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode",
+         "decorators": [],
          "parent": {
           "$ref": "174"
          }
@@ -2409,6 +2424,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Routes.QueryParameters",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      },
@@ -2453,6 +2469,7 @@
        ],
        "operations": [],
        "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion",
+       "decorators": [],
        "parent": {
         "$ref": "219"
        },
@@ -2658,6 +2675,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard",
+         "decorators": [],
          "parent": {
           "$ref": "236"
          }
@@ -2863,6 +2881,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode",
+         "decorators": [],
          "parent": {
           "$ref": "236"
          }
@@ -2909,6 +2928,7 @@
        ],
        "operations": [],
        "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation",
+       "decorators": [],
        "parent": {
         "$ref": "219"
        },
@@ -3114,6 +3134,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard",
+         "decorators": [],
          "parent": {
           "$ref": "281"
          }
@@ -3319,6 +3340,7 @@
           }
          ],
          "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode",
+         "decorators": [],
          "parent": {
           "$ref": "281"
          }
@@ -3394,6 +3416,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Routes.InInterface",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }

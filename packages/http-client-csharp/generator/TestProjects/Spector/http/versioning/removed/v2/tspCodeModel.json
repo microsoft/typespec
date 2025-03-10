@@ -606,7 +606,8 @@
     "v2preview",
     "v2"
    ],
-   "crossLanguageDefinitionId": "Versioning.Removed"
+   "crossLanguageDefinitionId": "Versioning.Removed",
+   "decorators": []
   }
  ]
 }

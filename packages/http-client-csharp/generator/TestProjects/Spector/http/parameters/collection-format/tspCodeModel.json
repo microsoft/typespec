@@ -47,6 +47,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Parameters.CollectionFormat",
+   "decorators": [],
    "children": [
     {
      "$id": "7",
@@ -369,6 +370,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }
@@ -471,6 +473,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Parameters.CollectionFormat.Header",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }

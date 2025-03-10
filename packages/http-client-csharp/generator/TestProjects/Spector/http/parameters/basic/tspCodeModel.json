@@ -123,6 +123,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Parameters.Basic",
+   "decorators": [],
    "children": [
     {
      "$id": "17",
@@ -240,6 +241,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Parameters.Basic.ExplicitBody",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -360,6 +362,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Parameters.Basic.ImplicitBody",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }

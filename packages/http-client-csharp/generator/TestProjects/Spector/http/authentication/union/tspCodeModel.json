@@ -99,7 +99,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Authentication.Union"
+   "crossLanguageDefinitionId": "Authentication.Union",
+   "decorators": []
   }
  ],
  "Auth": {

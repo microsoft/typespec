@@ -891,6 +891,7 @@
     "v1"
    ],
    "crossLanguageDefinitionId": "Versioning.Removed",
+   "decorators": [],
    "children": [
     {
      "$id": "97",
@@ -1052,6 +1053,7 @@
       "v1"
      ],
      "crossLanguageDefinitionId": "Versioning.Removed.InterfaceV1",
+     "decorators": [],
      "parent": {
       "$ref": "64"
      }

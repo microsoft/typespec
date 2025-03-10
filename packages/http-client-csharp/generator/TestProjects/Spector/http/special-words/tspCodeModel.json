@@ -1306,6 +1306,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "SpecialWords",
+   "decorators": [],
    "children": [
     {
      "$id": "177",
@@ -3792,6 +3793,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "SpecialWords.Models",
+     "decorators": [],
      "parent": {
       "$ref": "172"
      }
@@ -3913,6 +3915,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "SpecialWords.ModelProperties",
+     "decorators": [],
      "parent": {
       "$ref": "172"
      }
@@ -4785,6 +4788,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "SpecialWords.Operations",
+     "decorators": [],
      "parent": {
       "$ref": "172"
      }
@@ -6430,6 +6434,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "SpecialWords.Parameters",
+     "decorators": [],
      "parent": {
       "$ref": "172"
      }

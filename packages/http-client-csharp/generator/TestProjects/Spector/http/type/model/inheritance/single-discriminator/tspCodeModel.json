@@ -972,7 +972,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator"
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator",
+   "decorators": []
   }
  ]
 }

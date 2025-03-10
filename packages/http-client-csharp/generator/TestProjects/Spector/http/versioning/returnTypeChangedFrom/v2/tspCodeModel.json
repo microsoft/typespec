@@ -234,7 +234,8 @@
     "v1",
     "v2"
    ],
-   "crossLanguageDefinitionId": "Versioning.ReturnTypeChangedFrom"
+   "crossLanguageDefinitionId": "Versioning.ReturnTypeChangedFrom",
+   "decorators": []
   }
  ]
 }

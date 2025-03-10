@@ -619,6 +619,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Type.Property.Nullable",
+   "decorators": [],
    "children": [
     {
      "$id": "86",
@@ -932,6 +933,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.String",
+     "decorators": [],
      "parent": {
       "$ref": "81"
      }
@@ -1248,6 +1250,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes",
+     "decorators": [],
      "parent": {
       "$ref": "81"
      }
@@ -1564,6 +1567,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime",
+     "decorators": [],
      "parent": {
       "$ref": "81"
      }
@@ -1880,6 +1884,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.Duration",
+     "decorators": [],
      "parent": {
       "$ref": "81"
      }
@@ -2196,6 +2201,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte",
+     "decorators": [],
      "parent": {
       "$ref": "81"
      }
@@ -2512,6 +2518,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel",
+     "decorators": [],
      "parent": {
       "$ref": "81"
      }
@@ -2828,6 +2835,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString",
+     "decorators": [],
      "parent": {
       "$ref": "81"
      }

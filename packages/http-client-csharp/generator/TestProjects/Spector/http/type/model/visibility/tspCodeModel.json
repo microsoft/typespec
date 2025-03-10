@@ -883,7 +883,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Type.Model.Visibility"
+   "crossLanguageDefinitionId": "Type.Model.Visibility",
+   "decorators": []
   }
  ]
 }

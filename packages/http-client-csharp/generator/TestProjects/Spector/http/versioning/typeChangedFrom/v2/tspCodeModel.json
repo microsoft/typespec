@@ -311,7 +311,8 @@
     "v1",
     "v2"
    ],
-   "crossLanguageDefinitionId": "Versioning.TypeChangedFrom"
+   "crossLanguageDefinitionId": "Versioning.TypeChangedFrom",
+   "decorators": []
   }
  ]
 }

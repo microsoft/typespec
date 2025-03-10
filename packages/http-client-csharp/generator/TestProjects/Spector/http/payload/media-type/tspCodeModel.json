@@ -47,6 +47,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Payload.MediaType",
+   "decorators": [],
    "children": [
     {
      "$id": "7",
@@ -408,6 +409,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Payload.MediaType.StringBody",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }

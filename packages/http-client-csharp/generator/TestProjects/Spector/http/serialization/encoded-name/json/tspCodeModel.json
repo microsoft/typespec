@@ -86,6 +86,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Serialization.EncodedName.Json",
+   "decorators": [],
    "children": [
     {
      "$id": "12",
@@ -262,6 +263,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property",
+     "decorators": [],
      "parent": {
       "$ref": "7"
      }

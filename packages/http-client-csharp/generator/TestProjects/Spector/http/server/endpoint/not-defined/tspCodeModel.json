@@ -62,7 +62,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Server.Endpoint.NotDefined"
+   "crossLanguageDefinitionId": "Server.Endpoint.NotDefined",
+   "decorators": []
   }
  ]
 }

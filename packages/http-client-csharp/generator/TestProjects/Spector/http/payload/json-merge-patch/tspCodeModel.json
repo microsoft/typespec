@@ -876,7 +876,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Payload.JsonMergePatch"
+   "crossLanguageDefinitionId": "Payload.JsonMergePatch",
+   "decorators": []
   }
  ]
 }

@@ -879,7 +879,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator"
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator",
+   "decorators": []
   }
  ]
 }

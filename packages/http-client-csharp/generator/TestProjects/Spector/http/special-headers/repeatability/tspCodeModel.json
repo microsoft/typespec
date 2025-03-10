@@ -189,7 +189,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "SpecialHeaders.Repeatability"
+   "crossLanguageDefinitionId": "SpecialHeaders.Repeatability",
+   "decorators": []
   }
  ]
 }

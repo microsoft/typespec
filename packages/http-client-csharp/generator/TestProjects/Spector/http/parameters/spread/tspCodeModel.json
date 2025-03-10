@@ -432,6 +432,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Parameters.Spread",
+   "decorators": [],
    "children": [
     {
      "$id": "60",
@@ -923,6 +924,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Parameters.Spread.Model",
+     "decorators": [],
      "parent": {
       "$ref": "55"
      }
@@ -1508,6 +1510,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Parameters.Spread.Alias",
+     "decorators": [],
      "parent": {
       "$ref": "55"
      }

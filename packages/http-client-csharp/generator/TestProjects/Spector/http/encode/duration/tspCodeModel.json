@@ -340,6 +340,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Encode.Duration",
+   "decorators": [],
    "children": [
     {
      "$id": "46",
@@ -736,6 +737,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Duration.Query",
+     "decorators": [],
      "parent": {
       "$ref": "41"
      }
@@ -1424,6 +1426,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Duration.Property",
+     "decorators": [],
      "parent": {
       "$ref": "41"
      }
@@ -1823,6 +1826,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Duration.Header",
+     "decorators": [],
      "parent": {
       "$ref": "41"
      }

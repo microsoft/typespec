@@ -835,6 +835,7 @@
     "v2preview"
    ],
    "crossLanguageDefinitionId": "Versioning.Removed",
+   "decorators": [],
    "children": [
     {
      "$id": "90",
@@ -997,6 +998,7 @@
       "v2preview"
      ],
      "crossLanguageDefinitionId": "Versioning.Removed.InterfaceV1",
+     "decorators": [],
      "parent": {
       "$ref": "57"
      }

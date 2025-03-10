@@ -259,7 +259,8 @@
    "apiVersions": [
     "v1"
    ],
-   "crossLanguageDefinitionId": "Resiliency.ServiceDriven"
+   "crossLanguageDefinitionId": "Resiliency.ServiceDriven",
+   "decorators": []
   }
  ]
 }

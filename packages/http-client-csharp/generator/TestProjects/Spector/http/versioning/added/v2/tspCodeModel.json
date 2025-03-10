@@ -656,6 +656,7 @@
     "v2"
    ],
    "crossLanguageDefinitionId": "Versioning.Added",
+   "decorators": [],
    "children": [
     {
      "$id": "71",
@@ -816,6 +817,7 @@
       "v2"
      ],
      "crossLanguageDefinitionId": "Versioning.Added.InterfaceV2",
+     "decorators": [],
      "parent": {
       "$ref": "47"
      }

@@ -86,6 +86,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Payload.ContentNegotiation",
+   "decorators": [],
    "children": [
     {
      "$id": "12",
@@ -293,6 +294,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Payload.ContentNegotiation.SameBody",
+     "decorators": [],
      "parent": {
       "$ref": "7"
      }
@@ -499,6 +501,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Payload.ContentNegotiation.DifferentBody",
+     "decorators": [],
      "parent": {
       "$ref": "7"
      }

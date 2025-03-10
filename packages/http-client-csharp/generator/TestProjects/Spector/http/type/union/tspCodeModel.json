@@ -1756,6 +1756,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Type.Union",
+   "decorators": [],
    "children": [
     {
      "$id": "216",
@@ -1933,6 +1934,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Union.StringsOnly",
+     "decorators": [],
      "parent": {
       "$ref": "211"
      }
@@ -2113,6 +2115,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Union.StringExtensible",
+     "decorators": [],
      "parent": {
       "$ref": "211"
      }
@@ -2293,6 +2296,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed",
+     "decorators": [],
      "parent": {
       "$ref": "211"
      }
@@ -2473,6 +2477,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Union.IntsOnly",
+     "decorators": [],
      "parent": {
       "$ref": "211"
      }
@@ -2653,6 +2658,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Union.FloatsOnly",
+     "decorators": [],
      "parent": {
       "$ref": "211"
      }
@@ -2833,6 +2839,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Union.ModelsOnly",
+     "decorators": [],
      "parent": {
       "$ref": "211"
      }
@@ -3013,6 +3020,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Union.EnumsOnly",
+     "decorators": [],
      "parent": {
       "$ref": "211"
      }
@@ -3193,6 +3201,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Union.StringAndArray",
+     "decorators": [],
      "parent": {
       "$ref": "211"
      }
@@ -3373,6 +3382,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Union.MixedLiterals",
+     "decorators": [],
      "parent": {
       "$ref": "211"
      }
@@ -3553,6 +3563,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Union.MixedTypes",
+     "decorators": [],
      "parent": {
       "$ref": "211"
      }

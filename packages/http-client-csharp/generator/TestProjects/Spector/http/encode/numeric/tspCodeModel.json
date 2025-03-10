@@ -162,6 +162,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Encode.Numeric",
+   "decorators": [],
    "children": [
     {
      "$id": "22",
@@ -526,6 +527,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Encode.Numeric.Property",
+     "decorators": [],
      "parent": {
       "$ref": "17"
      }

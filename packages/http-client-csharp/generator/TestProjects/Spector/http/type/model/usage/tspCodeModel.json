@@ -402,7 +402,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Type.Model.Usage"
+   "crossLanguageDefinitionId": "Type.Model.Usage",
+   "decorators": []
   }
  ]
 }

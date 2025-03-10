@@ -165,7 +165,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Authentication.Http.Custom"
+   "crossLanguageDefinitionId": "Authentication.Http.Custom",
+   "decorators": []
   }
  ],
  "Auth": {

@@ -386,7 +386,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Response.StatusCodeRange"
+   "crossLanguageDefinitionId": "Response.StatusCodeRange",
+   "decorators": []
   }
  ]
 }

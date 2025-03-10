@@ -321,7 +321,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Type.Model.Empty"
+   "crossLanguageDefinitionId": "Type.Model.Empty",
+   "decorators": []
   }
  ]
 }

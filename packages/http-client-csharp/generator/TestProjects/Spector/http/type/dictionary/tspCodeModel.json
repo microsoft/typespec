@@ -121,6 +121,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Type.Dictionary",
+   "decorators": [],
    "children": [
     {
      "$id": "17",
@@ -330,6 +331,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.Int32Value",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -542,6 +544,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.Int64Value",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -754,6 +757,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.BooleanValue",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -966,6 +970,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.StringValue",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -1178,6 +1183,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.Float32Value",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -1406,6 +1412,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.DatetimeValue",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -1634,6 +1641,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.DurationValue",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -1846,6 +1854,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.UnknownValue",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -2050,6 +2059,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.ModelValue",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -2254,6 +2264,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.RecursiveModelValue",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }
@@ -2467,6 +2478,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Dictionary.NullableFloatValue",
+     "decorators": [],
      "parent": {
       "$ref": "12"
      }

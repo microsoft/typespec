@@ -263,7 +263,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Type.Model.Inheritance.Recursive"
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.Recursive",
+   "decorators": []
   }
  ]
 }

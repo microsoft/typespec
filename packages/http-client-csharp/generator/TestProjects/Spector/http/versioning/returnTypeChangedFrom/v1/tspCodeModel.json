@@ -214,7 +214,8 @@
    "apiVersions": [
     "v1"
    ],
-   "crossLanguageDefinitionId": "Versioning.ReturnTypeChangedFrom"
+   "crossLanguageDefinitionId": "Versioning.ReturnTypeChangedFrom",
+   "decorators": []
   }
  ]
 }

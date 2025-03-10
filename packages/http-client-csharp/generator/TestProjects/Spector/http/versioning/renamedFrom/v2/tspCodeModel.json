@@ -394,6 +394,7 @@
     "v2"
    ],
    "crossLanguageDefinitionId": "Versioning.RenamedFrom",
+   "decorators": [],
    "children": [
     {
      "$id": "42",
@@ -555,6 +556,7 @@
       "v2"
      ],
      "crossLanguageDefinitionId": "Versioning.RenamedFrom.NewInterface",
+     "decorators": [],
      "parent": {
       "$ref": "27"
      }

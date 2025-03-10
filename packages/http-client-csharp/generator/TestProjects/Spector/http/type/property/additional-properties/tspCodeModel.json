@@ -2259,6 +2259,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties",
+   "decorators": [],
    "children": [
     {
      "$id": "283",
@@ -2438,6 +2439,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknown",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -2620,6 +2622,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDerived",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -2802,6 +2805,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownDiscriminated",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -2984,6 +2988,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknown",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -3166,6 +3171,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDerived",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -3348,6 +3354,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownDiscriminated",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -3530,6 +3537,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsString",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -3712,6 +3720,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsString",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -3894,6 +3903,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadString",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -4076,6 +4086,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloat",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -4258,6 +4269,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloat",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -4440,6 +4452,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloat",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -4622,6 +4635,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModel",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -4804,6 +4818,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModel",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -4986,6 +5001,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModel",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -5168,6 +5184,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArray",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -5350,6 +5367,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArray",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -5532,6 +5550,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArray",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -5714,6 +5733,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentString",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -5896,6 +5916,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentFloat",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -6078,6 +6099,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModel",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -6260,6 +6282,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadDifferentModelArray",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -6442,6 +6465,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadString",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -6624,6 +6648,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadFloat",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -6806,6 +6831,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModel",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -6988,6 +7014,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsDifferentSpreadModelArray",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -7170,6 +7197,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpread",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -7352,6 +7380,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordUnion",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -7534,6 +7563,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordDiscriminatedUnion",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -7716,6 +7746,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -7898,6 +7929,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion2",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }
@@ -8080,6 +8112,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordNonDiscriminatedUnion3",
+     "decorators": [],
      "parent": {
       "$ref": "278"
      }

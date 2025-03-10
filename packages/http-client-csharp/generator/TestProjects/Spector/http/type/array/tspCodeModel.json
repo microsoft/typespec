@@ -116,6 +116,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Type.Array",
+   "decorators": [],
    "children": [
     {
      "$id": "16",
@@ -315,6 +316,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.Int32Value",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -517,6 +519,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.Int64Value",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -719,6 +722,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.BooleanValue",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -921,6 +925,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.StringValue",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -1123,6 +1128,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.Float32Value",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -1341,6 +1347,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.DatetimeValue",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -1559,6 +1566,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.DurationValue",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -1761,6 +1769,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.UnknownValue",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -1955,6 +1964,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.ModelValue",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -2158,6 +2168,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.NullableFloatValue",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -2361,6 +2372,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.NullableInt32Value",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -2564,6 +2576,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.NullableBooleanValue",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -2767,6 +2780,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.NullableStringValue",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }
@@ -2966,6 +2980,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Array.NullableModelValue",
+     "decorators": [],
      "parent": {
       "$ref": "11"
      }

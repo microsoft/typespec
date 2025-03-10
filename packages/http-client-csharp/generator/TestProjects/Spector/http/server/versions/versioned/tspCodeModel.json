@@ -297,7 +297,8 @@
     "2021-01-01-preview",
     "2022-12-01-preview"
    ],
-   "crossLanguageDefinitionId": "Server.Versions.Versioned"
+   "crossLanguageDefinitionId": "Server.Versions.Versioned",
+   "decorators": []
   }
  ]
 }

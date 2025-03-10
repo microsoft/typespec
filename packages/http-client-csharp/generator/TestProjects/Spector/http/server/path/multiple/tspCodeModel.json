@@ -180,7 +180,8 @@
    "apiVersions": [
     "v1.0"
    ],
-   "crossLanguageDefinitionId": "Server.Path.Multiple"
+   "crossLanguageDefinitionId": "Server.Path.Multiple",
+   "decorators": []
   }
  ]
 }

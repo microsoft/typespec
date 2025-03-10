@@ -235,7 +235,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Client.Structure.MultiClient.ClientA"
+   "crossLanguageDefinitionId": "Client.Structure.MultiClient.ClientA",
+   "decorators": []
   },
   {
    "$id": "24",
@@ -361,7 +362,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Client.Structure.MultiClient.ClientB"
+   "crossLanguageDefinitionId": "Client.Structure.MultiClient.ClientB",
+   "decorators": []
   }
  ]
 }

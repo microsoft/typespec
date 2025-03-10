@@ -156,7 +156,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Server.Versions.NotVersioned"
+   "crossLanguageDefinitionId": "Server.Versions.NotVersioned",
+   "decorators": []
   }
  ]
 }

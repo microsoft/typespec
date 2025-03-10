@@ -165,7 +165,8 @@
     }
    ],
    "apiVersions": [],
-   "crossLanguageDefinitionId": "Authentication.OAuth2"
+   "crossLanguageDefinitionId": "Authentication.OAuth2",
+   "decorators": []
   }
  ],
  "Auth": {

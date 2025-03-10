@@ -46,6 +46,7 @@
    "operations": [],
    "apiVersions": [],
    "crossLanguageDefinitionId": "Type.Scalar",
+   "decorators": [],
    "children": [
     {
      "$id": "7",
@@ -233,6 +234,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Scalar.String",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }
@@ -423,6 +425,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Scalar.Boolean",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }
@@ -613,6 +616,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Scalar.Unknown",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }
@@ -848,6 +852,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Scalar.DecimalType",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }
@@ -1083,6 +1088,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }
@@ -1278,6 +1284,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Scalar.DecimalVerify",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }
@@ -1473,6 +1480,7 @@
      ],
      "apiVersions": [],
      "crossLanguageDefinitionId": "Type.Scalar.Decimal128Verify",
+     "decorators": [],
      "parent": {
       "$ref": "2"
      }
