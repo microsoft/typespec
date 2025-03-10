@@ -20,16 +20,16 @@ export interface Emitter {
 export const PreDefinedEmitterPickItems: Record<string, vscode.QuickPickItem> = {
   openapi: {
     label: "OpenAPI Document",
-    detail: "Generating OpenAPI3 Document from TypeSpec files.",
+    detail: "Emitting OpenAPI3 Document from TypeSpec files.",
   },
   client: {
     label: "Client Code",
     detail:
-      "Generating Client Code from TypeSpec files. Supported languages are .NET, Python, Java, JavaScript.",
+      "Emitting Client Code from TypeSpec files. Supported languages are .NET, Python, Java, JavaScript.",
   },
   server: {
     label: "<PREVIEW> Server Stub",
-    detail: "Generating Server Stub from TypeSpec files. Supported languages are .NET, JavaScript.",
+    detail: "Emitting Server Stub from TypeSpec files. Supported languages are .NET, JavaScript.",
   },
 };
 
