@@ -96,7 +96,7 @@ export async function extractLibraryRefDocs(
     namespaces: [],
     getNamedTypeRefDoc: (type) => undefined,
   };
-  const tspMain = getExport(pkgJson, ".", "tsp");
+  const tspMain = getExport(pkgJson, ".", "typespec");
   if (tspMain) {
     const main = resolvePath(libraryPath, tspMain);
     const program = await compile(NodeHost, main, {
