@@ -136,6 +136,13 @@ extern dec error(target: Model);
  */
 extern dec mediaTypeHint(target: Model | Scalar | Enum | Union, mediaType: valueof string);
 
+// Cannot apply this to the scalar itself. Needs to be applied here so that we don't crash nostdlib scenarios
+@@mediaTypeHint(TypeSpec.bytes, "application/octet-stream");
+
+// @@mediaTypeHint(TypeSpec.string "text/plain") -- This is hardcoded in the compiler to avoid circularity
+// between the initialization of the string scalar and the `valueof string` required to call the
+// `mediaTypeHint` decorator.
+
 /**
  * Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
  * This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.

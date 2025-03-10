@@ -17,7 +17,6 @@ import {
   getErrorsDoc,
   getFriendlyName,
   getKeyName,
-  getKnownValues,
   getMediaTypeHint,
   getOverloadedOperation,
   getOverloads,

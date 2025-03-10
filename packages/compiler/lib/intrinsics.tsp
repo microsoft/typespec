@@ -7,7 +7,6 @@ namespace TypeSpec;
 /**
  * Represent a byte array
  */
-@mediaTypeHint("application/octet-stream")
 scalar bytes;
 
 /**
@@ -92,9 +91,6 @@ scalar decimal extends numeric;
  */
 scalar decimal128 extends decimal;
 
-// @mediaTypeHint("text/plain") -- This is hardcoded in the compiler to avoid
-// circularity between the initialization of the string scalar and the
-// `valueof string` required to call the `mediaTypeHint` decorator.
 /**
  * A sequence of textual characters.
  */

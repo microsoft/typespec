@@ -347,18 +347,18 @@ export function isErrorModel(program: Program, target: Type): boolean {
 
 // -- @mediaTypeHint decorator --------------
 
-const [_getMediaTypeHint, setMediaTypeHint] = useStateMap<MimeTypeable, string>(
+const [_getMediaTypeHint, setMediaTypeHint] = useStateMap<MediaTypeHintable, string>(
   createStateSymbol("mediaTypeHint"),
 );
 
 /**
  * A type that can have a default MIME type.
  */
-type MimeTypeable = Parameters<MediaTypeHintDecorator>[1];
+type MediaTypeHintable = Parameters<MediaTypeHintDecorator>[1];
 
 export const $mediaTypeHint: MediaTypeHintDecorator = (
   context: DecoratorContext,
-  target: MimeTypeable,
+  target: MediaTypeHintable,
   mediaType: string,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $mediaTypeHint);
@@ -386,7 +386,6 @@ export function getMediaTypeHint(program: Program, target: Type): string | undef
       // itself.
 
       const isTypeSpecString =
-        isIntrinsicType(program, target, "string") &&
         target.name === "string" &&
         target.namespace?.name === "TypeSpec" &&
         target.namespace.namespace === program.getGlobalNamespaceType();
@@ -398,7 +397,7 @@ export function getMediaTypeHint(program: Program, target: Type): string | undef
     case "Enum":
     case "Model": {
       // Assert this satisfies clause to make sure we've handled everything that is MimeTypeable
-      void 0 as unknown as MimeTypeable["kind"] satisfies typeof target.kind;
+      void 0 as unknown as MediaTypeHintable["kind"] satisfies typeof target.kind;
 
       const hint = _getMediaTypeHint(program, target);
 
