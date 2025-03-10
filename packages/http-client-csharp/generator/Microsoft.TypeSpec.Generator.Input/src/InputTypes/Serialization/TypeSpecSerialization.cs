@@ -89,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             if (parentNames.Count <= 1)
             {
-                // toplevel client, and first level sub-client will keep its orignal name.
+                // toplevel client, and first level sub-client will keep its original name.
                 return name;
             }
 
