@@ -4,8 +4,8 @@
 namespace UnbrandedTypeSpec.Models.Custom
 {
     // Demonstrates customizing the name of a model
-    [CodeGenType("ProjectedModel")]
-    public partial class ProjectedModelCustom
+    [CodeGenType("RenamedModel")]
+    public partial class RenamedModelCustom
     {
     }
 }

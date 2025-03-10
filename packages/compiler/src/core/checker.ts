@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import { Realm } from "../experimental/realm.js";
 import { $ } from "../experimental/typekit/index.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
@@ -11,7 +10,7 @@ import {
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
+import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -28,8 +27,7 @@ import {
   hasParseError,
   visitChildren,
 } from "./parser.js";
-import type { Program, ProjectedProgram } from "./program.js";
-import { createProjectionMembers } from "./projection-members.js";
+import type { Program } from "./program.js";
 import { createTypeRelationChecker } from "./type-relation-checker.js";
 import {
   getFullyQualifiedSymbolName,
@@ -73,7 +71,6 @@ import {
   FunctionDeclarationStatementNode,
   FunctionParameter,
   FunctionParameterNode,
-  FunctionType,
   IdentifierKind,
   IdentifierNode,
   IndeterminateEntity,
@@ -113,28 +110,7 @@ import {
   ObjectValuePropertyDescriptor,
   Operation,
   OperationStatementNode,
-  Projection,
-  ProjectionArithmeticExpressionNode,
-  ProjectionBlockExpressionNode,
-  ProjectionCallExpressionNode,
-  ProjectionDecoratorReferenceExpressionNode,
-  ProjectionEqualityExpressionNode,
-  ProjectionExpression,
-  ProjectionExpressionStatementNode,
-  ProjectionIfExpressionNode,
-  ProjectionLambdaExpressionNode,
-  ProjectionMemberExpressionNode,
-  ProjectionModelExpressionNode,
-  ProjectionModelPropertyNode,
-  ProjectionModelSpreadPropertyNode,
-  ProjectionNode,
-  ProjectionRelationalExpressionNode,
-  ProjectionStatementItem,
-  ProjectionStatementNode,
-  ProjectionUnaryExpressionNode,
   ResolutionResultFlags,
-  ReturnExpressionNode,
-  ReturnRecord,
   Scalar,
   ScalarConstructor,
   ScalarConstructorNode,
@@ -171,7 +147,6 @@ import {
   TypeInstantiationMap,
   TypeMapper,
   TypeOfExpressionNode,
-  TypeOrReturnRecord,
   TypeReferenceNode,
   TypeSpecScriptNode,
   Union,
@@ -189,7 +164,6 @@ export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof Typ
 
 export interface Checker {
   typePrototype: TypePrototype;
-
   getTypeForNode(node: Node): Type;
 
   // TODO: decide if we expose resolver and deprecate those marked with @internal @deprecated
@@ -201,12 +175,6 @@ export interface Checker {
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   getLiteralType(node: LiteralNode): LiteralType;
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
-  evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type;
-  project(
-    target: Type,
-    projection: ProjectionNode,
-    args?: (Type | string | number | boolean)[],
-  ): Type;
   resolveRelatedSymbols(node: IdentifierNode): Sym[] | undefined;
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
   createType<T extends Type extends any ? CreateTypeProps : never>(
@@ -216,7 +184,6 @@ export interface Checker {
     typeDef: T,
   ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
-  createFunctionType(fn: (...args: Type[]) => Type): FunctionType;
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
   createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
   createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
@@ -292,10 +259,7 @@ export interface Checker {
   readonly anyType: UnknownType;
 }
 
-interface TypePrototype {
-  projections: ProjectionStatementNode[];
-  projectionsByName(name: string): ProjectionStatementNode[];
-}
+interface TypePrototype {}
 
 export interface TypeSpecCompletionItem {
   sym: Sym;
@@ -331,16 +295,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     program.reportDiagnostic(x);
   };
 
-  const typePrototype: TypePrototype = {
-    get projections(): ProjectionStatementNode[] {
-      return (projectionsByTypeKind.get((this as Type).kind) || []).concat(
-        projectionsByType.get(this as Type) || [],
-      );
-    },
-    projectionsByName(name: string): ProjectionStatementNode[] {
-      return this.projections.filter((p) => p.id.sv === name);
-    },
-  };
+  const typePrototype: TypePrototype = {};
   const globalNamespaceType = createGlobalNamespaceType();
 
   // Caches the deprecation test of nodes in the program
@@ -352,24 +307,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const unknownType = createType({ kind: "Intrinsic", name: "unknown" } as const);
   const nullType = createType({ kind: "Intrinsic", name: "null" } as const);
 
-  const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
-    ["Model", []],
-    ["ModelProperty", []],
-    ["Scalar", []],
-    ["Union", []],
-    ["UnionVariant", []],
-    ["Operation", []],
-    ["Interface", []],
-    ["Enum", []],
-    ["EnumMember", []],
-  ]);
-  const projectionsByType = new Map<Type, ProjectionStatementNode[]>();
-  // whether we've checked this specific projection statement before
-  // and added it to the various projection maps.
-  const processedProjections = new Set<ProjectionStatementNode>();
-
-  // interpreter state
-  let currentProjectionDirection: "to" | "from" | "pre_to" | "pre_from" | undefined;
   /**
    * Set keeping track of node pending type resolution.
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
@@ -380,8 +317,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   if (typespecNamespaceBinding) {
     initializeTypeSpecIntrinsics();
   }
-
-  let evalContext: EvalContext | undefined = undefined;
 
   /**
    * Tracking the template parameters used or not.
@@ -397,8 +332,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     cloneType,
     resolveRelatedSymbols,
     resolveCompletions,
-    evalProjection,
-    project,
     neverType,
     errorType,
     nullType,
@@ -407,7 +340,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     typePrototype,
     createType,
     createAndFinishType,
-    createFunctionType,
     createLiteralType,
     finishType,
     isStdType,
@@ -422,7 +354,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const relation = createTypeRelationChecker(program, checker);
   checker.isTypeAssignableTo = relation.isTypeAssignableTo;
 
-  const projectionMembers = createProjectionMembers(checker);
   return checker;
 
   function getTemplateParameterUsageMap(): Map<TemplateParameterDeclarationNode, boolean> {
@@ -456,7 +387,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       flags: SymbolFlags.Function,
       name: "log",
       value(p: Program, ...strs: string[]): Type {
-        program.trace("projection.log", strs.join(" "));
+        program.trace("log", strs.join(" "));
         return voidType;
       },
       declarations: [],
@@ -965,8 +896,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkTemplateArgument(node, mapper);
       case SyntaxKind.TemplateParameterDeclaration:
         return checkTemplateParameterDeclaration(node, mapper);
-      case SyntaxKind.ProjectionStatement:
-        return checkProjectionDeclaration(node);
       case SyntaxKind.VoidKeyword:
         return voidType;
       case SyntaxKind.NeverKeyword:
@@ -1020,11 +949,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function isTypeSpecNamespace(
     namespace: Namespace,
   ): namespace is Namespace & { name: "TypeSpec"; namespace: Namespace } {
-    return (
-      namespace.name === "TypeSpec" &&
-      (namespace.namespace === globalNamespaceType ||
-        namespace.namespace?.projectionBase === globalNamespaceType)
-    );
+    return namespace.name === "TypeSpec" && namespace.namespace === globalNamespaceType;
   }
 
   /**
@@ -1960,44 +1885,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkFunctionDeclaration(
     node: FunctionDeclarationStatementNode,
     mapper: TypeMapper | undefined,
-  ): FunctionType {
-    const symbol = getMergedSymbol(node.symbol);
-    const links = getSymbolLinks(symbol);
-    if (links.declaredType && mapper === undefined) {
-      // we're not instantiating this operation and we've already checked it
-      return links.declaredType as FunctionType;
-    }
-
-    const namespace = getParentNamespaceType(node);
-    compilerAssert(
-      namespace,
-      `Decorator ${node.id.sv} should have resolved a namespace or found the global namespace.`,
-    );
-    const name = node.id.sv;
-
-    if (!(node.modifierFlags & ModifierFlags.Extern)) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "function-extern", target: node }));
-    }
-
-    const implementation = symbol.value;
-    if (implementation === undefined) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
-    }
-    const functionType: FunctionType = createType({
-      kind: "Function",
-      name,
-      namespace,
-      node,
-      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper, true)),
-      returnType: node.returnType ? getTypeForNode(node.returnType, mapper) : unknownType,
-      implementation: implementation ?? (() => {}),
-    });
-
-    namespace.functionDeclarations.set(name, functionType);
-
-    linkType(links, functionType, mapper);
-
-    return functionType;
+  ) {
+    reportCheckerDiagnostic(createDiagnostic({ code: "function-unsupported", target: node }));
+    return errorType;
   }
 
   function checkFunctionParameter(
@@ -2281,8 +2171,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       | UnionStatementNode
       | ModelExpressionNode
       | DecoratorDeclarationStatementNode
-      | FunctionDeclarationStatementNode
-      | ProjectionModelExpressionNode,
+      | FunctionDeclarationStatementNode,
   ): Namespace | undefined {
     if (node === globalNamespaceType.node) return undefined;
 
@@ -5943,8 +5832,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   /**
    * Given the own-properties of a type, returns a fully-initialized type.
-   * So far, that amounts to setting the prototype to typePrototype which
-   * contains the `projections` getter.
    */
   function createType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T,
@@ -6118,10 +6005,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (type.isFinished) {
       clone = finishType(clone);
     }
-    const projection = projectionsByType.get(type);
-    if (projection) {
-      projectionsByType.set(clone, projection);
-    }
 
     compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
     return clone;
@@ -6154,548 +6037,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
     return clone;
-  }
-
-  function checkProjectionDeclaration(node: ProjectionStatementNode): Type {
-    // todo: check for duplicate projection decls on individual types
-    // right now you can declare the same projection on a specific type
-    // this could maybe go in the binder? But right now we don't know
-    // what an identifier resolves to until check time.
-    const links = getSymbolLinks(node.symbol);
-    if (processedProjections.has(node)) {
-      return links.declaredType!;
-    }
-    processedProjections.add(node);
-    reportCheckerDiagnostic(
-      createDiagnostic({
-        code: "deprecated",
-        format: { message: "Projection are deprecated and will be removed in next version" },
-        target: node,
-      }),
-    );
-
-    let type;
-
-    if (links.declaredType) {
-      type = links.declaredType as Projection;
-    } else {
-      type = links.declaredType = createType({
-        kind: "Projection",
-        node: undefined,
-        nodeByKind: new Map(),
-        nodeByType: new Map(),
-      });
-    }
-
-    switch (node.selector.kind) {
-      case SyntaxKind.ProjectionModelSelector:
-        projectionsByTypeKind.get("Model")!.push(node);
-        type.nodeByKind.set("Model", node);
-        break;
-      case SyntaxKind.ProjectionModelPropertySelector:
-        projectionsByTypeKind.get("ModelProperty")!.push(node);
-        type.nodeByKind.set("ModelProperty", node);
-        break;
-      case SyntaxKind.ProjectionScalarSelector:
-        projectionsByTypeKind.get("Scalar")!.push(node);
-        type.nodeByKind.set("Scalar", node);
-        break;
-      case SyntaxKind.ProjectionOperationSelector:
-        projectionsByTypeKind.get("Operation")!.push(node);
-        type.nodeByKind.set("Operation", node);
-        break;
-      case SyntaxKind.ProjectionUnionSelector:
-        projectionsByTypeKind.get("Union")!.push(node);
-        type.nodeByKind.set("Union", node);
-        break;
-      case SyntaxKind.ProjectionUnionVariantSelector:
-        projectionsByTypeKind.get("UnionVariant")!.push(node);
-        type.nodeByKind.set("UnionVariant", node);
-        break;
-      case SyntaxKind.ProjectionInterfaceSelector:
-        projectionsByTypeKind.get("Interface")!.push(node);
-        type.nodeByKind.set("Interface", node);
-        break;
-      case SyntaxKind.ProjectionEnumSelector:
-        projectionsByTypeKind.get("Enum")!.push(node);
-        type.nodeByKind.set("Enum", node);
-        break;
-      case SyntaxKind.ProjectionEnumMemberSelector:
-        projectionsByTypeKind.get("EnumMember")!.push(node);
-        type.nodeByKind.set("EnumMember", node);
-        break;
-      default:
-        const projected = checkTypeReference(node.selector, undefined);
-        let current = projectionsByType.get(projected);
-        if (!current) {
-          current = [];
-          projectionsByType.set(projected, current);
-        }
-        current.push(node);
-        type.nodeByType.set(projected, node);
-        break;
-    }
-
-    return type;
-  }
-
-  function evalProjectionNode(
-    node: ProjectionExpression | ProjectionStatementItem,
-  ): TypeOrReturnRecord {
-    switch (node.kind) {
-      case SyntaxKind.ProjectionExpressionStatement:
-        return evalProjectionExpressionStatement(node);
-      case SyntaxKind.ProjectionCallExpression:
-        return evalProjectionCallExpression(node);
-      case SyntaxKind.ProjectionMemberExpression:
-        return evalProjectionMemberExpression(node);
-      case SyntaxKind.ProjectionDecoratorReferenceExpression:
-        return evalProjectionDecoratorReference(node);
-      case SyntaxKind.Identifier:
-        return evalProjectionIdentifier(node);
-      case SyntaxKind.ProjectionLambdaExpression:
-        return evalProjectionLambdaExpression(node);
-      case SyntaxKind.StringLiteral:
-        return evalStringLiteral(node);
-      case SyntaxKind.NumericLiteral:
-        return evalNumericLiteral(node);
-      case SyntaxKind.BooleanLiteral:
-        return evalBooleanLiteral(node);
-      case SyntaxKind.ProjectionBlockExpression:
-        return evalProjectionBlockExpression(node);
-      case SyntaxKind.ProjectionArithmeticExpression:
-        return evalProjectionArithmeticExpression(node);
-      case SyntaxKind.ProjectionIfExpression:
-        return evalProjectionIfExpression(node);
-      case SyntaxKind.ProjectionEqualityExpression:
-        return evalProjectionEqualityExpression(node);
-      case SyntaxKind.ProjectionUnaryExpression:
-        return evalProjectionUnaryExpression(node);
-      case SyntaxKind.ProjectionRelationalExpression:
-        return evalProjectionRelationalExpression(node);
-      case SyntaxKind.ProjectionModelExpression:
-        return evalProjectionModelExpression(node);
-      case SyntaxKind.VoidKeyword:
-        return voidType;
-      case SyntaxKind.NeverKeyword:
-        return neverType;
-      case SyntaxKind.UnknownKeyword:
-        return unknownType;
-      case SyntaxKind.Return:
-        return evalReturnKeyword(node);
-      default:
-        compilerAssert(false, `Can't eval the node ${SyntaxKind[node.kind]}`);
-    }
-  }
-
-  interface EvalContext {
-    node: Node;
-    locals: Map<string, Type>;
-    parent?: EvalContext;
-  }
-
-  function evalReturnKeyword(node: ReturnExpressionNode): ReturnRecord {
-    const value = evalProjectionNode(node.value);
-    if (value.kind === "Return") {
-      return value;
-    }
-
-    return {
-      kind: "Return",
-      value,
-    };
-  }
-
-  function evalProjectionModelExpression(node: ProjectionModelExpressionNode): TypeOrReturnRecord {
-    const modelType: Model = createType({
-      kind: "Model",
-      name: "",
-      node: node,
-      decorators: [],
-      properties: createRekeyableMap(),
-      derivedModels: [],
-      sourceModels: [],
-    });
-
-    for (const propNode of node.properties) {
-      if (propNode.kind === SyntaxKind.ProjectionModelProperty) {
-        const prop = evalProjectionModelProperty(propNode, modelType);
-        if (prop.kind === "Return") {
-          return prop;
-        }
-        modelType.properties.set(prop.name, prop);
-      } else {
-        const props = evalProjectionModelSpreadProperty(propNode);
-        if (!Array.isArray(props)) {
-          // return record
-          return props;
-        }
-
-        for (const newProp of props) {
-          modelType.properties.set(newProp.name, newProp);
-        }
-      }
-    }
-
-    return modelType;
-  }
-
-  function evalProjectionModelProperty(
-    node: ProjectionModelPropertyNode,
-    model: Model,
-  ): ModelProperty | ReturnRecord {
-    const type = evalProjectionNode(node.value);
-    if (type.kind === "Return") {
-      return type;
-    }
-
-    return createType({
-      kind: "ModelProperty",
-      name: node.id.sv,
-      node: node,
-      decorators: [],
-      optional: node.optional,
-      type,
-      model,
-    });
-  }
-
-  function evalProjectionModelSpreadProperty(
-    node: ProjectionModelSpreadPropertyNode,
-  ): ModelProperty[] | ReturnRecord {
-    const target = evalProjectionNode(node.target);
-    if (target.kind === "Return") {
-      return target;
-    }
-
-    if (target.kind !== "Model") {
-      throw new ProjectionError(`Can only spread models`);
-    }
-    const props = [];
-    // copy each property
-    for (const prop of walkPropertiesInherited(target)) {
-      const newProp = cloneType(prop, { sourceProperty: prop });
-      props.push(newProp);
-    }
-
-    return props;
-  }
-
-  function evalProjectionRelationalExpression(
-    node: ProjectionRelationalExpressionNode,
-  ): TypeOrReturnRecord {
-    const left = evalProjectionNode(node.left);
-    if (left.kind === "Return") {
-      return left;
-    } else if (left.kind !== "Number" && left.kind !== "String") {
-      throw new ProjectionError("Can only compare numbers or strings");
-    }
-
-    const right = evalProjectionNode(node.right);
-    if (right.kind === "Return") {
-      return right;
-    } else if (right.kind !== "Number" && right.kind !== "String") {
-      throw new ProjectionError("Can only compare numbers or strings");
-    }
-
-    if (left.kind !== right.kind) {
-      throw new ProjectionError("Can't compare numbers and strings");
-    }
-
-    switch (node.op) {
-      case "<":
-        return createLiteralType(left.value < right.value);
-      case "<=":
-        return createLiteralType(left.value <= right.value);
-      case ">":
-        return createLiteralType(left.value > right.value);
-      case ">=":
-        return createLiteralType(left.value >= right.value);
-    }
-  }
-
-  function evalProjectionUnaryExpression(node: ProjectionUnaryExpressionNode): TypeOrReturnRecord {
-    const target = evalProjectionNode(node.target);
-    if (target.kind !== "Boolean") {
-      throw new ProjectionError("Can't negate a non-boolean");
-    }
-
-    switch (node.op) {
-      case "!":
-        return createLiteralType(!target.value);
-    }
-  }
-  function evalProjectionEqualityExpression(
-    node: ProjectionEqualityExpressionNode,
-  ): TypeOrReturnRecord {
-    const left = evalProjectionNode(node.left);
-    if (left.kind === "Return") {
-      return left;
-    } else if (left.kind !== "Number" && left.kind !== "String") {
-      throw new ProjectionError("Comparisons must be strings or numbers");
-    }
-
-    const right = evalProjectionNode(node.right);
-    if (right.kind === "Return") {
-      return right;
-    } else if (right.kind !== "Number" && right.kind !== "String") {
-      throw new ProjectionError("Comparisons must be strings or numbers");
-    }
-
-    if (right.kind !== left.kind) {
-      throw new ProjectionError("Can't compare number and string");
-    }
-
-    switch (node.op) {
-      case "==":
-        return createLiteralType(left.value === right.value);
-      case "!=":
-        return createLiteralType(left.value !== right.value);
-    }
-  }
-
-  function evalProjectionIfExpression(node: ProjectionIfExpressionNode): TypeOrReturnRecord {
-    let ifExpr: ProjectionIfExpressionNode | undefined = node;
-    while (ifExpr) {
-      const test = evalProjectionNode(ifExpr.test);
-      if (test.kind === "Return") {
-        return test;
-      }
-
-      if (typeIsTruthy(test)) {
-        return evalProjectionBlockExpression(ifExpr.consequent);
-      } else if (
-        ifExpr.alternate &&
-        ifExpr.alternate.kind === SyntaxKind.ProjectionBlockExpression
-      ) {
-        return evalProjectionBlockExpression(ifExpr.alternate);
-      } else {
-        ifExpr = ifExpr.alternate;
-      }
-    }
-
-    return voidType;
-  }
-
-  function typeIsTruthy(t: Type) {
-    switch (t.kind) {
-      case "Boolean":
-        return t.value;
-      case "Number":
-        return !!t.value;
-      case "String":
-        return !!t.value;
-      default:
-        return true;
-    }
-  }
-
-  function createEvalContext(node: Node, parent?: EvalContext): EvalContext {
-    return {
-      node,
-      locals: new Map(),
-      parent,
-    };
-  }
-
-  function evalProjectionBlockExpression(node: ProjectionBlockExpressionNode): TypeOrReturnRecord {
-    let lastVal: Type = voidType;
-    for (const stmt of node.statements) {
-      const stmtValue = evalProjectionNode(stmt);
-      if (stmtValue.kind === "Return") {
-        return stmtValue;
-      }
-      lastVal = stmtValue;
-    }
-
-    return lastVal;
-  }
-
-  function evalProjectionArithmeticExpression(
-    node: ProjectionArithmeticExpressionNode,
-  ): StringLiteral | NumericLiteral | ReturnRecord {
-    const lhs = evalProjectionNode(node.left);
-    if (lhs.kind === "Return") {
-      return lhs;
-    }
-
-    if (lhs.kind !== "Number" && lhs.kind !== "String") {
-      throw new ProjectionError(`Operator ${node.op} can only apply to strings or numbers`);
-    }
-    const rhs = evalProjectionNode(node.right);
-    if (rhs.kind === "Return") {
-      return rhs;
-    }
-    if (rhs.kind !== "Number" && rhs.kind !== "String") {
-      throw new ProjectionError(`Operator ${node.op} can only apply to strings or numbers`);
-    }
-
-    if (rhs.kind !== lhs.kind) {
-      throw new ProjectionError(`Operator ${node.op}'s operands need to be the same type`);
-    }
-
-    if (lhs.kind === "String") {
-      return createLiteralType((lhs as StringLiteral).value + (rhs as StringLiteral).value);
-    } else {
-      return createLiteralType((lhs as NumericLiteral).value + (rhs as NumericLiteral).value);
-    }
-  }
-
-  function evalProjection(node: ProjectionNode, target: Type, args: Type[]): Type {
-    if (node.direction === "<error>") {
-      throw new ProjectionError("Cannot evaluate projection with invalid direction.");
-    }
-
-    let topLevelProjection = false;
-    if (!currentProjectionDirection) {
-      topLevelProjection = true;
-      currentProjectionDirection = node.direction;
-    }
-    if (currentProjectionDirection === "from" && !target.projectionSource) {
-      // this model wasn't projected, so we'll just return the target
-      return target;
-    }
-
-    const originalContext = evalContext;
-    evalContext = createEvalContext(node);
-    for (const [i, param] of node.parameters.entries()) {
-      if (!args[i]) {
-        throw new ProjectionError(
-          "need argument for parameter " + SyntaxKind[node.parameters[i].kind],
-        );
-      }
-
-      const argVal = args[i];
-      let typeVal;
-
-      if (typeof argVal === "number" || typeof argVal === "string" || typeof argVal === "boolean") {
-        typeVal = createLiteralType(argVal);
-      } else {
-        typeVal = argVal;
-      }
-
-      evalContext.locals.set(param.id.sv, typeVal);
-    }
-
-    evalContext.locals.set("self", target);
-    let lastVal: TypeOrReturnRecord = voidType;
-    for (const item of node.body) {
-      lastVal = evalProjectionNode(item);
-      if (lastVal.kind === "Return") {
-        break;
-      }
-    }
-
-    if (topLevelProjection) {
-      currentProjectionDirection = undefined;
-    }
-    const selfResult = evalContext.locals.get("self")!;
-    evalContext = originalContext;
-
-    if (lastVal.kind === "Return") {
-      return lastVal.value;
-    } else {
-      return selfResult;
-    }
-  }
-
-  function evalProjectionExpressionStatement(node: ProjectionExpressionStatementNode) {
-    return evalProjectionNode(node.expr);
-  }
-
-  function evalProjectionCallExpression(node: ProjectionCallExpressionNode): any {
-    const target = evalProjectionNode(node.target);
-
-    if (!target) throw new ProjectionError("target undefined");
-    const args = [];
-    for (const arg of node.arguments) {
-      args.push(evalProjectionNode(arg));
-    }
-
-    if (target.kind !== "Function") {
-      throw new ProjectionError("Can't call non-function, got type " + target.kind);
-    }
-
-    return target.implementation(...args);
-  }
-
-  function evalProjectionMemberExpression(
-    node: ProjectionMemberExpressionNode,
-  ): TypeOrReturnRecord {
-    const base = evalProjectionNode(node.base);
-    if (base.kind === "Return") {
-      return base;
-    }
-    const member = node.id.sv;
-    const selector = node.selector;
-
-    if (selector === ".") {
-      switch (base.kind) {
-        case "Namespace":
-          const sym = base.node.symbol.exports!.get(member);
-          if (sym) {
-            const links = getSymbolLinks(sym);
-            return links.declaredType || links.type || errorType;
-          } else {
-            throw new ProjectionError(`Namespace doesn't have member ${member}`);
-          }
-        case "Model":
-          const prop = base.properties.get(member);
-          if (!prop) {
-            throw new ProjectionError(`Model doesn't have property ${member}`);
-          }
-          return prop;
-        case "Enum":
-          const enumMember = base.members.get(member);
-          if (!enumMember) {
-            throw new ProjectionError(`Enum doesn't have member ${member}`);
-          }
-          return enumMember;
-        case "Union":
-          const variant = base.variants.get(member);
-          if (!variant) {
-            throw new ProjectionError(`Union doesn't have variant ${member}`);
-          }
-          return variant;
-        default:
-          throw new ProjectionError(
-            `Can't get member "${member}" of type ${base.kind} because it has no members. Did you mean to use "::" instead of "."?`,
-          );
-      }
-    }
-
-    switch (base.kind) {
-      case "Object":
-        return base.properties[member] || errorType;
-      default:
-        const typeOps = projectionMembers[base.kind];
-        if (!typeOps) {
-          throw new ProjectionError(
-            `${base.kind} doesn't have an object model member named ${member}`,
-          );
-        }
-        // any cast needed to ensure we don't get a too complex union error on the call
-        // to op further down.
-        const op: any = typeOps[member];
-        if (!op) {
-          throw new ProjectionError(
-            `${base.kind} doesn't have an object model member named ${member}`,
-          );
-        }
-
-        return op(base);
-    }
-  }
-
-  function createFunctionType(fn: (...args: Type[]) => Type): FunctionType {
-    const parameters: MixedFunctionParameter[] = [];
-    return createType({
-      kind: "Function",
-      name: "",
-      parameters,
-      returnType: unknownType,
-      implementation: fn as any,
-    } as const);
   }
 
   function createLiteralType(
@@ -6749,129 +6090,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     program.literalTypes.set(value, type);
     return type;
-  }
-
-  function evalProjectionDecoratorReference(
-    node: ProjectionDecoratorReferenceExpressionNode,
-  ): Type {
-    const ref = resolveTypeReferenceSym(node.target, undefined, true);
-    if (!ref) throw new ProjectionError("Can't find decorator.");
-    compilerAssert(ref.flags & SymbolFlags.Decorator, "should only resolve decorator symbols");
-    return createFunctionType((...args: Type[]): Type => {
-      ref.value!({ program }, ...args.map(unsafe_projectionArgumentMarshalForJS));
-      return voidType;
-    });
-  }
-
-  function evalProjectionIdentifier(node: IdentifierNode): Type {
-    // first check the eval context
-
-    let currentContext = evalContext;
-    while (currentContext) {
-      if (currentContext.locals.has(node.sv)) {
-        return currentContext.locals.get(node.sv)!;
-      }
-      currentContext = currentContext.parent;
-    }
-
-    // next, resolve outside
-    const { finalSymbol: ref } = resolver.resolveTypeReference(node);
-    if (!ref) throw new ProjectionError("Unknown identifier " + node.sv);
-
-    if (ref.flags & SymbolFlags.Decorator) {
-      // shouldn't ever resolve a decorator symbol here (without passing
-      // true to resolveTypeReference)
-      return errorType;
-    } else if (ref.flags & SymbolFlags.Function) {
-      // TODO: store this in a symbol link probably?
-      const t: FunctionType = createFunctionType((...args: Type[]): Type => {
-        const retval = ref.value!(program, ...args.map(unsafe_projectionArgumentMarshalForJS));
-        return marshalProjectionReturn(retval, { functionName: node.sv });
-      });
-      return t;
-    } else {
-      const links = getSymbolLinks(ref);
-      compilerAssert(links.declaredType, "Should have checked all types by now");
-
-      return links.declaredType;
-    }
-  }
-
-  interface MarshalOptions {
-    /**
-     * Name of the function in case of error.
-     */
-    functionName?: string;
-  }
-
-  function marshalProjectionReturn(value: unknown, options: MarshalOptions = {}): Type {
-    if (typeof value === "boolean" || typeof value === "string" || typeof value === "number") {
-      return createLiteralType(value);
-    }
-
-    if (typeof value === "object" && value !== null) {
-      if ("kind" in value) {
-        return value as Type;
-      } else {
-        // this could probably be more robust
-        return createType({
-          kind: "Object",
-          properties: value as any,
-        });
-      }
-    }
-
-    if (options.functionName) {
-      throw new ProjectionError(
-        `Can't marshal value "${value}" returned from JS function "${options.functionName}" into typespec`,
-      );
-    } else {
-      throw new ProjectionError(`Can't marshal value "${value}" into typespec`);
-    }
-  }
-
-  function evalProjectionLambdaExpression(node: ProjectionLambdaExpressionNode): FunctionType {
-    return createFunctionType((...args: Type[]): Type => {
-      return callLambdaExpression(node, args);
-    });
-  }
-
-  function callLambdaExpression(node: ProjectionLambdaExpressionNode, args: Type[]): Type {
-    const originalContext = evalContext;
-    evalContext = createEvalContext(node, originalContext);
-    for (const [i, param] of node.parameters.entries()) {
-      evalContext.locals.set(param.id.sv, args[i]);
-    }
-    const retval = evalProjectionBlockExpression(node.body);
-    evalContext = originalContext;
-    if (retval.kind === "Return") {
-      return retval.value;
-    }
-    return retval;
-  }
-
-  function evalStringLiteral(node: StringLiteralNode): StringLiteral {
-    return createLiteralType(node.value, node);
-  }
-
-  function evalNumericLiteral(node: NumericLiteralNode): NumericLiteral {
-    return createLiteralType(node.value, node);
-  }
-
-  function evalBooleanLiteral(node: BooleanLiteralNode): BooleanLiteral {
-    return createLiteralType(node.value, node);
-  }
-
-  function project(
-    target: Type,
-    projection: ProjectionNode,
-    args: (Type | boolean | string | number)[] = [],
-  ) {
-    return evalProjection(
-      projection,
-      target,
-      args.map((x) => marshalProjectionReturn(x)),
-    );
   }
 
   /**
@@ -6940,7 +6158,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     stdType?: IntrinsicScalarName,
   ): type is Scalar & { name: IntrinsicScalarName };
   function isStdType(type: Type, stdType?: StdTypeName): type is Type & { name: StdTypeName } {
-    type = type.projectionBase ?? type;
     if (
       (type.kind !== "Model" && type.kind !== "Scalar") ||
       type.namespace === undefined ||
@@ -7125,7 +6342,7 @@ export function getEffectiveModelType(
  * @param filter The filter to apply. Properties are kept when this returns true.
  */
 export function filterModelProperties(
-  program: Program | ProjectedProgram,
+  program: Program,
   model: Model,
   filter: (property: ModelProperty) => boolean,
 ): Model {
@@ -7474,21 +6691,6 @@ const defaultSymbolResolutionOptions: SymbolResolutionOptions = {
   resolveDecorators: false,
   checkTemplateTypes: true,
 };
-
-/**
- * Convert LEGACY for projection.
- * THIS IS BROKEN. Some decorators will not receive the correct type.
- * It has been broken since the introduction of valueof.
- * As projection as put on hold as long as versioning works we are in a good state.
- */
-function unsafe_projectionArgumentMarshalForJS(arg: Type): any {
-  if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
-    return arg.value;
-  } else if (arg.kind === "StringTemplate") {
-    return arg.stringValue;
-  }
-  return arg as any;
-}
 
 function printTypeReferenceNode(
   node: TypeReferenceNode | IdentifierNode | MemberExpressionNode,

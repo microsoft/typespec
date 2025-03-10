@@ -8,6 +8,9 @@ export interface PackageJson {
   version?: string;
   /** Package description */
   description?: string;
+
+  packageManager?: string;
+  devEngines?: DevEngines;
   type?: "module" | "commonjs";
   main?: string;
   tspMain?: string;
@@ -57,3 +60,17 @@ export type Exports = string | Array<string | ExportConditions> | ExportConditio
 type ExportConditions = {
   [condition: string]: Exports;
 };
+
+export interface DevEngines {
+  packageManager?: DevEngineDependency;
+  cpu?: DevEngineDependency;
+  os?: DevEngineDependency;
+  libc?: DevEngineDependency;
+  runtime?: DevEngineDependency;
+}
+
+export interface DevEngineDependency {
+  name: string;
+  version: string;
+  onFail?: "ignore" | "warn" | "error";
+}

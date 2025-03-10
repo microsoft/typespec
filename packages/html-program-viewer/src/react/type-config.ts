@@ -12,7 +12,6 @@ export const TypeConfig: TypeGraphConfig = {
     unions: "nested",
     enums: "nested",
     decoratorDeclarations: "nested",
-    functionDeclarations: "nested",
   },
   Interface: {
     operations: "nested",
@@ -98,10 +97,7 @@ export const TypeConfig: TypeGraphConfig = {
   },
 
   // Don't want to expose those for now
-  Function: null,
-  Object: null,
   Intrinsic: null,
-  Projection: null,
 };
 
 type PropsToDefine<T extends Type> = Exclude<
@@ -128,11 +124,7 @@ const HiddenProps = [
   "templateMapper",
   "instantiationParameters",
   "decorators",
-  "projectionBase",
-  "projectionsByName",
-  "projectionSource",
   "projector",
-  "projections",
   "isFinished",
 ] as const;
 type HiddenPropsType = (typeof HiddenProps)[number];
