@@ -1,0 +1,82 @@
+{
+  "name": "@typespec/http-client-js",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build-src": "babel src -d dist/src --extensions .ts,.tsx",
+    "build": "tsc -p . && npm run build-src",
+    "clean": "rimraf ./dist",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "watch-src": "babel src -d dist/src --extensions .ts,.tsx --watch",
+    "watch-tsc": "tsc -p . --watch",
+    "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
+    "test:scenarios": "vitest run scenarios.test.ts",
+    "test": "npm run test:scenarios",
+    "format": "prettier . --write",
+    "build:test": "tsc -p tsconfig.test.json",
+    "start:server": "npx tsp-spector server start node_modules/@typespec/http-specs/specs --coverageFile ./temp/tsp-spector-coverage-javascript-standard.json --debug",
+    "stop:server": "npx tsp-spector server stop",
+    "test:e2e": "npm run emit:e2e && node eng/scripts/run-e2e-tests.js",
+    "run:e2e": "node eng/scripts/run-e2e-tests.js",
+    "emit:e2e": "node eng/scripts/emit-e2e.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
+    }
+  },
+  "keywords": [
+    "typespec",
+    "javascript",
+    "typescript"
+  ],
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "description": "TypeSpec library for emitting Http Client libraries for JavaScript/TypeScript",
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:^",
+    "@typespec/emitter-framework": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/http-client": "workspace:^",
+    "@typespec/rest": "workspace:^"
+  },
+  "dependencies": {
+    "@alloy-js/core": "^0.6.0",
+    "@alloy-js/typescript": "^0.6.0",
+    "prettier": "~3.5.3"
+  },
+  "devDependencies": {
+    "@alloy-js/babel-preset": "^0.2.0",
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.26.9",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@types/yargs": "~17.0.33",
+    "@typespec/http-specs": "0.1.0-alpha.11",
+    "@typespec/spector": "workspace:^",
+    "@typespec/ts-http-runtime": "0.1.0",
+    "@typespec/versioning": "workspace:^",
+    "@vitest/ui": "^3.0.7",
+    "picocolors": "~1.1.1",
+    "concurrently": "^9.1.2",
+    "execa": "^9.5.2",
+    "fs-extra": "^11.2.0",
+    "globby": "~14.1.0",
+    "inquirer": "^12.2.0",
+    "ora": "^8.1.1",
+    "p-limit": "^6.2.0",
+    "typescript": "~5.8.2",
+    "uri-template": "^2.0.0",
+    "vitest": "^3.0.7",
+    "yargs": "~17.7.2",
+    "change-case": "~5.4.4"
+  }
+}

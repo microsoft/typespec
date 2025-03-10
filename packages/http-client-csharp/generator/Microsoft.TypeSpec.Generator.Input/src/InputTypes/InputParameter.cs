@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? summary,
             string? doc,
             InputType type,
-            RequestLocation location,
+            InputRequestLocation location,
             InputConstant? defaultValue,
             InputOperationParameterKind kind,
             bool isRequired,
@@ -50,7 +50,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? Summary { get; }
         public string? Doc { get; }
         public InputType Type { get; }
-        public RequestLocation Location { get; }
+        public InputRequestLocation Location { get; }
         public InputConstant? DefaultValue { get; }
         public InputOperationParameterKind Kind { get; }
         public bool IsRequired { get; }

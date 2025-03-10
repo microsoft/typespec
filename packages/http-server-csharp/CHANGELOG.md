@@ -1,5 +1,13 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.10
+
+### Bug Fixes
+
+- [#6177](https://github.com/microsoft/typespec/pull/6177) Fix issues with sample mock tests
+- [#5952](https://github.com/microsoft/typespec/pull/5952) Fixes to enums, operation signatures
+
+
 ## 0.58.0-alpha.9
 
 No changes, version bump only.

@@ -1,8 +1,8 @@
 import { rejects } from "assert";
-import { resolve } from "path";
+import { normalize, resolve } from "path";
 import { describe, it } from "vitest";
-import { NodeHost, Program, compile, resolvePath } from "../../../src/core/index.js";
 import { CompilerOptions } from "../../../src/core/options.js";
+import { NodeHost, Program, compile, resolvePath } from "../../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";
 import { findTestPackageRoot } from "../../../src/testing/test-utils.js";
 
@@ -67,7 +67,7 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "js-error",
-        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js' imported from ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`,
+        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${normalize(`${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js`)}' imported from ${normalize(`${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`)}`,
       });
     });
 
@@ -77,7 +77,7 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, {
         code: "js-error",
-        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js' imported from ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`,
+        message: `Failed to load ${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js due to the following JS error: Cannot find module '${normalize(`${scenarioRoot}/import-library-js-error/node_modules/my-lib/invalid-file-not-exists.js`)}' imported from ${normalize(`${scenarioRoot}/import-library-js-error/node_modules/my-lib/index.js`)}`,
       });
     });
 
@@ -149,46 +149,6 @@ describe("compiler: entrypoints", () => {
           `  - Version: "2.0.0" installed at "${scenarioRoot}/same-library-diff-version/node_modules/@typespec/lib2"`,
         ].join("\n"),
       });
-    });
-
-    it("Back compat: succeed if main.cadl exists", async () => {
-      const program = await compileScenario("backcompat-cadl-file-only", {
-        emit: [],
-        additionalImports: [],
-      });
-      expectDiagnosticEmpty(program.diagnostics);
-    });
-
-    it("Back compat: succeed if package.json has cadlMain", async () => {
-      const program = await compileScenario("backcompat-package-cadlMain", {
-        emit: [],
-        additionalImports: [],
-      });
-      expectDiagnosticEmpty(program.diagnostics);
-    });
-
-    it("Back compat: succeed if main.cadl exists and package.json with no tsp/cadlMain", async () => {
-      const program = await compileScenario("backcompat-package-no_main", {
-        emit: [],
-        additionalImports: [],
-      });
-      expectDiagnosticEmpty(program.diagnostics);
-    });
-
-    it("Back compat: succeed if package.json tspMain points to custom lib.cadl", async () => {
-      const program = await compileScenario("backcompat-package-tspMain-customCadl", {
-        emit: [],
-        additionalImports: [],
-      });
-      expectDiagnosticEmpty(program.diagnostics);
-    });
-
-    it("Back compat: succeed if package.json tspMain points to main.cadl", async () => {
-      const program = await compileScenario("backcompat-package-tspMain-mainCadl", {
-        emit: [],
-        additionalImports: [],
-      });
-      expectDiagnosticEmpty(program.diagnostics);
     });
   });
 });

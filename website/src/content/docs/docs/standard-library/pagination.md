@@ -2,8 +2,6 @@
 title: Pagination
 ---
 
-# Pagination
-
 TypeSpec provide built-in support for some of the common pagination pattern used.
 
 Pagination can be categorized into two types:
@@ -69,10 +67,10 @@ For server driven pagination, the server returns information on how to navigate 
 It is possible to use server driven pagination on top of client driven pagination.
 :::
 
-### Example 1: Using continuation token
+### Example 1: Using continuation token for an HTTP service
 
 ```tsp
-@list op listPets(@continuationToken token?: string): {
+@list op listPets(@query @continuationToken token?: string): {
   @pageItems pets: Pet[];
   @continuationToken nextToken?: string;
 };
@@ -106,4 +104,76 @@ It is possible to use server driven pagination on top of client driven paginatio
     @lastLink last?: url;
   };
 };
+```
+
+## Handling of additional parameters
+
+A paged operation can offer additional parameters that are not used as paging control parameters like a filter parameter for example.
+The expectation is those would be carried over to the next page requests with the exception of the link cases(next, prev, first and last links) where each protocol might have a different interpretation of what the link exactly represents. The link may encode parameters such as query parameters in HTTP. In such cases those parameters must be passed.
+
+For example, HTTP links are expected to be opaque and contain all the necessary information for the next page URL. This means that query and path parameters are expected to already have been included in the link. On the other hand, any header parameters are expected to be resent in the next request as those cannot be represented in the link.
+
+### Examples
+
+#### Next link pagination in Http
+
+```tsp
+@route("pets")
+@list
+op listPets(
+  @query filter?: string,
+  @query expand?: string,
+  @query @pageIndex page?: int32 = 1,
+  @query @pageSize perPage?: int32 = 100,
+  @header specialHeader?: "x-special-value",
+): {
+  @pageItems pets: Pet[];
+  @nextLink next?: url;
+};
+```
+
+```http
+// First request
+GET /pets?filter=dog
+Special-Header: x-special-value
+
+{"pets": [...], "nextLink": "/pets?filter=dog&page=2&perPage=100"}
+
+---
+// Second request
+GET /pets?filter=dog&page=2&perPage=100
+Special-Header: x-special-value
+
+{"pets": [...], "nextLink": "/pets?filter=dog&page=3&perPage=100"}
+```
+
+#### Continuation token pagination in Http
+
+```tsp
+@route("pets")
+@list
+op listPets(
+  @query filter?: string,
+  @query expand?: string,
+  @query @continuationToken token?: string,
+  @header specialHeader?: "x-special-value",
+): {
+  @pageItems pets: Pet[];
+  @continuationToken next?: url;
+};
+```
+
+```http
+// First request
+GET /pets?filter=dog
+Special-Header: x-special-value
+
+{"pets": [...], "continuationToken": "token2"}
+
+---
+// Second request
+GET /pets?filter=dog&token=token2
+Special-Header: x-special-value
+
+{"pets": [...], "continuationToken": "token3"}
 ```

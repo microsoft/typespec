@@ -22,7 +22,7 @@ import {
 import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
-import { execAsync } from "./lib/utils.js";
+import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { createSdkTypeCache, CSharpEmitterContext } from "./sdk-context.js";
@@ -59,7 +59,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const options = resolveOptions(context);
   const outputFolder = _resolveOutputFolder(context);
 
-  /* set the loglevel. */
+  /* set the log level. */
   const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
@@ -108,9 +108,6 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         `${configurations["package-name"]}.csproj`,
       );
       logger.info(`Checking if ${csProjFile} exists`);
-      const newProjectOption =
-        options["new-project"] || !checkFile(csProjFile) ? "--new-project" : "";
-      const debugFlag = (options.debug ?? false) ? "--debug" : "";
 
       const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
       const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
@@ -118,31 +115,21 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
       );
 
-      const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
-      logger.info(command);
-
       try {
-        const result = await execAsync(
-          "dotnet",
-          [
-            "--roll-forward",
-            "Major",
-            generatorPath,
-            outputFolder,
-            "-p",
-            options["plugin-name"],
-            newProjectOption,
-            debugFlag,
-          ],
-          { stdio: "inherit" },
-        );
+        const result = await execCSharpGenerator(sdkContext, {
+          generatorPath: generatorPath,
+          outputFolder: outputFolder,
+          pluginName: options["plugin-name"],
+          newProject: options["new-project"] ?? !checkFile(csProjFile),
+          debug: options.debug ?? false,
+        });
         if (result.exitCode !== 0) {
           const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) {
-            if (result.stderr) logger.error(result.stderr);
-            if (result.stdout) logger.verbose(result.stdout);
-            throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
+            throw new Error(
+              `Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`,
+            );
           }
         }
       } catch (error: any) {
@@ -152,8 +139,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       }
       if (!options["save-inputs"]) {
         // delete
-        deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
-        deleteFile(resolvePath(outputFolder, configurationFileName), logger);
+        context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
+        context.program.host.rm(resolvePath(outputFolder, configurationFileName));
       }
     }
   }
@@ -192,7 +179,7 @@ export async function _validateDotNetSdk(
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
     return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
   } catch (error: any) {
-    if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
+    if (error && "code" in error && error["code"] === "ENOENT") {
       sdkContext.logger.reportDiagnostic({
         code: "invalid-dotnet-sdk-dependency",
         messageId: "missing",
@@ -218,7 +205,6 @@ function validateDotNetSdkVersionCore(
     const major = Number(firstPart);
 
     if (isNaN(major)) {
-      sdkContext.logger.error("Invalid .NET SDK version.");
       return false;
     }
     if (major < minMajorVersion) {
@@ -239,10 +225,6 @@ function validateDotNetSdkVersionCore(
     sdkContext.logger.error("Cannot get the installed .NET SDK version.");
     return false;
   }
-}
-
-function constructCommandArg(arg: string): string {
-  return arg !== "" ? ` ${arg}` : "";
 }
 
 function transformJSONProperties(this: any, key: string, value: any): any {
@@ -270,16 +252,6 @@ function transformJSONProperties(this: any, key: string, value: any): any {
   }
 
   return value;
-}
-
-function deleteFile(filePath: string, logger: Logger) {
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      logger.error(`Failed to delete files: ${err}`);
-    } else {
-      logger.info(`File ${filePath} is deleted.`);
-    }
-  });
 }
 
 function prettierOutput(output: string) {

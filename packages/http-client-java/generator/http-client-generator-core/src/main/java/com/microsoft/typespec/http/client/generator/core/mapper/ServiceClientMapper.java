@@ -354,7 +354,16 @@ public class ServiceClientMapper implements IMapper<CodeModel, ServiceClient> {
 
             SecurityInfo securityInfoInCodeModel = new SecurityInfo();
             codeModel.getSecurity().getSchemes().forEach(securityScheme -> {
-                // hack, ignore "user_impersonation", as these non-AADToken appears in modelerfour 4.23.0+
+                // flows for OAUTH2
+                if (securityScheme.getType().equals(Scheme.SecuritySchemeType.OAUTH2)
+                    && !CoreUtils.isNullOrEmpty(securityScheme.getFlows())) {
+                    if (securityInfoInCodeModel.getFlows() == null) {
+                        securityInfoInCodeModel.setFlows(new ArrayList<>());
+                    }
+                    securityInfoInCodeModel.getFlows().addAll(securityScheme.getFlows());
+                }
+
+                // hack, ignore "user_impersonation" in OAUTH2, as these non-AADToken appears in modelerfour 4.23.0+
                 if (securityScheme.getType() == Scheme.SecuritySchemeType.OAUTH2
                     && securityScheme.getScopes().size() == 1
                     && userImpersonationScope.equals(securityScheme.getScopes().iterator().next())) {

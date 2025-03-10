@@ -4,9 +4,7 @@ import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
 @versioned(Versions)
-@service({
-  title: "hello world",
-})
+@service(#{ title: "hello world" })
 @doc("This is a sample typespec project.")
 @server(
   "{unbrandedTypeSpecUrl}",
@@ -159,10 +157,10 @@ model NotFriend {
   name: string;
 }
 
-@doc("this is a model with a projected name")
-@projectedName("client", "ProjectedModel")
-model ModelWithProjectedName {
-  @doc("name of the ModelWithProjectedName")
+@doc("this is a model with a client name")
+@clientName("RenamedModel")
+model ModelWithClientName {
+  @doc("name of the ModelWithClientName")
   name: string;
 }
 
@@ -230,11 +228,11 @@ model RoundTripModel {
   optionalRecordUnknown?: Record<unknown>;
 
   @doc("required readonly record of unknown")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   readOnlyRequiredRecordUnknown: Record<unknown>;
 
   @doc("optional readonly record of unknown")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   readOnlyOptionalRecordUnknown?: Record<unknown>;
 
   @doc("this is a model with required nullable properties")
@@ -339,7 +337,7 @@ op addTimeHeader(@header("Repeatability-First-Sent") repeatabilityFirstSent?: ut
 @doc("Model can have its projected name")
 @post
 @convenientAPI(true)
-op projectedNameModel(...ModelWithProjectedName): ModelWithProjectedName;
+op projectedNameModel(...ModelWithClientName): ModelWithClientName;
 
 @route("/returnsAnonymousModel")
 @doc("return anonymous model")
@@ -379,3 +377,25 @@ op headAsBoolean(@path id: string): void;
 @get
 @convenientAPI(true)
 op WithApiVersion(@header p1: string, @query apiVersion: string): void;
+
+@route("/link")
+@doc("List things with nextlink")
+@convenientAPI(true)
+@list
+op ListWithNextLink(): {
+  @pageItems
+  things: Thing[];
+
+  @nextLink next?: url;
+};
+
+@route("/continuation")
+@doc("List things with continuation token")
+@convenientAPI(true)
+@list
+op ListWithContinuationToken(@query @continuationToken token: string): {
+  @pageItems
+  things: Thing[];
+
+  @continuationToken nextToken?: string;
+};

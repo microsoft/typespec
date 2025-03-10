@@ -1,12 +1,16 @@
-import type { ModuleResolutionResult, NodePackage, ResolveModuleHost } from "@typespec/compiler";
+import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-import { readFile, realpath, stat } from "fs/promises";
+import { mkdtemp, readFile, realpath, stat } from "fs/promises";
+import { tmpdir } from "os";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
+import which from "which";
+import { parseDocument } from "yaml";
 import logger from "./log/logger.js";
 import { getDirectoryPath, isUrl, joinPaths } from "./path-utils.js";
 import { ResultCode } from "./types.js";
+
 const ERROR_CODE_ENOENT = "ENOENT";
 
 export async function isFile(path: string) {
@@ -24,6 +28,15 @@ export async function isDirectory(path: string) {
     return stats.isDirectory();
   } catch {
     return false;
+  }
+}
+
+export async function createTempDir(): Promise<string | undefined> {
+  try {
+    return await mkdtemp(joinPaths(tmpdir(), "tsp-openapi3-preview-"));
+  } catch (e) {
+    logger.error("Failed to create temp folder", [e]);
+    return undefined;
   }
 }
 
@@ -139,6 +152,13 @@ export async function tryReadUrl(
   }
 }
 
+export function tryParseYaml(str: string): any | undefined {
+  try {
+    return parseDocument(str);
+  } catch {
+    return undefined;
+  }
+}
 export interface ExecOutput {
   stdout: string;
   stderr: string;
@@ -343,7 +363,7 @@ export function* listParentFolders(from: string, includeSelf: boolean) {
  */
 export async function searchAndLoadPackageJson(
   folder: string,
-): Promise<{ packageJsonFolder?: string; packageJsonFile?: string; packageJson?: NodePackage }> {
+): Promise<{ packageJsonFolder?: string; packageJsonFile?: string; packageJson?: PackageJson }> {
   for (const f of listParentFolders(folder, true /* include self */)) {
     const path = joinPaths(f, "package.json");
     if (await isFile(path)) {
@@ -367,7 +387,7 @@ export async function searchAndLoadPackageJson(
 export async function loadDependencyPackageJson(
   rootPackageJsonFolder: string,
   depPackageName: string,
-): Promise<NodePackage | undefined> {
+): Promise<PackageJson | undefined> {
   const path = joinPaths(rootPackageJsonFolder, "node_modules", depPackageName, "package.json");
   if (!(await isFile(path))) {
     return undefined;
@@ -382,10 +402,51 @@ export async function loadDependencyPackageJson(
  */
 export async function loadPackageJsonFile(
   packageJsonPath: string,
-): Promise<NodePackage | undefined> {
+): Promise<PackageJson | undefined> {
   const content = await tryReadFile(packageJsonPath);
   if (!content) return undefined;
   const packageJson = tryParseJson(content);
   if (!packageJson) return undefined;
-  return packageJson as NodePackage;
+  return packageJson as PackageJson;
+}
+
+/**
+ * @returns the path to the installed node executable, or empty string if not found.
+ */
+export async function checkInstalledNode(): Promise<string> {
+  try {
+    return await which("node");
+  } catch (e) {
+    return "";
+  }
+}
+
+export async function parseJsonFromFile(filePath: string): Promise<string | undefined> {
+  try {
+    const fileContent = await readFile(filePath, "utf-8");
+    const content = JSON.parse(fileContent);
+    return content;
+  } catch (e) {
+    logger.error(`Failed to load JSON file: ${filePath}`, [e]);
+    return;
+  }
+}
+
+/**
+ * Throttle the function to be called at most once in every blockInMs milliseconds. This utility
+ * is useful when your event handler will trigger the same event multiple times in a short period.
+ *
+ * @param fn Underlying function to be throttled
+ * @param blockInMs Block time in milliseconds
+ * @returns a throttled function
+ */
+export function throttle<T extends (...args: any[]) => any>(fn: T, blockInMs: number): T {
+  let time: number | undefined;
+  return function (this: any, ...args: Parameters<T>) {
+    const now = Date.now();
+    if (time === undefined || now - time >= blockInMs) {
+      time = now;
+      fn.apply(this, args);
+    }
+  } as T;
 }

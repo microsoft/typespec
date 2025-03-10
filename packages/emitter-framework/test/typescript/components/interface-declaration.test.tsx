@@ -1,6 +1,6 @@
 import { InterfaceDeclaration } from "../../../src/typescript/components/interface-declaration.js";
 
-import { mapJoin, Output, render } from "@alloy-js/core";
+import { For, List, Output, render } from "@alloy-js/core";
 import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
@@ -25,12 +25,14 @@ describe("Typescript Interface", () => {
 
         const res = render(
           <Output>
-              <SourceFile path="test.ts">
+            <SourceFile path="test.ts">
+              <List hardline>
                 {models.map((model) => (
                   <InterfaceDeclaration export type={model} />
                 ))}
-              </SourceFile>
-            </Output>,
+              </List>
+            </SourceFile>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -62,12 +64,12 @@ describe("Typescript Interface", () => {
 
         const res = render(
           <Output>
-              <SourceFile path="test.ts">
-                {mapJoin(models, (name, model) => (
-                  <InterfaceDeclaration export  type={model} />
-                ))}
-              </SourceFile>
-            </Output>,
+            <SourceFile path="test.ts">
+              <For each={Array.from(models.values())} hardline>
+                {(model) => <InterfaceDeclaration export type={model} />}
+              </For>
+            </SourceFile>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -96,12 +98,12 @@ describe("Typescript Interface", () => {
 
         const res = render(
           <Output>
-              <SourceFile path="test.ts">
-                {mapJoin(models, (name, model) => (
-                  <InterfaceDeclaration export  type={model} />
-                ))}
-              </SourceFile>
-            </Output>,
+            <SourceFile path="test.ts">
+              <For each={Array.from(models.values())} hardline>
+                {(model) => <InterfaceDeclaration export type={model} />}
+              </For>
+            </SourceFile>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -134,12 +136,12 @@ describe("Typescript Interface", () => {
 
         const res = render(
           <Output>
-              <SourceFile path="test.ts">
-                {mapJoin(models, (name, model) => (
-                  <InterfaceDeclaration export type={model} />
-                ))}
-              </SourceFile>
-            </Output>,
+            <SourceFile path="test.ts">
+              <For each={Array.from(models.values())} hardline>
+                {(model) => <InterfaceDeclaration export type={model} />}
+              </For>
+            </SourceFile>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -182,12 +184,12 @@ describe("Typescript Interface", () => {
 
         const res = render(
           <Output>
-              <SourceFile path="test.ts">
-                {mapJoin(models, (name, model) => (
-                  <InterfaceDeclaration export type={model} />
-                ))}
-              </SourceFile>
-            </Output>,
+            <SourceFile path="test.ts">
+              <For each={Array.from(models.values())} hardline>
+                {(model) => <InterfaceDeclaration export type={model} />}
+              </For>
+            </SourceFile>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -203,6 +205,7 @@ describe("Typescript Interface", () => {
             }
             export interface DifferentSpreadModelDerived extends DifferentSpreadModelRecord {
               derivedProp: ModelForRecord;
+              additionalProperties?: Record<string, ModelForRecord>;
             }
             `,
           {
@@ -228,22 +231,23 @@ describe("Typescript Interface", () => {
 
         const res = render(
           <Output>
-              <SourceFile path="test.ts">
-                {models.map((model) => (
-                  <InterfaceDeclaration export type={model} />
-                ))}
-              </SourceFile>
-            </Output>,
+            <SourceFile path="test.ts">
+              {models.map((model) => (
+                <InterfaceDeclaration export type={model} />
+              ))}
+            </SourceFile>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
         assert(testFile, "test.ts file not rendered");
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
         const expectedContent = await format(
-          `export interface Widget extends Record<string, unknown> {
+          `export interface Widget {
             id: string;
             weight: number;
             color: "blue" | "red";
+            additionalProperties?: Record<string, unknown>;
           }`,
           {
             parser: "typescript",
@@ -274,10 +278,10 @@ describe("Typescript Interface", () => {
 
         const res = render(
           <Output>
-              <SourceFile path="test.ts">
-                <InterfaceDeclaration type={models[0]} />
-              </SourceFile>
-            </Output>,
+            <SourceFile path="test.ts">
+              <InterfaceDeclaration type={models[0]} />
+            </SourceFile>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -389,8 +393,7 @@ describe("Typescript Interface", () => {
           <Output>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export name="MyOperations" type={models[0]}>
-                customProperty: string; 
-                customMethod(): void;
+                customProperty: string; customMethod(): void;
               </InterfaceDeclaration>
             </SourceFile>
           </Output>,

@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { UsageFlags, resolveUsages } from "../../src/core/helpers/usage-resolver.js";
-import { getTypeName } from "../../src/core/index.js";
+import { getTypeName } from "../../src/index.js";
 import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 
 describe("compiler: helpers: usage resolver", () => {

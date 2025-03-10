@@ -180,19 +180,74 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
     });
 
+    it("create a header param respecting the explode option", async () => {
+      const res = await openApiFor(
+        `
+      op test(
+        @header(#{name: "$explodeTrue", explode: true}) expTrue: { foo: string },
+        @header(#{name: "$explodeFalse", explode: false}) expFalse: { foo: string },
+        @header(#{name: "$explodeDefault"}) expDefault: { foo: string },
+      ): void;
+      `,
+      );
+      const params = res.paths["/"].get.parameters;
+      deepStrictEqual(params[0], {
+        in: "header",
+        name: "$explodeTrue",
+        explode: true,
+        schema: {
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
+          },
+        },
+        required: true,
+      });
+      deepStrictEqual(params[1], {
+        in: "header",
+        name: "$explodeFalse",
+        required: true,
+        schema: {
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
+          },
+        },
+      });
+      deepStrictEqual(params[2], {
+        in: "header",
+        name: "$explodeDefault",
+        schema: {
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
+          },
+        },
+        required: true,
+      });
+    });
+
     it("create a header param of array type", async () => {
       const res = await openApiFor(
         `
       op test(
-        @header({name: "$csv", format: "csv"}) csvs: string[],
+        #suppress "deprecated" "test"
+        @header(#{name: "$csv", format: "csv"}) csvs: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$multi", format: "multi"}) multis: string[],
+        #suppress "deprecated" "test"
+        @header(#{name: "$multi", format: "multi"}) multis: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$tsv", format: "tsv"}) tsvs: string[],
+        #suppress "deprecated" "test"
+        @header(#{name: "$tsv", format: "tsv"}) tsvs: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$ssv", format: "ssv"}) ssvs: string[],
+        #suppress "deprecated" "test"
+        @header(#{name: "$ssv", format: "ssv"}) ssvs: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$pipes", format: "pipes"}) pipes: string[]
+        #suppress "deprecated" "test"
+        @header(#{name: "$pipes", format: "pipes"}) pipes: string[]
       ): void;
       `,
       );
@@ -395,8 +450,31 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       });
     });
 
+    // Test for https://github.com/microsoft/typespec/issues/6224
+    it("implicit body with metadata keeps decorator info on body properties", async () => {
+      const res = await openApiFor(`
+        @test op test(
+          @doc("Doc for param")
+          param: string;
+
+          @query
+          queryParam?: string,
+        ): void;
+        `);
+      expect(res.paths["/"].post.requestBody.content["application/json"].schema).toEqual({
+        type: "object",
+        properties: {
+          param: {
+            type: "string",
+            description: "Doc for param",
+          },
+        },
+        required: ["param"],
+      });
+    });
+
     describe("request parameters resolving to no property in the body produce no body", () => {
-      it.each(["()", "(@header prop: string)", `(@visibility("none") prop: string)`])(
+      it.each(["()", "(@header prop: string)", `(@invisible(Lifecycle) prop: string)`])(
         "%s",
         async (params) => {
           const res = await openApiFor(`op test${params}: void;`);

@@ -56,7 +56,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Server.Versions.Versioned",
+   "namespace": "Server.Versions.Versioned",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -69,7 +69,7 @@
   {
    "$id": "8",
    "Name": "VersionedClient",
-   "ClientNamespace": "Server.Versions.Versioned",
+   "Namespace": "Server.Versions.Versioned",
    "Doc": "Illustrates versioned server.",
    "Operations": [
     {
@@ -84,13 +84,11 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "HEAD",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/server/versions/versioned/without-api-version",
      "BufferResponse": true,
@@ -143,13 +141,11 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "HEAD",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/server/versions/versioned/with-query-api-version",
      "BufferResponse": true,
@@ -202,13 +198,11 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "HEAD",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/server/versions/versioned/with-path-api-version/{apiVersion}",
      "BufferResponse": true,
@@ -261,13 +255,11 @@
        "StatusCodes": [
         200
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "HEAD",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/server/versions/versioned/with-query-old-api-version",
      "BufferResponse": true,
@@ -303,7 +295,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Server.Versions.Versioned"
   }
  ]
 }

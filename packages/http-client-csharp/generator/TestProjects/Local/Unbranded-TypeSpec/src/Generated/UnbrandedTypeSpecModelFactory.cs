@@ -140,13 +140,13 @@ namespace UnbrandedTypeSpec
             return new Friend(name, additionalBinaryDataProperties: null);
         }
 
-        /// <summary> this is a model with a projected name. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
-        /// <returns> A new <see cref="Models.Custom.ProjectedModelCustom"/> instance for mocking. </returns>
-        public static ProjectedModelCustom ProjectedModelCustom(string name = default)
+        /// <summary> this is a model with a client name. </summary>
+        /// <param name="name"> name of the ModelWithClientName. </param>
+        /// <returns> A new <see cref="Models.Custom.RenamedModelCustom"/> instance for mocking. </returns>
+        public static RenamedModelCustom RenamedModelCustom(string name = default)
         {
 
-            return new ProjectedModelCustom(name, additionalBinaryDataProperties: null);
+            return new RenamedModelCustom(name, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>
@@ -155,6 +155,28 @@ namespace UnbrandedTypeSpec
         {
 
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ListWithNextLinkResponse. </summary>
+        /// <param name="things"></param>
+        /// <param name="next"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.ListWithNextLinkResponse"/> instance for mocking. </returns>
+        public static ListWithNextLinkResponse ListWithNextLinkResponse(IEnumerable<Thing> things = default, Uri next = default)
+        {
+            things ??= new ChangeTrackingList<Thing>();
+
+            return new ListWithNextLinkResponse(things?.ToList(), next, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ListWithContinuationTokenResponse. </summary>
+        /// <param name="things"></param>
+        /// <param name="nextToken"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.ListWithContinuationTokenResponse"/> instance for mocking. </returns>
+        public static ListWithContinuationTokenResponse ListWithContinuationTokenResponse(IEnumerable<Thing> things = default, string nextToken = default)
+        {
+            things ??= new ChangeTrackingList<Thing>();
+
+            return new ListWithContinuationTokenResponse(things?.ToList(), nextToken, additionalBinaryDataProperties: null);
         }
     }
 }

@@ -197,7 +197,7 @@ describe("compiler: scanner", () => {
     ]);
   });
 
-  it("scans projection-related tokens", () => {
+  it("scans projection-related tokens (reserve)", () => {
     const all = tokens("<= >= && || == projection if =>");
     verify(all, [
       [Token.LessThanEquals, "<="],
