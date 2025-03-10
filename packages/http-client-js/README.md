@@ -38,3 +38,5 @@ options:
 ### `package-name`
 
 **Type:** `string`
+
+Name of the package as it will be in package.json
