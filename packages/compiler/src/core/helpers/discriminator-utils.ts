@@ -27,7 +27,7 @@ export interface DiscriminatedUnionLegacy {
 export function getDiscriminatedUnion(
   typeOrProgram: Program,
   typeOrDiscriminator: Union,
-): [DiscriminatedUnion | DiscriminatedUnionLegacy | undefined, readonly Diagnostic[]] {
+): [DiscriminatedUnion | undefined, readonly Diagnostic[]] {
   return getDiscriminatedUnionForUnion(typeOrProgram, typeOrDiscriminator);
 }
 
