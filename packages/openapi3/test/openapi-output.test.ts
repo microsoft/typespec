@@ -257,6 +257,85 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) 
       strictEqual(oapi["x-namespace-extension"], "foobar");
     });
 
+    it("emits schemas for Types", async () => {
+      const oapi = await openApiFor(`
+      @extension("x-model-expression", { name: string })
+      @extension("x-array", string[])
+      @extension("x-named-model", Thing)
+      @extension("x-model-template", Collection<Thing>)
+      @extension("x-string-literal", typeof "hi")
+      model Foo {}
+
+      model Collection<Item> {
+        size: int32;
+        item: Item[];
+      }
+      
+      model Thing {
+        name: string;
+      }
+      `);
+      const Foo = oapi.components.schemas.Foo;
+      ok(Foo);
+      deepStrictEqual(Foo["x-model-expression"], {
+        type: "object",
+        required: ["name"],
+        properties: {
+          name: {
+            type: "string",
+          },
+        },
+      });
+      deepStrictEqual(Foo["x-array"], {
+        items: { type: "string" },
+        type: "array",
+      });
+      deepStrictEqual(Foo["x-named-model"], { $ref: "#/components/schemas/Thing" });
+      deepStrictEqual(Foo["x-model-template"], {
+        properties: {
+          item: {
+            items: {
+              $ref: "#/components/schemas/Thing",
+            },
+            type: "array",
+          },
+          size: {
+            format: "int32",
+            type: "integer",
+          },
+        },
+        required: ["size", "item"],
+        type: "object",
+      });
+      deepStrictEqual(Foo["x-string-literal"], {
+        type: "string",
+        enum: ["hi"],
+      });
+    });
+
+    it("emits raw data for Values", async () => {
+      const oapi = await openApiFor(`
+      @extension("x-object-value", #{ name: "TypeSpec" })
+      @extension("x-tuple", #[ 1 ])
+      @extension("x-string-literal", "hi")
+      model Foo {}
+
+      model Collection<Item> {
+        size: int32;
+        item: Item[];
+      }
+      
+      model Thing {
+        name: string;
+      }
+      `);
+      const Foo = oapi.components.schemas.Foo;
+      ok(Foo);
+      deepStrictEqual(Foo["x-object-value"], { name: "TypeSpec" });
+      deepStrictEqual(Foo["x-tuple"], [1]);
+      deepStrictEqual(Foo["x-string-literal"], "hi");
+    });
+
     it("check format and pattern decorator on model", async () => {
       const oapi = await openApiFor(
         `
