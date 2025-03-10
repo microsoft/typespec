@@ -59,6 +59,7 @@ function fromSdkClient(
       .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions)),
     apiVersions: client.apiVersions,
     crossLanguageDefinitionId: client.crossLanguageDefinitionId,
+    decorators: client.decorators,
     parent: undefined,
     children: undefined,
   };

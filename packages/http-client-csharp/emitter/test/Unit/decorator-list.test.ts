@@ -8,6 +8,7 @@ import {
   createEmitterTestHost,
   typeSpecCompile,
 } from "./utils/test-util.js";
+import { ok } from "assert/strict";
 
 describe("Test emitting decorator list", () => {
   let runner: TestHost;
@@ -33,8 +34,11 @@ describe("Test emitting decorator list", () => {
     });
     const root = createModel(sdkContext);
     const clients = root.Clients;
-    strictEqual(clients.length, 2);
-    deepStrictEqual(clients[1].decorators, [
+    strictEqual(clients.length, 1);
+    ok(clients[0].children);
+    strictEqual(clients[0].children.length, 1);
+    const childClient = clients[0].children[0];
+    deepStrictEqual(childClient.decorators, [
       {
         name: "Azure.ClientGenerator.Core.@clientName",
         arguments: {
