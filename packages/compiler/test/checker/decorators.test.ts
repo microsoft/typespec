@@ -1,14 +1,14 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
+import { numericRanges } from "../../src/core/numeric-ranges.js";
+import { Numeric } from "../../src/core/numeric.js";
 import {
   DecoratorFunction,
   Namespace,
   PackageFlags,
   isNullType,
   setTypeSpecNamespace,
-} from "../../src/core/index.js";
-import { numericRanges } from "../../src/core/numeric-ranges.js";
-import { Numeric } from "../../src/core/numeric.js";
+} from "../../src/index.js";
 import {
   BasicTestRunner,
   TestHost,

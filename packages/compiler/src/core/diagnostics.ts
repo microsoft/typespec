@@ -17,16 +17,6 @@ import {
   Type,
 } from "./types.js";
 
-/**
- * Represents a failure while interpreting a projection.
- */
-export class ProjectionError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ProjectionError";
-  }
-}
-
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 
@@ -257,7 +247,7 @@ export function assertType<TKind extends Type["kind"][]>(
   ...kinds: TKind
 ): asserts t is Type & { kind: TKind[number] } {
   if (kinds.indexOf(t.kind) === -1) {
-    throw new ProjectionError(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
+    throw new Error(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
   }
 }
 

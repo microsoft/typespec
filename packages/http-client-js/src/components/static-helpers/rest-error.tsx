@@ -19,16 +19,39 @@ export function RestError() {
   const constructorRefkey = ay.refkey("constructor", "rest-error-class-method");
   const fromHttpResponseRefkey = ay.refkey("from-http-response", "rest-error-class-method");
 
-  const restErrorClass =
+  const restErrorClass = (
     <ts.ClassDeclaration export name="RestError" extends="Error" refkey={getRestErrorRefkey()}>
-      <ts.ClassField public name="request" type={httpRuntimeTemplateLib.PipelineRequest} refkey={requestRefkey} />
-      <ts.ClassField public name="response" type={httpRuntimeTemplateLib.HttpResponse} refkey={responseRefkey} />
-      <ts.ClassField public name="status" type="string" refkey={statusRefkey}/>
-      <ts.ClassField public name="body" type="any" refkey={bodyRefkey}/>
-      <ts.ClassField public name="headers" type={httpRuntimeTemplateLib.RawHttpHeaders} refkey={headersRefkey} />
+      <ay.StatementList>
+        <ts.ClassField
+          public
+          name="request"
+          type={httpRuntimeTemplateLib.PipelineRequest}
+          refkey={requestRefkey}
+        />
+        <ts.ClassField
+          public
+          name="response"
+          type={httpRuntimeTemplateLib.HttpResponse}
+          refkey={responseRefkey}
+        />
+        <ts.ClassField public name="status" type="string" refkey={statusRefkey} />
+        <ts.ClassField public name="body" type="any" refkey={bodyRefkey} />
+        <ts.ClassField
+          public
+          name="headers"
+          type={httpRuntimeTemplateLib.RawHttpHeaders}
+          refkey={headersRefkey}
+        />
+      </ay.StatementList>
 
-      <ts.ClassMethod name="constructor" parameters={{message: "string", response: httpRuntimeTemplateLib.HttpResponse}} returnType={null} refkey={constructorRefkey}>
-        {ay.code`
+      <ay.List hardline>
+        <ts.ClassMethod
+          name="constructor"
+          parameters={{ message: "string", response: httpRuntimeTemplateLib.HttpResponse }}
+          returnType={null}
+          refkey={constructorRefkey}
+        >
+          {ay.code`
           // Create an error message that includes relevant details.
           super(\`$\{message\} - HTTP $\{response.status} received for $\{response.request.method} $\{response.request.url}\`);
           this.name = 'RestError';
@@ -41,21 +64,36 @@ export function RestError() {
           // Set the prototype explicitly.
           Object.setPrototypeOf(this, RestError.prototype);
         `}
-      </ts.ClassMethod>
-      <ts.ClassMethod static name="fromHttpResponse" parameters={{response: httpRuntimeTemplateLib.HttpResponse}} returnType={getRestErrorRefkey()} refkey={fromHttpResponseRefkey}>
-        {ay.code`
+        </ts.ClassMethod>
+        <ts.ClassMethod
+          static
+          name="fromHttpResponse"
+          parameters={{ response: httpRuntimeTemplateLib.HttpResponse }}
+          returnType={getRestErrorRefkey()}
+          refkey={fromHttpResponseRefkey}
+        >
+          {ay.code`
           const defaultMessage = \`Unexpected HTTP status code: $\{response.status}\`;
           return new RestError(defaultMessage, response);
         `}
-      </ts.ClassMethod>
-    </ts.ClassDeclaration>;
+        </ts.ClassMethod>
+      </ay.List>
+    </ts.ClassDeclaration>
+  );
 
-  const createRestError =
-    <ts.FunctionDeclaration export name="createRestError" parameters={{response: httpRuntimeTemplateLib.HttpResponse}} returnType={getRestErrorRefkey()} refkey={getCreateRestErrorRefkey()}>
-    {ay.code`
+  const createRestError = (
+    <ts.FunctionDeclaration
+      export
+      name="createRestError"
+      parameters={{ response: httpRuntimeTemplateLib.HttpResponse }}
+      returnType={getRestErrorRefkey()}
+      refkey={getCreateRestErrorRefkey()}
+    >
+      {ay.code`
       return ${fromHttpResponseRefkey}(response);
     `}
-  </ts.FunctionDeclaration>;
+    </ts.FunctionDeclaration>
+  );
 
   return [restErrorClass, "\n\n", createRestError];
 }

@@ -36,7 +36,6 @@ export async function foo(
   options?: FooOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: {
@@ -46,17 +45,14 @@ export async function foo(
       is_required: options?.isRequired,
     },
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
