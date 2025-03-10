@@ -341,7 +341,7 @@ function emitEnum<TServiceOperation extends SdkServiceOperation>(
     if (!type.isFixed) {
       types.push(emitBuiltInType(type.valueType));
     }
-    
+
     const newValue = {
       description: "",
       internal: true,
@@ -350,7 +350,7 @@ function emitEnum<TServiceOperation extends SdkServiceOperation>(
       xmlMetadata: {},
     };
     typesMap.set(type, newValue);
-    return newValue
+    return newValue;
   }
   const values: Record<string, any>[] = [];
   const name = type.name;
