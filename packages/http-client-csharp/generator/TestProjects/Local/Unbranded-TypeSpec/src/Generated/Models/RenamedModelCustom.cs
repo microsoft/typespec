@@ -7,24 +7,24 @@ using System.Collections.Generic;
 
 namespace UnbrandedTypeSpec.Models.Custom
 {
-    /// <summary> this is a model with a projected name. </summary>
-    public partial class ProjectedModelCustom
+    /// <summary> this is a model with a client name. </summary>
+    public partial class RenamedModelCustom
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        internal ProjectedModelCustom(string name)
+        internal RenamedModelCustom(string name)
         {
             Name = name;
         }
 
-        internal ProjectedModelCustom(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal RenamedModelCustom(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
-        /// <summary> name of the ModelWithProjectedName. </summary>
+        /// <summary> name of the ModelWithClientName. </summary>
         public string Name { get; }
     }
 }

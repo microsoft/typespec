@@ -140,13 +140,13 @@ namespace UnbrandedTypeSpec
             return new Friend(name, additionalBinaryDataProperties: null);
         }
 
-        /// <summary> this is a model with a projected name. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
-        /// <returns> A new <see cref="Models.Custom.ProjectedModelCustom"/> instance for mocking. </returns>
-        public static ProjectedModelCustom ProjectedModelCustom(string name = default)
+        /// <summary> this is a model with a client name. </summary>
+        /// <param name="name"> name of the ModelWithClientName. </param>
+        /// <returns> A new <see cref="Models.Custom.RenamedModelCustom"/> instance for mocking. </returns>
+        public static RenamedModelCustom RenamedModelCustom(string name = default)
         {
 
-            return new ProjectedModelCustom(name, additionalBinaryDataProperties: null);
+            return new RenamedModelCustom(name, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>

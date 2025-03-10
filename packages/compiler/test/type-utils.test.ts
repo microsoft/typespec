@@ -10,7 +10,7 @@ import {
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
   isTemplateInstance,
-} from "../src/core/index.js";
+} from "../src/index.js";
 import { BasicTestRunner, createTestRunner } from "../src/testing/index.js";
 
 describe("compiler: type-utils", () => {
