@@ -20,6 +20,7 @@ import type {
   MaxLengthDecorator,
   MaxValueDecorator,
   MaxValueExclusiveDecorator,
+  MediaTypeHintDecorator,
   MinItemsDecorator,
   MinLengthDecorator,
   MinValueDecorator,
@@ -354,6 +355,84 @@ export function isErrorModel(program: Program, target: Type): boolean {
     current = current.baseModel;
   }
   return false;
+}
+
+// -- @mediaTypeHint decorator --------------
+
+const [_getMediaTypeHint, setMediaTypeHint] = useStateMap<MimeTypeable, string>(
+  createStateSymbol("mediaTypeHint"),
+);
+
+/**
+ * A type that can have a default MIME type.
+ */
+type MimeTypeable = Parameters<MediaTypeHintDecorator>[1];
+
+export const $mediaTypeHint: MediaTypeHintDecorator = (
+  context: DecoratorContext,
+  target: MimeTypeable,
+  mediaType: string,
+) => {
+  validateDecoratorUniqueOnNode(context, target, $mediaTypeHint);
+
+  setMediaTypeHint(context.program, target, mediaType);
+};
+
+/**
+ * Get the default media type hint for the given target type.
+ *
+ * This value is a hint _ONLY_. Emitters are not required to use it, but may use it to get the default media type
+ * associated with a TypeSpec type.
+ *
+ * @param program - the Program containing the target
+ * @param target - the target to get the MIME type for
+ * @returns the default media type hint for the target, if any
+ */
+export function getMediaTypeHint(program: Program, target: Type): string | undefined {
+  switch (target.kind) {
+    case "Scalar":
+      // This special-casing is necessary because we cannot apply a decorator with a `valueof string` argument to
+      // `string` itself. It creates a circular dependency in the checker where initializing the decorator value depends
+      // on `string` already being initialized, which it isn't if we're still checking its decorators. This simple
+      // special-casing allows us to avoid that circularity or having to special-case the initialization of string
+      // itself.
+
+      const isTypeSpecString =
+        isIntrinsicType(program, target, "string") &&
+        target.name === "string" &&
+        target.namespace?.name === "TypeSpec" &&
+        target.namespace.namespace === program.getGlobalNamespaceType();
+
+      if (isTypeSpecString) return "text/plain";
+    // Intentional fallthrough
+    // eslint-disable-next-line no-fallthrough
+    case "Union":
+    case "Enum":
+    case "Model": {
+      // Assert this satisfies clause to make sure we've handled everything that is MimeTypeable
+      void 0 as unknown as MimeTypeable["kind"] satisfies typeof target.kind;
+
+      const hint = _getMediaTypeHint(program, target);
+
+      if (!hint) {
+        // Look up the hierarchy for a MIME type hint if we don't have one on this type.
+        const ancestor =
+          target.kind === "Model"
+            ? target.baseModel
+            : target.kind === "Scalar"
+              ? target.baseScalar
+              : undefined;
+
+        if (ancestor) {
+          return getMediaTypeHint(program, ancestor);
+        }
+      }
+
+      return hint;
+    }
+    default:
+      return undefined;
+  }
 }
 
 // -- @format decorator ---------------------

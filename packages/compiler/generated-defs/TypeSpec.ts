@@ -257,6 +257,24 @@ export type ServiceDecorator = (
 export type ErrorDecorator = (context: DecoratorContext, target: Model) => void;
 
 /**
+ * Applies a media type hint to a TypeSpec type. Emitters and libraries may choose to use this hint to determine how a
+ * type should be serialized. For example, the `@typespec/http` library will use the media type hint of the response
+ * body type as a default `Content-Type` if one is not explicitly specified in the operation.
+ *
+ * Media types (also known as MIME types) are defined by RFC 6838. The media type hint should be a valid media type
+ * string as defined by the RFC, but the decorator does not enforce or validate this constraint.
+ *
+ * Note: the applied media type is _only_ a hint. It may be overridden or not used at all.
+ *
+ * @param mediaType The media type hint to apply to the target type.
+ */
+export type MediaTypeHintDecorator = (
+  context: DecoratorContext,
+  target: Model | Scalar | Enum | Union,
+  mediaType: string,
+) => void;
+
+/**
  * Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
  * This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
  * The format names are open ended and are left to emitter to interpret.
@@ -1133,6 +1151,7 @@ export type TypeSpecDecorators = {
   deprecated: DeprecatedDecorator;
   service: ServiceDecorator;
   error: ErrorDecorator;
+  mediaTypeHint: MediaTypeHintDecorator;
   format: FormatDecorator;
   pattern: PatternDecorator;
   minLength: MinLengthDecorator;

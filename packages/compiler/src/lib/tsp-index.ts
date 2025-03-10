@@ -18,6 +18,7 @@ import {
   $maxLength,
   $maxValue,
   $maxValueExclusive,
+  $mediaTypeHint,
   $minItems,
   $minLength,
   $minValue,
@@ -67,6 +68,7 @@ import {
 export const $decorators = {
   TypeSpec: {
     encode: $encode,
+    mediaTypeHint: $mediaTypeHint,
     doc: $doc,
     withOptionalProperties: $withOptionalProperties,
     withUpdateableProperties: $withUpdateableProperties,

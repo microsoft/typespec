@@ -66,6 +66,7 @@ import {
   HttpServer,
   HttpServiceAuthentication,
   isContentTypeHeader,
+  isHeader,
   isOrExtendsHttpFile,
   isOverloadSameEndpoint,
   MetadataInfo,
@@ -1409,6 +1410,8 @@ function createOAPIEmitter(
     param: ModelProperty,
     visibility: Visibility,
   ): OpenAPI3ParameterBase | undefined {
+    const isHeaderParam = isHeader(program, param);
+
     const typeSchema = getSchemaForType(param.type, visibility);
     if (!typeSchema) {
       return undefined;
@@ -1417,6 +1420,7 @@ function createOAPIEmitter(
       program,
       param,
       applyIntrinsicDecorators(param, typeSchema),
+      isHeaderParam,
       options,
     );
     if (param.defaultValue) {
