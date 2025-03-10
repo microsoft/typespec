@@ -33,7 +33,7 @@ export async function isDirectory(path: string) {
 
 export async function createTempDir(): Promise<string | undefined> {
   try {
-    return await mkdtemp(joinPaths(tmpdir(), 'tsp-openapi3-preview-'));
+    return await mkdtemp(joinPaths(tmpdir(), "tsp-openapi3-preview-"));
   } catch (e) {
     logger.error("Failed to create temp folder", [e]);
     return undefined;
