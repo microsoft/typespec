@@ -1,3 +1,4 @@
+import pc from "picocolors";
 import { EmitterOptions } from "../config/types.js";
 import { setCurrentProgram } from "../experimental/typekit/index.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
@@ -32,13 +33,7 @@ import { createDiagnostic } from "./messages.js";
 import { createResolver } from "./name-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
-import {
-  getDirectoryPath,
-  getRelativePathFromDirectory,
-  joinPaths,
-  resolvePath,
-} from "./path-utils.js";
-import { createProjector } from "./projector.js";
+import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import {
   SourceLoader,
   SourceResolution,
@@ -46,7 +41,7 @@ import {
   loadJsFile,
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
-import { StateMap, StateSet, createStateAccessors } from "./state-accessors.js";
+import { createStateAccessors } from "./state-accessors.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -60,12 +55,11 @@ import {
   LibraryMetadata,
   LiteralType,
   LocationContext,
+  LogSink,
   ModuleLibraryMetadata,
   Namespace,
   NoTarget,
   Node,
-  ProjectionApplication,
-  Projector,
   SourceFile,
   Sym,
   SymbolFlags,
@@ -77,21 +71,6 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
-
-/** @deprecated */
-export interface ProjectedProgram extends Program {
-  projector: Projector;
-}
-
-/** @deprecated use Mutators instead */
-export function projectProgram(
-  program: Program,
-  projections: ProjectionApplication[],
-  startNode?: Type,
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-): ProjectedProgram {
-  return createProjector(program, projections, startNode);
-}
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -113,9 +92,11 @@ export interface Program {
   ): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
-  stateSets: Map<symbol, StateSet>;
+  /** @internal */
+  stateSets: Map<symbol, Set<Type>>;
   stateMap(key: symbol): Map<Type, any>;
-  stateMaps: Map<symbol, StateMap>;
+  /** @internal */
+  stateMaps: Map<symbol, Map<Type, unknown>>;
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
@@ -158,8 +139,18 @@ export async function compile(
   oldProgram?: Program, // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ) {
   const logger = createLogger({ sink: host.logSink });
-  const { program, shouldAbort } = await logger.trackAction("Compiling...", "Compiling", () =>
-    createProgram(host, mainFile, options, oldProgram),
+  const { program, shouldAbort } = await logger.trackAction(
+    "Compiling...",
+    "Compiling",
+    async (task) => {
+      const result = await createProgram(host, mainFile, options, oldProgram);
+      if (result.program.hasError()) {
+        task.fail();
+      } else if (result.program.diagnostics.length > 0) {
+        task.warn();
+      }
+      return result;
+    },
   );
 
   if (shouldAbort) {
@@ -168,10 +159,10 @@ export async function compile(
 
   // Emitter stage
   for (const emitter of program.emitters) {
-    await emit(emitter, program, options);
+    await emit(emitter, program);
 
     if (options.listFiles) {
-      logEmittedFilesPath(program.projectRoot);
+      logEmittedFilesPath(host.logSink);
     }
   }
   return program;
@@ -184,8 +175,8 @@ async function createProgram(
   oldProgram?: Program,
 ): Promise<{ program: Program; shouldAbort: boolean }> {
   const validateCbs: Validator[] = [];
-  const stateMaps = new Map<symbol, StateMap>();
-  const stateSets = new Map<symbol, StateSet>();
+  const stateMaps = new Map<symbol, Map<Type, unknown>>();
+  const stateSets = new Map<symbol, Set<Type>>();
   const diagnostics: Diagnostic[] = [];
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
@@ -907,17 +898,28 @@ function resolveOptions(options: CompilerOptions): CompilerOptions {
   return { ...options };
 }
 
-async function emit(emitter: EmitterRef, program: Program, options: CompilerOptions = {}) {
+async function emit(emitter: EmitterRef, program: Program) {
   const emitterName = emitter.metadata.name ?? "";
-  const relativePathForEmittedFiles = options.listFiles
-    ? `./${getRelativePathFromDirectory(program.projectRoot, emitter.emitterOutputDir, false)}/`
-    : "";
+  const relativePathForEmittedFiles =
+    transformPathForSink(program.host.logSink, emitter.emitterOutputDir) + "/";
 
+  const errorCount = program.diagnostics.filter((x) => x.severity === "error").length;
+  const warnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
   const logger = createLogger({ sink: program.host.logSink });
   await logger.trackAction(
     `Running ${emitterName}...`,
-    `${emitterName}\t${relativePathForEmittedFiles}`,
-    () => runEmitter(emitter, program),
+    `${emitterName}    ${pc.dim(relativePathForEmittedFiles)}`,
+    async (task) => {
+      await runEmitter(emitter, program);
+
+      const newErrorCount = program.diagnostics.filter((x) => x.severity === "error").length;
+      const newWarnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
+      if (newErrorCount > errorCount) {
+        task.fail();
+      } else if (newWarnCount > warnCount) {
+        task.warn();
+      }
+    },
   );
 }
 
@@ -937,9 +939,12 @@ async function runEmitter(emitter: EmitterRef, program: Program) {
   }
 }
 
-function logEmittedFilesPath(projectRoot: string) {
+function logEmittedFilesPath(logSink: LogSink) {
   flushEmittedFilesPaths().forEach((filePath) => {
     // eslint-disable-next-line no-console
-    console.log(`\t./${getRelativePathFromDirectory(projectRoot, filePath, false)}`);
+    console.log(`    ${pc.dim(transformPathForSink(logSink, filePath))}`);
   });
+}
+function transformPathForSink(logSink: LogSink, path: string) {
+  return logSink.getPath ? logSink.getPath(path) : path;
 }

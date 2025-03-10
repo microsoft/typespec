@@ -1,4 +1,4 @@
-import { refkey } from "@alloy-js/core";
+import { For, refkey } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
 import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
@@ -36,13 +36,15 @@ export function TypeExpression(props: TypeExpressionProps) {
     case "UnionVariant":
       return <TypeExpression type={type.type} />;
     case "Tuple":
-      return <>
-          [{type.values.map((element) => (
-            <>
-              <TypeExpression type={element} />,
-            </>
-          ))}]
-        </>;
+      return (
+        <>
+          [
+          <For each={type.values} comma line>
+            {(element) => <TypeExpression type={element} />}
+          </For>
+          ]
+        </>
+      );
     case "ModelProperty":
       return <TypeExpression type={type.type} />;
     case "Model":

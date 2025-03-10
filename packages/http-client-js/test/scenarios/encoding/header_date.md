@@ -24,23 +24,19 @@ export async function defaultEncoding(
   options?: DefaultEncodingOptions,
 ): Promise<void> {
   const path = parse("/default").expand({});
-
   const httpRequestOptions = {
     headers: {
       value: dateRfc7231Serializer(value),
     },
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -70,23 +66,19 @@ export async function defaultEncoding(
   options?: DefaultEncodingOptions,
 ): Promise<void> {
   const path = parse("/default").expand({});
-
   const httpRequestOptions = {
     headers: {
       ...(options?.value && { value: dateRfc7231Serializer(options?.value) }),
     },
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -118,23 +110,19 @@ export async function get(
   options?: GetOptions,
 ): Promise<void> {
   const path = parse("/default").expand({});
-
   const httpRequestOptions = {
     headers: {
       value: dateRfc3339Serializer(value),
     },
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -166,23 +154,19 @@ export async function get(
   options?: GetOptions,
 ): Promise<void> {
   const path = parse("/default").expand({});
-
   const httpRequestOptions = {
     headers: {
       value: dateRfc7231Serializer(value),
     },
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -214,23 +198,19 @@ export async function get(
   options?: GetOptions,
 ): Promise<void> {
   const path = parse("/default").expand({});
-
   const httpRequestOptions = {
     headers: {
       value: dateUnixTimestampSerializer(value),
     },
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
