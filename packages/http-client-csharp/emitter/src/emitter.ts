@@ -56,13 +56,11 @@ function findProjectRoot(path: string): string | undefined {
  */
 export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const program: Program = context.program;
-  const options = resolveOptions(context);
-  const outputFolder = _resolveOutputFolder(context);
-
-  /* set the log level. */
-  const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
-
   if (!program.compilerOptions.noEmit && !program.hasError()) {
+    const options = resolveOptions(context);
+    /* set the log level. */
+    const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
+
     // Write out the dotnet model to the output path
     const sdkContext = {
       ...(await createSdkContext(
@@ -83,71 +81,87 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
     const root = createModel(sdkContext);
 
     if (root) {
-      const generatedFolder = resolvePath(outputFolder, "src", "Generated");
+      emit(options, logger, sdkContext, context, root);
+    }
+  }
+}
 
-      if (!fs.existsSync(generatedFolder)) {
-        fs.mkdirSync(generatedFolder, { recursive: true });
-      }
+/**
+ * Emit the code model. This function is used if the sub-plugin needs to manipulate the code model.
+ * @param options - The emitter options
+ * @param logger - The logger
+ * @param sdkContext - The SDK context
+ * @param context - The emit context
+ * @param root - The code model
+ * @beta
+ */
+export async function emit(
+  options: any,
+  logger: Logger,
+  sdkContext: CSharpEmitterContext,
+  context: EmitContext<CSharpEmitterOptions>,
+  root: CodeModel,
+) {
+  const outputFolder = _resolveOutputFolder(context);
+  const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
-      // emit tspCodeModel.json
-      await writeCodeModel(sdkContext, root, outputFolder);
+  if (!fs.existsSync(generatedFolder)) {
+    fs.mkdirSync(generatedFolder, { recursive: true });
+  }
 
-      const namespace = root.Name;
-      const configurations: Configuration = {
-        "output-folder": ".",
-        "package-name": options["package-name"] ?? namespace,
-        "unreferenced-types-handling": options["unreferenced-types-handling"],
-        "disable-xml-docs":
-          options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
-      };
+  // emit tspCodeModel.json
+  await writeCodeModel(sdkContext, root, outputFolder);
 
-      //emit configuration.json
-      await program.host.writeFile(
-        resolvePath(outputFolder, configurationFileName),
-        prettierOutput(JSON.stringify(configurations, null, 2)),
-      );
+  const namespace = root.Name;
+  const configurations: Configuration = {
+    "output-folder": ".",
+    "package-name": options["package-name"] ?? namespace,
+    "unreferenced-types-handling": options["unreferenced-types-handling"],
+    "disable-xml-docs":
+      options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
+  };
 
-      const csProjFile = resolvePath(
-        outputFolder,
-        "src",
-        `${configurations["package-name"]}.csproj`,
-      );
-      logger.info(`Checking if ${csProjFile} exists`);
+  //emit configuration.json
+  await context.program.host.writeFile(
+    resolvePath(outputFolder, configurationFileName),
+    prettierOutput(JSON.stringify(configurations, null, 2)),
+  );
 
-      const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
-      const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
-      const generatorPath = resolvePath(
-        projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
-      );
+  const csProjFile = resolvePath(outputFolder, "src", `${configurations["package-name"]}.csproj`);
+  logger.info(`Checking if ${csProjFile} exists`);
 
-      try {
-        const result = await execCSharpGenerator(sdkContext, {
-          generatorPath: generatorPath,
-          outputFolder: outputFolder,
-          pluginName: options["plugin-name"],
-          newProject: options["new-project"] ?? !checkFile(csProjFile),
-          debug: options.debug ?? false,
-        });
-        if (result.exitCode !== 0) {
-          const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
-          // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-          if (isValid) {
-            throw new Error(
-              `Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`,
-            );
-          }
-        }
-      } catch (error: any) {
-        const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
-        // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-        if (isValid) throw new Error(error);
-      }
-      if (!options["save-inputs"]) {
-        // delete
-        context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
-        context.program.host.rm(resolvePath(outputFolder, configurationFileName));
+  const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+  const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
+  const generatorPath = resolvePath(
+    projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
+  );
+
+  try {
+    const result = await execCSharpGenerator(sdkContext, {
+      generatorPath: generatorPath,
+      outputFolder: outputFolder,
+      pluginName: options["plugin-name"],
+      newProject: options["new-project"] ?? !checkFile(csProjFile),
+      debug: options.debug ?? false,
+    });
+    if (result.exitCode !== 0) {
+      const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+      // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+      if (isValid) {
+        throw new Error(
+          `Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`,
+        );
       }
     }
+  } catch (error: any) {
+    const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+    // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+    if (isValid) throw new Error(error);
+  }
+  if (!options["save-inputs"]) {
+    // delete
+    context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
+    context.program.host.rm(resolvePath(outputFolder, configurationFileName));
   }
 }
 
