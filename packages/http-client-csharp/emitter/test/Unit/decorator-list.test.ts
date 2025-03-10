@@ -1,5 +1,6 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
+import { ok } from "assert/strict";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
@@ -8,7 +9,6 @@ import {
   createEmitterTestHost,
   typeSpecCompile,
 } from "./utils/test-util.js";
-import { ok } from "assert/strict";
 
 describe("Test emitting decorator list", () => {
   let runner: TestHost;
