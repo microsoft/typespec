@@ -232,7 +232,7 @@ async function writeFiles(host: SystemHost, config: ScaffoldingConfig) {
 async function writeFile(
   host: SystemHost,
   config: ScaffoldingConfig,
-  context: any,
+  context: FileTemplatingContext,
   file: InitTemplateFile,
 ) {
   const baseDir = config.baseUri + "/";
