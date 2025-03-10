@@ -121,6 +121,7 @@ async function loadOpenApi3PreviewPanel(
             });
             return undefined;
           }
+          await clearOutputFolder(outputFolder);
 
           const result = await client.compileOpenApi3(mainTspFile, srcFolder, outputFolder);
           if (result === undefined || result.exitCode !== 0) {
@@ -227,29 +228,31 @@ function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
 
 async function getOutputFolder(mainTspFile: string): Promise<string | undefined> {
   let tmpFolder = openApi3TempFolders.get(mainTspFile);
-  if (tmpFolder) {
-    let files: string[] = [];
-    // Clear the contents of the existing tmpFolder
-    try {
-      files = await readdir(tmpFolder);
-    } catch (e) {
-      logger.error(`Failed to read temporary folder: ${tmpFolder}`, [e]);
-      return;
-    }
-    for (const file of files) {
-      try {
-        await rm(joinPaths(tmpFolder, file), { recursive: true, force: true });
-      } catch (e) {
-        logger.error(`Failed to delete file: ${file}`, [e]);
-      }
-    }
-  } else {
+  if (!tmpFolder) {
     tmpFolder = await createTempDir();
     if (tmpFolder) {
       openApi3TempFolders.set(mainTspFile, tmpFolder);
     }
   }
   return tmpFolder;
+}
+
+async function clearOutputFolder(outputFolder: string) {
+  let files: string[] = [];
+  // Clear the contents of the existing tmpFolder
+  try {
+    files = await readdir(outputFolder);
+  } catch (e) {
+    logger.error(`Failed to read temporary folder: ${outputFolder}`, [e]);
+    return;
+  }
+  for (const file of files) {
+    try {
+      await rm(joinPaths(outputFolder, file), { recursive: true, force: true });
+    } catch (e) {
+      logger.error(`Failed to delete file: ${file}`, [e]);
+    }
+  }
 }
 
 export async function clearOpenApi3PreviewTempFolders() {
