@@ -91,8 +91,9 @@ export async function initTypeSpecProjectWorker(
   whiteline();
 
   if (projectJsonCreated) {
-    await action(
+    await host.logSink.trackAction!(
       "Installing dependencies",
+      "Dependencies installed",
       async () =>
         await installTypeSpecDependencies(host, {
           directory,
@@ -361,57 +362,4 @@ function logDiagnostics(diagnostics: readonly Diagnostic[]): void {
     // eslint-disable-next-line no-console
     console.log(diagnostic.message);
   });
-}
-
-async function action(message: string, fn: () => Promise<unknown>) {
-  const isTTY = process.stdout?.isTTY && !process.env.CI;
-
-  let interval;
-
-  if (isTTY) {
-    const spinner = createSpinner();
-    interval = setInterval(() => {
-      process.stdout.clearLine(0);
-      process.stdout.cursorTo(0);
-      process.stdout.write(`\r  ${pc.yellow(spinner())} ${message}`);
-    }, 300);
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(`  - ${message}`);
-  }
-
-  try {
-    await fn();
-    if (isTTY) {
-      process.stdout.clearLine(0);
-      process.stdout.cursorTo(0);
-      process.stdout.write(`\r  ${pc.green("✓")} ${message}\n`);
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(`  ${pc.green("✓")} ${message}`);
-    }
-  } catch (e: any) {
-    // eslint-disable-next-line no-console
-    console.log(`\r  ${pc.red("×")} ${message}\n${e.message}`);
-    process.exit(1);
-  } finally {
-    if (interval) {
-      clearInterval(interval);
-    }
-  }
-}
-
-import isUnicodeSupported from "is-unicode-supported";
-
-export const spinnerFrames = isUnicodeSupported()
-  ? ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-  : ["-", "\\", "|", "/"];
-
-export function createSpinner() {
-  let index = 0;
-
-  return () => {
-    index = ++index % spinnerFrames.length;
-    return spinnerFrames[index];
-  };
 }
