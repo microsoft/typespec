@@ -44,11 +44,11 @@ Content-Type: application/octet-stream
 
 By default, the `Content-Type` of individual request parts is set automatically according to the type of the schema properties that describe the request parts:
 
-| Schema Property Type                     | Content-Type               | Example                                                     |
-| ---------------------------------------- | -------------------------- | ----------------------------------------------------------- |
-| Primitive                                | `text/plain`               | `HttpPart<string>`, `HttpPart<number>`, `HttpPart<boolean>` |
-| Complex value or array of complex values | `application/json`         | `HttpPart<Address>`, `HttpPart<Address[]>`                  |
-| `bytes`                                  | `application/octet-stream` | `HttpPart<bytes>`                                           |
+| Schema Property Type                     | Content-Type               | Example                                                          |
+| ---------------------------------------- | -------------------------- | ---------------------------------------------------------------- |
+| Primitive                                | `text/plain`               | `HttpPart<string>`<br> `HttpPart<number>`<br>`HttpPart<boolean>` |
+| Complex value or array of complex values | `application/json`         | `HttpPart<Address>`<br>`HttpPart<Address[]>`                     |
+| `File`, `bytes`                          | `application/octet-stream` | `HttpPart<bytes>`<br>`HttpPart<bytes>`                           |
 
 ## Part names
 
