@@ -16,7 +16,6 @@ import {
   getErrorsDoc,
   getFriendlyName,
   getKeyName,
-  getKnownValues,
   getOverloadedOperation,
   getOverloads,
   getPattern,
@@ -428,102 +427,6 @@ describe("compiler: built-in decorators", () => {
         diagnostics[0].message,
         `Cannot apply @error decorator to A since it is not assignable to Model`,
       );
-    });
-  });
-
-  describe("@knownValues", () => {
-    it("assign the known values to string scalar", async () => {
-      const { Bar } = (await runner.compile(`
-        enum Foo {one: "one", two: "two"}
-        #suppress "deprecated" "For testing"
-        @test
-        @knownValues(Foo)
-        scalar Bar extends string;
-      `)) as { Bar: Scalar };
-
-      ok(Bar.kind);
-      const knownValues = getKnownValues(runner.program, Bar);
-      ok(knownValues);
-      strictEqual(knownValues.kind, "Enum");
-    });
-
-    it("assign the known values to number scalar", async () => {
-      const { Bar } = (await runner.compile(`
-        enum Foo {
-          one: 1; 
-          two: 2;
-        }
-        #suppress "deprecated" "For testing"
-        @test
-        @knownValues(Foo)
-        scalar Bar extends int32;
-      `)) as { Bar: Scalar };
-
-      ok(Bar.kind);
-      const knownValues = getKnownValues(runner.program, Bar);
-      ok(knownValues);
-      strictEqual(knownValues.kind, "Enum");
-    });
-
-    it("emit diagnostics when used on non model", async () => {
-      const diagnostics = await runner.diagnose(`
-        enum Foo {one, two}
-        #suppress "deprecated" "For testing"
-        @knownValues(Foo)
-        enum Bar {}
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "decorator-wrong-target",
-        message:
-          "Cannot apply @knownValues decorator to Bar since it is not assignable to string | numeric | ModelProperty",
-      });
-    });
-
-    it("emit diagnostics when enum has invalid members", async () => {
-      const diagnostics = await runner.diagnose(`
-         enum Foo {
-          one: 1; 
-          two: 2;
-        }
-        #suppress "deprecated" "For testing"
-        @knownValues(Foo)
-        scalar Bar extends string;
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "known-values-invalid-enum",
-        message: "Enum cannot be used on this type. Member one is not assignable to type Bar.",
-      });
-    });
-
-    it("emit diagnostics when used on non string model", async () => {
-      const diagnostics = await runner.diagnose(`
-        #suppress "deprecated" "For testing"
-        enum Foo {one, two}
-        @knownValues(Foo)
-        model Bar {}
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "decorator-wrong-target",
-        message:
-          "Cannot apply @knownValues decorator to Bar since it is not assignable to string | numeric | ModelProperty",
-      });
-    });
-
-    it("emit diagnostics when known values is not an enum", async () => {
-      const diagnostics = await runner.diagnose(`
-        model Foo {}
-        #suppress "deprecated" "For testing"
-        @knownValues(Foo)
-        scalar Bar extends string;
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument",
-        message: "Argument of type 'Foo' is not assignable to parameter of type 'Enum'",
-      });
     });
   });
 
@@ -1287,65 +1190,6 @@ describe("compiler: built-in decorators", () => {
         discriminatorPropertyName: "kind",
         envelopePropertyName: "value",
       });
-    });
-  });
-
-  describe("@discriminator on unions (LEGACY)", () => {
-    it("requires variants to be models", async () => {
-      const diagnostics = await runner.diagnose(`
-        #suppress "deprecated" "For testing"
-        @discriminator("kind")
-        union Foo {
-          a: "hi"
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminated-union-variant",
-          message: `Union variant "a" must be a model type.`,
-        },
-      ]);
-    });
-    it("requires variants to have the discriminator property", async () => {
-      const diagnostics = await runner.diagnose(`
-        model A {
-
-        }
-        #suppress "deprecated" "For testing"
-        @discriminator("kind")
-        union Foo {
-          a: A
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminated-union-variant",
-          message: `Variant "a" type is missing the discriminant property "kind".`,
-        },
-      ]);
-    });
-
-    it("requires variant discriminator properties to be string literals or string enum values", async () => {
-      const diagnostics = await runner.diagnose(`
-        model A {
-          kind: string,
-        }
-
-        #suppress "deprecated" "For testing"
-        @discriminator("kind")
-        union Foo {
-          a: A
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminated-union-variant",
-          message: `Variant "a" type's discriminant property "kind" must be a string literal or string enum member.`,
-        },
-      ]);
     });
   });
 

@@ -871,31 +871,31 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
+        /// <param name="name"> name of the ModelWithClientName. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<ProjectedModelCustom> ProjectedNameModel(string name, CancellationToken cancellationToken = default)
+        public virtual ClientResult<RenamedModelCustom> ProjectedNameModel(string name, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            ProjectedModelCustom spreadModel = new ProjectedModelCustom(name, null);
+            RenamedModelCustom spreadModel = new RenamedModelCustom(name, null);
             ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((ProjectedModelCustom)result, result.GetRawResponse());
+            return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
+        /// <param name="name"> name of the ModelWithClientName. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<ProjectedModelCustom>> ProjectedNameModelAsync(string name, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<RenamedModelCustom>> ProjectedNameModelAsync(string name, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            ProjectedModelCustom spreadModel = new ProjectedModelCustom(name, null);
+            RenamedModelCustom spreadModel = new RenamedModelCustom(name, null);
             ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((ProjectedModelCustom)result, result.GetRawResponse());
+            return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary>

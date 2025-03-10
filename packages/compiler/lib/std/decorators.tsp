@@ -280,24 +280,6 @@ extern dec tag(target: Namespace | Interface | Operation, tag: valueof string);
 extern dec friendlyName(target: unknown, name: valueof string, formatArgs?: unknown);
 
 /**
- * Provide a set of known values to a string type.
- * @param values Known values enum.
- *
- * @example
- * ```typespec
- * @knownValues(KnownErrorCode)
- * scalar ErrorCode extends string;
- *
- * enum KnownErrorCode {
- *   NotFound,
- *   Invalid,
- * }
- * ```
- */
-#deprecated "This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator."
-extern dec knownValues(target: string | numeric | ModelProperty, values: Enum);
-
-/**
  * Mark a model property as the key to identify instances of that type
  * @param altName Name of the property. If not specified, the decorated property name is used.
  *
@@ -324,28 +306,6 @@ extern dec key(target: ModelProperty, altName?: valueof string);
  * ```
  */
 extern dec overload(target: Operation, overloadbase: Operation);
-
-/**
- * DEPRECATED: Use `@encodedName` instead.
- *
- * Provide an alternative name for this type.
- * @param targetName Projection target
- * @param projectedName Alternative name
- *
- * @example
- * ```typespec
- * model Certificate {
- *   @projectedName("json", "exp")
- *   expireAt: int32;
- * }
- * ```
- */
-#deprecated "Use `@encodedName` instead for changing the name over the wire."
-extern dec projectedName(
-  target: unknown,
-  targetName: valueof string,
-  projectedName: valueof string
-);
 
 /**
  * Provide an alternative name for this type when serialized to the given mime type.
@@ -462,7 +422,7 @@ extern dec discriminated(target: Union, options?: valueof DiscriminatedOptions);
  * model Dog extends Pet  {kind: "dog", bark: boolean}
  * ```
  */
-extern dec discriminator(target: Model | Union, propertyName: valueof string);
+extern dec discriminator(target: Model, propertyName: valueof string);
 
 /**
  * Known encoding to use on utcDateTime or offsetDateTime

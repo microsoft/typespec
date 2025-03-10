@@ -112,6 +112,7 @@ words:
   - killpg
   - kwargs
   - labelledby
+  - libc
   - lifecyle
   - LINUXARMVMIMAGE
   - LINUXNEXTVMIMAGE
@@ -163,6 +164,7 @@ words:
   - onwarn
   - openapi
   - openapiv
+  - Packument
   - Perfolizer
   - picocolors
   - posargs

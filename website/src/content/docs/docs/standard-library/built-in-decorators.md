@@ -134,7 +134,7 @@ Specify the property to be used to discriminate this type.
 
 #### Target
 
-`Model | Union`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
@@ -506,38 +506,6 @@ Mark a model property as the key to identify instances of that type
 ```typespec
 model Pet {
   @key id: string;
-}
-```
-
-
-### `@knownValues` {#@knownValues}
-:::caution
-**Deprecated**: This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator.
-:::
-
-Provide a set of known values to a string type.
-```typespec
-@knownValues(values: Enum)
-```
-
-#### Target
-
-`string | numeric | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| values | `Enum` | Known values enum. |
-
-#### Examples
-
-```typespec
-@knownValues(KnownErrorCode)
-scalar ErrorCode extends string;
-
-enum KnownErrorCode {
-  NotFound,
-  Invalid,
 }
 ```
 
@@ -1042,38 +1010,6 @@ model Page<T> {
   @lastLink last: url;
 }
 @list op listPets(): Page<Pet>;
-```
-
-
-### `@projectedName` {#@projectedName}
-:::caution
-**Deprecated**: Use `@encodedName` instead for changing the name over the wire.
-:::
-
-DEPRECATED: Use `@encodedName` instead.
-
-Provide an alternative name for this type.
-```typespec
-@projectedName(targetName: valueof string, projectedName: valueof string)
-```
-
-#### Target
-
-`unknown`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| targetName | [valueof `string`](#string) | Projection target |
-| projectedName | [valueof `string`](#string) | Alternative name |
-
-#### Examples
-
-```typespec
-model Certificate {
-  @projectedName("json", "exp")
-  expireAt: int32;
-}
 ```
 
 

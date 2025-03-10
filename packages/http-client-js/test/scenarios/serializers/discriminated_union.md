@@ -5,7 +5,7 @@
 ```tsp
 @service
 namespace Test;
-@discriminator("kind")
+@discriminated(#{ envelope: "none", discriminatorPropertyName: "kind" })
 union WidgetData {
   kind0: WidgetData0,
   kind1: WidgetData1,

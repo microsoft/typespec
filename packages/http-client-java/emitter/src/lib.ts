@@ -100,6 +100,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`An unknown error occurred. ${"errorMessage"}`,
       },
     },
+    "generator-error": {
+      severity: "error",
+      messages: {
+        default: paramMessage`${"errorMessage"}`,
+      },
+    },
     "invalid-java-sdk-dependency": {
       severity: "error",
       messages: {
@@ -130,8 +136,20 @@ export const $lib = createTypeSpecLibrary({
         multipartFormData: paramMessage`Unrecognized type for multipart form data, kind '${"typeKind"}'.`,
       },
     },
+    "empty-name": {
+      severity: "error",
+      messages: {
+        default: "Name from TCGC is empty.",
+      },
+    },
 
     // warning
+    "generator-warning": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`${"warningMessage"}`,
+      },
+    },
     "no-service": {
       severity: "warning",
       messages: {
