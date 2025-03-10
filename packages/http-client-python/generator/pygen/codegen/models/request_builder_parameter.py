@@ -113,5 +113,5 @@ class RequestBuilderParameter(Parameter):
         if self.implementation == "Client":
             return f"self._config.{self.client_name}"
         if self.is_continuation_token:
-            return f"{self.client_name} if _next_token is _Unset else _next_token"
+            return f"{self.client_name} if _continuation_token is None else _continuation_token"
         return self.client_name

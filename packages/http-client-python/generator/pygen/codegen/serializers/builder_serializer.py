@@ -1289,7 +1289,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
     def _prepare_request_callback(self, builder: PagingOperationType) -> List[str]:
         retval = self._initialize_overloads(builder)
         if builder.has_continuation_token:
-            retval.append(f"def prepare_request({builder.next_variable_name}={builder.next_default_value}):")
+            retval.append(f"def prepare_request({builder.next_variable_name}=None):")
             retval.extend([f"    {line}" for line in self.call_request_builder(builder, is_paging=True)])
         else:
             retval.append("def prepare_request(next_link=None):")
@@ -1374,7 +1374,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
 
     def _get_next_callback(self, builder: PagingOperationType) -> List[str]:
         retval = [
-            f"{'async ' if self.async_mode else ''}def get_next({builder.next_variable_name}={builder.next_default_value}):"  # pylint: disable=line-too-long
+            f"{'async ' if self.async_mode else ''}def get_next({builder.next_variable_name}=None):"  # pylint: disable=line-too-long
         ]
         retval.append(f"    _request = prepare_request({builder.next_variable_name})")
         retval.append("")
@@ -1529,9 +1529,9 @@ class LROPagingOperationSerializer(
     def get_long_running_output(self, builder: LROPagingOperation) -> List[str]:
         retval = ["def get_long_running_output(pipeline_response):"]
         retval.append(
-            f"    {self._function_def} internal_get_next({builder.next_variable_name}={builder.next_default_value}):"
+            f"    {self._function_def} internal_get_next({builder.next_variable_name}=None):"
         )
-        retval.append(f"        if {builder.next_variable_name} is {builder.next_default_value}:")
+        retval.append(f"        if {builder.next_variable_name} is None:")
         retval.append("            return pipeline_response")
         retval.append(f"        return {self._call_method}get_next({builder.next_variable_name})")
         retval.append("")

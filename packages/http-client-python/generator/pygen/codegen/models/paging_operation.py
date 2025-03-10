@@ -67,11 +67,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
 
     @property
     def next_variable_name(self) -> str:
-        return "_next_token" if self.has_continuation_token else "next_link"
-
-    @property
-    def next_default_value(self) -> str:
-        return "_Unset" if self.has_continuation_token else "None"
+        return "_continuation_token" if self.has_continuation_token else "next_link"
 
     def _get_attr_name(self, wire_name: str) -> str:
         response_type = self.responses[0].type
@@ -166,9 +162,6 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             file_import.merge(self.item_type.imports(**kwargs))
             if self.default_error_deserialization or self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
-        if self.has_continuation_token:
-            file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
-            file_import.define_mypy_type("_Unset: Any", "object()")
         return file_import
 
 
