@@ -14,7 +14,7 @@ import {
   createConnection,
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
-import { typespecVersion } from "../utils/misc.js";
+import { typespecVersion } from "../manifest.js";
 import { createServer } from "./serverlib.js";
 import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
