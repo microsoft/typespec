@@ -5,7 +5,7 @@
 ```tsp
 @service
 namespace Test;
-@discriminator("kind")
+@discriminated(#{ envelope: "none", discriminatorPropertyName: "kind" })
 union WidgetData {
   kind0: WidgetData0,
   kind1: WidgetData1,
@@ -46,10 +46,8 @@ export function jsonSpreadRecordForDiscriminatedUnionToTransportTransform(
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonRecordWidgetDataToTransportTransform(input_.additionalProperties),
-
     name: input_.name,
   }!;
 }
@@ -62,12 +60,10 @@ export function jsonSpreadRecordForDiscriminatedUnionToApplicationTransform(
   if (!input_) {
     return input_ as any;
   }
-
   return {
     additionalProperties: jsonRecordWidgetDataToApplicationTransform(
       (({ name, ...rest }) => rest)(input_),
     ),
-
     name: input_.name,
   }!;
 }

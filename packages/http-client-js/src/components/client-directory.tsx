@@ -12,13 +12,17 @@ export interface OperationsDirectoryProps {
 export function OperationsDirectory(props: OperationsDirectoryProps) {
   const { topLevel: clients } = useClientLibrary();
   // If it is the root client, we don't need to create a directory
-  return ay.mapJoin(clients, (
-    client,
-  ) => <>
-       <ClientOperations client={client} />
-       <ClientContext client={client} />
-       <SubClients client={client} />
-    </>);
+  return (
+    <ay.For each={clients} joiner="," line>
+      {(client) => (
+        <ay.StatementList>
+          <ClientOperations client={client} />
+          <ClientContext client={client} />
+          <SubClients client={client} />
+        </ay.StatementList>
+      )}
+    </ay.For>
+  );
 }
 
 export interface SubClientsProps {
@@ -28,13 +32,19 @@ export interface SubClientsProps {
 export function SubClients(props: SubClientsProps) {
   const subClients = props.client.subClients;
 
-  return ay.mapJoin(subClients, (subClient) => {
-    const namePolicy = ts.useTSNamePolicy();
-    const subClientName = namePolicy.getName(subClient.name, "variable");
-    return <ay.SourceDirectory path={subClientName}>
-        <ClientOperations client={subClient} />
-        <ClientContext client={subClient} />
-        <SubClients client={subClient} />
-    </ay.SourceDirectory>;
-  });
+  return (
+    <ay.For each={subClients}>
+      {(subClient) => {
+        const namePolicy = ts.useTSNamePolicy();
+        const subClientName = namePolicy.getName(subClient.name, "variable");
+        return (
+          <ay.SourceDirectory path={subClientName}>
+            <ClientOperations client={subClient} />
+            <ClientContext client={subClient} />
+            <SubClients client={subClient} />
+          </ay.SourceDirectory>
+        );
+      }}
+    </ay.For>
+  );
 }
