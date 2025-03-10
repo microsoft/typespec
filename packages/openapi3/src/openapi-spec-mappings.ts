@@ -35,7 +35,6 @@ export interface OpenApiSpecSpecificProps {
     program: Program,
     typespecType: Scalar | ModelProperty,
     target: OpenAPI3Schema,
-    isHeader: boolean,
     options: ResolvedOpenAPI3EmitterOptions,
   ): OpenAPI3Schema & OpenAPISchema3_1;
   createRootDoc: (

@@ -10,7 +10,6 @@ export function applyEncoding(
   typespecType: Scalar | ModelProperty,
   target: OpenAPI3Schema | OpenAPISchema3_1,
   getEncodedFieldName: (typespecType: Scalar | ModelProperty) => string,
-  isHeader: boolean,
   options: ResolvedOpenAPI3EmitterOptions,
 ): OpenAPI3Schema & OpenAPISchema3_1 {
   const encodedFieldName = getEncodedFieldName(typespecType);
@@ -25,7 +24,6 @@ export function applyEncoding(
       targetObject[encodedFieldName],
       encodeData.encoding,
       newType.format,
-      isHeader,
     );
     return targetObject;
   }
@@ -42,7 +40,6 @@ function mergeFormatAndEncoding(
   format: string | undefined,
   encoding: string | undefined,
   encodeAsFormat: string | undefined,
-  isHeader: boolean,
 ): string | undefined {
   switch (format) {
     case undefined:
@@ -55,8 +52,6 @@ function mergeFormatAndEncoding(
           return "unixtime";
         case "rfc7231":
           return "http-date";
-        case undefined:
-          return isHeader ? "http-date": "date-time";
         default:
           return encoding;
       }
