@@ -131,26 +131,7 @@ public class Transformer {
             }
 
             if (client.getOperationGroups() != null) {
-                for (OperationGroup operationGroup : client.getOperationGroups()) {
-                    List<Operation> pagingOperations = new ArrayList<>();
-
-                    operationGroup.setCodeModel(client);
-                    renameMethodGroup(operationGroup);
-                    for (Operation operation : operationGroup.getOperations()) {
-                        operation.setOperationGroup(operationGroup);
-
-                        if (operation.getExtensions() != null && operation.getExtensions().getXmsPageable() != null) {
-                            pagingOperations.add(operation);
-                        }
-                    }
-
-                    // paging
-                    for (Operation operation : pagingOperations) {
-                        if (nonNullNextLink(operation)) {
-                            addPagingNextOperation(client, operation.getOperationGroup(), operation);
-                        }
-                    }
-                }
+                transformOperationGroups(client.getOperationGroups(), client);
             }
 
             if (client.getGlobalParameters() != null) {
@@ -163,7 +144,7 @@ public class Transformer {
         }
     }
 
-    private void transformOperationGroups(List<OperationGroup> operationGroups, CodeModel codeModel) {
+    private void transformOperationGroups(List<OperationGroup> operationGroups, Client codeModel) {
         List<Operation> pagingOperations = new ArrayList<>();
         for (OperationGroup operationGroup : operationGroups) {
             operationGroup.setCodeModel(codeModel);
