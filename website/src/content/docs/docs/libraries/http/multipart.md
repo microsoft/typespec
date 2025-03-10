@@ -50,6 +50,48 @@ By default, the `Content-Type` of individual request parts is set automatically 
 | Complex value or array of complex values | `application/json`         | `HttpPart<Address>`, `HttpPart<Address[]>`                  |
 | `bytes`                                  | `application/octet-stream` | `HttpPart<bytes>`                                           |
 
+## Part names
+
+There is multiple ways to define a part name. The priority is as follows:
+
+1. Explicit name provied in the `HttpPart` options (e.g. `HttpPart<File, #{ name: "avatar" }>`)
+2. Model property name (e.g. `name1: HttpPart<string>;`)
+
+```tsp
+// Part name here is name2
+op create(
+  @header contentType: "multipart/form-data",
+  @multipartBody body: {
+    name1: HttpPart<string, #{ name: "name2" }>;
+  },
+): void;
+```
+
+### Unamed parts
+
+When using `multipart/mixed` parts are not required to be named. Instead of passing a model as the multipart body you can pass a tuple with each part
+
+```tsp
+model Address {
+  street: string;
+  city: string;
+}
+op create(
+  @header contentType: "multipart/mixed",
+  @multipartBody body: [
+    HttpPart<string>,
+    HttpPart<File, #{ name: "avatar" }>,  // An name can also be provided this way
+    HttpPart<Address>,
+    HttpPart<File>[]
+  ],
+): void;
+```
+
+## `HttpPart<Foo>[]` vs `HttpPart<Foo[]>`
+
+- `HttpPart<Foo>[]` Represent multiple parts of type `Foo`
+- `HttpPart<Foo[]>` Represent a single part of type `Foo[]`
+
 ## Examples
 
 ```tsp
@@ -108,43 +150,6 @@ op create(
   @header contentType: "multipart/form-data",
   @multipartBody body: {
     addresses: HttpPart<Address>[];
-  },
-): void;
-```
-
-## Unnamed parts
-
-When using `multipart/mixed` parts are not required to be named. Instead of passing a model as the multipart body you can pass a tuple with each part
-
-```tsp
-model Address {
-  street: string;
-  city: string;
-}
-op create(
-  @header contentType: "multipart/mixed",
-  @multipartBody body: [
-    HttpPart<string>,
-    HttpPart<File, #{ name: "avatar" }>,  // An name can also be provided this way
-    HttpPart<Address>,
-    HttpPart<File>[]
-  ],
-): void;
-```
-
-## Part name priority
-
-As shown above there is multiple ways to define a part name. The priority is as follows:
-
-1. Explicit name provied in the `HttpPart` options (e.g. `HttpPart<File, #{ name: "avatar" }>`)
-2. Model property name (e.g. `name1: HttpPart<string>;`)
-
-```tsp
-// Part name here is name2
-op create(
-  @header contentType: "multipart/form-data",
-  @multipartBody body: {
-    name1: HttpPart<string, #{ name: "name2" }>;
   },
 ): void;
 ```
