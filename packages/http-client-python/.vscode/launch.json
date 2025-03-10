@@ -21,27 +21,13 @@
       "sourceMaps": true
     },
     {
-      "name": "alpha",
-      "request": "launch",
-      "cwd": "${workspaceFolder}",
-      "args": [
-        "compile",
-        "${workspaceFolder}/alpha/main.tsp",
-        "--emit=${workspaceFolder}",
-        "--option=@typespec/http-client-python.flavor=azure"
-      ],
-      "program": "${workspaceFolder}/node_modules/@typespec/compiler/entrypoints/cli.js",
-      "skipFiles": ["<node_internals>/**"],
-      "type": "node",
-      "smartStep": true,
-      "sourceMaps": true
-    },
-    {
       "name": "Python: Attach",
-      "type": "python",
+      "type": "debugpy",
       "request": "attach",
-      "port": 5678,
-      "host": "localhost"
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      }
     }
   ]
 }
