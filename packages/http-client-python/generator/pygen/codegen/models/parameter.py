@@ -85,6 +85,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         self.in_overload: bool = self.yaml_data.get("inOverload", False)
         self.default_to_unset_sentinel: bool = self.yaml_data.get("defaultToUnsetSentinel", False)
         self.hide_in_method: bool = self.yaml_data.get("hideInMethod", False)
+        self.is_continuation_token: bool = bool(self.yaml_data.get("isContinuationToken"))
 
     def get_declaration(self, value: Any = None) -> Any:
         return self.type.get_declaration(value)
