@@ -40,7 +40,6 @@ export function jsonDinosaurToTransportTransform(input_?: Dinosaur | null): any 
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonDinosaurToTransportDiscriminator(input_),
     size: input_.size,
@@ -54,7 +53,6 @@ export function jsonTRexToTransportTransform(input_?: TRex | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     size: input_.size,
@@ -69,7 +67,6 @@ export function jsonDinosaurToApplicationTransform(input_?: any): Dinosaur {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonDinosaurToApplicationDiscriminator(input_),
     size: input_.size,
@@ -83,7 +80,6 @@ export function jsonTRexToApplicationTransform(input_?: any): TRex {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     size: input_.size,

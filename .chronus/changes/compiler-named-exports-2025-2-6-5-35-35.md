@@ -2,7 +2,7 @@
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
 changeKind: internal
 packages:
-  - "@typespec/http-client-python"
+  - "@typespec/compiler"
 ---
 
-[python] add bump for dev version for http-client-python
+Convert all compiler export * to named export

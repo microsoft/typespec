@@ -1,5 +1,4 @@
 import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
-import { getTypeName } from "./helpers/type-name-utils.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
 import type { Program } from "./program.js";
 import {
@@ -63,44 +62,8 @@ export function isIntrinsicType(
   kind: IntrinsicScalarName,
 ): boolean {
   return ignoreDiagnostics(
-    program.checker.isTypeAssignableTo(
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      type.projectionBase ?? type,
-      program.checker.getStdType(kind),
-      type,
-    ),
+    program.checker.isTypeAssignableTo(type, program.checker.getStdType(kind), type),
   );
-}
-
-/**
- * @deprecated this function is deprecated use decorator definition in TypeSpec instead or check assignability directly.
- */
-export function validateDecoratorTargetIntrinsic(
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  decoratorName: string,
-  expectedType: IntrinsicScalarName | IntrinsicScalarName[],
-): boolean {
-  const expectedTypeStrs = typeof expectedType === "string" ? [expectedType] : expectedType;
-  const expectedTypes = expectedTypeStrs.map((x) => context.program.checker.getStdType(x));
-  const type = getPropertyType(target);
-  const isCorrect = expectedTypes.some(
-    (x) => context.program.checker.isTypeAssignableTo(type, x, type)[0],
-  );
-  if (!isCorrect) {
-    context.program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: {
-          decorator: decoratorName,
-          to: `type it is not one of: ${expectedTypeStrs.join(", ")}`,
-        },
-        target: context.decoratorTarget,
-      }),
-    );
-    return false;
-  }
-  return true;
 }
 
 /**
@@ -136,35 +99,6 @@ function getTypeKind(target: TypeSpecValue): Type["kind"] | undefined {
     default:
       return undefined;
   }
-}
-
-/**
- * Validate a decorator parameter has the correct type.
- * @param program Program
- * @param target Decorator target
- * @param value Value of the parameter.
- * @param expectedType Expected type or list of expected type
- * @returns true if the value is of one of the type in the list of expected types. If not emit a diagnostic.
- * @deprecated use @see createDecoratorDefinition#validate instead.
- */
-export function validateDecoratorParamType<K extends Type["kind"]>(
-  program: Program,
-  target: Type,
-  value: TypeSpecValue,
-  expectedType: K | K[],
-): value is InferredTypeSpecValue<K> {
-  if (!isTypeSpecValueTypeOf(value, expectedType)) {
-    reportDiagnostic(program, {
-      code: "invalid-argument",
-      format: {
-        value: prettyValue(program, value),
-        expected: typeof expectedType === "string" ? expectedType : expectedType.join(", "),
-      },
-      target,
-    });
-    return false;
-  }
-  return true;
 }
 
 export interface DecoratorDefinition<
@@ -242,66 +176,6 @@ export interface DecoratorValidator<
 
 export type TypeKind = Type["kind"] | "Any";
 
-/**
- * @deprecated use extern dec definition in TypeSpec instead.
- */
-export function createDecoratorDefinition<
-  T extends TypeKind,
-  P extends readonly DecoratorParamDefinition<TypeKind>[],
-  S extends DecoratorParamDefinition<TypeKind> | undefined,
->(definition: DecoratorDefinition<T, P, S>): DecoratorValidator<T, P, S> {
-  const minParams = definition.args.filter((x) => !x.optional).length;
-  const maxParams = definition.spreadArgs ? undefined : definition.args.length;
-
-  function validate(context: DecoratorContext, target: Type, args: TypeSpecValue[]) {
-    if (
-      !validateDecoratorTarget(context, target, definition.name, definition.target) ||
-      !validateDecoratorParamCount(context, minParams, maxParams, args)
-    ) {
-      return false;
-    }
-
-    for (const [index, arg] of args.entries()) {
-      const paramDefinition = definition.args[index] ?? definition.spreadArgs;
-      if (arg === undefined) {
-        if (!paramDefinition.optional) {
-          reportDiagnostic(context.program, {
-            code: "invalid-argument",
-            format: {
-              value: "undefined",
-              expected: expectedTypeList(paramDefinition.kind as any),
-            },
-            target: context.getArgumentTarget(index)!,
-          });
-          return false;
-        }
-      } else if (!isTypeSpecValueTypeOf(arg, paramDefinition.kind)) {
-        reportDiagnostic(context.program, {
-          code: "invalid-argument",
-          format: {
-            value: prettyValue(context.program, arg),
-            expected: expectedTypeList(paramDefinition.kind as any),
-          },
-          target: context.getArgumentTarget(index)!,
-        });
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  return {
-    validate(context: DecoratorContext, target, parameters) {
-      return validate(context, target as any, parameters as any);
-    },
-  };
-}
-
-function expectedTypeList(expectedType: Type["kind"] | Type["kind"][]) {
-  return typeof expectedType === "string" ? expectedType : expectedType.join(", ");
-}
-
 export function validateDecoratorParamCount(
   context: DecoratorContext,
   min: number,
@@ -340,13 +214,6 @@ export function validateDecoratorParamCount(
     return false;
   }
   return true;
-}
-
-function prettyValue(program: Program, value: any) {
-  if (typeof value === "object" && value !== null && "kind" in value) {
-    return getTypeName(value);
-  }
-  return value;
 }
 
 /**

@@ -3,10 +3,10 @@ import { readdir } from "fs/promises";
 import pc from "picocolors";
 import * as semver from "semver";
 import { CliCompilerHost } from "../core/cli/types.js";
-import { installTypeSpecDependencies } from "../core/install.js";
 import { createDiagnostic } from "../core/messages.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
+import { installTypeSpecDependencies } from "../install/install.js";
 import { MANIFEST } from "../manifest.js";
 import { readUrlOrPath } from "../utils/misc.js";
 import { getTypeSpecCoreTemplates } from "./core-templates.js";
@@ -93,7 +93,12 @@ export async function initTypeSpecProjectWorker(
   if (projectJsonCreated) {
     await action(
       "Installing dependencies",
-      async () => await installTypeSpecDependencies(host, directory, "pipe"),
+      async () =>
+        await installTypeSpecDependencies(host, {
+          directory,
+          stdio: "pipe",
+          savePackageManager: true,
+        }),
     );
   }
 
@@ -317,7 +322,7 @@ async function selectEmitters(template: InitTemplate): Promise<Record<string, Em
           ? `${emitter.label.padEnd(maxLabelLength + 3)} ${pc.dim(`[${name}]`)}`
           : name,
         description: emitter.description,
-        selected: emitter.selected ?? false,
+        checked: emitter.selected ?? false,
       };
     }),
     theme: {

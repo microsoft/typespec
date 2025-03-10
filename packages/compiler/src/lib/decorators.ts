@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
-// TODO: remove after projection removal
 import type {
   DiscriminatedDecorator,
   DiscriminatedOptions,
@@ -26,7 +24,6 @@ import type {
   OpExampleDecorator,
   OverloadDecorator,
   PatternDecorator,
-  ProjectedNameDecorator,
   ReturnsDocDecorator,
   SecretDecorator,
   SummaryDecorator,
@@ -40,20 +37,12 @@ import {
   getPropertyType,
   isIntrinsicType,
   validateDecoratorNotOnType,
+  validateDecoratorUniqueOnNode,
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
-import {
-  Numeric,
-  StdTypeName,
-  compilerAssert,
-  getDiscriminatedUnion,
-  getTypeName,
-  ignoreDiagnostics,
-  isArrayModelType,
-  isValue,
-  reportDeprecated,
-  validateDecoratorUniqueOnNode,
-} from "../core/index.js";
+import { compilerAssert, ignoreDiagnostics, reportDeprecated } from "../core/diagnostics.js";
+import { getDiscriminatedUnion } from "../core/helpers/discriminator-utils.js";
+import { getTypeName } from "../core/helpers/type-name-utils.js";
 import {
   Discriminator,
   DocData,
@@ -78,15 +67,16 @@ import {
   setMinValue,
   setMinValueExclusive,
 } from "../core/intrinsic-type-state.js";
-import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
-import { Program, ProjectedProgram } from "../core/program.js";
+import { reportDiagnostic } from "../core/messages.js";
+import { Numeric } from "../core/numeric.js";
+import { Program } from "../core/program.js";
+import { isArrayModelType, isValue } from "../core/type-utils.js";
 import {
   AugmentDecoratorStatementNode,
   DecoratorContext,
   DecoratorExpressionNode,
   DiagnosticTarget,
   Enum,
-  EnumMember,
   EnumValue,
   Interface,
   Model,
@@ -96,6 +86,7 @@ import {
   ObjectValue,
   Operation,
   Scalar,
+  StdTypeName,
   SyntaxKind,
   Type,
   Union,
@@ -255,17 +246,15 @@ export const $inspectTypeName: InspectTypeNameDecorator = (context, target: Type
   console.log(getTypeName(target));
 };
 
-export function isStringType(program: Program | ProjectedProgram, target: Type): target is Scalar {
-  const coreType = program.checker.getStdType("string");
-  const stringType = target.projector ? target.projector.projectType(coreType) : coreType;
+export function isStringType(program: Program, target: Type): target is Scalar {
+  const stringType = program.checker.getStdType("string");
   return (
     target.kind === "Scalar" && program.checker.isTypeAssignableTo(target, stringType, target)[0]
   );
 }
 
-export function isNumericType(program: Program | ProjectedProgram, target: Type): target is Scalar {
-  const coreType = program.checker.getStdType("numeric");
-  const numericType = target.projector ? target.projector.projectType(coreType) : coreType;
+export function isNumericType(program: Program, target: Type): target is Scalar {
+  const numericType = program.checker.getStdType("numeric");
   return (
     target.kind === "Scalar" && program.checker.isTypeAssignableTo(target, numericType, target)[0]
   );
@@ -731,7 +720,7 @@ function computeEncoding(
       return { encoding: getTypeName(member), type: resolvedEncodeAs };
     }
   } else {
-    const originalType = encodingOrEncodeAs.projectionBase ?? encodingOrEncodeAs;
+    const originalType = encodingOrEncodeAs;
     if (originalType !== strType) {
       reportDiagnostic(program, {
         code: "invalid-encode",
@@ -748,7 +737,7 @@ function computeEncoding(
 function validateEncodeData(context: DecoratorContext, target: Type, encodeData: EncodeData) {
   function check(validTargets: StdTypeName[], validEncodeTypes: StdTypeName[]) {
     const checker = context.program.checker;
-    const isTargetValid = isTypeIn(target.projectionBase ?? target, (type) =>
+    const isTargetValid = isTypeIn(target, (type) =>
       validTargets.some((validTarget) => {
         return ignoreDiagnostics(
           checker.isTypeAssignableTo(type, checker.getStdType(validTarget), target),
@@ -770,16 +759,12 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
     }
     const isEncodingTypeValid = validEncodeTypes.some((validEncoding) => {
       return ignoreDiagnostics(
-        checker.isTypeAssignableTo(
-          encodeData.type.projectionBase ?? encodeData.type,
-          checker.getStdType(validEncoding),
-          target,
-        ),
+        checker.isTypeAssignableTo(encodeData.type, checker.getStdType(validEncoding), target),
       );
     });
 
     if (!isEncodingTypeValid) {
-      const typeName = getTypeName(encodeData.type.projectionBase ?? encodeData.type);
+      const typeName = getTypeName(encodeData.type);
       reportDiagnostic(context.program, {
         code: "invalid-encode",
         messageId: ["unixTimestamp", "seconds"].includes(encodeData.encoding ?? "string")
@@ -880,7 +865,6 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
 ) => {
   // remove all read-only properties from the target type
   target.properties.forEach((p) => {
-    delete p.default;
     delete p.defaultValue;
   });
 };
@@ -977,66 +961,6 @@ export const $friendlyName: FriendlyNameDecorator = (
 
 export { getFriendlyName };
 
-const [getKnownValues, setKnownValues] = useStateMap<Type, Enum>(createStateSymbol("knownValues"));
-
-/**
- * `@knownValues` marks a string type with an enum that contains all known values
- *
- * The first parameter is a reference to an enum type that describes all possible values that the
- * type accepts.
- *
- * `@knownValues` can only be applied to model types that extend `string`.
- *
- * @param target Decorator target. Must be a string. (model Foo extends string)
- * @param knownValues Must be an enum.
- */
-export const $knownValues = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  knownValues: Enum,
-) => {
-  const type = getPropertyType(target);
-  if (!isStringType(context.program, type) && !isNumericType(context.program, type)) {
-    context.program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@knownValues", to: "type, it is  not a string or numeric" },
-        target,
-      }),
-    );
-    return;
-  }
-
-  for (const member of knownValues.members.values()) {
-    const propertyType = getPropertyType(target);
-    if (!isEnumMemberAssignableToType(context.program, propertyType, member)) {
-      reportDiagnostic(context.program, {
-        code: "known-values-invalid-enum",
-        format: {
-          member: member.name,
-          type: getTypeName(propertyType),
-        },
-        target,
-      });
-      return;
-    }
-  }
-  setKnownValues(context.program, target, knownValues);
-};
-
-function isEnumMemberAssignableToType(program: Program, typeName: Type, member: EnumMember) {
-  const memberType = member.value !== undefined ? typeof member.value : "string";
-  switch (memberType) {
-    case "string":
-      return isStringType(program, typeName);
-    case "number":
-      return isNumericType(program, typeName);
-    default:
-      return false;
-  }
-}
-export { getKnownValues };
-
 /**
  * `@key` - mark a model property as the key to identify instances of that type
  *
@@ -1096,15 +1020,15 @@ export const $overload: OverloadDecorator = (
 ) => {
   // Ensure that the overloaded method arguments are a subtype of the original operation.
   const [paramValid, paramDiagnostics] = context.program.checker.isTypeAssignableTo(
-    target.parameters.projectionBase ?? target.parameters,
-    overloadBase.parameters.projectionBase ?? overloadBase.parameters,
+    target.parameters,
+    overloadBase.parameters,
     target,
   );
   if (!paramValid) context.program.reportDiagnostics(paramDiagnostics);
 
   const [returnTypeValid, returnTypeDiagnostics] = context.program.checker.isTypeAssignableTo(
-    target.returnType.projectionBase ?? target.returnType,
-    overloadBase.returnType.projectionBase ?? overloadBase.returnType,
+    target.returnType,
+    overloadBase.returnType,
     target,
   );
   if (!returnTypeValid) context.program.reportDiagnostics(returnTypeDiagnostics);
@@ -1124,26 +1048,8 @@ export const $overload: OverloadDecorator = (
 
 function areOperationsInSameContainer(op1: Operation, op2: Operation): boolean {
   return op1.interface || op2.interface
-    ? equalsWithoutProjection(op1.interface, op2.interface)
+    ? op1.interface === op2.interface
     : op1.namespace === op2.namespace;
-}
-
-// note: because the 'interface' property of Operation types is projected after the
-// type is finalized, the target operation or overloadBase may reference an un-projected
-// interface at the time of decorator execution during projections.  This normalizes
-// the interfaces to their unprojected form before comparison.
-function equalsWithoutProjection(
-  interface1: Interface | undefined,
-  interface2: Interface | undefined,
-): boolean {
-  if (interface1 === undefined || interface2 === undefined) return false;
-  return getBaseInterface(interface1) === getBaseInterface(interface2);
-}
-
-function getBaseInterface(int1: Interface): Interface {
-  return int1.projectionSource === undefined
-    ? int1
-    : getBaseInterface(int1.projectionSource as Interface);
 }
 
 export {
@@ -1163,65 +1069,6 @@ export {
    */
   getOverloads,
 };
-
-const projectedNameKey = createStateSymbol("projectedNameKey");
-
-/**
- * `@projectedName` - Indicate that this entity should be renamed according to the given projection.
- * @param context DecoratorContext
- * @param target The that should have a different name.
- * @param projectionName Name of the projection (e.g. "toJson", "toCSharp")
- * @param projectedName Name of the type should have in the scope of the projection specified.
- */
-export const $projectedName: ProjectedNameDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  projectionName: string,
-  projectedName: string,
-) => {
-  let map: Map<string, string> = context.program.stateMap(projectedNameKey).get(target);
-  if (map === undefined) {
-    map = new Map();
-    context.program.stateMap(projectedNameKey).set(target, map);
-  }
-  map.set(projectionName, projectedName);
-};
-
-/**
- * @param program Program
- * @param target Target
- * @returns Map of the projected names for the given entity.
- */
-export function getProjectedNames(
-  program: Program,
-  target: Type,
-): ReadonlyMap<string, string> | undefined {
-  return program.stateMap(projectedNameKey).get(target);
-}
-
-/**
- * Get the projected name of the given entity for the given projection.
- * @param program Program
- * @param target Target
- * @returns Projected name for the given projection
- */
-export function getProjectedName(
-  program: Program,
-  target: Type,
-  projectionName: string,
-): string | undefined {
-  return getProjectedNames(program, target)?.get(projectionName);
-}
-
-/**
- * Get the projected name of the given entity for the given projection.
- * @param program Program
- * @param target Target
- * @returns Projected name for the given projection
- */
-export function hasProjectedName(program: Program, target: Type, projectionName: string): boolean {
-  return getProjectedNames(program, target)?.has(projectionName) ?? false;
-}
 
 function validateRange(
   context: DecoratorContext,
@@ -1272,6 +1119,7 @@ export const $discriminator: DiscriminatorDecorator = (
       context.decoratorTarget,
     );
     // we can validate discriminator up front for unions. Models are validated in the accessor as we might not have the reference to all derived types at this time.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const [, diagnostics] = getDiscriminatedUnion(entity, discriminator);
     if (diagnostics.length > 0) {
       context.program.reportDiagnostics(diagnostics);
@@ -1304,8 +1152,8 @@ export const $example: ExampleDecorator = (
   );
   compilerAssert(decorator, `Couldn't find @example decorator`, context.decoratorTarget);
   const rawExample = decorator.args[0].value as Value;
-  // skip validation in projections
-  if (target.projectionBase === undefined && Realm.realmForType.get(target) === undefined) {
+  // skip validation in cloned types
+  if (Realm.realmForType.get(target) === undefined) {
     if (
       !checkExampleValid(
         context.program,
@@ -1350,8 +1198,8 @@ export const $opExample: OpExampleDecorator = (
   const parameters = rawExampleConfig.properties.get("parameters")?.value;
   const returnType = rawExampleConfig.properties.get("returnType")?.value;
 
-  // skip validation in projections
-  if (target.projectionBase === undefined && Realm.realmForType.get(target) === undefined) {
+  // skip validation in cloned types
+  if (Realm.realmForType.get(target) === undefined) {
     if (
       parameters &&
       !checkExampleValid(

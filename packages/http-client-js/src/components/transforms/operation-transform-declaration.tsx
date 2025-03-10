@@ -18,9 +18,11 @@ export function getTransformDeclarationRef(operaion: ClientOperation) {
 
 export function TransformDeclaration(props: TransformDeclarationProps) {
   const refkey = props.refkey ?? getTransformDeclarationRef(props.operation);
-  return <>
-    <TransformToTransportDeclaration operation={props.operation} refkey={refkey} />
-  </>;
+  return (
+    <>
+      <TransformToTransportDeclaration operation={props.operation} refkey={refkey} />
+    </>
+  );
 }
 
 export interface SingleBodyTransformDeclarationProps {
@@ -37,9 +39,17 @@ export function SingleBodyTransformDeclaration(props: SingleBodyTransformDeclara
     refkey: inputRef,
   };
 
-  return <ts.FunctionDeclaration export name={props.name} parameters={{payload: payloadParameter}} refkey={props.refkey}>
-    return <JsonTransform itemRef={inputRef} target="transport" type={props.payload.type} />!;
-  </ts.FunctionDeclaration>;
+  return (
+    <ts.FunctionDeclaration
+      export
+      name={props.name}
+      parameters={{ payload: payloadParameter }}
+      refkey={props.refkey}
+    >
+      return <JsonTransform itemRef={inputRef} target="transport" type={props.payload.type} />
+      !;
+    </ts.FunctionDeclaration>
+  );
 }
 
 interface TransformToTransportDeclarationProps {
@@ -60,5 +70,12 @@ function TransformToTransportDeclaration(props: TransformToTransportDeclarationP
     return null;
   }
 
-  return <SingleBodyTransformDeclaration operation={props.operation} payload={requestPayload} refkey={props.refkey} name={name} />;
+  return (
+    <SingleBodyTransformDeclaration
+      operation={props.operation}
+      payload={requestPayload}
+      refkey={props.refkey}
+      name={name}
+    />
+  );
 }

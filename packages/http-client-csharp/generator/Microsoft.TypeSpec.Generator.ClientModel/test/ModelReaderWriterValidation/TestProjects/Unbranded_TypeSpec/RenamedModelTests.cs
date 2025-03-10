@@ -9,14 +9,14 @@ using UnbrandedTypeSpec.Models.Custom;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec
 {
-    internal class ProjectedModelTests : LocalModelJsonTests<ProjectedModelCustom>
+    internal class RenamedModelTests : LocalModelJsonTests<RenamedModelCustom>
     {
         protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ProjectedModel/ProjectedModel.json"));
         protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ProjectedModel/ProjectedModelWireFormat.json"));
-        protected override ProjectedModelCustom ToModel(ClientResult result) => (ProjectedModelCustom)result;
-        protected override BinaryContent ToBinaryContent(ProjectedModelCustom model) => model;
+        protected override RenamedModelCustom ToModel(ClientResult result) => (RenamedModelCustom)result;
+        protected override BinaryContent ToBinaryContent(RenamedModelCustom model) => model;
 
-        protected override void CompareModels(ProjectedModelCustom model, ProjectedModelCustom model2, string format)
+        protected override void CompareModels(RenamedModelCustom model, RenamedModelCustom model2, string format)
         {
             Assert.AreEqual(model.Name, model2.Name);
 
@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             }
         }
 
-        protected override void VerifyModel(ProjectedModelCustom model, string format)
+        protected override void VerifyModel(RenamedModelCustom model, string format)
         {
             Assert.AreEqual("projectedModel", model.Name);
 

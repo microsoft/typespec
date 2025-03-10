@@ -25,7 +25,8 @@ export interface TypeSpecBundleDefinition {
 }
 
 export interface ExportData {
-  default: string;
+  default?: string;
+  import?: string;
   types?: string;
 }
 
@@ -232,7 +233,15 @@ async function generateTypeSpecBundle(
 }
 
 function getExportEntryPoint(value: string | ExportData) {
-  return typeof value === "string" ? value : value.default;
+  const resolved = typeof value === "string" ? value : (value.import ?? value.default);
+
+  if (!resolved) {
+    throw new Error(
+      `Exports ${JSON.stringify(value, null, 2)} is missing import or default entrypoint`,
+    );
+  }
+
+  return resolved;
 }
 async function readLibraryPackageJson(path: string): Promise<PackageJson> {
   const file = await readFile(join(path, "package.json"));
