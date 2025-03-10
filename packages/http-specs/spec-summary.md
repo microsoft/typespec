@@ -3537,17 +3537,17 @@ Verify that the name "with" works. Send this parameter to pass with value `ok`.
 
 Verify that the name "yield" works. Send this parameter to pass with value `ok`.
 
-### Streaming_Jsonl_AsBinary_receive
+### Streaming_Jsonl_Basic_receive
 
-- Endpoint: `get /streaming/jsonl/as-binary/receive`
+- Endpoint: `get /streaming/jsonl/basic/receive`
 
-Jsonl streaming for response as binary.
+Basic jsonl streaming for response.
 
-### Streaming_Jsonl_AsBinary_send
+### Streaming_Jsonl_Basic_send
 
-- Endpoint: `post /streaming/jsonl/as-binary/send`
+- Endpoint: `post /streaming/jsonl/basic/send`
 
-Jsonl streaming for request as binary.
+Basic jsonl streaming for request.
 
 ### Type_Array_BooleanValue_get
 
