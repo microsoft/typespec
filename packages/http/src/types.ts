@@ -13,15 +13,7 @@ import {
 import { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
 import { HeaderProperty, HttpProperty } from "./http-property.js";
 
-/**
- * @deprecated use `HttpOperation`. To remove in November 2022 release.
- */
-export type OperationDetails = HttpOperation;
-
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
-
-/** @deprecated use Authentication */
-export type ServiceAuthentication = Authentication;
 
 export interface Authentication {
   /**
@@ -303,13 +295,6 @@ export interface HeaderFieldOptions {
    *
    */
   explode?: boolean;
-
-  /**
-   * The string format of the array. "csv" and "simple" are used interchangeably, as are
-   * "multi" and "form".
-   * @deprecated use explode and `@encode` decorator instead.
-   */
-  format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
 export interface CookieParameterOptions extends Required<CookieOptions> {
@@ -317,12 +302,8 @@ export interface CookieParameterOptions extends Required<CookieOptions> {
   name: string;
 }
 
-export interface QueryParameterOptions extends Required<Omit<QueryOptions, "format">> {
+export interface QueryParameterOptions extends Required<QueryOptions> {
   type: "query";
-  /**
-   * @deprecated use explode and `@encode` decorator instead.
-   */
-  format?: "csv" | "multi" | "ssv" | "tsv" | "pipes" | "simple" | "form";
 }
 
 export interface PathParameterOptions extends Required<PathOptions> {
@@ -348,15 +329,6 @@ export type HttpOperationPathParameter = PathParameterOptions & {
   param: ModelProperty;
 };
 
-/**
- * @deprecated use {@link HttpOperationBody}
- */
-export type HttpOperationRequestBody = HttpOperationBody;
-/**
- * @deprecated use {@link HttpOperationBody}
- */
-export type HttpOperationResponseBody = HttpOperationBody;
-
 export interface HttpOperationParameters {
   /** Http properties */
   readonly properties: HttpProperty[];
@@ -364,11 +336,6 @@ export interface HttpOperationParameters {
   parameters: HttpOperationParameter[];
 
   body?: HttpOperationBody | HttpOperationMultipartBody;
-
-  /** @deprecated use {@link body.type} */
-  bodyType?: Type;
-  /** @deprecated use {@link body.parameter} */
-  bodyParameter?: ModelProperty;
 
   /**
    * @internal
@@ -399,12 +366,6 @@ export interface HttpOperation {
    * Not recommended use {@link uriTemplate} instead. This will not work for complex cases like not-escaping reserved chars.
    */
   path: string;
-
-  /**
-   * Path segments
-   * @deprecated use {@link uriTemplate} instead
-   */
-  pathSegments: string[];
 
   /**
    * Route verb.
@@ -453,10 +414,6 @@ export interface RoutePath {
 }
 
 export interface HttpOperationResponse {
-  /** @deprecated use {@link statusCodes} */
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  statusCode: StatusCode;
-
   /**
    * Status code or range of status code for the response.
    */
@@ -503,11 +460,6 @@ export interface HttpBody {
   readonly containsMetadataAnnotations: boolean;
 
   /**
-   * @deprecated use {@link property}
-   */
-  parameter?: ModelProperty;
-
-  /**
    * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
    */
   readonly property?: ModelProperty;
@@ -546,11 +498,6 @@ export interface HttpStatusCodeRange {
   start: number;
   end: number;
 }
-
-/**
- * @deprecated Use `HttpStatusCodesEntry` instead.
- */
-export type StatusCode = `${number}` | "*";
 
 export type HttpStatusCodesEntry = HttpStatusCodeRange | number | "*";
 export type HttpStatusCodes = HttpStatusCodesEntry[];

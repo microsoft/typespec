@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
-    "build": "tsc -p ./tsconfig.build.json",
+    "build": "tsc -p ./tsconfig.build.json && pnpm validate-scenarios",
     "clean": "rimraf dist/ temp/",
-    "test:e2e": "pnpm validate-scenarios  && pnpm validate-mock-apis && pnpm validate-client-server",
+    "test:e2e": "pnpm validate-mock-apis && pnpm validate-client-server",
     "validate:all": "pnpm build && pnpm regen-docs && pnpm test:e2e",
     "ci": "prettier specs --write && pnpm validate:all",
     "validate-scenarios": "tsp-spector validate-scenarios ./specs",

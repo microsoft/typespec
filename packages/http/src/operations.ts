@@ -105,17 +105,6 @@ export function getHttpService(
   return diagnostics.wrap(service);
 }
 
-/**
- * @deprecated use `getAllHttpServices` instead
- */
-export function getAllRoutes(
-  program: Program,
-  options?: RouteResolutionOptions,
-): [HttpOperation[], readonly Diagnostic[]] {
-  const [services, diagnostics] = getAllHttpServices(program, options);
-  return [services[0].operations, diagnostics];
-}
-
 export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
   if (routes.length === 0) {
     navigateProgram(program, {
@@ -217,7 +206,6 @@ function getHttpOperationInternal(
   const httpOperation: HttpOperation = {
     path: route.path,
     uriTemplate: route.uriTemplate,
-    pathSegments: [],
     verb: route.parameters.verb,
     container: operation.interface ?? operation.namespace ?? program.getGlobalNamespaceType(),
     parameters: route.parameters,

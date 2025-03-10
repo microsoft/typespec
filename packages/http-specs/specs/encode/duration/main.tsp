@@ -274,8 +274,7 @@ namespace Header {
     Expected header `duration: [P40D,P50D]`
     """)
   op iso8601Array(
-    #suppress "deprecated" "Deprecated in next release"
-    @header(#{ format: "csv" })
+    @header
     duration: Iso8601Duration[],
   ): NoContentResponse;
 

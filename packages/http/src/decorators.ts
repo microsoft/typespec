@@ -15,8 +15,6 @@ import {
   createDiagnosticCollector,
   getDoc,
   ignoreDiagnostics,
-  isArrayModelType,
-  reportDeprecated,
   typespecTypeToJson,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
@@ -81,26 +79,6 @@ export const $header: HeaderDecorator = (
       const name = headerNameOrOptions.name;
       if (name) {
         options.name = name;
-      }
-      const format = headerNameOrOptions.format;
-      if (format) {
-        reportDeprecated(
-          context.program,
-          "The `format` option of `@header` decorator is deprecated. Use `explode: true` instead of `form` and `multi`. `csv` or `simple` is the default now.",
-          entity,
-        );
-        if (
-          format === "csv" ||
-          format === "tsv" ||
-          format === "pipes" ||
-          format === "ssv" ||
-          format === "simple" ||
-          format === "form" ||
-          format === "multi"
-        ) {
-          // eslint-disable-next-line @typescript-eslint/no-deprecated
-          options.format = format;
-        }
       }
       if (headerNameOrOptions.explode) {
         options.explode = true;
@@ -174,30 +152,13 @@ export const $query: QueryDecorator = (
       : (queryNameOrOptions?.name ?? entity.name);
   const userOptions: QueryOptions =
     typeof queryNameOrOptions === "object" ? queryNameOrOptions : {};
-  if (userOptions.format) {
-    reportDeprecated(
-      context.program,
-      "The `format` option of `@query` decorator is deprecated. Use `explode: true` instead of `form` and `multi`. `csv` or `simple` is the default now.",
-      entity,
-    );
-  }
+
   const options: QueryParameterOptions = {
     type: "query",
-    explode:
-      userOptions.explode ?? (userOptions.format === "multi" || userOptions.format === "form"),
-    format: userOptions.format,
+    explode: userOptions.explode?.valueOf() ?? false,
     name: paramName,
   };
 
-  if (
-    entity.type.kind === "Model" &&
-    isArrayModelType(context.program, entity.type) &&
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    options.format === undefined
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    options.format = userOptions.explode ? "multi" : "csv";
-  }
   context.program.stateMap(HttpStateKeys.query).set(entity, options);
 };
 
@@ -721,25 +682,9 @@ export const $route: RouteDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, entity, $route);
 
-  // Handle the deprecated `shared` option
-  let shared = false;
-  const sharedValue = (parameters as Model)?.properties.get("shared")?.type;
-  if (sharedValue !== undefined) {
-    reportDeprecated(
-      context.program,
-      "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
-      entity,
-    );
-
-    // The type checker should have raised a diagnostic if the value isn't boolean
-    if (sharedValue.kind === "Boolean") {
-      shared = sharedValue.value;
-    }
-  }
-
   setRoute(context, entity, {
     path,
-    shared,
+    shared: false,
   });
 };
 
