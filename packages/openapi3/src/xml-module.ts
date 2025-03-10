@@ -140,7 +140,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
         }
       }
 
-      if (!isArrayProperty && !refSchema.type && !isAttribute) {
+      if (!isArrayProperty && !refSchema.type && !xmlObject.attribute) {
         emitObject.allOf = new ArrayBuilder();
         emitObject.allOf.push(refSchema);
         xmlObject.name = xmlName;
