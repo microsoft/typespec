@@ -110,7 +110,7 @@ model TypeSpec.Http.BasicAuth
 | Name   | Type                          | Description         |
 | ------ | ----------------------------- | ------------------- |
 | type   | `TypeSpec.Http.AuthType.http` | Http authentication |
-| scheme | `"basic"`                     | basic auth scheme   |
+| scheme | `"Basic"`                     | basic auth scheme   |
 
 ### `BearerAuth` {#TypeSpec.Http.BearerAuth}
 
@@ -131,7 +131,7 @@ model TypeSpec.Http.BearerAuth
 | Name   | Type                          | Description         |
 | ------ | ----------------------------- | ------------------- |
 | type   | `TypeSpec.Http.AuthType.http` | Http authentication |
-| scheme | `"bearer"`                    | bearer auth scheme  |
+| scheme | `"Bearer"`                    | bearer auth scheme  |
 
 ### `Body` {#TypeSpec.Http.Body}
 

@@ -70,7 +70,7 @@ export interface HttpAuthBase {
  */
 export interface BasicAuth extends HttpAuthBase {
   type: "http";
-  scheme: "basic";
+  scheme: "Basic";
 }
 
 /**
@@ -83,7 +83,7 @@ export interface BasicAuth extends HttpAuthBase {
  */
 export interface BearerAuth extends HttpAuthBase {
   type: "http";
-  scheme: "bearer";
+  scheme: "Bearer";
 }
 
 type ApiKeyLocation = "header" | "query" | "cookie";

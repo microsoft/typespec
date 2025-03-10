@@ -40,7 +40,7 @@ components:
   securitySchemes:
     BearerAuth:
       type: http
-      scheme: bearer
+      scheme: Bearer
     OAuth2Auth:
       type: oauth2
       flows:
