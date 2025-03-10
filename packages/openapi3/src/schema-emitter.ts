@@ -782,6 +782,7 @@ export class OpenAPI3SchemaEmitterBase<
       switch (type.kind) {
         case "Scalar":
         case "Model":
+        case "Enum":
           this._xmlModule.attachXmlObjectForScalarOrModel(program, type, schema);
           break;
         case "ModelProperty":

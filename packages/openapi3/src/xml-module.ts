@@ -1,5 +1,6 @@
 import {
   ArrayModelType,
+  Enum,
   Model,
   ModelProperty,
   Program,
@@ -15,7 +16,7 @@ import { OpenAPI3Schema, OpenAPI3XmlSchema, OpenAPISchema3_1 } from "./types.js"
 export interface XmlModule {
   attachXmlObjectForScalarOrModel(
     program: Program,
-    type: Scalar | Model,
+    type: Scalar | Model | Enum,
     emitObject: OpenAPI3Schema | OpenAPISchema3_1,
   ): void;
 
@@ -35,7 +36,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
   return {
     attachXmlObjectForScalarOrModel: (
       program: Program,
-      type: Scalar | Model,
+      type: Scalar | Model | Enum,
       emitObject: OpenAPI3Schema | OpenAPISchema3_1,
     ) => {
       const isXmlModel = isXmlModelChecker(program, type, []);
@@ -140,10 +141,15 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
         }
       }
 
-      if (!isArrayProperty && !refSchema.type && !xmlObject.attribute) {
+      if (!isArrayProperty && !refSchema.type && !isAttribute) {
+        xmlObject.name = xmlName;
         emitObject.allOf = new ArrayBuilder();
         emitObject.allOf.push(refSchema);
-        xmlObject.name = xmlName;
+      }
+
+      if (isAttribute && !refSchema.type && prop.type?.kind === "Enum") {
+        emitObject.allOf = new ArrayBuilder();
+        emitObject.allOf.push(refSchema);
       }
 
       if (isArrayProperty && hasUnwrappedDecorator) {
@@ -161,7 +167,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
 
 function isXmlModelChecker(
   program: Program,
-  model: Scalar | Model | ModelProperty,
+  model: Scalar | Model | ModelProperty | Enum,
   checked: string[],
 ): boolean {
   if (model.decorators && model.decorators.some((d) => d.definition?.namespace.name === "Xml")) {

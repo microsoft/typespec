@@ -1204,4 +1204,37 @@ worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
       deepStrictEqual(res?.schemas, expected);
     });
   });
+
+  it("set xml.name and attribute for Enum schema", async () => {
+    const res = await oapiForModel(
+      "Book",
+      `
+      model Book {       
+        @attribute
+        @name("xmlStatus")
+        status: EnumStatus;
+      };
+      enum EnumStatus {
+        Active,
+        Inactive,
+      };`,
+    );
+
+    deepStrictEqual(res.schemas, {
+      Book: {
+        properties: {
+          status: {
+            allOf: [{ $ref: "#/components/schemas/EnumStatus" }],
+            xml: { attribute: true, name: "xmlStatus" },
+          },
+        },
+        required: ["status"],
+        type: "object",
+      },
+      EnumStatus: {
+        enum: ["Active", "Inactive"],
+        type: "string",
+      },
+    });
+  });
 });
