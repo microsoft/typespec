@@ -19,7 +19,7 @@ import {
   compilerAssert,
   explainStringTemplateNotSerializable,
   getDeprecated,
-  getDiscriminatedUnion,
+  getDiscriminatedUnionFromInheritance,
   getDiscriminator,
   getDoc,
   getEncode,
@@ -147,7 +147,7 @@ export class OpenAPI3SchemaEmitterBase<
     return patch;
   }
 
-  applyDiscriminator(type: Union | Model, schema: Schema): void {
+  applyDiscriminator(type: Model, schema: Schema): void {
     const program = this.emitter.getProgram();
     const discriminator = getDiscriminator(program, type);
     if (discriminator) {
@@ -155,9 +155,7 @@ export class OpenAPI3SchemaEmitterBase<
       // with the discriminator field present.
       schema.discriminator = { ...discriminator };
       const discriminatedUnion = ignoreDiagnostics(
-        // TODO: get rid of before 1.0-rc
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
-        getDiscriminatedUnion(type, discriminator),
+        getDiscriminatedUnionFromInheritance(type, discriminator),
       );
       if (discriminatedUnion.variants.size > 0) {
         schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion.variants);
