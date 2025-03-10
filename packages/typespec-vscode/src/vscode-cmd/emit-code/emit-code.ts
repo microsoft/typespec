@@ -645,7 +645,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
           const selectedItems = await vscode.window.showQuickPick(existingEmitterQuickPickItems, {
             title: "Generate from TypeSpec",
             canPickMany: true,
-            placeHolder: "Select emitters for code emitting",
+            placeHolder: "Select emitters",
             ignoreFocusOut: true,
           });
           if (selectedItems) {
