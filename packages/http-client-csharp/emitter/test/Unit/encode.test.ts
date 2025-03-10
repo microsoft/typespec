@@ -30,7 +30,7 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
+    const inputParamArray = root.Clients[0].operations[0].Parameters.filter(
       (p) => p.Name === "input",
     );
     strictEqual(1, inputParamArray.length);
@@ -59,7 +59,7 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
+    const inputParamArray = root.Clients[0].operations[0].Parameters.filter(
       (p) => p.Name === "input",
     );
     strictEqual(1, inputParamArray.length);
@@ -88,7 +88,7 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
+    const inputParamArray = root.Clients[0].operations[0].Parameters.filter(
       (p) => p.Name === "input",
     );
     strictEqual(1, inputParamArray.length);

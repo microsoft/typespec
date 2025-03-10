@@ -30,9 +30,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                 reader.Read();
             }
 
-            var invalidNamespaceSegments = new List<string>();
-            resolver.AddReference(TypeSpecSerialization.InvalidNamespaceSegmentsKey, invalidNamespaceSegments);
-
             string? name = null;
             IReadOnlyList<string>? apiVersions = null;
             IReadOnlyList<InputEnumType>? enums = null;
@@ -66,8 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 enums,
                 models,
                 clients,
-                auth,
-                invalidNamespaceSegments);
+                auth);
         }
     }
 }
