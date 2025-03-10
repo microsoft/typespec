@@ -156,26 +156,6 @@ function getUriTemplateAndParameters(
   ];
 }
 
-/**
- * @deprecated DO NOT USE. For internal use only as a workaround.
- * @param program Program
- * @param target Target namespace
- * @param sourceInterface Interface that should be included in namespace.
- */
-export function includeInterfaceRoutesInNamespace(
-  program: Program,
-  target: Namespace,
-  sourceInterface: string,
-) {
-  let array = program.stateMap(HttpStateKeys.externalInterfaces).get(target);
-  if (array === undefined) {
-    array = [];
-    program.stateMap(HttpStateKeys.externalInterfaces).set(target, array);
-  }
-
-  array.push(sourceInterface);
-}
-
 export function DefaultRouteProducer(
   program: Program,
   operation: Operation,
