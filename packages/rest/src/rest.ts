@@ -111,6 +111,7 @@ function autoRouteProducer(
   const routePath = getRoutePath(program, operation)?.path;
   const segments = [...parentSegments, ...(routePath ? [routePath] : [])];
   const filteredParameters: HttpOperationParameter[] = [];
+  const filteredParamProperties = new Set<ModelProperty>();
   const paramOptions = {
     ...(options?.paramOptions ?? {}),
     verbSelector: getResourceOperationHttpVerb,
@@ -146,10 +147,21 @@ function autoRouteProducer(
 
     // Push all usable parameters to the filtered list
     filteredParameters.push(httpParam);
+    filteredParamProperties.add(httpParam.param);
   }
 
   // Replace the original parameters with filtered set
   parameters.parameters = filteredParameters;
+  // Remove any header/query/path/cookie properties that aren't in the filtered list
+  for (let i = parameters.properties.length - 1; i >= 0; i--) {
+    const httpProp = parameters.properties[i];
+    if (!["header", "query", "path", "cookie"].includes(httpProp.kind)) {
+      continue;
+    }
+    if (!filteredParamProperties.has(httpProp.property)) {
+      parameters.properties.splice(i, 1);
+    }
+  }
 
   // Add the operation's own segment if present
   addSegmentFragment(program, operation, segments);

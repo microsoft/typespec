@@ -2,7 +2,6 @@ import { Children, code, For, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   Discriminator,
-  getDiscriminatedUnion,
   Model,
   ModelProperty,
   RekeyableMap,
@@ -57,7 +56,13 @@ interface DiscriminateExpressionProps {
 }
 
 function DiscriminateExpression(props: DiscriminateExpressionProps) {
-  const [discriminatedUnion] = getDiscriminatedUnion(props.type, props.discriminator)!;
+  const discriminatedUnion = $.model.is(props.type)
+    ? $.model.getDiscriminatedUnion(props.type)
+    : $.union.getDiscriminatedUnion(props.type);
+
+  if (!discriminatedUnion) {
+    return code`return item as any`;
+  }
 
   const discriminatorRef = `item.${props.discriminator.propertyName}`;
 
@@ -66,8 +71,10 @@ function DiscriminateExpression(props: DiscriminateExpressionProps) {
   return item as any;
   `;
 
+  const variants: Map<string, Type> = discriminatedUnion.variants;
+
   return (
-    <For each={discriminatedUnion.variants} ender={unhandledVariant}>
+    <For each={variants} ender={unhandledVariant}>
       {(name, variant) => {
         return code`
       if( ${discriminatorRef} === ${JSON.stringify(name)}) {
@@ -331,7 +338,7 @@ function needsTransform(type: Type): boolean {
 /**
  * This component represents a function call to transform a type
  */
-export function TypeTransformCall(props: TypeTransformCallProps) {
+export function TypeTransformCall(props: TypeTransformCallProps): Children {
   const collapsedProperty = getCollapsedProperty(props.type, props.collapse ?? false);
   const itemPath = collapsedProperty
     ? [...(props.itemPath ?? []), collapsedProperty.name]
