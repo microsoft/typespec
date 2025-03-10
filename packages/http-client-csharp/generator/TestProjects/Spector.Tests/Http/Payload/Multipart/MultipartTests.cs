@@ -87,7 +87,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             // get the content type
             var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType"));
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
             var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(BinaryContent.Create(serialized), contentType.ToString());
@@ -108,7 +108,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             // get the content type
             var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType"));
             using var customStream = new MemoryStream();
-            ModelReaderWriter.Write(request, customStream, ModelSerializationExtensions.WireOptions);
+            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
 
             var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(BinaryContent.Create(customStream), contentType.ToString());
 
@@ -158,7 +158,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task CheckFileNameAndContentTypeConvUsingBinaryData() => Test(async (host) =>
         {
             var id = "123";
@@ -237,7 +237,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             var request = new ComplexPartsRequest(id, address, profileImage, pictures);
             using MemoryStream customStream = new();
-            ModelReaderWriter.Write(request, customStream, ModelSerializationExtensions.WireOptions);
+            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
 
             var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
 
@@ -301,7 +301,6 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
 
-            using MultiPartFormDataBinaryContent contentWithContentType = new MultiPartFormDataBinaryContent();
             await using var imageStream2 = File.OpenRead(SampleJpgPath);
             var profileImage2 = new FileOptionalContentType(imageStream2, "hello.jpg", "application/octet-stream");
             request = new FileWithHttpPartOptionalContentTypeRequest(profileImage2);
@@ -379,7 +378,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var request = new FileWithHttpPartRequiredContentTypeRequest(profileImage);
 
             using var customStream = new MemoryStream();
-            ModelReaderWriter.Write(request, customStream, ModelSerializationExtensions.WireOptions);
+            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
             var contentType = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
 
             var response = await new MultiPartClient(host, null).GetFormDataClient()
@@ -440,7 +439,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
 
             var request = new ComplexHttpPartsModelRequest(id, address1, profileImage, previousAddresses, pictures);
             using var customStream = new MemoryStream();
-            ModelReaderWriter.Write(request, customStream, ModelSerializationExtensions.WireOptions);
+            ModelReaderWriter.Write(request, customStream, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(customStream);
         });
@@ -514,7 +513,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task AnonymousModelConvUsingBinaryData() => Test(async (host) =>
         {
             await using var imageStream = File.OpenRead(SampleJpgPath);
@@ -531,7 +530,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         [SpectorTest]
         public Task MultiBinaryPartsWithPictureConv()
             => MultiBinaryPartsConv(true);
-        [CadlRanchTest]
+        [SpectorTest]
         public Task MultiBinaryPartsWithPictureConvUsingBinaryData()
             => MultiBinaryPartsConvUsingBinaryData(true);
 
@@ -543,7 +542,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         public Task MultiBinaryPartsWithoutPictureConv()
             => MultiBinaryPartsConv(false);
 
-        [CadlRanchTest]
+        [SpectorTest]
         public Task MultiBinaryPartsWithoutPictureConvUsingBinaryData()
             => MultiBinaryPartsConvUsingBinaryData(false);
 
@@ -556,7 +555,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             await using var imageStream2 = File.OpenRead(SamplePngPath);
             var picture = new MultiPartFile(imageStream2, "picture.jpg");
             var request = new MultiBinaryPartsRequest(profileImage);
-            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+            var serialized = ModelReaderWriter.Write(request, new ModelReaderWriterOptions("W"));
 
             Assert.IsNotNull(serialized);
         });
