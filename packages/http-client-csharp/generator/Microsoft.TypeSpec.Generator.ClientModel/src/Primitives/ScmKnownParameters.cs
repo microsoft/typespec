@@ -58,5 +58,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
         };
 
         public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string), wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, false, false, false, "Content-Type"));
+
+        public static readonly ParameterProvider Endpoint =
+            new ParameterProvider("endpoint", FormattableStringHelpers.Empty, typeof(Uri));
     }
 }
