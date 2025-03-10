@@ -118,7 +118,6 @@ function fromSdkClient(
         NameInRequest: parameter.serializedName,
         Summary: parameter.summary,
         Doc: parameter.doc,
-        // TODO: we should do the magic in generator
         Type: parameterType,
         Location: RequestLocation.Uri,
         IsApiVersion: parameter.isApiVersionParam,
