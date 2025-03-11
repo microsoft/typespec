@@ -1441,7 +1441,8 @@ export class CodeModelBuilder {
 
     // group ETag header parameters, if exists
     if (this.options["group-etag-headers"]) {
-      // TODO: unsure what happens, if the etag headers is already processed by override
+      // the etag headers would be re-grouped, if they are already processed by override
+      // this may not be the expected behavior
       this.processEtagHeaderParameters(op, httpOperation);
     }
   }
@@ -1688,32 +1689,42 @@ export class CodeModelBuilder {
       }
 
       if (groupToRequestConditions || groupToMatchConditions) {
-        op.convenienceApi.requests = [];
-        const request = new Request({
-          protocol: op.requests![0].protocol,
-        });
+        // method be called, only if "op.convenienceApi"
+        let request = op.convenienceApi?.requests?.[0];
+        let requestParameters: Parameter[];
+        let requestSignatureParameters: Parameter[];
+        if (request) {
+          requestParameters = request.parameters!;
+          requestSignatureParameters = request.signatureParameters!;
+        } else {
+          op.convenienceApi!.requests = [];
+          request = new Request({
+            protocol: op.requests![0].protocol,
+          });
+          op.convenienceApi!.requests.push(request);
+
+          requestParameters = op.parameters!;
+          requestSignatureParameters = op.signatureParameters!;
+        }
         request.parameters = [];
         request.signatureParameters = [];
-        op.convenienceApi.requests.push(request);
 
-        for (const parameter of op.parameters) {
+        for (const parameter of requestParameters) {
           // copy all parameters to request
-          const clonedParameter = cloneOperationParameter(parameter);
-          request.parameters.push(clonedParameter);
+          request.parameters.push(parameter);
 
           // copy signatureParameters, but exclude etag headers (as they won't be in method signature)
           if (
-            op.signatureParameters.includes(parameter) &&
+            requestSignatureParameters.includes(parameter) &&
             !(
               parameter.language.default.serializedName &&
               etagHeaders.includes(parameter.language.default.serializedName)
             )
           ) {
-            request.signatureParameters.push(clonedParameter);
+            request.signatureParameters.push(parameter);
           }
         }
 
-        const namespace = getNamespace(httpOperation.__raw.operation); // TODO: SdkHttpOperation does not have namespace
         const schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
         const schemaDescription = groupToRequestConditions
           ? "Specifies HTTP options for conditional requests based on modification time."
@@ -1724,7 +1735,7 @@ export class CodeModelBuilder {
           new GroupSchema(schemaName, schemaDescription, {
             language: {
               default: {
-                namespace: namespace,
+                namespace: this.namespace,
               },
               java: {
                 namespace: "com.azure.core.http",
@@ -1758,6 +1769,20 @@ export class CodeModelBuilder {
             parameter.language.default.serializedName &&
             etagHeaders.includes(parameter.language.default.serializedName)
           ) {
+            if (parameter.groupedBy) {
+              // remove etag header from its original groupBy schema
+              if (
+                parameter.groupedBy.schema instanceof GroupSchema &&
+                parameter.groupedBy.schema.properties
+              ) {
+                parameter.groupedBy.schema.properties =
+                  parameter.groupedBy.schema.properties.filter(
+                    (p) => p.serializedName !== parameter.language.default.serializedName,
+                  );
+              }
+            }
+
+            // add it to RequestConditions or MatchConditions
             parameter.groupedBy = requestConditionsParameter;
 
             requestConditionsSchema.add(
