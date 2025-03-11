@@ -79,7 +79,6 @@ describe("Next link operations", () => {
     strictEqual(paging.NextLink?.ResponseSegments[0], "next");
   });
 
-
   // skipped until https://github.com/Azure/typespec-azure/issues/2287 is fixed
   it.skip("next link with nested property", async () => {
     const program = await typeSpecCompile(
