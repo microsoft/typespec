@@ -1,6 +1,6 @@
 import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-import { readFile, realpath, stat } from "fs/promises";
+import { mkdtemp, readdir, readFile, realpath, stat } from "fs/promises";
 import { tmpdir } from "os";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";

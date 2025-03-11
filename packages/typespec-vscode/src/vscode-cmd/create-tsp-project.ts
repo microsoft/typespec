@@ -7,7 +7,7 @@ import {
   InitTemplateSchema,
   NodeSystemHost,
   scaffoldNewProject,
-} from "@typespec/compiler/internals/init";
+} from "@typespec/compiler/internals";
 import { Ajv } from "ajv";
 import * as semver from "semver";
 import { inspect } from "util";

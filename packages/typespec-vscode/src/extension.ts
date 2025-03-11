@@ -1,3 +1,7 @@
+// import "./pre-extension-activate" first for the code that needs to run before others
+// sort-imports-ignore
+import "./pre-extension-activate.js";
+
 import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";

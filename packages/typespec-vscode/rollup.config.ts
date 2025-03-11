@@ -3,8 +3,8 @@ import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import { dirname } from "path";
-import copy from "rollup-plugin-copy";
 import { defineConfig } from "rollup";
+import copy from "rollup-plugin-copy";
 import { fileURLToPath } from "url";
 
 const projDir = dirname(fileURLToPath(import.meta.url));
@@ -46,7 +46,7 @@ export default defineConfig([
     plugins: [
       ...plugins,
       ts("dist/src"),
-      copy({
+      (copy as any)({
         targets: [
           { src: "node_modules/swagger-ui-dist/swagger-ui.css", dest: "dist" },
           { src: "node_modules/swagger-ui-dist/swagger-ui-bundle.js", dest: "dist" },
