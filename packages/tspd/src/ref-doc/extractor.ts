@@ -80,6 +80,10 @@ type Mutable<T> =
   // brand to force explicit conversion.
   { -readonly [P in keyof T]: T[P]};
 
+function getExport(pkgJson: PackageJson, path: string, condition: string) {
+  return (pkgJson as any).exports?.[path]?.[condition];
+}
+
 export async function extractLibraryRefDocs(
   libraryPath: string,
 ): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
@@ -92,8 +96,9 @@ export async function extractLibraryRefDocs(
     namespaces: [],
     getNamedTypeRefDoc: (type) => undefined,
   };
-  if (pkgJson.tspMain) {
-    const main = resolvePath(libraryPath, pkgJson.tspMain);
+  const tspMain = getExport(pkgJson, ".", "typespec");
+  if (tspMain) {
+    const main = resolvePath(libraryPath, tspMain);
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
@@ -104,8 +109,9 @@ export async function extractLibraryRefDocs(
     }
   }
 
-  if (pkgJson.main) {
-    const entrypoint = await import(pathToFileURL(resolvePath(libraryPath, pkgJson.main)).href);
+  const main = getExport(pkgJson, ".", "import") ?? getExport(pkgJson, ".", "default");
+  if (main) {
+    const entrypoint = await import(pathToFileURL(resolvePath(libraryPath, main)).href);
     const lib: TypeSpecLibrary<any> | undefined = entrypoint.$lib;
     if (lib?.emitter?.options) {
       refDoc.emitter = {

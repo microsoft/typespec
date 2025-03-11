@@ -751,6 +751,9 @@ importers:
       '@typespec/ts-http-runtime':
         specifier: 0.1.0
         version: 0.1.0
+      '@typespec/tspd':
+        specifier: workspace:^
+        version: link:../tspd
       '@typespec/versioning':
         specifier: workspace:^
         version: link:../versioning
