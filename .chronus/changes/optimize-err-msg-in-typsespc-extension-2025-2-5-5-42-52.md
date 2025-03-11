@@ -6,4 +6,4 @@ packages:
   - typespec-vscode
 ---
 
-Optimize error message in typespec-vscode and typespec-vs extension
+Add missing node to list of suggestion when tsp server cannot start
