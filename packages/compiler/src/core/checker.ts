@@ -12,11 +12,10 @@ import {
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
-import { legacyMarshallTypeForJS, marshallTypeForJS } from "./js-marshaller.js";
+import { marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
@@ -4831,23 +4830,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       args,
     };
   }
-
-  function resolveDecoratorArgMarshalling(declaredType: Decorator | undefined): "new" | "legacy" {
-    if (declaredType) {
-      const location = getLocationContext(program, declaredType);
-      if (location.type === "compiler") {
-        return "new";
-      } else if (
-        (location.type === "library" || location.type === "project") &&
-        location.flags?.decoratorArgMarshalling
-      ) {
-        return location.flags.decoratorArgMarshalling;
-      } else {
-        return "new";
-      }
-    }
-    return "new";
-  }
   /** Check the decorator target is valid */
 
   function checkDecoratorTarget(targetType: Type, declaration: Decorator, decoratorNode: Node) {
@@ -4935,7 +4917,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const resolvedArgs: DecoratorArgument[] = [];
-    const jsMarshalling = resolveDecoratorArgMarshalling(declaration);
     function resolveArg(
       argNode: Expression,
       perParamType: MixedParameterConstraint,
@@ -4959,7 +4940,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
               kind: "argument",
               constraint: perParamType,
             }),
-            jsMarshalling,
           ),
         };
       } else {
@@ -5036,13 +5016,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function resolveDecoratorArgJsValue(
     value: Type | Value,
     valueConstraint: CheckValueConstraint | undefined,
-    jsMarshalling: "legacy" | "new",
   ) {
     if (valueConstraint !== undefined) {
       if (isValue(value)) {
-        return jsMarshalling === "legacy"
-          ? legacyMarshallTypeForJS(checker, value)
-          : marshallTypeForJS(value, valueConstraint.type);
+        return marshallTypeForJS(value, valueConstraint.type);
       } else {
         return value;
       }
