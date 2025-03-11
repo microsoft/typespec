@@ -134,7 +134,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             var paging = InputFactory.NextLinkOperationPaging("cats", "nextCat", responseLocation);
             var response = InputFactory.OperationResponse(
                 [200],
-                InputFactory.Model("page", properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
             var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
             var client = InputFactory.Client("catClient", operations: [operation]);
 

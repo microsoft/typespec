@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private FieldProvider _clientField;
         private readonly FieldProvider _optionsField;
         private readonly CSharpType _responseType;
-        private readonly CSharpType? _modelType;
+        private readonly CSharpType? _itemModelType;
         private readonly string? _nextLinkPropertyName;
         private readonly FieldProvider _initialUri;
         private readonly InputResponseLocation? _nextLinkLocation;
@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private readonly string _itemsPropertyName;
 
-        public CollectionResultDefinition(ClientProvider client, InputOperation operation, CSharpType? modelType, bool isAsync)
+        public CollectionResultDefinition(ClientProvider client, InputOperation operation, CSharpType? itemModelType, bool isAsync)
         {
             _client = client;
             _clientField = new FieldProvider(
@@ -55,27 +55,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 "_options",
                 this);
 
-            _modelType = modelType;
+            _itemModelType = itemModelType;
             _operation = operation;
             _isAsync = isAsync;
 
             var response = _operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
-            var model = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
+            var responseModel = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
             // TODO Nested models are not supported yet https://github.com/Azure/typespec-azure/issues/2287
-            var nextLinkPropertyName = _operation.Paging!.NextLink?.ResponseSegments[0];
-            _nextLinkLocation = operation.Paging!.NextLink?.ResponseLocation;
+            var paging = _operation.Paging!;
+            var nextLinkPropertyName = paging.NextLink?.ResponseSegments[0];
+            _nextLinkLocation = paging.NextLink?.ResponseLocation;
 
             // TODO Nested models are not supported https://github.com/Azure/typespec-azure/issues/2287
-            var itemPropertyName = _operation.Paging!.ItemPropertySegments[0];
-            _itemsPropertyName = model.CanonicalView.Properties
-                .FirstOrDefault(p => p.WireInfo?.SerializedName == itemPropertyName)?.Name ?? itemPropertyName;
+            var itemsPropertyName = paging.ItemPropertySegments[0];
+            var itemsModelPropertyName = responseModel.CanonicalView.Properties
+                .FirstOrDefault(p => p.WireInfo?.SerializedName == itemsPropertyName)?.Name;
+            if (itemsModelPropertyName == null)
+            {
+                ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(
+                    "missing-items-property",
+                    $"Missing items property: {itemsPropertyName}",
+                    _operation.CrossLanguageDefinitionId);
+            }
+            _itemsPropertyName = itemsModelPropertyName ?? itemsPropertyName;
 
             // Find the model property that has the serialized name matching the next link.
             // Use the canonical view in case the property was customized.
             if (_nextLinkLocation == InputResponseLocation.Body)
             {
                 _nextLinkPropertyName =
-                    model.CanonicalView.Properties.FirstOrDefault(
+                    responseModel.CanonicalView.Properties.FirstOrDefault(
                         p => p.WireInfo?.SerializedName == nextLinkPropertyName)?.Name;
             }
             else if (_nextLinkLocation == InputResponseLocation.Header)
@@ -83,13 +92,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _nextLinkPropertyName = nextLinkPropertyName;
             }
 
-            _responseType = model.Type;
+            _responseType = responseModel.Type;
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override string BuildName()
-            => $"{_operation.Name.ToCleanName()}{(_isAsync ? "Async" : "")}CollectionResult{(_modelType == null ? "" : "OfT")}";
+            => $"{_operation.Name.ToCleanName()}{(_isAsync ? "Async" : "")}CollectionResult{(_itemModelType == null ? "" : "OfT")}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
@@ -97,12 +106,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override FieldProvider[] BuildFields() => [_clientField, _initialUri, _optionsField];
 
         protected override CSharpType[] BuildImplements() =>
-         (_modelType, _isAsync) switch
+         (_modelType: _itemModelType, _isAsync) switch
          {
              (null, true) => [new CSharpType(typeof(AsyncCollectionResult))],
              (null, false) => [new CSharpType(typeof(CollectionResult))],
-             (_, true) => [new CSharpType(typeof(AsyncCollectionResult<>), _modelType)],
-             (_, false) => [new CSharpType(typeof(CollectionResult<>), _modelType)],
+             (_, true) => [new CSharpType(typeof(AsyncCollectionResult<>), _itemModelType)],
+             (_, false) => [new CSharpType(typeof(CollectionResult<>), _itemModelType)],
          };
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -173,7 +182,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     this)
             };
 
-            if (_modelType != null)
+            if (_itemModelType != null)
             {
                 methods.Add(new MethodProvider(
                                 new MethodSignature(_isAsync ? "GetValuesFromPageAsync" : "GetValuesFromPage",
@@ -182,8 +191,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override | MethodSignatureModifiers.Async :
                                     MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override,
                                 _isAsync ?
-                                    new CSharpType(typeof(IAsyncEnumerable<>), _modelType) :
-                                    new CSharpType(typeof(IEnumerable<>), _modelType),
+                                    new CSharpType(typeof(IAsyncEnumerable<>), _itemModelType) :
+                                    new CSharpType(typeof(IEnumerable<>), _itemModelType),
                                 FormattableStringHelpers.Empty,
                                 [PageParameter]),
                         BuildGetValuesFromPages(),
@@ -198,7 +207,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return
             _isAsync ?
                 [
-                    new ForeachStatement(_modelType!, "item", PageParameter.AsExpression().CastTo(_responseType)
+                    new ForeachStatement(_itemModelType!, "item", PageParameter.AsExpression().CastTo(_responseType)
                         .Property(_itemsPropertyName), false, out var item)
                     {
                         YieldReturn(item),
@@ -317,7 +326,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private ScopedApi<PipelineMessage> InvokeCreateRequest(ScopedApi<Uri> nextLinkUri) => _clientField.Invoke(
-            $"Create{_operation.Name}Request",
+            $"Create{_operation.Name.ToCleanName()}Request",
             new[] { nextLinkUri, _optionsField.AsValueExpression })
             .As<PipelineMessage>();
     }

@@ -25,25 +25,25 @@ namespace Sample
 
         public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreategetCatsRequest(_initialUri, _options);
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_initialUri, _options);
             global::System.Uri nextPageUri = null;
             while (true)
             {
                 global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
-                nextPageUri = ((global::Sample.Models.Page)result).;
+                nextPageUri = ((global::Sample.Models.Page)result).NextCat;
                 if ((nextPageUri == null))
                 {
                     yield break;
                 }
-                message = _client.CreategetCatsRequest(nextPageUri, _options);
+                message = _client.CreateGetCatsRequest(nextPageUri, _options);
             }
         }
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            global::System.Uri nextPageUri = ((global::Sample.Models.Page)page).;
+            global::System.Uri nextPageUri = ((global::Sample.Models.Page)page).NextCat;
             return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPageUri.AbsoluteUri));
         }
     }

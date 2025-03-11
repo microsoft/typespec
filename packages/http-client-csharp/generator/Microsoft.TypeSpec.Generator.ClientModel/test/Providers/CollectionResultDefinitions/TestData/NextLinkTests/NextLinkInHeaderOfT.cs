@@ -25,7 +25,7 @@ namespace Sample
 
         public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreategetCatsRequest(_initialUri, _options);
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_initialUri, _options);
             global::System.Uri nextPageUri = null;
             while (true)
             {
@@ -40,7 +40,7 @@ namespace Sample
                 {
                     yield break;
                 }
-                message = _client.CreategetCatsRequest(nextPageUri, _options);
+                message = _client.CreateGetCatsRequest(nextPageUri, _options);
             }
         }
 
