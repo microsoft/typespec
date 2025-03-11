@@ -16,7 +16,7 @@ import { OpenAPI3Schema, OpenAPI3XmlSchema, OpenAPISchema3_1 } from "./types.js"
 export interface XmlModule {
   attachXmlObjectForScalarOrModel(
     program: Program,
-    type: Scalar | Model | Enum,
+    type: Scalar | Model,
     emitObject: OpenAPI3Schema | OpenAPISchema3_1,
   ): void;
 
@@ -36,7 +36,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
   return {
     attachXmlObjectForScalarOrModel: (
       program: Program,
-      type: Scalar | Model | Enum,
+      type: Scalar | Model,
       emitObject: OpenAPI3Schema | OpenAPISchema3_1,
     ) => {
       const isXmlModel = isXmlModelChecker(program, type, []);
