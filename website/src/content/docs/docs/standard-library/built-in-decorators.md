@@ -134,7 +134,7 @@ Specify the property to be used to discriminate this type.
 
 #### Target
 
-`Model | Union`
+`Model`
 
 #### Parameters
 | Name | Type | Description |

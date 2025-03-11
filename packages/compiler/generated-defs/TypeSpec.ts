@@ -622,7 +622,7 @@ export type DiscriminatedDecorator = (
  */
 export type DiscriminatorDecorator = (
   context: DecoratorContext,
-  target: Model | Union,
+  target: Model,
   propertyName: string,
 ) => void;
 

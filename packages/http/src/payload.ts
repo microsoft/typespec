@@ -235,7 +235,6 @@ function resolveExplicitBodyProperty(
             isExplicit: item.kind === "body",
             containsMetadataAnnotations,
             property: item.property,
-            parameter: item.property,
           };
         }
         break;

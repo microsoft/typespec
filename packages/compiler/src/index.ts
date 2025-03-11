@@ -56,6 +56,7 @@ export {
   explainStringTemplateNotSerializable,
   printIdentifier as formatIdentifier,
   getDiscriminatedUnion,
+  getDiscriminatedUnionFromInheritance,
   getEntityName,
   getLocationContext,
   getNamespaceFullName,

@@ -284,29 +284,6 @@ function getDefaultVisibilityForVerb(verb: HttpVerb): Visibility {
 }
 
 /**
- * Determines the visibility to use for a request with the given verb.
- *
- * - GET | HEAD => Visibility.Query
- * - POST => Visibility.Create
- * - PATCH => Visibility.Update
- * - PUT => Visibility.Create | Update
- * - DELETE => Visibility.Delete
- * @param verb The HTTP verb for the operation.
- * @deprecated Use `resolveRequestVisibility` instead, or if you only want the default visibility for a verb,
- *   `getDefaultVisibilityForVerb`. This function will be removed in TypeSpec 1.0-rc.
- * @returns The applicable parameter visibility or visibilities for the request.
- */
-export function getRequestVisibility(verb: HttpVerb): Visibility {
-  let visibility = getDefaultVisibilityForVerb(verb);
-  // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
-  // later processes to properly apply it
-  if (verb === "patch") {
-    visibility |= Visibility.Patch;
-  }
-  return visibility;
-}
-
-/**
  * A visibility provider for HTTP operations. Pass this value as a provider to the `getParameterVisibilityFilter` and
  * `getReturnTypeVisibilityFilter` functions in the TypeSpec core to get the applicable parameter and return type
  * visibility filters for an HTTP operation.
@@ -509,19 +486,6 @@ function isApplicableMetadataCore(
  */
 export interface MetadataInfo {
   /**
-   * Determines if the given type is a model that becomes empty once
-   * applicable metadata is removed and visibility is applied.
-   *
-   * Note that a model is not considered emptied if it was already empty in
-   * the first place, or has a base model or indexer.
-   *
-   * When the type of a property is emptied by visibility, the property
-   * itself is also removed.
-   * @deprecated This produces inconsistent behaviors and should be avoided.
-   */
-  isEmptied(type: Type | undefined, visibility: Visibility): boolean;
-
-  /**
    * Determines if the given type is transformed by applying the given
    * visibility and removing invisible properties or adding inapplicable
    * metadata properties.
@@ -585,7 +549,6 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   const stateMap = new TwoLevelMap<Type, Visibility, State>();
 
   return {
-    isEmptied,
     isTransformed,
     isPayloadProperty,
     isOptional,

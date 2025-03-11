@@ -50,14 +50,14 @@ components:
   securitySchemes:
     BearerAuth:
       type: http
-      scheme: bearer
+      scheme: Bearer
     ApiKeyAuth:
       type: apiKey
       in: header
       name: x-my-header
     BasicAuth:
       type: http
-      scheme: basic
+      scheme: Basic
     OAuth2Auth:
       type: oauth2
       flows:

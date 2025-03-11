@@ -45,7 +45,6 @@ import { compilerAssert, ignoreDiagnostics, reportDeprecated } from "../core/dia
 import { getDiscriminatedUnion } from "../core/helpers/discriminator-utils.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import {
-  Discriminator,
   DocData,
   getDocDataInternal,
   getMaxItemsAsNumeric,
@@ -1185,26 +1184,10 @@ export const discriminatedDecorator: DiscriminatedDecorator = (
 
 export const $discriminator: DiscriminatorDecorator = (
   context: DecoratorContext,
-  entity: Model | Union,
+  entity: Model,
   propertyName: string,
 ) => {
-  const discriminator: Discriminator = { propertyName };
-
-  if (entity.kind === "Union") {
-    reportDeprecated(
-      context.program,
-      "@discriminator on union is deprecated. Use `@discriminated` instead. `@discriminated(#{envelope: false})` for the exact equivalent.",
-      context.decoratorTarget,
-    );
-    // we can validate discriminator up front for unions. Models are validated in the accessor as we might not have the reference to all derived types at this time.
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const [, diagnostics] = getDiscriminatedUnion(entity, discriminator);
-    if (diagnostics.length > 0) {
-      context.program.reportDiagnostics(diagnostics);
-      return;
-    }
-  }
-  setDiscriminator(context.program, entity, discriminator);
+  setDiscriminator(context.program, entity, { propertyName });
 };
 
 export interface Example extends ExampleOptions {

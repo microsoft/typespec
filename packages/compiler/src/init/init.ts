@@ -94,12 +94,22 @@ export async function initTypeSpecProjectWorker(
     await host.logSink.trackAction!(
       "Installing dependencies",
       "Dependencies installed",
-      async () =>
-        await installTypeSpecDependencies(host, {
+      async (task) => {
+        const diagnostics = await installTypeSpecDependencies(host, {
           directory,
           stdio: "pipe",
           savePackageManager: true,
-        }),
+        });
+
+        if (diagnostics.length > 0) {
+          if (diagnostics.some((d) => d.severity === "error")) {
+            task.fail();
+          } else {
+            task.warn();
+          }
+          logDiagnostics(diagnostics);
+        }
+      },
     );
   }
 
