@@ -13,10 +13,10 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
- * The GroupPartEtagRequest model.
+ * The GroupPartETagRequest model.
  */
 @Fluent
-public final class GroupPartEtagRequest implements JsonSerializable<GroupPartEtagRequest> {
+public final class GroupPartETagRequest implements JsonSerializable<GroupPartETagRequest> {
     /*
      * The prop1 property.
      */
@@ -30,12 +30,12 @@ public final class GroupPartEtagRequest implements JsonSerializable<GroupPartEta
     private String prop2;
 
     /**
-     * Creates an instance of GroupPartEtagRequest class.
+     * Creates an instance of GroupPartETagRequest class.
      * 
      * @param prop1 the prop1 value to set.
      */
     @Generated
-    public GroupPartEtagRequest(String prop1) {
+    public GroupPartETagRequest(String prop1) {
         this.prop1 = prop1;
     }
 
@@ -63,10 +63,10 @@ public final class GroupPartEtagRequest implements JsonSerializable<GroupPartEta
      * Set the prop2 property: The prop2 property.
      * 
      * @param prop2 the prop2 value to set.
-     * @return the GroupPartEtagRequest object itself.
+     * @return the GroupPartETagRequest object itself.
      */
     @Generated
-    public GroupPartEtagRequest setProp2(String prop2) {
+    public GroupPartETagRequest setProp2(String prop2) {
         this.prop2 = prop2;
         return this;
     }
@@ -84,16 +84,16 @@ public final class GroupPartEtagRequest implements JsonSerializable<GroupPartEta
     }
 
     /**
-     * Reads an instance of GroupPartEtagRequest from the JsonReader.
+     * Reads an instance of GroupPartETagRequest from the JsonReader.
      * 
      * @param jsonReader The JsonReader being read.
-     * @return An instance of GroupPartEtagRequest if the JsonReader was pointing to an instance of it, or null if it
+     * @return An instance of GroupPartETagRequest if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
-     * @throws IOException If an error occurs while reading the GroupPartEtagRequest.
+     * @throws IOException If an error occurs while reading the GroupPartETagRequest.
      */
     @Generated
-    public static GroupPartEtagRequest fromJson(JsonReader jsonReader) throws IOException {
+    public static GroupPartETagRequest fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String prop1 = null;
             String prop2 = null;
@@ -109,10 +109,10 @@ public final class GroupPartEtagRequest implements JsonSerializable<GroupPartEta
                     reader.skipChildren();
                 }
             }
-            GroupPartEtagRequest deserializedGroupPartEtagRequest = new GroupPartEtagRequest(prop1);
-            deserializedGroupPartEtagRequest.prop2 = prop2;
+            GroupPartETagRequest deserializedGroupPartETagRequest = new GroupPartETagRequest(prop1);
+            deserializedGroupPartETagRequest.prop2 = prop2;
 
-            return deserializedGroupPartEtagRequest;
+            return deserializedGroupPartETagRequest;
         });
     }
 }

@@ -23,10 +23,11 @@ import java.time.OffsetDateTime;
 import methodoverride.implementation.MethodOverrideClientImpl;
 import methodoverride.implementation.models.GroupAllRequest;
 import methodoverride.implementation.models.GroupNoneRequest;
-import methodoverride.implementation.models.GroupPartEtagRequest;
+import methodoverride.implementation.models.GroupPartETagRequest;
 import methodoverride.implementation.models.GroupPartRequest;
 import methodoverride.models.GroupAllOptions;
 import methodoverride.models.GroupExcludeBodyModel;
+import methodoverride.models.GroupPartETagOptions;
 import methodoverride.models.GroupPartOptions;
 import methodoverride.models.GroupQueryOptions;
 import reactor.core.publisher.Mono;
@@ -174,7 +175,7 @@ public final class MethodOverrideAsyncClient {
      * }
      * </pre>
      * 
-     * @param groupPartEtagRequest The groupPartEtagRequest parameter.
+     * @param groupPartETagRequest The groupPartETagRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -184,9 +185,9 @@ public final class MethodOverrideAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> groupPartEtagWithResponse(BinaryData groupPartEtagRequest,
+    public Mono<Response<Void>> groupPartETagWithResponse(BinaryData groupPartETagRequest,
         RequestOptions requestOptions) {
-        return this.serviceClient.groupPartEtagWithResponseAsync(groupPartEtagRequest, requestOptions);
+        return this.serviceClient.groupPartETagWithResponseAsync(groupPartETagRequest, requestOptions);
     }
 
     /**
@@ -401,9 +402,9 @@ public final class MethodOverrideAsyncClient {
     /**
      * A remote procedure call (RPC) operation.
      * 
-     * @param groupPartEtagRequest The groupPartEtagRequest parameter.
+     * @param prop1 The prop1 parameter.
      * @param foo The foo parameter.
-     * @param bar The bar parameter.
+     * @param options The options parameter.
      * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -415,10 +416,13 @@ public final class MethodOverrideAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> groupPartEtag(GroupPartEtagRequest groupPartEtagRequest, String foo, String bar,
+    public Mono<Void> groupPartETag(String prop1, String foo, GroupPartETagOptions options,
         RequestConditions requestConditions) {
-        // Generated convenience method for groupPartEtagWithResponse
+        // Generated convenience method for groupPartETagWithResponse
         RequestOptions requestOptions = new RequestOptions();
+        GroupPartETagRequest groupPartETagRequestObj = new GroupPartETagRequest(prop1).setProp2(options.getProp2());
+        BinaryData groupPartETagRequest = BinaryData.fromObject(groupPartETagRequestObj);
+        String bar = options == null ? null : options.getBar();
         OffsetDateTime ifModifiedSince = requestConditions == null ? null : requestConditions.getIfModifiedSince();
         OffsetDateTime ifUnmodifiedSince = requestConditions == null ? null : requestConditions.getIfUnmodifiedSince();
         String ifMatch = requestConditions == null ? null : requestConditions.getIfMatch();
@@ -443,14 +447,13 @@ public final class MethodOverrideAsyncClient {
         if (ifNoneMatch != null) {
             requestOptions.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
         }
-        return groupPartEtagWithResponse(BinaryData.fromObject(groupPartEtagRequest), requestOptions)
-            .flatMap(FluxUtil::toMono);
+        return groupPartETagWithResponse(groupPartETagRequest, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
      * A remote procedure call (RPC) operation.
      * 
-     * @param groupPartEtagRequest The groupPartEtagRequest parameter.
+     * @param prop1 The prop1 parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -461,11 +464,12 @@ public final class MethodOverrideAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> groupPartEtag(GroupPartEtagRequest groupPartEtagRequest) {
-        // Generated convenience method for groupPartEtagWithResponse
+    public Mono<Void> groupPartETag(String prop1) {
+        // Generated convenience method for groupPartETagWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return groupPartEtagWithResponse(BinaryData.fromObject(groupPartEtagRequest), requestOptions)
-            .flatMap(FluxUtil::toMono);
+        GroupPartETagRequest groupPartETagRequestObj = new GroupPartETagRequest(prop1);
+        BinaryData groupPartETagRequest = BinaryData.fromObject(groupPartETagRequestObj);
+        return groupPartETagWithResponse(groupPartETagRequest, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**

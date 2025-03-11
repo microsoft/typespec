@@ -22,10 +22,11 @@ import java.time.OffsetDateTime;
 import methodoverride.implementation.MethodOverrideClientImpl;
 import methodoverride.implementation.models.GroupAllRequest;
 import methodoverride.implementation.models.GroupNoneRequest;
-import methodoverride.implementation.models.GroupPartEtagRequest;
+import methodoverride.implementation.models.GroupPartETagRequest;
 import methodoverride.implementation.models.GroupPartRequest;
 import methodoverride.models.GroupAllOptions;
 import methodoverride.models.GroupExcludeBodyModel;
+import methodoverride.models.GroupPartETagOptions;
 import methodoverride.models.GroupPartOptions;
 import methodoverride.models.GroupQueryOptions;
 
@@ -172,7 +173,7 @@ public final class MethodOverrideClient {
      * }
      * </pre>
      * 
-     * @param groupPartEtagRequest The groupPartEtagRequest parameter.
+     * @param groupPartETagRequest The groupPartETagRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -182,8 +183,8 @@ public final class MethodOverrideClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> groupPartEtagWithResponse(BinaryData groupPartEtagRequest, RequestOptions requestOptions) {
-        return this.serviceClient.groupPartEtagWithResponse(groupPartEtagRequest, requestOptions);
+    public Response<Void> groupPartETagWithResponse(BinaryData groupPartETagRequest, RequestOptions requestOptions) {
+        return this.serviceClient.groupPartETagWithResponse(groupPartETagRequest, requestOptions);
     }
 
     /**
@@ -393,9 +394,9 @@ public final class MethodOverrideClient {
     /**
      * A remote procedure call (RPC) operation.
      * 
-     * @param groupPartEtagRequest The groupPartEtagRequest parameter.
+     * @param prop1 The prop1 parameter.
      * @param foo The foo parameter.
-     * @param bar The bar parameter.
+     * @param options The options parameter.
      * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -406,10 +407,13 @@ public final class MethodOverrideClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void groupPartEtag(GroupPartEtagRequest groupPartEtagRequest, String foo, String bar,
+    public void groupPartETag(String prop1, String foo, GroupPartETagOptions options,
         RequestConditions requestConditions) {
-        // Generated convenience method for groupPartEtagWithResponse
+        // Generated convenience method for groupPartETagWithResponse
         RequestOptions requestOptions = new RequestOptions();
+        GroupPartETagRequest groupPartETagRequestObj = new GroupPartETagRequest(prop1).setProp2(options.getProp2());
+        BinaryData groupPartETagRequest = BinaryData.fromObject(groupPartETagRequestObj);
+        String bar = options == null ? null : options.getBar();
         OffsetDateTime ifModifiedSince = requestConditions == null ? null : requestConditions.getIfModifiedSince();
         OffsetDateTime ifUnmodifiedSince = requestConditions == null ? null : requestConditions.getIfUnmodifiedSince();
         String ifMatch = requestConditions == null ? null : requestConditions.getIfMatch();
@@ -434,13 +438,13 @@ public final class MethodOverrideClient {
         if (ifNoneMatch != null) {
             requestOptions.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
         }
-        groupPartEtagWithResponse(BinaryData.fromObject(groupPartEtagRequest), requestOptions).getValue();
+        groupPartETagWithResponse(groupPartETagRequest, requestOptions).getValue();
     }
 
     /**
      * A remote procedure call (RPC) operation.
      * 
-     * @param groupPartEtagRequest The groupPartEtagRequest parameter.
+     * @param prop1 The prop1 parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -450,10 +454,12 @@ public final class MethodOverrideClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void groupPartEtag(GroupPartEtagRequest groupPartEtagRequest) {
-        // Generated convenience method for groupPartEtagWithResponse
+    public void groupPartETag(String prop1) {
+        // Generated convenience method for groupPartETagWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        groupPartEtagWithResponse(BinaryData.fromObject(groupPartEtagRequest), requestOptions).getValue();
+        GroupPartETagRequest groupPartETagRequestObj = new GroupPartETagRequest(prop1);
+        BinaryData groupPartETagRequest = BinaryData.fromObject(groupPartETagRequestObj);
+        groupPartETagWithResponse(groupPartETagRequest, requestOptions).getValue();
     }
 
     /**
