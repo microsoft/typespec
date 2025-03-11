@@ -83,26 +83,22 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   }
 
   function fromSdkClient(
-    client: SdkClientType<SdkHttpOperation>,
+    sdkClient: SdkClientType<SdkHttpOperation>,
     parentNames: string[],
   ): InputClient {
-    const endpointParameter = client.initialization.properties.find(
+    const endpointParameter = sdkClient.initialization.properties.find(
       (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
-    const clientName = getClientName(client, parentNames);
+    const clientName = getClientName(sdkClient, parentNames);
 
-    sdkContext.__typeCache.crossLanguageDefinitionIds.set(
-      client.crossLanguageDefinitionId,
-      client.__raw.type,
-    );
-    return {
+    const client: InputClient = {
       Name: clientName,
-      Namespace: client.namespace,
-      Summary: client.summary,
-      Doc: client.doc,
-      Operations: client.methods
+      Namespace: sdkClient.namespace,
+      Summary: sdkClient.summary,
+      Doc: sdkClient.doc,
+      Operations: sdkClient.methods
         .filter((m) => m.kind !== "clientaccessor")
         .map((m) =>
           fromSdkServiceMethod(
@@ -115,9 +111,13 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       Protocol: {},
       Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
       Parameters: clientParameters,
-      Decorators: client.decorators,
-      CrossLanguageDefinitionId: client.crossLanguageDefinitionId,
+      Decorators: sdkClient.decorators,
+      CrossLanguageDefinitionId: sdkClient.crossLanguageDefinitionId,
     };
+
+    sdkContext.__typeCache.updateSdkClientReferences(sdkClient, client);
+
+    return client;
   }
 
   function getClientName(

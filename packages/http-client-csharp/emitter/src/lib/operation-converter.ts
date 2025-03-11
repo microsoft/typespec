@@ -164,9 +164,9 @@ export function fromSdkHttpOperationParameter(
   p: SdkModelPropertyType,
   rootApiVersions: string[],
 ): InputParameter {
-  let retVar = sdkContext.__typeCache.parameters.get(p);
+  let retVar = sdkContext.__typeCache.properties.get(p);
   if (retVar) {
-    return retVar;
+    return retVar as InputParameter;
   }
 
   const isContentType =
@@ -204,7 +204,7 @@ export function fromSdkHttpOperationParameter(
     SkipUrlEncoding: p.kind === "path" ? p.allowReserved : false,
   };
 
-  sdkContext.__typeCache.updateSdkParameterReferences(p, retVar);
+  sdkContext.__typeCache.updateSdkPropertyReferences(p, retVar);
   return retVar;
 }
 

@@ -42,6 +42,7 @@ import {
 } from "../type/input-type.js";
 import { fromSdkHttpOperationResponse } from "./operation-converter.js";
 import { fromSdkType } from "./type-converter.js";
+import { InputParameter } from "../type/input-parameter.js";
 
 export function fromSdkHttpExamples(
   sdkContext: CSharpEmitterContext,
@@ -64,7 +65,7 @@ export function fromSdkHttpExamples(
     parameter: SdkHttpParameterExampleValue,
   ): InputParameterExampleValue {
     return {
-      parameter: sdkContext.__typeCache.parameters.get(parameter.parameter)!,
+      parameter: sdkContext.__typeCache.properties.get(parameter.parameter) as InputParameter,
       value: fromSdkExample(parameter.value),
     };
   }

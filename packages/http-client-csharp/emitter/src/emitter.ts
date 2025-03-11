@@ -25,7 +25,7 @@ import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
-import { createSdkTypeCache, CSharpEmitterContext } from "./sdk-context.js";
+import { CSharpEmitterContext, SdkTypeCache } from "./sdk-context.js";
 import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
 
@@ -71,7 +71,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         defaultSDKContextOptions,
       )),
       logger: logger,
-      __typeCache: createSdkTypeCache(),
+      __typeCache: new SdkTypeCache(),
     };
     program.reportDiagnostics(sdkContext.diagnostics);
 
