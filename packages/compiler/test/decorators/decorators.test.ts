@@ -320,7 +320,7 @@ describe("compiler: built-in decorators", () => {
         `,
       )) as { A: Scalar };
 
-      strictEqual(getFormat(runner.program, A), "^[a-z]+$");
+      strictEqual(getFormat(runner.program, A), "email");
     });
 
     it("applies @pattern to model property", async () => {
