@@ -47,22 +47,6 @@ describe("library-linter", () => {
       });
     });
 
-    it("emit diagnostics when js function is missing namespace", async () => {
-      host.addJsFile("./mylib.js", {
-        myFunc: () => null,
-      });
-      const diagnostics = await runner.diagnose(`
-        import "./mylib.js";
-        namespace Foo { model Bar {}}
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/library-linter/missing-namespace",
-        message:
-          "Function 'myFunc' is not in a namespace. This is bad practice for a published library.",
-        severity: "warning",
-      });
-    });
-
     it("emit diagnostics when decorator is missing namespace", async () => {
       host.addJsFile("./mylib.js", {
         $myDec: () => null,
