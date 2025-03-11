@@ -263,8 +263,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       schema.nullable = true;
     }
 
-    this.applyDiscriminator(union, schema);
-
     return this.applyConstraints(union, schema);
   }
 
