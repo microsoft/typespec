@@ -78,6 +78,10 @@ async function main() {
           })
           .option("output-dir", {
             type: "string",
+          })
+          .positional("skip-js", {
+            description: "Skip generating JS API docs.",
+            type: "boolean",
           });
       },
       async (args) => {
@@ -86,6 +90,9 @@ async function main() {
         const diagnostics = await generateLibraryDocs(
           resolvedRoot,
           args["output-dir"] ?? resolvePath(resolvedRoot, "docs"),
+          {
+            skipJSApi: args["skip-js"],
+          },
         );
         // const diagnostics = await generateExternSignatures(host, resolvedRoot);
         if (diagnostics.length > 0) {
