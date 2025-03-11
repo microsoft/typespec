@@ -51,7 +51,7 @@ namespace MethodOverride {
   @route("/group-part")
   op groupPart is global.Azure.Core.RpcOperation<GroupPartNotGrouped & GroupPartOptions, {}>;
 
-  model GroupPartEtagOptions {
+  model GroupPartETagOptions {
     ...GroupPartOptions;
 
     @header("If-Modified-Since")
@@ -69,8 +69,8 @@ namespace MethodOverride {
 
   @post
   @route("/group-part-etag")
-  op groupPartEtag is global.Azure.Core.RpcOperation<
-    GroupPartNotGrouped & GroupPartEtagOptions,
+  op groupPartETag is global.Azure.Core.RpcOperation<
+    GroupPartNotGrouped & GroupPartETagOptions,
     {}
   >;
 
@@ -115,9 +115,9 @@ namespace Customization {
     options?: MethodOverride.GroupPartOptions,
     ...ApiVersionParameter,
   ): void;
-  op groupPartEtagCustomization(
+  op groupPartETagCustomization(
     ...MethodOverride.GroupPartNotGrouped,
-    options?: MethodOverride.GroupPartEtagOptions,
+    options?: MethodOverride.GroupPartETagOptions,
     ...ApiVersionParameter,
   ): void;
   op groupExcludeBodyCustomization(
@@ -130,7 +130,7 @@ namespace Customization {
   @@override(MethodOverride.groupQuery, Customization.groupQueryCustomization);
   @@override(MethodOverride.groupAll, Customization.groupAllCustomization);
   @@override(MethodOverride.groupPart, Customization.groupPartCustomization);
-  @@override(MethodOverride.groupPartEtag, Customization.groupPartEtagCustomization);
+  @@override(MethodOverride.groupPartETag, Customization.groupPartETagCustomization);
   @@override(MethodOverride.groupExcludeBody, Customization.groupExcludeBodyCustomization);
   @@override(MethodOverride.groupNone, Customization.groupNoneCustomization);
 }
