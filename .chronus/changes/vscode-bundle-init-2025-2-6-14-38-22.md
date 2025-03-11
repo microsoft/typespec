@@ -1,8 +1,7 @@
 ---
 changeKind: internal
 packages:
-  - "@typespec/compiler"
-  - typespec-vscode
+  - "@typespec/internal-build-utils"
 ---
 
-Refactor 'init' code so that it can be reused by compiler and vscode directly
+Support generating license from url for packages without license file embedded directly
