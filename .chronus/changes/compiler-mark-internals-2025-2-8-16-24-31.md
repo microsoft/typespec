@@ -9,6 +9,7 @@ packages:
   - "@typespec/http"
   - "@typespec/library-linter"
   - "@typespec/rest"
+  - "@typespec/protobuf"
 ---
 
 Cleanup compiler APIs
