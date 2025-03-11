@@ -1,17 +1,16 @@
 import {
-  DocTag,
   IntrinsicScalarName,
   MixedFunctionParameter,
   MixedParameterConstraint,
   Model,
   Program,
   Scalar,
-  SyntaxKind,
   Type,
   getSourceLocation,
   isArrayModelType,
   isUnknownType,
 } from "@typespec/compiler";
+import { DocTag, SyntaxKind } from "@typespec/compiler/ast";
 import { Doc, renderDoc } from "./doc-builder.js";
 import { DecoratorSignature } from "./types.js";
 

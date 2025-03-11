@@ -1,4 +1,5 @@
-import { Namespace, Program, SyntaxKind, Type } from "@typespec/compiler";
+import { Namespace, Program, Type } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import { reportDiagnostic } from "./lib.js";
 
 export function $onValidate(program: Program) {

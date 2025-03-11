@@ -8,7 +8,6 @@ import {
   Namespace,
   Operation,
   Program,
-  SyntaxKind,
   Tuple,
   Type,
   Union,
@@ -18,6 +17,7 @@ import {
   typespecTypeToJson,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import { useStateMap } from "@typespec/compiler/utils";
 import {
   BodyDecorator,

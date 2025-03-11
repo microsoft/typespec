@@ -2006,12 +2006,6 @@ export interface DeprecatedDirective extends DirectiveBase {
   message: string;
 }
 
-export interface Dirent {
-  isFile(): boolean;
-  name: string;
-  isDirectory(): boolean;
-}
-
 export interface RmOptions {
   /**
    * If `true`, perform a recursive directory removal. In

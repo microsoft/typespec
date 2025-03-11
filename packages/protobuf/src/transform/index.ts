@@ -23,10 +23,10 @@ import {
   resolvePath,
   Scalar,
   StringLiteral,
-  SyntaxKind,
   Type,
   Union,
 } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import {
   map,
   matchType,

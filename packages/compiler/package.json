@@ -38,6 +38,9 @@
       "types": "./dist/module-resolver/module-resolver.d.ts",
       "default": "./dist/src/module-resolver/module-resolver.js"
     },
+    "./ast": {
+      "import": "./dist/src/ast/index.js"
+    },
     "./emitter-framework": {
       "types": "./dist/src/emitter-framework/index.d.ts",
       "default": "./dist/src/emitter-framework/index.js"

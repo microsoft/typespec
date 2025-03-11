@@ -1,7 +1,8 @@
 import { ok } from "assert";
 import { describe, it } from "vitest";
+import { visitChildren } from "../../src/core/parser.js";
 import type { SymbolTable } from "../../src/core/types.js";
-import { Program, visitChildren } from "../../src/index.js";
+import { Program } from "../../src/index.js";
 import {
   createTestServerHost,
   expectDiagnosticEmpty,

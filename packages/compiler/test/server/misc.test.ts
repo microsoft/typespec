@@ -1,6 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { PositionDetail, SyntaxKind, TypeSpecScriptNode, parse } from "../../src/index.js";
+import { SyntaxKind, TypeSpecScriptNode, parse } from "../../src/ast/index.js";
+import type { PositionDetail } from "../../src/index.js";
 import { getCompletionNodeAtPosition } from "../../src/server/serverlib.js";
 import { extractCursor } from "../../src/testing/test-server-host.js";
 import { dumpAST } from "../ast-test-utils.js";

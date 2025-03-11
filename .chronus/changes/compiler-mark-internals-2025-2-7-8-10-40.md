@@ -55,3 +55,4 @@ Stop exposing APIs that were not meant for external users. Please file issue if 
   - `ResolutionResultFlags` Internal type used in non exposed resolver 
   - `MetaMemberKey` Unused type
   - `MetaMembersTable` Unused type
+  - `Dirent` Unused type
