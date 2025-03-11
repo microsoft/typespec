@@ -234,7 +234,11 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
               ) {
                 const initializer = {
                   allOf: Builders.array([
-                    { ...innerSchema, nullable: nullableProperty, ...memberWideAdditionalProps },
+                    {
+                      ...innerSchema,
+                      ...memberWideAdditionalProps,
+                      nullable: nullableProperty,
+                    },
                   ]),
                   ...unionWideAdditionalProps,
                 };
@@ -245,7 +249,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
                 ...innerSchema,
                 ...memberWideAdditionalProps,
                 ...unionWideAdditionalProps,
-                nullable: nullableProperty,
               });
             }
 
@@ -299,7 +302,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     }
 
     const isMerge = checkMerge(schemaMembers);
-
     const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
         wrapWithObjectBuilder(m, { mergeUnionWideConstraints: isMerge }),
