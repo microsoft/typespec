@@ -253,7 +253,7 @@ export interface Checker {
    * Check and resolve a type for the given type reference node.
    * @param node Node.
    * @returns Resolved type and diagnostics if there was an error.
-   * @internals use program.resolveTypeReference
+   * @internal use program.resolveTypeReference
    */
   resolveTypeReference(node: TypeReferenceNode): [Type | undefined, readonly Diagnostic[]];
 
