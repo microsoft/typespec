@@ -24,6 +24,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
+        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Protocol);
+        private IReadOnlyList<ParameterProvider>? _protocolMethodParameters;
+
+        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Convenience);
+        private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
+        private readonly bool _isPaging;
 
         private ClientProvider Client { get; }
 
@@ -383,13 +389,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return conversions;
         }
-
-        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Protocol);
-        private IReadOnlyList<ParameterProvider>? _protocolMethodParameters;
-
-        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Convenience);
-        private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
-        private readonly bool _isPaging;
 
         private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
         {
