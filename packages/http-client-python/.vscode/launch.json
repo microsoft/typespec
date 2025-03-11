@@ -21,6 +21,15 @@
       "sourceMaps": true
     },
     {
+      "name": "Python: Attach",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      }
+    },
+    {
       "name": "alpha",
       "request": "launch",
       "cwd": "${workspaceFolder}",
@@ -35,13 +44,6 @@
       "type": "node",
       "smartStep": true,
       "sourceMaps": true
-    },
-    {
-      "name": "Python: Attach",
-      "type": "python",
-      "request": "attach",
-      "port": 5678,
-      "host": "localhost"
     }
   ]
 }
