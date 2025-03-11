@@ -136,13 +136,11 @@ function getWireNameForContinuationToken(
     }
   }
 
-  const code = input
-    ? "no-valid-wire-name-for-continuation-token-in-request"
-    : "no-valid-wire-name-for-continuation-token-in-response";
+  const direction = input ? "request" : "response";
   reportDiagnostic(context.program, {
-    code: code,
+    code: "invalid-continuation-token-wire-name",
     target: NoTarget,
-    format: { operationId: method.name },
+    format: { operationId: method.name, direction: direction },
   });
   return undefined;
 }
@@ -150,7 +148,7 @@ function getWireNameForContinuationToken(
 function getWireNameWithDiagnostics(
   context: PythonSdkContext<SdkHttpOperation>,
   segments: SdkModelPropertyType[] | undefined,
-  code: "no-valid-paging-items" | "no-valid-nextlink" | "no-valid-lro-result",
+  code: "invalid-paging-items" | "invalid-nextlink" | "invalid-lro-result",
   method?: SdkServiceMethod<SdkHttpOperation>,
 ): string | undefined {
   if (segments) {
@@ -169,7 +167,7 @@ function getWireNameWithDiagnostics(
   return undefined;
 }
 
-function getPositionForContinuationToken(
+function getLocationForContinuationToken(
   context: PythonSdkContext<SdkHttpOperation>,
   segments: SdkModelPropertyType[],
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
@@ -193,13 +191,12 @@ function getPositionForContinuationToken(
       }
     }
   }
-  const code = input
-    ? "no-valid-position-for-continuation-token-in-request"
-    : "no-valid-position-for-continuation-token-in-response";
+
+  const direction = input ? "request" : "response";
   reportDiagnostic(context.program, {
-    code: code,
+    code: "invalid-continuation-token-location",
     target: NoTarget,
-    format: { operationId: method.name },
+    format: { operationId: method.name, direction: direction },
   });
   return undefined;
 }
@@ -212,9 +209,9 @@ function buildContinuationToken(
 ): Record<string, any> {
   if (segments && segments.length > 0) {
     const wireName = getWireNameForContinuationToken(context, segments, method, input);
-    const position = getPositionForContinuationToken(context, segments, method, input);
-    if (wireName !== undefined && position !== undefined) {
-      return { wireName, position };
+    const location = getLocationForContinuationToken(context, segments, method, input);
+    if (wireName !== undefined && location !== undefined) {
+      return { wireName, location };
     }
   }
 
@@ -237,13 +234,13 @@ function addPagingInformation(
   const itemName = getWireNameWithDiagnostics(
     context,
     method.response.resultSegments,
-    "no-valid-paging-items",
+    "invalid-paging-items",
     method,
   );
   const nextLinkName = getWireNameWithDiagnostics(
     context,
     method.pagingMetadata.nextLinkSegments,
-    "no-valid-nextlink",
+    "invalid-nextlink",
     method,
   );
   base.responses.forEach((resp: Record<string, any>) => {
@@ -523,7 +520,7 @@ function emitHttpResponse(
     resultProperty: getWireNameWithDiagnostics(
       context,
       method?.response.resultSegments,
-      "no-valid-lro-result",
+      "invalid-lro-result",
       method,
     ),
   };

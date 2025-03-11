@@ -1350,9 +1350,9 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         retval.append("        list_of_elem = cls(list_of_elem) # type: ignore")
 
         if builder.has_continuation_token:
-            position = builder.continuation_token_response.get("position")
+            location = builder.continuation_token_response.get("location")
             wire_name = builder.continuation_token_response.get("wireName") or ""
-            if position == "header":
+            if location == "header":
                 cont_token_property = f'pipeline_response.http_response.headers.get("{wire_name}") or None'
             else:
                 wire_name_array = wire_name.split(".")
