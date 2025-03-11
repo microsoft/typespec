@@ -13,7 +13,7 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
                 format: time
@@ -39,7 +39,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          text/plain:
             schema:
               type: string
               format: time
