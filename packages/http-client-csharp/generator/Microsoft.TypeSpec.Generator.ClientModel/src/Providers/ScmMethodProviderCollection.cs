@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
+        private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
 
         private ClientProvider Client { get; }
 
@@ -459,14 +460,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
+                var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
                 methodBody =
                 [
                     UsingDeclare("message", ScmCodeModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                         This.Invoke(createRequestMethod.Signature,
                             [.. requiredParameters, ..optionalParameters, requestOptionsParameter]), out var message),
                     Return(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
-                        .PipelineProperty.ToApi<ClientPipelineApi>().ProcessMessage(message,
-                            requestOptionsParameter.ToApi<HttpRequestOptionsApi>(), isAsync))),
+                        .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type)))
                 ];
             }
 
