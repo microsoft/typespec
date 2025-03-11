@@ -11,6 +11,7 @@ export const enum CommandName {
   OpenUrl = "typespec.openUrl",
   GenerateCode = "typespec.generateCode",
   ImportFromOpenApi3 = "typespec.importFromOpenApi3",
+  ShowOpenApi3 = "typespec.showOpenApi3",
 }
 
 export interface InstallGlobalCliCommandArgs {

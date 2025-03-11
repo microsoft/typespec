@@ -141,7 +141,16 @@ const sidebar: SidebarItem[] = [
       ]),
       {
         label: "Clients",
-        items: ["emitters/clients/introduction", "emitters/clients/advanced-configurations"],
+        items: [
+          "emitters/clients/introduction",
+          "emitters/clients/advanced-configurations",
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-js",
+            "Javascript",
+            false,
+            [],
+          ),
+        ],
       },
     ],
   },

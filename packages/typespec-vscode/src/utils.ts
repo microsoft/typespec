@@ -1,6 +1,7 @@
 import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-import { readFile, realpath, stat } from "fs/promises";
+import { mkdtemp, readFile, realpath, stat } from "fs/promises";
+import { tmpdir } from "os";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
@@ -27,6 +28,15 @@ export async function isDirectory(path: string) {
     return stats.isDirectory();
   } catch {
     return false;
+  }
+}
+
+export async function createTempDir(): Promise<string | undefined> {
+  try {
+    return await mkdtemp(joinPaths(tmpdir(), "tsp-openapi3-preview-"));
+  } catch (e) {
+    logger.error("Failed to create temp folder", [e]);
+    return undefined;
   }
 }
 
@@ -409,4 +419,34 @@ export async function checkInstalledNode(): Promise<string> {
   } catch (e) {
     return "";
   }
+}
+
+export async function parseJsonFromFile(filePath: string): Promise<string | undefined> {
+  try {
+    const fileContent = await readFile(filePath, "utf-8");
+    const content = JSON.parse(fileContent);
+    return content;
+  } catch (e) {
+    logger.error(`Failed to load JSON file: ${filePath}`, [e]);
+    return;
+  }
+}
+
+/**
+ * Throttle the function to be called at most once in every blockInMs milliseconds. This utility
+ * is useful when your event handler will trigger the same event multiple times in a short period.
+ *
+ * @param fn Underlying function to be throttled
+ * @param blockInMs Block time in milliseconds
+ * @returns a throttled function
+ */
+export function throttle<T extends (...args: any[]) => any>(fn: T, blockInMs: number): T {
+  let time: number | undefined;
+  return function (this: any, ...args: Parameters<T>) {
+    const now = Date.now();
+    if (time === undefined || now - time >= blockInMs) {
+      time = now;
+      fn.apply(this, args);
+    }
+  } as T;
 }
