@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             Operations = operations;
             Parameters = parameters;
             Parent = parent;
-            Children = children ?? [];
+            Children = children ?? new List<InputClient>(); // List<InputClient> is important here for our test cases to properly assign the client hierarchy.
         }
 
         public InputClient() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, Array.Empty<InputOperation>(), Array.Empty<InputParameter>(), null, null) { }

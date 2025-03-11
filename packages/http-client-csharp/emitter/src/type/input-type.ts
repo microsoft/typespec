@@ -18,8 +18,7 @@ export interface InputClientType extends DecoratedType {
   namespace: string;
   doc?: string;
   summary?: string;
-  // clientInitialization: TODO;
-  parameters?: InputParameter[]; // TODO -- this should be replaced by clientInitialization when the clientInitialization related stuffs are done.
+  parameters?: InputParameter[]; // TODO -- this should be replaced by clientInitialization when the clientInitialization related stuffs are done: https://github.com/microsoft/typespec/issues/4366
   operations: InputOperation[];
   apiVersions: string[];
   crossLanguageDefinitionId: string;

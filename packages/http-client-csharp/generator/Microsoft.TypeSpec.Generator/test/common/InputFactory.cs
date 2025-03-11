@@ -269,10 +269,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 null);
             if (parent != null)
             {
-                // parent.Children is internal here we have to use reflection to set the proper value
-                var propertyInfo = typeof(InputClient).GetProperty("Children", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                List<InputClient> newChildren = [.. parent.Children, client];
-                propertyInfo!.SetValue(parent, newChildren);
+                // when there is a parent here, we need to set the children list of the parent client to include this client
+                var children = (IList<InputClient>)parent.Children;
+                children.Add(client);
             }
             return client;
         }
