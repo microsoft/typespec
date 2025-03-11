@@ -4,31 +4,16 @@ title: Installation
 slug: docs
 ---
 
-import { Badge } from "@astrojs/starlight/components";
-import { FileTree } from "@astrojs/starlight/components";
-import { Steps } from "@astrojs/starlight/components";
+import { Aside, Badge, Tabs, TabItem, FileTree, Steps } from "@astrojs/starlight/components";
 
 TypeSpec can be used in two ways:
 
-- A standalone executable without any additional dependencies. <Badge text="Preview" variant="caution" />
 - Npm package for use with Node.js and other package managers.
+- A standalone executable without any additional dependencies. <Badge text="Experimental" variant="caution" />
 
-## Standalone <Badge text="Preview" variant="caution" />
-
-### macOS and Linux
-
-```bash
-curl -fsSL https://typespec.io/install.sh | bash
-```
-
-### Windows
-
-```bash
-powershell -c "irm typespec.io/install.ps1|iex"
-```
-
-## With Node.js
-
+<Tabs>
+  <TabItem label="Node.JS">
+  
 Install [Node.js LTS](https://nodejs.org/en/download/) and ensure you can run the `npm` command in a command prompt:
 
 ```bash
@@ -54,6 +39,26 @@ The first step is to install `tsp`, the TypeSpec compiler/CLI.
 ```bash
 npm install -g @typespec/compiler
 ```
+
+  </TabItem>
+  <TabItem label="Standalone (Experimental)">
+
+<Aside type="caution">The standalone CLI is currently experimental.</Aside>
+
+### macOS and Linux
+
+```bash
+curl -fsSL https://typespec.io/install.sh | bash
+```
+
+### Windows
+
+```bash
+powershell -c "irm typespec.io/install.ps1|iex"
+```
+
+  </TabItem>
+</Tabs>
 
 ## Install the VS and VSCode extensions
 
