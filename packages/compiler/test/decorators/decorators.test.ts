@@ -14,6 +14,7 @@ import {
   getDoc,
   getEncode,
   getErrorsDoc,
+  getFormat,
   getFriendlyName,
   getKeyName,
   getOverloadedOperation,
@@ -306,6 +307,47 @@ describe("compiler: built-in decorators", () => {
       const data2 = getPatternData(runner.program, B);
       strictEqual(data2?.pattern, pattern2);
       strictEqual(data2?.validationMessage, undefined);
+    });
+  });
+
+  describe("@format", () => {
+    it("applies @pattern to scalar", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        @format("email")
+        scalar A extends string;
+        `,
+      )) as { A: Scalar };
+
+      strictEqual(getFormat(runner.program, A), "^[a-z]+$");
+    });
+
+    it("applies @pattern to model property", async () => {
+      const { prop } = (await runner.compile(
+        `
+        model A {
+          @test
+          @format("email")
+          prop: string;
+        }
+        `,
+      )) as { prop: ModelProperty };
+      strictEqual(getFormat(runner.program, prop), "email");
+    });
+
+    it("emit diagnostic if targeting bytes", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          @format("email")
+          prop: bytes;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @format decorator to type it is not a string",
+      });
     });
   });
 
