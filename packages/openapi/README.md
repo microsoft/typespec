@@ -48,9 +48,15 @@ op listPets(): Pet[] | PetStoreResponse;
 #### `@extension`
 
 Attach some custom data to the OpenAPI element generated from this type.
+Values will be treated as raw data and be inserted directly into the generated OpenAPI document as-is.
+Types will emit an Open API schema as the value.
+
+For example, `@extension("x-custom", "My value")` will emit the raw data `"My value"`,
+whereas `@extension("x-custom", typeof "My Value")` will emit the Open API schema
+`{ type: "string", enum: [ "My Value" ]}`.
 
 ```typespec
-@TypeSpec.OpenAPI.extension(key: valueof string, value: valueof unknown)
+@TypeSpec.OpenAPI.extension(key: valueof string, value: unknown | valueof unknown)
 ```
 
 ##### Target
@@ -59,10 +65,10 @@ Attach some custom data to the OpenAPI element generated from this type.
 
 ##### Parameters
 
-| Name  | Type              | Description      |
-| ----- | ----------------- | ---------------- |
-| key   | `valueof string`  | Extension key.   |
-| value | `valueof unknown` | Extension value. |
+| Name  | Type                           | Description      |
+| ----- | ------------------------------ | ---------------- |
+| key   | `valueof string`               | Extension key.   |
+| value | `unknown` \| `valueof unknown` | Extension value. |
 
 ##### Examples
 
