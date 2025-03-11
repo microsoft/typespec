@@ -2,13 +2,17 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 
 namespace Payload.MultiPart.Models
 {
     public partial class MultiPartRequest
     {
-        public MultiPartRequest(string id, MultiPartFile profileImage)
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        public MultiPartRequest(string id, MultiPartFileWithOptionalMetadata profileImage)
         {
             Argument.AssertNotNull(id, nameof(id));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
@@ -17,7 +21,14 @@ namespace Payload.MultiPart.Models
             ProfileImage = profileImage;
         }
 
+        internal MultiPartRequest(string id, MultiPartFileWithOptionalMetadata profileImage, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        {
+            Id = id;
+            ProfileImage = profileImage;
+            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+        }
+
         public string Id { get; }
-        public MultiPartFile ProfileImage { get; }
+        public MultiPartFileWithOptionalMetadata ProfileImage { get; }
     }
 }

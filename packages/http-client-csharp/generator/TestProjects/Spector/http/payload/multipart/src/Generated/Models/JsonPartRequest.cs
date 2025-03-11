@@ -9,7 +9,7 @@ namespace Payload.MultiPart.Models
     /// <summary> The JsonPartRequest. </summary>
     public partial class JsonPartRequest
     {
-        public JsonPartRequest(Address address, MultiPartFile profileImage)
+        public JsonPartRequest(Address address, MultiPartFileWithOptionalMetadata profileImage)
         {
             Argument.AssertNotNull(address, nameof(address));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
@@ -21,6 +21,6 @@ namespace Payload.MultiPart.Models
         /// <summary> Gets the address. </summary>
         public Address Address { get; }
         /// <summary> Gets the profile image. </summary>
-        public MultiPartFile ProfileImage { get; }
+        public MultiPartFileWithOptionalMetadata ProfileImage { get; }
     }
 }

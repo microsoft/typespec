@@ -43,23 +43,35 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     internal HttpContent HttpContent => _multipartContent;
 
     // CUSTOM: Add filepart to the multipart content.
-    public void Add(string name, MultiPartFile file)
+    public void Add(string name, MultiPartFileWithOptionalMetadata file)
     {
-        Argument.AssertNotNullOrEmpty(name, nameof(name));
         Argument.AssertNotNull(file, nameof(file));
 
-        if (file.File != null)
-        {
-            Add(name, file.File, file.Filename, file.ContentType);
-            return;
-        }
-        else if (file.Contents != null)
-        {
-            Add(name, file.Contents, file.Filename, file.ContentType);
-            return;
-        }
+        AddFilePart(name, file.File, file.Contents, file.Filename, file.ContentType);
+    }
 
-        throw new InvalidOperationException("File contents are not set.");
+    // CUSTOM: Add filepart to the multipart content.
+    public void Add(string name, MultiPartFileWithRequiredContentType file)
+    {
+        Argument.AssertNotNull(file, nameof(file));
+
+        AddFilePart(name, file.File, file.Contents, file.Filename, file.ContentType);
+    }
+
+    // CUSTOM: Add filepart to the multipart content.
+    public void Add(string name, MultiPartFileWithRequiredFilename file)
+    {
+        Argument.AssertNotNull(file, nameof(file));
+
+        AddFilePart(name, file.File, file.Contents, file.Filename, file.ContentType);
+    }
+
+    // CUSTOM: Add filepart to the multipart content.
+    public void Add(string name, MultiPartFileWithRequiredMetadata file)
+    {
+        Argument.AssertNotNull(file, nameof(file));
+
+        AddFilePart(name, file.File, file.Contents, file.Filename, file.ContentType);
     }
 
     // CUSTOM: Add IPersistableModel part to the multipart content.
@@ -202,6 +214,25 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
             byteArrayContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
         Add(byteArrayContent, name, fileName);
+    }
+
+    // CUSTOM: Add helper method to reduce code duplication.
+    private void AddFilePart(string name, Stream fileStream, BinaryData contents, string filename = default, string contentType = default)
+    {
+        Argument.AssertNotNullOrEmpty(name, nameof(name));
+
+        if (fileStream != null)
+        {
+            Add(name, fileStream, filename, contentType);
+        }
+        else if (contents != null)
+        {
+            Add(name, contents, filename, contentType);
+        }
+        else
+        {
+            throw new InvalidOperationException("File contents are not set.");
+        }
     }
 
     // CUSTOM: Make private

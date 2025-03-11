@@ -9,7 +9,7 @@ namespace Payload.MultiPart.Models
 {
     public partial class ComplexHttpPartsModelRequest
     {
-        public ComplexHttpPartsModelRequest(string id, Address address, FileRequiredMetaData profileImage, IEnumerable<Address> previousAddresses, IEnumerable<FileRequiredMetaData> pictures)
+        public ComplexHttpPartsModelRequest(string id, Address address, MultiPartFileWithRequiredMetadata profileImage, IEnumerable<Address> previousAddresses, IEnumerable<MultiPartFileWithRequiredMetadata> pictures)
         {
             Argument.AssertNotNull(id, nameof(id));
             Argument.AssertNotNull(address, nameof(address));
@@ -26,8 +26,8 @@ namespace Payload.MultiPart.Models
 
         public string Id { get; }
         public Address Address { get; }
-        public FileRequiredMetaData ProfileImage { get; }
+        public MultiPartFileWithRequiredMetadata ProfileImage { get; }
         public IList<Address> PreviousAddresses { get; }
-        public IList<FileRequiredMetaData> Pictures { get; }
+        public IList<MultiPartFileWithRequiredMetadata> Pictures { get; }
     }
 }

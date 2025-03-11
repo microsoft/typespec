@@ -11,7 +11,7 @@ namespace Payload.MultiPart.Models
     /// <summary> The BinaryArrayPartsRequest. </summary>
     public partial class BinaryArrayPartsRequest
     {
-        public BinaryArrayPartsRequest(string id, IEnumerable<MultiPartFile> pictures)
+        public BinaryArrayPartsRequest(string id, IEnumerable<MultiPartFileWithOptionalMetadata> pictures)
         {
             Argument.AssertNotNull(id, nameof(id));
             Argument.AssertNotNull(pictures, nameof(pictures));
@@ -23,6 +23,6 @@ namespace Payload.MultiPart.Models
         /// <summary> Gets the id. </summary>
         public string Id { get; }
         /// <summary> Gets the pictures. </summary>
-        public IList<MultiPartFile> Pictures { get; }
+        public IList<MultiPartFileWithOptionalMetadata> Pictures { get; }
     }
 }

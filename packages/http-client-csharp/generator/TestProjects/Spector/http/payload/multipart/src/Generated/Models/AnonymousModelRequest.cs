@@ -13,7 +13,7 @@ namespace Payload.MultiPart.Models
         /// <summary> Initializes a new instance of <see cref="AnonymousModelRequest"/>. </summary>
         /// <param name="profileImage"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="profileImage"/> is null. </exception>
-        public AnonymousModelRequest(MultiPartFile profileImage)
+        public AnonymousModelRequest(MultiPartFileWithOptionalMetadata profileImage)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
@@ -21,6 +21,6 @@ namespace Payload.MultiPart.Models
         }
 
         /// <summary> Gets the profile image. </summary>
-        public MultiPartFile ProfileImage { get; }
+        public MultiPartFileWithOptionalMetadata ProfileImage { get; }
     }
 }

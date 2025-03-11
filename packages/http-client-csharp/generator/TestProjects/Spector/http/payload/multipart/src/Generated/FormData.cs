@@ -290,7 +290,7 @@ namespace Payload.MultiPart._FormData
         }
 
         // CUSTOM: Convenience method
-        public virtual async Task<ClientResult> AnonymousModelAsync(MultiPartFile profileImage, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> AnonymousModelAsync(MultiPartFileWithOptionalMetadata profileImage, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
@@ -301,7 +301,7 @@ namespace Payload.MultiPart._FormData
         }
 
         // CUSTOM: Convenience method
-        public virtual ClientResult AnonymousModel(MultiPartFile profileImage, CancellationToken cancellationToken = default)
+        public virtual ClientResult AnonymousModel(MultiPartFileWithOptionalMetadata profileImage, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 

@@ -6,7 +6,7 @@ namespace Payload.MultiPart.Models
 {
     public partial class FileWithHttpPartRequiredContentTypeRequest
     {
-        public FileWithHttpPartRequiredContentTypeRequest(FileRequiredMetaData profileImage)
+        public FileWithHttpPartRequiredContentTypeRequest(MultiPartFileWithRequiredMetadata profileImage)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
@@ -14,6 +14,6 @@ namespace Payload.MultiPart.Models
         }
 
         /// <summary> Gets the profile image. </summary>
-        public FileRequiredMetaData ProfileImage { get; }
+        public MultiPartFileWithRequiredMetadata ProfileImage { get; }
     }
 }
