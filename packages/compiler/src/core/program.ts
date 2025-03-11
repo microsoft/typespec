@@ -12,7 +12,8 @@ import {
   resolveModule,
 } from "../module-resolver/module-resolver.js";
 import { PackageJson } from "../types/package-json.js";
-import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
+import { findProjectRoot } from "../utils/io.js";
+import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";

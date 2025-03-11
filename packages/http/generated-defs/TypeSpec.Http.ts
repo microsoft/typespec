@@ -10,7 +10,6 @@ import type {
 export interface HeaderOptions {
   readonly name?: string;
   readonly explode?: boolean;
-  readonly format?: "csv" | "multi" | "tsv" | "ssv" | "pipes" | "simple" | "form";
 }
 
 export interface CookieOptions {
@@ -20,7 +19,6 @@ export interface CookieOptions {
 export interface QueryOptions {
   readonly name?: string;
   readonly explode?: boolean;
-  readonly format?: "multi" | "csv" | "ssv" | "tsv" | "simple" | "form" | "pipes";
 }
 
 export interface PathOptions {
@@ -334,7 +332,6 @@ export type IncludeInapplicableMetadataInPayloadDecorator = (
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
  * @param uriTemplate Uri template for this operation.
- * @param options _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
  * @example Simple path parameter
  *
  * ```typespec
@@ -354,7 +351,6 @@ export type RouteDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
   path: string,
-  options?: Type,
 ) => void;
 
 /**

@@ -19,6 +19,7 @@
     "stop:server": "npx tsp-spector server stop",
     "test:e2e": "npm run emit:e2e && node eng/scripts/run-e2e-tests.js",
     "run:e2e": "node eng/scripts/run-e2e-tests.js",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-js/reference --skip-js",
     "emit:e2e": "node eng/scripts/emit-e2e.js"
   },
   "exports": {
@@ -60,9 +61,10 @@
     "@babel/core": "^7.26.9",
     "@rollup/plugin-babel": "^6.0.4",
     "@types/yargs": "~17.0.33",
-    "@typespec/http-specs": "0.1.0-alpha.11",
+    "@typespec/http-specs": "workspace:^",
     "@typespec/spector": "workspace:^",
     "@typespec/ts-http-runtime": "0.1.0",
+    "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "@vitest/ui": "^3.0.7",
     "picocolors": "~1.1.1",
