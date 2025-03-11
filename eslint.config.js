@@ -75,7 +75,6 @@ export function getTypeScriptProjectRules(root) {
     files: ["**/packages/*/src/**/*.ts", "**/packages/*/src/**/*.tsx"],
     ignores: [
       "**/packages/http-client-csharp/**/*",
-      "**/packages/http-client-java/**/*",
       "**/packages/http-client-python/**/*",
     ], // Ignore isolated modules
     plugins: {},
