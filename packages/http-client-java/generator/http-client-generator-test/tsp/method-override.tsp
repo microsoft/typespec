@@ -52,8 +52,8 @@ namespace MethodOverride {
   op groupPart is global.Azure.Core.RpcOperation<GroupPartNotGrouped & GroupPartOptions, {}>;
 
   model GroupPartEtagOptions {
-    ...GroupPartOptions,
-    
+    ...GroupPartOptions;
+
     @header("If-Modified-Since")
     ifModifiedSince?: utcDateTime;
 
@@ -62,7 +62,7 @@ namespace MethodOverride {
 
     @header("If-Match")
     ifMatch?: string;
-  
+
     @header("If-None-Match")
     ifNoneMatch?: string;
   }
