@@ -577,6 +577,7 @@ async function getTypeSpecCoreTemplates(
       templates: content,
     };
   } else {
+    logger.error(`Failed to read core typespec templates from extension: ${templatesDir}`);
     return undefined;
   }
 }
