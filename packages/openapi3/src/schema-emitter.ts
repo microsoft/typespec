@@ -667,7 +667,7 @@ export class OpenAPI3SchemaEmitterBase<
 
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<Schema> {
     const isStd = isStdType(this.emitter.getProgram(), scalar);
-    const schema = this.#getSchemaForScalar(scalar);
+    const schema = this.getSchemaForScalar(scalar);
     const baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
 
     // Don't create a declaration for std types
@@ -680,20 +680,20 @@ export class OpenAPI3SchemaEmitterBase<
     scalar: Scalar,
     name: string | undefined,
   ): EmitterOutput<Record<string, any>> {
-    return this.#getSchemaForScalar(scalar);
+    return this.getSchemaForScalar(scalar);
   }
 
   tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
     return { type: "array", items: {} };
   }
 
-  #getSchemaForScalar(scalar: Scalar): Schema {
+  protected getSchemaForScalar(scalar: Scalar): Schema {
     let result: Schema = {} as Schema;
     const isStd = isStdType(this.emitter.getProgram(), scalar);
     if (isStd) {
       result = this.getSchemaForStdScalars(scalar);
     } else if (scalar.baseScalar) {
-      result = this.#getSchemaForScalar(scalar.baseScalar);
+      result = this.getSchemaForScalar(scalar.baseScalar);
     }
     const withDecorators = this.applyEncoding(scalar, this.applyConstraints(scalar, result) as any);
     if (isStd) {

@@ -5,7 +5,6 @@ import {
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
-  IntrinsicScalarName,
   IntrinsicType,
   isNullType,
   Model,
@@ -194,15 +193,15 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       const schema = schemaMember.schema;
       const type = schemaMember.type;
 
-      const additionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
+      const unionWideAdditionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
         ? this.applyConstraints(union, {})
         : {};
 
       if (mergeUnionWideConstraints && nullable) {
-        additionalProps.nullable = true;
+        unionWideAdditionalProps.nullable = true;
       }
 
-      if (Object.keys(additionalProps).length === 0) {
+      if (Object.keys(unionWideAdditionalProps).length === 0) {
         return new ObjectBuilder(schema);
       } else {
         if (
@@ -213,27 +212,57 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
             return new ObjectBuilder({
               type: "object",
               allOf: Builders.array([schema]),
-              ...additionalProps,
+              ...unionWideAdditionalProps,
             });
           } else if (type && type.kind === "Scalar") {
             // TODO: remove duplicate schemas
             const currentRootScalar = $.scalar.getStdBase(type);
-
+            const memberWideAdditionalProps = this.applyConstraints(type, {});
             if (!currentRootScalar) {
-              const { nullable, ...additional } = additionalProps;
-              return new ObjectBuilder({ ...additional });
+              return new ObjectBuilder(memberWideAdditionalProps);
             }
 
-            const rootSchema = this.getSchemaForStdScalars(
-              currentRootScalar as unknown as Scalar & { name: IntrinsicScalarName },
-            );
-            return new ObjectBuilder({ ...rootSchema, ...additionalProps });
+            const innerSchema = this.getSchemaForScalar(type);
+            // TODO: for the same constraints, use intersection of constraints from union wide and union member
+            //       for now, add allOf when there are union member wide constraints and union wide constraints (except for nullable)
+            if (schemaMembers.length === 1) {
+              if (
+                Object.keys(memberWideAdditionalProps).length > 0 &&
+                Object.keys(unionWideAdditionalProps).length >
+                  (unionWideAdditionalProps.nullable === undefined ? 0 : 1)
+              ) {
+                const initializer = {
+                  allOf: Builders.array([
+                    { ...innerSchema, nullable, ...memberWideAdditionalProps },
+                  ]),
+                  ...unionWideAdditionalProps,
+                };
+                initializer.nullable = undefined;
+                return new ObjectBuilder(initializer);
+              }
+              return new ObjectBuilder({
+                ...innerSchema,
+                ...memberWideAdditionalProps,
+                ...unionWideAdditionalProps,
+                nullable,
+              });
+            }
+
+            // already has `allOf` wrapped when schemaMembers.length > 1
+            return new ObjectBuilder({
+              ...innerSchema,
+              ...memberWideAdditionalProps,
+              nullable,
+            });
           } else {
-            return new ObjectBuilder({ allOf: Builders.array([schema]), ...additionalProps });
+            return new ObjectBuilder({
+              allOf: Builders.array([schema]),
+              ...unionWideAdditionalProps,
+            });
           }
         } else {
           const merged = new ObjectBuilder<OpenAPI3Schema>(schema);
-          for (const [key, value] of Object.entries(additionalProps)) {
+          for (const [key, value] of Object.entries(unionWideAdditionalProps)) {
             merged.set(key, value);
           }
           return merged;
