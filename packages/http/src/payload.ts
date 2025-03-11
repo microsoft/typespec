@@ -200,26 +200,6 @@ interface ResolvedContentType {
   readonly contentTypes: string[];
   readonly contentTypeProperty?: ModelProperty;
 }
-// function resolveContentTypes(
-//   program: Program,
-//   metadata: HttpProperty[],
-//   type: Type,
-//   disposition: HttpPayloadDisposition,
-// ): DiagnosticResult<ResolvedContentType> {
-//   for (const prop of metadata) {
-//     if (prop.kind === "contentType") {
-//       const [contentTypes, diagnostics] = getContentTypes(prop.property);
-//       return [{ contentTypes, contentTypeProperty: prop.property }, diagnostics];
-//     }
-//   }
-//   switch (disposition) {
-//     case HttpPayloadDisposition.Multipart:
-//       // TODO/witemple: figure out this unimplemented facet
-//       return [{ contentTypes: [] }, []];
-//     default:
-//       return [{ contentTypes: ["application/json"] }, []];
-//   }
-// }
 
 function resolveExplicitBodyProperty(
   program: Program,
