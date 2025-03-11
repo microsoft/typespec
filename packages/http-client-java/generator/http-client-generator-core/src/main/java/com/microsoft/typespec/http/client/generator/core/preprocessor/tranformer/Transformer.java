@@ -53,7 +53,6 @@ public class Transformer {
             == JavaSettings.ClientFlattenAnnotationTarget.NONE) {
             markFlattenedSchemas(codeModel);
         }
-        transformOperationGroups(codeModel.getOperationGroups(), codeModel);
         if (codeModel.getGlobalParameters() != null) {
             for (Parameter parameter : codeModel.getGlobalParameters()) {
                 if (parameter.getLanguage().getJava() == null) {
@@ -64,6 +63,8 @@ public class Transformer {
         // multi-clients for TypeSpec
         if (codeModel.getClients() != null) {
             transformClients(codeModel.getClients());
+        } else {
+            transformOperationGroups(codeModel.getOperationGroups(), codeModel);
         }
         return codeModel;
     }

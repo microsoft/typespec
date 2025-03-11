@@ -3,12 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
+import com.azure.core.util.CoreUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a code model.
@@ -101,6 +103,15 @@ public class CodeModel extends Client {
     }
 
     @Override
+    public List<OperationGroup> getOperationGroups() {
+        List<OperationGroup> operationGroups = super.getOperationGroups();
+        if (CoreUtils.isNullOrEmpty(operationGroups)) {
+            return getClientOperationGroups();
+        }
+        return operationGroups;
+    }
+
+    @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return super.writeParentProperties(jsonWriter.writeStartObject()).writeJsonField("info", info)
             .writeJsonField("schemas", schemas)
@@ -134,5 +145,11 @@ public class CodeModel extends Client {
                 reader.skipChildren();
             }
         });
+    }
+
+    private List<OperationGroup> getClientOperationGroups() {
+        return getClients().stream()
+            .flatMap(client -> client.getOperationGroups().stream())
+            .collect(Collectors.toList());
     }
 }
