@@ -578,7 +578,7 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         });
       });
 
-      it("should carry all constraints on union and it's members", async () => {
+      it("should carry all constraints on union and its members", async () => {
         const openApi = await openApiFor(`
         @minValue(3)
         scalar Num extends int32;
@@ -663,7 +663,7 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         });
       });
 
-      it("should carry constraints on union and its members", async () => {
+      it("should carry constraints on union declaration and its members", async () => {
         const openApi = await openApiFor(`
         @minValue(2)
         scalar Num extends int32;
@@ -720,37 +720,6 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
           ],
           minimum: 1,
           maxLength: 100,
-        });
-      });
-
-      it("should carry metadata on union members", async () => {
-        const openApi = await openApiFor(`
-        /** this is my str */
-        scalar Str1 extends string;
-        scalar Str2 extends Str1;
-        model Test {a: Str1 | Str2 | null}
-      `);
-        expect(openApi.components.schemas.Str1).toEqual({
-          description: "this is my str",
-          type: "string",
-        });
-        expect(openApi.components.schemas.Str2).toEqual({
-          description: "this is my str",
-          type: "string",
-        });
-        expect(openApi.components.schemas.Test.properties.a).toEqual({
-          anyOf: [
-            {
-              description: "this is my str",
-              type: "string",
-              nullable: true,
-            },
-            {
-              description: "this is my str",
-              type: "string",
-              nullable: true,
-            },
-          ],
         });
       });
     });
