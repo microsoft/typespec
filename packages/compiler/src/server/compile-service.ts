@@ -1,6 +1,5 @@
 import { DiagnosticSeverity, Range, TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { isSeq, parseDocument } from "yaml";
 import {
   defaultConfig,
   findTypeSpecConfigPath,
@@ -25,6 +24,8 @@ import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using
 import { builtInLinterLibraryName } from "../core/linter.js";
 import { compile as compileProgram } from "../core/program.js";
 import { doIO, loadFile, resolveTspMain } from "../utils/misc.js";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import { parseYaml } from "../yaml/parser.js";
 import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
@@ -180,39 +181,18 @@ export function createCompileService({
 
       let uri = document.uri;
       let range = Range.create(0, 0, 0, 0);
-      if (err.info.kind === "emitter" && configFilePath) {
-        const sourceFile = await serverHost.compilerHost.readFile(configFilePath);
+      if (err.name === "ExternalError" && err.info.kind === "emitter" && configFilePath) {
         const emitterName = err.info.metadata.name;
-        const yamlDoc = parseDocument(sourceFile.text, {
-          keepSourceTokens: true,
-        });
-        if (yamlDoc) {
-          let emitOffset = 0;
-          const emitNode = yamlDoc.get("emit");
-          if (isSeq(emitNode) && emitNode.srcToken?.type === "block-seq") {
-            const found = emitNode.srcToken.items.find(
-              (item) =>
-                item.value &&
-                "source" in item.value &&
-                item.value.source.replace(/^['"]|['"]$/g, "") === emitterName,
-            )?.value;
-            if (found) {
-              emitOffset = found.offset;
-            }
-          }
-
-          if (emitOffset > 0) {
-            const lineAndChar = sourceFile.getLineAndCharacterOfPosition(emitOffset + 1);
-
-            uri = fileService.getURL(configFilePath);
-            range = Range.create(
-              lineAndChar.line,
-              lineAndChar.character,
-              lineAndChar.line,
-              lineAndChar.character + emitterName.length,
-            );
-          }
-        }
+        const [yamlScript] = parseYaml(await serverHost.compilerHost.readFile(configFilePath));
+        const target = getLocationInYamlScript(yamlScript, ["emit", emitterName], "key");
+        uri = fileService.getURL(configFilePath);
+        const lineAndChar = target.file.getLineAndCharacterOfPosition(target.pos);
+        range = Range.create(
+          lineAndChar.line,
+          lineAndChar.character,
+          lineAndChar.line,
+          lineAndChar.character + emitterName.length,
+        );
       }
 
       serverHost.sendDiagnostics({
@@ -222,7 +202,9 @@ export function createCompileService({
             severity: DiagnosticSeverity.Error,
             range,
             message:
-              `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n` +
+              (err.name === "ExternalError"
+                ? "External compiler error!\n"
+                : `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n`) +
               err.stack,
           },
         ],
