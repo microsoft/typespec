@@ -222,6 +222,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
               return new ObjectBuilder(memberWideAdditionalProps);
             }
 
+            const nullableProperty = nullable === true ? true : undefined;
             const innerSchema = this.getSchemaForScalar(type);
             // TODO: for the same constraints, use intersection of constraints from union wide and union member
             //       for now, add allOf when there are union member wide constraints and union wide constraints (except for nullable)
@@ -233,7 +234,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
               ) {
                 const initializer = {
                   allOf: Builders.array([
-                    { ...innerSchema, nullable, ...memberWideAdditionalProps },
+                    { ...innerSchema, nullable: nullableProperty, ...memberWideAdditionalProps },
                   ]),
                   ...unionWideAdditionalProps,
                 };
@@ -244,7 +245,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
                 ...innerSchema,
                 ...memberWideAdditionalProps,
                 ...unionWideAdditionalProps,
-                nullable,
+                nullable: nullableProperty,
               });
             }
 
@@ -252,7 +253,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
             return new ObjectBuilder({
               ...innerSchema,
               ...memberWideAdditionalProps,
-              nullable,
+              nullable: nullableProperty,
             });
           } else {
             return new ObjectBuilder({
