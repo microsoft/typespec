@@ -584,9 +584,8 @@ async function getTypeSpecCoreTemplates(
 async function loadInitTemplates(
   context: ExtensionContext,
 ): Promise<Map<string, InitTemplateInfo[]>> {
-  logger.info("Loading init templates from compiler...");
   const templateInfoMap: Map<string, InitTemplateInfo[]> = new Map();
-  logger.info("Loading init templates from config...");
+  logger.info("Loading init templates from compiler...");
   const templates = await getTypeSpecCoreTemplates(context);
   if (templates !== undefined) {
     templateInfoMap.set(
@@ -606,6 +605,7 @@ async function loadInitTemplates(
     .getConfiguration()
     .get<InitTemplatesUrlSetting[]>(SettingName.InitTemplatesUrls);
   if (settings) {
+    logger.info("Loading init templates from config...");
     const loadFromConfig = async () => {
       for (const item of settings) {
         const { content, url } = (await tryReadFileOrUrl(item.url)) ?? {
