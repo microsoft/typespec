@@ -13,13 +13,17 @@ import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.HttpHeaderName;
+import com.azure.core.http.RequestConditions;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.util.FluxUtil;
+import java.time.OffsetDateTime;
 import methodoverride.implementation.MethodOverrideClientImpl;
 import methodoverride.implementation.models.GroupAllRequest;
 import methodoverride.implementation.models.GroupNoneRequest;
+import methodoverride.implementation.models.GroupPartEtagRequest;
 import methodoverride.implementation.models.GroupPartRequest;
 import methodoverride.models.GroupAllOptions;
 import methodoverride.models.GroupExcludeBodyModel;
@@ -137,6 +141,52 @@ public final class MethodOverrideAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> groupPartWithResponse(BinaryData groupPartRequest, RequestOptions requestOptions) {
         return this.serviceClient.groupPartWithResponseAsync(groupPartRequest, requestOptions);
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifModifiedSince parameter</td></tr>
+     * <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifUnmodifiedSince parameter</td></tr>
+     * <tr><td>If-Match</td><td>String</td><td>No</td><td>The ifMatch parameter</td></tr>
+     * <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The ifNoneMatch parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     prop1: String (Required)
+     *     prop2: String (Optional)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param groupPartEtagRequest The groupPartEtagRequest parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> groupPartEtagWithResponse(BinaryData groupPartEtagRequest,
+        RequestOptions requestOptions) {
+        return this.serviceClient.groupPartEtagWithResponseAsync(groupPartEtagRequest, requestOptions);
     }
 
     /**
@@ -346,6 +396,76 @@ public final class MethodOverrideAsyncClient {
         GroupPartRequest groupPartRequestObj = new GroupPartRequest(prop1);
         BinaryData groupPartRequest = BinaryData.fromObject(groupPartRequestObj);
         return groupPartWithResponse(groupPartRequest, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * 
+     * @param groupPartEtagRequest The groupPartEtagRequest parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> groupPartEtag(GroupPartEtagRequest groupPartEtagRequest, String foo, String bar,
+        RequestConditions requestConditions) {
+        // Generated convenience method for groupPartEtagWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        OffsetDateTime ifModifiedSince = requestConditions == null ? null : requestConditions.getIfModifiedSince();
+        OffsetDateTime ifUnmodifiedSince = requestConditions == null ? null : requestConditions.getIfUnmodifiedSince();
+        String ifMatch = requestConditions == null ? null : requestConditions.getIfMatch();
+        String ifNoneMatch = requestConditions == null ? null : requestConditions.getIfNoneMatch();
+        if (foo != null) {
+            requestOptions.addQueryParam("foo", foo, false);
+        }
+        if (bar != null) {
+            requestOptions.addQueryParam("bar", bar, false);
+        }
+        if (ifModifiedSince != null) {
+            requestOptions.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
+        }
+        if (ifUnmodifiedSince != null) {
+            requestOptions.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
+        }
+        if (ifMatch != null) {
+            requestOptions.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
+        }
+        if (ifNoneMatch != null) {
+            requestOptions.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
+        }
+        return groupPartEtagWithResponse(BinaryData.fromObject(groupPartEtagRequest), requestOptions)
+            .flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * 
+     * @param groupPartEtagRequest The groupPartEtagRequest parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> groupPartEtag(GroupPartEtagRequest groupPartEtagRequest) {
+        // Generated convenience method for groupPartEtagWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return groupPartEtagWithResponse(BinaryData.fromObject(groupPartEtagRequest), requestOptions)
+            .flatMap(FluxUtil::toMono);
     }
 
     /**
