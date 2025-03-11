@@ -575,7 +575,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
         `,
         );
         strictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"], undefined);
-        ok(res.paths["/"].post.requestBody.content["application/json"]);
+        ok(res.paths["/"].post.requestBody.content["text/plain"]);
       });
     });
   });

@@ -328,15 +328,15 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) 
 worksFor(["3.0.0"], ({ openApiFor }) => {
   describe("openapi 3.0: request", () => {
     describe("binary request", () => {
-      it("bytes request should default to application/json byte", async () => {
+      it("bytes request should default to application/octet-stream with binary format", async () => {
         const res = await openApiFor(`
         @post op read(@body body: bytes): {};
       `);
 
         const requestBody = res.paths["/"].post.requestBody;
         ok(requestBody);
-        strictEqual(requestBody.content["application/json"].schema.type, "string");
-        strictEqual(requestBody.content["application/json"].schema.format, "byte");
+        strictEqual(requestBody.content["application/octet-stream"].schema.type, "string");
+        strictEqual(requestBody.content["application/octet-stream"].schema.format, "binary");
       });
 
       it("bytes request should respect @header contentType and use binary format when not json or text", async () => {
@@ -356,16 +356,15 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
 worksFor(["3.1.0"], ({ openApiFor }) => {
   describe("openapi 3.1: request", () => {
     describe("binary request", () => {
-      it("bytes request should default to application/json with base64 contentEncoding", async () => {
+      it("bytes request should default to application/octet-stream with same contentMediaType", async () => {
         const res = await openApiFor(`
         @post op read(@body body: bytes): {};
       `);
 
         const requestBody = res.paths["/"].post.requestBody;
         ok(requestBody);
-        deepStrictEqual(requestBody.content["application/json"].schema, {
-          type: "string",
-          contentEncoding: "base64",
+        deepStrictEqual(requestBody.content["application/octet-stream"].schema, {
+          contentMediaType: "application/octet-stream",
         });
       });
 

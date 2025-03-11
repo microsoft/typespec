@@ -141,7 +141,10 @@ export async function oapiForModel(
     @service(#{title: "Testing model"})
     @route("/")
     namespace root {
-      op read(): { @body body: ${name} };
+      op read(): {
+        @header contentType: "application/json";
+        @body body: ${name};
+      };
     }
   `,
     undefined,
