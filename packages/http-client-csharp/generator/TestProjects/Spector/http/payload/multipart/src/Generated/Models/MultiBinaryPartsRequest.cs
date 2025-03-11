@@ -12,7 +12,7 @@ namespace Payload.MultiPart.Models
     /// <summary> The MultiBinaryPartsRequest. </summary>
     public partial class MultiBinaryPartsRequest
     {
-        public MultiBinaryPartsRequest(MultiPartFile profileImage)
+        public MultiBinaryPartsRequest(MultiPartFileWithOptionalMetadata profileImage)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
@@ -20,8 +20,8 @@ namespace Payload.MultiPart.Models
         }
 
         /// <summary> Gets the profile image. </summary>
-        public MultiPartFile ProfileImage { get; }
+        public MultiPartFileWithOptionalMetadata ProfileImage { get; }
         /// <summary> Gets or sets the picture. </summary>
-        public MultiPartFile Picture { get; set; }
+        public MultiPartFileWithOptionalMetadata Picture { get; set; }
     }
 }

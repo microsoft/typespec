@@ -7,16 +7,34 @@ using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class JsonPartRequest : IPersistableModel<JsonPartRequest>
+    public partial class JsonPartRequest : IStreamModel<JsonPartRequest>
     {
+        private string _boundary;
+        private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
         BinaryData IPersistableModel<JsonPartRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<JsonPartRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
+                case "MPFD-ContentType":
+                    return SerializeMultipartContentType();
                 case "MPFD":
                     return SerializeMultipart();
+                default:
+                    throw new FormatException($"The model {nameof(JsonPartRequest)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        void IStreamModel<JsonPartRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
+        protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<JsonPartRequest>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "MPFD":
+                    WriteTo(stream);
+                    return;
                 default:
                     throw new FormatException($"The model {nameof(JsonPartRequest)} does not support writing '{options.Format}' format.");
             }
@@ -43,22 +61,33 @@ namespace Payload.MultiPart.Models
             MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
 
             content.Add("address", Address);
-            // TO-DO: How do we know which model is a file?
-            // Possible solution: When creating the file model in the emitter, the emitter can add a new nullable property
-            // 'isFile' to the model. If the property is not null or true, then the model is a file.
             content.Add("profileImage", ProfileImage);
 
             return content;
         }
 
+        private BinaryData SerializeMultipartContentType()
+        {
+            using MultiPartFormDataBinaryContent content = new(Boundary);
+            return BinaryData.FromString(content.ContentType);
+        }
+
         private BinaryData SerializeMultipart()
         {
-            using MultiPartFormDataBinaryContent content = ToMultipartContent();
             using MemoryStream stream = new MemoryStream();
 
-            content.WriteTo(stream);
-            stream.Position = 0; // Reset the stream position to the beginning
+            WriteTo(stream);
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
             return BinaryData.FromStream(stream);
+        }
+
+        private void WriteTo(Stream stream)
+        {
+            using MultiPartFormDataBinaryContent content = ToMultipartContent();
+            content.WriteTo(stream);
         }
     }
 }

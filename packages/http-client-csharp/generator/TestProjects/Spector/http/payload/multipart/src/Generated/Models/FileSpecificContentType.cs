@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class FileSpecificContentType : MultiPartFile
+    public partial class FileSpecificContentType : MultiPartFileWithRequiredMetadata
     {
         public FileSpecificContentType(Stream contents, string filename) : base(contents, filename, "image/jpg")
         {

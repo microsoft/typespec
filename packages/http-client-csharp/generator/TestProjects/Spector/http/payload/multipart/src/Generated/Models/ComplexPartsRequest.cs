@@ -9,7 +9,7 @@ namespace Payload.MultiPart.Models
 {
     public partial class ComplexPartsRequest
     {
-        public ComplexPartsRequest(string id, Address address, MultiPartFile profileImage, IEnumerable<MultiPartFile> pictures)
+        public ComplexPartsRequest(string id, Address address, MultiPartFileWithOptionalMetadata profileImage, IEnumerable<MultiPartFileWithOptionalMetadata> pictures)
         {
             Argument.AssertNotNull(id, nameof(id));
             Argument.AssertNotNull(address, nameof(address));
@@ -24,7 +24,7 @@ namespace Payload.MultiPart.Models
 
         public string Id { get; }
         public Address Address { get; }
-        public MultiPartFile ProfileImage { get; }
-        public IList<MultiPartFile> Pictures { get; }
+        public MultiPartFileWithOptionalMetadata ProfileImage { get; }
+        public IList<MultiPartFileWithOptionalMetadata> Pictures { get; }
     }
 }

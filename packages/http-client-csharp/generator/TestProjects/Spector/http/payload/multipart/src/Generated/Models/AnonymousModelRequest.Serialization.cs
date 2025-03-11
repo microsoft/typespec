@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    internal partial class AnonymousModelRequest : IPersistableStreamModel<AnonymousModelRequest>
+    internal partial class AnonymousModelRequest : IStreamModel<AnonymousModelRequest>
     {
         private string _boundary;
         private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
@@ -28,14 +28,14 @@ namespace Payload.MultiPart.Models
             }
         }
 
-        void IPersistableStreamModel<AnonymousModelRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
+        void IStreamModel<AnonymousModelRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
         protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<AnonymousModelRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "MPFD":
-                    SerializeMultipart(stream);
+                    WriteTo(stream);
                     return;
                 default:
                     throw new FormatException($"The model {nameof(AnonymousModelRequest)} does not support writing '{options.Format}' format.");
@@ -74,10 +74,9 @@ namespace Payload.MultiPart.Models
 
         private BinaryData SerializeMultipart()
         {
-            using MultiPartFormDataBinaryContent content = ToMultipartContent();
             using MemoryStream stream = new MemoryStream();
 
-            content.WriteTo(stream);
+            WriteTo(stream);
             if (stream.CanSeek)
             {
                 stream.Seek(0, SeekOrigin.Begin);
@@ -85,15 +84,10 @@ namespace Payload.MultiPart.Models
             return BinaryData.FromStream(stream);
         }
 
-        private void SerializeMultipart(Stream stream)
+        private void WriteTo(Stream stream)
         {
             using MultiPartFormDataBinaryContent content = ToMultipartContent();
-
             content.WriteTo(stream);
-            if (stream.CanSeek)
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
         }
     }
 }
