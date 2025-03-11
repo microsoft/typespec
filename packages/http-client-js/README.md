@@ -1,26 +1,42 @@
-# Http Client JavaScript
+# @typespec/http-client-js
 
-## Environment Variables
+TypeSpec library for emitting Http Client libraries for JavaScript/TypeScript
 
-### `TYPESPEC_JS_EMITTER_TESTING`
+## Install
 
-This environment variable is used to enable testing-specific options in the TypeSpec JavaScript emitter.
-
-- **Name:** `TYPESPEC_JS_EMITTER_TESTING`
-- **Type:** `boolean`
-- **Default:** `false`
-- **Description:** When set to `true`, enables testing-specific options in the TypeSpec JavaScript emitter. This is used to configure the client for testing purposes, such as allowing insecure connections and setting retry options.
-
-#### Usage
-
-To enable testing-specific options, set the environment variable before running your tests:
-
-```sh
-export TYPESPEC_JS_EMITTER_TESTING=true
+```bash
+npm install @typespec/http-client-js
 ```
 
-Or, if you are using a script, you can set it inline:
+## Usage
 
-```sh
-TYPESPEC_JS_EMITTER_TESTING=true node your-script.js
+1. Via the command line
+
+```bash
+tsp compile . --emit=@typespec/http-client-js
 ```
+
+2. Via the config
+
+```yaml
+emit:
+  - "@typespec/http-client-js"
+```
+
+The config can be extended with options as follows:
+
+```yaml
+emit:
+  - "@typespec/http-client-js"
+options:
+  "@typespec/http-client-js":
+    option: value
+```
+
+## Emitter options
+
+### `package-name`
+
+**Type:** `string`
+
+Name of the package as it will be in package.json

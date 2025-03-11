@@ -282,7 +282,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
 
     this.applyDiscriminator(union, schema);
 
-    // return new ObjectBuilder(schema);
     return this.applyConstraints(union, schema);
 
     interface UnionSchemaMember {
