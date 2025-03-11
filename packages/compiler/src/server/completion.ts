@@ -436,6 +436,7 @@ function addIdentifierCompletion(
       const targetNode = getSourceLocation(node);
       const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
       edit = TextEdit.replace(
+        // Specifying replacement in the current location can avoid the problem of $ duplication
         Range.create(lineAndChar, lineAndChar),
         printIdentifier(key) + (suffix ?? ""),
       );
