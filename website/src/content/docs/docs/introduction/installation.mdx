@@ -6,6 +6,8 @@ slug: docs
 
 import { Aside, Badge, Tabs, TabItem, FileTree, Steps } from "@astrojs/starlight/components";
 
+## Install TypeSpec
+
 TypeSpec can be used in two ways:
 
 - Npm package for use with Node.js and other package managers.
@@ -20,7 +22,7 @@ Install [Node.js LTS](https://nodejs.org/en/download/) and ensure you can run th
 npm --version
 ```
 
-### Package manager
+#### Package manager
 
 TypeSpec uses node package linking to manage dependencies. Any package manager that produce a `node_modules` directory should work:
 
@@ -32,9 +34,10 @@ TypeSpec uses node package linking to manage dependencies. Any package manager t
 Yarn will not automatically install implicit peerDependencies. TypeSpec libraries rely on this. Watch for warnings for any missing dependencies.
 :::
 
-### Install tsp
+#### Install tsp (optional)
 
-The first step is to install `tsp`, the TypeSpec compiler/CLI.
+To have access to the `tsp` command globally, install the `@typespec/compiler` package:
+Altnatively, you can run `npx tsp` instead in any project that has the compiler as a dependency.
 
 ```bash
 npm install -g @typespec/compiler
