@@ -2022,17 +2022,12 @@ export interface RmOptions {
   recursive?: boolean;
 }
 
-export interface CompilerHost {
+export interface SystemHost {
   /** read a file at the given url. */
   readUrl(url: string): Promise<SourceFile>;
 
   /** read a utf-8 or utf-8 with bom encoded file */
   readFile(path: string): Promise<SourceFile>;
-
-  /**
-   * Optional cache to reuse the results of parsing and binding across programs.
-   */
-  parseCache?: WeakMap<SourceFile, TypeSpecScriptNode>;
 
   /**
    * Write the file.
@@ -2060,6 +2055,19 @@ export interface CompilerHost {
    */
   mkdirp(path: string): Promise<string | undefined>;
 
+  // get info about a path
+  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
+
+  // get the real path of a possibly symlinked path
+  realpath(path: string): Promise<string>;
+}
+
+export interface CompilerHost extends SystemHost {
+  /**
+   * Optional cache to reuse the results of parsing and binding across programs.
+   */
+  parseCache?: WeakMap<SourceFile, TypeSpecScriptNode>;
+
   // get the directory TypeSpec is executing from
   getExecutionRoot(): string;
 
@@ -2069,13 +2077,7 @@ export interface CompilerHost {
   // get a promise for the ESM module shape of a JS module
   getJsImport(path: string): Promise<Record<string, any>>;
 
-  // get info about a path
-  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
-
   getSourceFileKind(path: string): SourceFileKind | undefined;
-
-  // get the real path of a possibly symlinked path
-  realpath(path: string): Promise<string>;
 
   // convert a file URL to a path in a file system
   fileURLToPath(url: string): string;
@@ -2485,12 +2487,34 @@ export interface RelatedSourceLocation {
   readonly location: SourceLocation;
 }
 
+/** @internal */
+export type TaskStatus = "success" | "failure" | "skipped" | "warn";
+
+/** @internal */
+export interface TrackActionTask {
+  message: string;
+  readonly isStopped: boolean;
+  succeed(message?: string): void;
+  fail(message?: string): void;
+  warn(message?: string): void;
+  skip(message?: string): void;
+  stop(status: TaskStatus, message?: string): void;
+}
+
 export interface LogSink {
   log(log: ProcessedLog): void;
+
+  /** @internal */
+  getPath?(path: string): string;
+
   /**
    * @internal
    */
-  trackAction?<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
+  trackAction?<T>(
+    message: string,
+    finalMessage: string,
+    asyncAction: (task: TrackActionTask) => Promise<T>,
+  ): Promise<T>;
 }
 
 export interface Logger {
@@ -2498,7 +2522,13 @@ export interface Logger {
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
-  trackAction<T>(message: string, finalMessage: string, asyncAction: () => Promise<T>): Promise<T>;
+
+  /** @internal */
+  trackAction<T>(
+    message: string,
+    finalMessage: string,
+    asyncAction: (task: TrackActionTask) => Promise<T>,
+  ): Promise<T>;
 }
 
 export interface TracerOptions {
