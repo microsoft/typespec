@@ -350,8 +350,7 @@ export function getPropertySerializedName(property: SdkBodyModelPropertyType): s
   return (
     property.serializationOptions.json?.name ??
     property.serializationOptions.multipart?.name ??
-    property.__raw?.name ??
-    property.name
+    property.serializedName
   );
 }
 
