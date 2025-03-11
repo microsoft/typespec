@@ -1,4 +1,10 @@
-import { EmitContext, getNormalizedAbsolutePath, NoTarget, resolvePath } from "@typespec/compiler";
+import {
+  EmitContext,
+  getNormalizedAbsolutePath,
+  NoTarget,
+  Program,
+  resolvePath,
+} from "@typespec/compiler";
 import { promises } from "fs";
 import { dump } from "js-yaml";
 import { dirname } from "path";
@@ -40,7 +46,9 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         // unknown error
         reportDiagnostic(program, {
           code: "unknown-error",
-          format: { errorMessage: error.message },
+          format: {
+            errorMessage: `The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission.\nStack: error.stack`,
+          },
           target: NoTarget,
         });
         trace(program, error.stack);
@@ -104,7 +112,8 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       javaArgs.push(codeModelFileName);
       try {
         const result = await spawnAsync("java", javaArgs, { stdio: "pipe" });
-        trace(program, `Code generation log: ${result.stdout}`);
+        reportJarOutput(program, result.stdout);
+        // trace(program, `Code generation log: ${result.stdout}`);
       } catch (error: any) {
         if (error && "code" in error && error["code"] === "ENOENT") {
           reportDiagnostic(program, {
@@ -112,25 +121,76 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
             target: NoTarget,
           });
         } else {
+          if (error instanceof SpawnError) {
+            reportJarOutput(program, error.stdout);
+            // trace(program, `Code generation log: ${error.stdout}`);
+          }
+
           // error in Java codegen, report as unknown error
           reportDiagnostic(program, {
             code: "unknown-error",
             format: {
-              errorMessage:
-                'The emitter was unable to generate client code from this TypeSpec, please run this command again with "--trace http-client-java" to get diagnostic information, and open an issue on https://github.com/microsoft/typespec',
+              errorMessage: `The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission.`,
             },
             target: NoTarget,
           });
-          if (error instanceof SpawnError) {
-            trace(program, `Code generation log: ${error.stdout}`);
-            trace(program, `Code generation error: ${error.stderr}`);
-          }
         }
       }
 
       if (!options["dev-options"]?.["generate-code-model"]) {
         await program.host.rm(codeModelFileName);
       }
+    }
+  }
+}
+
+function reportJarOutput(program: Program, jarOutput: string) {
+  const lines = jarOutput.split("\n");
+  const logs: Array<string> = [];
+
+  // parse stdout to array of logs
+  let currentLog = undefined;
+  for (const line of lines) {
+    if (
+      line.startsWith("TRACE ") ||
+      line.startsWith("DEBUG ") ||
+      line.startsWith("INFO ") ||
+      line.startsWith("WARN ") ||
+      line.startsWith("ERROR ")
+    ) {
+      if (currentLog) {
+        logs.push(currentLog);
+      }
+      currentLog = line;
+    } else if (currentLog) {
+      currentLog = currentLog + "\n" + line;
+    }
+  }
+  if (currentLog) {
+    logs.push(currentLog);
+  }
+
+  // trace or report the logs, according to log level
+  for (const log of logs) {
+    if (log.startsWith("ERROR ")) {
+      reportDiagnostic(program, {
+        code: "generator-error",
+        format: {
+          errorMessage: log.substring(6),
+        },
+        target: NoTarget,
+      });
+    } else if (log.startsWith("WARN ")) {
+      reportDiagnostic(program, {
+        code: "generator-warning",
+        format: {
+          warningMessage: log.substring(5),
+        },
+        target: NoTarget,
+      });
+    } else {
+      const index = log.indexOf(" ");
+      trace(program, log.substring(index + 1));
     }
   }
 }

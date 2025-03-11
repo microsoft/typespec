@@ -2,9 +2,7 @@ import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi3";
 
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 using TypeSpec.Rest;
 using TypeSpec.Http;
@@ -29,8 +27,7 @@ model LightWidget extends WidgetBase {
   kind: WidgetKind.Light;
 }
 
-@discriminator("kind")
-@oneOf
+@discriminated
 union Widget {
   heavy: HeavyWidget,
   light: LightWidget,

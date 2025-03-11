@@ -195,8 +195,6 @@ export class TspLanguageClient {
     const exe = await resolveTypeSpecServer(activityId, context);
     logger.debug("TypeSpec server resolved as ", [exe]);
     const watchers = [
-      workspace.createFileSystemWatcher("**/*.cadl"),
-      workspace.createFileSystemWatcher("**/cadl-project.yaml"),
       workspace.createFileSystemWatcher("**/*.tsp"),
       workspace.createFileSystemWatcher(`**/${TspConfigFileName}`),
       // please be aware that the vscode watch with '**' will honer the files.watcherExclude settings
@@ -229,5 +227,25 @@ export class TspLanguageClient {
     const id = "typespec";
     const lc = new LanguageClient(id, name, { run: exe, debug: exe }, options);
     return new TspLanguageClient(lc, exe);
+  }
+
+  async compileOpenApi3(
+    mainTspFile: string,
+    srcFolder: string,
+    outputFolder: string,
+  ): Promise<ExecOutput | undefined> {
+    const result = await this.runCliCommand(
+      [
+        "compile",
+        mainTspFile,
+        "--emit=@typespec/openapi3",
+        "--option",
+        "@typespec/openapi3.file-type=json",
+        "--option",
+        `@typespec/openapi3.emitter-output-dir=${outputFolder}`,
+      ],
+      srcFolder,
+    );
+    return result;
   }
 }

@@ -216,9 +216,7 @@ namespace Header {
     value=dGVzdA,dGVzdA
     """)
   op base64urlArray(
-    @header({
-      format: "csv",
-    })
+    @header
     value: base64urlBytes[],
   ): NoContentResponse;
 }

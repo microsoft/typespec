@@ -40,8 +40,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
-                    || reader.TryReadWithConverter("variantTypes", options, ref variantTypes)
-                    || reader.TryReadWithConverter("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("variantTypes", options, ref variantTypes)
+                    || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {

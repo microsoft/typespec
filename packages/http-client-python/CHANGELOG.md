@@ -1,5 +1,25 @@
 # Change Log - @typespec/http-client-python
 
+## 0.7.1
+
+### Bug Fixes
+
+- [6579d19](https://github.com/microsoft/typespec/commit/6579d19b4ce852aa62c78b1e1ce871ecd884a554) pass combined types to python generator
+
+
+## 0.7.0
+
+### Features
+
+- [#5930](https://github.com/microsoft/typespec/pull/5930) Report TCGC diagnostics after create SDK context.
+
+### Bug Fixes
+
+- [#6163](https://github.com/microsoft/typespec/pull/6163) Fix sphinx syntax for raising `DeserializationError` in serialization file
+- [#6138](https://github.com/microsoft/typespec/pull/6138) [python] remove useless docstring for models
+- [#6104](https://github.com/microsoft/typespec/pull/6104) [python] Don't throw error directly when emitter crash
+
+
 ## 0.6.11
 
 No changes, version bump only.

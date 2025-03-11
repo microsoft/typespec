@@ -8,7 +8,7 @@
   {
    "$id": "2",
    "Name": "CollectionFormatClient",
-   "ClientNamespace": "Parameters.CollectionFormat",
+   "Namespace": "Parameters.CollectionFormat",
    "Doc": "Test for collectionFormat.",
    "Operations": [],
    "Protocol": {
@@ -47,12 +47,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Parameters.CollectionFormat"
   },
   {
    "$id": "8",
    "Name": "Query",
-   "ClientNamespace": "Parameters.CollectionFormat.Query",
+   "Namespace": "Parameters.CollectionFormat.Query",
    "Operations": [
     {
      "$id": "9",
@@ -96,13 +97,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/query/multi",
      "BufferResponse": true,
@@ -154,13 +153,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/query/ssv",
      "BufferResponse": true,
@@ -212,13 +209,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/query/tsv",
      "BufferResponse": true,
@@ -270,13 +265,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/query/pipes",
      "BufferResponse": true,
@@ -328,13 +321,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/query/csv",
      "BufferResponse": true,
@@ -381,12 +372,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Query"
   },
   {
    "$id": "39",
    "Name": "Header",
-   "ClientNamespace": "Parameters.CollectionFormat.Header",
+   "Namespace": "Parameters.CollectionFormat.Header",
    "Operations": [
     {
      "$id": "40",
@@ -431,13 +423,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/header/csv",
      "BufferResponse": true,
@@ -484,7 +474,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Parameters.CollectionFormat.Header"
   }
  ]
 }

@@ -19,12 +19,11 @@ import {
   compilerAssert,
   explainStringTemplateNotSerializable,
   getDeprecated,
-  getDiscriminatedUnion,
+  getDiscriminatedUnionFromInheritance,
   getDiscriminator,
   getDoc,
   getEncode,
   getFormat,
-  getKnownValues,
   getMaxItems,
   getMaxLength,
   getMaxValue,
@@ -55,6 +54,7 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
@@ -75,7 +75,13 @@ import {
   OpenAPI3SchemaProperty,
   OpenAPISchema3_1,
 } from "./types.js";
-import { getDefaultValue, includeDerivedModel, isBytesKeptRaw, isStdType } from "./util.js";
+import {
+  ensureValidComponentFixedFieldKey,
+  getDefaultValue,
+  includeDerivedModel,
+  isBytesKeptRaw,
+  isStdType,
+} from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
 
@@ -141,16 +147,18 @@ export class OpenAPI3SchemaEmitterBase<
     return patch;
   }
 
-  applyDiscriminator(type: Model | Union, schema: Schema): void {
+  applyDiscriminator(type: Model, schema: Schema): void {
     const program = this.emitter.getProgram();
     const discriminator = getDiscriminator(program, type);
     if (discriminator) {
       // the decorator validates that all the variants will be a model type
       // with the discriminator field present.
       schema.discriminator = { ...discriminator };
-      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(type, discriminator));
+      const discriminatedUnion = ignoreDiagnostics(
+        getDiscriminatedUnionFromInheritance(type, discriminator),
+      );
       if (discriminatedUnion.variants.size > 0) {
-        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion);
+        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion.variants);
       }
     }
   }
@@ -225,6 +233,7 @@ export class OpenAPI3SchemaEmitterBase<
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
     const isMultipart = this.getContentType().startsWith("multipart/");
     const name = isMultipart ? baseName + "MultiPart" : baseName;
+
     return this.#createDeclaration(model, name, this.applyConstraints(model, schema as any));
   }
 
@@ -496,6 +505,7 @@ export class OpenAPI3SchemaEmitterBase<
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
     const baseName = getOpenAPITypeName(this.emitter.getProgram(), en, this.#typeNameOptions());
+
     return this.#createDeclaration(en, baseName, new ObjectBuilder(this.enumSchema(en)));
   }
 
@@ -532,9 +542,62 @@ export class OpenAPI3SchemaEmitterBase<
     throw new Error("Method not implemented.");
   }
 
-  getDiscriminatorMapping(union: DiscriminatedUnion) {
+  discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<Schema> {
+    let schema: any;
+    if (union.options.envelope === "none") {
+      const items = new ArrayBuilder();
+      for (const variant of union.variants.values()) {
+        items.push(this.emitter.emitTypeReference(variant));
+      }
+      schema = {
+        type: "object",
+        oneOf: items,
+        discriminator: {
+          propertyName: union.options.discriminatorPropertyName,
+          mapping: this.getDiscriminatorMapping(union.variants),
+        },
+      };
+    } else {
+      const envelopeVariants = new Map<string, Model>();
+
+      for (const [name, variant] of union.variants) {
+        const envelopeModel = $.model.create({
+          name: union.type.name + capitalize(name),
+          properties: {
+            [union.options.discriminatorPropertyName]: $.modelProperty.create({
+              name: union.options.discriminatorPropertyName,
+              type: $.literal.createString(name),
+            }),
+            [union.options.envelopePropertyName]: $.modelProperty.create({
+              name: union.options.envelopePropertyName,
+              type: variant,
+            }),
+          },
+        });
+
+        envelopeVariants.set(name, envelopeModel);
+      }
+
+      const items = new ArrayBuilder();
+      for (const variant of envelopeVariants.values()) {
+        items.push(this.emitter.emitTypeReference(variant));
+      }
+      schema = {
+        type: "object",
+        oneOf: items,
+        discriminator: {
+          propertyName: union.options.discriminatorPropertyName,
+          mapping: this.getDiscriminatorMapping(envelopeVariants),
+        },
+      };
+    }
+
+    return this.applyConstraints(union.type, schema);
+  }
+
+  getDiscriminatorMapping(variants: Map<string, Type>) {
     const mapping: Record<string, string> | undefined = {};
-    for (const [key, model] of union.variants.entries()) {
+    for (const [key, model] of variants.entries()) {
       const ref = this.emitter.emitTypeReference(model);
       compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
       mapping[key] = (ref.value as any).$ref;
@@ -703,13 +766,6 @@ export class OpenAPI3SchemaEmitterBase<
     this.applyXml(type, schema as any, refSchema);
     attachExtensions(program, type, schema);
 
-    const values = getKnownValues(program, type as any);
-    if (values) {
-      return new ObjectBuilder({
-        oneOf: [schema, this.enumSchema(values)],
-      });
-    }
-
     return new ObjectBuilder<Schema>(schema);
   }
 
@@ -747,6 +803,11 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   #createDeclaration(type: Type, name: string, schema: ObjectBuilder<any>) {
+    const skipNameValidation = type.kind === "Model" && type.templateMapper !== undefined;
+    if (!skipNameValidation) {
+      name = ensureValidComponentFixedFieldKey(this.emitter.getProgram(), type, name);
+    }
+
     const refUrl = getRef(this.emitter.getProgram(), type);
     if (refUrl) {
       return {
@@ -777,6 +838,7 @@ export class OpenAPI3SchemaEmitterBase<
       fullName,
       Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true])),
     );
+
     return decl;
   }
 
@@ -809,3 +871,10 @@ export const Builders = {
     return builder;
   },
 } as const;
+
+/**
+ * Simple utility function to capitalize a string.
+ */
+function capitalize<S extends string>(s: S) {
+  return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
+}

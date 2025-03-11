@@ -1,6 +1,7 @@
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Model, getDiscriminatedUnion, getDiscriminator } from "../../src/index.js";
+import { getDiscriminatedUnionFromInheritance } from "../../src/core/helpers/discriminator-utils.js";
+import { Model, getDiscriminator } from "../../src/index.js";
 import {
   BasicTestRunner,
   createTestRunner,
@@ -20,7 +21,7 @@ describe("compiler: discriminator", () => {
     if (discriminator === undefined) {
       throw new Error("Discriminator shouldn't be undefined.");
     }
-    const [union, diagnostics] = getDiscriminatedUnion(model, discriminator);
+    const [union, diagnostics] = getDiscriminatedUnionFromInheritance(model, discriminator);
     expectDiagnosticEmpty(diagnostics);
     return union;
   }
@@ -297,106 +298,6 @@ describe("compiler: discriminator", () => {
           code: "missing-discriminator-property",
           message: `Each derived model of a discriminated model type should have set the discriminator property("kind") or have a derived model which has. Add \`kind: "<discriminator-value>"\``,
           pos: dogPos,
-        },
-      ]);
-    });
-  });
-
-  describe("union based", () => {
-    it("find variants from direct derived types", async () => {
-      const { Pet, Cat, Dog } = (await runner.compile(`
-        @discriminator("kind")
-        @test union Pet {
-          cat: Cat;
-          dog: Dog;
-        }
-
-        @test model Cat  {
-          kind: "cat";
-        }
-
-        @test model Dog {
-          kind: "dog";
-        }
-      `)) as { Pet: Model; Cat: Model; Dog: Model };
-
-      const union = checkValidDiscriminatedUnion(Pet);
-      strictEqual(union.variants.size, 2);
-      strictEqual(union.variants.get("cat"), Cat);
-      strictEqual(union.variants.get("dog"), Dog);
-    });
-
-    it("errors if discriminator property is not a string-like type", async () => {
-      const diagnostics = await runner.diagnose(`
-        @discriminator("kind")
-        union Pet { cat: Cat }
-
-        model Cat  {
-          kind: int32;
-        }
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "invalid-discriminated-union-variant",
-        message: `Variant "cat" type's discriminant property "kind" must be a string literal or string enum member.`,
-      });
-    });
-
-    it("errors if discriminator property is optional", async () => {
-      const diagnostics = await runner.diagnose(`
-        @discriminator("kind")
-        union Pet { cat: Cat }
-
-        model Cat {
-          kind?: "cat";
-        }
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "invalid-discriminator-value",
-        message: "The discriminator property must be a required property.",
-      });
-    });
-
-    it("errors if discriminator value are duplicated", async () => {
-      const diagnostics = await runner.diagnose(`
-        @discriminator("kind")
-        union Pet { cat: Cat, lion: Lion }
-
-        model Cat {
-          kind: "cat";
-        }
-
-        model Lion {
-          kind: "cat";
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminator-value",
-          message: `Discriminator value "cat" is already used in another variant.`,
-        },
-        {
-          code: "invalid-discriminator-value",
-          message: `Discriminator value "cat" is already used in another variant.`,
-        },
-      ]);
-    });
-
-    it("errors if discriminator property is missing", async () => {
-      const { pos: catPos, source } = extractCursor(`
-        @discriminator("kind")
-        union Pet { ┆cat: Cat }
-
-        model Cat {}
-      `);
-      const diagnostics = await runner.diagnose(source);
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminated-union-variant",
-          message: `Variant "cat" type is missing the discriminant property "kind".`,
-          pos: catPos,
         },
       ]);
     });

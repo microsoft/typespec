@@ -11,7 +11,7 @@
     "sourceMap": true,
     "declarationMap": true,
     "jsx": "preserve",
-
+    "jsxImportSource": "@alloy-js/core",
     "outDir": "dist"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],

@@ -6,7 +6,7 @@ import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";
 import type { JSONSchemaEmitterOptions } from "../src/lib.js";
 import { JsonSchemaTestLibrary } from "../src/testing/index.js";
 
-export async function getHostForCadlFile(contents: string, decorators?: Record<string, any>) {
+export async function getHostForTspFile(contents: string, decorators?: Record<string, any>) {
   const host = await createTestHost({
     libraries: [JsonSchemaTestLibrary],
   });
@@ -14,10 +14,10 @@ export async function getHostForCadlFile(contents: string, decorators?: Record<s
     host.addJsFile("dec.js", decorators);
     contents = `import "./dec.js";\n` + contents;
   }
-  host.addTypeSpecFile("main.cadl", contents);
-  await host.compileAndDiagnose("main.cadl", {
+  host.addTypeSpecFile("main.tsp", contents);
+  await host.compileAndDiagnose("main.tsp", {
     noEmit: false,
-    outputDir: "cadl-output",
+    outputDir: "tsp-output",
   });
   return host;
 }
@@ -38,12 +38,12 @@ export async function emitSchemaWithDiagnostics(
   code = testOptions.emitNamespace
     ? `import "@typespec/json-schema"; using TypeSpec.JsonSchema; @jsonSchema namespace test; ${code}`
     : `import "@typespec/json-schema"; using TypeSpec.JsonSchema; ${code}`;
-  const host = await getHostForCadlFile(code, testOptions.decorators);
+  const host = await getHostForTspFile(code, testOptions.decorators);
   const emitter = createAssetEmitter(
     host.program,
     JsonSchemaEmitter as any,
     {
-      emitterOutputDir: "cadl-output",
+      emitterOutputDir: "tsp-output",
       options,
     } as any,
   );
@@ -59,10 +59,10 @@ export async function emitSchemaWithDiagnostics(
 
   await emitter.writeOutput();
   const schemas: Record<string, any> = {};
-  const files = await emitter.getProgram().host.readDir("./cadl-output");
+  const files = await emitter.getProgram().host.readDir("./tsp-output");
 
   for (const file of files) {
-    const sf = await emitter.getProgram().host.readFile(`./cadl-output/${file}`);
+    const sf = await emitter.getProgram().host.readFile(`./tsp-output/${file}`);
     if (options?.["file-type"] === "yaml") {
       schemas[file] = parse(sf.text);
     } else {

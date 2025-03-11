@@ -15,7 +15,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(res.components.securitySchemes, {
       BasicAuth: {
         type: "http",
-        scheme: "basic",
+        scheme: "Basic",
       },
     });
     deepStrictEqual(res.security, [{ BasicAuth: [] }]);
@@ -32,7 +32,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(res.components.securitySchemes, {
       BearerAuth: {
         type: "http",
-        scheme: "bearer",
+        scheme: "Bearer",
       },
     });
     deepStrictEqual(res.security, [{ BearerAuth: [] }]);
@@ -274,7 +274,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(res.components.securitySchemes, {
       MyAuth: {
         type: "http",
-        scheme: "basic",
+        scheme: "Basic",
         description: "My custom basic auth",
       },
     });
@@ -295,7 +295,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(res.components.securitySchemes, {
       MyAuth: {
         type: "http",
-        scheme: "basic",
+        scheme: "Basic",
         "x-foo": "bar",
       },
     });
@@ -317,11 +317,11 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
         type: "apiKey",
       },
       BasicAuth: {
-        scheme: "basic",
+        scheme: "Basic",
         type: "http",
       },
       BearerAuth: {
-        scheme: "bearer",
+        scheme: "Bearer",
         type: "http",
       },
     });

@@ -19,7 +19,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodTransformationDetail;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -740,6 +742,45 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             clientMethod.getMethodPageDetails().getNextMethod().getArgumentList(), settings));
                 });
             });
+        } else if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
+            MethodPageDetails.ContinuationToken continuationToken
+                = clientMethod.getMethodPageDetails().getContinuationToken();
+            // currently this is for unbranded
+            String methodName = clientMethod.getProxyMethod().getPagingSinglePageMethodName();
+            String argumentLine = clientMethod.getArgumentList().replace("requestOptions", "requestOptionsLocal");
+
+            writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+                addOptionalVariables(function, clientMethod);
+
+                function.line("return new PagedIterable<>(pagingOptions -> {");
+                function.indent(() -> {
+                    function.line(getLogExceptionExpressionForPagingOptions(clientMethod));
+                    function.line(
+                        "RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;\n");
+                    function.ifBlock("pagingOptions.getContinuationToken() != null", ifBlock -> {
+                        if (continuationToken.getRequestParameter().getRequestParameterLocation()
+                            == RequestParameterLocation.QUERY) {
+                            // QUERY
+                            function.line("requestOptionsLocal.addRequestCallback(requestLocal -> {");
+                            function.line("    UriBuilder urlBuilder = UriBuilder.parse(requestLocal.getUri());");
+                            function.line("    urlBuilder.setQueryParameter("
+                                + ClassType.STRING.defaultValueExpression(
+                                    continuationToken.getRequestParameter().getRequestParameterName())
+                                + ", String.valueOf(pagingOptions.getContinuationToken()));");
+                            function.line("    requestLocal.setUri(urlBuilder.toString());");
+                            function.line("});");
+                        } else {
+                            // HEADER
+                            function.line("requestOptionsLocal.setHeader(HttpHeaderName.fromString("
+                                + ClassType.STRING.defaultValueExpression(
+                                    continuationToken.getRequestParameter().getRequestParameterName())
+                                + "), String.valueOf(pagingOptions.getContinuationToken()));");
+                        }
+                    });
+                    function.methodReturn(methodName + "(" + argumentLine + ")");
+                });
+                function.line("});");
+            });
         } else {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
                 addOptionalVariables(function, clientMethod);
@@ -829,7 +870,28 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
                     .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                 // continuation token
-                function.line("null,");
+                if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
+                    MethodPageDetails.ContinuationToken continuationToken
+                        = clientMethod.getMethodPageDetails().getContinuationToken();
+                    if (continuationToken.getResponseHeaderSerializedName() != null) {
+                        function.line("res.getHeaders().getValue(HttpHeaderName.fromString(" + ClassType.STRING
+                            .defaultValueExpression(continuationToken.getResponseHeaderSerializedName()) + ")),");
+                    } else if (continuationToken.getResponsePropertyReference() != null) {
+                        StringBuilder continuationTokenExpression = new StringBuilder("res.getValue()");
+                        for (ModelPropertySegment propertySegment : continuationToken.getResponsePropertyReference()) {
+                            continuationTokenExpression.append(".")
+                                .append(
+                                    CodeNamer.getModelNamer().modelPropertyGetterName(propertySegment.getProperty()))
+                                .append("()");
+                        }
+                        function.line(continuationTokenExpression.append(",").toString());
+                    } else {
+                        // this should not happen
+                        function.line("null,");
+                    }
+                } else {
+                    function.line("null,");
+                }
                 // next link
                 if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
                     String nextLinkLine = nextLinkLine(clientMethod);
@@ -1621,12 +1683,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
-        String lambdaParameters = "";
-        if (!settings.isBranded()) {
-            lambdaParameters = "pagingOptions";
+        if (settings.isBranded()) {
+            return String.format("() -> %s(%s)", methodName, argumentLine);
+        } else {
+            return String.format("pagingOptions -> { %s return %s(%s); }",
+                getLogExceptionExpressionForPagingOptions(clientMethod), methodName, argumentLine);
         }
-
-        return String.format("(%s) -> %s(%s)", lambdaParameters, methodName, argumentLine);
     }
 
     private String getPagingNextPageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
@@ -1655,16 +1717,16 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
-        String lambdaParameters = "nextLink";
-        if (!settings.isBranded()) {
-            lambdaParameters = "(pagingOptions, nextLink)";
-        }
-
         if (settings.isDataPlaneClient()) {
             argumentLine = argumentLine.replace("requestOptions", "requestOptionsForNextPage");
         }
 
-        return String.format("%s -> %s(%s)", lambdaParameters, methodName, argumentLine);
+        if (settings.isBranded()) {
+            return String.format("nextLink -> %s(%s)", methodName, argumentLine);
+        } else {
+            return String.format("(pagingOptions, nextLink) -> { %s return %s(%s); }",
+                getLogExceptionExpressionForPagingOptions(clientMethod), methodName, argumentLine);
+        }
     }
 
     private String getPollingStrategy(ClientMethod clientMethod, String contextParam) {
@@ -1778,5 +1840,36 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
         return serviceVersion;
+    }
+
+    private static String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
+        StringBuilder expression = new StringBuilder();
+        expression.append("if (pagingOptions.getOffset() != null) {")
+            .append(
+                "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'offset' in PagingOptions is not supported in API '")
+            .append(clientMethod.getName())
+            .append("'.\"));")
+            .append("}");
+        expression.append("if (pagingOptions.getPageSize() != null) {")
+            .append(
+                "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'pageSize' in PagingOptions is not supported in API '")
+            .append(clientMethod.getName())
+            .append("'.\"));")
+            .append("}");
+        expression.append("if (pagingOptions.getPageIndex() != null) {")
+            .append(
+                "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'pageIndex' in PagingOptions is not supported in API '")
+            .append(clientMethod.getName())
+            .append("'.\"));")
+            .append("}");
+        if (clientMethod.getMethodPageDetails().getContinuationToken() == null) {
+            expression.append("if (pagingOptions.getContinuationToken() != null) {")
+                .append(
+                    "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'continuationToken' in PagingOptions is not supported in API '")
+                .append(clientMethod.getName())
+                .append("'.\"));")
+                .append("}");
+        }
+        return expression.toString();
     }
 }

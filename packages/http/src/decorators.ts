@@ -8,7 +8,6 @@ import {
   Namespace,
   Operation,
   Program,
-  StringLiteral,
   SyntaxKind,
   Tuple,
   Type,
@@ -16,12 +15,11 @@ import {
   createDiagnosticCollector,
   getDoc,
   ignoreDiagnostics,
-  isArrayModelType,
-  reportDeprecated,
   typespecTypeToJson,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
+import { useStateMap } from "@typespec/compiler/utils";
 import {
   BodyDecorator,
   BodyIgnoreDecorator,
@@ -34,6 +32,7 @@ import {
   HeaderDecorator,
   MultipartBodyDecorator,
   PatchDecorator,
+  PatchOptions,
   PathDecorator,
   PathOptions,
   PostDecorator,
@@ -67,48 +66,24 @@ export const namespace = "TypeSpec.Http";
 export const $header: HeaderDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  headerNameOrOptions?: StringLiteral | Type,
+  headerNameOrOptions,
 ) => {
   const options: HeaderFieldOptions = {
     type: "header",
     name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
   };
   if (headerNameOrOptions) {
-    if (headerNameOrOptions.kind === "String") {
-      options.name = headerNameOrOptions.value;
-    } else if (headerNameOrOptions.kind === "Model") {
-      const name = headerNameOrOptions.properties.get("name")?.type;
-      if (name?.kind === "String") {
-        options.name = name.value;
-      }
-      const format = headerNameOrOptions.properties.get("format")?.type;
-      if (format?.kind === "String") {
-        const val = format.value;
-        if (
-          val === "csv" ||
-          val === "tsv" ||
-          val === "pipes" ||
-          val === "ssv" ||
-          val === "simple" ||
-          val === "form" ||
-          val === "multi"
-        ) {
-          options.format = val;
-        }
-      }
+    if (typeof headerNameOrOptions === "string") {
+      options.name = headerNameOrOptions;
     } else {
-      return;
+      const name = headerNameOrOptions.name;
+      if (name) {
+        options.name = name;
+      }
+      if (headerNameOrOptions.explode) {
+        options.explode = true;
+      }
     }
-  }
-  if (
-    entity.type.kind === "Model" &&
-    isArrayModelType(context.program, entity.type) &&
-    options.format === undefined
-  ) {
-    reportDiagnostic(context.program, {
-      code: "header-format-required",
-      target: context.decoratorTarget,
-    });
   }
   context.program.stateMap(HttpStateKeys.header).set(entity, options);
 };
@@ -177,30 +152,13 @@ export const $query: QueryDecorator = (
       : (queryNameOrOptions?.name ?? entity.name);
   const userOptions: QueryOptions =
     typeof queryNameOrOptions === "object" ? queryNameOrOptions : {};
-  if (userOptions.format) {
-    reportDeprecated(
-      context.program,
-      "The `format` option of `@query` decorator is deprecated. Use `explode: true` instead of `form` and `multi`. `csv` or `simple` is the default now.",
-      entity,
-    );
-  }
+
   const options: QueryParameterOptions = {
     type: "query",
-    explode:
-      userOptions.explode ?? (userOptions.format === "multi" || userOptions.format === "form"),
-    format: userOptions.format,
+    explode: userOptions.explode?.valueOf() ?? false,
     name: paramName,
   };
 
-  if (
-    entity.type.kind === "Model" &&
-    isArrayModelType(context.program, entity.type) &&
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    options.format === undefined
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    options.format = userOptions.explode ? "multi" : "csv";
-  }
   context.program.stateMap(HttpStateKeys.query).set(entity, options);
 };
 
@@ -455,9 +413,36 @@ function createVerbDecorator(verb: HttpVerb) {
 export const $get: GetDecorator = createVerbDecorator("get");
 export const $put: PutDecorator = createVerbDecorator("put");
 export const $post: PostDecorator = createVerbDecorator("post");
-export const $patch: PatchDecorator = createVerbDecorator("patch");
 export const $delete: DeleteDecorator = createVerbDecorator("delete");
 export const $head: HeadDecorator = createVerbDecorator("head");
+
+const _patch = createVerbDecorator("patch");
+
+const [_getPatchOptions, setPatchOptions] = useStateMap<Operation, PatchOptions | undefined>(
+  HttpStateKeys.patchOptions,
+);
+
+export const $patch: PatchDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+  options?: PatchOptions,
+) => {
+  _patch(context, entity);
+
+  if (options) setPatchOptions(context.program, entity, options);
+};
+
+/**
+ * Gets the `PatchOptions` for the given operation.
+ *
+ * @param program - The program in which the operation occurs.
+ * @param operation - The operation.
+ * @returns The `PatchOptions` for the operation, or `undefined` if none. If the operation is not a PATCH operation, this
+ * function will always return `undefined`. If it is a PATCH operation, it may return undefined if no options were provided.
+ */
+export function getPatchOptions(program: Program, operation: Operation): PatchOptions | undefined {
+  return _getPatchOptions(program, operation);
+}
 
 const VERB_DECORATORS = [$get, $head, $post, $put, $patch, $delete];
 
@@ -697,25 +682,9 @@ export const $route: RouteDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, entity, $route);
 
-  // Handle the deprecated `shared` option
-  let shared = false;
-  const sharedValue = (parameters as Model)?.properties.get("shared")?.type;
-  if (sharedValue !== undefined) {
-    reportDeprecated(
-      context.program,
-      "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
-      entity,
-    );
-
-    // The type checker should have raised a diagnostic if the value isn't boolean
-    if (sharedValue.kind === "Boolean") {
-      shared = sharedValue.value;
-    }
-  }
-
   setRoute(context, entity, {
     path,
-    shared,
+    shared: false,
   });
 };
 
