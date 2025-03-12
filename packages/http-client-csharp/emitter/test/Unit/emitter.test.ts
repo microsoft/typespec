@@ -70,14 +70,14 @@ describe("Expected execCSharpGenerator args are passed", () => {
     host: {
       writeFile: vi.fn(),
       rm: vi.fn(),
-      getTracer: {
-        sub: vi.fn(),
-        trace: vi.fn(),
-      },
+      // getTracer: {
+      //   sub: vi.fn(),
+      //   trace: vi.fn(),
+      // },
     },
-    tracer: {
-      sub: vi.fn(),
-    },
+    // tracer: {
+    //   sub: vi.fn(),
+    // },
     stateMap: vi.fn(),
     reportDiagnostics: vi.fn(),
   } as unknown as Program;
