@@ -92,7 +92,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       // emit tspCodeModel.json
       await writeCodeModel(sdkContext, root, outputFolder);
 
-      const namespace = root.Name;
+      const namespace = root.name;
       const configurations: Configuration = {
         "output-folder": ".",
         "package-name": options["package-name"] ?? namespace,

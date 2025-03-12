@@ -8,11 +8,11 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal sealed class TypeSpecContinuationTokenConverter : JsonConverter<InputContinuationToken>
+    internal sealed class TypeSpecInputContinuationTokenConverter : JsonConverter<InputContinuationToken>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public TypeSpecContinuationTokenConverter(TypeSpecReferenceHandler referenceHandler)
+        public TypeSpecInputContinuationTokenConverter(TypeSpecReferenceHandler referenceHandler)
         {
             _referenceHandler = referenceHandler;
         }
@@ -37,9 +37,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadComplexType("Parameter", options, ref parameter)
-                    || reader.TryReadComplexType("ResponseSegments", options, ref responseSegments)
-                    || reader.TryReadComplexType("ResponseLocation", options, ref responseLocation);
+                var isKnownProperty = reader.TryReadComplexType("parameter", options, ref parameter)
+                    || reader.TryReadComplexType("responseSegments", options, ref responseSegments)
+                    || reader.TryReadComplexType("responseLocation", options, ref responseLocation);
 
                 if (!isKnownProperty)
                 {

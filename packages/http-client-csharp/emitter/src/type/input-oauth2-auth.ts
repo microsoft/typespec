@@ -2,5 +2,5 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 export interface InputOAuth2Auth {
-  Scopes?: string[];
+  scopes?: string[];
 }

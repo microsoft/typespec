@@ -28,11 +28,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputType? type = null;
 
             reader.TryReadReferenceId(ref isFirstProperty, ref id);
-            if (!reader.TryReadComplexType(nameof(InputConstant.Type), options, ref type))
+            if (!reader.TryReadComplexType("type", options, ref type))
             {
                 throw new JsonException("Must provide type ahead of value.");
             }
-            var value = ReadConstantValue(ref reader, nameof(InputConstant.Value), type);
+            var value = ReadConstantValue(ref reader, "value", type);
 
             type = type ?? throw new JsonException("InputConstant must have type");
 

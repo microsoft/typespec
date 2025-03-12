@@ -1,75 +1,71 @@
 {
  "$id": "1",
- "Name": "Type.Scalar",
- "ApiVersions": [],
- "Enums": [],
- "Models": [],
- "Clients": [
+ "name": "Type.Scalar",
+ "apiVersions": [],
+ "enums": [],
+ "models": [],
+ "clients": [
   {
    "$id": "2",
-   "Name": "ScalarClient",
-   "Namespace": "Type.Scalar",
-   "Operations": [],
-   "Protocol": {
-    "$id": "3"
-   },
-   "Parameters": [
+   "name": "ScalarClient",
+   "namespace": "Type.Scalar",
+   "operations": [],
+   "parameters": [
     {
-     "$id": "4",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "5",
+     "$id": "3",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "4",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "6",
-      "Type": {
-       "$id": "7",
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "5",
+      "type": {
+       "$id": "6",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Scalar"
+   "decorators": [],
+   "crossLanguageDefinitionId": "Type.Scalar"
   },
   {
-   "$id": "8",
-   "Name": "String",
-   "Namespace": "Type.Scalar",
-   "Operations": [
+   "$id": "7",
+   "name": "String",
+   "namespace": "Type.Scalar",
+   "operations": [
     {
-     "$id": "9",
-     "Name": "get",
-     "ResourceName": "String",
-     "Doc": "get string value",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "8",
+     "name": "get",
+     "resourceName": "String",
+     "doc": "get string value",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "10",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
-        "$id": "11",
+       "$id": "9",
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
+        "$id": "10",
         "kind": "constant",
         "valueType": {
-         "$id": "12",
+         "$id": "11",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -78,63 +74,63 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "13",
-       "StatusCodes": [
+       "$id": "12",
+       "statusCodes": [
         200
        ],
-       "BodyType": {
-        "$id": "14",
+       "bodyType": {
+        "$id": "13",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/string",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.String.get",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/string",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.String.get",
+     "decorators": []
     },
     {
-     "$id": "15",
-     "Name": "put",
-     "ResourceName": "String",
-     "Doc": "put string value",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "14",
+     "name": "put",
+     "resourceName": "String",
+     "doc": "put string value",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "16",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "17",
+       "$id": "15",
+       "name": "contentType",
+       "nameInRequest": "Content-Type",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$id": "16",
         "kind": "constant",
         "valueType": {
-         "$id": "18",
+         "$id": "17",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -143,123 +139,119 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": true,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
-       "$id": "19",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Doc": "_",
-       "Type": {
-        "$id": "20",
+       "$id": "18",
+       "name": "body",
+       "nameInRequest": "body",
+       "doc": "_",
+       "type": {
+        "$id": "19",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "21",
-       "StatusCodes": [
+       "$id": "20",
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/string",
-     "RequestMediaTypes": [
+     "httpMethod": "PUT",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/string",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.String.put",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.String.put",
+     "decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "22"
-   },
-   "Parent": "ScalarClient",
-   "Parameters": [
+   "parent": "ScalarClient",
+   "parameters": [
     {
-     "$id": "23",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "24",
+     "$id": "21",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "22",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "25",
-      "Type": {
-       "$id": "26",
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "23",
+      "type": {
+       "$id": "24",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Scalar.String"
+   "decorators": [],
+   "crossLanguageDefinitionId": "Type.Scalar.String"
   },
   {
-   "$id": "27",
-   "Name": "Boolean",
-   "Namespace": "Type.Scalar",
-   "Operations": [
+   "$id": "25",
+   "name": "Boolean",
+   "namespace": "Type.Scalar",
+   "operations": [
     {
-     "$id": "28",
-     "Name": "get",
-     "ResourceName": "Boolean",
-     "Doc": "get boolean value",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "26",
+     "name": "get",
+     "resourceName": "Boolean",
+     "doc": "get boolean value",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "29",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
-        "$id": "30",
+       "$id": "27",
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
+        "$id": "28",
         "kind": "constant",
         "valueType": {
-         "$id": "31",
+         "$id": "29",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -268,63 +260,63 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "32",
-       "StatusCodes": [
+       "$id": "30",
+       "statusCodes": [
         200
        ],
-       "BodyType": {
-        "$id": "33",
+       "bodyType": {
+        "$id": "31",
         "kind": "boolean",
         "name": "boolean",
         "crossLanguageDefinitionId": "TypeSpec.boolean",
         "decorators": []
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/boolean",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.Boolean.get",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/boolean",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.Boolean.get",
+     "decorators": []
     },
     {
-     "$id": "34",
-     "Name": "put",
-     "ResourceName": "Boolean",
-     "Doc": "put boolean value",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "32",
+     "name": "put",
+     "resourceName": "Boolean",
+     "doc": "put boolean value",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "35",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "36",
+       "$id": "33",
+       "name": "contentType",
+       "nameInRequest": "Content-Type",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$id": "34",
         "kind": "constant",
         "valueType": {
-         "$id": "37",
+         "$id": "35",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -333,123 +325,119 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": true,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
+      {
+       "$id": "36",
+       "name": "body",
+       "nameInRequest": "body",
+       "doc": "_",
+       "type": {
+        "$id": "37",
+        "kind": "boolean",
+        "name": "boolean",
+        "crossLanguageDefinitionId": "TypeSpec.boolean",
+        "decorators": []
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "responses": [
       {
        "$id": "38",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Doc": "_",
-       "Type": {
-        "$id": "39",
-        "kind": "boolean",
-        "name": "boolean",
-        "crossLanguageDefinitionId": "TypeSpec.boolean",
-        "decorators": []
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "40",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/boolean",
-     "RequestMediaTypes": [
+     "httpMethod": "PUT",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/boolean",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.Boolean.put",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.Boolean.put",
+     "decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "41"
-   },
-   "Parent": "ScalarClient",
-   "Parameters": [
+   "parent": "ScalarClient",
+   "parameters": [
     {
-     "$id": "42",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "43",
+     "$id": "39",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "40",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "44",
-      "Type": {
-       "$id": "45",
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "41",
+      "type": {
+       "$id": "42",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Scalar.Boolean"
+   "decorators": [],
+   "crossLanguageDefinitionId": "Type.Scalar.Boolean"
   },
   {
-   "$id": "46",
-   "Name": "Unknown",
-   "Namespace": "Type.Scalar",
-   "Operations": [
+   "$id": "43",
+   "name": "Unknown",
+   "namespace": "Type.Scalar",
+   "operations": [
     {
-     "$id": "47",
-     "Name": "get",
-     "ResourceName": "Unknown",
-     "Doc": "get unknown value",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "44",
+     "name": "get",
+     "resourceName": "Unknown",
+     "doc": "get unknown value",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "48",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
-        "$id": "49",
+       "$id": "45",
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
+        "$id": "46",
         "kind": "constant",
         "valueType": {
-         "$id": "50",
+         "$id": "47",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -458,63 +446,63 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "51",
-       "StatusCodes": [
+       "$id": "48",
+       "statusCodes": [
         200
        ],
-       "BodyType": {
-        "$id": "52",
+       "bodyType": {
+        "$id": "49",
         "kind": "unknown",
         "name": "unknown",
         "crossLanguageDefinitionId": "",
         "decorators": []
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/unknown",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.Unknown.get",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/unknown",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.Unknown.get",
+     "decorators": []
     },
     {
-     "$id": "53",
-     "Name": "put",
-     "ResourceName": "Unknown",
-     "Doc": "put unknown value",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "50",
+     "name": "put",
+     "resourceName": "Unknown",
+     "doc": "put unknown value",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "54",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "55",
+       "$id": "51",
+       "name": "contentType",
+       "nameInRequest": "Content-Type",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$id": "52",
         "kind": "constant",
         "valueType": {
-         "$id": "56",
+         "$id": "53",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -523,123 +511,119 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": true,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
-       "$id": "57",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Doc": "_",
-       "Type": {
-        "$id": "58",
+       "$id": "54",
+       "name": "body",
+       "nameInRequest": "body",
+       "doc": "_",
+       "type": {
+        "$id": "55",
         "kind": "unknown",
         "name": "unknown",
         "crossLanguageDefinitionId": "",
         "decorators": []
        },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "59",
-       "StatusCodes": [
+       "$id": "56",
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/unknown",
-     "RequestMediaTypes": [
+     "httpMethod": "PUT",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/unknown",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.Unknown.put",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.Unknown.put",
+     "decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "60"
-   },
-   "Parent": "ScalarClient",
-   "Parameters": [
+   "parent": "ScalarClient",
+   "parameters": [
     {
-     "$id": "61",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "62",
+     "$id": "57",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "58",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "63",
-      "Type": {
-       "$id": "64",
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "59",
+      "type": {
+       "$id": "60",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Scalar.Unknown"
+   "decorators": [],
+   "crossLanguageDefinitionId": "Type.Scalar.Unknown"
   },
   {
-   "$id": "65",
-   "Name": "DecimalType",
-   "Namespace": "Type.Scalar",
-   "Doc": "Decimal type",
-   "Operations": [
+   "$id": "61",
+   "name": "DecimalType",
+   "namespace": "Type.Scalar",
+   "doc": "Decimal type",
+   "operations": [
     {
-     "$id": "66",
-     "Name": "responseBody",
-     "ResourceName": "DecimalType",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "62",
+     "name": "responseBody",
+     "resourceName": "DecimalType",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "67",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
-        "$id": "68",
+       "$id": "63",
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
+        "$id": "64",
         "kind": "constant",
         "valueType": {
-         "$id": "69",
+         "$id": "65",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -648,62 +632,62 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "70",
-       "StatusCodes": [
+       "$id": "66",
+       "statusCodes": [
         200
        ],
-       "BodyType": {
-        "$id": "71",
+       "bodyType": {
+        "$id": "67",
         "kind": "decimal",
         "name": "decimal",
         "crossLanguageDefinitionId": "TypeSpec.decimal",
         "decorators": []
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/decimal/response_body",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.DecimalType.responseBody",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/decimal/response_body",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.DecimalType.responseBody",
+     "decorators": []
     },
     {
-     "$id": "72",
-     "Name": "requestBody",
-     "ResourceName": "DecimalType",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "68",
+     "name": "requestBody",
+     "resourceName": "DecimalType",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "73",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "74",
+       "$id": "69",
+       "name": "contentType",
+       "nameInRequest": "Content-Type",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$id": "70",
         "kind": "constant",
         "valueType": {
-         "$id": "75",
+         "$id": "71",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -712,169 +696,165 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": true,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
+       "$id": "72",
+       "name": "body",
+       "nameInRequest": "body",
+       "type": {
+        "$id": "73",
+        "kind": "decimal",
+        "name": "decimal",
+        "crossLanguageDefinitionId": "TypeSpec.decimal",
+        "decorators": []
+       },
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "responses": [
+      {
+       "$id": "74",
+       "statusCodes": [
+        204
+       ],
+       "headers": [],
+       "isErrorResponse": false
+      }
+     ],
+     "httpMethod": "PUT",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/decimal/resquest_body",
+     "requestMediaTypes": [
+      "application/json"
+     ],
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.DecimalType.requestBody",
+     "decorators": []
+    },
+    {
+     "$id": "75",
+     "name": "requestParameter",
+     "resourceName": "DecimalType",
+     "accessibility": "public",
+     "parameters": [
+      {
        "$id": "76",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
+       "name": "value",
+       "nameInRequest": "value",
+       "type": {
         "$id": "77",
         "kind": "decimal",
         "name": "decimal",
         "crossLanguageDefinitionId": "TypeSpec.decimal",
         "decorators": []
        },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Query",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "78",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/decimal/resquest_body",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.DecimalType.requestBody",
-     "Decorators": []
-    },
-    {
-     "$id": "79",
-     "Name": "requestParameter",
-     "ResourceName": "DecimalType",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "80",
-       "Name": "value",
-       "NameInRequest": "value",
-       "Type": {
-        "$id": "81",
-        "kind": "decimal",
-        "name": "decimal",
-        "crossLanguageDefinitionId": "TypeSpec.decimal",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "82",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/decimal/request_parameter",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.DecimalType.requestParameter",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/decimal/request_parameter",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.DecimalType.requestParameter",
+     "decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "83"
-   },
-   "Parent": "ScalarClient",
-   "Parameters": [
+   "parent": "ScalarClient",
+   "parameters": [
     {
-     "$id": "84",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "85",
+     "$id": "79",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "80",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "86",
-      "Type": {
-       "$id": "87",
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "81",
+      "type": {
+       "$id": "82",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Scalar.DecimalType"
+   "decorators": [],
+   "crossLanguageDefinitionId": "Type.Scalar.DecimalType"
   },
   {
-   "$id": "88",
-   "Name": "Decimal128Type",
-   "Namespace": "Type.Scalar",
-   "Doc": "Decimal128 type",
-   "Operations": [
+   "$id": "83",
+   "name": "Decimal128Type",
+   "namespace": "Type.Scalar",
+   "doc": "Decimal128 type",
+   "operations": [
     {
-     "$id": "89",
-     "Name": "responseBody",
-     "ResourceName": "Decimal128Type",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "84",
+     "name": "responseBody",
+     "resourceName": "Decimal128Type",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "90",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
-        "$id": "91",
+       "$id": "85",
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
+        "$id": "86",
         "kind": "constant",
         "valueType": {
-         "$id": "92",
+         "$id": "87",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -883,62 +863,62 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "93",
-       "StatusCodes": [
+       "$id": "88",
+       "statusCodes": [
         200
        ],
-       "BodyType": {
-        "$id": "94",
+       "bodyType": {
+        "$id": "89",
         "kind": "decimal128",
         "name": "decimal128",
         "crossLanguageDefinitionId": "TypeSpec.decimal128",
         "decorators": []
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/decimal128/response_body",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.Decimal128Type.responseBody",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/decimal128/response_body",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type.responseBody",
+     "decorators": []
     },
     {
-     "$id": "95",
-     "Name": "requestBody",
-     "ResourceName": "Decimal128Type",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "90",
+     "name": "requestBody",
+     "resourceName": "Decimal128Type",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "96",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "97",
+       "$id": "91",
+       "name": "contentType",
+       "nameInRequest": "Content-Type",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$id": "92",
         "kind": "constant",
         "valueType": {
-         "$id": "98",
+         "$id": "93",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -947,169 +927,165 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": true,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
-       "$id": "99",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$id": "100",
+       "$id": "94",
+       "name": "body",
+       "nameInRequest": "body",
+       "type": {
+        "$id": "95",
         "kind": "decimal128",
         "name": "decimal128",
         "crossLanguageDefinitionId": "TypeSpec.decimal128",
         "decorators": []
        },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "101",
-       "StatusCodes": [
+       "$id": "96",
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/decimal128/resquest_body",
-     "RequestMediaTypes": [
+     "httpMethod": "PUT",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/decimal128/resquest_body",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.Decimal128Type.requestBody",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type.requestBody",
+     "decorators": []
     },
     {
-     "$id": "102",
-     "Name": "requestParameter",
-     "ResourceName": "Decimal128Type",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "97",
+     "name": "requestParameter",
+     "resourceName": "Decimal128Type",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "103",
-       "Name": "value",
-       "NameInRequest": "value",
-       "Type": {
-        "$id": "104",
+       "$id": "98",
+       "name": "value",
+       "nameInRequest": "value",
+       "type": {
+        "$id": "99",
         "kind": "decimal128",
         "name": "decimal128",
         "crossLanguageDefinitionId": "TypeSpec.decimal128",
         "decorators": []
        },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Query",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "105",
-       "StatusCodes": [
+       "$id": "100",
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/decimal128/request_parameter",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.Decimal128Type.requestParameter",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/decimal128/request_parameter",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type.requestParameter",
+     "decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "106"
-   },
-   "Parent": "ScalarClient",
-   "Parameters": [
+   "parent": "ScalarClient",
+   "parameters": [
     {
-     "$id": "107",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "108",
+     "$id": "101",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "102",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "109",
-      "Type": {
-       "$id": "110",
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "103",
+      "type": {
+       "$id": "104",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Scalar.Decimal128Type"
+   "decorators": [],
+   "crossLanguageDefinitionId": "Type.Scalar.Decimal128Type"
   },
   {
-   "$id": "111",
-   "Name": "DecimalVerify",
-   "Namespace": "Type.Scalar",
-   "Doc": "Decimal type verification",
-   "Operations": [
+   "$id": "105",
+   "name": "DecimalVerify",
+   "namespace": "Type.Scalar",
+   "doc": "Decimal type verification",
+   "operations": [
     {
-     "$id": "112",
-     "Name": "prepareVerify",
-     "ResourceName": "DecimalVerify",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "106",
+     "name": "prepareVerify",
+     "resourceName": "DecimalVerify",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "113",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
-        "$id": "114",
+       "$id": "107",
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
+        "$id": "108",
         "kind": "constant",
         "valueType": {
-         "$id": "115",
+         "$id": "109",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1118,29 +1094,29 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "116",
-       "StatusCodes": [
+       "$id": "110",
+       "statusCodes": [
         200
        ],
-       "BodyType": {
-        "$id": "117",
+       "bodyType": {
+        "$id": "111",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "118",
+         "$id": "112",
          "kind": "decimal",
          "name": "decimal",
          "crossLanguageDefinitionId": "TypeSpec.decimal",
@@ -1149,38 +1125,38 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/decimal/prepare_verify",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.DecimalVerify.prepareVerify",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/decimal/prepare_verify",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.DecimalVerify.prepareVerify",
+     "decorators": []
     },
     {
-     "$id": "119",
-     "Name": "verify",
-     "ResourceName": "DecimalVerify",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "113",
+     "name": "verify",
+     "resourceName": "DecimalVerify",
+     "accessibility": "public",
+     "parameters": [
       {
-       "$id": "120",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "121",
+       "$id": "114",
+       "name": "contentType",
+       "nameInRequest": "Content-Type",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
+        "$id": "115",
         "kind": "constant",
         "valueType": {
-         "$id": "122",
+         "$id": "116",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1189,118 +1165,185 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": true,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
-       "$id": "123",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$id": "124",
+       "$id": "117",
+       "name": "body",
+       "nameInRequest": "body",
+       "type": {
+        "$id": "118",
         "kind": "decimal",
         "name": "decimal",
         "crossLanguageDefinitionId": "TypeSpec.decimal",
         "decorators": []
        },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "125",
-       "StatusCodes": [
+       "$id": "119",
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/decimal/verify",
-     "RequestMediaTypes": [
+     "httpMethod": "POST",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/decimal/verify",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.DecimalVerify.verify",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.DecimalVerify.verify",
+     "decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "126"
-   },
-   "Parent": "ScalarClient",
-   "Parameters": [
+   "parent": "ScalarClient",
+   "parameters": [
     {
-     "$id": "127",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "128",
+     "$id": "120",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "121",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "129",
-      "Type": {
-       "$id": "130",
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "122",
+      "type": {
+       "$id": "123",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Scalar.DecimalVerify"
+   "decorators": [],
+   "crossLanguageDefinitionId": "Type.Scalar.DecimalVerify"
   },
   {
-   "$id": "131",
-   "Name": "Decimal128Verify",
-   "Namespace": "Type.Scalar",
-   "Doc": "Decimal128 type verification",
-   "Operations": [
+   "$id": "124",
+   "name": "Decimal128Verify",
+   "namespace": "Type.Scalar",
+   "doc": "Decimal128 type verification",
+   "operations": [
+    {
+     "$id": "125",
+     "name": "prepareVerify",
+     "resourceName": "Decimal128Verify",
+     "accessibility": "public",
+     "parameters": [
+      {
+       "$id": "126",
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
+        "$id": "127",
+        "kind": "constant",
+        "valueType": {
+         "$id": "128",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "responses": [
+      {
+       "$id": "129",
+       "statusCodes": [
+        200
+       ],
+       "bodyType": {
+        "$id": "130",
+        "kind": "array",
+        "name": "Array",
+        "valueType": {
+         "$id": "131",
+         "kind": "decimal",
+         "name": "decimal",
+         "crossLanguageDefinitionId": "TypeSpec.decimal",
+         "decorators": []
+        },
+        "crossLanguageDefinitionId": "TypeSpec.Array",
+        "decorators": []
+       },
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/decimal128/prepare_verify",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.Decimal128Verify.prepareVerify",
+     "decorators": []
+    },
     {
      "$id": "132",
-     "Name": "prepareVerify",
-     "ResourceName": "Decimal128Verify",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "verify",
+     "resourceName": "Decimal128Verify",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "133",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
+       "name": "contentType",
+       "nameInRequest": "Content-Type",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
         "$id": "134",
         "kind": "constant",
         "valueType": {
@@ -1313,171 +1356,96 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "136",
-       "StatusCodes": [
-        200
-       ],
-       "BodyType": {
-        "$id": "137",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "138",
-         "kind": "decimal",
-         "name": "decimal",
-         "crossLanguageDefinitionId": "TypeSpec.decimal",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/decimal128/prepare_verify",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.Decimal128Verify.prepareVerify",
-     "Decorators": []
-    },
-    {
-     "$id": "139",
-     "Name": "verify",
-     "ResourceName": "Decimal128Verify",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "140",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "141",
-        "kind": "constant",
-        "valueType": {
-         "$id": "142",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": true,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
-       "$id": "143",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$id": "144",
+       "$id": "136",
+       "name": "body",
+       "nameInRequest": "body",
+       "type": {
+        "$id": "137",
         "kind": "decimal",
         "name": "decimal",
         "crossLanguageDefinitionId": "TypeSpec.decimal",
         "decorators": []
        },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
-       "$id": "145",
-       "StatusCodes": [
+       "$id": "138",
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{endpoint}",
-     "Path": "/type/scalar/decimal128/verify",
-     "RequestMediaTypes": [
+     "httpMethod": "POST",
+     "uri": "{endpoint}",
+     "path": "/type/scalar/decimal128/verify",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Type.Scalar.Decimal128Verify.verify",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Type.Scalar.Decimal128Verify.verify",
+     "decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "146"
-   },
-   "Parent": "ScalarClient",
-   "Parameters": [
+   "parent": "ScalarClient",
+   "parameters": [
     {
-     "$id": "147",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "148",
+     "$id": "139",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "140",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "149",
-      "Type": {
-       "$id": "150",
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "141",
+      "type": {
+       "$id": "142",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Type.Scalar.Decimal128Verify"
+   "decorators": [],
+   "crossLanguageDefinitionId": "Type.Scalar.Decimal128Verify"
   }
  ]
 }

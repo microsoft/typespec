@@ -4,17 +4,15 @@
 import { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
 import { InputOperation } from "./input-operation.js";
 import { InputParameter } from "./input-parameter.js";
-import { Protocols } from "./protocols.js";
 
 export interface InputClient {
-  Name: string;
-  Namespace: string;
-  Summary?: string;
-  Doc?: string;
-  Operations: InputOperation[];
-  Protocol?: Protocols;
-  Parent?: string;
-  Parameters?: InputParameter[];
-  Decorators?: DecoratorInfo[];
-  CrossLanguageDefinitionId: string;
+  name: string;
+  namespace: string;
+  summary?: string;
+  doc?: string;
+  operations: InputOperation[];
+  parent?: string;
+  parameters?: InputParameter[];
+  decorators?: DecoratorInfo[];
+  crossLanguageDefinitionId: string;
 }

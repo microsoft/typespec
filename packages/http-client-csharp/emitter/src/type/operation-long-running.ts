@@ -5,7 +5,7 @@ import { OperationFinalStateVia } from "./operation-final-state-via.js";
 import { OperationResponse } from "./operation-response.js";
 
 export interface OperationLongRunning {
-  FinalStateVia: OperationFinalStateVia;
-  FinalResponse: OperationResponse;
-  ResultPath?: string;
+  finalStateVia: OperationFinalStateVia;
+  finalResponse: OperationResponse;
+  resultPath?: string;
 }
