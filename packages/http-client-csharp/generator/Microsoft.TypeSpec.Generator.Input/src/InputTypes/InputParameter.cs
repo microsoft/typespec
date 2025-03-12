@@ -20,7 +20,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputOperationParameterKind kind,
             bool isRequired,
             bool isApiVersion,
-            bool isResourceParameter,
             bool isContentType,
             bool isEndpoint,
             bool skipUrlEncoding,
@@ -38,7 +37,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             Kind = kind;
             IsRequired = isRequired;
             _isApiVersion = isApiVersion;
-            IsResourceParameter = isResourceParameter;
             IsContentType = isContentType;
             IsEndpoint = isEndpoint;
             SkipUrlEncoding = skipUrlEncoding;
@@ -57,7 +55,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputOperationParameterKind Kind { get; }
         public bool IsRequired { get; }
         public bool IsApiVersion => _isApiVersion || Type is InputEnumType enumType && enumType.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
-        public bool IsResourceParameter { get; }
         public bool IsContentType { get; }
         public bool IsEndpoint { get; }
         public bool SkipUrlEncoding { get; }

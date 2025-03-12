@@ -147,7 +147,6 @@
      },
      "Location": "Uri",
      "IsApiVersion": false,
-     "IsResourceParameter": false,
      "IsContentType": false,
      "IsRequired": true,
      "IsEndpoint": true,

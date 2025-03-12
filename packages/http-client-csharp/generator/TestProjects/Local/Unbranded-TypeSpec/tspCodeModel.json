@@ -4288,21 +4288,7 @@
       "ContinuationToken": {
        "$id": "472",
        "Parameter": {
-        "$id": "473",
-        "Name": "token",
-        "NameInRequest": "token",
-        "Type": {
-         "$ref": "466"
-        },
-        "Location": "Query",
-        "IsApiVersion": false,
-        "IsContentType": false,
-        "IsEndpoint": false,
-        "Explode": false,
-        "IsRequired": true,
-        "Kind": "Method",
-        "Decorators": [],
-        "SkipUrlEncoding": false
+        "$ref": "465"
        },
        "ResponseSegments": [
         "nextToken"
@@ -4317,22 +4303,21 @@
     }
    ],
    "Protocol": {
-    "$id": "474"
+    "$id": "473"
    },
    "Parameters": [
     {
-     "$id": "475",
+     "$id": "474",
      "Name": "unbrandedTypeSpecUrl",
      "NameInRequest": "unbrandedTypeSpecUrl",
      "Type": {
-      "$id": "476",
+      "$id": "475",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
      "Location": "Uri",
      "IsApiVersion": false,
-     "IsResourceParameter": false,
      "IsContentType": false,
      "IsRequired": true,
      "IsEndpoint": true,
@@ -4346,9 +4331,9 @@
   }
  ],
  "Auth": {
-  "$id": "477",
+  "$id": "476",
   "ApiKey": {
-   "$id": "478",
+   "$id": "477",
    "Name": "my-api-key",
    "In": "header"
   }
