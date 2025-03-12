@@ -4188,15 +4188,15 @@
      "bufferResponse": true,
      "paging": {
       "$id": "462",
-      "ItemPropertySegments": [
+      "itemPropertySegments": [
        "things"
       ],
-      "NextLink": {
+      "nextLink": {
        "$id": "463",
-       "ResponseSegments": [
+       "responseSegments": [
         "next"
        ],
-       "ResponseLocation": "Body"
+       "responseLocation": "Body"
       }
      },
      "generateProtocolMethod": true,
@@ -4282,12 +4282,12 @@
      "bufferResponse": true,
      "paging": {
       "$id": "471",
-      "ItemPropertySegments": [
+      "itemPropertySegments": [
        "things"
       ],
-      "ContinuationToken": {
+      "continuationToken": {
        "$id": "472",
-       "Parameter": {
+       "parameter": {
         "$id": "473",
         "name": "token",
         "nameInRequest": "token",
@@ -4304,10 +4304,10 @@
         "decorators": [],
         "skipUrlEncoding": false
        },
-       "ResponseSegments": [
+       "responseSegments": [
         "nextToken"
        ],
-       "ResponseLocation": "Body"
+       "responseLocation": "Body"
       }
      },
      "generateProtocolMethod": true,

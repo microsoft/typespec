@@ -28,7 +28,7 @@ import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationLongRunning } from "../type/operation-long-running.js";
-import { ContinuationToken, NextLink, OperationPaging } from "../type/operation-paging.js";
+import { InputContinuationToken, InputNextLink, InputOperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
@@ -210,8 +210,8 @@ function loadLongRunningOperation(
     return undefined;
   }
   return {
-    FinalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
-    FinalResponse: {
+    finalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
+    finalResponse: {
       // in swagger, we allow delete to return some meaningful body content
       // for now, let assume we don't allow return type
       StatusCodes: method.operation.verb === "delete" ? [204] : [200],
@@ -220,7 +220,7 @@ function loadLongRunningOperation(
           ? fromSdkModelType(sdkContext, method.lroMetadata.finalResponse.envelopeResult)
           : undefined,
     } as OperationResponse,
-    ResultPath: method.lroMetadata.finalResponse?.resultPath,
+    resultPath: method.lroMetadata.finalResponse?.resultPath,
   };
 }
 
@@ -306,22 +306,22 @@ function loadOperationPaging(
   method: SdkServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
   uri: string,
-): OperationPaging | undefined {
+): InputOperationPaging | undefined {
   if (method.kind !== "paging" || method.pagingMetadata === undefined) {
     return undefined;
   }
 
-  let nextLink: NextLink | undefined;
+  let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
     nextLink = {
-      ResponseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
+      responseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
         getResponseSegmentName(segment),
       ),
-      ResponseLocation: getResponseLocation(method.pagingMetadata.nextLinkSegments[0]),
+      responseLocation: getResponseLocation(method.pagingMetadata.nextLinkSegments[0]),
     };
 
     if (method.pagingMetadata.nextLinkOperation) {
-      nextLink.Operation = fromSdkServiceMethod(
+      nextLink.operation = fromSdkServiceMethod(
         context,
         method.pagingMetadata.nextLinkOperation,
         uri,
@@ -330,7 +330,7 @@ function loadOperationPaging(
     }
   }
 
-  let continuationToken: ContinuationToken | undefined;
+  let continuationToken: InputContinuationToken | undefined;
 
   if (
     method.pagingMetadata.continuationTokenParameterSegments &&
@@ -341,15 +341,15 @@ function loadOperationPaging(
       method.pagingMetadata.continuationTokenParameterSegments.length - 1
     ] as SdkModelPropertyType;
     continuationToken = {
-      Parameter: fromSdkHttpOperationParameter(
+      parameter: fromSdkHttpOperationParameter(
         context,
         getHttpOperationParameter(method, lastParameterSegment)!,
         rootApiVersions,
       ),
-      ResponseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
+      responseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
         getResponseSegmentName(segment),
       ),
-      ResponseLocation: getResponseLocation(
+      responseLocation: getResponseLocation(
         method.pagingMetadata.continuationTokenResponseSegments?.[0],
       ),
     };
@@ -357,9 +357,9 @@ function loadOperationPaging(
 
   return {
     // TODO - this is hopefully temporary until TCGC provides the information directly on pagingMetadata https://github.com/Azure/typespec-azure/issues/2291
-    ItemPropertySegments: method.response.resultSegments!.map((s) => s.name),
-    NextLink: nextLink,
-    ContinuationToken: continuationToken,
+    itemPropertySegments: method.response.resultSegments!.map((s) => s.name),
+    nextLink: nextLink,
+    continuationToken: continuationToken,
   };
 }
 
