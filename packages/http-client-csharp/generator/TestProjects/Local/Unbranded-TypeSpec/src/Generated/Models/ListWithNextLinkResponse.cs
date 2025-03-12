@@ -9,7 +9,7 @@ using System.Linq;
 namespace UnbrandedTypeSpec
 {
     /// <summary> The ListWithNextLinkResponse. </summary>
-    public partial class ListWithNextLinkResponse
+    internal partial class ListWithNextLinkResponse
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;

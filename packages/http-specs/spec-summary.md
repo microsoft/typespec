@@ -894,12 +894,6 @@ This test is testing sending a pipes collection format array query parameters
 
 This test is testing sending a ssv collection format array query parameters
 
-### Parameters_CollectionFormat_Query_tsv
-
-- Endpoint: `get /parameters/collection-format/query/tsv`
-
-This test is testing sending a tsv collection format array query parameters
-
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
