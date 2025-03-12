@@ -4347,10 +4347,10 @@
  ],
  "auth": {
   "$id": "477",
-  "ApiKey": {
+  "apiKey": {
    "$id": "478",
-   "Name": "my-api-key",
-   "In": "header"
+   "name": "my-api-key",
+   "in": "header"
   }
  }
 }

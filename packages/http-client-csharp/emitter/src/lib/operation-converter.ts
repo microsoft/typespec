@@ -249,11 +249,11 @@ function fromSdkServiceResponseHeaders(
   return headers.map(
     (h) =>
       ({
-        Name: h.__raw!.name,
-        NameInResponse: h.serializedName,
-        Summary: h.summary,
-        Doc: h.doc,
-        Type: fromSdkType(sdkContext, h.type),
+        name: h.__raw!.name,
+        nameInResponse: h.serializedName,
+        summary: h.summary,
+        doc: h.doc,
+        type: fromSdkType(sdkContext, h.type),
       }) as HttpResponseHeader,
   );
 }

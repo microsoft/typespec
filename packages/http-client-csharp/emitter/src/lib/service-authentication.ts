@@ -50,19 +50,19 @@ export function processServiceAuthentication(
   for (const authType of authClientParameter.type.variantTypes) {
     containsNoAuth = containsNoAuth || authType.scheme.type === "noAuth";
     const auth = processAuthType(sdkContext, authType);
-    if (auth?.ApiKey) {
-      inputAuth.ApiKey = auth.ApiKey;
+    if (auth?.apiKey) {
+      inputAuth.apiKey = auth.apiKey;
     }
-    if (auth?.OAuth2) {
-      inputAuth.OAuth2 = auth.OAuth2;
+    if (auth?.oAuth2) {
+      inputAuth.oAuth2 = auth.oAuth2;
     }
   }
 
-  if (containsNoAuth && !inputAuth.ApiKey && !inputAuth.OAuth2) {
+  if (containsNoAuth && !inputAuth.apiKey && !inputAuth.oAuth2) {
     return undefined;
   }
 
-  if (!inputAuth?.ApiKey && !inputAuth?.OAuth2) {
+  if (!inputAuth?.apiKey && !inputAuth?.oAuth2) {
     sdkContext.logger.reportDiagnostic({
       code: "unsupported-auth",
       messageId: "onlyUnsupportedAuthProvided",
@@ -90,7 +90,7 @@ function processAuthType(
         });
         return undefined;
       }
-      return { ApiKey: { Name: scheme.name, In: scheme.in } } as InputAuth;
+      return { apiKey: { name: scheme.name, in: scheme.in } } as InputAuth;
     case "oauth2":
       return processOAuth2(scheme);
     case "http": {
@@ -105,18 +105,18 @@ function processAuthType(
           return undefined;
         case "bearer":
           return {
-            ApiKey: {
-              Name: "Authorization",
-              In: "header",
-              Prefix: "Bearer",
+            apiKey: {
+              name: "Authorization",
+              in: "header",
+              prefix: "Bearer",
             },
           };
         default:
           return {
-            ApiKey: {
-              Name: "Authorization",
-              In: "header",
-              Prefix: schemeOrApiKeyPrefix,
+            apiKey: {
+              name: "Authorization",
+              in: "header",
+              prefix: schemeOrApiKeyPrefix,
             },
           };
       }
@@ -143,7 +143,7 @@ function processOAuth2(scheme: Oauth2Auth<OAuth2Flow[]>): InputAuth | undefined 
   }
   return scopes
     ? ({
-        OAuth2: { Scopes: Array.from(scopes.values()) },
+        oAuth2: { Scopes: Array.from(scopes.values()) },
       } as InputAuth)
     : undefined;
 }

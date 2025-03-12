@@ -43,6 +43,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new TypeSpecInputDateTimeTypeConverter(referenceHandler),
                     new TypeSpecInputDurationTypeConverter(referenceHandler),
                     new TypeSpecInputAuthConverter(referenceHandler),
+                    new TypeSpecInputApiKeyAuthConverter(referenceHandler),
+                    new TypeSpecInputOAuth2AuthConverter(referenceHandler),
                     new TypeSpecInputDecoratorInfoConverter(referenceHandler),
                     new TypeSpecInputSerializationOptionsConverter(referenceHandler),
                     new TypeSpecInputJsonSerializationOptionsConverter(referenceHandler),

@@ -54,8 +54,8 @@ describe("Test auth", () => {
 
     // auth was specified but it is not supported, so the known auth methods are undefined
     ok(root.auth);
-    strictEqual(root.auth?.ApiKey, undefined);
-    strictEqual(root.auth?.OAuth2, undefined);
+    strictEqual(root.auth?.apiKey, undefined);
+    strictEqual(root.auth?.oAuth2, undefined);
   });
 
   it("query header is not supported", async () => {
@@ -96,8 +96,8 @@ describe("Test auth", () => {
 
     // auth was specified but it is not supported, so the known auth methods are undefined
     ok(root.auth);
-    strictEqual(root.auth?.ApiKey, undefined);
-    strictEqual(root.auth?.OAuth2, undefined);
+    strictEqual(root.auth?.apiKey, undefined);
+    strictEqual(root.auth?.oAuth2, undefined);
   });
 
   it("query header and cookie header are not supported", async () => {
@@ -136,8 +136,8 @@ describe("Test auth", () => {
 
     // auth was specified but it is not supported, so the known auth methods are undefined
     ok(root.auth);
-    strictEqual(root.auth?.ApiKey, undefined);
-    strictEqual(root.auth?.OAuth2, undefined);
+    strictEqual(root.auth?.apiKey, undefined);
+    strictEqual(root.auth?.oAuth2, undefined);
   });
 
   it("apikey header auth", async () => {
@@ -164,8 +164,8 @@ describe("Test auth", () => {
       (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
     );
     strictEqual(noSupportedAuthDiagnostic, undefined);
-    ok(root.auth?.ApiKey);
-    strictEqual(root.auth?.OAuth2, undefined);
+    ok(root.auth?.apiKey);
+    strictEqual(root.auth?.oAuth2, undefined);
   });
 
   it("at least one supported auth", async () => {
@@ -199,7 +199,7 @@ describe("Test auth", () => {
     );
 
     strictEqual(noSupportedAuthDiagnostic, undefined);
-    ok(root.auth?.ApiKey);
+    ok(root.auth?.apiKey);
   });
 
   it("no auth", async () => {
