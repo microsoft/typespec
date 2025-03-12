@@ -72,7 +72,11 @@ const allFilesConfig = tsEslint.config({
  */
 export function getTypeScriptProjectRules(root) {
   return tsEslint.config({
-    files: ["**/packages/*/src/**/*.ts", "**/packages/*/src/**/*.tsx"],
+    files: [
+      "**/packages/*/src/**/*.ts",
+      "**/packages/*/src/**/*.tsx",
+      "**/packages/*/emitter/src/**/*.ts",
+    ],
     ignores: ["**/packages/http-client-csharp/**/*", "**/packages/http-client-python/**/*"], // Ignore isolated modules
     plugins: {},
     languageOptions: {
