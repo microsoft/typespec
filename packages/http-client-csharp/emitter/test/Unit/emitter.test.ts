@@ -1,4 +1,15 @@
 vi.resetModules();
+
+vi.mock("../../src/lib/lib.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/lib/lib.js")>();
+  return {
+    ...actual,
+    getTracer: vi.fn().mockReturnValue({
+      trace: vi.fn(),
+    }),
+  };
+});
+
 // Ensure that the mock is applied before the import of the module containing the execAsync function.
 vi.mock("../../src/lib/utils.js", () => ({
   execAsync: vi.fn(),
@@ -23,16 +34,6 @@ describe("Expected execCSharpGenerator args are passed", () => {
   afterAll(() => {
     vi.restoreAllMocks();
   });
-
-  vi.mock("../../src/lib/lib.js", async (importOriginal) => {
-    const actual = await importOriginal<typeof import("../../src/lib/lib.js")>();
-    return {
-      ...actual,
-      getTracer: vi.fn().mockReturnValue({
-        trace: vi.fn(),
-      }),
-    };
-});
 
   vi.mock("@typespec/compiler", async (importOriginal) => {
     const actual = await importOriginal<typeof import("@typespec/compiler")>();
