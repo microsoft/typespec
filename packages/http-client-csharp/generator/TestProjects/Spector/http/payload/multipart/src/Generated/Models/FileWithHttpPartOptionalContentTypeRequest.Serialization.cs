@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -59,9 +60,18 @@ namespace Payload.MultiPart.Models
 
         string IPersistableModel<FileWithHttpPartOptionalContentTypeRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
 
+        public static implicit operator BinaryContent(FileWithHttpPartOptionalContentTypeRequest fileWithHttpPartOptionalContentTypeRequest)
+        {
+            if (fileWithHttpPartOptionalContentTypeRequest == null)
+            {
+                return null;
+            }
+            return fileWithHttpPartOptionalContentTypeRequest.ToMultipartContent();
+        }
+
         internal MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            MultiPartFormDataBinaryContent content = new(Boundary);
 
             content.Add("profileImage", ProfileImage);
 

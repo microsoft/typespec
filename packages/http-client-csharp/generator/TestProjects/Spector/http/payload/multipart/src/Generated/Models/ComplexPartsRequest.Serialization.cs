@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.IO;
 
@@ -71,6 +72,15 @@ namespace Payload.MultiPart.Models
             }
 
             return content;
+        }
+
+        public static implicit operator BinaryContent(ComplexPartsRequest complexPartsRequest)
+        {
+            if (complexPartsRequest == null)
+            {
+                return null;
+            }
+            return complexPartsRequest.ToMultipartContent();
         }
 
         private BinaryData SerializeMultipartContentType()

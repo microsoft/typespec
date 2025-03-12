@@ -3,8 +3,10 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
@@ -176,6 +178,16 @@ namespace Payload.MultiPart.Models
         }
 
         string IPersistableModel<MultiPartRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
+
+
+        public static implicit operator BinaryContent(MultiPartRequest multiPartRequest)
+        {
+            if (multiPartRequest == null)
+            {
+                return null;
+            }
+            return multiPartRequest.ToMultipartContent();
+        }
 
         internal MultiPartFormDataBinaryContent ToMultipartContent()
         {

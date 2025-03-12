@@ -56,9 +56,19 @@ namespace Payload.MultiPart.Models
         }
 
         string IPersistableModel<ComplexHttpPartsModelRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
+
+        public static implicit operator BinaryContent(ComplexHttpPartsModelRequest complexHttpPartsModelRequest)
+        {
+            if (complexHttpPartsModelRequest == null)
+            {
+                return null;
+            }
+            return complexHttpPartsModelRequest.ToMultipartContent();
+        }
+
         internal MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            MultiPartFormDataBinaryContent content = new(Boundary);
 
             content.Add("id", Id);
             content.Add("address", Address);

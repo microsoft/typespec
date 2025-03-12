@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.IO;
 
@@ -57,9 +58,18 @@ namespace Payload.MultiPart.Models
 
         string IPersistableModel<BinaryArrayPartsRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
 
+        public static implicit operator BinaryContent(BinaryArrayPartsRequest binaryArrayPartsRequest)
+        {
+            if (binaryArrayPartsRequest == null)
+            {
+                return null;
+            }
+            return binaryArrayPartsRequest.ToMultipartContent();
+        }
+
         internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            MultiPartFormDataBinaryContent content = new(Boundary);
             content.Add("id", Id);
 
             foreach (var picture in Pictures)
