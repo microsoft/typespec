@@ -56,6 +56,10 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<bool> True { get; } = new KeywordExpression("true", null).As<bool>();
         public static ScopedApi<bool> False { get; } = new KeywordExpression("false", null).As<bool>();
 
+        public static MethodBodyStatement YieldReturn(ValueExpression variable) => new YieldReturnStatement(variable);
+
+        public static MethodBodyStatement YieldBreak() => new YieldBreakStatement();
+
         public static ScopedApi<bool> Bool(bool value) => value ? True : False;
         public static ScopedApi<int> Int(int value) => Literal(value).As<int>();
         public static ScopedApi<long> Long(long value) => Literal(value).As<long>();

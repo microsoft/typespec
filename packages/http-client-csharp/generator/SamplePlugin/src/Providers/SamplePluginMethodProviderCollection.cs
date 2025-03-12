@@ -28,12 +28,6 @@ namespace SamplePlugin.Providers
 
             foreach (var method in methods)
             {
-                // Only add tracing to protocol methods. Convenience methods will call into protocol methods.
-                if (!method.IsServiceCall())
-                {
-                    continue;
-                }
-
                 // Convert to a method with a body statement so we can add tracing.
                 ConvertToBodyStatementMethodProvider(method);
                 var statements = new TryCatchFinallyStatement(

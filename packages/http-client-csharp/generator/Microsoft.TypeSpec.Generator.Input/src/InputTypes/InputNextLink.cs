@@ -9,13 +9,13 @@ namespace Microsoft.TypeSpec.Generator.Input
     {
         public InputOperation? Operation { get; }
         public IReadOnlyList<string> ResponseSegments { get; }
-        public InputResponseLocation InputResponseLocation { get; }
+        public InputResponseLocation ResponseLocation { get; }
 
-        public InputNextLink(InputOperation? operation, IReadOnlyList<string> responseSegments, InputResponseLocation inputResponseLocation)
+        public InputNextLink(InputOperation? operation, IReadOnlyList<string> responseSegments, InputResponseLocation responseLocation)
         {
             Operation = operation;
             ResponseSegments = responseSegments;
-            InputResponseLocation = inputResponseLocation;
+            ResponseLocation = responseLocation;
         }
     }
 }
