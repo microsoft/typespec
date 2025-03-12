@@ -5,20 +5,20 @@ vi.mock("../../src/lib/utils.js", () => ({
   execAsync: vi.fn(),
 }));
 
+import { EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
+import { statSync } from "fs";
+import { afterAll, beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { $onEmit, _validateDotNetSdk } from "../../src/emitter.js";
+import { execAsync, execCSharpGenerator } from "../../src/lib/utils.js";
+import { CSharpEmitterOptions } from "../../src/options.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
   typeSpecCompile,
 } from "./utils/test-util.js";
-import { EmitContext, Program } from "@typespec/compiler";
-import { statSync } from "fs";
-import { afterAll, beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { $onEmit, _validateDotNetSdk } from "../../src/emitter.js";
-import { execCSharpGenerator, execAsync } from "../../src/lib/utils.js";
-import { CSharpEmitterOptions } from "../../src/options.js";
 
 describe("Expected execCSharpGenerator args are passed", () => {
   afterAll(() => {
@@ -214,4 +214,3 @@ describe("Test _validateDotNetSdk", () => {
     );
   });
 });
-
