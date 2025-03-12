@@ -73,8 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 inputNsEnums,
                 inputNsModels,
                 inputNsClients,
-                inputAuth!,
-                Array.Empty<string>());
+                inputAuth!);
             var mockInputLibrary = new Mock<InputLibrary>(_configFilePath);
             mockInputLibrary.Setup(p => p.InputNamespace).Returns(mockInputNs.Object);
 

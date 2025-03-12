@@ -263,9 +263,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 ["application/json"]);
         }
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null, string? crossLanguageDefinitionId = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
         {
-            return new InputClient(
+            // when this client has parent, we add the constructed client into the `children` list of the parent
+            var client = new InputClient(
                 name,
                 clientNamespace,
                 crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
@@ -273,7 +274,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 doc ?? $"{name} description",
                 operations is null ? [] : [.. operations],
                 parameters is null ? [] : [.. parameters],
-                parent);
+                parent,
+                null);
+            if (parent != null)
+            {
+                // when there is a parent here, we need to set the children list of the parent client to include this client
+                var children = (IList<InputClient>)parent.Children;
+                children.Add(client);
+            }
+            return client;
         }
     }
 }
