@@ -12,11 +12,10 @@ import {
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
-import { legacyMarshallTypeForJS, marshallTypeForJS } from "./js-marshaller.js";
+import { marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
@@ -547,9 +546,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       entity = initial;
     }
-    if (options.legacyTupleAndModelCast && entity !== null && isType(entity)) {
-      entity = legacy_tryTypeToValueCast(entity, constraint, node);
-    }
+    // if (options.legacyTupleAndModelCast && entity !== null && isType(entity)) {
+    //   entity = legacy_tryTypeToValueCast(entity, constraint, node);
+    // }
     if (entity === null) {
       return null;
     }
@@ -621,142 +620,53 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function legacy_tryTypeToValueCast(
-    type: Type,
-    constraint: CheckValueConstraint | undefined,
-    node: Node,
-  ): Type | Value | null {
+  /**
+   * Try to intercept types used as values, either return null and emit a diagnostic with a codefix or return the type as is to be dealt with the normal way.
+   */
+  function interceptTypesUsedAsValue(type: Type): Type | null {
     switch (type.kind) {
       case "Tuple":
-        return legacy_tryUsingTupleAsArrayValue(type, constraint?.type, node);
+        return interceptTupleUsedAsValue(type);
       case "Model":
-        return legacy_tryUsingModelAsObjectValue(type, constraint?.type, node);
+        return interceptModelExpressionUsedAsValue(type);
       default:
         return type;
     }
   }
 
   // Legacy behavior to smooth transition to object values.
-  function legacy_tryUsingModelAsObjectValue(
-    model: Model,
-    type: Type | undefined,
-    node: Node,
-  ): Model | ObjectValue | null {
+  function interceptModelExpressionUsedAsValue(model: Model): Model | null {
     if (model.node?.kind !== SyntaxKind.ModelExpression) {
       return model; // we only want to convert model expressions
     }
 
     reportCheckerDiagnostic(
       createDiagnostic({
-        code: "deprecated",
+        code: "expect-value",
         codefixes: [createModelToObjectValueCodeFix(model.node)],
-        format: {
-          message: "Using a model as a value is deprecated. Use an object value instead(with #{}).",
-        },
+        messageId: "modelExpression",
         target: model.node,
       }),
     );
 
-    const value: ObjectValue = {
-      entityKind: "Value",
-      valueKind: "ObjectValue",
-      type: type ?? model,
-      node: model.node as any,
-      properties: new Map(),
-    };
-
-    for (const prop of model.properties.values()) {
-      let propValue = getValueFromIndeterminate(
-        prop.type,
-        { kind: "assignment", type: prop.type },
-        node,
-      );
-      if (propValue !== null && isType(propValue)) {
-        propValue = legacy_tryTypeToValueCast(
-          propValue,
-          { kind: "assignment", type: prop.type },
-          node,
-        );
-      }
-      if (propValue == null) {
-        return null;
-      } else if (!isValue(propValue)) {
-        return model;
-      }
-      value.properties.set(prop.name, {
-        name: prop.name,
-        value: propValue,
-        node: prop.node as any,
-      });
-    }
-
-    if (type !== undefined && !checkTypeAssignable(model, type, node)) {
-      return null;
-    }
-
-    return value;
+    return null;
   }
 
-  // Legacy behavior to smooth transition to array values.
-  function legacy_tryUsingTupleAsArrayValue(
-    tuple: Tuple,
-    type: Type | undefined,
-    node: Node,
-  ): Tuple | ArrayValue | null {
+  // Intercept tuple used as value and report diagnostic with a codefix
+  function interceptTupleUsedAsValue(tuple: Tuple): Tuple | null {
     if (tuple.node.kind !== SyntaxKind.TupleExpression) {
       return tuple; // we won't convert dynamic tuples to array values
     }
 
     reportCheckerDiagnostic(
       createDiagnostic({
-        code: "deprecated",
+        code: "expect-value",
         codefixes: [createTupleToArrayValueCodeFix(tuple.node)],
-        format: {
-          message: "Using a tuple as a value is deprecated. Use an array value instead(with #[]).",
-        },
+        messageId: "tuple",
         target: tuple.node,
       }),
     );
-
-    const values: Value[] = [];
-    for (const [index, item] of tuple.values.entries()) {
-      const itemType =
-        type?.kind === "Model" && isArrayModelType(program, type)
-          ? type.indexer.value
-          : type?.kind === "Tuple"
-            ? type.values[index]
-            : undefined;
-      let value = getValueFromIndeterminate(
-        item,
-        itemType && { kind: "assignment", type: itemType },
-        node,
-      );
-      if (value !== null && isType(value)) {
-        value = legacy_tryTypeToValueCast(
-          value,
-          itemType && { kind: "assignment", type: itemType },
-          node,
-        );
-      }
-      if (value === null) {
-        return null;
-      } else if (!isValue(value)) {
-        return tuple;
-      }
-      values.push(value);
-    }
-
-    if (type !== undefined && !checkTypeAssignable(tuple, type, node)) {
-      return null;
-    }
-
-    return {
-      entityKind: "Value",
-      valueKind: "ArrayValue",
-      type: type ?? tuple,
-      node: tuple.node as any,
-      values,
-    };
+    return null;
   }
 
   interface CheckConstraint {
@@ -768,18 +678,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     type: Type;
   }
 
-  function canTryLegacyCast(
-    target: Type,
+  /** If the constraint only expect a value we can try to intercept types passed to it and call `interceptTypeUsedAsValue` to get a better error */
+  function shouldTryInterceptTypeUsedAsValue(
     constraint: MixedParameterConstraint | undefined,
   ): constraint is MixedParameterConstraint &
     Required<Pick<MixedParameterConstraint, "valueType">> {
-    return Boolean(
-      constraint?.valueType &&
-        !(
-          constraint.type &&
-          ignoreDiagnostics(relation.isTypeAssignableTo(target, constraint.type, target))
-        ),
-    );
+    return Boolean(constraint?.valueType && !constraint.type);
   }
 
   /**
@@ -797,8 +701,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (entity === null) {
       return entity;
     } else if (isType(entity)) {
-      if (canTryLegacyCast(entity, constraint?.constraint)) {
-        return legacy_tryTypeToValueCast(entity, valueConstraint, node);
+      if (shouldTryInterceptTypeUsedAsValue(constraint?.constraint)) {
+        return interceptTypesUsedAsValue(entity);
       } else {
         return entity;
       }
@@ -1359,12 +1263,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             ? finalMap.get(param.constraint.type)!
             : param.constraint;
 
-        if (isType(type) && canTryLegacyCast(type, param.constraint)) {
-          const converted = legacy_tryTypeToValueCast(
-            type,
-            { kind: "argument", type: param.constraint.valueType },
-            argNode,
-          );
+        if (isType(type) && shouldTryInterceptTypeUsedAsValue(param.constraint)) {
+          const converted = interceptTypesUsedAsValue(type);
           // If we manage to convert it means this might be convertable so we skip type checking.
           // However we still return the original entity
           if (converted !== type) {
@@ -4831,23 +4731,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       args,
     };
   }
-
-  function resolveDecoratorArgMarshalling(declaredType: Decorator | undefined): "new" | "legacy" {
-    if (declaredType) {
-      const location = getLocationContext(program, declaredType);
-      if (location.type === "compiler") {
-        return "new";
-      } else if (
-        (location.type === "library" || location.type === "project") &&
-        location.flags?.decoratorArgMarshalling
-      ) {
-        return location.flags.decoratorArgMarshalling;
-      } else {
-        return "new";
-      }
-    }
-    return "new";
-  }
   /** Check the decorator target is valid */
 
   function checkDecoratorTarget(targetType: Type, declaration: Decorator, decoratorNode: Node) {
@@ -4935,7 +4818,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     const resolvedArgs: DecoratorArgument[] = [];
-    const jsMarshalling = resolveDecoratorArgMarshalling(declaration);
     function resolveArg(
       argNode: Expression,
       perParamType: MixedParameterConstraint,
@@ -4959,7 +4841,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
               kind: "argument",
               constraint: perParamType,
             }),
-            jsMarshalling,
           ),
         };
       } else {
@@ -5036,13 +4917,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function resolveDecoratorArgJsValue(
     value: Type | Value,
     valueConstraint: CheckValueConstraint | undefined,
-    jsMarshalling: "legacy" | "new",
   ) {
     if (valueConstraint !== undefined) {
       if (isValue(value)) {
-        return jsMarshalling === "legacy"
-          ? legacyMarshallTypeForJS(checker, value)
-          : marshallTypeForJS(value, valueConstraint.type);
+        return marshallTypeForJS(value, valueConstraint.type);
       } else {
         return value;
       }

@@ -376,7 +376,7 @@ The format names are open ended and are left to emitter to interpret.
 
 #### Target
 
-`string | bytes | ModelProperty`
+`string | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |

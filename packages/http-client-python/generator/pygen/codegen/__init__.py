@@ -79,7 +79,7 @@ class OptionsRetriever:
     @property
     def _models_mode_default(self) -> str:
         models_mode_default = "none" if self.low_level_client or self.version_tolerant else "msrest"
-        if self.options.get("cadl_file") is not None:
+        if self.options.get("tsp_file") is not None:
             models_mode_default = "dpg"
         return models_mode_default
 
@@ -322,8 +322,8 @@ class CodeGenerator(Plugin):
         return {f: getattr(self.options_retriever, f) for f in flags}
 
     def get_yaml(self) -> Dict[str, Any]:
-        # cadl file doesn't have to be relative to output folder
-        with open(self.options["cadl_file"], "r", encoding="utf-8-sig") as fd:
+        # tsp file doesn't have to be relative to output folder
+        with open(self.options["tsp_file"], "r", encoding="utf-8-sig") as fd:
             return yaml.safe_load(fd.read())
 
     def get_serializer(self, code_model: CodeModel):
@@ -350,10 +350,10 @@ class CodeGenerator(Plugin):
 
 
 if __name__ == "__main__":
-    # CADL pipeline will call this
+    # TSP pipeline will call this
     parsed_args, unknown_args = parse_args()
     CodeGenerator(
         output_folder=parsed_args.output_folder,
-        cadl_file=parsed_args.cadl_file,
+        tsp_file=parsed_args.tsp_file,
         **unknown_args,
     ).process()

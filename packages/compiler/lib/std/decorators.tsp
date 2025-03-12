@@ -156,7 +156,7 @@ extern dec mediaTypeHint(target: Model | Scalar | Enum | Union, mediaType: value
  * scalar uuid extends string;
  * ```
  */
-extern dec format(target: string | bytes | ModelProperty, format: valueof string);
+extern dec format(target: string | ModelProperty, format: valueof string);
 
 /**
  * Specify the the pattern this string should respect using simple regular expression syntax.
