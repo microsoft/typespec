@@ -85,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             };
 
         public InvokeMethodExpression Invoke(string methodName, bool async)
-            => new InvokeMethodExpression(this, methodName, []);
+            => new InvokeMethodExpression(this, methodName, []) { CallAsAsync = async };
 
         public InvokeMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, bool async)
             => new InvokeMethodExpression(this, methodName, arguments) { CallAsAsync = async };
