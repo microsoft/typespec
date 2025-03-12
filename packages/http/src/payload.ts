@@ -99,7 +99,6 @@ function resolveBody(
 
   const file = getHttpFileModel(program, requestOrResponseType);
   if (file !== undefined) {
-    const file = getHttpFileModel(program, requestOrResponseType)!;
     return diagnostics.wrap({
       bodyKind: "single",
       contentTypes: diagnostics.pipe(getContentTypes(file.contentType)),
@@ -535,6 +534,7 @@ function resolveContentTypesForBody(
     if (contentTypeProperty) {
       return {
         contentTypes: diagnostics.pipe(getContentTypes(contentTypeProperty.property)),
+        contentTypeProperty: contentTypeProperty.property,
       };
     }
 
