@@ -328,9 +328,9 @@ async function createTestHostInternal(): Promise<TestHost> {
     mainFile: string,
     options: CompilerOptions = {},
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]> {
-    if (options.noEmit === undefined) {
+    if (options.dryRun === undefined) {
       // default for tests is noEmit
-      options = { ...options, noEmit: true };
+      options = { ...options, dryRun: true };
     }
     const p = await compileProgram(fileSystem.compilerHost, resolveVirtualPath(mainFile), options);
     program = p;

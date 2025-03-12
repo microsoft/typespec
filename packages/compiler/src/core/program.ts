@@ -235,10 +235,10 @@ async function createProgram(
 
   await loadSources(resolvedMain);
 
-  const emit = options.emit;
+  const emit = options.noEmit ? [] : (options.emit ?? []);
   const emitterOptions = options.options;
 
-  await loadEmitters(basedir, emit ?? [], emitterOptions ?? {});
+  await loadEmitters(basedir, emit, emitterOptions ?? {});
 
   if (
     oldProgram &&
