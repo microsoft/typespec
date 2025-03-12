@@ -1,7 +1,5 @@
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
-import {
-  CreateSdkContextOptions,
-} from "@azure-tools/typespec-client-generator-core";
+import type { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import { CompilerOptions, EmitContext, Program } from "@typespec/compiler";
 import { createTestHost, TestHost } from "@typespec/compiler/testing";
@@ -28,17 +26,14 @@ export async function createEmitterTestHost(): Promise<TestHost> {
 
 // Dynamically import Logger to allow it to be mocked in tests
 async function getLogger() {
-  const { Logger } = await import("../../../src/lib/logger.js"); 
+  const { Logger } = await import("../../../src/lib/logger.js");
   return Logger;
 }
 
-async function getCreateSdkContext () {
-  const { createSdkContext } = await import(
-    "@azure-tools/typespec-client-generator-core"
-  );
+async function getCreateSdkContext() {
+  const { createSdkContext } = await import("@azure-tools/typespec-client-generator-core");
   return createSdkContext;
 }
-
 
 export interface TypeSpecCompileOptions {
   IsNamespaceNeeded?: boolean;
