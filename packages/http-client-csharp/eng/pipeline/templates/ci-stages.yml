@@ -7,6 +7,40 @@ parameters:
     default: []
 
 stages:
+  - stage: test_stage_delete
+    dependsOn: []
+    jobs:
+      - job: test
+        displayName: Test
+
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+
+        steps:
+          - task: NodeTool@0
+            displayName: Install Node.js
+            retryCountOnTaskFailure: 3
+            inputs:
+              versionSpec: 20.x
+
+          - script: |
+              npm install -g pnpm
+              pnpm setup:min
+            displayName: "Install pnpm"
+          - script: |
+              npm install
+            displayName: "Install deps"
+            workingDirectory: packages/http-client-csharp
+          - script: npm run build:emitter
+            displayName: Build
+            workingDirectory: packages/http-client-csharp
+
+          - script: npm run test:emitter
+            displayName: Test
+            workingDirectory: packages/http-client-csharp
+
   - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
     parameters:
       StagePrefix: CSharp

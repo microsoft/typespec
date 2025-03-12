@@ -1,4 +1,9 @@
-vi.resetModules();
+// Setup mock before imports
+vi.mock("../../src/lib/lib.js", () => ({
+  getTracer: vi.fn().mockReturnValue({
+    trace: vi.fn(),
+  }),
+}));
 
 import { EmitContext, Program } from "@typespec/compiler";
 import { statSync } from "fs";
@@ -10,14 +15,8 @@ import { createEmitterContext } from "./utils/test-util.js";
 
 describe("Expected execCSharpGenerator args are passed", () => {
   afterAll(() => {
-    vi.resetAllMocks();
+    vi.restoreAllMocks();
   });
-  // Setup mocks
-  vi.mock("../../src/lib/lib.js", () => ({
-    getTracer: vi.fn().mockReturnValue({
-      trace: vi.fn(),
-    }),
-  }));
 
   vi.mock("@typespec/compiler", async (importOriginal) => {
     const actual = await importOriginal<typeof import("@typespec/compiler")>();
