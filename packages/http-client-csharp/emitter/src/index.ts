@@ -16,3 +16,4 @@ export {
 export { setSDKContextOptions } from "./sdk-context-options.js";
 export { CSharpEmitterContext } from "./sdk-context.js";
 export { InputModelType } from "./type/input-type.js";
+export { CodeModelUpdate, updateCodeModel } from "./update-code-model.js"
