@@ -10,7 +10,6 @@ import {
   SdkEndpointType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkModelPropertyType,
   SdkModelType,
   SdkServiceOperation,
   SdkType,
@@ -242,7 +241,7 @@ function emitProperty<TServiceOperation extends SdkServiceOperation>(
   }
   return {
     clientName: camelToSnakeCase(property.name),
-    wireName: property.serializedName,
+    wireName: property.serializationOptions.json?.name ?? property.name,
     type: getType(context, sourceType),
     optional: property.optional,
     description: property.summary ? property.summary : property.doc,
@@ -251,7 +250,7 @@ function emitProperty<TServiceOperation extends SdkServiceOperation>(
     isDiscriminator: property.discriminator,
     flatten: property.flatten,
     isMultipartFileInput: isMultipartFileInput,
-    xmlMetadata: model.usage & UsageFlags.Xml ? getXmlMetadata(property) : undefined,
+    xmlMetadata: getXmlMetadata(property),
   };
 }
 
@@ -294,7 +293,7 @@ function emitModel<TServiceOperation extends SdkServiceOperation>(
     crossLanguageDefinitionId: type.crossLanguageDefinitionId,
     usage: type.usage,
     isXml: type.usage & UsageFlags.Xml ? true : false,
-    xmlMetadata: type.usage & UsageFlags.Xml ? getXmlMetadata(type) : undefined,
+    xmlMetadata: getXmlMetadata(type),
     clientNamespace: getClientNamespace(context, type.clientNamespace),
   };
 
@@ -342,13 +341,16 @@ function emitEnum<TServiceOperation extends SdkServiceOperation>(
     if (!type.isFixed) {
       types.push(emitBuiltInType(type.valueType));
     }
-    return {
+
+    const newValue = {
       description: "",
       internal: true,
       type: "combined",
       types,
       xmlMetadata: {},
     };
+    typesMap.set(type, newValue);
+    return newValue;
   }
   const values: Record<string, any>[] = [];
   const name = type.name;
@@ -528,58 +530,27 @@ export function emitEndpointType<TServiceOperation extends SdkServiceOperation>(
   return params;
 }
 
-function getXmlMetadata(type: SdkType | SdkModelPropertyType): Record<string, any> {
-  const xmlMetadata: Record<string, any> = {};
-  const xmlDecorators = type.decorators.filter(
-    (x) => x.name.startsWith("TypeSpec.Xml.") || x.name.startsWith("TypeSpec.@encodedName"),
-  );
-  for (const decorator of xmlDecorators) {
-    switch (decorator.name) {
-      case "TypeSpec.@encodedName":
-        if (decorator.arguments["mimeType"] === "application/xml") {
-          xmlMetadata["name"] = decorator.arguments["name"];
-          break;
-        }
-        continue;
-      case "TypeSpec.Xml.@attribute":
-        xmlMetadata["attribute"] = true;
-        break;
-      case "TypeSpec.Xml.@name":
-        xmlMetadata["name"] = decorator.arguments["name"];
-        break;
-      case "TypeSpec.Xml.@ns":
-        if (decorator.arguments["ns"].kind === "enumvalue") {
-          xmlMetadata["namespace"] = (decorator.arguments["ns"] as SdkEnumValueType).value;
-          xmlMetadata["prefix"] = (decorator.arguments["ns"] as SdkEnumValueType).name;
-        } else {
-          xmlMetadata["namespace"] = decorator.arguments["ns"];
-          xmlMetadata["prefix"] = decorator.arguments["prefix"];
-        }
-        break;
-      case "TypeSpec.Xml.@unwrapped":
-        if (type.kind === "property" && type.type.kind === "array") {
-          xmlMetadata["unwrapped"] = true;
-        } else {
-          xmlMetadata["text"] = true;
-        }
-        break;
-    }
+function getXmlMetadata(
+  type: SdkModelType | SdkBodyModelPropertyType,
+): Record<string, any> | undefined {
+  if (type.serializationOptions.xml) {
+    return {
+      name: type.serializationOptions.xml.name,
+      namespace: type.serializationOptions.xml.ns?.namespace,
+      prefix: type.serializationOptions.xml.ns?.prefix,
+      attribute: type.serializationOptions.xml.attribute,
+      unwrapped:
+        type.kind === "property" &&
+        type.type.kind === "array" &&
+        type.serializationOptions.xml.unwrapped,
+      text:
+        type.kind === "property" &&
+        type.type.kind !== "array" &&
+        type.serializationOptions.xml.unwrapped,
+      itemsName: type.serializationOptions.xml.itemsName,
+      itemsNs: type.serializationOptions.xml.itemsNs?.namespace,
+      itemsPrefix: type.serializationOptions.xml.itemsNs?.prefix,
+    };
   }
-  // add item metadata for array
-  if (
-    type.kind === "property" &&
-    type.type.kind === "array" &&
-    type.type.valueType.kind !== "model"
-  ) {
-    const itemMetadata = getXmlMetadata(type.type.valueType);
-    // if array item is a primitive type, we need to use itemsName to change the name
-    if (Object.keys(itemMetadata).length > 0) {
-      xmlMetadata["itemsName"] = itemMetadata["name"];
-      xmlMetadata["itemsNs"] = itemMetadata["namespace"];
-      xmlMetadata["itemsPrefix"] = itemMetadata["prefix"];
-    } else if (!xmlMetadata["unwrapped"]) {
-      xmlMetadata["itemsName"] = type.type.valueType.kind;
-    }
-  }
-  return xmlMetadata;
+  return undefined;
 }

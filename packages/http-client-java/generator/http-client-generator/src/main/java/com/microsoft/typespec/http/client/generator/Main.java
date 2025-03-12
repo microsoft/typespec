@@ -18,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.postprocessor.Postproce
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,45 +50,52 @@ public class Main {
 
     // java -jar target/azure-typespec-extension-jar-with-dependencies.jar
     public static void main(String[] args) throws IOException {
-        // parameters
-        String inputYamlFileName = DEFAULT_OUTPUT_DIR + "code-model.yaml";
-        if (args.length >= 1) {
-            inputYamlFileName = args[0];
-        }
+        try {
+            // parameters
+            String inputYamlFileName = DEFAULT_OUTPUT_DIR + "code-model.yaml";
+            if (args.length >= 1) {
+                inputYamlFileName = args[0];
+            }
 
-        LOGGER.info("Code model file: {}", inputYamlFileName);
+            LOGGER.info("Code model file: {}", inputYamlFileName);
 
-        // load code-model.yaml
-        CodeModel codeModel = loadCodeModel(inputYamlFileName);
+            // load code-model.yaml
+            CodeModel codeModel = loadCodeModel(inputYamlFileName);
 
-        EmitterOptions emitterOptions = loadEmitterOptions(codeModel);
+            EmitterOptions emitterOptions = loadEmitterOptions(codeModel);
 
-        boolean sdkIntegration = true;
-        String outputDir = emitterOptions.getOutputDir();
-        Path outputDirPath = Paths.get(outputDir);
-        if (Files.exists(outputDirPath)) {
-            if (emitterOptions.getArm()) {
-                // check ../../parents/azure-client-sdk-parent
-                sdkIntegration = Files.exists(Paths.get(outputDir, "../../parents/azure-client-sdk-parent"));
-            } else {
-                try (Stream<Path> filestream = Files.list(outputDirPath)) {
-                    Set<String> filenames = filestream.map(p -> p.getFileName().toString())
-                        .map(name -> name.toLowerCase(Locale.ROOT))
-                        .collect(Collectors.toSet());
+            boolean sdkIntegration = true;
+            String outputDir = emitterOptions.getOutputDir();
+            Path outputDirPath = Paths.get(outputDir);
+            if (Files.exists(outputDirPath)) {
+                if (emitterOptions.getArm()) {
+                    // check ../../parents/azure-client-sdk-parent
+                    sdkIntegration = Files.exists(Paths.get(outputDir, "../../parents/azure-client-sdk-parent"));
+                } else {
+                    try (Stream<Path> filestream = Files.list(outputDirPath)) {
+                        Set<String> filenames = filestream.map(p -> p.getFileName().toString())
+                            .map(name -> name.toLowerCase(Locale.ROOT))
+                            .collect(Collectors.toSet());
 
-                    // if there is already pom and source, do not overwrite them (includes README.md, CHANGELOG.md etc.)
-                    sdkIntegration = !filenames.containsAll(Arrays.asList("pom.xml", "src"));
+                        // if there is already pom and source, do not overwrite them (includes README.md, CHANGELOG.md
+                        // etc.)
+                        sdkIntegration = !filenames.containsAll(Arrays.asList("pom.xml", "src"));
+                    }
                 }
             }
-        }
 
-        if (emitterOptions.getArm()) {
-            handleFluent(codeModel, emitterOptions, sdkIntegration);
-        } else {
-            handleDPG(codeModel, emitterOptions, sdkIntegration, outputDir);
+            if (emitterOptions.getArm()) {
+                handleFluent(codeModel, emitterOptions, sdkIntegration);
+            } else {
+                handleDPG(codeModel, emitterOptions, sdkIntegration, outputDir);
+            }
+
+            // ensure the process exits as expected
+            System.exit(0);
+        } catch (Exception e) {
+            LOGGER.error("Unhandled error.", e);
+            System.exit(1);
         }
-        // ensure the process exits as expected
-        System.exit(0);
     }
 
     private static void handleFluent(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration) {
@@ -114,6 +122,16 @@ public class Main {
         // XML include POM
         javaPackage.getXmlFiles()
             .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
+
+        // properties file
+        if (JavaSettings.getInstance().isFluentLite()) {
+            String artifactId = FluentUtils.getArtifactId();
+            if (!CoreUtils.isNullOrEmpty(artifactId)) {
+                fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
+                    "version=${project.version}\n", null);
+            }
+        }
+
         // Others
         javaPackage.getTextFiles()
             .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
@@ -212,7 +230,7 @@ public class Main {
                     options.setOutputDir(options.getOutputDir() + "/");
                 }
             } catch (IOException e) {
-                LOGGER.info("Read emitter options failed, emitter options json: {}", emitterOptionsJson);
+                LOGGER.warn("Read emitter options failed, emitter options json: {}", emitterOptionsJson);
             }
         }
 

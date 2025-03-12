@@ -18,7 +18,7 @@ import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decor
 import { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
-import { resolveHttpPayload } from "./payload.js";
+import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
@@ -82,7 +82,7 @@ function processResponseType(
 ) {
   // Get body
   let { body: resolvedBody, metadata } = diagnostics.pipe(
-    resolveHttpPayload(program, responseType, Visibility.Read, "response"),
+    resolveHttpPayload(program, responseType, Visibility.Read, HttpPayloadDisposition.Response),
   );
   // Get explicity defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(
@@ -112,7 +112,6 @@ function processResponseType(
     // the first model for this statusCode/content type pair carries the
     // description for the endpoint. This could probably be improved.
     const response: HttpOperationResponse = responses.get(statusCode) ?? {
-      statusCode: typeof statusCode === "object" ? "*" : (String(statusCode) as any),
       statusCodes: statusCode,
       type: responseType,
       description: getResponseDescription(program, operation, responseType, statusCode, metadata),

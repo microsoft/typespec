@@ -1,5 +1,41 @@
 # Change Log - @typespec/http
 
+## 0.66.0
+
+### Deprecations
+
+- [#6130](https://github.com/microsoft/typespec/pull/6130) Updates `@header` decorator to accept values and adds the `explode` option.
+Note that using the model expression syntax to pass in arguments, or using the
+`format` field, are now deprecated.
+
+```diff lang="tsp"
+op example1(
+-  @header({ name: "ETag" }) etag: string
++  @header(#{ name: "ETag" }) etag: string 
+): void;
+
+op example2(
+-  @header({ format: "csv" }) list: string[]
++  @header list: string[]
+): void;
+```
+
+### Features
+
+- [#5996](https://github.com/microsoft/typespec/pull/5996) Emitter Framework V2
+
+
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5340](https://github.com/microsoft/typespec/pull/5340) Add Experimental Typekit helpers for `@typespec/http`
+
+
 ## 0.64.0
 
 ### Features

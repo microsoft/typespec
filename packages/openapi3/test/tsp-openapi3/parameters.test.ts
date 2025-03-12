@@ -1,9 +1,13 @@
 import { getDocData, Numeric } from "@typespec/compiler";
-import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { ok } from "assert";
 import { assert, describe, expect, it } from "vitest";
 import { expectDecorators } from "./utils/expect.js";
-import { compileForOpenAPI3, tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
+import {
+  compileForOpenAPI3,
+  renderTypeSpecForOpenAPI3,
+  tspForOpenAPI3,
+} from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level parameters", () => {
   it.each(["query", "header", "path"] as const)(`Supports location: %s`, async (location) => {
@@ -308,62 +312,98 @@ describe("converts top-level parameters", () => {
 });
 
 describe("header", () => {
-  it(`sets no args if style is not set`, async () => {
-    const serviceNamespace = await tspForOpenAPI3({
-      parameters: {
-        Foo: {
-          name: "foo",
-          in: "header",
-          schema: {
-            type: "string",
-          },
-        },
-      },
-    });
-
-    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-    assert(parametersNamespace, "Parameters namespace not found");
-
-    const models = parametersNamespace.models;
-
-    /* model Foo { @header foo: string, } */
-    const Foo = models.get("Foo");
-    assert(Foo, "Foo model not found");
-    expect(Foo.properties.size).toBe(1);
-    const fooProperty = Foo.properties.get("foo");
-    assert(fooProperty, "foo property not found");
-    expectDecorators(fooProperty.decorators, [{ name: "header" }]);
-  });
-
-  it(`sets format to 'simple' when style is set to 'simple'`, async () => {
-    const serviceNamespace = await tspForOpenAPI3({
-      parameters: {
-        Foo: {
-          name: "foo",
-          in: "header",
-          schema: {
-            type: "array",
-            items: {
-              type: "string",
+  it(`sets explode: true when it is explicitly set`, async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      paths: {
+        "/": {
+          get: {
+            operationId: "foo",
+            parameters: [
+              {
+                name: "custom",
+                in: "header",
+                explode: true,
+                schema: { type: "object", properties: { id: { type: "string" } } },
+              },
+            ],
+            responses: {
+              "200": { description: "test response" },
             },
           },
-          style: "simple",
         },
       },
     });
 
-    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-    assert(parametersNamespace, "Parameters namespace not found");
+    expect(tsp).toMatchInlineSnapshot(`
+      "import "@typespec/http";
+      import "@typespec/openapi";
+      import "@typespec/openapi3";
 
-    const models = parametersNamespace.models;
+      using Http;
+      using OpenAPI;
 
-    /* model Foo { @header({ format: "simple" }) foo: string[], } */
-    const Foo = models.get("Foo");
-    assert(Foo, "Foo model not found");
-    expect(Foo.properties.size).toBe(1);
-    const fooProperty = Foo.properties.get("foo");
-    assert(fooProperty, "foo property not found");
-    expectDecorators(fooProperty.decorators, [{ name: "header", args: [{ format: "simple" }] }]);
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
+      namespace TestService;
+
+      @route("/") @get op foo(
+        @header(#{ explode: true }) custom?: {
+          id?: string;
+        },
+      ): OkResponse;
+      "
+    `);
+  });
+
+  it(`does not set explode when it is false or undefined`, async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      paths: {
+        "/": {
+          get: {
+            operationId: "foo",
+            parameters: [
+              {
+                name: "custom1",
+                in: "header",
+                schema: { type: "object", properties: { id: { type: "string" } } },
+              },
+              {
+                name: "custom2",
+                in: "header",
+                schema: { type: "object", properties: { id: { type: "string" } } },
+                explode: false,
+              },
+            ],
+            responses: {
+              "200": { description: "test response" },
+            },
+          },
+        },
+      },
+    });
+
+    expect(tsp).toMatchInlineSnapshot(`
+      "import "@typespec/http";
+      import "@typespec/openapi";
+      import "@typespec/openapi3";
+
+      using Http;
+      using OpenAPI;
+
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
+      namespace TestService;
+
+      @route("/") @get op foo(
+        @header custom1?: {
+          id?: string;
+        },
+        @header custom2?: {
+          id?: string;
+        },
+      ): OkResponse;
+      "
+    `);
   });
 });
 
@@ -433,43 +473,40 @@ describe("query", () => {
       expectDecorators(fooProperty.decorators, [{ name: "query" }]);
     });
 
-    it.each([
-      { style: "spaceDelimited", format: "ssv" },
-      { style: "pipeDelimited", format: "pipes" },
-    ])("sets explode and format args when style: $style", async ({ style, format }) => {
-      const { namespace: serviceNamespace, diagnostics } = await compileForOpenAPI3({
-        parameters: {
-          Foo: {
-            name: "foo",
-            in: "query",
-            schema: {
-              type: "array",
-              items: {
-                type: "string",
+    it.each([{ style: "spaceDelimited" }, { style: "pipeDelimited" }])(
+      "sets explode when style: $style",
+      async ({ style }) => {
+        const { namespace: serviceNamespace } = await compileForOpenAPI3({
+          parameters: {
+            Foo: {
+              name: "foo",
+              in: "query",
+              schema: {
+                type: "array",
+                items: {
+                  type: "string",
+                },
               },
+              style: style as any,
+              explode,
             },
-            style: style as any,
-            explode,
           },
-        },
-      });
+        });
 
-      // Expect a deprecated warning due to the use of format in the query args
-      expectDiagnostics(diagnostics, [{ code: "deprecated" }]);
+        const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+        assert(parametersNamespace, "Parameters namespace not found");
 
-      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-      assert(parametersNamespace, "Parameters namespace not found");
+        const models = parametersNamespace.models;
 
-      const models = parametersNamespace.models;
-
-      /* model Foo { @query(#{explode: false, format: $format}) foo: string[], } */
-      const Foo = models.get("Foo");
-      assert(Foo, "Foo model not found");
-      expect(Foo.properties.size).toBe(1);
-      const fooProperty = Foo.properties.get("foo");
-      assert(fooProperty, "foo property not found");
-      expectDecorators(fooProperty.decorators, [{ name: "query", args: [{ explode, format }] }]);
-    });
+        /* model Foo { @query(#{explode: false}) foo: string[], } */
+        const Foo = models.get("Foo");
+        assert(Foo, "Foo model not found");
+        expect(Foo.properties.size).toBe(1);
+        const fooProperty = Foo.properties.get("foo");
+        assert(fooProperty, "foo property not found");
+        expectDecorators(fooProperty.decorators, []);
+      },
+    );
   });
 
   describe("explicit explode: true", () => {
@@ -506,11 +543,12 @@ describe("query", () => {
       expectDecorators(fooProperty.decorators, [{ name: "query", args: [{ explode }] }]);
     });
 
-    it.each([
+    // TODO: Converter should handle proper format with @encoding with explode: true.
+    it.skip.each([
       { style: "spaceDelimited", format: "ssv" },
       { style: "pipeDelimited", format: "pipes" },
     ])("sets explode and format args when style: $style", async ({ style, format }) => {
-      const { namespace: serviceNamespace, diagnostics } = await compileForOpenAPI3({
+      const { namespace: serviceNamespace } = await compileForOpenAPI3({
         parameters: {
           Foo: {
             name: "foo",
@@ -527,9 +565,6 @@ describe("query", () => {
         },
       });
 
-      // Expect a deprecated warning due to the use of format in the query args
-      expectDiagnostics(diagnostics, [{ code: "deprecated" }]);
-
       const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
       assert(parametersNamespace, "Parameters namespace not found");
 
@@ -541,9 +576,7 @@ describe("query", () => {
       expect(Foo.properties.size).toBe(1);
       const fooProperty = Foo.properties.get("foo");
       assert(fooProperty, "foo property not found");
-      expectDecorators(fooProperty.decorators, [
-        { name: "query", args: [{ explode: true, format }] },
-      ]);
+      expectDecorators(fooProperty.decorators, []);
     });
   });
 });

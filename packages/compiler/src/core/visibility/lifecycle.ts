@@ -3,8 +3,7 @@
 
 import { compilerAssert } from "../diagnostics.js";
 import type { Program } from "../program.js";
-import { isProjectedProgram } from "../projected-program.js";
-import type { Enum, EnumMember } from "../types.js";
+import type { Enum } from "../types.js";
 
 /**
  * A cache for the `TypeSpec.Visibility.Lifecycle` enum per Program instance.
@@ -31,73 +30,7 @@ export function getLifecycleVisibilityEnum(program: Program): Enum {
 
   compilerAssert(type!.kind === "Enum", "Expected `TypeSpec.Visibility.Lifecycle` to be an enum");
 
-  if (isProjectedProgram(program)) {
-    const projectedType = program.projector.projectType(type);
+  LIFECYCLE_ENUM_CACHE.set(program, type);
 
-    compilerAssert(
-      projectedType.entityKind === "Type" && projectedType.kind === "Enum",
-      "Expected `TypeSpec.Visibility.Lifecycle` to be an Enum (projected)",
-    );
-
-    LIFECYCLE_ENUM_CACHE.set(program, projectedType);
-
-    return projectedType;
-  } else {
-    LIFECYCLE_ENUM_CACHE.set(program, type);
-
-    return type;
-  }
-}
-
-/**
- * Returns the member of `Lifecycle` that corresponds to the given legacy `visibility` string.
- *
- * @param program - the program to get the lifecycle visibility enum for
- * @param visibility - the visibility string to normalize
- * @returns the corresponding member of `Lifecycle` or `undefined` if the visibility string is not recognized
- */
-export function normalizeLegacyLifecycleVisibilityString(
-  program: Program,
-  visibility: string,
-): EnumMember | undefined {
-  const lifecycle = getLifecycleVisibilityEnum(program);
-  switch (visibility) {
-    case "create":
-      return lifecycle.members.get("Create")!;
-    case "read":
-      return lifecycle.members.get("Read")!;
-    case "update":
-      return lifecycle.members.get("Update")!;
-    default:
-      return undefined;
-  }
-}
-
-/**
- * Returns the legacy visibility string that corresponds to the given `visibility` member of `Lifecycle`.
- *
- * If the given `visibility` member is not a member of `Lifecycle`, the function will return `undefined`.
- *
- * @param program - the program to get the lifecycle visibility enum for
- * @param visibility - the visibility modifier to normalize
- * @returns the corresponding legacy visibility string or `undefined` if the visibility member is not recognized
- */
-export function normalizeVisibilityToLegacyLifecycleString(
-  program: Program,
-  visibility: EnumMember,
-): string | undefined {
-  const lifecycle = getLifecycleVisibilityEnum(program);
-
-  if (visibility.enum !== lifecycle) return undefined;
-
-  switch (visibility.name) {
-    case "Create":
-      return "create";
-    case "Read":
-      return "read";
-    case "Update":
-      return "update";
-    default:
-      return undefined;
-  }
+  return type;
 }

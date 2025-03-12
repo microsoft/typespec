@@ -141,7 +141,7 @@ function createTestCompilerHost(
     },
     getSourceFileKind: getSourceFileKindFromExt,
 
-    logSink: NodeHost.logSink,
+    logSink: { log: NodeHost.logSink.log },
     mkdirp: async (path: string) => path,
     fileURLToPath,
     pathToFileURL(path: string) {

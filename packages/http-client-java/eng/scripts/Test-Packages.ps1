@@ -20,6 +20,9 @@ Invoke-LoggedCommand "mvn -version"
 Push-Location $packageRoot
 try {
     if ($UnitTests) {
+        Invoke-LoggedCommand "npm run test"
+        Write-Host "Emitter unit tests passed"
+
         Write-Host "Current PATH: $env:PATH"
         Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
         $env:JAVA_HOME = $env:JAVA_HOME_21_X64
@@ -36,6 +39,9 @@ try {
             try {
                 & ./Setup.ps1
                 & ./Spector-Tests.ps1
+                if ($LASTEXITCODE -ne 0) {
+                    exit $LASTEXITCODE
+                }
             }
             finally {
                 Pop-Location
@@ -46,6 +52,9 @@ try {
             try {
                 & ./Setup.ps1
                 & ./Spector-Tests.ps1
+                if ($LASTEXITCODE -ne 0) {
+                    exit $LASTEXITCODE
+                }
             }
             finally {
                 Pop-Location

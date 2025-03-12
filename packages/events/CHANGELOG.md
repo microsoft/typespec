@@ -1,5 +1,20 @@
 # Changelog - @typespec/events
 
+## 0.66.0
+
+No changes, version bump only.
+
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5699](https://github.com/microsoft/typespec/pull/5699) Promote `unsafe_useStateMap` and `unsafe_useStateSet` experimental APIs to stable version `useStateMap` and `useStateSet`. Old ones are deprecated
+
+
 ## 0.64.0
 
 No changes, version bump only.

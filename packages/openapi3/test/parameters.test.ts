@@ -64,80 +64,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       });
     });
 
-    it("LEGACY: specify the format", async () => {
-      const res = await openApiFor(
-        `
-      #suppress "deprecated" "test"
-      op test(
-        @query({name: "$multi", format: "multi"}) multis: string[],
-        @query({name: "$csv", format: "csv"}) csvs: string[],
-        #suppress "@typespec/openapi3/invalid-format" "test"
-        @query({name: "$tsv", format: "tsv"}) tsvs: string[],
-        @query({name: "$ssv", format: "ssv"}) ssvs: string[],
-        @query({name: "$pipes", format: "pipes"}) pipes: string[]
-      ): void;
-      `,
-      );
-      const params = res.paths["/"].get.parameters;
-      deepStrictEqual(params[0], {
-        in: "query",
-        name: "$multi",
-        required: true,
-        schema: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-        },
-      });
-      deepStrictEqual(params[1], {
-        in: "query",
-        name: "$csv",
-        explode: false,
-        schema: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-        },
-        required: true,
-      });
-      deepStrictEqual(params[2], {
-        in: "query",
-        name: "$tsv",
-        schema: {
-          type: "string",
-        },
-        required: true,
-      });
-      deepStrictEqual(params[3], {
-        in: "query",
-        name: "$ssv",
-        style: "spaceDelimited",
-        required: true,
-        schema: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-        },
-        explode: false,
-      });
-      deepStrictEqual(params[4], {
-        in: "query",
-        name: "$pipes",
-        style: "pipeDelimited",
-        required: true,
-        schema: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-        },
-        explode: false,
-      });
-    });
-
     it("create a query param that is a model property", async () => {
       const res = await openApiFor(
         `
@@ -180,66 +106,53 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
     });
 
-    it("create a header param of array type", async () => {
+    it("create a header param respecting the explode option", async () => {
       const res = await openApiFor(
         `
       op test(
-        @header({name: "$csv", format: "csv"}) csvs: string[],
-        #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$multi", format: "multi"}) multis: string[],
-        #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$tsv", format: "tsv"}) tsvs: string[],
-        #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$ssv", format: "ssv"}) ssvs: string[],
-        #suppress "@typespec/openapi3/invalid-format" "test"
-        @header({name: "$pipes", format: "pipes"}) pipes: string[]
+        @header(#{name: "$explodeTrue", explode: true}) expTrue: { foo: string },
+        @header(#{name: "$explodeFalse", explode: false}) expFalse: { foo: string },
+        @header(#{name: "$explodeDefault"}) expDefault: { foo: string },
       ): void;
       `,
       );
       const params = res.paths["/"].get.parameters;
       deepStrictEqual(params[0], {
         in: "header",
-        name: "$csv",
-        style: "simple",
+        name: "$explodeTrue",
+        explode: true,
         schema: {
-          type: "array",
-          items: {
-            type: "string",
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
           },
         },
         required: true,
       });
       deepStrictEqual(params[1], {
         in: "header",
-        name: "$multi",
+        name: "$explodeFalse",
         required: true,
         schema: {
-          type: "string",
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
+          },
         },
       });
       deepStrictEqual(params[2], {
         in: "header",
-        name: "$tsv",
+        name: "$explodeDefault",
         schema: {
-          type: "string",
+          type: "object",
+          required: ["foo"],
+          properties: {
+            foo: { type: "string" },
+          },
         },
         required: true,
-      });
-      deepStrictEqual(params[3], {
-        in: "header",
-        name: "$ssv",
-        required: true,
-        schema: {
-          type: "string",
-        },
-      });
-      deepStrictEqual(params[4], {
-        in: "header",
-        name: "$pipes",
-        required: true,
-        schema: {
-          type: "string",
-        },
       });
     });
 
@@ -395,8 +308,31 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       });
     });
 
+    // Test for https://github.com/microsoft/typespec/issues/6224
+    it("implicit body with metadata keeps decorator info on body properties", async () => {
+      const res = await openApiFor(`
+        @test op test(
+          @doc("Doc for param")
+          param: string;
+
+          @query
+          queryParam?: string,
+        ): void;
+        `);
+      expect(res.paths["/"].post.requestBody.content["application/json"].schema).toEqual({
+        type: "object",
+        properties: {
+          param: {
+            type: "string",
+            description: "Doc for param",
+          },
+        },
+        required: ["param"],
+      });
+    });
+
     describe("request parameters resolving to no property in the body produce no body", () => {
-      it.each(["()", "(@header prop: string)", `(@visibility("none") prop: string)`])(
+      it.each(["()", "(@header prop: string)", `(@invisible(Lifecycle) prop: string)`])(
         "%s",
         async (params) => {
           const res = await openApiFor(`op test${params}: void;`);

@@ -262,8 +262,8 @@ describe("compiler: linter", () => {
         $lib: createTypeSpecLibrary({
           name: "my-lib",
           diagnostics: {},
-          linter: { rules: [noModelFoo] },
         }),
+        $linter: { rules: [noModelFoo] },
       });
 
       return await host.diagnose("main.tsp", {

@@ -393,6 +393,7 @@ public class ClientMethod {
 
         imports.add("java.util.Objects");
         imports.add("java.util.stream.Collectors");
+        ClassType.BINARY_DATA.addImportsTo(imports, includeImplementationImports);
         ClassType.RESPONSE.addImportsTo(imports, includeImplementationImports);
         ClassType.SIMPLE_RESPONSE.addImportsTo(imports, includeImplementationImports);
 
@@ -402,6 +403,7 @@ public class ClientMethod {
 
             // for query parameter modification in RequestOptions (UrlBuilder.parse)
             imports.add(UrlBuilder.class.getName());
+            imports.add("io.clientcore.core.utils.UriBuilder");
         }
 
         getReturnValue().addImportsTo(imports, includeImplementationImports);
@@ -501,6 +503,7 @@ public class ClientMethod {
                 ClassType.CORE_UTILS.addImportsTo(imports, false);
                 ClassType.DATE_TIME.addImportsTo(imports, false);
                 ClassType.DATE_TIME_RFC_1123.addImportsTo(imports, false);
+                imports.add("java.util.UUID");
             }
 
             if (type == ClientMethodType.SendRequestAsync || type == ClientMethodType.SendRequestSync) {

@@ -162,14 +162,6 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         return retval
 
     @property
-    def url_pylint_disable(self) -> str:
-        # if the url is too long
-        retval = ""
-        if len(self.url) > 85:
-            retval = add_to_pylint_disable(retval, "line-too-long")
-        return retval
-
-    @property
     def filename(self) -> str:
         """Name of the file for the client"""
         if self.code_model.options["version_tolerant"] or self.code_model.options["low_level_client"]:

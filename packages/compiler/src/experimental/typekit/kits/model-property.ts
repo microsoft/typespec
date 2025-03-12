@@ -1,10 +1,49 @@
-import type { Enum, EnumMember, ModelProperty, Scalar, Type } from "../../../core/types.js";
+import type { Enum, EnumMember, ModelProperty, Scalar, Type, Value } from "../../../core/types.js";
 import { getVisibilityForClass } from "../../../core/visibility/core.js";
 import { EncodeData, getEncode, getFormat } from "../../../lib/decorators.js";
 import { defineKit } from "../define-kit.js";
 
-/** @experimental */
+/**
+ * A descriptor for a model property.
+ * @experimental
+ */
+export interface ModelPropertyDescriptor {
+  /**
+   * The name of the model property.
+   */
+  name: string;
+
+  /**
+   * The type of the model property.
+   */
+  type: Type;
+
+  /**
+   * Whether the model property is optional.
+   */
+  optional?: boolean;
+
+  /**
+   * Default value
+   */
+  defaultValue?: Value | undefined;
+}
+
+/**
+ * Utilities for working with model properties.
+ *
+ * For many reflection operations, the metadata being asked for may be found
+ * on the model property or the type of the model property. In such cases,
+ * these operations will return the metadata from the model property if it
+ * exists, or the type of the model property if it exists.
+ * @experimental
+ */
 export interface ModelPropertyKit {
+  /**
+   * Creates a modelProperty type.
+   * @param desc The descriptor of the model property.
+   */
+  create(desc: ModelPropertyDescriptor): ModelProperty;
   /**
    * Check if the given `type` is a model property.
    *
@@ -34,7 +73,7 @@ export interface ModelPropertyKit {
   getVisibilityForClass(property: ModelProperty, visibilityClass: Enum): Set<EnumMember>;
 }
 
-interface TypeKit {
+interface TypekitExtension {
   /**
    * Utilities for working with model properties.
    *
@@ -42,15 +81,16 @@ interface TypeKit {
    * on the model property or the type of the model property. In such cases,
    * these operations will return the metadata from the model property if it
    * exists, or the type of the model property if it exists.
+   * @experimental
    */
   modelProperty: ModelPropertyKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends TypeKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<TypeKit>({
+defineKit<TypekitExtension>({
   modelProperty: {
     is(type) {
       return type.kind === "ModelProperty";
@@ -66,6 +106,17 @@ defineKit<TypeKit>({
 
     getVisibilityForClass(property, visibilityClass) {
       return getVisibilityForClass(this.program, property, visibilityClass);
+    },
+    create(desc) {
+      return this.program.checker.createType({
+        kind: "ModelProperty",
+        name: desc.name,
+        node: undefined as any,
+        type: desc.type,
+        optional: desc.optional ?? false,
+        decorators: [],
+        defaultValue: desc.defaultValue,
+      });
     },
   },
 });

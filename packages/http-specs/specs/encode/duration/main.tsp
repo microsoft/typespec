@@ -79,10 +79,7 @@ namespace Query {
     Expected query parameter `input=36,47`
     """)
   op int32SecondsArray(
-    #suppress "deprecated" "Deprecated in next release"
-    @query({
-      format: "csv",
-    })
+    @query
     input: Int32Duration[],
   ): NoContentResponse;
 }
@@ -274,9 +271,7 @@ namespace Header {
     Expected header `duration: [P40D,P50D]`
     """)
   op iso8601Array(
-    @header({
-      format: "csv",
-    })
+    @header
     duration: Iso8601Duration[],
   ): NoContentResponse;
 

@@ -1,9 +1,32 @@
 import type { DecoratorContext, Model, Namespace, Operation, Type } from "@typespec/compiler";
 
+export interface AdditionalInfo {
+  readonly [key: string]: unknown;
+  readonly title?: string;
+  readonly summary?: string;
+  readonly version?: string;
+  readonly termsOfService?: string;
+  readonly contact?: Contact;
+  readonly license?: License;
+}
+
 export interface TagMetadata {
   readonly [key: string]: unknown;
   readonly description?: string;
   readonly externalDocs?: ExternalDocs;
+}
+
+export interface Contact {
+  readonly [key: string]: unknown;
+  readonly name?: string;
+  readonly url?: string;
+  readonly email?: string;
+}
+
+export interface License {
+  readonly [key: string]: unknown;
+  readonly name: string;
+  readonly url?: string;
 }
 
 export interface ExternalDocs {
@@ -31,12 +54,12 @@ export type OperationIdDecorator = (
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
  *
- * @param key Extension key. Must start with `x-`
+ * @param key Extension key.
  * @param value Extension value.
  * @example
  * ```typespec
  * @extension("x-custom", "My value")
- * @extension("x-pageable", {nextLink: "x-next-link"})
+ * @extension("x-pageable", #{nextLink: "x-next-link"})
  * op read(): string;
  * ```
  */
@@ -44,7 +67,7 @@ export type ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
-  value: Type,
+  value: unknown,
 ) => void;
 
 /**
@@ -88,7 +111,7 @@ export type ExternalDocsDecorator = (
 export type InfoDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  additionalInfo: Type,
+  additionalInfo: AdditionalInfo,
 ) => void;
 
 /**

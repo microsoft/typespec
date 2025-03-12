@@ -1,5 +1,36 @@
 # Change Log - typespec-vscode
 
+## 0.66.0
+
+### Features
+
+- [#6014](https://github.com/microsoft/typespec/pull/6014) Add "Import TypeSpec from OpenApi3" menu item into explorer context menu
+- [#6210](https://github.com/microsoft/typespec/pull/6210) Support starting LSP using standalone tsp cli
+- [#6164](https://github.com/microsoft/typespec/pull/6164) Renamed package `@typespec/http-server-javascript` to `@typespec/http-server-js`.
+
+### Bug Fixes
+
+- [#6137](https://github.com/microsoft/typespec/pull/6137) Fix code snippet for union in typespec-vscode
+
+
+## 0.65.0
+
+### Bug Fixes
+
+- [#5752](https://github.com/microsoft/typespec/pull/5752) Disable coloring text when generating code
+- [#5754](https://github.com/microsoft/typespec/pull/5754) Add example to the vscode setting "initTemplatesUrls"
+- [#5886](https://github.com/microsoft/typespec/pull/5886) refine the quickpick placeholder and the log
+- [#5834](https://github.com/microsoft/typespec/pull/5834) Update extension configuration URLs in error message
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5451](https://github.com/microsoft/typespec/pull/5451) Support importing TypeSpec from OpenAPI 3.0 doc
+
+
 ## 0.64.0
 
 ### Bug Fixes

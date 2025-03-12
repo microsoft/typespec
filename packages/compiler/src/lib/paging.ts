@@ -10,14 +10,12 @@ import type {
   PageSizeDecorator,
   PrevLinkDecorator,
 } from "../../generated-defs/TypeSpec.js";
+import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
-import {
-  createDiagnosticCollector,
-  isArrayModelType,
-  navigateProgram,
-  Program,
-} from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
+import { Program } from "../core/program.js";
+import { navigateProgram } from "../core/semantic-walker.js";
+import { isArrayModelType } from "../core/type-utils.js";
 import type {
   DecoratorContext,
   DecoratorFunction,
@@ -26,9 +24,9 @@ import type {
   Operation,
   Type,
 } from "../core/types.js";
-import { DuplicateTracker } from "../utils/duplicate-tracker.js";
+import { createStateSymbol } from "../lib/utils.js";
+import { DuplicateTracker, useStateSet } from "../utils/index.js";
 import { isNumericType, isStringType } from "./decorators.js";
-import { useStateSet } from "./utils.js";
 
 export const [
   /**
@@ -346,7 +344,7 @@ function createMarkerDecorator<T extends DecoratorFunction>(
   key: string,
   validate?: (...args: Parameters<T>) => boolean,
 ) {
-  const [isLink, markLink] = useStateSet<Parameters<T>[1]>(key);
+  const [isLink, markLink] = useStateSet<Parameters<T>[1]>(createStateSymbol(key));
   const decorator = (...args: Parameters<T>) => {
     if (validate && !validate(...args)) {
       return;

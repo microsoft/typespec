@@ -1,5 +1,41 @@
 # Change Log - @typespec/openapi3
 
+## 0.66.0
+
+### Breaking Changes
+
+- [#6182](https://github.com/microsoft/typespec/pull/6182) Using `{service-name}` in `tspconfig.yaml` will always interpolate the current service name. `{service-name-if-multiple}` can be used to get the previous behavior
+
+### Features
+
+- [#6059](https://github.com/microsoft/typespec/pull/6059) Add support for new `@discriminated` unions
+- [#5994](https://github.com/microsoft/typespec/pull/5994) Adds `seal-object-schemas` emitter option to automatically set additionalProperties/unevaluatedProperties to `{ not: {} }` wherever possible
+- [#5961](https://github.com/microsoft/typespec/pull/5961) Updates JsonSchema and Open API 3.1 emitters to use unevaluatedProperties instead of additionalProperties, and updates Open API 3 emitters to match JsonSchema behavior of treating `Record<never>` as setting `additionalProperties: { not: {} }`
+- [#6130](https://github.com/microsoft/typespec/pull/6130) updates openapi3 to respect `@headers` `explode` option and use value syntax
+- [#6157](https://github.com/microsoft/typespec/pull/6157) Shared operations operationId can now be set if they all share the same value provided by `@operationId`
+- [#6006](https://github.com/microsoft/typespec/pull/6006) Expose core library types in API surface.
+
+### Bug Fixes
+
+- [#5901](https://github.com/microsoft/typespec/pull/5901) Fix: `@typespec/openapi3/invalid-component-fixed-field-key` show on incorrect target
+
+
+## 0.65.0
+
+### Bug Fixes
+
+- [#5893](https://github.com/microsoft/typespec/pull/5893) Updates tsp-openapi3 to support $ref in requestBodies
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5831](https://github.com/microsoft/typespec/pull/5831) Updates tsp-openapi3 operation response generation to inline expressions and pare down fields with default values. Also adds support for Open API headers and responses $refs.
+- [#4931](https://github.com/microsoft/typespec/pull/4931) Migrate versioning implementation to use mutator approach.
+
+
 ## 0.64.0
 
 ### Bug Fixes

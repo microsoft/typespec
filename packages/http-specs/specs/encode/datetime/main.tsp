@@ -72,10 +72,7 @@ namespace Query {
     value=1686566864, 1686734256
     """)
   op unixTimestampArray(
-    #suppress "deprecated" "Deprecated in next release"
-    @query({
-      format: "csv",
-    })
+    @query
     value: unixTimestampDatetime[],
   ): NoContentResponse;
 }
@@ -269,9 +266,7 @@ namespace Header {
     value=1686566864,1686734256
     """)
   op unixTimestampArray(
-    @header({
-      format: "csv",
-    })
+    @header
     value: unixTimestampDatetime[],
   ): NoContentResponse;
 }

@@ -3,9 +3,6 @@ import { codePointBefore, isIdentifierContinue, trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
-  Token,
-  TokenDisplay,
-  TokenFlags,
   createScanner,
   isComment,
   isKeyword,
@@ -15,6 +12,9 @@ import {
   skipContinuousIdentifier,
   skipTrivia,
   skipTriviaBackward,
+  Token,
+  TokenDisplay,
+  TokenFlags,
 } from "./scanner.js";
 import {
   AliasStatementNode,
@@ -77,29 +77,6 @@ import {
   OperationStatementNode,
   ParseOptions,
   PositionDetail,
-  ProjectionBlockExpressionNode,
-  ProjectionEnumMemberSelectorNode,
-  ProjectionEnumSelectorNode,
-  ProjectionExpression,
-  ProjectionExpressionStatementNode,
-  ProjectionIfExpressionNode,
-  ProjectionInterfaceSelectorNode,
-  ProjectionLambdaExpressionNode,
-  ProjectionLambdaParameterDeclarationNode,
-  ProjectionModelExpressionNode,
-  ProjectionModelPropertyNode,
-  ProjectionModelPropertySelectorNode,
-  ProjectionModelSelectorNode,
-  ProjectionModelSpreadPropertyNode,
-  ProjectionNode,
-  ProjectionOperationSelectorNode,
-  ProjectionParameterDeclarationNode,
-  ProjectionScalarSelectorNode,
-  ProjectionStatementItem,
-  ProjectionStatementNode,
-  ProjectionTupleExpressionNode,
-  ProjectionUnionSelectorNode,
-  ProjectionUnionVariantSelectorNode,
   ScalarConstructorNode,
   ScalarStatementNode,
   SourceFile,
@@ -318,20 +295,6 @@ namespace ListKind {
     close: Token.CloseParen,
     invalidAnnotationTarget: "expression",
   } as const;
-
-  export const ProjectionExpression = {
-    ...ExpresionsBase,
-    allowEmpty: true,
-    open: Token.OpenParen,
-    close: Token.CloseParen,
-  } as const;
-
-  export const ProjectionParameter = {
-    ...ExpresionsBase,
-    allowEmpty: true,
-    open: Token.OpenParen,
-    close: Token.CloseParen,
-  } as const;
 }
 
 const enum ParseMode {
@@ -504,10 +467,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement(pos);
           break;
-        case Token.ProjectionKeyword:
-          reportInvalidDecorators(decorators, "projection statement");
-          item = parseProjectionStatement(pos);
-          break;
         case Token.Semicolon:
           reportInvalidDecorators(decorators, "empty statement");
           item = parseEmptyStatement(pos);
@@ -612,10 +571,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.FnKeyword:
         case Token.DecKeyword:
           item = parseDeclaration(pos);
-          break;
-        case Token.ProjectionKeyword:
-          reportInvalidDecorators(decorators, "project statement");
-          item = parseProjectionStatement(pos);
           break;
         case Token.EndOfFile:
           parseExpected(Token.CloseBrace);
@@ -2131,655 +2086,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return flags;
   }
 
-  function parseProjectionStatement(pos: number): ProjectionStatementNode {
-    parseExpected(Token.ProjectionKeyword);
-    const selector = parseProjectionSelector();
-    parseExpected(Token.Hash);
-
-    const id = parseIdentifier();
-
-    parseExpected(Token.OpenBrace);
-
-    const projectionMap = new Map<string, ProjectionNode>();
-    const projections: ProjectionNode[] = [];
-    while (token() === Token.Identifier) {
-      const projection = parseProjection();
-      if (projection.direction !== "<error>") {
-        if (projectionMap.has(projection.direction)) {
-          error({ code: "duplicate-symbol", target: projection, format: { name: "projection" } });
-        } else {
-          projectionMap.set(projection.direction, projection);
-        }
-      }
-      // NOTE: Don't drop projections with error in direction definition from the AST.
-      projections.push(projection);
-    }
-    parseExpected(Token.CloseBrace);
-
-    return {
-      kind: SyntaxKind.ProjectionStatement,
-      selector,
-      projections,
-      preTo: projectionMap.get("pre_to"),
-      preFrom: projectionMap.get("pre_from"),
-      from: projectionMap.get("from"),
-      to: projectionMap.get("to"),
-      id,
-      ...finishNode(pos),
-    };
-  }
-
-  function parseProjection(): ProjectionNode {
-    const pos = tokenPos();
-    let directionId = parseIdentifier({ message: "projectionDirection" });
-    let direction: "to" | "from" | "pre_to" | "pre_from" | "<error>";
-    const modifierIds: IdentifierNode[] = [];
-    let isPre = false;
-
-    if (directionId.sv === "pre") {
-      isPre = true;
-      modifierIds.push(directionId);
-      directionId = parseIdentifier({ message: "projectionDirection" });
-    }
-    if (directionId.sv !== "to" && directionId.sv !== "from") {
-      error({ code: "token-expected", messageId: "projectionDirection" });
-      direction = "<error>";
-    } else if (isPre) {
-      direction = directionId.sv === "to" ? "pre_to" : "pre_from";
-    } else {
-      direction = directionId.sv;
-    }
-
-    let parameters: ProjectionParameterDeclarationNode[];
-    if (token() === Token.OpenParen) {
-      parameters = parseList(ListKind.ProjectionParameter, parseProjectionParameter).items;
-    } else {
-      parameters = [];
-    }
-
-    parseExpected(Token.OpenBrace);
-    const body: ProjectionStatementItem[] = parseProjectionStatementList();
-    parseExpected(Token.CloseBrace);
-
-    return {
-      kind: SyntaxKind.Projection,
-      body,
-      direction,
-      directionId,
-      modifierIds,
-      parameters,
-      ...finishNode(pos),
-    };
-  }
-
-  function parseProjectionParameter(): ProjectionParameterDeclarationNode {
-    const pos = tokenPos();
-    const id = parseIdentifier();
-    return {
-      kind: SyntaxKind.ProjectionParameterDeclaration,
-      id,
-      ...finishNode(pos),
-    };
-  }
-  function parseProjectionStatementList(): ProjectionStatementItem[] {
-    const stmts = [];
-
-    while (token() !== Token.CloseBrace) {
-      const startPos = tokenPos();
-      if (token() === Token.EndOfFile) {
-        error({ code: "token-expected", messageId: "default", format: { token: "}" } });
-        break;
-      }
-
-      const expr = parseProjectionExpressionStatement();
-      stmts.push(expr);
-
-      if (tokenPos() === startPos) {
-        // we didn't manage to parse anything, so break out
-        // and we'll report errors elsewhere.
-        break;
-      }
-    }
-
-    return stmts;
-  }
-
-  function parseProjectionExpressionStatement(): ProjectionExpressionStatementNode {
-    const pos = tokenPos();
-    const expr = parseProjectionExpression();
-    parseExpected(Token.Semicolon);
-    return {
-      kind: SyntaxKind.ProjectionExpressionStatement,
-      expr,
-      ...finishNode(pos),
-    };
-  }
-
-  function parseProjectionExpression() {
-    return parseProjectionReturnExpressionOrHigher();
-  }
-
-  function parseProjectionReturnExpressionOrHigher(): ProjectionExpression {
-    if (token() === Token.ReturnKeyword) {
-      const pos = tokenPos();
-      parseExpected(Token.ReturnKeyword);
-      return {
-        kind: SyntaxKind.Return,
-        value: parseProjectionExpression(),
-        ...finishNode(pos),
-      };
-    }
-
-    return parseProjectionLogicalOrExpressionOrHigher();
-  }
-
-  function parseProjectionLogicalOrExpressionOrHigher(): ProjectionExpression {
-    let expr = parseProjectionLogicalAndExpressionOrHigher();
-    while (token() !== Token.EndOfFile) {
-      const pos = expr.pos;
-      if (parseOptional(Token.BarBar)) {
-        expr = {
-          kind: SyntaxKind.ProjectionLogicalExpression,
-          op: "||",
-          left: expr,
-          right: parseProjectionLogicalAndExpressionOrHigher(),
-          ...finishNode(pos),
-        };
-      } else {
-        break;
-      }
-    }
-
-    return expr;
-  }
-
-  function parseProjectionLogicalAndExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionEqualityExpressionOrHigher();
-
-    while (token() !== Token.EndOfFile) {
-      const pos = expr.pos;
-      if (parseOptional(Token.AmpsersandAmpersand)) {
-        expr = {
-          kind: SyntaxKind.ProjectionLogicalExpression,
-          op: "&&",
-          left: expr,
-          right: parseProjectionEqualityExpressionOrHigher(),
-          ...finishNode(pos),
-        };
-      } else {
-        break;
-      }
-    }
-
-    return expr;
-  }
-
-  function parseProjectionEqualityExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionRelationalExpressionOrHigher();
-    while (token() !== Token.EndOfFile) {
-      const pos = expr.pos;
-      const tok = token();
-      if (tok === Token.EqualsEquals || tok === Token.ExclamationEquals) {
-        const op = tokenValue() as "==" | "!=";
-        nextToken();
-        expr = {
-          kind: SyntaxKind.ProjectionEqualityExpression,
-          op,
-          left: expr,
-          right: parseProjectionRelationalExpressionOrHigher(),
-          ...finishNode(pos),
-        };
-      } else {
-        break;
-      }
-    }
-
-    return expr;
-  }
-
-  function parseProjectionRelationalExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionAdditiveExpressionOrHigher();
-
-    while (token() !== Token.EndOfFile) {
-      const pos: number = expr.pos;
-      const tok = token();
-      if (
-        tok === Token.LessThan ||
-        tok === Token.LessThanEquals ||
-        tok === Token.GreaterThan ||
-        tok === Token.GreaterThanEquals
-      ) {
-        const op = tokenValue() as "<" | "<=" | ">" | ">=";
-        nextToken();
-        expr = {
-          kind: SyntaxKind.ProjectionRelationalExpression,
-          op,
-          left: expr,
-          right: parseProjectionAdditiveExpressionOrHigher(),
-          ...finishNode(pos),
-        };
-      } else {
-        break;
-      }
-    }
-
-    return expr;
-  }
-
-  function parseProjectionAdditiveExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionMultiplicativeExpressionOrHigher();
-    while (token() !== Token.EndOfFile) {
-      const pos: number = expr.pos;
-      const tok = token();
-      if (tok === Token.Plus || tok === Token.Hyphen) {
-        const op = tokenValue() as "+" | "-";
-        nextToken();
-        expr = {
-          kind: SyntaxKind.ProjectionArithmeticExpression,
-          op,
-          left: expr,
-          right: parseProjectionMultiplicativeExpressionOrHigher(),
-          ...finishNode(pos),
-        };
-      } else {
-        break;
-      }
-    }
-
-    return expr;
-  }
-
-  function parseProjectionMultiplicativeExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionUnaryExpressionOrHigher();
-    while (token() !== Token.EndOfFile) {
-      const pos: number = expr.pos;
-      const tok = token();
-      if (tok === Token.ForwardSlash || tok === Token.Star) {
-        const op = tokenValue() as "/" | "*";
-        nextToken();
-        expr = {
-          kind: SyntaxKind.ProjectionArithmeticExpression,
-          op,
-          left: expr,
-          right: parseProjectionUnaryExpressionOrHigher(),
-          ...finishNode(pos),
-        };
-      } else {
-        break;
-      }
-    }
-
-    return expr;
-  }
-
-  function parseProjectionUnaryExpressionOrHigher(): ProjectionExpression {
-    if (token() === Token.Exclamation) {
-      const pos = tokenPos();
-      nextToken();
-      return {
-        kind: SyntaxKind.ProjectionUnaryExpression,
-        op: "!",
-        target: parseProjectionUnaryExpressionOrHigher(),
-        ...finishNode(pos),
-      };
-    }
-    return parseProjectionCallExpressionOrHigher();
-  }
-
-  function parseProjectionCallExpressionOrHigher(): ProjectionExpression {
-    let expr: ProjectionExpression = parseProjectionDecoratorReferenceExpressionOrHigher();
-
-    while (token() !== Token.EndOfFile) {
-      const pos: number = expr.pos;
-      expr = parseProjectionMemberExpressionRest(expr, pos);
-      if (token() === Token.OpenParen) {
-        expr = {
-          kind: SyntaxKind.ProjectionCallExpression,
-          callKind: "method",
-          target: expr,
-          arguments: parseList(ListKind.CallArguments, parseProjectionExpression).items,
-          ...finishNode(pos),
-        };
-      } else {
-        break;
-      }
-    }
-
-    return expr;
-  }
-
-  function parseProjectionDecoratorReferenceExpressionOrHigher(): ProjectionExpression {
-    if (token() === Token.At) {
-      const pos = tokenPos();
-      nextToken();
-      return {
-        kind: SyntaxKind.ProjectionDecoratorReferenceExpression,
-        target: parseIdentifierOrMemberExpression(undefined, true),
-        ...finishNode(pos),
-      };
-    }
-
-    return parseProjectionMemberExpressionOrHigher();
-  }
-
-  function parseProjectionMemberExpressionOrHigher(): ProjectionExpression {
-    const pos = tokenPos();
-    let expr = parseProjectionPrimaryExpression();
-    expr = parseProjectionMemberExpressionRest(expr, pos);
-    return expr;
-  }
-
-  function parseProjectionMemberExpressionRest(
-    expr: ProjectionExpression,
-    pos: number,
-  ): ProjectionExpression {
-    while (token() !== Token.EndOfFile) {
-      if (parseOptional(Token.Dot)) {
-        expr = {
-          kind: SyntaxKind.ProjectionMemberExpression,
-          base: expr,
-          id: parseIdentifier(),
-          selector: ".",
-          ...finishNode(pos),
-        };
-      } else if (parseOptional(Token.ColonColon)) {
-        expr = {
-          kind: SyntaxKind.ProjectionMemberExpression,
-          base: expr,
-          id: parseIdentifier(),
-          selector: "::",
-          ...finishNode(pos),
-        };
-      } else {
-        break;
-      }
-    }
-
-    return expr;
-  }
-
-  function parseProjectionPrimaryExpression(): ProjectionExpression {
-    switch (token()) {
-      case Token.IfKeyword:
-        return parseProjectionIfExpression();
-      case Token.NumericLiteral:
-        return parseNumericLiteral();
-      case Token.StringLiteral:
-        return parseStringLiteral();
-      case Token.TrueKeyword:
-      case Token.FalseKeyword:
-        return parseBooleanLiteral();
-      case Token.OpenBracket:
-        return parseProjectionTupleExpression();
-      case Token.OpenBrace:
-        return parseProjectionModelExpression();
-      case Token.OpenParen:
-        return parseProjectionLambdaOrParenthesizedExpression();
-      case Token.VoidKeyword:
-        return parseVoidKeyword();
-      case Token.NeverKeyword:
-        return parseNeverKeyword();
-      case Token.UnknownKeyword:
-        return parseUnknownKeyword();
-      default:
-        return parseIdentifier({ message: "expression" });
-    }
-  }
-
-  function parseProjectionLambdaOrParenthesizedExpression(): ProjectionExpression {
-    const pos = tokenPos();
-    const exprs = parseList(ListKind.ProjectionExpression, parseProjectionExpression).items;
-    if (token() === Token.EqualsGreaterThan) {
-      // unpack the exprs (which should be just identifiers) into a param list
-      const params: ProjectionLambdaParameterDeclarationNode[] = [];
-      for (const expr of exprs) {
-        if (expr.kind === SyntaxKind.Identifier) {
-          params.push(
-            withSymbol({
-              kind: SyntaxKind.ProjectionLambdaParameterDeclaration,
-              id: expr,
-              pos: expr.pos,
-              end: expr.end,
-              flags: NodeFlags.None,
-            }),
-          );
-        } else {
-          error({ code: "token-expected", messageId: "identifier", target: expr });
-        }
-      }
-
-      return parseProjectionLambdaExpressionRest(pos, params);
-    } else {
-      if (exprs.length === 0) {
-        error({
-          code: "token-expected",
-          messageId: "expression",
-        });
-      }
-      // verify we only have one entry
-      for (let i = 1; i < exprs.length; i++) {
-        error({
-          code: "token-expected",
-          messageId: "unexpected",
-          format: { token: "expression" },
-          target: exprs[i],
-        });
-      }
-
-      return exprs[0];
-    }
-  }
-
-  function parseProjectionLambdaExpressionRest(
-    pos: number,
-    parameters: ProjectionLambdaParameterDeclarationNode[],
-  ): ProjectionLambdaExpressionNode {
-    parseExpected(Token.EqualsGreaterThan);
-    const body = parseProjectionBlockExpression();
-    return {
-      kind: SyntaxKind.ProjectionLambdaExpression,
-      parameters,
-      body,
-      ...finishNode(pos),
-    };
-  }
-
-  function parseProjectionModelExpression(): ProjectionModelExpressionNode {
-    const pos = tokenPos();
-    const { items: properties } = parseList(
-      ListKind.ModelProperties,
-      parseProjectionModelPropertyOrSpread,
-    );
-    return {
-      kind: SyntaxKind.ProjectionModelExpression,
-      properties,
-      ...finishNode(pos),
-    };
-  }
-
-  function parseProjectionModelPropertyOrSpread(
-    pos: number,
-    decorators: DecoratorExpressionNode[],
-  ) {
-    return token() === Token.Ellipsis
-      ? parseProjectionModelSpreadProperty(pos, decorators)
-      : parseProjectionModelProperty(pos, decorators);
-  }
-
-  function parseProjectionModelSpreadProperty(
-    pos: number,
-    decorators: DecoratorExpressionNode[],
-  ): ProjectionModelSpreadPropertyNode {
-    parseExpected(Token.Ellipsis);
-
-    reportInvalidDecorators(decorators, "spread property");
-
-    const target = parseProjectionExpression();
-
-    return {
-      kind: SyntaxKind.ProjectionModelSpreadProperty,
-      target,
-      ...finishNode(pos),
-    };
-  }
-
-  function parseProjectionModelProperty(
-    pos: number,
-    decorators: DecoratorExpressionNode[],
-  ): ProjectionModelPropertyNode | ProjectionModelSpreadPropertyNode {
-    const id = parseIdentifier({ message: "property", allowStringLiteral: true });
-
-    const optional = parseOptional(Token.Question);
-    parseExpected(Token.Colon);
-    const value = parseProjectionExpression();
-
-    const hasDefault = parseOptional(Token.Equals);
-    const defaultValue = hasDefault ? parseProjectionExpression() : undefined;
-    return {
-      kind: SyntaxKind.ProjectionModelProperty,
-      id,
-      decorators,
-      value,
-      optional,
-      default: defaultValue,
-      ...finishNode(pos),
-    };
-  }
-
-  function parseProjectionIfExpression(): ProjectionIfExpressionNode {
-    const pos = tokenPos();
-    parseExpected(Token.IfKeyword);
-    const test = parseProjectionExpression();
-    const consequent = parseProjectionBlockExpression();
-    let alternate = undefined;
-    if (parseOptional(Token.ElseKeyword)) {
-      if (token() === Token.IfKeyword) {
-        alternate = parseProjectionIfExpression();
-      } else {
-        alternate = parseProjectionBlockExpression();
-      }
-    }
-
-    return {
-      kind: SyntaxKind.ProjectionIfExpression,
-      test,
-      consequent,
-      alternate,
-      ...finishNode(pos),
-    };
-  }
-
-  function parseProjectionBlockExpression(): ProjectionBlockExpressionNode {
-    const pos = tokenPos();
-    parseExpected(Token.OpenBrace);
-    const statements = parseProjectionStatementList();
-    parseExpected(Token.CloseBrace);
-    return {
-      kind: SyntaxKind.ProjectionBlockExpression,
-      statements,
-      ...finishNode(pos),
-    };
-  }
-
-  function parseProjectionTupleExpression(): ProjectionTupleExpressionNode {
-    const pos = tokenPos();
-    const { items: values } = parseList(ListKind.Tuple, parseProjectionExpression);
-    return {
-      kind: SyntaxKind.ProjectionTupleExpression,
-      values,
-      ...finishNode(pos),
-    };
-  }
-  function parseProjectionSelector():
-    | IdentifierNode
-    | MemberExpressionNode
-    | ProjectionInterfaceSelectorNode
-    | ProjectionModelSelectorNode
-    | ProjectionScalarSelectorNode
-    | ProjectionModelPropertySelectorNode
-    | ProjectionOperationSelectorNode
-    | ProjectionUnionSelectorNode
-    | ProjectionUnionVariantSelectorNode
-    | ProjectionEnumSelectorNode
-    | ProjectionEnumMemberSelectorNode {
-    const pos = tokenPos();
-    const selectorTok = expectTokenIsOneOf(
-      Token.Identifier,
-      Token.ModelKeyword,
-      Token.OpKeyword,
-      Token.InterfaceKeyword,
-      Token.UnionKeyword,
-      Token.EnumKeyword,
-      Token.ScalarKeyword,
-    );
-
-    switch (selectorTok) {
-      case Token.Identifier:
-        const id = parseIdentifierOrMemberExpression(undefined, true);
-        if (id.kind === SyntaxKind.Identifier) {
-          switch (id.sv) {
-            case "modelproperty":
-              return {
-                kind: SyntaxKind.ProjectionModelPropertySelector,
-                ...finishNode(pos),
-              };
-            case "unionvariant":
-              return {
-                kind: SyntaxKind.ProjectionUnionVariantSelector,
-                ...finishNode(pos),
-              };
-            case "enummember":
-              return {
-                kind: SyntaxKind.ProjectionEnumMemberSelector,
-                ...finishNode(pos),
-              };
-          }
-        }
-        return id;
-      case Token.ModelKeyword:
-        nextToken();
-        return {
-          kind: SyntaxKind.ProjectionModelSelector,
-          ...finishNode(pos),
-        };
-      case Token.OpKeyword:
-        nextToken();
-        return {
-          kind: SyntaxKind.ProjectionOperationSelector,
-          ...finishNode(pos),
-        };
-      case Token.InterfaceKeyword:
-        nextToken();
-        return {
-          kind: SyntaxKind.ProjectionInterfaceSelector,
-          ...finishNode(pos),
-        };
-      case Token.UnionKeyword:
-        nextToken();
-        return {
-          kind: SyntaxKind.ProjectionUnionSelector,
-          ...finishNode(pos),
-        };
-      case Token.EnumKeyword:
-        nextToken();
-        return {
-          kind: SyntaxKind.ProjectionEnumSelector,
-          ...finishNode(pos),
-        };
-      case Token.ScalarKeyword:
-        nextToken();
-        return {
-          kind: SyntaxKind.ProjectionScalarSelector,
-          ...finishNode(pos),
-        };
-      default:
-        // recovery: return a missing identifier to use as the selector
-        // we don't need to emit a diagnostic here as the `expectTokenOneOf` above
-        // will have done so.
-        return createMissingIdentifier();
-    }
-  }
-
   function parseRange<T>(mode: ParseMode, range: TextRange, callback: () => T): T {
     const savedMode = currentMode;
     const result = scanner.scanRange(range, () => {
@@ -3428,6 +2734,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       parseErrorInNextFinishedNode = true;
       treePrintable = false;
     }
+
     parseDiagnostics.push(diagnostic);
   }
 
@@ -3675,56 +2982,6 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.UnionExpression:
       return visitEach(cb, node.options);
 
-    case SyntaxKind.Projection:
-      return (
-        visitNode(cb, node.directionId) ||
-        visitEach(cb, node.modifierIds) ||
-        visitEach(cb, node.parameters) ||
-        visitEach(cb, node.body)
-      );
-    case SyntaxKind.ProjectionExpressionStatement:
-      return visitNode(cb, node.expr);
-    case SyntaxKind.ProjectionCallExpression:
-      return visitNode(cb, node.target) || visitEach(cb, node.arguments);
-    case SyntaxKind.ProjectionMemberExpression:
-      return visitNode(cb, node.base) || visitNode(cb, node.id);
-    // binops
-    case SyntaxKind.ProjectionLogicalExpression:
-    case SyntaxKind.ProjectionRelationalExpression:
-    case SyntaxKind.ProjectionArithmeticExpression:
-    case SyntaxKind.ProjectionEqualityExpression:
-      return visitNode(cb, node.left) || visitNode(cb, node.right);
-    case SyntaxKind.ProjectionUnaryExpression:
-      return visitNode(cb, node.target);
-    case SyntaxKind.ProjectionModelExpression:
-      return visitEach(cb, node.properties);
-    case SyntaxKind.ProjectionModelProperty:
-      return (
-        visitEach(cb, node.decorators) ||
-        visitNode(cb, node.id) ||
-        visitNode(cb, node.value) ||
-        visitNode(cb, node.default)
-      );
-    case SyntaxKind.ProjectionModelSpreadProperty:
-      return visitNode(cb, node.target);
-    case SyntaxKind.ProjectionTupleExpression:
-      return visitEach(cb, node.values);
-    case SyntaxKind.ProjectionBlockExpression:
-      return visitEach(cb, node.statements);
-    case SyntaxKind.ProjectionIfExpression:
-      return (
-        visitNode(cb, node.test) || visitNode(cb, node.consequent) || visitNode(cb, node.alternate)
-      );
-    case SyntaxKind.ProjectionLambdaExpression:
-      return visitEach(cb, node.parameters) || visitNode(cb, node.body);
-    case SyntaxKind.ProjectionStatement:
-      return (
-        visitNode(cb, node.id) || visitNode(cb, node.selector) || visitEach(cb, node.projections)
-      );
-    case SyntaxKind.ProjectionDecoratorReferenceExpression:
-      return visitNode(cb, node.target);
-    case SyntaxKind.Return:
-      return visitNode(cb, node.value);
     case SyntaxKind.InvalidStatement:
       return visitEach(cb, node.decorators);
     case SyntaxKind.TemplateParameterDeclaration:
@@ -3733,10 +2990,6 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.TemplateArgument:
       return (node.name && visitNode(cb, node.name)) || visitNode(cb, node.argument);
-    case SyntaxKind.ProjectionLambdaParameterDeclaration:
-      return visitNode(cb, node.id);
-    case SyntaxKind.ProjectionParameterDeclaration:
-      return visitNode(cb, node.id);
     case SyntaxKind.Doc:
       return visitEach(cb, node.content) || visitEach(cb, node.tags);
     case SyntaxKind.DocParamTag:
@@ -3774,15 +3027,6 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.BooleanLiteral:
     case SyntaxKind.Identifier:
     case SyntaxKind.EmptyStatement:
-    case SyntaxKind.ProjectionModelSelector:
-    case SyntaxKind.ProjectionModelPropertySelector:
-    case SyntaxKind.ProjectionScalarSelector:
-    case SyntaxKind.ProjectionUnionSelector:
-    case SyntaxKind.ProjectionUnionVariantSelector:
-    case SyntaxKind.ProjectionInterfaceSelector:
-    case SyntaxKind.ProjectionOperationSelector:
-    case SyntaxKind.ProjectionEnumSelector:
-    case SyntaxKind.ProjectionEnumMemberSelector:
     case SyntaxKind.VoidKeyword:
     case SyntaxKind.NeverKeyword:
     case SyntaxKind.ExternKeyword:
@@ -4013,9 +3257,6 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
     case SyntaxKind.AugmentDecoratorStatement:
     case SyntaxKind.DecoratorExpression:
       kind = IdentifierKind.Decorator;
-      break;
-    case SyntaxKind.ProjectionCallExpression:
-      kind = IdentifierKind.Function;
       break;
     case SyntaxKind.UsingStatement:
       kind = IdentifierKind.Using;

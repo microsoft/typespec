@@ -8,9 +8,7 @@ using Azure.Core;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "LongRunning",
-})
+@service(#{ title: "LongRunning" })
 @versioned(ApiVersions)
 @route("/long-running")
 namespace TspTest.LongRunning {
@@ -65,20 +63,20 @@ namespace TspTest.LongRunning {
 
   model LroOperationStatus<TStatusResult = never, TStatusError = Foundations.Error> {
     @key("operationId")
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     id: Azure.Core.uuid;
 
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     @lroStatus
     status: JobStatus;
 
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     createdDateTime?: utcDateTime;
 
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     expirationDateTime?: utcDateTime;
 
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     lastUpdateDateTime?: utcDateTime;
 
     error?: TStatusError;

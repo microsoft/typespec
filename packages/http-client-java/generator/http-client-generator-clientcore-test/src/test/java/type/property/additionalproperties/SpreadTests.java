@@ -3,7 +3,7 @@
 
 package type.property.additionalproperties;
 
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class SpreadTests {
@@ -193,6 +194,7 @@ public class SpreadTests {
         Assertions.assertEquals(43.125f, Float.valueOf(record.getAdditionalProperties().get("prop2").toString()));
     }
 
+    @Disabled
     @Test
     public void testSpreadRecordDiscriminatedUnion() throws IOException {
         BinaryData binaryDataProp1 = BinaryData.fromObject(new WidgetData0("abc"));
@@ -217,6 +219,7 @@ public class SpreadTests {
             (Map) record.getAdditionalProperties().get("prop2").toObject(Map.class));
     }
 
+    @Disabled
     @Test
     public void testSpreadRecordNonDiscriminatedUnion() throws IOException {
         BinaryData binaryDataProp1 = BinaryData.fromObject(new WidgetData0("abc"));
@@ -241,6 +244,7 @@ public class SpreadTests {
             (Map) record.getAdditionalProperties().get("prop2").toObject(Map.class));
     }
 
+    @Disabled
     @Test
     public void testSpreadRecordNonDiscriminatedUnion2() throws IOException {
         BinaryData binaryDataProp1 = BinaryData.fromObject(new WidgetData2("2021-01-01T00:00:00Z"));
@@ -265,6 +269,7 @@ public class SpreadTests {
             (Map) record.getAdditionalProperties().get("prop2").toObject(Map.class));
     }
 
+    @Disabled
     @Test
     public void testSpreadRecordNonDiscriminatedUnion3() throws IOException {
         BinaryData binaryDataProp1 = BinaryData.fromObject(

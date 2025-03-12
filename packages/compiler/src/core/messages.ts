@@ -142,7 +142,6 @@ const diagnostics = {
       unexpected: paramMessage`Unexpected token ${"token"}`,
       numericOrStringLiteral: "Expected numeric or string literal.",
       identifier: "Identifier expected.",
-      projectionDirection: "from or to expected.",
       expression: "Expression expected.",
       statement: "Statement expected.",
       property: "Property expected.",
@@ -160,7 +159,9 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: `Augment decorator first argument must be a type reference.`,
-      noInstance: `Cannot reference template instances`,
+      noInstance: `Cannot reference template instances.`,
+      noModelExpression: `Cannot augment model expressions.`,
+      noUnionExpression: `Cannot augment union expressions.`,
     },
   },
   "duplicate-decorator": {
@@ -191,15 +192,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
-    },
-  },
-  "invalid-projection": {
-    severity: "error",
-    messages: {
-      default: "Invalid projection",
-      wrongType: "Non-projection can't be used to project",
-      noTo: "Projection missing to projection",
-      projectionError: paramMessage`An error occurred when projecting this type: ${"message"}`,
     },
   },
   "default-required": {
@@ -399,7 +391,8 @@ const diagnostics = {
     messages: {
       default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
       model: paramMessage`${"name"} refers to a model type, but is being used as a value here. Use #{} to create an object value.`,
-      tuple: paramMessage`${"name"} refers to a tuple type, but is being used as a value here. Use #[] to create an array value.`,
+      modelExpression: `Is a model expression type, but is being used as a value here. Use #{} to create an object value.`,
+      tuple: `Is a tuple type, but is being used as a value here. Use #[] to create an array value.`,
       templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
     },
   },
@@ -545,6 +538,12 @@ const diagnostics = {
       default: "A function declaration must be prefixed with the 'extern' modifier.",
     },
   },
+  "function-unsupported": {
+    severity: "error",
+    messages: {
+      default: "Function are currently not supported.",
+    },
+  },
   "missing-implementation": {
     severity: "error",
     messages: {
@@ -672,13 +671,6 @@ const diagnostics = {
     messages: {
       default: "dec must have at least one parameter.",
       required: "dec first parameter must be required.",
-    },
-  },
-  "projections-are-experimental": {
-    severity: "warning",
-    messages: {
-      default:
-        "Projections are experimental - your code will need to change as this feature evolves.",
     },
   },
   "mixed-string-template": {
@@ -844,6 +836,9 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Union variant "${"name"}" must be a model type.`,
+      noEnvelopeModel: paramMessage`Union variant "${"name"}" must be a model type when the union has envelope: none.`,
+      discriminantMismatch: paramMessage`Variant "${"name"}" explicitly defines the discriminator property "${"discriminant"}" but the value "${"propertyValue"}" do not match the variant name "${"variantName"}".`,
+      duplicateDefaultVariant: `Discriminated union only allow a single default variant(Without a variant name).`,
       noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
       wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
     },
@@ -1025,17 +1020,19 @@ const diagnostics = {
       default: paramMessage`Visibility of property '${"propName"}' is sealed and cannot be changed.`,
     },
   },
-  "visibility-mixed-legacy": {
-    severity: "error",
-    messages: {
-      default:
-        "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers to a property.",
-    },
-  },
   "default-visibility-not-member": {
     severity: "error",
     messages: {
       default: "The default visibility modifiers of a class must be members of the class enum.",
+    },
+  },
+  "operation-visibility-constraint-empty": {
+    severity: "error",
+    messages: {
+      default: "Operation visibility constraints with no arguments are not allowed.",
+      returnType: "Return type visibility constraints with no arguments are not allowed.",
+      parameter:
+        "Parameter visibility constraints with no arguments are not allowed. To disable effective PATCH optionality, use @patch(#{ implicitOptionality: false }) instead.",
     },
   },
   // #endregion

@@ -3,14 +3,14 @@ import { getDirectoryPath, isPathAbsolute, joinPaths, resolvePath } from "../cor
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { createSourceFile } from "../core/source-file.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
-import { deepClone, deepFreeze, doIO, omitUndefined } from "../utils/misc.js";
+import { doIO } from "../utils/io.js";
+import { deepClone, deepFreeze, omitUndefined } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/index.js";
 import { parseYaml } from "../yaml/parser.js";
 import { YamlScript } from "../yaml/types.js";
 import { TypeSpecConfigJsonSchema } from "./config-schema.js";
 import { TypeSpecConfig, TypeSpecRawConfig } from "./types.js";
 
-export const OldTypeSpecConfigFilename = "cadl-project.yaml";
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
 export const defaultConfig = deepFreeze({
@@ -42,7 +42,7 @@ export async function findTypeSpecConfigPath(
   let current = path;
 
   // only recurse if the path is a directory and the flag was set to true (only for default case)
-  // otherwise, look in the specific directory for tspconfig.yaml ONLY (not cadl-project.yaml)
+  // otherwise, look in the specific directory for tspconfig.yaml ONLY
   if (!lookup) {
     current = `${path}/tspconfig.yaml`;
     const stats = await doIO(
@@ -57,10 +57,8 @@ export async function findTypeSpecConfigPath(
     return undefined;
   } else {
     while (true) {
-      let pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
-      if (pkgPath === undefined) {
-        pkgPath = await searchConfigFile(host, current, OldTypeSpecConfigFilename);
-      }
+      const pkgPath = await searchConfigFile(host, current, TypeSpecConfigFilename);
+
       // if found either file in current folder, return it
       if (pkgPath !== undefined) {
         return pkgPath;
@@ -104,18 +102,6 @@ export async function loadTypeSpecConfigForPath(
   }
 
   const tsConfig = await loadTypeSpecConfigFile(host, typespecConfigPath);
-  // Add diagnostics if still using cadl-project.yaml
-  if (typespecConfigPath.endsWith(OldTypeSpecConfigFilename)) {
-    tsConfig.diagnostics.push(
-      createDiagnostic({
-        code: "deprecated",
-        format: {
-          message: "`cadl-project.yaml` is deprecated. Please rename to `tspconfig.yaml`.",
-        },
-        target: NoTarget,
-      }),
-    );
-  }
   return tsConfig;
 }
 
@@ -130,19 +116,6 @@ export async function loadTypeSpecConfigFile(
   if (config.diagnostics.length === 0 && config.extends) {
     const extendPath = resolvePath(getDirectoryPath(filePath), config.extends);
     const parent = await loadTypeSpecConfigFile(host, extendPath);
-
-    // Add diagnostics if still using cadl-project.yaml
-    if (filePath.endsWith(OldTypeSpecConfigFilename)) {
-      parent.diagnostics.push(
-        createDiagnostic({
-          code: "deprecated",
-          format: {
-            message: "`cadl-project.yaml` is deprecated. Please rename to `tspconfig.yaml`.",
-          },
-          target: NoTarget,
-        }),
-      );
-    }
 
     if (parent.diagnostics.length > 0) {
       return {

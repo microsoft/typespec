@@ -10,9 +10,7 @@ using Azure.Core.Foundations;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "MultipleApiVersion",
-})
+@service(#{ title: "MultipleApiVersion" })
 @versioned(TspTest.MultipleApiVersion.Versions)
 @Azure.ClientGenerator.Core.client({
   name: "FirstClient",
@@ -21,11 +19,11 @@ using Azure.ClientGenerator.Core;
 namespace TspTest.MultipleApiVersion {
   @resource("resources")
   model Resource {
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     id: string;
 
     @key
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     name: string;
 
     type: string;
@@ -49,9 +47,7 @@ namespace TspTest.MultipleApiVersion {
   }
 }
 
-@service({
-  title: "MultipleApiVersion2",
-})
+@service(#{ title: "MultipleApiVersion2" })
 @versioned(TspTest.MultipleApiVersion2.Versions)
 @Azure.ClientGenerator.Core.client({
   name: "SecondClient",
@@ -60,11 +56,11 @@ namespace TspTest.MultipleApiVersion {
 namespace TspTest.MultipleApiVersion2 {
   @resource("resources")
   model Resource2 {
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     id: string;
 
     @key
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     name: string;
 
     type: string;
@@ -88,9 +84,7 @@ namespace TspTest.MultipleApiVersion2 {
   }
 }
 
-@service({
-  title: "MultipleApiVersion3",
-})
+@service(#{ title: "MultipleApiVersion3" })
 @versioned(TspTest.MultipleApiVersion3.Versions)
 @Azure.ClientGenerator.Core.client({
   name: "NoApiVersionClient",

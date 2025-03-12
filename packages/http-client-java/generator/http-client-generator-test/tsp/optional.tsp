@@ -2,9 +2,7 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Optional",
-})
+@service(#{ title: "Optional" })
 namespace TspTest.Optional;
 
 model Optional {
@@ -36,7 +34,7 @@ model Optional {
 model Immutable {
   stringReadWriteRequired: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   stringReadOnlyOptional?: string;
 }
 

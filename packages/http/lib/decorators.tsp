@@ -12,9 +12,15 @@ model HeaderOptions {
   name?: string;
 
   /**
-   * Determines the format of the array if type array is used.
+   * Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   *
+   *  | Style  | Explode | Primitive value = 5 | Array = [3, 4, 5] | Object = {"role": "admin", "firstName": "Alex"} |
+   *  | ------ | ------- | ------------------- | ----------------- | ----------------------------------------------- |
+   *  | simple | false   | `5   `              | `3,4,5`           | `role,admin,firstName,Alex`                     |
+   *  | simple | true    | `5`                 | `3,4,5`           | `role=admin,firstName=Alex`                     |
+   *
    */
-  format?: "csv" | "multi" | "tsv" | "ssv" | "pipes" | "simple" | "form";
+  explode?: boolean;
 }
 
 /**
@@ -37,7 +43,7 @@ model HeaderOptions {
  * op update(@header ifMatch: string): void; // headerName: if-match
  * ```
  */
-extern dec header(target: ModelProperty, headerNameOrOptions?: string | HeaderOptions);
+extern dec header(target: ModelProperty, headerNameOrOptions?: valueof string | HeaderOptions);
 
 /**
  * Cookie Options.
@@ -91,12 +97,6 @@ model QueryOptions {
    *
    */
   explode?: boolean;
-
-  /**
-   * Determines the format of the array if type array is used.
-   * **DEPRECATED**: use explode: true instead of `multi` or `@encode`
-   */
-  format?: "multi" | "csv" | "ssv" | "tsv" | "simple" | "form" | "pipes";
 }
 
 /**
@@ -260,15 +260,36 @@ extern dec put(target: Operation);
 extern dec post(target: Operation);
 
 /**
+ * Options for PATCH operations.
+ */
+model PatchOptions {
+  /**
+   * If set to `false`, disables the implicit transform that makes the body of a
+   * PATCH operation deeply optional.
+   */
+  implicitOptionality?: boolean;
+}
+
+/**
  * Specify the HTTP verb for the target operation to be `PATCH`.
+ *
+ * @param options Options for the PATCH operation.
  *
  * @example
  *
  * ```typespec
- * @patch op update(pet: Pet): void
+ * @patch op update(pet: Pet): void;
+ * ```
+ *
+ * @example
+ * ```typespec
+ * // Disable implicit optionality, making the body of the PATCH operation use the
+ * // optionality as defined in the `Pet` model.
+ * @patch(#{ implicitOptionality: false })
+ * op update(pet: Pet): void;
  * ```
  */
-extern dec patch(target: Operation);
+extern dec patch(target: Operation, options?: valueof PatchOptions);
 
 /**
  * Specify the HTTP verb for the target operation to be `DELETE`.
@@ -367,7 +388,6 @@ extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof 
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
  * @param uriTemplate Uri template for this operation.
- * @param options _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
  *
  * @example Simple path parameter
  *
@@ -386,13 +406,7 @@ extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof 
  * @route("/files{?select,filter}") op listFullUriTemplate(select?: string, filter?: string): Files[];
  * ```
  */
-extern dec route(
-  target: Namespace | Interface | Operation,
-  path: valueof string,
-  options?: {
-    shared?: boolean,
-  }
-);
+extern dec route(target: Namespace | Interface | Operation, path: valueof string);
 
 /**
  * `@sharedRoute` marks the operation as sharing a route path with other operations.

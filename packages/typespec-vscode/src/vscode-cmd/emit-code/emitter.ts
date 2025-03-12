@@ -20,16 +20,16 @@ export interface Emitter {
 export const PreDefinedEmitterPickItems: Record<string, vscode.QuickPickItem> = {
   openapi: {
     label: "OpenAPI Document",
-    detail: "Generating OpenAPI3 Document from TypeSpec files.",
+    detail: "Emitting OpenAPI3 Document from TypeSpec files.",
   },
   client: {
     label: "Client Code",
     detail:
-      "Generating Client Code from TypeSpec files. Supported languages are .NET, Python, Java, JavaScript.",
+      "Emitting Client Code from TypeSpec files. Supported languages are .NET, Python, Java, JavaScript.",
   },
   server: {
     label: "<PREVIEW> Server Stub",
-    detail: "Generating Server Stub from TypeSpec files. Supported languages are .NET, JavaScript.",
+    detail: "Emitting Server Stub from TypeSpec files. Supported languages are .NET, JavaScript.",
   },
 };
 
@@ -51,8 +51,8 @@ const PreDefinedEmitters: ReadonlyArray<Emitter> = [
   },
   {
     language: "JavaScript",
-    package: "@azure-tools/typespec-ts",
-    sourceRepo: "https://github.com/Azure/autorest.typescript/tree/main/packages/typespec-ts",
+    package: "@typespec/http-client-js",
+    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-client-js",
     kind: EmitterKind.Client,
   },
   {
@@ -69,8 +69,8 @@ const PreDefinedEmitters: ReadonlyArray<Emitter> = [
   },
   {
     language: "JavaScript",
-    package: "@typespec/http-server-javascript",
-    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-server-javascript",
+    package: "@typespec/http-server-js",
+    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-server-js",
     kind: EmitterKind.Server,
   },
   {

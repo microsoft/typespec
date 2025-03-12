@@ -9,9 +9,7 @@ using Azure.Core;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "Response",
-})
+@service(#{ title: "Response" })
 @versioned(ApiVersions)
 namespace TspTest.Response;
 
@@ -24,8 +22,8 @@ enum ApiVersions {
 op RpcOperationWithAdditionalResponse<
   TParams,
   TResponse extends TypeSpec.Reflection.Model,
-  TAdditionalResponse extends object,
-  Traits extends object = {},
+  TAdditionalResponse extends {},
+  Traits extends {} = {},
   TErrorResponse = Azure.Core.Foundations.ErrorResponse
 > is Foundations.Operation<
   TParams & Azure.Core.Traits.Private.TraitProperties<Traits, TraitLocation.Parameters>,
@@ -40,11 +38,11 @@ op RpcOperationWithAdditionalResponse<
 
 @resource("resources")
 model Resource {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   @key
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   name: string;
 
   description?: string;
@@ -57,7 +55,7 @@ model ResourceArray is Resource[];
 model OperationDetails1 {
   @doc("Operation ID")
   @key
-  @visibility("read", "create")
+  @visibility(Lifecycle.Create, Lifecycle.Read)
   operationId: uuid;
 
   status: Azure.Core.Foundations.OperationState;
@@ -71,7 +69,7 @@ model OperationDetails1 {
 model OperationDetails2 {
   @doc("Operation ID")
   @key
-  @visibility("read", "create")
+  @visibility(Lifecycle.Create, Lifecycle.Read)
   id: uuid;
 
   status: Azure.Core.Foundations.OperationState;

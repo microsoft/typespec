@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi3",
-  "version": "0.64.0",
+  "version": "0.66.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec",
   "homepage": "https://typespec.io",
@@ -34,7 +34,7 @@
     }
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -58,16 +58,16 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@readme/openapi-parser": "~2.6.0",
+    "@apidevtools/swagger-parser": "~10.1.1",
     "openapi-types": "~12.1.3",
-    "yaml": "~2.5.1"
+    "yaml": "~2.7.0"
   },
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~",
-    "@typespec/http": "workspace:~",
-    "@typespec/json-schema": "workspace:~",
-    "@typespec/openapi": "workspace:~",
-    "@typespec/versioning": "workspace:~"
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/json-schema": "workspace:^",
+    "@typespec/openapi": "workspace:^",
+    "@typespec/versioning": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@typespec/json-schema": {
@@ -75,26 +75,29 @@
     },
     "@typespec/xml": {
       "optional": true
+    },
+    "@typespec/versioning": {
+      "optional": true
     }
   },
   "devDependencies": {
-    "@types/node": "~22.7.9",
+    "@types/node": "~22.13.9",
     "@types/yargs": "~17.0.33",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/http": "workspace:~",
-    "@typespec/json-schema": "workspace:~",
-    "@typespec/library-linter": "workspace:~",
-    "@typespec/openapi": "workspace:~",
-    "@typespec/rest": "workspace:~",
-    "@typespec/tspd": "workspace:~",
-    "@typespec/versioning": "workspace:~",
-    "@typespec/xml": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.5",
-    "@vitest/ui": "^2.1.2",
-    "c8": "^10.1.2",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/json-schema": "workspace:^",
+    "@typespec/library-linter": "workspace:^",
+    "@typespec/openapi": "workspace:^",
+    "@typespec/rest": "workspace:^",
+    "@typespec/tspd": "workspace:^",
+    "@typespec/versioning": "workspace:^",
+    "@typespec/xml": "workspace:^",
+    "@vitest/coverage-v8": "^3.0.7",
+    "@vitest/ui": "^3.0.7",
+    "c8": "^10.1.3",
     "cross-env": "~7.0.3",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.3",
-    "vitest": "^2.1.5"
+    "typescript": "~5.8.2",
+    "vitest": "^3.0.7"
   }
 }

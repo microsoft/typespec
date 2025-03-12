@@ -2,7 +2,7 @@ import { Program, Type, navigateProgram } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, it } from "vitest";
-import { getPropertySource, getSourceModel } from "../src/utils.js";
+import { getPropertySource, getSourceModel } from "../src/lib/utils.js";
 import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
 
 function getGeneratedFile(runner: BasicTestRunner, fileName: string): [string, string] {
@@ -59,8 +59,7 @@ async function compileAndValidateMultiple(
   fileChecks: [string, string[]][],
 ): Promise<void> {
   const spec = getStandardService(code);
-  const [_, diagnostics] = await runner.compileAndDiagnose(spec);
-  assert.ok(diagnostics === undefined || diagnostics.length === 0);
+  await runner.compile(spec);
   for (const [fileToCheck, expectedContent] of fileChecks) {
     const [modelKey, modelContents] = getGeneratedFile(runner, fileToCheck);
     expectedContent.forEach((element) => {
@@ -242,11 +241,11 @@ it("generates numeric constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<int>( MinValue = 100, MaxValue = 1000)]",
+      "[NumericConstraint<int>( MinValue = 100, MaxValue = 1000)]",
       "public int? Int32Prop { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<UInt32>( MaxValue = 5000)]",
+      "[NumericConstraint<UInt32>( MaxValue = 5000)]",
       "public UInt32? Uint32Prop { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<float>( MinValue = 0, MinValueExclusive = true)]",
+      "[NumericConstraint<float>( MinValue = 0, MinValueExclusive = true)]",
       "public float? F32Prop { get; set; }",
     ],
   );
@@ -269,7 +268,7 @@ it("generates string constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.StringConstraint( MinLength = 3, MaxLength = 72)]",
+      "[StringConstraint( MinLength = 3, MaxLength = 72)]",
       "public string StringProp { get; set; }",
     ],
   );
@@ -491,9 +490,9 @@ it("generates standard scalar array  constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MinItems = 1, MaxItems = 10)]",
+      "[ArrayConstraint( MinItems = 1, MaxItems = 10)]",
       "public SByte[] ArrSbyteProp { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MaxItems = 10)]",
+      "[ArrayConstraint( MaxItems = 10)]",
       "public Byte[] ArrByteProp { get; set; }",
     ],
   );
@@ -504,7 +503,11 @@ it("handles enum, complex type properties, and circular references", async () =>
     runner,
     `
       /** A simple enum */
-      enum Bar { /** one */ One, /** two */Two, /** three */ Three}
+      enum SimpleBar { /** one */ One, /** two */Two, /** three */ Three}
+      /** A named enum */
+      enum ComplexBar {/** one */ One: "first", /** two */Two: "second", /** three */ Three: "third"}
+      /** An escaped enum */
+      enum EscapedBar {/** one */ One:"2023-02-01-preview", /** two */Two:"2024-02-01-preview", /** three */ Three:"2025-02-01"}
       /** A model with a circular references */
       model Baz {
         /** Mutually circular with Foo */
@@ -515,7 +518,7 @@ it("handles enum, complex type properties, and circular references", async () =>
       /** A simple test model*/
       model Foo {
         /** enum */
-        barProp?: Bar;
+        barProp?: SimpleBar;
         /** circular */
         bazProp?: Baz;
       }
@@ -525,11 +528,43 @@ it("handles enum, complex type properties, and circular references", async () =>
         "Foo.cs",
         [
           "public partial class Foo",
-          `public Bar? BarProp { get; set; }`,
+          `public SimpleBar? BarProp { get; set; }`,
           `public Baz BazProp { get; set; }`,
         ],
       ],
-      ["Bar.cs", ["public enum Bar"]],
+      [
+        "SimpleBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum SimpleBar",
+          "One",
+          "Two",
+          "Three",
+        ],
+      ],
+      [
+        "ComplexBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum ComplexBar",
+          `[JsonStringEnumMemberName("first")]`,
+          "One",
+          `[JsonStringEnumMemberName("second")]`,
+          "Two",
+          `[JsonStringEnumMemberName("third")]`,
+          "Three",
+        ],
+      ],
+      [
+        "EscapedBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum EscapedBar",
+          `[JsonStringEnumMemberName("2023-02-01-preview")]`,
+          `[JsonStringEnumMemberName("2024-02-01-preview")]`,
+          `[JsonStringEnumMemberName("2025-02-01")]`,
+        ],
+      ],
       [
         "Baz.cs",
         [
@@ -695,8 +730,8 @@ it("Generates types and controllers in a service subnamespace", async () => {
     [
       ["IMyServiceOperations.cs", ["interface IMyServiceOperations"]],
       [
-        "MyServiceOperationsControllerBase.cs",
-        ["public abstract partial class MyServiceOperationsControllerBase: ControllerBase"],
+        "MyServiceOperationsController.cs",
+        ["public partial class MyServiceOperationsController: ControllerBase"],
       ],
       ["ToyCollectionWithNextLink.cs", ["public partial class ToyCollectionWithNextLink"]],
     ],
@@ -732,9 +767,9 @@ it("Handles user-defined model templates", async () => {
         ["interface IMyServiceOperations", "Task<ResponsePageToy> FooAsync( );"],
       ],
       [
-        "MyServiceOperationsControllerBase.cs",
+        "MyServiceOperationsController.cs",
         [
-          "public abstract partial class MyServiceOperationsControllerBase: ControllerBase",
+          "public partial class MyServiceOperationsController: ControllerBase",
           "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponsePageToy))]",
           "public virtual async Task<IActionResult> Foo()",
         ],
@@ -771,8 +806,8 @@ it("Handles void type in operations", async () => {
     [
       ["IMyServiceOperations.cs", ["interface IMyServiceOperations"]],
       [
-        "MyServiceOperationsControllerBase.cs",
-        ["public abstract partial class MyServiceOperationsControllerBase: ControllerBase"],
+        "MyServiceOperationsController.cs",
+        ["public partial class MyServiceOperationsController: ControllerBase"],
       ],
       ["Toy.cs", ["public partial class Toy"]],
     ],
@@ -809,10 +844,11 @@ it("Handles empty body 2xx as void", async () => {
         ["interface IMyServiceOperations", "Task FooAsync( long id, long petId, string name)"],
       ],
       [
-        "MyServiceOperationsControllerBase.cs",
+        "MyServiceOperationsController.cs",
         [
-          "public abstract partial class MyServiceOperationsControllerBase: ControllerBase",
-          "public virtual async Task<IActionResult> Foo(Toy body)",
+          "public partial class MyServiceOperationsController: ControllerBase",
+          "public virtual async Task<IActionResult> Foo(MyServiceOperationsFooRequest body)",
+          ".FooAsync(body.Id, body.PetId, body.Name)",
         ],
       ],
       ["Toy.cs", ["public partial class Toy"]],
@@ -890,7 +926,7 @@ it("generates appropriate types for literals in operation parameters", async () 
         ],
       ],
       [
-        "ContosoOperationsControllerBase.cs",
+        "ContosoOperationsController.cs",
         [
           `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] int intProp = 8, [FromHeader(Name="float-prop")] double floatProp = 3.14, [FromHeader(Name="string-prop")] string stringProp = "A string of characters", [FromHeader(Name="string-temp-prop")] string stringTempProp = "A string of characters and then some", [FromHeader(Name="true-prop")] bool trueProp = true, [FromHeader(Name="false-prop")] bool falseProp = false)`,
         ],
@@ -944,7 +980,7 @@ it("generates appropriate types for literal tuples in operation parameters", asy
         ],
       ],
       [
-        "ContosoOperationsControllerBase.cs",
+        "ContosoOperationsController.cs",
         [
           `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] int[] intProp, [FromHeader(Name="float-prop")] double[] floatProp, [FromHeader(Name="string-prop")] string stringProp = "string of characters", [FromHeader(Name="string-array-prop")] string[] stringArrayProp, [FromHeader(Name="string-temp-prop")] string[] stringTempProp, [FromHeader(Name="true-prop")] bool[] trueProp, [FromHeader(Name="false-prop")] bool[] falseProp)`,
         ],
@@ -982,7 +1018,7 @@ it("generates valid code for overridden parameters", async () => {
         "Foo.cs",
         ["public partial class Foo : FooBase", "public new int[] IntProp { get; } = [8, 10]"],
       ],
-      ["ContosoOperationsControllerBase.cs", [`public virtual async Task<IActionResult> Foo()`]],
+      ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
       ["IContosoOperations.cs", [`Task FooAsync( );`]],
     ],
   );
@@ -1025,7 +1061,7 @@ it("generates valid code for anonymous models", async () => {
           "public Model0 YetAnother { get; set; }",
         ],
       ],
-      ["ContosoOperationsControllerBase.cs", [`public virtual async Task<IActionResult> Foo()`]],
+      ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
       ["IContosoOperations.cs", [`Task FooAsync( );`]],
     ],
   );
@@ -1071,7 +1107,7 @@ it("handles nullable types correctly", async () => {
           "public Model0 YetAnother { get; set; }",
         ],
       ],
-      ["ContosoOperationsControllerBase.cs", [`public virtual async Task<IActionResult> Foo()`]],
+      ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
       ["IContosoOperations.cs", [`Task FooAsync( );`]],
     ],
   );
@@ -1086,18 +1122,10 @@ it("handles implicit request body models correctly", async () => {
       `,
     [
       [
-        "Model0.cs",
+        "ContosoOperationsController.cs",
         [
-          "public partial class Model0",
-          "public int? IntProp { get; set; }",
-          "public string[] ArrayProp { get; set; }",
-        ],
-      ],
-      [
-        "ContosoOperationsControllerBase.cs",
-        [
-          `public virtual async Task<IActionResult> Foo(Model0 body)`,
-          ".FooAsync(body?.IntProp, body?.ArrayProp)",
+          `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
+          ".FooAsync(body.IntProp, body.ArrayProp)",
         ],
       ],
       ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
@@ -1151,7 +1179,7 @@ it("handles multipartBody requests and shared routes", async () => {
         ],
       ],
       [
-        "ContosoOperationsControllerBase.cs",
+        "ContosoOperationsController.cs",
         [
           "using Microsoft.AspNetCore.WebUtilities;",
           "using Microsoft.AspNetCore.Http.Extensions;",
@@ -1242,6 +1270,367 @@ model FileAttachmentMultipartRequest {
       @multipartBody body: FileAttachmentMultipartRequest,
     ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
     `,
-    [["ContosoOperationsControllerBase.cs", ["return NoContent()"]]],
+    [["ContosoOperationsController.cs", ["return NoContent()"]]],
+  );
+});
+
+it("Produces correct scaffolding", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+      @error
+  model NotFoundErrorResponse {
+     @statusCode statusCode: 404;
+     code: "not-found";
+  }
+model ApiError {
+  /** A machine readable error code */
+  code: string;
+
+  /** A human readable message */
+  message: string;
+}
+    /**
+ * Something is wrong with you.
+ */
+model Standard4XXResponse extends ApiError {
+  @minValue(400)
+  @maxValue(499)
+  @statusCode
+  statusCode: int32;
+}
+
+/**
+ * Something is wrong with me.
+ */
+model Standard5XXResponse extends ApiError {
+  @minValue(500)
+  @maxValue(599)
+  @statusCode
+  statusCode: int32;
+}
+
+model FileAttachmentMultipartRequest {
+  contents: HttpPart<File>;
+}
+
+    alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
+
+    @post
+    op createFileAttachment(
+      @header contentType: "multipart/form-data",
+      @path itemId: int32,
+      @multipartBody body: FileAttachmentMultipartRequest,
+    ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+    `,
+    [
+      ["IInitializer.cs", ["public interface IInitializer"]],
+      ["Initializer.cs", ["public class Initializer : IInitializer"]],
+      ["ContosoOperations.cs", ["public class ContosoOperations : IContosoOperations"]],
+      [
+        "MockRegistration.cs",
+        [
+          "public static class MockRegistration",
+          "<IContosoOperations, ContosoOperations>()",
+          "builder.Services.AddHttpContextAccessor();",
+        ],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("Handles spread parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+    model Widget {
+      @path id: string;
+      @query kind?: string;
+      color: string;
+    }
+
+    @route("/widgets")
+
+    @post op create(...Widget) : Widget;
+
+    `,
+    [
+      [
+        "IContosoOperations.cs",
+        ["Task<Widget> CreateAsync( string id, string color, string? kind);"],
+      ],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public ContosoOperations(IInitializer initializer, IHttpContextAccessor accessor)",
+          "_initializer = initializer;",
+          "HttpContextAccessor = accessor;",
+          "public IHttpContextAccessor HttpContextAccessor { get; }",
+          "public Task<Widget> CreateAsync( string id, string color, string? kind)",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          `public virtual async Task<IActionResult> Create(string id, ContosoOperationsCreateRequest body, [FromQuery(Name="kind")] string? kind)`,
+          ".CreateAsync(id, body.Color, kind)",
+        ],
+      ],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("Handles bodyRoot parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+    model Widget {
+      @visibility(Lifecycle.Update, Lifecycle.Read)
+      @path id: string;
+      @query kind?: string;
+      color: string;
+    }
+
+    @route("/widgets")
+
+    @post op create(@bodyRoot body: Widget) : Widget;
+
+    `,
+    [
+      ["IContosoOperations.cs", ["Task<Widget> CreateAsync( Widget body);"]],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public Task<Widget> CreateAsync( Widget body)",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [`public virtual async Task<IActionResult> Create(Widget body)`, ".CreateAsync(body)"],
+      ],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("Initializes enum types", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+    enum Color {
+      Red,
+      Blue,
+      Green
+    }
+    model Widget {
+      @visibility(Lifecycle.Update, Lifecycle.Read)
+      @path id: string;
+      @query kind?: string;
+      color: Color;
+    }
+
+    @route("/widgets")
+    @post op create(@bodyRoot body: Widget) : Widget;
+    @route("/colors")
+    @get op getDefaultColor(): Color;
+
+    `,
+    [
+      [
+        "IContosoOperations.cs",
+        ["Task<Widget> CreateAsync( Widget body);", "Task<Color> GetDefaultColorAsync( );"],
+      ],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public Task<Widget> CreateAsync( Widget body)",
+          "public Task<Color> GetDefaultColorAsync( )",
+          "return Task.FromResult<Microsoft.Contoso.Service.Models.Color>(default);",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          `public virtual async Task<IActionResult> Create(Widget body)`,
+          ".CreateAsync(body)",
+          `public virtual async Task<IActionResult> GetDefaultColor()`,
+          ".GetDefaultColorAsync()",
+        ],
+      ],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("emits correct code for GET requests with body parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+      #suppress "@typespec/http-server-csharp/get-request-body" "Test"
+      @route("/foo") @get op foo(intProp?: int32): void;
+      `,
+    [
+      [
+        "ContosoOperationsController.cs",
+        [`public virtual async Task<IActionResult> Foo()`, ".FooAsync()"],
+      ],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+      [
+        "ContosoOperations.cs",
+        ["public class ContosoOperations : IContosoOperations", "public Task FooAsync( )"],
+      ],
+    ],
+  );
+});
+
+it("emits correct code for GET requests with explicit body parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+      #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
+      #suppress "@typespec/http-server-csharp/get-request-body" "Test"
+      @route("/foo") @get op foo(@body body?: { intProp?: int32}): void;
+      `,
+    [
+      [
+        "ContosoOperationsController.cs",
+        [`public virtual async Task<IActionResult> Foo()`, ".FooAsync()"],
+      ],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+      [
+        "ContosoOperations.cs",
+        ["public class ContosoOperations : IContosoOperations", "public Task FooAsync( )"],
+      ],
+    ],
+  );
+});
+
+it("generates one line `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        @doc("Pet name in the format of a string")
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      @doc("""
+        Pet name in the format of a string.
+        The name will be the main identifier for the dog. It is suggested to keep it short and simple.
+        Pets have a difficult time understanding and learning complex names.
+        """)
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. The name will be the main identifier",
+      "/// for the dog. It is suggested to keep it short and simple. Pets have a",
+      "/// difficult time understanding and learning complex names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline `@doc` decorator comments with long non-space words", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      @doc("""
+        Pet name in the format of a string.
+        Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.
+        """)
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. Visit",
+      "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
+      "/// where you can find many unique names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates single line `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        @doc("Pet name in the format of a string")
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates jsdoc comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        /**
+         * Pet name in the format of a string
+        **/
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
   );
 });

@@ -125,6 +125,7 @@ export class SpecCoverageOperations {
         const body = await blob.blobBody;
         const content = await body?.text();
         const report = content ? JSON.parse(content) : undefined;
+
         return {
           generatorMetadata: {
             version: blob.metadata?.generatorversion,
@@ -168,6 +169,6 @@ function getCoverageContainer(
 async function readJsonBlob<T>(blobClient: BlockBlobClient): Promise<T> {
   const blob = await blobClient.download();
   const body = await blob.blobBody;
-  const content = await body?.text();
-  return content ? JSON.parse(content) : undefined;
+  const content = await body!.text();
+  return JSON.parse(content);
 }

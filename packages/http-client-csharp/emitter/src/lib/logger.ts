@@ -1,41 +1,44 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { NoTarget, Program, Tracer } from "@typespec/compiler";
-import { getTracer, reportDiagnostic } from "./lib.js";
-import { LoggerLevel } from "./log-level.js";
+import { DiagnosticReport, NoTarget, Program, Tracer } from "@typespec/compiler";
+import {
+  DiagnosticMessagesMap,
+  getTracer,
+  reportDiagnostic as libReportDiagnostic,
+} from "./lib.js";
+import { LoggerLevel } from "./logger-level.js";
 
+/**
+ * The Logger class for the emitter.
+ * @beta
+ */
 export class Logger {
-  private static instance: Logger;
-  private initialized: boolean = false;
   private tracer: Tracer;
   private level: LoggerLevel;
   private program: Program;
 
-  private constructor(program: Program, level: LoggerLevel) {
+  public constructor(program: Program, level: LoggerLevel) {
     this.tracer = getTracer(program);
     this.level = level;
     this.program = program;
   }
 
-  static initialize(program: Program, level: LoggerLevel): void {
-    if (!Logger.instance) {
-      Logger.instance = new Logger(program, level);
-      Logger.instance.initialized = true;
+  trace(level: LoggerLevel, message: string): void {
+    switch (level) {
+      case LoggerLevel.INFO:
+        this.info(message);
+        break;
+      case LoggerLevel.DEBUG:
+        this.debug(message);
+        break;
+      case LoggerLevel.VERBOSE:
+        this.verbose(message);
+        break;
     }
-  }
-
-  static getInstance(): Logger {
-    if (!Logger.instance) {
-      throw new Error("Logger is not initialized. Call initialize() first.");
-    }
-    return Logger.instance;
   }
 
   info(message: string): void {
-    if (!this.initialized) {
-      throw new Error("Logger is not initialized. Call initialize() first.");
-    }
     if (
       this.level === LoggerLevel.INFO ||
       this.level === LoggerLevel.DEBUG ||
@@ -46,25 +49,25 @@ export class Logger {
   }
 
   debug(message: string): void {
-    if (!this.initialized) {
-      throw new Error("Logger is not initialized. Call initialize() first.");
-    }
     if (this.level === LoggerLevel.DEBUG || this.level === LoggerLevel.VERBOSE) {
       this.tracer.trace(LoggerLevel.DEBUG, message);
     }
   }
 
   verbose(message: string): void {
-    if (!this.initialized) {
-      throw new Error("Logger is not initialized. Call initialize() first.");
-    }
     if (this.level === LoggerLevel.VERBOSE) {
       this.tracer.trace(LoggerLevel.VERBOSE, message);
     }
   }
 
+  reportDiagnostic<C extends keyof DiagnosticMessagesMap, M extends keyof DiagnosticMessagesMap[C]>(
+    diag: DiagnosticReport<DiagnosticMessagesMap, C, M>,
+  ): void {
+    libReportDiagnostic(this.program, diag);
+  }
+
   warn(message: string): void {
-    reportDiagnostic(this.program, {
+    this.reportDiagnostic({
       code: "general-warning",
       format: { message: message },
       target: NoTarget,
@@ -72,7 +75,7 @@ export class Logger {
   }
 
   error(message: string): void {
-    reportDiagnostic(this.program, {
+    this.reportDiagnostic({
       code: "general-error",
       format: { message: message },
       target: NoTarget,

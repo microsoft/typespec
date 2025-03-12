@@ -10,6 +10,7 @@ import {
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName } from "@typespec/compiler";
+import { marked, Token } from "marked";
 import { PythonSdkContext } from "./lib.js";
 import { getSimpleTypeResult, getType } from "./types.js";
 
@@ -88,9 +89,15 @@ function normalize(
       : identifier;
 }
 
+// filter continuous empty strings at the beginning of the array
+function filterEmptyStrings(arr: string[]): string[] {
+  const firstNonEmptyIndex = arr.findIndex((s) => s !== "");
+  return firstNonEmptyIndex >= 0 ? arr.slice(firstNonEmptyIndex) : arr;
+}
+
 export function camelToSnakeCase(name: string): string {
   if (!name) return name;
-  const words = normalize(name, false, 6);
+  const words = filterEmptyStrings(normalize(name, false, 6));
   const result = words.join("_").toLowerCase();
   const result_final = result.replace(/([^\d])_(\d+)/g, "$1$2");
   return result_final;
@@ -249,4 +256,85 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   return clientNamespace === ""
     ? rootNamespace
     : removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+}
+
+function parseToken(token: Token): string {
+  let parsed = "";
+  switch (token.type) {
+    case "heading":
+      parsed += `${"=".repeat(token.text.length)}\n${token.text}\n${"=".repeat(
+        token.text.length,
+      )}\n\n`;
+      break;
+    case "paragraph":
+      parsed += `${token.text}\n\n`;
+      break;
+    case "strong":
+      parsed += `**${token.text}**`;
+      break;
+    case "em":
+      parsed += `*${token.text}*`;
+      break;
+    case "codespan":
+      parsed += `\`\`${token.text}\`\``;
+      break;
+    case "code":
+      let codeBlockStyle = token.codeBlockStyle;
+      if (codeBlockStyle === undefined) {
+        codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
+      }
+      parsed += `\n\n.. code-block:: ${codeBlockStyle ?? ""}\n\n   ${token.text.split("\n").join("\n   ")}`;
+      break;
+    case "link":
+      if (token.href !== undefined) {
+        parsed += `\`${token.text} <${token.href}>\`_`;
+        break;
+      }
+      parsed += `${token.text}`;
+      break;
+    case "list":
+      if (!token.ordered) {
+        parsed += `\n\n${token.items.map((item: any) => `* ${item.text}`).join("\n")}`;
+        break;
+      }
+      parsed += `\n\n${token.items.map((item: any, index: number) => `${index + 1}. ${item.text}`).join("\n")}`;
+      break;
+    default:
+      parsed += token.raw;
+  }
+  return parsed;
+}
+
+export function md2Rst(text?: string): string | undefined {
+  try {
+    if (!text || text === "") return text;
+    const tokens = marked.lexer(text);
+    let rst = "";
+
+    tokens.forEach((token: Token) => {
+      if (token.type === "heading") {
+        // Heading tokens are block level, so we should check if there are additional tokens inside
+        const parsedHeadingText = md2Rst(token.text);
+        rst += `${"=".repeat(
+          parsedHeadingText!.length,
+        )}\n${parsedHeadingText}\n${"=".repeat(parsedHeadingText!.length)}\n\n`;
+      } else if ("tokens" in token && token.tokens !== undefined && token.tokens.length > 0) {
+        token.tokens.forEach((element: any) => {
+          rst += parseToken(element);
+        });
+      } else {
+        rst += parseToken(token);
+      }
+    });
+
+    // Trim trailing whitespace or tabs
+    return rst.replace(/[ \t]+$/, "");
+  } catch (e) {
+    if (e instanceof RangeError) {
+      // The error is thrown by the tokenizer when the markdown is too long
+      // We can ignore it and return the original text
+      return text;
+    }
+  }
+  return text;
 }

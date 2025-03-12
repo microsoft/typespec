@@ -59,10 +59,7 @@ namespace Query {
     value=dGVzdA, dGVzdA
     """)
   op base64urlArray(
-    #suppress "deprecated" "Deprecated in next release"
-    @query({
-      format: "csv",
-    })
+    @query
     value: base64urlBytes[],
   ): NoContentResponse;
 }
@@ -216,9 +213,7 @@ namespace Header {
     value=dGVzdA,dGVzdA
     """)
   op base64urlArray(
-    @header({
-      format: "csv",
-    })
+    @header
     value: base64urlBytes[],
   ): NoContentResponse;
 }

@@ -7,9 +7,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
-using UnbrandedTypeSpec;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     /// <summary></summary>
     public partial class Thing : IJsonModel<Thing>
@@ -47,6 +46,20 @@ namespace UnbrandedTypeSpec.Models
 #endif
             writer.WritePropertyName("requiredLiteralString"u8);
             writer.WriteStringValue(RequiredLiteralString.ToString());
+            if (Optional.IsDefined(RequiredNullableString))
+            {
+                writer.WritePropertyName("requiredNullableString"u8);
+                writer.WriteStringValue(RequiredNullableString);
+            }
+            else
+            {
+                writer.WriteNull("requiredNullableString"u8);
+            }
+            if (Optional.IsDefined(OptionalNullableString))
+            {
+                writer.WritePropertyName("optionalNullableString"u8);
+                writer.WriteStringValue(OptionalNullableString);
+            }
             writer.WritePropertyName("requiredLiteralInt"u8);
             writer.WriteNumberValue(RequiredLiteralInt.ToSerialInt32());
             writer.WritePropertyName("requiredLiteralFloat"u8);
@@ -77,22 +90,15 @@ namespace UnbrandedTypeSpec.Models
             writer.WriteStringValue(RequiredBadDescription);
             if (Optional.IsCollectionDefined(OptionalNullableList))
             {
-                if (OptionalNullableList != null)
+                writer.WritePropertyName("optionalNullableList"u8);
+                writer.WriteStartArray();
+                foreach (int item in OptionalNullableList)
                 {
-                    writer.WritePropertyName("optionalNullableList"u8);
-                    writer.WriteStartArray();
-                    foreach (int item in OptionalNullableList)
-                    {
-                        writer.WriteNumberValue(item);
-                    }
-                    writer.WriteEndArray();
+                    writer.WriteNumberValue(item);
                 }
-                else
-                {
-                    writer.WriteNull("optionalNullableList"u8);
-                }
+                writer.WriteEndArray();
             }
-            if (RequiredNullableList != null && Optional.IsCollectionDefined(RequiredNullableList))
+            if (Optional.IsCollectionDefined(RequiredNullableList))
             {
                 writer.WritePropertyName("requiredNullableList"u8);
                 writer.WriteStartArray();
@@ -147,6 +153,8 @@ namespace UnbrandedTypeSpec.Models
             string name = default;
             BinaryData requiredUnion = default;
             ThingRequiredLiteralString requiredLiteralString = default;
+            string requiredNullableString = default;
+            string optionalNullableString = default;
             ThingRequiredLiteralInt requiredLiteralInt = default;
             ThingRequiredLiteralFloat requiredLiteralFloat = default;
             bool requiredLiteralBool = default;
@@ -173,6 +181,26 @@ namespace UnbrandedTypeSpec.Models
                 if (prop.NameEquals("requiredLiteralString"u8))
                 {
                     requiredLiteralString = new ThingRequiredLiteralString(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableString"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableString = null;
+                        continue;
+                    }
+                    requiredNullableString = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("optionalNullableString"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        optionalNullableString = null;
+                        continue;
+                    }
+                    optionalNullableString = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralInt"u8))
@@ -269,6 +297,8 @@ namespace UnbrandedTypeSpec.Models
                 name,
                 requiredUnion,
                 requiredLiteralString,
+                requiredNullableString,
+                optionalNullableString,
                 requiredLiteralInt,
                 requiredLiteralFloat,
                 requiredLiteralBool,

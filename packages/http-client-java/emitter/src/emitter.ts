@@ -1,8 +1,8 @@
 import {
-  createTypeSpecLibrary,
   EmitContext,
   getNormalizedAbsolutePath,
-  JSONSchemaType,
+  NoTarget,
+  Program,
   resolvePath,
 } from "@typespec/compiler";
 import { promises } from "fs";
@@ -11,113 +11,14 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
 import { CodeModel } from "./common/code-model.js";
-import { logError, spawnAsync, SpawnError } from "./utils.js";
-import {
-  CODE_JAVA_SDK_DEPENDENCY,
-  JDK_NOT_FOUND_MESSAGE,
-  validateDependencies,
-} from "./validate.js";
-
-export interface EmitterOptions {
-  namespace?: string;
-  "package-dir"?: string;
-
-  flavor?: string;
-
-  "service-name"?: string;
-  "service-versions"?: string[];
-
-  "skip-special-headers"?: string[];
-
-  "generate-samples"?: boolean;
-  "generate-tests"?: boolean;
-
-  "enable-sync-stack"?: boolean;
-  "stream-style-serialization"?: boolean;
-  "use-object-for-unknown"?: boolean;
-
-  "partial-update"?: boolean;
-  "models-subpackage"?: string;
-  "custom-types"?: string;
-  "custom-types-subpackage"?: string;
-  "customization-class"?: string;
-  polling?: any;
-
-  "group-etag-headers"?: boolean;
-
-  "enable-subclient"?: boolean;
-
-  "advanced-versioning"?: boolean;
-  "api-version"?: string;
-  "service-version-exclude-preview"?: boolean;
-
-  "dev-options"?: DevOptions;
-}
-
-export interface DevOptions {
-  "generate-code-model"?: boolean;
-  debug?: boolean;
-  loglevel?: "off" | "debug" | "info" | "warn" | "error";
-  "java-temp-dir"?: string; // working directory for java codegen, e.g. transformed code-model file
-}
+import { EmitterOptions, LibName, reportDiagnostic } from "./lib.js";
+import { DiagnosticError, spawnAsync, SpawnError, trace } from "./utils.js";
+import { validateDependencies } from "./validate.js";
 
 type CodeModelEmitterOptions = EmitterOptions & {
   "output-dir": string;
   arm?: boolean;
 };
-
-const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
-  type: "object",
-  additionalProperties: true,
-  properties: {
-    namespace: { type: "string", nullable: true },
-    "package-dir": { type: "string", nullable: true },
-
-    flavor: { type: "string", nullable: true },
-
-    // service
-    "service-name": { type: "string", nullable: true },
-    "service-versions": { type: "array", items: { type: "string" }, nullable: true },
-
-    // header
-    "skip-special-headers": { type: "array", items: { type: "string" }, nullable: true },
-
-    // sample and test
-    "generate-samples": { type: "boolean", nullable: true, default: true },
-    "generate-tests": { type: "boolean", nullable: true, default: true },
-
-    "enable-sync-stack": { type: "boolean", nullable: true, default: true },
-    "stream-style-serialization": { type: "boolean", nullable: true, default: true },
-    "use-object-for-unknown": { type: "boolean", nullable: true, default: false },
-
-    // customization
-    "partial-update": { type: "boolean", nullable: true, default: false },
-    "models-subpackage": { type: "string", nullable: true },
-    "custom-types": { type: "string", nullable: true },
-    "custom-types-subpackage": { type: "string", nullable: true },
-    "customization-class": { type: "string", nullable: true },
-    polling: { type: "object", additionalProperties: true, nullable: true },
-
-    "group-etag-headers": { type: "boolean", nullable: true },
-
-    "enable-subclient": { type: "boolean", nullable: true, default: false },
-
-    "advanced-versioning": { type: "boolean", nullable: true, default: false },
-    "api-version": { type: "string", nullable: true },
-    "service-version-exclude-preview": { type: "boolean", nullable: true, default: false },
-
-    "dev-options": { type: "object", additionalProperties: true, nullable: true },
-  },
-  required: [],
-};
-
-export const $lib = createTypeSpecLibrary({
-  name: "@typespec/http-client-java",
-  diagnostics: {},
-  emitter: {
-    options: EmitterOptionsSchema,
-  },
-});
 
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const program = context.program;
@@ -128,7 +29,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
   if (!program.hasError()) {
     const options = context.options;
     if (!options["flavor"]) {
-      if ($lib.name === "@azure-tools/typespec-java") {
+      if (LibName === "@azure-tools/typespec-java") {
         options["flavor"] = "azure";
       }
     }
@@ -138,7 +39,20 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       const builder = new CodeModelBuilder(program, context);
       codeModel = await builder.build();
     } catch (error: any) {
-      logError(program, error.message);
+      if (error instanceof DiagnosticError) {
+        // diagnostic thrown as error
+        program.reportDiagnostic(error.diagnostic);
+      } else {
+        // unknown error
+        reportDiagnostic(program, {
+          code: "unknown-error",
+          format: {
+            errorMessage: `The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission.\nStack: error.stack`,
+          },
+          target: NoTarget,
+        });
+        trace(program, error.stack);
+      }
     }
 
     if (codeModel && !program.hasError() && !program.compilerOptions.noEmit) {
@@ -157,24 +71,28 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
       await promises.mkdir(outputPath, { recursive: true }).catch((err) => {
         if (err.code !== "EISDIR" && err.code !== "EEXIST") {
-          logError(program, `Failed to create output directory: ${outputPath}`);
+          reportDiagnostic(program, {
+            code: "unknown-error",
+            format: { errorMessage: `Failed to create output directory: ${outputPath}.` },
+            target: NoTarget,
+          });
           return;
         }
       });
 
       await program.host.writeFile(codeModelFileName, dump(codeModel));
 
-      program.trace("http-client-java", `Code model file written to ${codeModelFileName}`);
+      trace(program, `Code model file written to ${codeModelFileName}`);
 
       const emitterOptions = JSON.stringify(options);
-      program.trace("http-client-java", `Emitter options ${emitterOptions}`);
+      trace(program, `Emitter options ${emitterOptions}`);
 
       const jarFileName = resolvePath(
         moduleRoot,
         "generator/http-client-generator/target",
         "emitter.jar",
       );
-      program.trace("http-client-java", `Exec JAR ${jarFileName}`);
+      trace(program, `Exec JAR ${jarFileName}`);
 
       const javaArgs: string[] = [];
       javaArgs.push(`-DemitterOptions=${emitterOptions}`);
@@ -194,24 +112,85 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       javaArgs.push(codeModelFileName);
       try {
         const result = await spawnAsync("java", javaArgs, { stdio: "pipe" });
-        program.trace("http-client-java", `Code generation log: ${result.stdout}`);
+        reportJarOutput(program, result.stdout);
+        // trace(program, `Code generation log: ${result.stdout}`);
       } catch (error: any) {
         if (error && "code" in error && error["code"] === "ENOENT") {
-          logError(program, JDK_NOT_FOUND_MESSAGE, CODE_JAVA_SDK_DEPENDENCY);
+          reportDiagnostic(program, {
+            code: "invalid-java-sdk-dependency",
+            target: NoTarget,
+          });
         } else {
-          logError(
-            program,
-            'The emitter was unable to generate client code from this TypeSpec, please run this command again with "--trace http-client-java" to get diagnostic information, and open an issue on https://github.com/microsoft/typespec',
-          );
           if (error instanceof SpawnError) {
-            program.trace("http-client-java", `Code generation error: ${error.stdout}`);
+            reportJarOutput(program, error.stdout);
+            // trace(program, `Code generation log: ${error.stdout}`);
           }
+
+          // error in Java codegen, report as unknown error
+          reportDiagnostic(program, {
+            code: "unknown-error",
+            format: {
+              errorMessage: `The emitter was unable to generate client code from this TypeSpec, please open an issue on https://github.com/microsoft/typespec, include TypeSpec source and all the diagnostic information in your submission.`,
+            },
+            target: NoTarget,
+          });
         }
       }
 
       if (!options["dev-options"]?.["generate-code-model"]) {
         await program.host.rm(codeModelFileName);
       }
+    }
+  }
+}
+
+function reportJarOutput(program: Program, jarOutput: string) {
+  const lines = jarOutput.split("\n");
+  const logs: Array<string> = [];
+
+  // parse stdout to array of logs
+  let currentLog = undefined;
+  for (const line of lines) {
+    if (
+      line.startsWith("TRACE ") ||
+      line.startsWith("DEBUG ") ||
+      line.startsWith("INFO ") ||
+      line.startsWith("WARN ") ||
+      line.startsWith("ERROR ")
+    ) {
+      if (currentLog) {
+        logs.push(currentLog);
+      }
+      currentLog = line;
+    } else if (currentLog) {
+      currentLog = currentLog + "\n" + line;
+    }
+  }
+  if (currentLog) {
+    logs.push(currentLog);
+  }
+
+  // trace or report the logs, according to log level
+  for (const log of logs) {
+    if (log.startsWith("ERROR ")) {
+      reportDiagnostic(program, {
+        code: "generator-error",
+        format: {
+          errorMessage: log.substring(6),
+        },
+        target: NoTarget,
+      });
+    } else if (log.startsWith("WARN ")) {
+      reportDiagnostic(program, {
+        code: "generator-warning",
+        format: {
+          warningMessage: log.substring(5),
+        },
+        target: NoTarget,
+      });
+    } else {
+      const index = log.indexOf(" ");
+      trace(program, log.substring(index + 1));
     }
   }
 }

@@ -1,5 +1,12 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+  NavigationOptions,
+  getProperty,
+  navigateProgram,
+  navigateType,
+  navigateTypesInNamespace,
+} from "../src/core/semantic-walker.js";
 import {
   Enum,
   Interface,
@@ -13,19 +20,21 @@ import {
   Union,
   UnionVariant,
   getNamespaceFullName,
-} from "../src/core/index.js";
+} from "../src/index.js";
 import {
-  getProperty,
-  navigateProgram,
-  navigateTypesInNamespace,
-} from "../src/core/semantic-walker.js";
-import { TestHost, createTestHost } from "../src/testing/index.js";
+  BasicTestRunner,
+  TestHost,
+  createTestHost,
+  createTestRunner,
+} from "../src/testing/index.js";
 
 describe("compiler: semantic walker", () => {
   let host: TestHost;
+  let runner: BasicTestRunner;
 
   beforeEach(async () => {
     host = await createTestHost();
+    runner = await createTestRunner();
   });
 
   function createCollector(customListener?: SemanticNodeListener) {
@@ -127,16 +136,114 @@ describe("compiler: semantic walker", () => {
     return [result, listener] as const;
   }
 
-  async function runNavigator(typespec: string, customListener?: SemanticNodeListener) {
+  async function runNavigator(
+    typespec: string,
+    customListener?: SemanticNodeListener,
+    options?: NavigationOptions,
+  ) {
     host.addTypeSpecFile("main.tsp", typespec);
 
     await host.compile("main.tsp", { nostdlib: true });
 
     const [result, listener] = createCollector(customListener);
-    navigateProgram(host.program, listener);
+    navigateProgram(host.program, listener, options);
 
     return result;
   }
+
+  it("finds derived models", async () => {
+    const { Bird } = (await runner.compile(`
+      namespace Test;
+
+      @discriminator("kind")
+      @test 
+      model Bird {
+        kind: string;
+        wingspan: int32;
+      }
+
+      model SeaGull extends Bird {
+        kind: "seagull";
+      }
+
+      model Sparrow extends Bird {
+        kind: "sparrow";
+      }
+
+      model Goose extends Bird {
+        kind: "goose";
+      }
+
+      model Eagle extends Bird {
+        kind: "eagle";
+        friends?: Bird[];
+        hate?: Record<Bird>;
+        partner?: Bird;
+      }
+      `)) as { Bird: Model };
+
+    const visitedModels: Model[] = [];
+    navigateType(
+      Bird,
+      {
+        model(model) {
+          visitedModels.push(model);
+        },
+      },
+      { visitDerivedTypes: true },
+    );
+
+    const expectedModels = ["Bird", "SeaGull", "Sparrow", "Goose", "Eagle"];
+    strictEqual(
+      expectedModels.every((element) => visitedModels.map((m) => m.name).includes(element)),
+      true,
+    );
+  });
+
+  it("doesn't visit derived models without the option", async () => {
+    const { Bird } = (await runner.compile(`
+      namespace Test;
+
+      @discriminator("kind")
+      @test 
+      model Bird {
+        kind: string;
+        wingspan: int32;
+      }
+
+      model SeaGull extends Bird {
+        kind: "seagull";
+      }
+
+      model Sparrow extends Bird {
+        kind: "sparrow";
+      }
+
+      model Goose extends Bird {
+        kind: "goose";
+      }
+
+      model Eagle extends Bird {
+        kind: "eagle";
+        friends?: Bird[];
+        hate?: Record<Bird>;
+        partner?: Bird;
+      }
+      `)) as { Bird: Model };
+
+    const visitedModels: Model[] = [];
+    navigateType(
+      Bird,
+      {
+        model(model) {
+          visitedModels.push(model);
+        },
+      },
+      { visitDerivedTypes: false },
+    );
+
+    strictEqual(visitedModels.length, 1);
+  });
 
   it("finds models", async () => {
     const result = await runNavigator(`
@@ -535,6 +642,55 @@ describe("compiler: semantic walker", () => {
       strictEqual(results.models.length, 2);
       strictEqual(results.models[0].name, "A");
       strictEqual(results.models[1].name, "B");
+    });
+  });
+
+  describe("template declarations", () => {
+    it("doesn't include by default", async () => {
+      const result = await runNavigator(`
+        model Foo<T> {}
+        model Bar {}
+      `);
+
+      strictEqual(result.models.length, 1);
+      strictEqual(result.models[0].name, "Bar");
+    });
+
+    it("include when includeTemplateDeclaration is set to true", async () => {
+      const result = await runNavigator(
+        `
+        model Foo<T> {}
+        model Bar {}
+      `,
+        undefined,
+        { includeTemplateDeclaration: true },
+      );
+
+      strictEqual(result.models.length, 4);
+      strictEqual(result.models[0].name, "Foo");
+      strictEqual(result.models[1].name, "Bar");
+      strictEqual(result.models[2].name, "Array");
+      strictEqual(result.models[3].name, "Record");
+    });
+
+    it("by default only include the template instantiations", async () => {
+      const results = await runNavigator(`
+        namespace Foo;
+      
+        model Bar<T> {
+          id: string;
+          name: string;
+          child: T;
+        };
+      
+        model Qux {
+          age: int32; 
+        };
+      
+        op getOperation(): Bar<Qux>;
+      `);
+
+      expect(results.models).toHaveLength(2);
     });
   });
 });

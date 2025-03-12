@@ -7,6 +7,11 @@ import type {
   Type,
 } from "@typespec/compiler";
 
+export interface HeaderOptions {
+  readonly name?: string;
+  readonly explode?: boolean;
+}
+
 export interface CookieOptions {
   readonly name?: string;
 }
@@ -14,7 +19,6 @@ export interface CookieOptions {
 export interface QueryOptions {
   readonly name?: string;
   readonly explode?: boolean;
-  readonly format?: "multi" | "csv" | "ssv" | "tsv" | "simple" | "form" | "pipes";
 }
 
 export interface PathOptions {
@@ -22,6 +26,10 @@ export interface PathOptions {
   readonly explode?: boolean;
   readonly style?: "simple" | "label" | "matrix" | "fragment" | "path";
   readonly allowReserved?: boolean;
+}
+
+export interface PatchOptions {
+  readonly implicitOptionality?: boolean;
 }
 
 /**
@@ -74,7 +82,7 @@ export type BodyDecorator = (context: DecoratorContext, target: ModelProperty) =
 export type HeaderDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  headerNameOrOptions?: Type,
+  headerNameOrOptions?: string | HeaderOptions,
 ) => void;
 
 /**
@@ -206,12 +214,24 @@ export type PostDecorator = (context: DecoratorContext, target: Operation) => vo
 /**
  * Specify the HTTP verb for the target operation to be `PATCH`.
  *
+ * @param options Options for the PATCH operation.
  * @example
  * ```typespec
- * @patch op update(pet: Pet): void
+ * @patch op update(pet: Pet): void;
+ * ```
+ * @example
+ * ```typespec
+ * // Disable implicit optionality, making the body of the PATCH operation use the
+ * // optionality as defined in the `Pet` model.
+ * @patch(#{ implicitOptionality: false })
+ * op update(pet: Pet): void;
  * ```
  */
-export type PatchDecorator = (context: DecoratorContext, target: Operation) => void;
+export type PatchDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  options?: PatchOptions,
+) => void;
 
 /**
  * Specify the HTTP verb for the target operation to be `DELETE`.
@@ -312,7 +332,6 @@ export type IncludeInapplicableMetadataInPayloadDecorator = (
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
  * @param uriTemplate Uri template for this operation.
- * @param options _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
  * @example Simple path parameter
  *
  * ```typespec
@@ -332,7 +351,6 @@ export type RouteDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
   path: string,
-  options?: Type,
 ) => void;
 
 /**

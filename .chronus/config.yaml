@@ -55,14 +55,19 @@ versionPolicies:
       - "@typespec/sse"
       - "@typespec/streams"
       - "@typespec/xml"
+      - "@typespec/standalone-cli"
+
+  - name: standalone
+    type: independent
+    packages:
+      - "@typespec/http-client-python"
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 
-ignore:
-  - "@typespec/http-client-csharp"
-  - "@typespec/http-client-java"
-  - "@typespec/http-client-python"
+additionalPackages:
+  - packages/http-client-python
 
 changedFiles:
   - "!**/*.md"
   - "!**/*.test.ts"
+  - "!**/*.e2e.ts"

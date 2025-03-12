@@ -1,5 +1,16 @@
 # Change Log - @typespec/playground
 
+## 0.7.2
+
+No changes, version bump only.
+
+## 0.7.1
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+
 ## 0.7.0
 
 ### Features

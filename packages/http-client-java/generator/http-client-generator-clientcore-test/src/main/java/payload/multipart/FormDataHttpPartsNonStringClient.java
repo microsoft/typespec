@@ -2,12 +2,12 @@
 
 package payload.multipart;
 
-import io.clientcore.core.annotation.Metadata;
-import io.clientcore.core.annotation.ServiceClient;
-import io.clientcore.core.http.exception.HttpResponseException;
+import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.ServiceClient;
+import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import payload.multipart.formdata.httpparts.nonstring.FloatRequest;
 import payload.multipart.implementation.FormDataHttpPartsNonStringsImpl;
 import payload.multipart.implementation.MultipartFormDataHelper;
@@ -40,8 +40,8 @@ public final class FormDataHttpPartsNonStringClient {
      */
     @Metadata(generated = true)
     Response<Void> floatMethodWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'float' is
-        // 'multipart/form-data'
+        // Operation 'float' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
         return this.serviceClient.floatMethodWithResponse(body, requestOptions);
     }
 

@@ -16,7 +16,9 @@ import {
 import { isWhitespaceStringOrUndefined } from "./utils.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
+import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
+import { clearOpenApi3PreviewTempFolders, showOpenApi3 } from "./vscode-cmd/openapi3-preview.js";
 
 let client: TspLanguageClient | undefined;
 /**
@@ -51,11 +53,11 @@ export async function activate(context: ExtensionContext) {
 
   /* emit command. */
   context.subscriptions.push(
-    commands.registerCommand(CommandName.GenerateCode, async (uri: vscode.Uri) => {
+    commands.registerCommand(CommandName.EmitCode, async (uri: vscode.Uri) => {
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Window,
-          title: "Generate from TypeSpec...",
+          title: "Emit from TypeSpec...",
           cancellable: false,
         },
         async () => await emitCode(context, uri),
@@ -104,6 +106,18 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand(CommandName.CreateProject, async () => {
       await createTypeSpecProject(client, stateManager);
+    }),
+  );
+
+  context.subscriptions.push(
+    commands.registerCommand(CommandName.ImportFromOpenApi3, async (uri: vscode.Uri) => {
+      await importFromOpenApi3(uri);
+    }),
+  );
+
+  context.subscriptions.push(
+    commands.registerCommand(CommandName.ShowOpenApi3, async (uri: vscode.Uri) => {
+      await showOpenApi3(uri, context, client!);
     }),
   );
 
@@ -164,6 +178,7 @@ export async function activate(context: ExtensionContext) {
 
 export async function deactivate() {
   await client?.stop();
+  await clearOpenApi3PreviewTempFolders();
 }
 
 async function recreateLSPClient(context: ExtensionContext) {

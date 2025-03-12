@@ -1,5 +1,19 @@
 # Change Log - typespec-vs
 
+## 0.66.0
+
+### Features
+
+- [#5968](https://github.com/microsoft/typespec/pull/5968) Support intellisense for tsconfig.yaml in visual studio
+
+
+## 0.65.0
+
+### Bug Fixes
+
+- [#5834](https://github.com/microsoft/typespec/pull/5834) Update extension configuration URLs in error message
+
+
 ## 0.64.0
 
 No changes, version bump only.
