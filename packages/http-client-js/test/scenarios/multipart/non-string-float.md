@@ -1,10 +1,12 @@
-# Should handle an http part with anonymous model
+# Tests content-type: multipart/form-data for non string
+
+## Spec
 
 ```tsp
-@service
 namespace Test;
-
-op foo(
+@post
+@route("/non-string-float")
+op float(
   @header contentType: "multipart/form-data",
   @multipartBody body: {
     temperature: HttpPart<{
@@ -17,13 +19,13 @@ op foo(
 
 ## Operation
 
-```ts src/api/testClientOperations.ts function foo
-export async function foo(
+```ts src/api/testClientOperations.ts function float
+export async function float(
   client: TestClientContext,
   body: { temperature: { body: number; contentType: "text/plain" } },
-  options?: FooOptions,
+  options?: FloatOptions,
 ): Promise<void> {
-  const path = parse("/").expand({});
+  const path = parse("/non-string-float").expand({});
   const httpRequestOptions = {
     headers: {
       "content-type": options?.contentType ?? "multipart/form-data",

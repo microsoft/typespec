@@ -60,3 +60,18 @@ export function jsonFileWithHttpPartSpecificContentTypeRequestToApplicationTrans
   }!;
 }
 ```
+
+```ts src/models/serializers.ts function jsonFileSpecificContentTypeToApplicationTransform
+export function jsonFileSpecificContentTypeToApplicationTransform(
+  input_?: any,
+): FileSpecificContentType {
+  if (!input_) {
+    return input_ as any;
+  }
+  return {
+    filename: input_.filename,
+    contentType: input_.contentType,
+    contents: input_.contents,
+  }!;
+}
+```
