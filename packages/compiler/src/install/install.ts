@@ -5,7 +5,7 @@ import type { CliCompilerHost } from "../core/cli/types.js";
 import { DiagnosticError } from "../core/diagnostic-error.js";
 import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createTracer } from "../core/logger/tracer.js";
-import { joinPaths } from "../core/path-utils.js";
+import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { NoTarget, type Diagnostic, type Tracer } from "../core/types.js";
 import {
   downloadAndExtractPackage,
@@ -100,7 +100,6 @@ async function installPackageManager(
   manifest: NpmManifest,
 ) {
   await rm(installDir, { recursive: true, force: true });
-  await mkdir(installDir, { recursive: true });
   const tempDir = await mkTempDir(host, pmDir, `tsp-pm-${packageManager}-${manifest.version}`);
 
   tracer.trace(
@@ -115,7 +114,7 @@ async function installPackageManager(
       );
     }
   }
-
+  await mkdir(getDirectoryPath(installDir), { recursive: true });
   tracer.trace(
     "move-temp-to-install",
     `Move temporary directory ${tempDir} to install directory ${installDir}`,
