@@ -16,12 +16,12 @@ This guide provides detailed information on common configurations available for 
 
 ### Configuration Flags
 
-| **Configuration Name**       | **Type** | **Values**     | **C#**            | **Java**          | **Python**        | **JS**            |
-| ---------------------------- | -------- | -------------- | ----------------- | ----------------- | ----------------- | ----------------- |
-| generate-protocol-methods    | boolean  | true, false    | User configurable | User configurable | Not used          | Not used          |
-| generate-convenience-methods | boolean  | true, false    | User configurable | User configurable | Not used          | Not used          |
-| namespace                    | string   | namespace path | User configurable | User configurable | User configurable | User configurable |
-| api-version                  | string   | version string | User configurable | User configurable | User configurable | User configurable |
+| **Configuration Name**       | **Type** | **Example Values** | **C#**            | **Java**          | **Python**        | **JS**            |
+| ---------------------------- | -------- | ------------------ | ----------------- | ----------------- | ----------------- | ----------------- |
+| generate-protocol-methods    | boolean  | true, false        | User configurable | User configurable | Not used          | Not used          |
+| generate-convenience-methods | boolean  | true, false        | User configurable | User configurable | Not used          | Not used          |
+| namespace                    | string   | "MyNamespace"      | User configurable | User configurable | User configurable | User configurable |
+| api-version                  | string   | "v1", "2025-03-01" | User configurable | User configurable | User configurable | User configurable |
 
 ### Configuration Descriptions
 
@@ -35,7 +35,8 @@ This guide provides detailed information on common configurations available for 
 
 #### namespace
 
-- **Description**: Specifies the namespace for the generated client.
+- **Description**: Specifies the namespace for the generated client and it will replace the user-defined namespace in the TypeSpec file.
+- **Note**: Different SDKs may have different interpretations of the namespace in their respective languages.
 
 #### api-version
 
