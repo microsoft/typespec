@@ -105,6 +105,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var classifier = GetClassifier(operation);
+            var endpoint = operation.Paging?.NextLink != null ? ScmKnownParameters.Endpoint.AsExpression() : ClientProvider.EndpointField.AsValueExpression;
 
             return new MethodProvider(
                 signature,
@@ -115,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
-                    uri.Reset(ClientProvider.EndpointField).Terminate(),
+                    uri.Reset(endpoint).Terminate(),
                     .. AppendPathParameters(uri, operation, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.SetUri(uri),
@@ -510,7 +511,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
-            int path = 0;
+            int path = 1;
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
@@ -601,12 +602,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
             }
 
-            // All the parameters should be required for the CreateRequest method
             if (methodType == MethodType.CreateRequest)
             {
+                // All the parameters should be required for the CreateRequest method
                 foreach (var parameter in sortedParams.Values)
                 {
                     parameter.DefaultValue = null;
+                }
+
+                // Next link operations will always have an endpoint parameter in the CreateRequest method
+                if (operation.Paging?.NextLink != null)
+                {
+                    sortedParams.Add(0, ScmKnownParameters.Endpoint);
                 }
             }
 
