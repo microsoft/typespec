@@ -112,6 +112,14 @@ public class CodeModel extends Client {
     }
 
     @Override
+    public void setOperationGroups(List<OperationGroup> operationGroups) {
+        super.setOperationGroups(operationGroups);
+        if (!CoreUtils.isNullOrEmpty(getClients()) && getClients().size() == 1) {
+            getClients().get(0).setOperationGroups(operationGroups);
+        }
+    }
+
+    @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return super.writeParentProperties(jsonWriter.writeStartObject()).writeJsonField("info", info)
             .writeJsonField("schemas", schemas)
