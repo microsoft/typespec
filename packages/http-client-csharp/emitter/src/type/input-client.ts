@@ -4,7 +4,6 @@
 import { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
 import { InputOperation } from "./input-operation.js";
 import { InputParameter } from "./input-parameter.js";
-import { Protocols } from "./protocols.js";
 
 export interface InputClient {
   name: string;
@@ -12,7 +11,6 @@ export interface InputClient {
   summary?: string;
   doc?: string;
   operations: InputOperation[];
-  protocol?: Protocols;
   parent?: string;
   parameters?: InputParameter[];
   decorators?: DecoratorInfo[];

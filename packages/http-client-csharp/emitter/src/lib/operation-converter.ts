@@ -28,7 +28,11 @@ import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationLongRunning } from "../type/operation-long-running.js";
-import { InputContinuationToken, InputNextLink, InputOperationPaging } from "../type/operation-paging.js";
+import {
+  InputContinuationToken,
+  InputNextLink,
+  InputOperationPaging,
+} from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
@@ -214,8 +218,8 @@ function loadLongRunningOperation(
     finalResponse: {
       // in swagger, we allow delete to return some meaningful body content
       // for now, let assume we don't allow return type
-      StatusCodes: method.operation.verb === "delete" ? [204] : [200],
-      BodyType:
+      statusCodes: method.operation.verb === "delete" ? [204] : [200],
+      bodyType:
         method.lroMetadata.finalResponse?.envelopeResult !== undefined
           ? fromSdkModelType(sdkContext, method.lroMetadata.finalResponse.envelopeResult)
           : undefined,
@@ -232,11 +236,11 @@ function fromSdkHttpOperationResponses(
   for (const r of operationResponses) {
     const range = r.statusCodes;
     responses.set(r, {
-      StatusCodes: toStatusCodesArray(range),
-      BodyType: r.type ? fromSdkType(sdkContext, r.type) : undefined,
-      Headers: fromSdkServiceResponseHeaders(sdkContext, r.headers),
-      IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
-      ContentTypes: r.contentTypes,
+      statusCodes: toStatusCodesArray(range),
+      bodyType: r.type ? fromSdkType(sdkContext, r.type) : undefined,
+      headers: fromSdkServiceResponseHeaders(sdkContext, r.headers),
+      isErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
+      contentTypes: r.contentTypes,
     });
   }
   return responses;

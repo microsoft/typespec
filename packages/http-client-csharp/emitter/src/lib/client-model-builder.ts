@@ -112,7 +112,6 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
             rootApiVersions,
           ),
         ),
-      protocol: {},
       parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
       parameters: clientParameters,
       decorators: client.decorators,
