@@ -5,6 +5,8 @@ vi.mock("../../src/lib/lib.js", () => ({
   }),
 }));
 
+vi.resetModules();
+
 import { EmitContext, Program } from "@typespec/compiler";
 import { statSync } from "fs";
 import { afterAll, describe, expect, it, vi } from "vitest";
