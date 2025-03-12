@@ -104,8 +104,10 @@ public class CodeModel extends Client {
 
     @Override
     public List<OperationGroup> getOperationGroups() {
+        // get from CodeModel root first, for Autorest compatibility
         List<OperationGroup> operationGroups = super.getOperationGroups();
         if (CoreUtils.isNullOrEmpty(operationGroups)) {
+            // if no operation groups, get from clients
             return getClientOperationGroups();
         }
         return operationGroups;
@@ -113,7 +115,9 @@ public class CodeModel extends Client {
 
     @Override
     public void setOperationGroups(List<OperationGroup> operationGroups) {
+        // in mgmt, we can filter out operation groups
         super.setOperationGroups(operationGroups);
+        // mgmt can only have one client
         if (!CoreUtils.isNullOrEmpty(getClients()) && getClients().size() == 1) {
             getClients().get(0).setOperationGroups(operationGroups);
         }
