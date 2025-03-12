@@ -92,7 +92,6 @@ describe("execCSharpGenerator", () => {
       newProject: true, // Ensure this is passed as true
       debug: false,
     });
-
   });
 
   it("should set newProject to false if .csproj file DOES exist", async () => {
@@ -109,6 +108,5 @@ describe("execCSharpGenerator", () => {
       newProject: false, // Ensure this is passed as false
       debug: false,
     });
-
   });
 });
