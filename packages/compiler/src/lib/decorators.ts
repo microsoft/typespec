@@ -67,6 +67,7 @@ import {
   setMinValueExclusive,
 } from "../core/intrinsic-type-state.js";
 import { reportDiagnostic } from "../core/messages.js";
+import { parseMimeType } from "../core/mime-type.js";
 import { Numeric } from "../core/numeric.js";
 import { Program } from "../core/program.js";
 import { isArrayModelType, isValue } from "../core/type-utils.js";
@@ -360,6 +361,22 @@ export const $mediaTypeHint: MediaTypeHintDecorator = (
   mediaType: string,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $mediaTypeHint);
+
+  const mimeTypeObj = parseMimeType(mediaType);
+
+  if (mimeTypeObj === undefined) {
+    reportDiagnostic(context.program, {
+      code: "invalid-mime-type",
+      format: { mimeType: mediaType },
+      target: context.getArgumentTarget(0)!,
+    });
+  } else if (mimeTypeObj.suffix) {
+    reportDiagnostic(context.program, {
+      code: "no-mime-type-suffix",
+      format: { mimeType: mediaType, suffix: mimeTypeObj.suffix },
+      target: context.getArgumentTarget(0)!,
+    });
+  }
 
   setMediaTypeHint(context.program, target, mediaType);
 };
