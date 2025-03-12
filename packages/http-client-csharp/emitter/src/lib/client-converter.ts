@@ -11,7 +11,7 @@ import { NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputClientType, InputType } from "../type/input-type.js";
+import { InputClient, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { fromSdkType } from "./type-converter.js";
@@ -22,8 +22,8 @@ export function fromSdkClients(
   sdkContext: CSharpEmitterContext,
   clients: SdkClientType[],
   rootApiVersions: string[],
-): InputClientType[] {
-  const inputClients: InputClientType[] = [];
+): InputClient[] {
+  const inputClients: InputClient[] = [];
   for (const client of clients) {
     const inputClient = fromSdkClient(sdkContext, client, rootApiVersions);
     inputClients.push(inputClient);
@@ -36,8 +36,8 @@ function fromSdkClient(
   sdkContext: CSharpEmitterContext,
   client: SdkClientType,
   rootApiVersions: string[],
-): InputClientType {
-  let inputClient: InputClientType | undefined = sdkContext.__typeCache.clients.get(client);
+): InputClient {
+  let inputClient: InputClient | undefined = sdkContext.__typeCache.clients.get(client);
   if (inputClient) {
     return inputClient;
   }
@@ -142,7 +142,7 @@ function fromSdkClient(
 function updateSdkClientTypeReferences(
   sdkContext: CSharpEmitterContext,
   sdkClient: SdkClientType,
-  inputClient: InputClientType,
+  inputClient: InputClient,
 ) {
   sdkContext.__typeCache.clients.set(sdkClient, inputClient);
   sdkContext.__typeCache.crossLanguageDefinitionIds.set(

@@ -12,7 +12,7 @@ import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler
 import { InputOperation } from "./input-operation.js";
 import { InputParameter } from "./input-parameter.js";
 
-export interface InputClientType extends DecoratedType {
+export interface InputClient extends DecoratedType {
   kind: "client";
   name: string;
   namespace: string;
@@ -22,8 +22,8 @@ export interface InputClientType extends DecoratedType {
   operations: InputOperation[];
   apiVersions: string[];
   crossLanguageDefinitionId: string;
-  parent?: InputClientType;
-  children?: InputClientType[];
+  parent?: InputClient;
+  children?: InputClient[];
 }
 
 interface DecoratedType {
