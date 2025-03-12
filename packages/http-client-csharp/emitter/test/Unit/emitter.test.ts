@@ -1,10 +1,3 @@
-// Setup mock before imports
-vi.mock("../../src/lib/lib.js", () => ({
-  getTracer: vi.fn().mockReturnValue({
-    trace: vi.fn(),
-  }),
-}));
-
 vi.resetModules();
 
 import { EmitContext, Program } from "@typespec/compiler";
@@ -19,6 +12,12 @@ describe("Expected execCSharpGenerator args are passed", () => {
   afterAll(() => {
     vi.restoreAllMocks();
   });
+
+  vi.mock("../../src/lib/lib.js", () => ({
+    getTracer: vi.fn().mockReturnValue({
+      trace: vi.fn(),
+    }),
+  }));
 
   vi.mock("@typespec/compiler", async (importOriginal) => {
     const actual = await importOriginal<typeof import("@typespec/compiler")>();
