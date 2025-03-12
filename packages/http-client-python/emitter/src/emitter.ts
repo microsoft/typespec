@@ -212,8 +212,8 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
             import warnings
             with warnings.catch_warnings():
               from pygen import preprocess, codegen, black
-            preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
-            codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
+            preprocess.PreProcessPlugin(output_folder=outputFolder, tsp_file=yamlFile, **commandArgs).process()
+            codegen.CodeGenerator(output_folder=outputFolder, tsp_file=yamlFile, **commandArgs).process()
             black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
       
           await main()`;
@@ -232,7 +232,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
           });
         }
         commandArgs["output-folder"] = outputDir;
-        commandArgs["cadl-file"] = yamlPath;
+        commandArgs["tsp-file"] = yamlPath;
         const commandFlags = Object.entries(commandArgs)
           .map(([key, value]) => `--${key}=${value}`)
           .join(" ");

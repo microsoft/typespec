@@ -35,12 +35,11 @@ import type {
 } from "../../generated-defs/TypeSpec.js";
 import {
   getPropertyType,
-  isIntrinsicType,
   validateDecoratorNotOnType,
   validateDecoratorUniqueOnNode,
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
-import { compilerAssert, ignoreDiagnostics, reportDeprecated } from "../core/diagnostics.js";
+import { compilerAssert, ignoreDiagnostics } from "../core/diagnostics.js";
 import { getDiscriminatedUnion } from "../core/helpers/discriminator-utils.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import {
@@ -370,15 +369,6 @@ export const $format: FormatDecorator = (
   if (!validateTargetingAString(context, target, "@format")) {
     return;
   }
-  const targetType = getPropertyType(target);
-  if (targetType.kind === "Scalar" && isIntrinsicType(context.program, targetType, "bytes")) {
-    reportDeprecated(
-      context.program,
-      "Using `@format` on a bytes scalar is deprecated. Use `@encode` instead. https://github.com/microsoft/typespec/issues/1873",
-      target,
-    );
-  }
-
   setFormat(context.program, target, format);
 };
 
