@@ -144,7 +144,7 @@ namespace Models {
   model and is Base;
   model as is Base;
   model assert is Base;
-  model async is Base;
+  model `async` is Base;
   model await is Base;
   model break is Base;
   model class is Base;
@@ -172,7 +172,7 @@ namespace Models {
   model `return` is Base;
   model try is Base;
   model while is Base;
-  model with is Base;
+  model `with` is Base;
   model yield is Base;
 
   @modelNameScenario("and") op withAnd(@body body: and): void;
