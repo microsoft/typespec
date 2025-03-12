@@ -1,11 +1,11 @@
 {
  "$id": "1",
- "Name": "UnbrandedTypeSpec",
- "ApiVersions": [
+ "name": "UnbrandedTypeSpec",
+ "apiVersions": [
   "2024-07-16-preview",
   "2024-08-16-preview"
  ],
- "Enums": [
+ "enums": [
   {
    "$id": "2",
    "kind": "enum",
@@ -841,7 +841,7 @@
    "decorators": []
   }
  ],
- "Models": [
+ "models": [
   {
    "$id": "90",
    "kind": "model",
@@ -2365,7 +2365,7 @@
    ]
   }
  ],
- "Clients": [
+ "clients": [
   {
    "$id": "303",
    "Name": "UnbrandedTypeSpecClient",
@@ -4345,7 +4345,7 @@
    "CrossLanguageDefinitionId": "UnbrandedTypeSpec"
   }
  ],
- "Auth": {
+ "auth": {
   "$id": "477",
   "ApiKey": {
    "$id": "478",
