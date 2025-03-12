@@ -5,6 +5,7 @@ import {
 } from "@typespec/compiler";
 import {
   InitTemplateSchema,
+  makeScaffoldingConfig,
   NodeSystemHost,
   scaffoldNewProject,
 } from "@typespec/compiler/internals";
@@ -159,23 +160,13 @@ export async function createTypeSpecProject(
         return;
       }
 
-      const defaultLibraries =
-        info.template.libraries?.map((lib) => {
-          if (typeof lib === "string") {
-            return { name: lib };
-          }
-          return lib;
-        }) ?? [];
-      const initTemplateConfig: InitProjectConfig = {
-        template: info.template!,
-        directory: selectedRootFolder,
+      const initTemplateConfig = makeScaffoldingConfig(info.template!, {
         baseUri: info.baseUrl,
         name: projectName!,
+        directory: selectedRootFolder,
         parameters: inputs ?? {},
-        includeGitignore: true,
-        libraries: defaultLibraries,
         emitters: selectedEmitters,
-      };
+      });
       const initResult = await initProject(initTemplateConfig);
       if (initResult.code === ResultCode.Cancelled) {
         logger.info("Creating TypeSpec Project cancelled when initializing project.");
