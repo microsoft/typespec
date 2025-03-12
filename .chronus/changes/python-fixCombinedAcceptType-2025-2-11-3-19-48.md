@@ -5,4 +5,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Remove m2r dependency in favor of internally converting md to rst.
+release a new version
