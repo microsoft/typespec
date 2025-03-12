@@ -1,3 +1,7 @@
+// import "./pre-extension-activate" first for the code that needs to run before others
+// sort-imports-ignore
+import "./pre-extension-activate.js";
+
 import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
@@ -60,11 +64,11 @@ export async function activate(context: ExtensionContext) {
 
   /* emit command. */
   context.subscriptions.push(
-    commands.registerCommand(CommandName.GenerateCode, async (uri: vscode.Uri) => {
+    commands.registerCommand(CommandName.EmitCode, async (uri: vscode.Uri) => {
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Window,
-          title: "Generate from TypeSpec...",
+          title: "Emit from TypeSpec...",
           cancellable: false,
         },
         async () => await emitCode(context, uri),
@@ -121,7 +125,7 @@ export async function activate(context: ExtensionContext) {
 
   context.subscriptions.push(
     commands.registerCommand(CommandName.CreateProject, async () => {
-      await createTypeSpecProject(client, stateManager);
+      await createTypeSpecProject(context, stateManager);
     }),
   );
 
@@ -234,6 +238,7 @@ function showStartUpMessages(stateManager: ExtensionStateManager) {
       if (isWhitespaceStringOrUndefined(msg.detail)) {
         logger.log(msg.level, msg.popupMessage, [], {
           showPopup: true,
+          popupButtonText: "",
         });
       } else {
         const SHOW_DETAIL = "View Details in Output";
