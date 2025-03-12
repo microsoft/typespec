@@ -57,7 +57,7 @@ export interface VisibilityFilter {
  * @example create a model that serializes as XML by default
  *
  * ```tsp
- * @mimeType("application/xml")
+ * @mediaTypeHint("application/xml")
  * model Example {
  *   @visibility(Lifecycle.Read)
  *   id: string;
