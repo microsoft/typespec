@@ -28,7 +28,7 @@ import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
-import { updateCodeModel } from "./update-code-model.js";
+import { updateCodeModelCallback } from "./update-code-model.js";
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -84,7 +84,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
     let root = createModel(sdkContext);
 
     if (root) {
-      root = updateCodeModel(root, undefined);
+      root = updateCodeModelCallback(root);
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {
