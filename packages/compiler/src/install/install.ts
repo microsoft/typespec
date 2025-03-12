@@ -128,25 +128,29 @@ async function installPackageManager(
 
 async function renameSafe(oldPath: string, newPath: string) {
   if (process.platform === `win32`) {
-    await renameUnderWindows(oldPath, newPath);
+    await renameSafeWindows(oldPath, newPath);
   } else {
     await rename(oldPath, newPath);
   }
 }
 
-async function renameUnderWindows(oldPath: string, newPath: string) {
-  // Windows malicious file analysis blocks files currently under analysis, so we need to wait for file release
+// https://github.com/nodejs/corepack/blob/19e3c6861a8affdfd94d97edf495c21e591fe4e0/sources/corepackUtils.ts#L353-L375
+async function renameSafeWindows(oldPath: string, newPath: string) {
+  // Windows malicious file analysis blocks files currently under analysis
   const retries = 5;
   for (let i = 0; i < retries; i++) {
     try {
       await rename(oldPath, newPath);
       break;
-    } catch (err) {
-      if (((err as any).code === `ENOENT` || (err as any).code === `EPERM`) && i < retries - 1) {
+    } catch (error) {
+      if (
+        ((error as any).code === `ENOENT` || (error as any).code === `EPERM`) &&
+        i < retries - 1
+      ) {
         await delay(100 * 2 ** i);
         continue;
       } else {
-        throw err;
+        throw error;
       }
     }
   }
