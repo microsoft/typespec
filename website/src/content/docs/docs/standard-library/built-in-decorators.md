@@ -683,7 +683,7 @@ inherited by subtypes. If a media type hint is applied to a model, it will be in
 
 
 ```tsp
-@mimeType("application/xml")
+@mediaTypeHint("application/xml")
 model Example {
   @visibility(Lifecycle.Read)
   id: string;
