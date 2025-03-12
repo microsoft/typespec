@@ -4,7 +4,7 @@ import {
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
-} from "../src/utils";
+} from "../src/utils.js";
 
 describe("utils", () => {
   it("isStableApiVersion", () => {

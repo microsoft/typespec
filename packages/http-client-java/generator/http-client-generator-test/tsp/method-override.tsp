@@ -4,12 +4,9 @@ import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/versioning";
 
-using Azure.Core;
-using global.Azure.Core.Traits;
 using global.Azure.Core.Foundations;
 using Azure.ClientGenerator.Core;
 using TypeSpec.Http;
-using TypeSpec.Rest;
 using TypeSpec.Versioning;
 
 @service(#{ title: "MethodOverride" })
@@ -54,6 +51,29 @@ namespace MethodOverride {
   @route("/group-part")
   op groupPart is global.Azure.Core.RpcOperation<GroupPartNotGrouped & GroupPartOptions, {}>;
 
+  model GroupPartETagOptions {
+    ...GroupPartOptions;
+
+    @header("If-Modified-Since")
+    ifModifiedSince?: utcDateTime;
+
+    @header("If-Unmodified-Since")
+    ifUnmodifiedSince?: utcDateTime;
+
+    @header("If-Match")
+    ifMatch?: string;
+
+    @header("If-None-Match")
+    ifNoneMatch?: string;
+  }
+
+  @post
+  @route("/group-part-etag")
+  op groupPartETag is global.Azure.Core.RpcOperation<
+    GroupPartNotGrouped & GroupPartETagOptions,
+    {}
+  >;
+
   model GroupExcludeBodyModel {
     prop1: string;
     prop2?: string;
@@ -95,6 +115,11 @@ namespace Customization {
     options?: MethodOverride.GroupPartOptions,
     ...ApiVersionParameter,
   ): void;
+  op groupPartETagCustomization(
+    ...MethodOverride.GroupPartNotGrouped,
+    options?: MethodOverride.GroupPartETagOptions,
+    ...ApiVersionParameter,
+  ): void;
   op groupExcludeBodyCustomization(
     ...MethodOverride.GroupExcludeBody,
     options?: MethodOverride.GroupQueryOptions,
@@ -105,6 +130,7 @@ namespace Customization {
   @@override(MethodOverride.groupQuery, Customization.groupQueryCustomization);
   @@override(MethodOverride.groupAll, Customization.groupAllCustomization);
   @@override(MethodOverride.groupPart, Customization.groupPartCustomization);
+  @@override(MethodOverride.groupPartETag, Customization.groupPartETagCustomization);
   @@override(MethodOverride.groupExcludeBody, Customization.groupExcludeBodyCustomization);
   @@override(MethodOverride.groupNone, Customization.groupNoneCustomization);
 }
