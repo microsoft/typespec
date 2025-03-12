@@ -1,17 +1,16 @@
-import { afterAll, describe, expect, it, vi } from "vitest";
 import { EmitContext, Program } from "@typespec/compiler";
-import { createEmitterContext } from "./utils/test-util.js";
+import { statSync } from "fs";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { $onEmit } from "../../src/emitter.js";
 import { execCSharpGenerator } from "../../src/lib/utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
-import { statSync } from "fs";
+import { createEmitterContext } from "./utils/test-util.js";
 
 afterAll(() => {
   vi.restoreAllMocks();
 });
 
 describe("execCSharpGenerator", () => {
-  
   // Setup mocks
   vi.mock("@typespec/compiler", async (importOriginal) => {
     const actual = await importOriginal<typeof import("@typespec/compiler")>();
@@ -24,15 +23,15 @@ describe("execCSharpGenerator", () => {
     };
   });
   vi.mock("@azure-tools/typespec-client-generator-core", () => ({
-    createSdkContext: vi.fn().mockImplementation(async (...args) => {    
+    createSdkContext: vi.fn().mockImplementation(async (...args) => {
       return {
         sdkPackage: {},
         emitContext: args[0],
-        program: args[0].program
+        program: args[0].program,
       };
     }),
   }));
-  
+
   vi.mock("../../src/lib/utils.js", () => ({
     execCSharpGenerator: vi.fn(),
     execAsync: vi.fn(),
@@ -41,14 +40,14 @@ describe("execCSharpGenerator", () => {
   vi.mock("../../src/lib/lib.js", () => ({
     getTracer: vi.fn().mockReturnValue({
       trace: vi.fn(),
-    })
+    }),
   }));
-  
+
   vi.mock("../../src/lib/client-model-builder.js", () => ({
     createModel: vi.fn().mockReturnValue({ Name: "TestNamespace" }),
   }));
 
-  let program = {
+  const program = {
     compilerOptions: { noEmit: false },
     hasError: () => false,
     host: {
@@ -68,7 +67,7 @@ describe("execCSharpGenerator", () => {
 
   vi.mock("fs", async (importOriginal) => {
     const actualFs = await importOriginal<typeof import("fs")>();
-  
+
     return {
       ...actualFs,
       existsSync: vi.fn(),
@@ -77,12 +76,11 @@ describe("execCSharpGenerator", () => {
   });
 
   it("should set newProject to true if .csproj file DOES NOT exist", async () => {
-
     vi.mocked(statSync).mockImplementation(() => {
       throw new Error("File not found");
     });
-    
-    let context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
     await $onEmit(context);
 
     expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
@@ -95,7 +93,6 @@ describe("execCSharpGenerator", () => {
   });
 
   it("should set newProject to false if .csproj file DOES exist", async () => {
-    
     vi.mocked(statSync).mockReturnValue({ isFile: () => true } as any);
 
     let context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
