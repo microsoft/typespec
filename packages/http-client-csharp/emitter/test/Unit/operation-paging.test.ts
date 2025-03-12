@@ -70,7 +70,7 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.Clients[0].Operations[0].Paging;
+    const paging = root.Clients[0].operations[0].Paging;
     ok(paging);
     ok(paging.ItemPropertySegments);
     strictEqual(paging.ItemPropertySegments[0], "items");
