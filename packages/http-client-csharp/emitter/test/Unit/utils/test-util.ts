@@ -1,3 +1,10 @@
+// Setup mock before imports
+vi.mock("../../src/lib/lib.js", () => ({
+  getTracer: vi.fn().mockReturnValue({
+    trace: vi.fn(),
+  }),
+}));
+
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
 import {
   createSdkContext,
@@ -14,6 +21,7 @@ import { LoggerLevel } from "../../../src/lib/logger-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { CSharpEmitterOptions } from "../../../src/options.js";
 import { CSharpEmitterContext } from "../../../src/sdk-context.js";
+import { vi } from "vitest";
 
 export async function createEmitterTestHost(): Promise<TestHost> {
   return createTestHost({
