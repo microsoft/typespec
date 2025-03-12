@@ -1,4 +1,4 @@
-// vi.resetModules();
+vi.resetModules();
 // Ensure that the mock is applied before the import of the module containing the execAsync function.
 vi.mock("../../src/lib/utils.js", () => ({
   execAsync: vi.fn(),

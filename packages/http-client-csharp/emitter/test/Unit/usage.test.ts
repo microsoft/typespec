@@ -1,4 +1,4 @@
-import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import type { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
