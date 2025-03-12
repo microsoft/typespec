@@ -72,6 +72,7 @@ try {
     # install npm packages at repository root
     Push-Location "$packageRoot/../../"
     try {
+        Invoke-LoggedCommand "npm install -g pnpm" -GroupOutput
         Invoke-LoggedCommand "pnpm install" -GroupOutput
     }
     finally {
