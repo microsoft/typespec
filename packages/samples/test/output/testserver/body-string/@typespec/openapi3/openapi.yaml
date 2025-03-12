@@ -14,10 +14,10 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/json:
+            application/octet-stream:
               schema:
                 type: string
-                format: byte
+                format: binary
         default:
           description: An unexpected error response.
           content:
@@ -44,10 +44,10 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/octet-stream:
             schema:
               type: string
-              format: byte
+              format: binary
   /string/empty:
     get:
       operationId: String_getEmpty
