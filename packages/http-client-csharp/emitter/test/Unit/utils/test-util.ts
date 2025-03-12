@@ -34,6 +34,7 @@ export interface TypeSpecCompileOptions {
   IsTCGCNeeded?: boolean;
   IsXmlNeeded?: boolean;
   AuthDecorator?: string;
+  NoEmit?: boolean;
 }
 
 export async function typeSpecCompile(
@@ -82,6 +83,7 @@ export async function typeSpecCompile(
   host.addTypeSpecFile("main.tsp", fileContent);
   const cliOptions = {
     warningAsError: false,
+    noEmit: options?.NoEmit ?? true,
   } as CompilerOptions;
   await host.compile("./", cliOptions);
   return host.program;
