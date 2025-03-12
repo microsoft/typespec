@@ -62,7 +62,7 @@ export default defineConfig({
       rehypeMermaid,
       [
         rehypeAstroRelativeMarkdownLinks,
-        { base, contentPath: "src/content/docs", trailingSlash: "always" },
+        { base, srcDir: "src/content/docs", trailingSlash: "always" },
       ],
     ],
     shikiConfig: {
