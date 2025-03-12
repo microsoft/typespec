@@ -6,7 +6,7 @@ export enum TelemetryEventName {
   CreateProject = "create-project",
   InstallGlobalCompilerCli = "install-global-compiler-cli",
   RestartServer = "restart-server",
-  GenerateCode = "generate-code",
+  EmitCode = "emit-code",
   ImportFromOpenApi3 = "import-from-openapi3",
   ServerPathSettingChanged = "server-path-changed",
   OperationDetail = "operation-detail",

@@ -1,5 +1,5 @@
 import TelemetryReporter from "@vscode/extension-telemetry";
-import pkgJson from "../../package.json" assert { type: "json" };
+import pkgJson from "../../package.json" with { type: "json" };
 import { EmptyGuid } from "../const.js";
 import logger from "../log/logger.js";
 import { ResultCode } from "../types.js";

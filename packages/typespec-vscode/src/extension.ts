@@ -71,7 +71,14 @@ export async function activate(context: ExtensionContext) {
           title: "Emit from TypeSpec...",
           cancellable: false,
         },
-        async () => await emitCode(context, uri),
+        async () => {
+          await telemetryClient.doOperationWithTelemetry<ResultCode>(
+            TelemetryEventName.EmitCode,
+            async (tel): Promise<ResultCode> => {
+              return await emitCode(context, uri, tel);
+            },
+          );
+        },
       );
     }),
   );
