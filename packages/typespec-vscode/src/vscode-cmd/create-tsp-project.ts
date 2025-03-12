@@ -144,7 +144,7 @@ export async function createTypeSpecProject(
         },
       });
       if (isWhitespaceStringOrUndefined(projectName)) {
-        logger.info("Creating TypeSpec Project cancelled when input project name.");
+        logger.info("Creating TypeSpec Project cancelled, project name is blank");
         return;
       }
 
