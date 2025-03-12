@@ -333,14 +333,14 @@ namespace UnbrandedTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateListWithNextLinkRequest(RequestOptions options)
+        internal PipelineMessage CreateListWithNextLinkRequest(Uri endpoint, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
+            uri.Reset(endpoint);
             uri.AppendPath("/link", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("Accept", "application/json");
