@@ -50,6 +50,7 @@ export {
   isQueryParam,
   isStatusCode,
   setAuthentication,
+  /** @internal */
   setStatusCode,
   type HttpServer,
 } from "./decorators.js";
