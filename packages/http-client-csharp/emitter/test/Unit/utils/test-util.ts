@@ -24,12 +24,12 @@ export async function createEmitterTestHost(): Promise<TestHost> {
   });
 }
 
-// Dynamically import Logger to allow it to be mocked in tests
+// Dynamically import Logger to allow it to be mocked in tests with vi.resetModules
 async function getLogger() {
   const { Logger } = await import("../../../src/lib/logger.js");
   return Logger;
 }
-
+// Dynamically import TCGC context to allow it to be mocked in tests with vi.resetModules
 async function getCreateSdkContext() {
   const { createSdkContext } = await import("@azure-tools/typespec-client-generator-core");
   return createSdkContext;
