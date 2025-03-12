@@ -14,7 +14,7 @@ from .helpers import (
     pad_builtin_namespaces,
     pad_special_chars,
 )
-from .python_mappings import CADL_RESERVED_WORDS, RESERVED_WORDS, PadType
+from .python_mappings import TSP_RESERVED_WORDS, RESERVED_WORDS, PadType
 
 from .. import YamlUpdatePlugin
 from ..utils import (
@@ -182,11 +182,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
     @property
     def models_mode(self) -> Optional[str]:
-        return self.options.get("models-mode", "dpg" if self.is_cadl else None)
+        return self.options.get("models-mode", "dpg" if self.is_tsp else None)
 
     @property
-    def is_cadl(self) -> bool:
-        return self.options.get("cadl_file", False)
+    def is_tsp(self) -> bool:
+        return self.options.get("tsp_file", False)
 
     def add_body_param_type(
         self,
@@ -198,7 +198,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             body_parameter
             and body_parameter["type"]["type"] in ("model", "dict", "list")
             and (
-                has_json_content_type(body_parameter) or (self.is_cadl and has_multi_part_content_type(body_parameter))
+                has_json_content_type(body_parameter) or (self.is_tsp and has_multi_part_content_type(body_parameter))
             )
             and not body_parameter["type"].get("xmlMetadata")
             and not any(t for t in ["flattened", "groupedBy"] if body_parameter.get(t))
@@ -210,7 +210,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 "types": [body_parameter["type"]],
             }
             # don't add binary overload for multipart content type
-            if not (self.is_cadl and has_multi_part_content_type(body_parameter)):
+            if not (self.is_tsp and has_multi_part_content_type(body_parameter)):
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
             if origin_type == "model" and is_dpg_model and self.models_mode == "dpg":
@@ -223,8 +223,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
             # we'll pass in empty operation groups sometime etc.
             return name
 
-        if self.is_cadl:
-            reserved_words = {k: (v + CADL_RESERVED_WORDS.get(k, [])) for k, v in RESERVED_WORDS.items()}
+        if self.is_tsp:
+            reserved_words = {k: (v + TSP_RESERVED_WORDS.get(k, [])) for k, v in RESERVED_WORDS.items()}
         else:
             reserved_words = RESERVED_WORDS
         name = pad_special_chars(name)
@@ -506,6 +506,6 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
 
 if __name__ == "__main__":
-    # CADL pipeline will call this
+    # TSP pipeline will call this
     args, unknown_args = parse_args()
-    PreProcessPlugin(output_folder=args.output_folder, cadl_file=args.cadl_file, **unknown_args).process()
+    PreProcessPlugin(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
