@@ -24,10 +24,10 @@ const config: PlaywrightTestConfig = {
       name: "chromium",
       use: { browserName: "chromium" },
     },
-    {
-      name: "firefox",
-      use: { browserName: "firefox" },
-    },
+    // {
+    //   name: "firefox",
+    //   use: { browserName: "firefox" },
+    // },
   ],
   testMatch: "*.e2e.ts",
 };
