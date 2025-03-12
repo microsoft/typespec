@@ -430,40 +430,38 @@ function addIdentifierCompletion(
       deprecated = getDeprecationDetails(program, type) !== undefined;
     }
     const documentation = getSymbolDetails(program, sym);
-    let edit: TextEdit | undefined;
-    const startWith$ = sym.name.startsWith("$");
-    if (startWith$) {
+
+    let item: CompletionItem = {
+      label: label ?? key,
+      documentation: documentation
+        ? {
+            kind: MarkupKind.Markdown,
+            value: documentation,
+          }
+        : undefined,
+      kind,
+      insertText: printIdentifier(key) + (suffix ?? ""),
+    };
+    if (sym.name.startsWith("$")) {
       const targetNode = getSourceLocation(node);
       const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
-      edit = TextEdit.replace(
-        // Specifying replacement in the current location can avoid the problem of $ duplication
-        Range.create(lineAndChar, lineAndChar),
-        printIdentifier(key) + (suffix ?? ""),
-      );
+      item = {
+        label: label ?? key,
+        documentation: documentation
+          ? {
+              kind: MarkupKind.Markdown,
+              value: documentation,
+            }
+          : undefined,
+        kind,
+        textEdit: TextEdit.replace(
+          // Specifying replacement in the current location can avoid the problem of $ duplication
+          Range.create(lineAndChar, lineAndChar),
+          printIdentifier(key) + (suffix ?? ""),
+        ),
+      };
     }
-    const item: CompletionItem = startWith$
-      ? {
-          label: label ?? key,
-          documentation: documentation
-            ? {
-                kind: MarkupKind.Markdown,
-                value: documentation,
-              }
-            : undefined,
-          kind,
-          textEdit: edit,
-        }
-      : {
-          label: label ?? key,
-          documentation: documentation
-            ? {
-                kind: MarkupKind.Markdown,
-                value: documentation,
-              }
-            : undefined,
-          kind,
-          insertText: printIdentifier(key) + (suffix ?? ""),
-        };
+
     if (deprecated) {
       // hide these deprecated items to discourage the usage
       // not using CompletionItemTag.Deprecated because the strike-through is a little confusing
