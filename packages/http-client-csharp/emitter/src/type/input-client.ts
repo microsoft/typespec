@@ -7,14 +7,14 @@ import { InputParameter } from "./input-parameter.js";
 import { Protocols } from "./protocols.js";
 
 export interface InputClient {
-  Name: string;
-  Namespace: string;
-  Summary?: string;
-  Doc?: string;
-  Operations: InputOperation[];
-  Protocol?: Protocols;
-  Parent?: string;
-  Parameters?: InputParameter[];
-  Decorators?: DecoratorInfo[];
-  CrossLanguageDefinitionId: string;
+  name: string;
+  namespace: string;
+  summary?: string;
+  doc?: string;
+  operations: InputOperation[];
+  protocol?: Protocols;
+  parent?: string;
+  parameters?: InputParameter[];
+  decorators?: DecoratorInfo[];
+  crossLanguageDefinitionId: string;
 }

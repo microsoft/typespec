@@ -76,7 +76,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
-      parentClientNames.push(inputClient.Name);
+      parentClientNames.push(inputClient.name);
       fromSdkClients(subClients, inputClients, parentClientNames);
       parentClientNames.pop();
     }
@@ -98,11 +98,11 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       client.__raw.type,
     );
     return {
-      Name: clientName,
-      Namespace: client.namespace,
-      Summary: client.summary,
-      Doc: client.doc,
-      Operations: client.methods
+      name: clientName,
+      namespace: client.namespace,
+      summary: client.summary,
+      doc: client.doc,
+      operations: client.methods
         .filter((m) => m.kind !== "clientaccessor")
         .map((m) =>
           fromSdkServiceMethod(
@@ -112,11 +112,11 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
             rootApiVersions,
           ),
         ),
-      Protocol: {},
-      Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
-      Parameters: clientParameters,
-      Decorators: client.decorators,
-      CrossLanguageDefinitionId: client.crossLanguageDefinitionId,
+      protocol: {},
+      parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
+      parameters: clientParameters,
+      decorators: client.decorators,
+      crossLanguageDefinitionId: client.crossLanguageDefinitionId,
     };
   }
 

@@ -102,12 +102,12 @@ export function getParameterDefaultValue(
 
   const kind = getValueType(sdkContext, clientDefaultValue);
   return {
-    Type: {
+    type: {
       kind: kind,
       name: kind,
       crossLanguageDefinitionId: `TypeSpec.${kind}`,
     },
-    Value: clientDefaultValue,
+    value: clientDefaultValue,
   };
 }
 

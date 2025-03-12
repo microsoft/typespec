@@ -40,8 +40,8 @@ export function resolveServers(
 
       if (value) {
         defaultValue = {
-          Type: inputType,
-          Value: value,
+          type: inputType,
+          value: value,
         };
       }
       const variable: InputParameter = {
@@ -87,12 +87,12 @@ export function resolveServers(
         Explode: false,
         Kind: InputOperationParameterKind.Client,
         DefaultValue: {
-          Type: {
+          type: {
             kind: "string",
             name: "string",
             crossLanguageDefinitionId: "TypeSpec.string",
           },
-          Value: server.url,
+          value: server.url,
         } as InputConstant,
       };
       url = `{host}`;
