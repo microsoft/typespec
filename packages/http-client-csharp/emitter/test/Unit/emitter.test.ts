@@ -95,7 +95,7 @@ describe("Expected execCSharpGenerator args are passed", () => {
   it("should set newProject to false if .csproj file DOES exist", async () => {
     vi.mocked(statSync).mockReturnValue({ isFile: () => true } as any);
 
-    let context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
     await $onEmit(context);
 
     expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
