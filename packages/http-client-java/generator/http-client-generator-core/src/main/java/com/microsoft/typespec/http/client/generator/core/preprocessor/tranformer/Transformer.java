@@ -61,7 +61,7 @@ public class Transformer {
             }
         }
         // multi-clients for TypeSpec
-        if (codeModel.getClients() != null) {
+        if (!CoreUtils.isNullOrEmpty(codeModel.getClients())) {
             transformClients(codeModel.getClients());
         } else {
             transformOperationGroups(codeModel.getOperationGroups(), codeModel);
