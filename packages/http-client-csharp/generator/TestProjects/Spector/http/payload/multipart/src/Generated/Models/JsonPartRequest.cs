@@ -2,13 +2,17 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 
 namespace Payload.MultiPart.Models
 {
     /// <summary> The JsonPartRequest. </summary>
     public partial class JsonPartRequest
     {
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
         public JsonPartRequest(Address address, MultiPartFileWithOptionalMetadata profileImage)
         {
             Argument.AssertNotNull(address, nameof(address));
@@ -16,6 +20,13 @@ namespace Payload.MultiPart.Models
 
             Address = address;
             ProfileImage = profileImage;
+        }
+
+        internal JsonPartRequest(Address address, MultiPartFileWithOptionalMetadata profileImage, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        {
+            Address = address;
+            ProfileImage = profileImage;
+            _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
         /// <summary> Gets the address. </summary>

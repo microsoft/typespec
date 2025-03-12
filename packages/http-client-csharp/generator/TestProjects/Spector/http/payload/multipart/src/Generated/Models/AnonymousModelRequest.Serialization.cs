@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.IO;
 
@@ -64,6 +65,15 @@ namespace Payload.MultiPart.Models
             content.Add("profileImage", ProfileImage);
 
             return content;
+        }
+
+        public static implicit operator BinaryContent(AnonymousModelRequest anonymousModelRequest)
+        {
+            if (anonymousModelRequest == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(anonymousModelRequest, ModelSerializationExtensions.WireOptions);
         }
 
         private BinaryData SerializeMultipartContentType()

@@ -59,9 +59,18 @@ namespace Payload.MultiPart.Models
 
         string IPersistableModel<FloatRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
 
+        public static implicit operator BinaryContent(FloatRequest floatRequest)
+        {
+            if (floatRequest == null)
+            {
+                return null;
+            }
+            return floatRequest.ToMultipartContent();
+        }
+
         internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            MultiPartFormDataBinaryContent content = new(Boundary);
 
             content.Add("temperature", Temperature.Temperature, Temperature.ContentType.ToString());
             return content;

@@ -2,6 +2,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.IO;
 
@@ -9,6 +10,9 @@ namespace Payload.MultiPart.Models
 {
     public partial class JsonPartRequest : IStreamModel<JsonPartRequest>
     {
+        internal JsonPartRequest()
+        {
+        }
         private string _boundary;
         private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
         BinaryData IPersistableModel<JsonPartRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
@@ -56,9 +60,18 @@ namespace Payload.MultiPart.Models
 
         string IPersistableModel<JsonPartRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
 
+        public static implicit operator BinaryContent(JsonPartRequest jsonPartRequest)
+        {
+            if (jsonPartRequest == null)
+            {
+                return null;
+            }
+            return jsonPartRequest.ToMultipartContent();
+        }
+
         internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            MultiPartFormDataBinaryContent content = new(Boundary);
 
             content.Add("address", Address);
             content.Add("profileImage", ProfileImage);
