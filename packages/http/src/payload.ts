@@ -548,9 +548,20 @@ function resolveContentTypesForBody(
     }
 
     if (type.kind === "Union") {
+      const variants = [...type.variants.values()];
+      const containsNull = variants.some(
+        (v) => v.type.kind === "Intrinsic" && v.type.name === "null",
+      );
+
+      // If the union contains null, we just collapse to JSON in this default case.
+
+      if (containsNull) {
+        return { contentTypes: ["application/json"] };
+      }
+
       const set = new Set<string>();
 
-      for (const variant of type.variants.values()) {
+      for (const variant of variants) {
         const resolved = diagnostics.pipe(
           resolveContentTypesForBody(program, contentTypeProperty, variant.type),
         );
