@@ -451,23 +451,23 @@ it("generates standard scalar array  properties", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "public SByte[] ArrSbyteProp { get; set; }",
-      "public Byte[] ArrByteProp { get; set; }",
-      "public Int16[] Arrint16Prop { get; set; }",
-      "public int[] Arrint32Prop { get; set; }",
-      "public long[] Arrint64Prop { get; set; }",
-      "public UInt16[] ArrayUint16Prop { get; set; }",
-      "public UInt32[] ArrayUint32Prop { get; set; }",
-      "public UInt64[] ArrayUint64Prop { get; set; }",
-      "public float[] ArrayF32Prop { get; set; }",
-      "public double[] ArrayF64Prop { get; set; }",
-      "public bool[] ArrayBoolProp { get; set; }",
-      "public DateTime[] ArrdateProp { get; set; }",
-      "public DateTime[] ArrtimeProp { get; set; }",
-      "public TimeSpan[] ArrdurationProp { get; set; }",
-      "public DateTimeOffset[] ArrutcDateTimeProp { get; set; }",
-      "public DateTimeOffset[] ArroffsetDateTimeProp { get; set; }",
-      "public string[] ArrStringProp { get; set; }",
+      "public IEnumerable<SByte> ArrSbyteProp { get; set; }",
+      "public IEnumerable<Byte> ArrByteProp { get; set; }",
+      "public IEnumerable<Int16> Arrint16Prop { get; set; }",
+      "public IEnumerable<int> Arrint32Prop { get; set; }",
+      "public IEnumerable<long> Arrint64Prop { get; set; }",
+      "public IEnumerable<UInt16> ArrayUint16Prop { get; set; }",
+      "public IEnumerable<UInt32> ArrayUint32Prop { get; set; }",
+      "public IEnumerable<UInt64> ArrayUint64Prop { get; set; }",
+      "public IEnumerable<float> ArrayF32Prop { get; set; }",
+      "public IEnumerable<double> ArrayF64Prop { get; set; }",
+      "public IEnumerable<bool> ArrayBoolProp { get; set; }",
+      "public IEnumerable<DateTime> ArrdateProp { get; set; }",
+      "public IEnumerable<DateTime> ArrtimeProp { get; set; }",
+      "public IEnumerable<TimeSpan> ArrdurationProp { get; set; }",
+      "public IEnumerable<DateTimeOffset> ArrutcDateTimeProp { get; set; }",
+      "public IEnumerable<DateTimeOffset> ArroffsetDateTimeProp { get; set; }",
+      "public IEnumerable<string> ArrStringProp { get; set; }",
     ],
   );
 });
@@ -491,9 +491,9 @@ it("generates standard scalar array  constraints", async () => {
     [
       "public partial class Foo",
       "[ArrayConstraint( MinItems = 1, MaxItems = 10)]",
-      "public SByte[] ArrSbyteProp { get; set; }",
+      "public IEnumerable<SByte> ArrSbyteProp { get; set; }",
       "[ArrayConstraint( MaxItems = 10)]",
-      "public Byte[] ArrByteProp { get; set; }",
+      "public IEnumerable<Byte> ArrByteProp { get; set; }",
     ],
   );
 });
@@ -970,25 +970,25 @@ it("generates appropriate types for literal tuples in operation parameters", asy
         "Foo.cs",
         [
           "public partial class Foo",
-          "public int[] IntProp { get; } = [8, 10]",
-          "public double[] FloatProp { get; } = [3.14, 5.2]",
+          "public IEnumerable<int> IntProp { get; } = new List<int> {8, 10}",
+          "public IEnumerable<double> FloatProp { get; } = new List<double> {3.14, 5.2}",
           `public string StringProp { get; } = "string of characters"`,
-          `public string[] StringArrayProp { get; } = ["A string of characters", "and another"]`,
-          `public string[] StringTempProp { get; } = ["A string of characters and then some", "Yet another string of characters"]`,
-          "public bool[] TrueProp { get; } = [true, true]",
-          "public bool[] FalseProp { get; } = [false, false]",
+          `public IEnumerable<string> StringArrayProp { get; } = new List<string> {"A string of characters", "and another"}`,
+          `public IEnumerable<string> StringTempProp { get; } = new List<string> {"A string of characters and then some", "Yet another string of characters"}`,
+          "public IEnumerable<bool> TrueProp { get; } = new List<bool> {true, true}",
+          "public IEnumerable<bool> FalseProp { get; } = new List<bool> {false, false}",
         ],
       ],
       [
         "ContosoOperationsController.cs",
         [
-          `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] int[] intProp, [FromHeader(Name="float-prop")] double[] floatProp, [FromHeader(Name="string-prop")] string stringProp = "string of characters", [FromHeader(Name="string-array-prop")] string[] stringArrayProp, [FromHeader(Name="string-temp-prop")] string[] stringTempProp, [FromHeader(Name="true-prop")] bool[] trueProp, [FromHeader(Name="false-prop")] bool[] falseProp)`,
+          `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] ICollection<int> intProp, [FromHeader(Name="float-prop")] ICollection<double> floatProp, [FromHeader(Name="string-prop")] string stringProp = "string of characters", [FromHeader(Name="string-array-prop")] ICollection<string> stringArrayProp, [FromHeader(Name="string-temp-prop")] ICollection<string> stringTempProp, [FromHeader(Name="true-prop")] ICollection<bool> trueProp, [FromHeader(Name="false-prop")] ICollection<bool> falseProp)`,
         ],
       ],
       [
         "IContosoOperations.cs",
         [
-          `Task FooAsync( int[] intProp, double[] floatProp, string stringProp, string[] stringArrayProp, string[] stringTempProp, bool[] trueProp, bool[] falseProp);`,
+          `Task FooAsync( ICollection<int> intProp, ICollection<double> floatProp, string stringProp, ICollection<string> stringArrayProp, ICollection<string> stringTempProp, ICollection<bool> trueProp, ICollection<bool> falseProp);`,
         ],
       ],
     ],
@@ -1013,10 +1013,16 @@ it("generates valid code for overridden parameters", async () => {
       @route("/foo") op foo(): void;
       `,
     [
-      ["FooBase.cs", ["public partial class FooBase", "public int[] IntProp { get; set; }"]],
+      [
+        "FooBase.cs",
+        ["public partial class FooBase", "public IEnumerable<int> IntProp { get; set; }"],
+      ],
       [
         "Foo.cs",
-        ["public partial class Foo : FooBase", "public new int[] IntProp { get; } = [8, 10]"],
+        [
+          "public partial class Foo : FooBase",
+          "public new IEnumerable<int> IntProp { get; } = new List<int> {8, 10}",
+        ],
       ],
       ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
       ["IContosoOperations.cs", [`Task FooAsync( );`]],
@@ -1055,7 +1061,7 @@ it("generates valid code for anonymous models", async () => {
         "Foo.cs",
         [
           "public partial class Foo",
-          "public int[] IntProp { get; } = [8, 10]",
+          "public IEnumerable<int> IntProp { get; } = new List<int> {8, 10}",
           "public Model0 ModelProp { get; set; }",
           "public Model1 AnotherModelProp { get; set; }",
           "public Model0 YetAnother { get; set; }",
@@ -1128,7 +1134,7 @@ it("handles implicit request body models correctly", async () => {
           ".FooAsync(body.IntProp, body.ArrayProp)",
         ],
       ],
-      ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
+      ["IContosoOperations.cs", [`Task FooAsync( int? intProp, ICollection<string>? arrayProp);`]],
     ],
   );
 });

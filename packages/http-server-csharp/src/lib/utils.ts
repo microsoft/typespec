@@ -12,6 +12,7 @@ import {
   Type,
   Union,
   getFriendlyName,
+  isArrayModelType,
   isNullType,
   isNumericType,
   isTemplateInstance,
@@ -42,6 +43,7 @@ import {
   isStatusCode,
 } from "@typespec/http";
 import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
+import { getUniqueItems } from "@typespec/json-schema";
 import { camelCase, pascalCase } from "change-case";
 import { getAttributes } from "./attributes.js";
 import {
@@ -160,9 +162,10 @@ export function getCSharpType(
         if (resolvedItem === undefined) return undefined;
         const { type: itemType, value: _ } = resolvedItem;
 
+        const uniqueItems = getUniqueItems(program, type.indexer.value);
         return {
           type: new CSharpType({
-            name: `${itemType.name}[]`,
+            name: uniqueItems ? `ISet<${itemType.name}>` : `IEnumerable<${itemType.name}>`,
             namespace: itemType.namespace,
             isBuiltIn: itemType.isBuiltIn,
             isValueType: false,
@@ -895,7 +898,7 @@ export function getBusinessLogicSignatureParameter(
 ): EmitterOutput<string> {
   const builder: StringBuilder = new StringBuilder();
   builder.push(
-    code`${param.typeName}${param.optional || param.nullable ? "? " : " "}${param.name}`,
+    code`${param.businessTypeName ?? param.typeName}${param.optional || param.nullable ? "? " : " "}${param.name}`,
   );
   return builder.reduce();
 }
@@ -954,16 +957,17 @@ export interface EmittedTypeInfo {
   typeReference: EmitterOutput<string>;
   nullableType: boolean;
   defaultValue?: string | boolean;
+  businessTypeReference?: EmitterOutput<string>;
 }
 
 export class CSharpOperationHelpers {
   constructor(inEmitter: AssetEmitter<string, CSharpServiceEmitterOptions>) {
     this.emitter = inEmitter;
-    this.#anonymousModels = new Map<Model, EmittedTypeInfo>();
+    this.#anonymousModels = new Map<Model, Map<boolean, EmittedTypeInfo>>();
     this.#opCache = new Map<Operation, CSharpOperationParameter[]>();
   }
   emitter: AssetEmitter<string, CSharpServiceEmitterOptions>;
-  #anonymousModels: Map<Model, EmittedTypeInfo>;
+  #anonymousModels: Map<Model, Map<boolean, EmittedTypeInfo>>;
   #opCache: Map<Operation, CSharpOperationParameter[]>;
   getParameters(program: Program, operation: HttpOperation): CSharpOperationParameter[] {
     function safeConcat(...names: (string | undefined)[]): string {
@@ -997,10 +1001,11 @@ export class CSharpOperationHelpers {
       (p) => p.type !== "path" && (p.param.optional || p.param.defaultValue !== undefined),
     );
     for (const parameter of requiredParams) {
-      let { typeReference: paramType, defaultValue: paramValue } = this.getTypeInfo(
-        program,
-        parameter.param.type,
-      );
+      let {
+        typeReference: paramType,
+        businessTypeReference: paramBusinessInput,
+        defaultValue: paramValue,
+      } = this.getTypeInfo(program, parameter.param.type);
       // cSharp does not allow array defaults in operation parameters
       if (!canHaveDefault(program, parameter.param)) {
         paramValue = undefined;
@@ -1017,6 +1022,7 @@ export class CSharpOperationHelpers {
         callName: paramName,
         optional: false,
         typeName: paramType,
+        businessTypeName: paramBusinessInput,
         defaultValue: paramValue,
         httpParameterKind: getParameterKind(parameter),
         httpParameterName: parameter.name,
@@ -1035,6 +1041,7 @@ export class CSharpOperationHelpers {
         typeReference: bodyType,
         defaultValue: bodyValue,
         nullableType: isNullable,
+        businessTypeReference: businesInputType,
       } = this.getTypeInfo(program, bodyParam.type);
       if (!canHaveDefault(program, bodyParam.type)) {
         bodyValue = undefined;
@@ -1045,6 +1052,7 @@ export class CSharpOperationHelpers {
         name: "body",
         callName: "body",
         typeName: bodyType,
+        businessTypeName: businesInputType,
         nullable: isNullable,
         defaultValue: bodyValue,
         optional: bodyParam.property?.optional ?? false,
@@ -1064,7 +1072,8 @@ export class CSharpOperationHelpers {
             });
           }
 
-          const { typeReference: bodyType } = this.getTypeInfo(program, tsBody);
+          const { typeReference: bodyType, businessTypeReference: businesInputType } =
+            this.getTypeInfo(program, tsBody);
           const bodyName = ensureCSharpIdentifier(
             program,
             bodyParam.type,
@@ -1077,6 +1086,7 @@ export class CSharpOperationHelpers {
             name: bodyName,
             callName: bodyName,
             typeName: bodyType,
+            businessTypeName: businesInputType,
             nullable: false,
             defaultValue: undefined,
             optional: false,
@@ -1087,7 +1097,8 @@ export class CSharpOperationHelpers {
               typeReference: csType,
               defaultValue: csValue,
               nullableType: isNullable,
-            } = this.getTypeInfo(program, propDef.type);
+              businessTypeReference: businesInputType,
+            } = this.getTypeInfo(program, propDef.type, propDef);
             // cSharp does not allow array defaults in operation parameters
             if (!canHaveDefault(program, propDef)) {
               csValue = undefined;
@@ -1110,6 +1121,7 @@ export class CSharpOperationHelpers {
               name: paramName,
               callName: `body.${refName}`,
               typeName: csType,
+              businessTypeName: businesInputType,
               nullable: isNullable,
               defaultValue: csValue,
               optional: propDef.optional,
@@ -1124,7 +1136,8 @@ export class CSharpOperationHelpers {
               typeReference: csType,
               defaultValue: csValue,
               nullableType: isNullable,
-            } = this.getTypeInfo(program, bodyParam.type.type);
+              businessTypeReference: businesInputType,
+            } = this.getTypeInfo(program, bodyParam.type.type, bodyParam.type);
             if (!canHaveDefault(program, bodyParam.type)) {
               csValue = undefined;
             }
@@ -1140,6 +1153,7 @@ export class CSharpOperationHelpers {
               name: optName,
               callName: optName,
               typeName: csType,
+              businessTypeName: businesInputType,
               nullable: isNullable,
               defaultValue: csValue,
               optional: bodyParam.type.optional,
@@ -1152,6 +1166,7 @@ export class CSharpOperationHelpers {
             typeReference: csType,
             defaultValue: csValue,
             nullableType: isNullable,
+            businessTypeReference: businesInputType,
           } = this.getTypeInfo(program, bodyParam.type);
           if (!canHaveDefault(program, bodyParam.type)) {
             csValue = undefined;
@@ -1162,6 +1177,7 @@ export class CSharpOperationHelpers {
             name: "body",
             callName: "body",
             typeName: csType,
+            businessTypeName: businesInputType,
             nullable: isNullable,
             defaultValue: csValue,
             optional: false,
@@ -1176,7 +1192,8 @@ export class CSharpOperationHelpers {
         typeReference: paramType,
         defaultValue: paramValue,
         nullableType: isNullable,
-      } = this.getTypeInfo(program, parameter.param.type);
+        businessTypeReference: paramBusinessInput,
+      } = this.getTypeInfo(program, parameter.param.type, parameter.param);
       const optName = ensureCSharpIdentifier(
         program,
         parameter.param,
@@ -1189,6 +1206,7 @@ export class CSharpOperationHelpers {
         callName: optName,
         optional: true,
         typeName: paramType,
+        businessTypeName: paramBusinessInput,
         defaultValue: paramValue,
         httpParameterKind: getParameterKind(parameter),
         httpParameterName: parameter.name,
@@ -1200,7 +1218,7 @@ export class CSharpOperationHelpers {
     this.#opCache.set(operation.operation, result);
     return result;
   }
-  getTypeInfo(program: Program, tsType: Type): EmittedTypeInfo {
+  getTypeInfo(program: Program, tsType: Type, modelProperty?: ModelProperty): EmittedTypeInfo {
     const myEmitter = this.emitter;
     function extractStringValue(type: Type, span: StringTemplateSpan): string {
       switch (type.kind) {
@@ -1273,17 +1291,34 @@ export class CSharpOperationHelpers {
           defaults.push(itemDefault);
         }
         return {
-          typeReference: code`${csharpType.getTypeReference()}[]`,
-          defaultValue: `[${defaults.join(", ")}]`,
+          typeReference: code`IEnumerable<${csharpType.getTypeReference()}>`,
+          defaultValue: `new List<${csharpType.getTypeReference()}> {${defaults.join(", ")}}`,
+          businessTypeReference: code`ICollection<${csharpType.getTypeReference()}>`,
           nullableType: csharpType.isNullable,
         };
       case "Model":
         let modelResult: EmittedTypeInfo;
-        const cachedResult = this.#anonymousModels.get(tsType);
+
+        const hasUniqueItems = modelProperty
+          ? getUniqueItems(program, modelProperty) !== undefined
+          : false;
+
+        const cachedResult = this.#anonymousModels.get(tsType)?.get(hasUniqueItems);
         if (cachedResult) {
           return cachedResult;
         }
-        if (isRecord(tsType)) {
+
+        if (isArrayModelType(program, tsType)) {
+          modelResult = {
+            typeReference: hasUniqueItems
+              ? code`ISet<${this.emitter.emitTypeReference(tsType.indexer.value)}>`
+              : code`${this.emitter.emitTypeReference(tsType)}`,
+            businessTypeReference: hasUniqueItems
+              ? code`ISet<${this.emitter.emitTypeReference(tsType.indexer.value)}>`
+              : code`ICollection<${this.emitter.emitTypeReference(tsType.indexer.value)}>`,
+            nullableType: false,
+          };
+        } else if (isRecord(tsType)) {
           modelResult = { typeReference: code`JsonObject`, nullableType: false };
         } else {
           modelResult = {
@@ -1291,10 +1326,14 @@ export class CSharpOperationHelpers {
             nullableType: false,
           };
         }
-        this.#anonymousModels.set(tsType, modelResult);
+
+        const modelMap = this.#anonymousModels.get(tsType) ?? new Map<boolean, EmittedTypeInfo>();
+        this.#anonymousModels.set(tsType, modelMap);
+        modelMap.set(hasUniqueItems, modelResult);
+
         return modelResult;
       case "ModelProperty":
-        return this.getTypeInfo(program, tsType.type);
+        return this.getTypeInfo(program, tsType.type, tsType);
       case "Enum":
         return {
           typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
