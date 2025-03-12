@@ -54,7 +54,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
         },
       },
       "@typespec/http-server-js": {
-        description: "JavaScript server stubs",
+        label: "JavaScript server stubs",
         options: {
           "emitter-output-dir": "{output-dir}/server",
         },

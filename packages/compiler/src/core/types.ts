@@ -2034,17 +2034,12 @@ export interface RmOptions {
   recursive?: boolean;
 }
 
-export interface CompilerHost {
+export interface SystemHost {
   /** read a file at the given url. */
   readUrl(url: string): Promise<SourceFile>;
 
   /** read a utf-8 or utf-8 with bom encoded file */
   readFile(path: string): Promise<SourceFile>;
-
-  /**
-   * Optional cache to reuse the results of parsing and binding across programs.
-   */
-  parseCache?: WeakMap<SourceFile, TypeSpecScriptNode>;
 
   /**
    * Write the file.
@@ -2072,6 +2067,19 @@ export interface CompilerHost {
    */
   mkdirp(path: string): Promise<string | undefined>;
 
+  // get info about a path
+  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
+
+  // get the real path of a possibly symlinked path
+  realpath(path: string): Promise<string>;
+}
+
+export interface CompilerHost extends SystemHost {
+  /**
+   * Optional cache to reuse the results of parsing and binding across programs.
+   */
+  parseCache?: WeakMap<SourceFile, TypeSpecScriptNode>;
+
   // get the directory TypeSpec is executing from
   getExecutionRoot(): string;
 
@@ -2081,13 +2089,7 @@ export interface CompilerHost {
   // get a promise for the ESM module shape of a JS module
   getJsImport(path: string): Promise<Record<string, any>>;
 
-  // get info about a path
-  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
-
   getSourceFileKind(path: string): SourceFileKind | undefined;
-
-  // get the real path of a possibly symlinked path
-  realpath(path: string): Promise<string>;
 
   // convert a file URL to a path in a file system
   fileURLToPath(url: string): string;
@@ -2288,24 +2290,7 @@ export interface DecoratorImplementations {
   };
 }
 
-export interface PackageFlags {
-  /**
-   * Decorator arg marshalling algorithm. Specify how TypeSpec values are marshalled to decorator arguments.
-   * - `new` - New recommended behavior
-   *  - string value -> `string`
-   *  - numeric value -> `number` if the constraint can be represented as a JS number, Numeric otherwise(e.g. for types int64, decimal128, numeric, etc.)
-   *  - boolean value -> `boolean`
-   *  - null value -> `null`
-   *
-   * - `legacy` - DEPRECATED -  Behavior before version 0.56.0.
-   *  - string value -> `string`
-   *  - numeric value -> `number`
-   *  - boolean value -> `boolean`
-   *  - null value -> `NullType`
-   * @default new
-   */
-  readonly decoratorArgMarshalling?: "legacy" | "new";
-}
+export interface PackageFlags {}
 
 export interface LinterDefinition {
   rules: LinterRuleDefinition<string, DiagnosticMessages>[];

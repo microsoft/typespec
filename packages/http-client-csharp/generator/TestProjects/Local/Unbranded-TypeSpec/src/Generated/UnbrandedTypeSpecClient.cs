@@ -1279,10 +1279,9 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ListWithNextLink(RequestOptions options)
+        public virtual CollectionResult ListWithNextLink(RequestOptions options)
         {
-            using PipelineMessage message = CreateListWithNextLinkRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            return new ListWithNextLinkCollectionResult(this, _endpoint, options);
         }
 
         /// <summary>
@@ -1296,28 +1295,25 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ListWithNextLinkAsync(RequestOptions options)
+        public virtual AsyncCollectionResult ListWithNextLinkAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateListWithNextLinkRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return new ListWithNextLinkAsyncCollectionResult(this, _endpoint, options);
         }
 
         /// <summary> List things with nextlink. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<ListWithNextLinkResponse> ListWithNextLink(CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> ListWithNextLink(CancellationToken cancellationToken = default)
         {
-            ClientResult result = ListWithNextLink(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((ListWithNextLinkResponse)result, result.GetRawResponse());
+            return new ListWithNextLinkCollectionResultOfT(this, _endpoint, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary> List things with nextlink. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<ListWithNextLinkResponse>> ListWithNextLinkAsync(CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> ListWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await ListWithNextLinkAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((ListWithNextLinkResponse)result, result.GetRawResponse());
+            return new ListWithNextLinkAsyncCollectionResultOfT(this, _endpoint, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
         /// <summary>
