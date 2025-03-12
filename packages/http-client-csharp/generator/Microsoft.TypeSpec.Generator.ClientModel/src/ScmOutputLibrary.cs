@@ -14,13 +14,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         private static TypeProvider[] BuildClientTypes()
         {
             var inputClients = ScmCodeModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
-            var clientTypes = new List<TypeProvider>();
+            var clients = new List<TypeProvider>();
             foreach (var inputClient in inputClients)
             {
                 BuildClient(inputClient, clients);
             }
 
-            return [.. clientTypes];
+            return [.. clients];
         }
 
         private static void BuildClient(InputClient inputClient, IList<TypeProvider> clients)
