@@ -10,7 +10,7 @@ afterAll(() => {
   vi.restoreAllMocks();
 });
 
-describe("execCSharpGenerator", () => {
+describe("Expected execCSharpGenerator args are passed", () => {
   // Setup mocks
   vi.mock("@typespec/compiler", async (importOriginal) => {
     const actual = await importOriginal<typeof import("@typespec/compiler")>();
