@@ -1347,20 +1347,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     mapper: TypeMapper | undefined,
     instantiateTemplates = true,
   ): Type | Value | IndeterminateEntity | null {
-    const entity = checkTypeOrValueReferenceSymbolWorker(sym, node, mapper, instantiateTemplates);
-
-    if (entity !== null && isType(entity) && entity.kind === "TemplateParameter") {
-      templateParameterUsageMap.set(entity.node, true);
-    }
-    return entity;
-  }
-
-  function checkTypeOrValueReferenceSymbolWorker(
-    sym: Sym,
-    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined,
-    instantiateTemplates = true,
-  ): Type | Value | IndeterminateEntity | null {
     if (sym.flags & SymbolFlags.Const) {
       return getValueForNode(sym.declarations[0], mapper);
     }
@@ -4992,34 +4978,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         createDiagnostic({
           code: "augment-decorator-target",
           messageId: "noInstance",
-          target: node.targetType,
-        }),
-      );
-    } else if (
-      links.finalSymbol?.flags &&
-      ~links.finalSymbol.flags & SymbolFlags.Declaration &&
-      ~links.finalSymbol.flags & SymbolFlags.Member
-    ) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "augment-decorator-target",
-          messageId:
-            links.finalSymbol.flags & SymbolFlags.Model
-              ? "noModelExpression"
-              : links.finalSymbol.flags & SymbolFlags.Union
-                ? "noUnionExpression"
-                : "default",
-          target: node.targetType,
-        }),
-      );
-    } else if (links.finalSymbol?.flags && links.finalSymbol.flags & SymbolFlags.Alias) {
-      const aliasNode: AliasStatementNode = getSymNode(links.finalSymbol) as AliasStatementNode;
-
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "augment-decorator-target",
-          messageId:
-            aliasNode.value.kind === SyntaxKind.UnionExpression ? "noUnionExpression" : "default",
           target: node.targetType,
         }),
       );

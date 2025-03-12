@@ -68,5 +68,5 @@ export const $service: ServiceDecorator = (
   options?: ServiceOptions,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $service);
-    reportDiagnostic(context.program, {
+  addService(context.program, target, options);
 };
