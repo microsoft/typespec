@@ -1,10 +1,3 @@
-// Setup mock before imports
-vi.mock("../../src/lib/lib.js", () => ({
-  getTracer: vi.fn().mockReturnValue({
-    trace: vi.fn(),
-  }),
-}));
-
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
 import {
   createSdkContext,
@@ -18,10 +11,8 @@ import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
 import { LoggerLevel } from "../../../src/lib/logger-level.js";
-import { Logger } from "../../../src/lib/logger.js";
 import { CSharpEmitterOptions } from "../../../src/options.js";
 import { CSharpEmitterContext } from "../../../src/sdk-context.js";
-import { vi } from "vitest";
 
 export async function createEmitterTestHost(): Promise<TestHost> {
   return createTestHost({
@@ -34,6 +25,12 @@ export async function createEmitterTestHost(): Promise<TestHost> {
       XmlTestLibrary,
     ],
   });
+}
+
+// Dynamically import Logger to allow it to be mocked in tests
+export async function getLogger() {
+  const { Logger } = await import("../../../src/lib/logger.js"); 
+  return Logger;
 }
 
 export interface TypeSpecCompileOptions {
@@ -124,6 +121,7 @@ export async function createCSharpSdkContext(
     "@typespec/http-client-csharp",
     sdkContextOptions,
   );
+  const Logger = await getLogger();
   return {
     ...context,
     logger: new Logger(program.program, LoggerLevel.INFO),
