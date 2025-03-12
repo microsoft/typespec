@@ -335,11 +335,7 @@ async function installDependencies(directory: string): Promise<Result<ExecOutput
         if (checkTspCli) {
           logger.info("tsp cli is installed, try to install dependencies with tsp install");
           progress?.report({ message: "running 'tsp install' ..." });
-          return await spawnExecutionAndLogToOutput(
-            "tsp",
-            ["install", "--save-package-manager"],
-            directory,
-          );
+          return await spawnExecutionAndLogToOutput("tsp", ["install"], directory);
         } else {
           logger.info("npm is installed, try to install dependencies with 'npm install'");
           progress?.report({ message: "running 'npm install' ..." });
