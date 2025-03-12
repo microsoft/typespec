@@ -149,9 +149,9 @@ describe("Test emitting decorator list", () => {
     const root = createModel(sdkContext);
     const operations = root.clients[0].operations;
     strictEqual(operations.length, 1);
-    const idParameters = operations[0].parameters.filter((p) => p.Name === "ClientId");
+    const idParameters = operations[0].parameters.filter((p) => p.name === "ClientId");
     strictEqual(idParameters.length, 1);
-    deepStrictEqual(idParameters[0].Decorators, [
+    deepStrictEqual(idParameters[0].decorators, [
       {
         name: "Azure.ClientGenerator.Core.@clientName",
         arguments: {

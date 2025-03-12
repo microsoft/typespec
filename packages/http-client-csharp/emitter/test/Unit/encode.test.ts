@@ -31,10 +31,10 @@ describe("Test encode duration", () => {
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.clients[0].operations[0].parameters.filter(
-      (p) => p.Name === "input",
+      (p) => p.name === "input",
     );
     strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].Type;
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
@@ -60,10 +60,10 @@ describe("Test encode duration", () => {
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.clients[0].operations[0].parameters.filter(
-      (p) => p.Name === "input",
+      (p) => p.name === "input",
     );
     strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].Type;
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
@@ -89,10 +89,10 @@ describe("Test encode duration", () => {
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.clients[0].operations[0].parameters.filter(
-      (p) => p.Name === "input",
+      (p) => p.name === "input",
     );
     strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].Type;
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");

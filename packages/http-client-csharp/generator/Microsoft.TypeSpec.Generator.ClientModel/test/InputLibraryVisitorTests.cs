@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.Any, isRequired: true, isReadOnly: true);
             var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
-            var param = InputFactory.Parameter("param", InputFactory.Literal.String("bar"), location: InputRequestLocation.Header, isRequired: true, isResourceParameter: true);
+            var param = InputFactory.Parameter("param", InputFactory.Literal.String("bar"), location: InputRequestLocation.Header, isRequired: true);
             var inputOperation = InputFactory.Operation("testOperation", parameters: [param], responses: [InputFactory.OperationResponse(bodytype: InputPrimitiveType.Any)]);
             var inputClient = InputFactory.Client("fooClient", operations: [inputOperation], parameters: [param]);
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(

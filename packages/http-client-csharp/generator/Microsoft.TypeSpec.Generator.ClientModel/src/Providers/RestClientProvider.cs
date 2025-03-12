@@ -457,7 +457,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     false,
                     false,
                     false,
-                    false,
                     null,
                     null);
 

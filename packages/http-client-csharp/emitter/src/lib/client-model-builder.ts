@@ -168,22 +168,21 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
           }
         : fromSdkType(sdkContext, parameter.type); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
-        Name: parameter.name,
-        NameInRequest: parameter.serializedName,
-        Summary: parameter.summary,
-        Doc: parameter.doc,
+        name: parameter.name,
+        nameInRequest: parameter.serializedName,
+        summary: parameter.summary,
+        doc: parameter.doc,
         // TODO: we should do the magic in generator
-        Type: parameterType,
-        Location: RequestLocation.Uri,
-        IsApiVersion: parameter.isApiVersionParam,
-        IsResourceParameter: false,
-        IsContentType: false,
-        IsRequired: !parameter.optional,
-        IsEndpoint: isEndpoint,
-        SkipUrlEncoding: false,
-        Explode: false,
-        Kind: InputOperationParameterKind.Client,
-        DefaultValue: getParameterDefaultValue(
+        type: parameterType,
+        location: RequestLocation.Uri,
+        isApiVersion: parameter.isApiVersionParam,
+        isContentType: false,
+        isRequired: !parameter.optional,
+        isEndpoint: isEndpoint,
+        skipUrlEncoding: false,
+        explode: false,
+        kind: InputOperationParameterKind.Client,
+        defaultValue: getParameterDefaultValue(
           sdkContext,
           parameter.clientDefaultValue,
           parameterType,

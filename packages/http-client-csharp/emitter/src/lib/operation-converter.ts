@@ -182,23 +182,23 @@ function fromSdkHttpOperationParameter(
   const explode = isExplodedParameter(p);
 
   return {
-    Name: p.name,
-    NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
-    Summary: p.summary,
-    Doc: p.doc,
-    Type: parameterType,
-    Location: getParameterLocation(p),
-    IsApiVersion:
+    name: p.name,
+    nameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
+    summary: p.summary,
+    doc: p.doc,
+    type: parameterType,
+    location: getParameterLocation(p),
+    isApiVersion:
       p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version",
-    IsContentType: isContentType,
-    IsEndpoint: false,
-    Explode: explode,
-    ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
-    IsRequired: !p.optional,
-    Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
-    DefaultValue: getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
-    Decorators: p.decorators,
-    SkipUrlEncoding: p.kind === "path" ? p.allowReserved : false,
+    isContentType: isContentType,
+    isEndpoint: false,
+    explode: explode,
+    arraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
+    isRequired: !p.optional,
+    kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
+    defaultValue: getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
+    decorators: p.decorators,
+    skipUrlEncoding: p.kind === "path" ? p.allowReserved : false,
   } as InputParameter;
 }
 
