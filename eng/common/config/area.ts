@@ -16,6 +16,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "meta:website": ["website/"],
   tspd: ["packages/tspd/"],
   "emitter:client:all": [],
+  "emitter:client:js": ["packages/http-client-js/"],
   "emitter:client:csharp": ["packages/http-client-csharp/"],
   "emitter:client:java": ["packages/http-client-java/"],
   "emitter:client:python": ["packages/http-client-python/"],

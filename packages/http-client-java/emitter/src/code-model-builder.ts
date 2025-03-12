@@ -1080,7 +1080,10 @@ export class CodeModelBuilder {
               ) {
                 continuationTokenParameter = param;
                 break;
-              } else if (param.language.default.serializedName === parameter.serializedName) {
+              } else if (
+                parameter.kind === "query" &&
+                param.language.default.serializedName === parameter.serializedName
+              ) {
                 continuationTokenParameter = param;
                 break;
               }
