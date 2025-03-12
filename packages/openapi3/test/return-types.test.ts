@@ -763,6 +763,40 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
       });
     });
 
+    it("@bodyRoot body: bytes responses can be overridden to application/json", async () => {
+      const res = await openApiFor(`
+        @get op read(): {
+          @header contentType: "application/json";
+          @bodyRoot body: bytes;
+        };
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      deepStrictEqual(response.content["application/json"].schema, {
+        contentEncoding: "base64",
+        type: "string",
+      });
+    });
+
+    it("@body body: bytes responses can be overridden to application/json", async () => {
+      const res = await openApiFor(`
+        @get op read(): {
+          @header contentType: "application/json";
+          @body body: bytes;
+        };
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      deepStrictEqual(response.content["application/json"].schema, {
+        contentEncoding: "base64",
+        type: "string",
+      });
+    });
+
     it("@header contentType text/plain should set contentEncoding to base64", async () => {
       const res = await openApiFor(`
         @get op read(): {@header contentType: "text/plain", @body body: bytes};
