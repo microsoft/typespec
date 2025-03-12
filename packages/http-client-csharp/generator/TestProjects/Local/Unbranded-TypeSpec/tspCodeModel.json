@@ -2374,11 +2374,11 @@
    "operations": [
     {
      "$id": "304",
-     "Name": "sayHi",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "Return hi",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "sayHi",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "Return hi",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "305",
        "Name": "headParameter",
@@ -2470,7 +2470,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "314",
        "StatusCodes": [
@@ -2486,22 +2486,22 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/hello",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.sayHi",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/hello",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.sayHi",
+     "decorators": []
     },
     {
      "$id": "315",
-     "Name": "helloAgain",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "Return hi again",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "helloAgain",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "Return hi again",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "316",
        "Name": "p1",
@@ -2616,7 +2616,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "327",
        "StatusCodes": [
@@ -2632,25 +2632,25 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/againHi/{p2}",
-     "RequestMediaTypes": [
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/againHi/{p2}",
+     "requestMediaTypes": [
       "text/plain"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.helloAgain",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.helloAgain",
+     "decorators": []
     },
     {
      "$id": "328",
-     "Name": "noContentType",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "Return hi again",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "noContentType",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "Return hi again",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "329",
        "Name": "p1",
@@ -2766,7 +2766,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "340",
        "StatusCodes": [
@@ -2782,25 +2782,25 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/noContentType/{p2}",
-     "RequestMediaTypes": [
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/noContentType/{p2}",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": false,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.noContentType",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": false,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.noContentType",
+     "decorators": []
     },
     {
      "$id": "341",
-     "Name": "helloDemo2",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "Return hi in demo2",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "helloDemo2",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "Return hi in demo2",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "342",
        "Name": "accept",
@@ -2829,7 +2829,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "345",
        "StatusCodes": [
@@ -2845,22 +2845,22 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/demoHi",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.helloDemo2",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/demoHi",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.helloDemo2",
+     "decorators": []
     },
     {
      "$id": "346",
-     "Name": "createLiteral",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "Create with literal value",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "createLiteral",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "Create with literal value",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "347",
        "Name": "contentType",
@@ -2934,7 +2934,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "354",
        "StatusCodes": [
@@ -2950,25 +2950,25 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/literal",
-     "RequestMediaTypes": [
+     "httpMethod": "POST",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/literal",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.createLiteral",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.createLiteral",
+     "decorators": []
     },
     {
      "$id": "355",
-     "Name": "helloLiteral",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "Send literal parameters",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "helloLiteral",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "Send literal parameters",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "356",
        "Name": "p1",
@@ -3078,7 +3078,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "368",
        "StatusCodes": [
@@ -3094,22 +3094,22 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/helloLiteral/{p2}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.helloLiteral",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/helloLiteral/{p2}",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.helloLiteral",
+     "decorators": []
     },
     {
      "$id": "369",
-     "Name": "topAction",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "top level method",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "topAction",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "top level method",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "370",
        "Name": "action",
@@ -3167,7 +3167,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "376",
        "StatusCodes": [
@@ -3183,22 +3183,22 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/top/{action}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.topAction",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/top/{action}",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.topAction",
+     "decorators": []
     },
     {
      "$id": "377",
-     "Name": "topAction2",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "top level method2",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "topAction2",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "top level method2",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "378",
        "Name": "accept",
@@ -3227,7 +3227,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "381",
        "StatusCodes": [
@@ -3243,22 +3243,22 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/top2",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": false,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.topAction2",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/top2",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": false,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.topAction2",
+     "decorators": []
     },
     {
      "$id": "382",
-     "Name": "patchAction",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "top level patch",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "patchAction",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "top level patch",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "383",
        "Name": "contentType",
@@ -3332,7 +3332,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "390",
        "StatusCodes": [
@@ -3348,25 +3348,25 @@
        ]
       }
      ],
-     "HttpMethod": "PATCH",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/patch",
-     "RequestMediaTypes": [
+     "httpMethod": "PATCH",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/patch",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": false,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.patchAction",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": false,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.patchAction",
+     "decorators": []
     },
     {
      "$id": "391",
-     "Name": "anonymousBody",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "body parameter without body decorator",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "anonymousBody",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "body parameter without body decorator",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "392",
        "Name": "contentType",
@@ -3440,7 +3440,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "399",
        "StatusCodes": [
@@ -3456,25 +3456,25 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/anonymousBody",
-     "RequestMediaTypes": [
+     "httpMethod": "POST",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/anonymousBody",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.anonymousBody",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.anonymousBody",
+     "decorators": []
     },
     {
      "$id": "400",
-     "Name": "friendlyModel",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "Model can have its friendly name",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "friendlyModel",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "Model can have its friendly name",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "401",
        "Name": "contentType",
@@ -3548,7 +3548,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "408",
        "StatusCodes": [
@@ -3564,24 +3564,24 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/friendlyName",
-     "RequestMediaTypes": [
+     "httpMethod": "POST",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/friendlyName",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.friendlyModel",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.friendlyModel",
+     "decorators": []
     },
     {
      "$id": "409",
-     "Name": "addTimeHeader",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "addTimeHeader",
+     "resourceName": "UnbrandedTypeSpec",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "410",
        "Name": "repeatabilityFirstSent",
@@ -3612,7 +3612,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "413",
        "StatusCodes": [
@@ -3622,22 +3622,22 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.addTimeHeader",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.addTimeHeader",
+     "decorators": []
     },
     {
      "$id": "414",
-     "Name": "projectedNameModel",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "Model can have its projected name",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "projectedNameModel",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "Model can have its projected name",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "415",
        "Name": "contentType",
@@ -3711,7 +3711,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "422",
        "StatusCodes": [
@@ -3727,25 +3727,25 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/projectedName",
-     "RequestMediaTypes": [
+     "httpMethod": "POST",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/projectedName",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.projectedNameModel",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.projectedNameModel",
+     "decorators": []
     },
     {
      "$id": "423",
-     "Name": "returnsAnonymousModel",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "return anonymous model",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "returnsAnonymousModel",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "return anonymous model",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "424",
        "Name": "accept",
@@ -3774,7 +3774,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "427",
        "StatusCodes": [
@@ -3790,22 +3790,22 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/returnsAnonymousModel",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel",
-     "Decorators": []
+     "httpMethod": "POST",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/returnsAnonymousModel",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel",
+     "decorators": []
     },
     {
      "$id": "428",
-     "Name": "getUnknownValue",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "get extensible enum",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "getUnknownValue",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "get extensible enum",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "429",
        "Name": "accept",
@@ -3828,7 +3828,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "431",
        "StatusCodes": [
@@ -3861,22 +3861,22 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/unknown-value",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.getUnknownValue",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/unknown-value",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.getUnknownValue",
+     "decorators": []
     },
     {
      "$id": "434",
-     "Name": "internalProtocol",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "When set protocol false and convenient true, then the protocol method should be internal",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "internalProtocol",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "When set protocol false and convenient true, then the protocol method should be internal",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "435",
        "Name": "contentType",
@@ -3950,7 +3950,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "442",
        "StatusCodes": [
@@ -3966,26 +3966,26 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/internalProtocol",
-     "RequestMediaTypes": [
+     "httpMethod": "POST",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/internalProtocol",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": false,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.internalProtocol",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": false,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.internalProtocol",
+     "decorators": []
     },
     {
      "$id": "443",
-     "Name": "stillConvenient",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
-     "Accessibility": "public",
-     "Parameters": [],
-     "Responses": [
+     "name": "stillConvenient",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
+     "accessibility": "public",
+     "parameters": [],
+     "responses": [
       {
        "$id": "444",
        "StatusCodes": [
@@ -3995,22 +3995,22 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/stillConvenient",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": false,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.stillConvenient",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/stillConvenient",
+     "bufferResponse": true,
+     "generateProtocolMethod": false,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.stillConvenient",
+     "decorators": []
     },
     {
      "$id": "445",
-     "Name": "headAsBoolean",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "head as boolean.",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "headAsBoolean",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "head as boolean.",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "446",
        "Name": "id",
@@ -4033,7 +4033,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "448",
        "StatusCodes": [
@@ -4043,22 +4043,22 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/headAsBoolean/{id}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.headAsBoolean",
-     "Decorators": []
+     "httpMethod": "HEAD",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/headAsBoolean/{id}",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.headAsBoolean",
+     "decorators": []
     },
     {
      "$id": "449",
-     "Name": "WithApiVersion",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "Return hi again",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "WithApiVersion",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "Return hi again",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "450",
        "Name": "p1",
@@ -4112,7 +4112,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "456",
        "StatusCodes": [
@@ -4122,22 +4122,22 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/WithApiVersion",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.WithApiVersion",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/WithApiVersion",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.WithApiVersion",
+     "decorators": []
     },
     {
      "$id": "457",
-     "Name": "ListWithNextLink",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "List things with nextlink",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "ListWithNextLink",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "List things with nextlink",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "458",
        "Name": "accept",
@@ -4166,7 +4166,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "461",
        "StatusCodes": [
@@ -4182,11 +4182,11 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/link",
-     "BufferResponse": true,
-     "Paging": {
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/link",
+     "bufferResponse": true,
+     "paging": {
       "$id": "462",
       "ItemPropertySegments": [
        "things"
@@ -4199,18 +4199,18 @@
        "ResponseLocation": "Body"
       }
      },
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithNextLink",
-     "Decorators": []
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithNextLink",
+     "decorators": []
     },
     {
      "$id": "464",
-     "Name": "ListWithContinuationToken",
-     "ResourceName": "UnbrandedTypeSpec",
-     "Doc": "List things with continuation token",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "ListWithContinuationToken",
+     "resourceName": "UnbrandedTypeSpec",
+     "doc": "List things with continuation token",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "465",
        "Name": "token",
@@ -4260,7 +4260,7 @@
        "SkipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "470",
        "StatusCodes": [
@@ -4276,11 +4276,11 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{unbrandedTypeSpecUrl}",
-     "Path": "/continuation",
-     "BufferResponse": true,
-     "Paging": {
+     "httpMethod": "GET",
+     "uri": "{unbrandedTypeSpecUrl}",
+     "path": "/continuation",
+     "bufferResponse": true,
+     "paging": {
       "$id": "471",
       "ItemPropertySegments": [
        "things"
@@ -4310,10 +4310,10 @@
        "ResponseLocation": "Body"
       }
      },
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithContinuationToken",
-     "Decorators": []
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithContinuationToken",
+     "decorators": []
     }
    ],
    "protocol": {

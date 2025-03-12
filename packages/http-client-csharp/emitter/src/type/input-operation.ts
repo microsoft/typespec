@@ -9,32 +9,26 @@ import { OperationPaging } from "./operation-paging.js";
 import { OperationResponse } from "./operation-response.js";
 import { RequestMethod } from "./request-method.js";
 
-export interface Paging {
-  NextLinkName?: string;
-  ItemName: string;
-  NextPageMethod?: string;
-}
-
 export interface InputOperation {
-  Name: string;
-  ResourceName?: string;
-  Summary?: string;
-  Deprecated?: string;
-  Doc?: string;
-  Accessibility?: string;
-  Parameters: InputParameter[];
-  Responses: OperationResponse[];
-  HttpMethod: RequestMethod;
-  Uri: string;
-  Path: string;
-  ExternalDocsUrl?: string;
-  RequestMediaTypes?: string[];
-  BufferResponse: boolean;
-  LongRunning?: OperationLongRunning;
-  Paging?: OperationPaging;
-  GenerateProtocolMethod: boolean;
-  GenerateConvenienceMethod: boolean;
-  Examples?: InputHttpOperationExample[];
-  CrossLanguageDefinitionId: string;
-  Decorators?: DecoratorInfo[];
+  name: string;
+  resourceName?: string;
+  summary?: string;
+  deprecated?: string;
+  doc?: string;
+  accessibility?: string;
+  parameters: InputParameter[];
+  responses: OperationResponse[];
+  httpMethod: RequestMethod;
+  uri: string;
+  path: string;
+  externalDocsUrl?: string;
+  requestMediaTypes?: string[];
+  bufferResponse: boolean;
+  longRunning?: OperationLongRunning;
+  paging?: OperationPaging;
+  generateProtocolMethod: boolean;
+  generateConvenienceMethod: boolean;
+  examples?: InputHttpOperationExample[];
+  crossLanguageDefinitionId: string;
+  decorators?: DecoratorInfo[];
 }

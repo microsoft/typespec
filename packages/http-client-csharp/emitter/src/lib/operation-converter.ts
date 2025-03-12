@@ -58,30 +58,30 @@ export function fromSdkServiceMethod(
   const parameterMap = fromSdkOperationParameters(sdkContext, method.operation, rootApiVersions);
   const responseMap = fromSdkHttpOperationResponses(sdkContext, method.operation.responses);
   return {
-    Name: method.name,
-    ResourceName:
+    name: method.name,
+    resourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
         .name ??
       getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
-    Deprecated: getDeprecated(sdkContext.program, method.__raw!),
-    Summary: method.summary,
-    Doc: method.doc,
-    Accessibility: method.access,
-    Parameters: [...parameterMap.values()],
-    Responses: [...responseMap.values()],
-    HttpMethod: parseHttpRequestMethod(method.operation.verb),
-    Uri: uri,
-    Path: method.operation.path,
-    ExternalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
-    RequestMediaTypes: getRequestMediaTypes(method.operation),
-    BufferResponse: true,
-    LongRunning: loadLongRunningOperation(sdkContext, method),
-    Paging: loadOperationPaging(sdkContext, method, rootApiVersions, uri),
-    GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
-    GenerateConvenienceMethod: generateConvenience,
-    CrossLanguageDefinitionId: method.crossLanguageDefinitionId,
-    Decorators: method.decorators,
-    Examples: method.operation.examples
+    deprecated: getDeprecated(sdkContext.program, method.__raw!),
+    summary: method.summary,
+    doc: method.doc,
+    accessibility: method.access,
+    parameters: [...parameterMap.values()],
+    responses: [...responseMap.values()],
+    httpMethod: parseHttpRequestMethod(method.operation.verb),
+    uri: uri,
+    path: method.operation.path,
+    externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
+    requestMediaTypes: getRequestMediaTypes(method.operation),
+    bufferResponse: true,
+    longRunning: loadLongRunningOperation(sdkContext, method),
+    paging: loadOperationPaging(sdkContext, method, rootApiVersions, uri),
+    generateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
+    generateConvenienceMethod: generateConvenience,
+    crossLanguageDefinitionId: method.crossLanguageDefinitionId,
+    decorators: method.decorators,
+    examples: method.operation.examples
       ? fromSdkHttpExamples(sdkContext, method.operation.examples, parameterMap, responseMap)
       : undefined,
   };
