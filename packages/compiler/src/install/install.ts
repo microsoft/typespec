@@ -121,9 +121,39 @@ async function installPackageManager(
     `Move temporary directory ${tempDir} to install directory ${installDir}`,
   );
 
-  await rename(tempDir, installDir);
+  await renameSafe(tempDir, installDir);
   tracer.trace("downloaded", `Downloaded and extracted at ${installDir}`);
   return extractResult;
+}
+
+async function renameSafe(oldPath: string, newPath: string) {
+  if (process.platform === `win32`) {
+    await renameUnderWindows(oldPath, newPath);
+  } else {
+    await rename(oldPath, newPath);
+  }
+}
+
+async function renameUnderWindows(oldPath: string, newPath: string) {
+  // Windows malicious file analysis blocks files currently under analysis, so we need to wait for file release
+  const retries = 5;
+  for (let i = 0; i < retries; i++) {
+    try {
+      await rename(oldPath, newPath);
+      break;
+    } catch (err) {
+      if (((err as any).code === `ENOENT` || (err as any).code === `EPERM`) && i < retries - 1) {
+        await delay(100 * 2 ** i);
+        continue;
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function installTypeSpecDependencies(
