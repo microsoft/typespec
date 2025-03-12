@@ -50,10 +50,10 @@ export {
   isQueryParam,
   isStatusCode,
   setAuthentication,
-  /** @internal */
-  setStatusCode,
   type HttpServer,
 } from "./decorators.js";
+/** @internal */
+export { setStatusCode } from "./decorators.js";
 export type { HttpProperty } from "./http-property.js";
 export {
   HttpVisibilityProvider,
