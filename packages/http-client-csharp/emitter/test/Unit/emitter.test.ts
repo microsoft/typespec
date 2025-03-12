@@ -1,7 +1,7 @@
-import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { EmitContext, Program } from "@typespec/compiler";
 import { createEmitterContext } from "./utils/test-util.js";
-import { $onEmit } from "../../src/emitter.js"; // Import AFTER mocks
+import { $onEmit } from "../../src/emitter.js";
 import { execCSharpGenerator } from "../../src/lib/utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
 import { statSync } from "fs";
