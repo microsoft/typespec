@@ -2,12 +2,11 @@ vi.resetModules();
 
 import { EmitContext, Program } from "@typespec/compiler";
 import { statSync } from "fs";
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { $onEmit } from "../../src/emitter.js";
 import { execCSharpGenerator } from "../../src/lib/utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
 import { createEmitterContext } from "./utils/test-util.js";
-
 
 describe("Expected execCSharpGenerator args are passed", () => {
   afterAll(() => {
