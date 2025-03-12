@@ -32,6 +32,7 @@ import {
   InputUnknownExampleValue,
   OperationResponseExample,
 } from "../type/input-examples.js";
+import { InputParameter } from "../type/input-parameter.js";
 import {
   InputArrayType,
   InputDictionaryType,
@@ -42,7 +43,6 @@ import {
 } from "../type/input-type.js";
 import { fromSdkHttpOperationResponse } from "./operation-converter.js";
 import { fromSdkType } from "./type-converter.js";
-import { InputParameter } from "../type/input-parameter.js";
 
 export function fromSdkHttpExamples(
   sdkContext: CSharpEmitterContext,

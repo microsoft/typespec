@@ -6,7 +6,6 @@ import {
   SdkBuiltInKinds,
   SdkContext,
   SdkHttpOperation,
-  SdkHttpParameter,
   SdkHttpResponse,
   SdkModelPropertyType,
   SdkServiceMethod,

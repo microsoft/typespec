@@ -4,20 +4,18 @@
 import {
   SdkClientType,
   SdkContext,
-  SdkModelPropertyType,
   SdkHttpOperation,
-  SdkHttpParameter,
   SdkHttpResponse,
+  SdkModelPropertyType,
   SdkType,
-  SdkBodyModelPropertyType,
 } from "@azure-tools/typespec-client-generator-core";
+import { Type } from "@typespec/compiler";
 import { Logger } from "./lib/logger.js";
 import { CSharpEmitterOptions } from "./options.js";
+import { InputClient } from "./type/input-client.js";
 import { InputParameter } from "./type/input-parameter.js";
 import { InputEnumType, InputModelProperty, InputModelType, InputType } from "./type/input-type.js";
 import { OperationResponse } from "./type/operation-response.js";
-import { Type } from "@typespec/compiler";
-import { InputClient } from "./type/input-client.js";
 
 /**
  * The emitter context for the CSharp emitter.
@@ -52,7 +50,10 @@ export class SdkTypeCache {
     this.crossLanguageDefinitionIds.set(sdkClient.crossLanguageDefinitionId, sdkClient.__raw.type);
   }
 
-  updateSdkPropertyReferences(sdkProperty: SdkModelPropertyType, inputProperty: InputParameter | InputModelProperty) {
+  updateSdkPropertyReferences(
+    sdkProperty: SdkModelPropertyType,
+    inputProperty: InputParameter | InputModelProperty,
+  ) {
     this.properties.set(sdkProperty, inputProperty);
     this.crossLanguageDefinitionIds.set(sdkProperty.crossLanguageDefinitionId, sdkProperty.__raw);
   }
