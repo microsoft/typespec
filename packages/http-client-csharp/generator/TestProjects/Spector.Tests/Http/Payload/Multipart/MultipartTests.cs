@@ -66,6 +66,24 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
         });
 
         [SpectorTest]
+        public Task BasicSyncConv() => Test((host) =>
+        {
+            var id = "123";
+            using var imageStream = File.OpenRead(SampleJpgPath);
+
+            // using stream
+            var profileImage = new MultiPartFileWithOptionalMetadata(imageStream)
+            {
+                Filename = "profileImage.jpg",
+            };
+            var request = new MultiPartRequest(id, profileImage);
+            var response = new MultiPartClient(host, null).GetFormDataClient().Basic(request);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+            return Task.CompletedTask;
+        });
+
+        [SpectorTest]
         public Task BasicConvUsingBinaryData() => Test(async (host) =>
         {
             var id = "123";
@@ -285,6 +303,34 @@ namespace TestProjects.Spector.Tests.Http.Payload.Multipart
             var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(request);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [SpectorTest]
+        public Task FileArrayAndBasicSyncConv() => Test((host) =>
+        {
+            var id = "123";
+            Address address = new Address("X");
+
+            using var imageStream1 = File.OpenRead(SampleJpgPath);
+            var profileImage = new MultiPartFileWithOptionalMetadata(imageStream1)
+            {
+                Filename = "profileImage.jpg",
+            };
+
+            using var imageStream2 = File.OpenRead(SamplePngPath);
+            using var imageStream3 = File.OpenRead(SamplePngPath);
+            var pictures = new List<MultiPartFileWithOptionalMetadata>()
+            {
+                new(imageStream2) { Filename = "sample.png" },
+                new(imageStream3) { Filename = "sample.png" },
+            };
+
+            var request = new ComplexPartsRequest(id, address, profileImage, pictures);
+
+            var response = new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasic(request);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+            return Task.CompletedTask;
         });
 
         [SpectorTest]
