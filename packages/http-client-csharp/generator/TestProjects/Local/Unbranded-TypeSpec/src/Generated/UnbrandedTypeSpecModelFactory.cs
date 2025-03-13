@@ -156,16 +156,5 @@ namespace UnbrandedTypeSpec
 
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
         }
-
-        /// <summary> The ListWithContinuationTokenResponse. </summary>
-        /// <param name="things"></param>
-        /// <param name="nextToken"></param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.ListWithContinuationTokenResponse"/> instance for mocking. </returns>
-        public static ListWithContinuationTokenResponse ListWithContinuationTokenResponse(IEnumerable<Thing> things = default, string nextToken = default)
-        {
-            things ??= new ChangeTrackingList<Thing>();
-
-            return new ListWithContinuationTokenResponse(things?.ToList(), nextToken, additionalBinaryDataProperties: null);
-        }
     }
 }

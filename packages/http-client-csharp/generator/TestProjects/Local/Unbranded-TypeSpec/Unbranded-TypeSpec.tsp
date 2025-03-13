@@ -393,9 +393,20 @@ op ListWithNextLink(): {
 @doc("List things with continuation token")
 @convenientAPI(true)
 @list
-op ListWithContinuationToken(@query @continuationToken token: string): {
+op ListWithContinuationToken(@query @continuationToken token?: string): {
   @pageItems
   things: Thing[];
 
   @continuationToken nextToken?: string;
+};
+
+@route("/continuation/header")
+@doc("List things with continuation token header response")
+@convenientAPI(true)
+@list
+op ListWithContinuationTokenHeaderResponse(@query @continuationToken token?: string): {
+  @pageItems
+  things: Thing[];
+
+  @header @continuationToken nextToken?: string;
 };

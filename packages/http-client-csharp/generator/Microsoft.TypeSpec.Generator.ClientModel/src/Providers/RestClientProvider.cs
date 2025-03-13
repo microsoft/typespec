@@ -105,7 +105,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var classifier = GetClassifier(operation);
-            var endpoint = operation.Paging?.NextLink != null ? ScmKnownParameters.Endpoint.AsExpression() : ClientProvider.EndpointField.AsValueExpression;
 
             return new MethodProvider(
                 signature,
@@ -116,7 +115,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
-                    uri.Reset(endpoint).Terminate(),
+                    operation.Paging?.NextLink != null ?
+                        uri.Reset(ScmKnownParameters.NextPage.AsExpression().NullCoalesce(ClientProvider.EndpointField)).Terminate() :
+                        uri.Reset(ClientProvider.EndpointField).Terminate(),
                     .. ConditionallyAppendPathParameters(operation, uri, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.SetUri(uri),
@@ -134,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return
                 [
-                    new IfStatement(ScmKnownParameters.AppendPath)
+                    new IfStatement(ScmKnownParameters.NextPage.Equal(Null))
                     {
                         new MethodBodyStatements([..AppendPathParameters(uri, operation, paramMap)])
                     }
@@ -527,7 +528,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
-            int path = 2;
+            int paging = 0;
+            int path = 1;
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
@@ -536,9 +538,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (InputParameter inputParam in operation.Parameters)
             {
-                if ((inputParam.Kind != InputOperationParameterKind.Method && inputParam.Kind != InputOperationParameterKind.Spread)
-                    || TryGetSpecialHeaderParam(inputParam, out var _))
+                if ((inputParam.Kind != InputOperationParameterKind.Method &&
+                     inputParam.Kind != InputOperationParameterKind.Spread) ||
+                    TryGetSpecialHeaderParam(inputParam, out _))
+                {
                     continue;
+                }
 
                 var spreadInputModel = inputParam.Kind == InputOperationParameterKind.Spread ? GetSpreadParameterModel(inputParam) : null;
 
@@ -626,11 +631,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     parameter.DefaultValue = null;
                 }
 
-                // Next link operations will always have an endpoint parameter in the CreateRequest method and an "appendPath" parameter
                 if (operation.Paging?.NextLink != null)
                 {
-                    sortedParams.Add(0, ScmKnownParameters.Endpoint);
-                    sortedParams.Add(1, ScmKnownParameters.AppendPath);
+                    // Next link operations will always have an endpoint parameter of the CreateRequest method and an "appendPath" parameter
+                    sortedParams.Add(paging++, ScmKnownParameters.NextPage);
                 }
             }
 

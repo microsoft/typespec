@@ -2,15 +2,35 @@
 
 #nullable disable
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Payload.Pageable;
 
 namespace Payload.Pageable._ServerDrivenPagination.ContinuationToken
 {
-    public partial class RequestQueryResponseBodyResponse
+    /// <summary> The RequestQueryResponseBodyResponse. </summary>
+    internal partial class RequestQueryResponseBodyResponse
     {
-        public IList<Pet> Pets => throw null;
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        public string NextToken => throw null;
+        internal RequestQueryResponseBodyResponse(IEnumerable<Pet> pets)
+        {
+            Pets = pets.ToList();
+        }
+
+        internal RequestQueryResponseBodyResponse(IList<Pet> pets, string nextToken, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        {
+            Pets = pets;
+            NextToken = nextToken;
+            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+        }
+
+        /// <summary> Gets the Pets. </summary>
+        public IList<Pet> Pets { get; }
+
+        /// <summary> Gets the NextToken. </summary>
+        public string NextToken { get; }
     }
 }

@@ -12,19 +12,19 @@ namespace UnbrandedTypeSpec
     internal partial class ListWithNextLinkCollectionResultOfT : CollectionResult<Thing>
     {
         private readonly UnbrandedTypeSpecClient _client;
-        private readonly Uri _initialUri;
+        private readonly Uri _nextPage;
         private readonly RequestOptions _options;
 
-        public ListWithNextLinkCollectionResultOfT(UnbrandedTypeSpecClient client, Uri initialUri, RequestOptions options)
+        public ListWithNextLinkCollectionResultOfT(UnbrandedTypeSpecClient client, Uri nextPage, RequestOptions options)
         {
             _client = client;
-            _initialUri = initialUri;
+            _nextPage = nextPage;
             _options = options;
         }
 
         public override IEnumerable<ClientResult> GetRawPages()
         {
-            PipelineMessage message = _client.CreateListWithNextLinkRequest(_initialUri, true, _options);
+            PipelineMessage message = _client.CreateListWithNextLinkRequest(_nextPage, _options);
             Uri nextPageUri = null;
             while (true)
             {
@@ -36,14 +36,14 @@ namespace UnbrandedTypeSpec
                 {
                     yield break;
                 }
-                message = _client.CreateListWithNextLinkRequest(nextPageUri, false, _options);
+                message = _client.CreateListWithNextLinkRequest(nextPageUri, _options);
             }
         }
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPageUri = ((ListWithNextLinkResponse)page).Next;
-            return ContinuationToken.FromBytes(BinaryData.FromString(nextPageUri.AbsoluteUri));
+            Uri nextPage = ((ListWithNextLinkResponse)page).Next;
+            return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
         }
 
         protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)

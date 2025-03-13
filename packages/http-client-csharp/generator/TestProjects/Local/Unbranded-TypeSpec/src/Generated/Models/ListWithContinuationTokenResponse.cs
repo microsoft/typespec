@@ -9,7 +9,7 @@ using System.Linq;
 namespace UnbrandedTypeSpec
 {
     /// <summary> The ListWithContinuationTokenResponse. </summary>
-    public partial class ListWithContinuationTokenResponse
+    internal partial class ListWithContinuationTokenResponse
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;

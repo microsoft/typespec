@@ -13,19 +13,19 @@ namespace UnbrandedTypeSpec
     internal partial class ListWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly UnbrandedTypeSpecClient _client;
-        private readonly Uri _initialUri;
+        private readonly Uri _nextPage;
         private readonly RequestOptions _options;
 
-        public ListWithNextLinkAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, Uri initialUri, RequestOptions options)
+        public ListWithNextLinkAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, Uri nextPage, RequestOptions options)
         {
             _client = client;
-            _initialUri = initialUri;
+            _nextPage = nextPage;
             _options = options;
         }
 
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateListWithNextLinkRequest(_initialUri, true, _options);
+            PipelineMessage message = _client.CreateListWithNextLinkRequest(_nextPage, _options);
             Uri nextPageUri = null;
             while (true)
             {
@@ -37,14 +37,14 @@ namespace UnbrandedTypeSpec
                 {
                     yield break;
                 }
-                message = _client.CreateListWithNextLinkRequest(nextPageUri, false, _options);
+                message = _client.CreateListWithNextLinkRequest(nextPageUri, _options);
             }
         }
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPageUri = ((ListWithNextLinkResponse)page).Next;
-            return ContinuationToken.FromBytes(BinaryData.FromString(nextPageUri.AbsoluteUri));
+            Uri nextPage = ((ListWithNextLinkResponse)page).Next;
+            return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
         }
 
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)

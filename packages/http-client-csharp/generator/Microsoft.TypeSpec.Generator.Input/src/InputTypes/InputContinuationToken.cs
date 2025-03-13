@@ -9,13 +9,13 @@ namespace Microsoft.TypeSpec.Generator.Input
     {
         public InputParameter Parameter { get; }
         public IReadOnlyList<string> ResponseSegments { get; }
-        public InputResponseLocation InputResponseLocation { get; }
+        public InputResponseLocation ResponseLocation { get; }
 
-        public InputContinuationToken(InputParameter parameter, IReadOnlyList<string> responseSegments, InputResponseLocation inputResponseLocation)
+        public InputContinuationToken(InputParameter parameter, IReadOnlyList<string> responseSegments, InputResponseLocation responseLocation)
         {
             Parameter = parameter;
             ResponseSegments = responseSegments;
-            InputResponseLocation = inputResponseLocation;
+            ResponseLocation = responseLocation;
         }
     }
 }

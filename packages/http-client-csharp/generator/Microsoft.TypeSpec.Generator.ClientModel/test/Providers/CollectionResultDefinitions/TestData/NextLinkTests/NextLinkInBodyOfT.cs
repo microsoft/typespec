@@ -13,19 +13,19 @@ namespace Sample
     internal partial class GetCatsCollectionResultOfT : global::System.ClientModel.CollectionResult<global::Sample.Models.Cat>
     {
         private readonly global::Sample.CatClient _client;
-        private readonly global::System.Uri _initialUri;
+        private readonly global::System.Uri _nextPage;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public GetCatsCollectionResultOfT(global::Sample.CatClient client, global::System.Uri initialUri, global::System.ClientModel.Primitives.RequestOptions options)
+        public GetCatsCollectionResultOfT(global::Sample.CatClient client, global::System.Uri nextPage, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
-            _initialUri = initialUri;
+            _nextPage = nextPage;
             _options = options;
         }
 
         public override global::System.Collections.Generic.IEnumerable<global::System.ClientModel.ClientResult> GetRawPages()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_initialUri, true, _options);
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_nextPage, _options);
             global::System.Uri nextPageUri = null;
             while (true)
             {
@@ -37,14 +37,14 @@ namespace Sample
                 {
                     yield break;
                 }
-                message = _client.CreateGetCatsRequest(nextPageUri, false, _options);
+                message = _client.CreateGetCatsRequest(nextPageUri, _options);
             }
         }
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            global::System.Uri nextPageUri = ((global::Sample.Models.Page)page).NextCat;
-            return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPageUri.AbsoluteUri));
+            global::System.Uri nextPage = ((global::Sample.Models.Page)page).NextCat;
+            return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.AbsoluteUri));
         }
 
         protected override global::System.Collections.Generic.IEnumerable<global::Sample.Models.Cat> GetValuesFromPage(global::System.ClientModel.ClientResult page)
