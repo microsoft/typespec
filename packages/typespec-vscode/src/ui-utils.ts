@@ -1,4 +1,3 @@
-import { readdir } from "fs/promises";
 import vscode, {
   CancellationToken,
   OpenDialogOptions,
@@ -10,7 +9,7 @@ import vscode, {
 } from "vscode";
 import logger from "./log/logger.js";
 import { Result, ResultCode } from "./types.js";
-import { createPromiseWithCancelAndTimeout } from "./utils.js";
+import { createPromiseWithCancelAndTimeout, tryReadDir } from "./utils.js";
 
 interface QuickPickOptionsWithExternalLink extends QuickPickItem {
   externalLink?: string;
@@ -68,7 +67,11 @@ export async function checkAndConfirmEmptyFolder(
   placeholder: string = "Selected folder is not empty. Do you want to continue?",
   title?: string,
 ): Promise<boolean | undefined> {
-  const files = await readdir(targetFolder);
+  const files = await tryReadDir(targetFolder);
+  if (files === undefined) {
+    logger.error(`Failed to read the selected folder: ${targetFolder}`);
+    return false;
+  }
   if (files.length === 0) {
     return true;
   }
