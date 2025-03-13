@@ -268,7 +268,7 @@ Scenarios.Encode_Datetime_ResponseHeader_rfc7231 = createResponseHeaderServerTes
 Scenarios.Encode_Datetime_ResponseHeader_unixTimestamp = createResponseHeaderServerTests(
   "/encode/datetime/responseheader/unix-timestamp",
   {
-    value: "1686566864",
+    value: 1686566864,
   },
   1686566864,
 );
