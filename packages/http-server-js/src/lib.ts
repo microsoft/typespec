@@ -28,6 +28,9 @@ const EmitterOptionsSchema: JSONSchemaType<JsEmitterOptions> = {
 
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/http-server-js",
+  capabilities: {
+    dryRun: true,
+  },
   requireImports: [],
   emitter: {
     options: EmitterOptionsSchema,
