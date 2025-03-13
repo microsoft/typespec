@@ -159,52 +159,7 @@ namespace Pets {
 
 ## Content type
 
-[See content types docs](./content-types.md)
-
-### Default behavior
-
-Depending on the body of the operation http library will assume different content types:
-
-- `bytes`: `application/octet-stream`
-- `string`: `text/plain`
-- an `object` or anything else: `application/json`
-
-**Examples:**
-
-```typespec
-op download(): bytes; // response content type is application/octet-stream
-op upload(@body file: bytes): void; // request content type is application/octet-stream
-op getContent(): string; // response content type is text/plain
-op getPet(): {
-  // response content type is application/json
-  name: string;
-};
-```
-
-### Specify content type
-
-The content type for an operation can be specified by including a header parameter named `contentType`.
-
-#### Request content type
-
-```typespec
-op uploadImage(@header contentType: "image/png", @body image: bytes): void;
-```
-
-#### Response content type:
-
-```typespec
-op downloadImage(): {
-  @header contentType: "image/png";
-  @body image: bytes;
-};
-```
-
-#### Multiple content types
-
-```typespec
-op uploadImage(@header contentType: "image/png" | "image/jpeg", @body image: bytes): void;
-```
+[See the documentation of Content-Types](./content-types.md).
 
 ## Built-in response shapes
 
