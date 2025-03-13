@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.base.util.Jso
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a code model.
@@ -134,5 +135,11 @@ public class CodeModel extends Client {
                 reader.skipChildren();
             }
         });
+    }
+
+    private List<OperationGroup> getClientOperationGroups() {
+        return getClients().stream()
+            .flatMap(client -> client.getOperationGroups().stream())
+            .collect(Collectors.toList());
     }
 }
