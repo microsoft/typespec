@@ -1,3 +1,7 @@
+parameters:
+  - name: azLogin
+    type: boolean
+    default: false
 jobs:
   - job: e2e
     displayName: E2E Tests
@@ -16,13 +20,21 @@ jobs:
       - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
       - template: /eng/tsp-core/pipelines/templates/build.yml
 
-      - script: pnpm run test:e2e
-        displayName: E2E Tests
+      - ${{ if parameters.azLogin }}:
+          - task: AzureCLI@1
+            displayName: E2E Tests
+            inputs:
+              azureSubscription: "Azure SDK Engineering System"
+              scriptLocation: inlineScript
+              inlineScript: pnpm run test:e2e
+      - ${{ else }}:
+          - script: pnpm run test:e2e
+            displayName: E2E Tests
 
       - task: 1ES.PublishPipelineArtifact@1
         inputs:
           path: ./packages/playground-website/test-results
-          artifact: "uitestresults-${{ parameters.os }}-node-${{ parameters.nodeVersion }}"
+          artifact: "uitestresults-e2e"
         displayName: Publish UI tests artifacts
         condition: ne(variables['Agent.OS'], 'Windows_NT')
 

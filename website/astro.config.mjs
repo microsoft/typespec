@@ -60,10 +60,7 @@ export default defineConfig({
     remarkPlugins: [remarkHeadingID],
     rehypePlugins: [
       rehypeMermaid,
-      [
-        rehypeAstroRelativeMarkdownLinks,
-        { base, contentPath: "src/content/docs", trailingSlash: "always" },
-      ],
+      [rehypeAstroRelativeMarkdownLinks, { base, collectionBase: false, trailingSlash: "always" }],
     ],
     shikiConfig: {
       langs: [TypeSpecLang],
