@@ -99,7 +99,7 @@ function addLroInformation(
 }
 
 function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): string | undefined {
-  if (segments[0]?.kind === "property") {
+  if (segments[0].kind === "property") {
     return segments
       .filter((s) => s.kind === "property")
       .map((s) => s.serializationOptions.json?.name ?? "")
@@ -109,49 +109,13 @@ function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): stri
   return undefined;
 }
 
-function getWireNameForContinuationToken(
-  context: PythonSdkContext<SdkHttpOperation>,
-  segments: SdkModelPropertyType[],
-  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  input: boolean = true,
-): string | undefined {
-  const result = getWireNameFromPropertySegments(segments);
-  if (result) {
-    return result;
-  }
-
-  if (input) {
-    for (const parameter of method.operation.parameters) {
-      if (isContinuationToken(parameter, method, input)) {
-        return parameter.serializedName;
-      }
-    }
-  } else {
-    for (const response of method.operation.responses) {
-      for (const header of response.headers) {
-        if (isContinuationToken(header, method, input)) {
-          return header.serializedName;
-        }
-      }
-    }
-  }
-
-  const direction = input ? "request" : "response";
-  reportDiagnostic(context.program, {
-    code: "invalid-continuation-token-wire-name",
-    target: NoTarget,
-    format: { operationId: method.name, direction: direction },
-  });
-  return undefined;
-}
-
 function getWireNameWithDiagnostics(
   context: PythonSdkContext<SdkHttpOperation>,
   segments: SdkModelPropertyType[] | undefined,
   code: "invalid-paging-items" | "invalid-nextlink" | "invalid-lro-result",
   method?: SdkServiceMethod<SdkHttpOperation>,
 ): string | undefined {
-  if (segments) {
+  if (segments && segments.length > 0) {
     const result = getWireNameFromPropertySegments(segments);
     if (result) {
       return result;
@@ -167,54 +131,52 @@ function getWireNameWithDiagnostics(
   return undefined;
 }
 
-function getLocationForContinuationToken(
+function buildContinuationToken(
   context: PythonSdkContext<SdkHttpOperation>,
-  segments: SdkModelPropertyType[],
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  input: boolean,
-): string | undefined {
+  segments: SdkModelPropertyType[],
+  input: boolean = true,
+): Record<string, any> {
   if (segments[0].kind === "property") {
-    return "body";
-  }
-  if (input) {
+    const wireName = getWireNameFromPropertySegments(segments);
+    if (wireName) {
+      return { wireName, location: "body" };
+    }
+  } else if (input) {
     for (const parameter of method.operation.parameters) {
-      if (isContinuationToken(parameter, method, input)) {
-        return parameter.kind;
+      if (isContinuationToken(parameter, method)) {
+        return { wireName: parameter.serializedName, location: parameter.kind };
       }
     }
   } else {
     for (const response of method.operation.responses) {
       for (const header of response.headers) {
-        if (isContinuationToken(header, method, input)) {
-          return "header";
+        if (isContinuationToken(header, method, false)) {
+          return { wireName: header.serializedName, location: "header" };
         }
       }
     }
   }
-
-  const direction = input ? "request" : "response";
   reportDiagnostic(context.program, {
-    code: "invalid-continuation-token-location",
+    code: "invalid-continuation-token",
     target: NoTarget,
-    format: { operationId: method.name, direction: direction },
+    format: { operationId: method.name, direction: input ? "request" : "response" },
   });
-  return undefined;
+  return {};
 }
 
-function buildContinuationToken(
+function buildAllContinuationToken(
   context: PythonSdkContext<SdkHttpOperation>,
-  segments: SdkModelPropertyType[] | undefined,
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
-  input: boolean = true,
 ): Record<string, any> {
-  if (segments && segments.length > 0) {
-    const wireName = getWireNameForContinuationToken(context, segments, method, input);
-    const location = getLocationForContinuationToken(context, segments, method, input);
-    if (wireName !== undefined && location !== undefined) {
-      return { wireName, location };
-    }
+  const parameterSegments = method.pagingMetadata.continuationTokenParameterSegments ?? [];
+  const responseSegments = method.pagingMetadata.continuationTokenResponseSegments ?? [];
+  if (parameterSegments.length > 0 && responseSegments.length > 0) {
+    return {
+      input: buildContinuationToken(context, method, parameterSegments),
+      output: buildContinuationToken(context, method, responseSegments, false),
+    };
   }
-
   return {};
 }
 
@@ -256,17 +218,7 @@ function addPagingInformation(
     itemType,
     description: method.doc ?? "",
     summary: method.summary,
-    continuationTokenRequest: buildContinuationToken(
-      context,
-      method.pagingMetadata.continuationTokenParameterSegments,
-      method,
-    ),
-    continuationTokenResponse: buildContinuationToken(
-      context,
-      method.pagingMetadata.continuationTokenResponseSegments,
-      method,
-      false,
-    ),
+    continuationToken: buildAllContinuationToken(context, method),
   };
 }
 

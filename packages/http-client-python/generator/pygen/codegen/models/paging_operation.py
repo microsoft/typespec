@@ -58,12 +58,11 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.override_success_response_to_200 = override_success_response_to_200
         self.pager_sync: str = yaml_data.get("pagerSync") or f"{self.code_model.core_library}.paging.ItemPaged"
         self.pager_async: str = yaml_data.get("pagerAsync") or f"{self.code_model.core_library}.paging.AsyncItemPaged"
-        self.continuation_token_request: Dict[str, Any] = yaml_data.get("continuationTokenRequest", {})
-        self.continuation_token_response: Dict[str, Any] = yaml_data.get("continuationTokenResponse", {})
+        self.continuation_token: Dict[str, Any] = yaml_data.get("continuationToken", {})
 
     @property
     def has_continuation_token(self) -> bool:
-        return bool(self.continuation_token_request and self.continuation_token_response)
+        return bool(self.continuation_token.get("input") and self.continuation_token.get("output"))
 
     @property
     def next_variable_name(self) -> str:

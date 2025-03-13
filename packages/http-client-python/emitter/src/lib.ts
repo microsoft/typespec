@@ -101,16 +101,10 @@ const libDef = {
         default: paramMessage`No valid LRO result for operation '${"operationId"}'.`,
       },
     },
-    "invalid-continuation-token-wire-name": {
+    "invalid-continuation-token": {
       severity: "warning",
       messages: {
-        default: paramMessage`No valid wire name of continuation token in '${"direction"}' for operation '${"operationId"}'.`,
-      },
-    },
-    "invalid-continuation-token-location": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`No valid location of continuation token in '${"direction"}' for operation '${"operationId"}'.`,
+        default: paramMessage`No valid continuation token in '${"direction"}' for operation '${"operationId"}'.`,
       },
     },
   },
