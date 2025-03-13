@@ -2,6 +2,7 @@ import { SdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { _defaultPluginName, tspOutputFileName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger-level.js";
+import { CodeModel } from "./type/code-model.js";
 
 /**
  * The emitter options for the CSharp emitter.
@@ -79,6 +80,7 @@ export const defaultOptions = {
   logLevel: LoggerLevel.INFO,
   "plugin-name": _defaultPluginName,
   "emitter-extension-path": undefined,
+  "update-code-model": (model: CodeModel) => model
 };
 
 /**
