@@ -2,7 +2,7 @@
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
 changeKind: internal
 packages:
-  - "@typespec/http-client-python"
+  - "@typespec/compiler"
 ---
 
-Remove m2r dependency in favor of internally converting md to rst.
+Fix package manager install on windows

@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.7.1
+
+### Bug Fixes
+
+- [6579d19](https://github.com/microsoft/typespec/commit/6579d19b4ce852aa62c78b1e1ce871ecd884a554) pass combined types to python generator
+
+
 ## 0.7.0
 
 ### Features

@@ -36,6 +36,6 @@ if __name__ == "__main__":
 
     # pre-process and run black
     args, unknown_args = parse_args()
-    preprocess.PreProcessPlugin(output_folder=args.output_folder, cadl_file=args.cadl_file, **unknown_args).process()
-    codegen.CodeGenerator(output_folder=args.output_folder, cadl_file=args.cadl_file, **unknown_args).process()
+    preprocess.PreProcessPlugin(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
+    codegen.CodeGenerator(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
     black.BlackScriptPlugin(output_folder=args.output_folder, **unknown_args).process()
