@@ -315,7 +315,7 @@ class Parameter(_ParameterBase):
     def hide_in_operation_signature(self) -> bool:
         if self.code_model.options["version_tolerant"] and self.client_name == "maxpagesize":
             return True
-        return False
+        return self.is_continuation_token
 
     @property
     def in_method_signature(self) -> bool:

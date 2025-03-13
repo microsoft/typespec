@@ -630,7 +630,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             operation_name=f"('{builder.name}')" if builder.group_name == "" else "",
         )
         for p in builder.parameters.parameters:
-            if p.hide_in_operation_signature:
+            if p.hide_in_operation_signature and not p.is_continuation_token:
                 kwargs.append(f'{p.client_name} = kwargs.pop("{p.client_name}", None)')
         cls_annotation = builder.cls_type_annotation(
             async_mode=self.async_mode, serialize_namespace=self.serialize_namespace
