@@ -34,7 +34,7 @@ jobs:
       - task: 1ES.PublishPipelineArtifact@1
         inputs:
           path: ./packages/playground-website/test-results
-          artifact: "uitestresults-${{ parameters.os }}-node-${{ parameters.nodeVersion }}"
+          artifact: "uitestresults-e2e"
         displayName: Publish UI tests artifacts
         condition: ne(variables['Agent.OS'], 'Windows_NT')
 
