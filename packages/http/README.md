@@ -42,7 +42,6 @@ Available ruleSets:
 - [`@get`](#@get)
 - [`@head`](#@head)
 - [`@header`](#@header)
-- [`@includeInapplicableMetadataInPayload`](#@includeinapplicablemetadatainpayload)
 - [`@multipartBody`](#@multipartbody)
 - [`@patch`](#@patch)
 - [`@path`](#@path)
@@ -294,24 +293,6 @@ op read(): {
 }; // headerName: content-type
 op update(@header ifMatch: string): void; // headerName: if-match
 ```
-
-#### `@includeInapplicableMetadataInPayload`
-
-Specify if inapplicable metadata should be included in the payload for the given entity.
-
-```typespec
-@TypeSpec.Http.includeInapplicableMetadataInPayload(value: valueof boolean)
-```
-
-##### Target
-
-`unknown`
-
-##### Parameters
-
-| Name  | Type              | Description                                                     |
-| ----- | ----------------- | --------------------------------------------------------------- |
-| value | `valueof boolean` | If true, inapplicable metadata will be included in the payload. |
 
 #### `@multipartBody`
 
