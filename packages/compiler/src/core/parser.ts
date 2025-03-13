@@ -1954,6 +1954,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }): IdentifierNode {
     if (isKeyword(token())) {
       error({ code: "reserved-identifier" });
+      return createMissingIdentifier();
     } else if (isReservedKeyword(token())) {
       if (!options?.allowReservedIdentifier) {
         error({ code: "reserved-identifier", messageId: "future", format: { name: tokenValue() } });
