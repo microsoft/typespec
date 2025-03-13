@@ -21,6 +21,7 @@ export interface CSharpEmitterOptions extends SdkEmitterOptions {
   "disable-xml-docs"?: boolean;
   "plugin-name"?: string;
   "emitter-extension-path"?: string;
+  "update-code-model"?: (model: CodeModel) => CodeModel;
 }
 
 /**
@@ -58,6 +59,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
     "disable-xml-docs": { type: "boolean", nullable: true },
     "plugin-name": { type: "string", nullable: true },
     "emitter-extension-path": { type: "string", nullable: true },
+    "update-code-model": { type: "object", nullable: true },
   },
   required: [],
 };
