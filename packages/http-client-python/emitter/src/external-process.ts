@@ -5,10 +5,10 @@ import { mkdir, writeFile } from "fs/promises";
 import jsyaml from "js-yaml";
 import os from "os";
 
-const cadlCodeGenTempDir = joinPaths(os.tmpdir(), "cadl-codegen");
+const tspCodeGenTempDir = joinPaths(os.tmpdir(), "tsp-codegen");
 
 export function createTempPath(extension: string, prefix: string = "") {
-  return joinPaths(cadlCodeGenTempDir, prefix + randomUUID() + extension);
+  return joinPaths(tspCodeGenTempDir, prefix + randomUUID() + extension);
 }
 
 /**
@@ -18,7 +18,7 @@ export function createTempPath(extension: string, prefix: string = "") {
  * @return the absolute path to the created codemodel.
  */
 export async function saveCodeModelAsYaml(name: string, codemodel: unknown): Promise<string> {
-  await mkdir(cadlCodeGenTempDir, { recursive: true });
+  await mkdir(tspCodeGenTempDir, { recursive: true });
   const filename = createTempPath(".yaml", name);
   const yamlStr = jsyaml.dump(codemodel);
   await writeFile(filename, yamlStr);
