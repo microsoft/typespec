@@ -10,38 +10,19 @@ import { Aside, Badge, Tabs, TabItem, FileTree, Steps } from "@astrojs/starlight
 
 TypeSpec can be used in two ways:
 
-- Npm package for use with Node.js and other package managers.
+- Npm package for use with [Node.js](https://nodejs.org/)
 - A standalone executable without any additional dependencies. <Badge text="Experimental" variant="caution" />
 
 <Tabs>
   <TabItem label="Node.JS">
   
-Install [Node.js LTS](https://nodejs.org/en/download/) and ensure you can run the `npm` command in a command prompt:
-
-```bash
-npm --version
-```
-
-#### Package manager
-
-TypeSpec uses node package linking to manage dependencies. Any package manager that produce a `node_modules` directory should work:
-
-- npm 7+. To update npm, run `npm install -g npm`
-- pnpm
-- yarn
-
-:::caution
-Yarn will not automatically install implicit peerDependencies. TypeSpec libraries rely on this. Watch for warnings for any missing dependencies.
-:::
-
-#### Install tsp (optional)
-
-To have access to the `tsp` command globally, install the `@typespec/compiler` package:
-Altnatively, you can run `npx tsp` instead in any project that has the compiler as a dependency.
+Install [Node.js LTS](https://nodejs.org/en/download/)
 
 ```bash
 npm install -g @typespec/compiler
 ```
+
+[See package manager doc](../handbook/package-manager.md) for more information on package managers.
 
   </TabItem>
   <TabItem label="Standalone (Experimental)">
