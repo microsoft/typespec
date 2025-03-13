@@ -61,13 +61,6 @@ export class TelemetryClient {
     return key;
   }
 
-  public async flush() {
-    // flush function is not exposed by the telemetry client, so we leverage dispose to trigger the flush and recreate the client
-    await this._client?.dispose();
-    this._client = undefined;
-    this.initClient();
-  }
-
   /**
    * DelayMode: the telemetry events will be stored in the state manager and sent later when our extension is started next time
    *            It's useful when the extension will be reloaded or re-intialized for some reason
