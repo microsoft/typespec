@@ -19,10 +19,12 @@ import {
   createEmitterTestHost,
   typeSpecCompile,
 } from "./utils/test-util.js";
+import { CodeModel } from "../../src/index.js";
 
 describe("Expected execCSharpGenerator args are passed", () => {
+  // restoreAllMocks is causing the function missing the original implementation
   afterAll(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   vi.mock("@typespec/compiler", async (importOriginal) => {
@@ -41,6 +43,7 @@ describe("Expected execCSharpGenerator args are passed", () => {
         sdkPackage: {},
         emitContext: args[0],
         program: args[0].program,
+        diagnostics: [],
       };
     }),
   }));
@@ -133,7 +136,8 @@ describe("Test _validateDotNetSdk", () => {
       runner,
     );
     // Restore all mocks before each test
-    vi.restoreAllMocks();
+    // restoreAllMocks is causing the function missing the original implementation
+    vi.clearAllMocks();
   });
 
   it("should return false and report diagnostic when dotnet SDK is not installed.", async () => {
@@ -216,28 +220,28 @@ describe("Test _validateDotNetSdk", () => {
 });
 
 describe("Should apply the update-code-model callback", () => {
-  it("should apply the update-code-model callback", async () => {
+  it("should apply the update-code-model callback just once", async () => {
     const runner = await createEmitterTestHost();
     const program = await typeSpecCompile(
       `
-            op test(
-                @query
-                @encode(DurationKnownEncoding.ISO8601)
-                input: duration
-              ): NoContentResponse;
+        @service
+        namespace MyService {
+          model Test {
+            prop: string;
+          }
+          op func(
+            @body body: Test
+          ): void;
+        }
       `,
       runner,
+      { NoEmit: false },
     );
 
-    const updatedName = "UpdatedName";
     const context = createEmitterContext(program);
-    const updateCodeModel = (model: any) => {
-      model.Name = updatedName;
-      return model;
-    };
-    const obj = { update: updateCodeModel };
-    const updateSpy = vi.spyOn(obj, "update");
-    context.options["update-code-model"] = obj.update;
-    expect(updateSpy.mock.calls.length).toBe(1);
+    const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {return model;});
+    context.options["update-code-model"] = updateCallback;
+    await $onEmit(context);
+    expect(updateCallback).toHaveBeenCalledTimes(1);
   });
 });
