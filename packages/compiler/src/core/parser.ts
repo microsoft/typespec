@@ -1079,6 +1079,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseObjectLiteralProperty(pos: number): ObjectLiteralPropertyNode {
     const id = parseIdentifier({
       message: "property",
+      allowReservedIdentifier: true,
     });
 
     parseExpected(Token.Colon);

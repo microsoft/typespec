@@ -27,6 +27,7 @@ describe("compiler: parser", () => {
     parseEach(reserved.map((x) => `model Foo { ${x}: string}`));
     parseEach(reserved.map((x) => `enum Foo { ${x} }`));
     parseEach(reserved.map((x) => `union Foo { ${x}: string }`));
+    parseEach(reserved.map((x) => `const a = #{ ${x}: string };`));
 
     // Allowed in decorator calls
     parseEach(reserved.map((x) => `@${x} model Foo {}`));
