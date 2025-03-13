@@ -36,7 +36,7 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
 
   const srcGeneratedPath = path.join(context.emitterOutputDir, "src", "generated");
 
-  if (!context.program.compilerOptions.noEmit) {
+  if (!context.program.compilerOptions.dryRun) {
     try {
       const stat = await context.program.host.stat(srcGeneratedPath);
       if (stat.isDirectory()) {

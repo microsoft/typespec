@@ -1,11 +1,12 @@
 import { readdir, rm } from "fs/promises";
+import { tmpdir } from "os";
 import * as semver from "semver";
 import * as vscode from "vscode";
 import logger from "../log/logger.js";
 import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
 import { TspLanguageClient } from "../tsp-language-client.js";
 import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../typespec-utils.js";
-import { createTempDir, parseJsonFromFile, throttle } from "../utils.js";
+import { createTempDir, throttle } from "../utils.js";
 
 const TITLE = "Preview in OpenAPI3";
 
@@ -79,11 +80,13 @@ async function loadOpenApi3PreviewPanel(
     return;
   }
 
+  const tmpRoot = tmpdir() ?? joinPaths(context.extensionPath, "swagger-ui");
+
   if (openApi3PreviewPanels.has(mainTspFile)) {
     // if panel is already opened, there should be a watcher to automatically update the content
     // no need to generate the openapi3 files
     const panel = openApi3PreviewPanels.get(mainTspFile)!;
-    const outputFolder = await getOutputFolder(mainTspFile);
+    const outputFolder = await getOutputFolder(mainTspFile, tmpRoot);
     if (!outputFolder) {
       panel.dispose();
       logger.error(
@@ -97,15 +100,20 @@ async function loadOpenApi3PreviewPanel(
       return;
     }
 
-    const fileContent = await selectAndGetOpenApi3Content(mainTspFile, outputFolder, true, context);
-    if (fileContent === undefined) {
+    const filePath = await selectAndGetOpenApi3FilePath(mainTspFile, outputFolder, true, context);
+    if (filePath === undefined) {
       return;
     }
 
-    void panel.webview.postMessage({ command: "load", param: fileContent });
+    void panel.webview.postMessage({
+      command: "load",
+      param: panel.webview.asWebviewUri(vscode.Uri.file(filePath)).toString(),
+    });
     panel.reveal();
   } else {
-    const getOpenApi3Output = async (selectOutput: boolean): Promise<string | undefined> => {
+    const getOpenApi3OutputFilePath = async (
+      selectOutput: boolean,
+    ): Promise<string | undefined> => {
       return await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -113,7 +121,7 @@ async function loadOpenApi3PreviewPanel(
         },
         async (): Promise<string | undefined> => {
           const srcFolder = getDirectoryPath(mainTspFile);
-          const outputFolder = await getOutputFolder(mainTspFile);
+          const outputFolder = await getOutputFolder(mainTspFile, tmpRoot);
           if (!outputFolder) {
             logger.error("Failed to create temporary folder for OpenAPI3 files", [], {
               showOutput: true,
@@ -131,7 +139,7 @@ async function loadOpenApi3PreviewPanel(
             );
             return;
           } else {
-            return await selectAndGetOpenApi3Content(
+            return await selectAndGetOpenApi3FilePath(
               mainTspFile,
               outputFolder,
               selectOutput,
@@ -142,8 +150,8 @@ async function loadOpenApi3PreviewPanel(
       );
     };
 
-    const fileContent = await getOpenApi3Output(true);
-    if (fileContent === undefined) {
+    const filePath = await getOpenApi3OutputFilePath(true);
+    if (filePath === undefined) {
       return;
     }
 
@@ -154,15 +162,20 @@ async function loadOpenApi3PreviewPanel(
       {
         retainContextWhenHidden: true,
         enableScripts: true,
-        localResourceRoots: [context.extensionUri],
+        localResourceRoots: [context.extensionUri, vscode.Uri.file(tmpRoot)],
       },
     );
     openApi3PreviewPanels.set(mainTspFile, panel);
 
     const watch = vscode.workspace.createFileSystemWatcher("**/*.{tsp}");
     const throttledChangeHandler = throttle(async () => {
-      const content = await getOpenApi3Output(false);
-      void panel.webview.postMessage({ command: "load", param: content });
+      const outputFilePath = await getOpenApi3OutputFilePath(false);
+      if (outputFilePath) {
+        void panel.webview.postMessage({
+          command: "load",
+          param: panel.webview.asWebviewUri(vscode.Uri.file(outputFilePath)).toString(),
+        });
+      }
     }, 1000);
     watch.onDidChange(throttledChangeHandler);
     watch.onDidCreate(throttledChangeHandler);
@@ -177,7 +190,10 @@ async function loadOpenApi3PreviewPanel(
     panel.webview.onDidReceiveMessage(async (message) => {
       switch (message.event) {
         case "initialized":
-          void panel.webview.postMessage({ command: "load", param: fileContent });
+          void panel.webview.postMessage({
+            command: "load",
+            param: panel.webview.asWebviewUri(vscode.Uri.file(filePath)).toString(),
+          });
           break;
         default:
           logger.error(`Unknown WebView event received: ${message}`);
@@ -213,6 +229,7 @@ function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 <link rel="stylesheet" type="text/css" href="${css}" />
+                <style>.swagger-ui .info hgroup.main a {display: none;}</style>
               </head>
               <body class="no-margin-padding full-device-view" style="background-color:white">
                 <div id="swagger-ui"></div>
@@ -226,10 +243,10 @@ function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
   panel.webview.html = html;
 }
 
-async function getOutputFolder(mainTspFile: string): Promise<string | undefined> {
+async function getOutputFolder(mainTspFile: string, tmpRoot: string): Promise<string | undefined> {
   let tmpFolder = openApi3TempFolders.get(mainTspFile);
   if (!tmpFolder) {
-    tmpFolder = await createTempDir();
+    tmpFolder = await createTempDir(tmpRoot, "openapi3-preview-");
     if (tmpFolder) {
       openApi3TempFolders.set(mainTspFile, tmpFolder);
     }
@@ -265,7 +282,7 @@ export async function clearOpenApi3PreviewTempFolders() {
   }
 }
 
-async function selectAndGetOpenApi3Content(
+async function selectAndGetOpenApi3FilePath(
   mainTspFile: string,
   outputFolder: string,
   selectOutput: boolean,
@@ -292,10 +309,10 @@ async function selectAndGetOpenApi3Content(
     const first = outputs[0];
     const filePath = joinPaths(outputFolder, first);
     selectedOpenApi3OutputFiles.set(mainTspFile, filePath);
-    return parseOpenApi3File(filePath);
+    return filePath;
   } else {
     if (selectedOpenApi3OutputFiles.has(mainTspFile) && !selectOutput) {
-      return parseOpenApi3File(selectedOpenApi3OutputFiles.get(mainTspFile)!);
+      return selectedOpenApi3OutputFiles.get(mainTspFile);
     }
     const files = outputs.map<vscode.QuickPickItem & { path: string }>((file) => {
       const filePath = joinPaths(outputFolder, file);
@@ -315,23 +332,10 @@ async function selectAndGetOpenApi3Content(
     });
     if (selected) {
       selectedOpenApi3OutputFiles.set(mainTspFile, selected.path);
-      return parseOpenApi3File(selected.path);
+      return selected.path;
     } else {
       logger.info("No OpenAPI3 file selected");
       return;
     }
   }
-}
-
-async function parseOpenApi3File(filePath: string): Promise<string | undefined> {
-  const json = await parseJsonFromFile(filePath);
-  if (json) {
-    return json;
-  }
-
-  logger.error(`Failed to load OpenAPI3 file: ${filePath}`, [], {
-    showOutput: true,
-    showPopup: true,
-  });
-  return;
 }

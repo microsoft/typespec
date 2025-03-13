@@ -291,7 +291,7 @@ function createOAPIEmitter(
       }
     }
 
-    if (program.compilerOptions.noEmit || program.hasError()) {
+    if (program.compilerOptions.dryRun || program.hasError()) {
       return;
     }
 
