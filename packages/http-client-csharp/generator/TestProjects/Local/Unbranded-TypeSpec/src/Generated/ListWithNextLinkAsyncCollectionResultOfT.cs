@@ -37,7 +37,7 @@ namespace UnbrandedTypeSpec
                 {
                     yield break;
                 }
-                message = _client.CreateListWithNextLinkRequest(nextPageUri, true, _options);
+                message = _client.CreateListWithNextLinkRequest(nextPageUri, false, _options);
             }
         }
 
