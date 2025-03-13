@@ -11,6 +11,7 @@ import { strictEqual } from "assert";
 import { statSync } from "fs";
 import { afterAll, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { $onEmit, _validateDotNetSdk } from "../../src/emitter.js";
+import { CodeModel } from "../../src/index.js";
 import { execAsync, execCSharpGenerator } from "../../src/lib/utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
 import {
@@ -19,7 +20,6 @@ import {
   createEmitterTestHost,
   typeSpecCompile,
 } from "./utils/test-util.js";
-import { CodeModel } from "../../src/index.js";
 
 describe("Expected execCSharpGenerator args are passed", () => {
   // restoreAllMocks is causing the function missing the original implementation
@@ -240,7 +240,9 @@ describe.skip("Should apply the update-code-model callback", () => {
     );
 
     const context = createEmitterContext(program);
-    const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {return model;});
+    const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {
+      return model;
+    });
     context.options["update-code-model"] = updateCallback;
     await $onEmit(context);
     expect(updateCallback).toHaveBeenCalledTimes(1);
