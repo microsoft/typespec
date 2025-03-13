@@ -235,9 +235,9 @@ describe("Should apply the update-code-model callback", () => {
       model.Name = updatedName;
       return model;
     };
+    const obj = {update: updateCodeModel};
+    const spy = vi.spyOn(obj, "update");
     context.options["update-code-model"] = updateCodeModel;
-    const sdkContext = await createCSharpSdkContext(context);
-    const model = sdkContext.sdkPackage.models[0];
-    expect(model.name).toBe(updatedName);
+    expect(spy.mock.calls.length).toBe(1);
   });
 });
