@@ -216,29 +216,22 @@ const LIB_NAMESPACE = [
   "typespec.versioning",
 ];
 
-function getRootTypespecNamespace(context: PythonSdkContext<SdkServiceOperation>): string {
-  if (context.sdkPackage.clients.length > 0) {
-    return context.sdkPackage.clients[0].clientNamespace;
-  }
-  if (context.sdkPackage.models.length > 0) {
+export function getRootNamespace(context: PythonSdkContext<SdkServiceOperation>): string {
+  let rootNamespace = "";
+  if (context.sdkPackage.namespaces.length > 0) {
+    rootNamespace = context.sdkPackage.namespaces[0].fullName;
+  } else if (context.sdkPackage.clients.length > 0) {
+    rootNamespace = context.sdkPackage.clients[0].namespace;
+  } else if (context.sdkPackage.models.length > 0) {
     const result = context.sdkPackage.models
-      .map((model) => model.clientNamespace)
+      .map((model) => model.namespace)
       .filter((namespace) => !LIB_NAMESPACE.includes(namespace));
     if (result.length > 0) {
       result.sort();
-      return result[0];
+      rootNamespace = result[0];
     }
   }
-  if (context.sdkPackage.namespaces.length > 0) {
-    return context.sdkPackage.namespaces[0].fullName;
-  }
-  return "";
-}
 
-export function getRootNamespace(context: PythonSdkContext<SdkServiceOperation>): string {
-  const rootNamespace = context.emitContext.options["enable-typespec-namespace"]
-    ? getRootTypespecNamespace(context)
-    : context.sdkPackage.rootNamespace;
   return removeUnderscoresFromNamespace(rootNamespace).toLowerCase();
 }
 
@@ -246,16 +239,13 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   context: PythonSdkContext<TServiceOperation>,
   clientNamespace: string,
 ) {
-  const rootNamespace = getRootNamespace(context);
-  if (!context.emitContext.options["enable-typespec-namespace"]) {
-    return rootNamespace;
+  if (
+    clientNamespace === "" ||
+    LIB_NAMESPACE.some((item) => clientNamespace.toLowerCase().startsWith(item))
+  ) {
+    return getRootNamespace(context);
   }
-  if (LIB_NAMESPACE.some((item) => clientNamespace.toLowerCase().startsWith(item))) {
-    return rootNamespace;
-  }
-  return clientNamespace === ""
-    ? rootNamespace
-    : removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+  return removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
 }
 
 function parseToken(token: Token): string {

@@ -61,9 +61,6 @@ function addDefaultOptions(sdkContext: SdkContext) {
   if (!options.flavor && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
     options.flavor = "azure";
   }
-  if (options["enable-typespec-namespace"] === undefined) {
-    options["enable-typespec-namespace"] = options.flavor !== "azure";
-  }
 }
 
 async function createPythonSdkContext<TServiceOperation extends SdkServiceOperation>(

@@ -95,13 +95,13 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     { "package-name": "typetest-model-visibility" },
     {
       "package-name": "headasbooleantrue",
+      namespace: "headasbooleantrue",
       "head-as-boolean": "true",
-      "enable-typespec-namespace": "false",
     },
     {
       "package-name": "headasbooleanfalse",
+      namespace: "headasbooleanfalse",
       "head-as-boolean": "false",
-      "enable-typespec-namespace": "false",
     },
   ],
   "type/property/nullable": {
