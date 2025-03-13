@@ -72,7 +72,6 @@ export {
   isOverloadSameEndpoint,
   listHttpOperationsIn,
   reportIfNoRoutes,
-  validateRouteUnique,
 } from "./operations.js";
 export { getOperationParameters } from "./parameters.js";
 export {
@@ -84,18 +83,13 @@ export {
 } from "./private.decorators.js";
 export { getResponsesForOperation } from "./responses.js";
 export {
-  DefaultRouteProducer,
   addQueryParamsToUriTemplate,
   getRouteOptionsForNamespace,
   getRoutePath,
-  getRouteProducer,
   getUriTemplatePathParam,
   isSharedRoute,
   joinPathSegments,
-  resolvePathAndParameters,
   setRoute,
-  setRouteOptionsForNamespace,
-  setRouteProducer,
   setSharedRoute,
 } from "./route.js";
 
@@ -145,16 +139,11 @@ export type {
   Oauth2Auth,
   OpenIDConnectAuth,
   OperationContainer,
-  OperationParameterOptions,
   OperationVerbSelector,
   PasswordFlow,
   PathParameterOptions,
   QueryParameterOptions,
-  RouteOptions,
   RoutePath,
-  RouteProducer,
-  RouteProducerResult,
-  RouteResolutionOptions,
 } from "./types.js";
 
 /** @internal */
