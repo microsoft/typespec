@@ -1,6 +1,8 @@
+vi.resetModules();
+
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import { ResponseLocation } from "../../src/type/response-location.js";
@@ -44,6 +46,37 @@ describe("Next link operations", () => {
     ok(paging.ItemPropertySegments);
     strictEqual(paging.ItemPropertySegments[0], "items");
     strictEqual(paging.NextLink?.ResponseLocation, ResponseLocation.Body);
+    strictEqual(paging.NextLink?.ResponseSegments.length, 1);
+    strictEqual(paging.NextLink?.ResponseSegments[0], "next");
+  });
+
+  // skipped until https://github.com/Azure/typespec-azure/issues/2341 is fixed
+  it.skip("next link as response header", async () => {
+    const program = await typeSpecCompile(
+      `
+        @list
+        op link(): {
+          @pageItems
+          items: Foo[];
+
+          @header @nextLink
+          next?: url;
+        };
+        model Foo {
+          bar: string;
+          baz: int32;
+        };
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const paging = root.Clients[0].Operations[0].Paging;
+    ok(paging);
+    ok(paging.ItemPropertySegments);
+    strictEqual(paging.ItemPropertySegments[0], "items");
+    strictEqual(paging.NextLink?.ResponseLocation, ResponseLocation.Header);
     strictEqual(paging.NextLink?.ResponseSegments.length, 1);
     strictEqual(paging.NextLink?.ResponseSegments[0], "next");
   });
