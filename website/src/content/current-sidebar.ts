@@ -52,6 +52,7 @@ const sidebar: SidebarItem[] = [
       "handbook/cli",
       "handbook/style-guide",
       "handbook/formatter",
+      "handbook/package-manager",
       "handbook/reproducibility",
       {
         label: "Configuration",
