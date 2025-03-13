@@ -229,6 +229,82 @@ namespace Pets {
 }
 ```
 
+## Handling files
+
+`@typespec/http` provides a special model [`TypeSpec.Http.File`](../http/reference/data-types.md#file-typespechttpfile) for handling file uploads and downloads in HTTP operations. When working with files, emitters need to implement special handling due to their binary nature.
+
+### Basic File Handling
+
+When the model `Http.File` (or any model that extends `Http.File`) is the _exact_ body of an HTTP request, emitters **must** treat this model with special care:
+
+- The `contentType` property should be used as the value for the `Content-Type` header in requests and vice-versa for responses.
+- The `filename` property should be used in the `Content-Disposition` header in responses and vice-versa for multipart requests (`filename` cannot be sent in a non-multipart HTTP request because `Content-Disposition` is only valid for responses and multipart requests).
+- The file content should be treated as the raw body of the request/response without any additional parsing.
+
+See [`isHttpFile`](../http/reference/js-api/functions/isHttpFile.md) for a helper that emitters/libraries can use to detect instances of `Http.File`.
+
+### Examples
+
+#### Uploading and downloading files
+
+```typespec
+// Uploading and downloading
+@route("/files")
+interface Files {
+  @post
+  upload(@body file: Http.File): {
+    @statusCode statusCode: 201;
+  };
+
+  download(@path fileId: string): Http.File;
+}
+```
+
+#### Custom file types
+
+If you want to declare specific types of files that are accepted, but still treated as binary files, declare the content types by extending the `Http.File` model and overriding the `contentType` field.
+
+```typespec
+// Custom file type for images
+model ImageFile extends Http.File {
+  contentType: "image/jpeg" | "image/png" | "image/gif";
+}
+
+@route("/images")
+interface Images {
+  @post
+  upload(@body image: ImageFile): {
+    @statusCode statusCode: 201;
+  };
+
+  download(@path imageId: string): ImageFile;
+}
+```
+
+#### Using a file as a JSON object
+
+If the Content-Type header is _explicitly_ specified in the request/response envelope, the `File` model is treated as a structural model and its data will be encoded as JSON:
+
+- `contentType` will be a string in the JSON payload.
+- `filename` will be a string in the JSON payload.
+- `content` will be a base64-encoded string in the JSON payload.
+
+```typespec
+// Explicitly declare the content-type of the request to be `"application/json"` and the File will be encoded as a JSON object instead
+@route("/files")
+interface FileInfo {
+  @post
+  upload(@header contentType: "application/json", @body file: Http.File): {
+    @statusCode statusCode: 201;
+  };
+
+  download(@path fileId: string): {
+    @header contentType: "application/json";
+    @body file: Http.File;
+  };
+}
+```
+
 ## Automatic visibility
 
 The `@typespec/rest` library understands [Lifecycle Visibility](../../language-basics/visibility.md#lifecycle-visibility) and provides functionality for emitters to apply visibility transforms based on whether a model represents a request or response and on HTTP method usage as detailed in the table below.
