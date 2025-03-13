@@ -214,3 +214,30 @@ describe("Test _validateDotNetSdk", () => {
     );
   });
 });
+
+describe("Should apply the update-code-model callback", () => {
+  it("should apply the update-code-model callback", async () => {
+    const runner = await createEmitterTestHost();
+    const program = await typeSpecCompile(
+      `
+            op test(
+                @query
+                @encode(DurationKnownEncoding.ISO8601)
+                input: duration
+              ): NoContentResponse;
+      `,
+      runner,
+    );
+
+    const updatedName = "UpdatedName";
+    const context = createEmitterContext(program);
+    const updateCodeModel = (model: any) => {
+      model.Name = updatedName;
+      return model;
+    };
+    context.options["update-code-model"] = updateCodeModel;
+    const sdkContext = await createCSharpSdkContext(context);
+    const model = sdkContext.sdkPackage.models[0];
+    expect(model.name).toBe(updatedName);
+  });
+});
