@@ -68,16 +68,6 @@ try {
     # Write-Host "Updated PATH: $env:PATH"
     # Invoke-LoggedCommand "java -version"
     # Invoke-LoggedCommand "mvn -version"
-    
-    # install npm packages at repository root
-    Push-Location "$packageRoot/../../"
-    try {
-        Invoke-LoggedCommand "npm install -g pnpm" -GroupOutput
-        Invoke-LoggedCommand "pnpm install" -GroupOutput
-    }
-    finally {
-        Pop-Location
-    }
 
     # install and list npm packages
     if ($BuildArtifactsPath) {
