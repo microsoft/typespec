@@ -125,7 +125,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
           generatorPath: generatorPath,
           outputFolder: outputFolder,
           pluginName: options["plugin-name"],
-          newProject: options["new-project"] ?? !checkFile(csProjFile),
+          newProject: options["new-project"] || !checkFile(csProjFile),
           debug: options.debug ?? false,
         });
         if (result.exitCode !== 0) {
