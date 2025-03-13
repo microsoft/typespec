@@ -80,7 +80,7 @@ export const defaultOptions = {
   logLevel: LoggerLevel.INFO,
   "plugin-name": _defaultPluginName,
   "emitter-extension-path": undefined,
-  "update-code-model": (model: CodeModel) => model
+  "update-code-model": (model: CodeModel) => model,
 };
 
 /**
