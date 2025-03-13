@@ -162,7 +162,7 @@ export function getCSharpType(
         if (resolvedItem === undefined) return undefined;
         const { type: itemType, value: _ } = resolvedItem;
 
-        const uniqueItems = getUniqueItems(program, type.indexer.value);
+        const uniqueItems = getUniqueItems(program, type);
         return {
           type: new CSharpType({
             name: uniqueItems ? `ISet<${itemType.name}>` : `IEnumerable<${itemType.name}>`,

@@ -498,6 +498,56 @@ it("generates standard scalar array  constraints", async () => {
   );
 });
 
+it("generates standard scalar array for uniqueItems properties", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `    
+      /** A simple test model*/
+      model Foo {
+        /** Names */
+        @uniqueItems 
+        arrUniqueNames: string[];
+
+        /** Colors */
+        @uniqueItems
+        arrUniqueColors: Array<string>;
+      }
+        
+     @patch @route("/Foo") op update(...Foo): Foo;
+
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public ISet<string> ArrUniqueNames { get; set; }",
+          "public ISet<string> ArrUniqueColors { get; set; }",
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        ["Task<Foo> UpdateAsync( ISet<string> arrUniqueNames, ISet<string> arrUniqueColors)"],
+      ],
+    ],
+  );
+});
+
+it("generates standard scalar array for uniqueItems model", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `    
+      /** A simple test model*/
+      @uniqueItems
+      model Foo is Array<string>;
+      @get @route("/Foo") op list(): Foo[];
+      @route("/Foo/{id}") @get op get(@path id: string): Foo;
+      `,
+    "IContosoOperations.cs",
+    ["Task<IEnumerable<ISet<string>>> ListAsync( )", "Task<ISet<string>> GetAsync( string id)"],
+  );
+});
+
 it("handles enum, complex type properties, and circular references", async () => {
   await compileAndValidateMultiple(
     runner,
