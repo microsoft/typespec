@@ -1,6 +1,7 @@
 import { LogLevel } from "rollup";
 import vscode from "vscode";
 import { normalizePath } from "./path-utils.js";
+import { RawTelemetryEvent } from "./telemetry/telemetry-event.js";
 
 export interface StartUpMessage {
   /**
@@ -15,6 +16,11 @@ export interface StartUpMessage {
    * the level used to show notification and log
    */
   level: LogLevel;
+}
+
+interface DelayedTelemetryEvent {
+  raw: RawTelemetryEvent;
+  isError: boolean;
 }
 
 /** manage data stored in vscode extension's state (ExtensionContext.globalState/workspaceState) */
@@ -57,5 +63,31 @@ export class ExtensionStateManager {
   cleanUpStartUpMessage(workspaceFolder: string) {
     const key = this.getStartUpMessageKey(workspaceFolder);
     this.setValue(key, undefined, true);
+  }
+
+  private TELEMETRY_DELAYED_EVENT_KEY: string = "telemetry-delayed-event";
+  pushDelayedTelemetryEvent(raw: RawTelemetryEvent, isError: boolean) {
+    const existing = this.getValue<DelayedTelemetryEvent[]>(
+      this.TELEMETRY_DELAYED_EVENT_KEY,
+      [],
+      true,
+    );
+    this.setValue<DelayedTelemetryEvent[]>(
+      this.TELEMETRY_DELAYED_EVENT_KEY,
+      [
+        ...existing,
+        {
+          raw,
+          isError,
+        },
+      ],
+      true,
+    );
+  }
+  loadDelayedTelemetryEvents(): DelayedTelemetryEvent[] {
+    return this.getValue<DelayedTelemetryEvent[]>(this.TELEMETRY_DELAYED_EVENT_KEY, [], true);
+  }
+  cleanUpDelayedTelemetryEvents() {
+    this.setValue(this.TELEMETRY_DELAYED_EVENT_KEY, [], true);
   }
 }

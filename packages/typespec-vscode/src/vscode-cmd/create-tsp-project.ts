@@ -73,10 +73,10 @@ export async function createTypeSpecProject(
   context: ExtensionContext,
   stateManager: ExtensionStateManager,
 ) {
-  await telemetryClient.doOperationWithTelemetry(
+  await telemetryClient.doOperationWithTelemetry<ResultCode>(
     TelemetryEventName.CreateProject,
-    async (tel, sendTelEvent) => {
-      await vscode.window.withProgress(
+    async (tel, sendTelEvent): Promise<ResultCode> => {
+      return await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Window,
           cancellable: false,
@@ -254,9 +254,12 @@ export async function createTypeSpecProject(
             ? "Project created! You can now compile to generate artifacts from your TypeSpec\n"
             : `Project created! You can now compile to generate artifacts from your TypeSpec. Click the button below to review the message from emitters installed.\n`;
 
+          // our extension will be reinitialized if user chooses to open a new window or add to workspace with 0 or 1 folder
+          // so send telemetry explicitly here before the next step
+          tel.lastStep = `Next step: ${nextStep}`;
+
           if (nextStep === "Open in New Window") {
-            // if we are going to open a new window, persist the message to extension state because
-            // openProjectFolder will reinitialize the extension.
+            sendTelEvent(ResultCode.Success, true);
             stateManager.saveStartUpMessage(
               {
                 popupMessage,
@@ -265,11 +268,6 @@ export async function createTypeSpecProject(
               },
               selectedRootFolder,
             );
-            // our extension will be reinitialized by the 'vscode.openFolder' command, so we need to send telemetry explicitly here
-            tel.lastStep = "Open in New Window";
-            sendTelEvent(ResultCode.Success);
-            await telemetryClient.flush();
-
             vscode.commands.executeCommand(
               "vscode.openFolder",
               vscode.Uri.file(selectedRootFolder),
@@ -280,19 +278,6 @@ export async function createTypeSpecProject(
               },
             );
           } else {
-            if (nextStep === "Add to workspace") {
-              tel.lastStep = "Add to workspace";
-              vscode.workspace.updateWorkspaceFolders(
-                vscode.workspace.workspaceFolders?.length ?? 0,
-                null,
-                {
-                  uri: vscode.Uri.file(selectedRootFolder),
-                },
-              );
-            } else {
-              tel.lastStep = "Ignore next step";
-            }
-
             logger.info(
               `Creating TypeSpec Project completed successfully in ${selectedRootFolder}.`,
             );
@@ -308,6 +293,19 @@ export async function createTypeSpecProject(
                   : "View Details in Output",
               },
             );
+
+            if (nextStep === "Add to workspace") {
+              sendTelEvent(ResultCode.Success, true);
+              vscode.workspace.updateWorkspaceFolders(
+                vscode.workspace.workspaceFolders?.length ?? 0,
+                null,
+                {
+                  uri: vscode.Uri.file(selectedRootFolder),
+                },
+              );
+            } else {
+              tel.lastStep = "Ignore next step";
+            }
           }
           return ResultCode.Success;
         },

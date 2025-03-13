@@ -1,6 +1,7 @@
 import TelemetryReporter from "@vscode/extension-telemetry";
 import pkgJson from "../../package.json" with { type: "json" };
 import { EmptyGuid } from "../const.js";
+import { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
 import { ResultCode } from "../types.js";
 import { isWhitespaceStringOrUndefined } from "../utils.js";
@@ -9,15 +10,17 @@ import {
   generateActivityId,
   OperationDetailPropertyName,
   OperationTelemetryEvent,
+  RawTelemetryEvent,
   TelemetryEventName,
 } from "./telemetry-event.js";
 
-class TelemetryClient {
+export class TelemetryClient {
   private _client: TelemetryReporter.default | undefined;
   // The maximum number of telemetry error to log to avoid too much noise from it when
   // the telemetry doesn't work for some reason
   private readonly MAX_LOG_TELEMETRY_ERROR = 5;
   private _logTelemetryErrorCount = 0;
+  private _stateManager: ExtensionStateManager | undefined;
 
   constructor() {
     this.initClient();
@@ -65,25 +68,45 @@ class TelemetryClient {
     this.initClient();
   }
 
-  private sendEvent(
-    eventName: string,
-    properties?: { [key: string]: string },
-    measurements?: { [key: string]: number },
-  ): void {
+  /**
+   * DelayMode: the telemetry events will be stored in the state manager and sent later when our extension is started next time
+   *            It's useful when the extension will be reloaded or re-intialized for some reason
+   */
+  public enableDelayMode(stateManager: ExtensionStateManager) {
+    this._stateManager = stateManager;
+  }
+
+  private sendEvent(raw: RawTelemetryEvent, delay: boolean): void {
     try {
-      this._client?.sendTelemetryEvent(eventName, properties, measurements);
+      if (delay) {
+        if (!this._stateManager) {
+          this.logErrorWhenLoggingTelemetry(
+            "Unable to sendEvent in delay mode because the state manager is not initialized",
+          );
+        } else {
+          this._stateManager.pushDelayedTelemetryEvent(raw, false /*isError*/);
+        }
+      } else {
+        this._client?.sendTelemetryEvent(raw.eventName, raw.properties, raw.measurements);
+      }
     } catch (e) {
       this.logErrorWhenLoggingTelemetry(e);
     }
   }
 
-  private sendErrorEvent(
-    eventName: string,
-    properties?: { [key: string]: string },
-    measurements?: { [key: string]: number },
-  ): void {
+  private sendErrorEvent(raw: RawTelemetryEvent, delay: boolean): void {
     try {
-      this._client?.sendTelemetryErrorEvent(eventName, properties, measurements);
+      if (delay) {
+        if (!this._stateManager) {
+          this.logErrorWhenLoggingTelemetry(
+            "Unable to sendErrorEvent in delay mode because the state manager is not initialized",
+          );
+        } else {
+          this._stateManager.pushDelayedTelemetryEvent(raw, true /*isError*/);
+        }
+      } else {
+        this._client?.sendTelemetryErrorEvent(raw.eventName, raw.properties, raw.measurements);
+      }
     } catch (e) {
       this.logErrorWhenLoggingTelemetry(e);
     }
@@ -98,24 +121,26 @@ class TelemetryClient {
     operation: (
       opTelemetryEvent: OperationTelemetryEvent,
       /** Call this function to send the telemetry event if you don't want to wait until the end of the operation for some reason*/
-      sendTelemetryEvent: (result: ResultCode) => void,
+      sendTelemetryEvent: (result: ResultCode, delay: boolean) => void,
     ) => Promise<T>,
     activityId?: string,
   ): Promise<T> {
     const opTelemetryEvent = this.createOperationTelemetryEvent(eventName, activityId);
     let eventSent = false;
-    const sendTelemetryEvent = (result?: ResultCode) => {
+    const sendTelemetryEvent = (result?: ResultCode, delay: boolean = false) => {
       if (!eventSent) {
         eventSent = true;
         opTelemetryEvent.endTime ??= new Date();
         if (result) {
           opTelemetryEvent.result = result;
         }
-        this.logOperationTelemetryEvent(opTelemetryEvent);
+        this.logOperationTelemetryEvent(opTelemetryEvent, delay);
       }
     };
     try {
-      const result = await operation(opTelemetryEvent, (result) => sendTelemetryEvent(result));
+      const result = await operation(opTelemetryEvent, (result, delay) =>
+        sendTelemetryEvent(result, delay),
+      );
       if (result) {
         const isResultCode = (v: any) => Object.values(ResultCode).includes(v as ResultCode);
         if (isResultCode(result)) {
@@ -130,26 +155,31 @@ class TelemetryClient {
     }
   }
 
-  public logOperationTelemetryEvent(event: OperationTelemetryEvent) {
-    const telFunc =
-      event.result === "success" || event.result === "cancelled"
-        ? this.sendEvent
-        : this.sendErrorEvent;
-    telFunc.call(this, event.eventName, {
-      activityId: isWhitespaceStringOrUndefined(event.activityId)
-        ? emptyActivityId
-        : event.activityId!,
-      // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
-      startTime: event.startTime.toISOString(),
-      endTime: event.endTime?.toISOString() ?? "",
-      lastStep: event.lastStep ?? "undefined",
-      result: event.result ?? "undefined",
-    });
+  public logOperationTelemetryEvent(event: OperationTelemetryEvent, delay: boolean = false) {
+    const raw: RawTelemetryEvent = {
+      eventName: event.eventName,
+      properties: {
+        activityId: isWhitespaceStringOrUndefined(event.activityId)
+          ? emptyActivityId
+          : event.activityId!,
+        // ISO format: YYYY-MM-DDTHH:mm:ss.sssZ
+        startTime: event.startTime.toISOString(),
+        endTime: event.endTime?.toISOString() ?? "",
+        lastStep: event.lastStep ?? "undefined",
+        result: event.result ?? "undefined",
+      },
+    };
+    if (event.result === "success" || event.result === "cancelled") {
+      this.sendEvent(raw, delay);
+    } else {
+      this.sendErrorEvent(raw, delay);
+    }
   }
 
   public logOperationDetailTelemetry(
     activityId: string,
     detail: Partial<Record<keyof typeof OperationDetailPropertyName, string>>,
+    delay: boolean = false,
   ) {
     const data = {
       activityId: activityId,
@@ -157,13 +187,25 @@ class TelemetryClient {
     };
 
     if (detail.error !== undefined) {
-      this.sendErrorEvent(TelemetryEventName.OperationDetail, {
-        ...data,
-      });
+      this.sendErrorEvent(
+        {
+          eventName: TelemetryEventName.OperationDetail,
+          properties: {
+            ...data,
+          },
+        },
+        delay,
+      );
     } else {
-      this.sendEvent(TelemetryEventName.OperationDetail, {
-        ...data,
-      });
+      this.sendEvent(
+        {
+          eventName: TelemetryEventName.OperationDetail,
+          properties: {
+            ...data,
+          },
+        },
+        delay,
+      );
     }
   }
 
@@ -200,6 +242,25 @@ class TelemetryClient {
         `Failed to log telemetry event more than ${this.MAX_LOG_TELEMETRY_ERROR} times, will stop logging more error`,
       );
     }
+  }
+
+  sendDelayedTelemetryEvents() {
+    if (!this._stateManager) {
+      this.logErrorWhenLoggingTelemetry(
+        "Failed to send delayed telemetry events because the state manager is not initialized",
+      );
+      return;
+    }
+    const events = this._stateManager.loadDelayedTelemetryEvents();
+    events.forEach((event) => {
+      if (event.isError) {
+        this.sendErrorEvent(event.raw, false);
+      } else {
+        this.sendEvent(event.raw, false);
+      }
+    });
+    this._stateManager.cleanUpDelayedTelemetryEvents();
+    logger.info(`Sent ${events.length} delayed telemetry events`);
   }
 
   async dispose() {

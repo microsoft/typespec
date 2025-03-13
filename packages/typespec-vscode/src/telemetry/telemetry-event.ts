@@ -1,6 +1,12 @@
 import { EmptyGuid } from "../const.js";
 import { ResultCode } from "../types.js";
 
+export interface RawTelemetryEvent {
+  eventName: string;
+  properties?: { [key: string]: string };
+  measurements?: { [key: string]: number };
+}
+
 export enum TelemetryEventName {
   StartExtension = "start-extension",
   CreateProject = "create-project",

@@ -40,6 +40,7 @@ logger.registerLogListener("extension-log", new ExtensionLogListener(outputChann
 export async function activate(context: ExtensionContext) {
   const stateManager = new ExtensionStateManager(context);
 
+  telemetryClient.enableDelayMode(stateManager);
   context.subscriptions.push(telemetryClient);
 
   context.subscriptions.push(createTaskProvider());
@@ -146,7 +147,7 @@ export async function activate(context: ExtensionContext) {
     commands.registerCommand(CommandName.ShowOpenApi3, async (uri: vscode.Uri) => {
       await telemetryClient.doOperationWithTelemetry(
         TelemetryEventName.PreviewOpenApi3,
-        async (tel) => {
+        async (tel): Promise<ResultCode> => {
           return await showOpenApi3(uri, context, client!, tel);
         },
       );
@@ -216,6 +217,7 @@ export async function activate(context: ExtensionContext) {
     logger.info("No workspace opened, Skip starting TypeSpec language service.");
   }
   showStartUpMessages(stateManager);
+  telemetryClient.sendDelayedTelemetryEvents();
 }
 
 export async function deactivate() {
