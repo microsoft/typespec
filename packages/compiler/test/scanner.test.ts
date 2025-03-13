@@ -416,7 +416,6 @@ describe("compiler: scanner", () => {
         `${name} should be classified as a keyword or reserved keyword`,
       );
       if (!isReservedKeyword(token)) {
-        // todo: want to have a check for this too(keep a dup the list to make sure we don't move something out)
         if (nonStatementKeywords.includes(token)) {
           assert(
             !isStatementKeyword(token),
