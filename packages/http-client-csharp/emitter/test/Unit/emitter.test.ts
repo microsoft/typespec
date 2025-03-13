@@ -236,8 +236,8 @@ describe("Should apply the update-code-model callback", () => {
       return model;
     };
     const obj = { update: updateCodeModel };
-    const spy = vi.spyOn(obj, "update");
-    context.options["update-code-model"] = updateCodeModel;
-    expect(spy.mock.calls.length).toBe(1);
+    const updateSpy = vi.spyOn(obj, "update");
+    context.options["update-code-model"] = obj.update;
+    expect(updateSpy.mock.calls.length).toBe(1);
   });
 });
