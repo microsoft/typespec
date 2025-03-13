@@ -178,7 +178,7 @@ namespace Models {
   @modelNameScenario("and") op withAnd(@body body: and): void;
   @modelNameScenario("as") op withAs(@body body: as): void;
   @modelNameScenario("assert") op withAssert(@body body: assert): void;
-  @modelNameScenario("async") op withAsync(@body body: async): void;
+  @modelNameScenario("async") op withAsync(@body body: `async`): void;
   @modelNameScenario("await") op withAwait(@body body: await): void;
   @modelNameScenario("break") op withBreak(@body body: break): void;
   @modelNameScenario("class") op withClass(@body body: class): void;
@@ -206,7 +206,7 @@ namespace Models {
   @modelNameScenario("return") op withReturn(@body body: `return`): void;
   @modelNameScenario("try") op withTry(@body body: try): void;
   @modelNameScenario("while") op withWhile(@body body: while): void;
-  @modelNameScenario("with") op withWith(@body body: with): void;
+  @modelNameScenario("with") op withWith(@body body: `with`): void;
   @modelNameScenario("yield") op withYield(@body body: yield): void;
 }
 
