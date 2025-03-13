@@ -63,7 +63,7 @@
     "@types/node": "~22.7.5",
     "@typespec/compiler": "0.66.0",
     "@typespec/http": "0.66.0",
-    "@typespec/http-specs": "0.1.0-alpha.11",
+    "@typespec/http-specs": "0.1.0-alpha.12",
     "@typespec/json-schema": "0.66.0",
     "@typespec/library-linter": "0.66.0",
     "@typespec/openapi": "0.66.0",

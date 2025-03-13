@@ -117,7 +117,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
                     uri.Reset(endpoint).Terminate(),
-                    .. AppendPathParameters(uri, operation, paramMap),
+                    operation.Paging?.NextLink != null ?
+                        new IfStatement(ScmKnownParameters.AppendPath)
+                        {
+                            new MethodBodyStatements([..AppendPathParameters(uri, operation, paramMap)])
+                        } :
+                        new MethodBodyStatements([.. AppendPathParameters(uri, operation, paramMap)]),
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
@@ -511,7 +516,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
-            int path = 1;
+            int path = 2;
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
@@ -610,10 +615,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     parameter.DefaultValue = null;
                 }
 
-                // Next link operations will always have an endpoint parameter in the CreateRequest method
+                // Next link operations will always have an endpoint parameter in the CreateRequest method and an "appendPath" parameter
                 if (operation.Paging?.NextLink != null)
                 {
                     sortedParams.Add(0, ScmKnownParameters.Endpoint);
+                    sortedParams.Add(1, ScmKnownParameters.AppendPath);
                 }
             }
 
