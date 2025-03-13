@@ -498,7 +498,7 @@ public class ClientModel {
      *
      * @param imports The set of imports to add to.
      */
-    protected void addJsonFlattenAnnotationImport(Set<String> imports) {
+    private void addJsonFlattenAnnotationImport(Set<String> imports) {
         imports.add("com.azure.core.annotation.JsonFlatten");
     }
 
@@ -507,7 +507,7 @@ public class ClientModel {
      *
      * @param imports The set of imports to add to.
      */
-    protected void addImmutableAnnotationImport(Set<String> imports) {
+    private void addImmutableAnnotationImport(Set<String> imports) {
         Annotation.IMMUTABLE.addImportsTo(imports);
         if (!JavaSettings.getInstance().isBranded()) {
             Annotation.TYPE_CONDITIONS.addImportsTo(imports);
@@ -520,7 +520,7 @@ public class ClientModel {
      *
      * @param imports The set of imports to add to.
      */
-    protected void addFluentAnnotationImport(Set<String> imports) {
+    private void addFluentAnnotationImport(Set<String> imports) {
         Annotation.FLUENT.addImportsTo(imports);
         if (!JavaSettings.getInstance().isBranded()) {
             Annotation.METADATA.addImportsTo(imports);
@@ -623,27 +623,27 @@ public class ClientModel {
      * A builder for building a new ClientModel.
      */
     public static class Builder {
-        protected String packageName;
-        protected String name;
-        protected List<String> imports = Collections.emptyList();
-        protected String description;
-        protected boolean isPolymorphic;
-        protected ClientModelProperty polymorphicDiscriminator;
-        protected String polymorphicDiscriminatorName;
-        protected String serializedName;
-        protected boolean needsFlatten = false;
-        protected String parentModelName;
-        protected List<ClientModel> derivedModels = Collections.emptyList();
-        protected String xmlName;
-        protected List<ClientModelProperty> properties;
-        protected String xmlNamespace;
-        protected List<ClientModelPropertyReference> propertyReferences;
-        protected IType modelType;
-        protected boolean stronglyTypedHeader;
-        protected ImplementationDetails implementationDetails;
-        protected boolean usedInXml;
-        protected String crossLanguageDefinitionId;
-        protected Set<String> serializationFormats = Collections.emptySet();
+        private String packageName;
+        private String name;
+        private List<String> imports = Collections.emptyList();
+        private String description;
+        private boolean isPolymorphic;
+        private ClientModelProperty polymorphicDiscriminator;
+        private String polymorphicDiscriminatorName;
+        private String serializedName;
+        private boolean needsFlatten = false;
+        private String parentModelName;
+        private List<ClientModel> derivedModels = Collections.emptyList();
+        private String xmlName;
+        private List<ClientModelProperty> properties;
+        private String xmlNamespace;
+        private List<ClientModelPropertyReference> propertyReferences;
+        private IType modelType;
+        private boolean stronglyTypedHeader;
+        private ImplementationDetails implementationDetails;
+        private boolean usedInXml;
+        private String crossLanguageDefinitionId;
+        private Set<String> serializationFormats = Collections.emptySet();
 
         /**
          * Sets the package that this model class belongs to.

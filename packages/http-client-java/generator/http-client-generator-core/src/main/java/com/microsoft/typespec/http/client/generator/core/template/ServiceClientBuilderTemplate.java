@@ -91,7 +91,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         if (settings.isUseClientLogger()) {
             ClassType.CLIENT_LOGGER.addImportsTo(imports, false);
         }
-        addServiceClientBuilderAnnotationImport(imports);
+        Annotation.SERVICE_CLIENT_BUILDER.addImportsTo(imports);
         addHttpPolicyImports(imports);
         addImportForCoreUtils(imports);
         addSerializerImport(imports, settings);
@@ -497,22 +497,22 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         }
     }
 
-    protected String getSerializerMemberName() {
+    private String getSerializerMemberName() {
         return "serializerAdapter";
     }
 
-    protected void addSerializerImport(Set<String> imports, JavaSettings settings) {
+    private void addSerializerImport(Set<String> imports, JavaSettings settings) {
         imports.add(settings.isFluent()
             ? "com.azure.core.management.serializer.SerializerFactory"
             : "com.azure.core.util.serializer.JacksonAdapter");
     }
 
-    protected void addImportForCoreUtils(Set<String> imports) {
+    private void addImportForCoreUtils(Set<String> imports) {
         ClassType.CORE_UTILS.addImportsTo(imports, false);
         imports.add("com.azure.core.util.builder.ClientBuilderUtil");
     }
 
-    protected void addHttpPolicyImports(Set<String> imports) {
+    private void addHttpPolicyImports(Set<String> imports) {
         imports.add(BearerTokenAuthenticationPolicy.class.getName());
 
         // one of the key credential policy imports will be removed by the formatter depending
@@ -533,15 +533,11 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         ClassType.REDIRECT_POLICY.addImportsTo(imports, false);
     }
 
-    protected void addTraitsImports(ClientBuilder clientBuilder, Set<String> imports) {
+    private void addTraitsImports(ClientBuilder clientBuilder, Set<String> imports) {
         clientBuilder.getBuilderTraits().stream().forEach(trait -> imports.addAll(trait.getImportPackages()));
     }
 
-    protected void addServiceClientBuilderAnnotationImport(Set<String> imports) {
-        Annotation.SERVICE_CLIENT_BUILDER.addImportsTo(imports);
-    }
-
-    protected void addCreateHttpPipelineMethod(JavaSettings settings, JavaClass classBlock,
+    private void addCreateHttpPipelineMethod(JavaSettings settings, JavaClass classBlock,
         String defaultCredentialScopes, SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails) {
         addGeneratedAnnotation(classBlock);
         classBlock.privateMethod("HttpPipeline createHttpPipeline()", function -> {
@@ -566,7 +562,7 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         });
     }
 
-    protected ArrayList<ServiceClientProperty> addCommonClientProperties(JavaSettings settings,
+    private ArrayList<ServiceClientProperty> addCommonClientProperties(JavaSettings settings,
         SecurityInfo securityInfo) {
         ArrayList<ServiceClientProperty> commonProperties = new ArrayList<ServiceClientProperty>();
         if (settings.isAzureOrFluent()) {

@@ -382,9 +382,6 @@ public class JavaSettings {
 
         // Whether to use object for unknown.
         this.useObjectForUnknown = getBooleanValue(host, "use-object-for-unknown", false);
-
-        // Whether to generate the Android client.
-        this.android = getBooleanValue(host, "android", false);
     }
 
     /**
@@ -1618,17 +1615,6 @@ public class JavaSettings {
 
     public boolean isUseObjectForUnknown() {
         return useObjectForUnknown;
-    }
-
-    private final boolean android;
-
-    /**
-     * Whether to generate code for Android.
-     *
-     * @return Whether to generate code for Android.
-     */
-    public boolean isAndroid() {
-        return android;
     }
 
     private static final String DEFAULT_CODE_GENERATION_HEADER

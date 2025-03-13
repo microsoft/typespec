@@ -12,7 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
-import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaEnum;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
@@ -56,7 +55,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
      * @param javaFile javaFile to write into
      * @param settings {@link JavaSettings} instance
      */
-    protected void writeBrandedExpandableEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
+    private void writeBrandedExpandableEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
         if (enumType.getElementType() == ClassType.STRING) {
             writeExpandableStringEnum(enumType, javaFile, settings);
         } else {
@@ -67,7 +66,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
     private void writeExpandableStringEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
         Set<String> imports = new HashSet<>();
         imports.add("java.util.Collection");
-        imports.add(getStringEnumImport());
+        imports.add(ClassType.EXPANDABLE_STRING_ENUM.getFullName());
         if (!settings.isStreamStyleSerialization()) {
             imports.add("com.fasterxml.jackson.annotation.JsonCreator");
         }
@@ -359,17 +358,13 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         });
     }
 
-    protected String getStringEnumImport() {
-        return ClassType.EXPANDABLE_STRING_ENUM.getFullName();
-    }
-
     /**
      * Creates the if check used by the JsonCreator method used in the Enum type.
      *
      * @param enumType The enum type.
      * @return The JsonCreator if check.
      */
-    protected String createEnumJsonCreatorIfCheck(EnumType enumType) {
+    private String createEnumJsonCreatorIfCheck(EnumType enumType) {
         IType enumElementType = enumType.getElementType();
         String toJsonMethodName = enumType.getToMethodName();
 
@@ -387,7 +382,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         }
     }
 
-    protected void addGeneratedImport(Set<String> imports) {
+    private void addGeneratedImport(Set<String> imports) {
         if (JavaSettings.getInstance().isDataPlaneClient()) {
             if (JavaSettings.getInstance().isBranded()) {
                 Annotation.GENERATED.addImportsTo(imports);
@@ -397,22 +392,12 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         }
     }
 
-    protected void addGeneratedAnnotation(JavaContext classBlock) {
+    private void addGeneratedAnnotation(JavaContext classBlock) {
         if (JavaSettings.getInstance().isDataPlaneClient()) {
             if (JavaSettings.getInstance().isBranded()) {
                 classBlock.annotation(Annotation.GENERATED.getName());
             } else {
                 classBlock.annotation(Annotation.METADATA.getName() + "(generated = true)");
-            }
-        }
-    }
-
-    protected void addGeneratedAnnotation(JavaEnum enumBlock) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
-            if (JavaSettings.getInstance().isBranded()) {
-                enumBlock.annotation(Annotation.GENERATED.getName());
-            } else {
-                enumBlock.annotation(Annotation.METADATA.getName() + "(generated = true)");
             }
         }
     }

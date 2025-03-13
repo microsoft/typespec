@@ -76,7 +76,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 usages.remove(ImplementationDetails.Usage.JSON_MERGE_PATCH);
             }
 
-            ClientModel.Builder builder = createModelBuilder().name(modelName)
+            ClientModel.Builder builder = new ClientModel.Builder().name(modelName)
                 .packageName(modelType.getPackage())
                 .type(modelType)
                 .stronglyTypedHeader(compositeType.isStronglyTypedHeader())
@@ -507,10 +507,6 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             .build();
     }
 
-    protected ClientModel.Builder createModelBuilder() {
-        return new ClientModel.Builder();
-    }
-
     /**
      * Collect property reference from flattened model.
      *
@@ -665,7 +661,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
     protected boolean isPredefinedModel(ClassType compositeType) {
         if (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isBranded()) {
             // see ObjectMapper.mapPredefinedModel
-            // this might be too simplified, and Android might require a different implementation
+            // this might be too simplified.
             return compositeType.getPackage().startsWith(ExternalPackage.CORE.getPackageName() + ".");
         } else {
             return false;

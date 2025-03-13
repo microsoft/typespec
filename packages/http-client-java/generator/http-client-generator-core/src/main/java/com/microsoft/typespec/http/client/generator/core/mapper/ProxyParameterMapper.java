@@ -37,7 +37,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
 
         String name = parameter.getLanguage().getJava().getName();
 
-        ProxyMethodParameter.Builder builder = createProxyMethodParameterBuilder()
+        ProxyMethodParameter.Builder builder = new ProxyMethodParameter.Builder()
             .requestParameterName(parameter.getLanguage().getDefault().getSerializedName())
             .name(name)
             .required(parameter.isRequired())
@@ -186,9 +186,4 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
     protected boolean isRemoveModelFromParameter(Parameter parameter, IType clientType) {
         return JavaSettings.getInstance().isDataPlaneClient();
     }
-
-    protected ProxyMethodParameter.Builder createProxyMethodParameterBuilder() {
-        return new ProxyMethodParameter.Builder();
-    }
-
 }

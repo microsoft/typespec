@@ -72,7 +72,8 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
         if (rootClientBuilder != null) {
             rootClientBuilder.addImportsTo(imports, false);
         }
-        addServiceClientAnnotationImports(imports);
+        Annotation.SERVICE_CLIENT.addImportsTo(imports);
+        Annotation.GENERATED.addImportsTo(imports);
 
         for (ClientAccessorMethod clientAccessorMethod : serviceClient.getClientAccessorMethods()) {
             clientAccessorMethod.addImportsTo(imports, false);
@@ -153,12 +154,7 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
         });
     }
 
-    protected void addServiceClientAnnotationImports(Set<String> imports) {
-        Annotation.SERVICE_CLIENT.addImportsTo(imports);
-        Annotation.GENERATED.addImportsTo(imports);
-    }
-
-    protected void addGeneratedAnnotation(JavaContext classBlock) {
+    private void addGeneratedAnnotation(JavaContext classBlock) {
         if (JavaSettings.getInstance().isBranded()) {
             classBlock.annotation(Annotation.GENERATED.getName());
         } else {

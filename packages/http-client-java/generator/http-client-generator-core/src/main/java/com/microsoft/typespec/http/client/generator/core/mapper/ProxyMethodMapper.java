@@ -73,7 +73,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         String operationName = operation.getLanguage().getJava().getName();
         ProxyMethod.Builder builder
-            = createProxyMethodBuilder().description(operation.getDescription()).name(operationName).isResumable(false);
+            = new ProxyMethod.Builder().description(operation.getDescription()).name(operationName).isResumable(false);
 
         String operationId = operation.getOperationId();
         if (CoreUtils.isNullOrEmpty(operationId)
@@ -234,7 +234,6 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                 parameters.add(contextParameter);
             }
 
-            appendCallbackParameter(parameters, responseBodyType);
             builder.allParameters(allParameters);
             builder.parameters(parameters);
 
@@ -347,8 +346,8 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
     private ProxyMethodParameter getContextParameter() {
         return new ProxyMethodParameter.Builder().description("The context to associate with this operation.")
-            .wireType(getContextClass())
-            .clientType(getContextClass())
+            .wireType(ClassType.CONTEXT)
+            .clientType(ClassType.CONTEXT)
             .name("context")
             .requestParameterLocation(RequestParameterLocation.NONE)
             .requestParameterName("context")
@@ -361,13 +360,6 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             .origin(ParameterSynthesizedOrigin.CONTEXT)
             .build();
 
-    }
-
-    protected ClassType getContextClass() {
-        return ClassType.CONTEXT;
-    }
-
-    protected void appendCallbackParameter(List<ProxyMethodParameter> parameters, IType responseBodyType) {
     }
 
     /**
@@ -451,26 +443,22 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         }
     }
 
-    protected IType createSingleValueAsyncReturnType(IType singleValueType) {
+    private IType createSingleValueAsyncReturnType(IType singleValueType) {
         return GenericType.Mono(singleValueType);
     }
 
-    protected IType createClientResponseAsyncReturnType(ClassType clientResponseClassType) {
+    private IType createClientResponseAsyncReturnType(ClassType clientResponseClassType) {
         return GenericType.Mono(clientResponseClassType);
     }
 
-    protected IType createStreamContentAsyncReturnType() {
+    private IType createStreamContentAsyncReturnType() {
         IType singleValueType = ClassType.STREAM_RESPONSE;
         return GenericType.Mono(singleValueType);
     }
 
-    protected IType createBinaryContentAsyncReturnType() {
+    private IType createBinaryContentAsyncReturnType() {
         IType returnType = GenericType.Response(GenericType.FLUX_BYTE_BUFFER);    // raw response for LRO
         return GenericType.Mono(returnType);
-    }
-
-    protected ProxyMethod.Builder createProxyMethodBuilder() {
-        return new ProxyMethod.Builder();
     }
 
     /**
@@ -713,12 +701,11 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
      *
      * @return The default HTTP status code to exception type mapping.
      */
-    protected Map<Integer, ClassType> getDefaultHttpStatusCodeToExceptionTypeMapping() {
+    private Map<Integer, ClassType> getDefaultHttpStatusCodeToExceptionTypeMapping() {
         Map<Integer, ClassType> defaultMapping = new HashMap<>();
         defaultMapping.put(401, ClassType.CLIENT_AUTHENTICATION_EXCEPTION);
         defaultMapping.put(404, ClassType.RESOURCE_NOT_FOUND_EXCEPTION);
         defaultMapping.put(409, ClassType.RESOURCE_MODIFIED_EXCEPTION);
-
         return defaultMapping;
     }
 
