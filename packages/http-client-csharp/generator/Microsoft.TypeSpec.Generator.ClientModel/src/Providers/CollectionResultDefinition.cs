@@ -286,7 +286,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     AssignAndCheckNextLinkUri(result, nextPageUri),
 
                     // Update message for next iteration
-                    message.Assign(InvokeCreateRequest(nextPageUri, True)).Terminate()
+                    message.Assign(InvokeCreateRequest(nextPageUri, False)).Terminate()
                 }
             ];
         }
