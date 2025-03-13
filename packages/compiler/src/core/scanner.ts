@@ -398,6 +398,40 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["local", Token.LocalKeyword],
   ["async", Token.AsyncKeyword],
 ]);
+/** @internal */
+export const ReservedKeywords: ReadonlyMap<string, Token> = new Map([
+  // Reserved keywords
+  ["statemachine", Token.StatemachineKeyword],
+  ["macro", Token.MacroKeyword],
+  ["package", Token.PackageKeyword],
+  ["metadata", Token.MetadataKeyword],
+  ["env", Token.EnvKeyword],
+  ["arg", Token.ArgKeyword],
+  ["declare", Token.DeclareKeyword],
+  ["array", Token.ArrayKeyword],
+  ["struct", Token.StructKeyword],
+  ["record", Token.RecordKeyword],
+  ["module", Token.ModuleKeyword],
+  ["trait", Token.TraitKeyword],
+  ["this", Token.ThisKeyword],
+  ["self", Token.SelfKeyword],
+  ["super", Token.SuperKeyword],
+  ["keyof", Token.KeyofKeyword],
+  ["with", Token.WithKeyword],
+  ["implements", Token.ImplementsKeyword],
+  ["impl", Token.ImplKeyword],
+  ["satisfies", Token.SatisfiesKeyword],
+  ["flag", Token.FlagKeyword],
+  ["auto", Token.AutoKeyword],
+  ["partial", Token.PartialKeyword],
+  ["private", Token.PrivateKeyword],
+  ["public", Token.PublicKeyword],
+  ["protected", Token.ProtectedKeyword],
+  ["internal", Token.InternalKeyword],
+  ["sealed", Token.SealedKeyword],
+  ["local", Token.LocalKeyword],
+  ["async", Token.AsyncKeyword],
+]);
 
 /** @internal */
 export const enum KeywordLimit {

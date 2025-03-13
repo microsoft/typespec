@@ -96,7 +96,7 @@ interface Parameters {
   @paramNameScenario("and") withAnd(@query and: string): void;
   @paramNameScenario("as") withAs(@query as: string): void;
   @paramNameScenario("assert") withAssert(@query assert: string): void;
-  @paramNameScenario("async") withAsync(@query `async`: string): void;
+  @paramNameScenario("async") withAsync(@query async: string): void;
   @paramNameScenario("await") withAwait(@query await: string): void;
   @paramNameScenario("break") withBreak(@query break: string): void;
   @paramNameScenario("class") withClass(@query class: string): void;
@@ -124,7 +124,7 @@ interface Parameters {
   @paramNameScenario("return") withReturn(@query `return`: string): void;
   @paramNameScenario("try") withTry(@query try: string): void;
   @paramNameScenario("while") withWhile(@query while: string): void;
-  @paramNameScenario("with") withWith(@query `with`: string): void;
+  @paramNameScenario("with") withWith(@query with: string): void;
   @paramNameScenario("yield") withYield(@query yield: string): void;
 
   // Non keywords but parameters name that could cause conflict with some language standards
