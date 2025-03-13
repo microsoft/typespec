@@ -1,8 +1,6 @@
-export { $lib } from "./lib.js";
-export { $linter } from "./linter.js";
-
 export type { HttpPartOptions } from "../generated-defs/TypeSpec.Http.Private.js";
 export { getAuthenticationForOperation, resolveAuthentication } from "./auth.js";
+export { getContentTypes } from "./content-types.js";
 export {
   $body,
   $bodyIgnore,
@@ -49,6 +47,8 @@ export {
   setAuthentication,
   type HttpServer,
 } from "./decorators.js";
+export { $lib } from "./lib.js";
+export { $linter } from "./linter.js";
 /** @internal */
 export { setStatusCode } from "./decorators.js";
 export type { HttpProperty } from "./http-property.js";
