@@ -405,6 +405,29 @@ it("generates default values in properties", async () => {
     ],
   );
 });
+it("generates default values in required properties", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** string literal */
+        stringLiteralProp: string = "This is a string literal";
+        /** boolean literal */
+        boolLiteralProp: boolean =  true;
+        /** numeric literal */
+        numericLiteralProp: int32 = 17;
+      }
+      `,
+    "Foo.cs",
+    [
+      "public partial class Foo",
+      `public string StringLiteralProp { get; set; } = "This is a string literal";`,
+      "public bool BoolLiteralProp { get; set; } = true;",
+      "public int NumericLiteralProp { get; set; } = 17;",
+    ],
+  );
+});
 
 it("generates standard scalar array  properties", async () => {
   await compileAndValidateSingleModel(
