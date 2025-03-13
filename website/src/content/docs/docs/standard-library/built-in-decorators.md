@@ -134,7 +134,7 @@ Specify the property to be used to discriminate this type.
 
 #### Target
 
-`Model | Union`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
@@ -376,7 +376,7 @@ The format names are open ended and are left to emitter to interpret.
 
 #### Target
 
-`string | bytes | ModelProperty`
+`string | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |

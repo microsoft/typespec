@@ -2,12 +2,81 @@ export { $lib } from "./lib.js";
 export { $linter } from "./linter.js";
 
 export { HttpPartOptions } from "../generated-defs/TypeSpec.Http.Private.js";
-export * from "./auth.js";
-export * from "./content-types.js";
-export * from "./decorators.js";
+export { getAuthenticationForOperation, resolveAuthentication } from "./auth.js";
+export { getContentTypes } from "./content-types.js";
+export {
+  $body,
+  $bodyIgnore,
+  $bodyRoot,
+  $cookie,
+  $delete,
+  $get,
+  $head,
+  $header,
+  $includeInapplicableMetadataInPayload,
+  $multipartBody,
+  $patch,
+  $path,
+  $post,
+  $put,
+  $query,
+  $route,
+  $server,
+  $sharedRoute,
+  $statusCode,
+  $useAuth,
+  getAuthentication,
+  getCookieParamOptions,
+  getHeaderFieldName,
+  getHeaderFieldOptions,
+  getOperationVerb,
+  getPatchOptions,
+  getPathParamName,
+  getPathParamOptions,
+  getQueryParamName,
+  getQueryParamOptions,
+  getServers,
+  getStatusCodeDescription,
+  getStatusCodes,
+  getStatusCodesWithDiagnostics,
+  includeInapplicableMetadataInPayload,
+  isBody,
+  isBodyIgnore,
+  isBodyRoot,
+  isCookieParam,
+  isHeader,
+  isMultipartBodyProperty,
+  isPathParam,
+  isQueryParam,
+  isStatusCode,
+  setAuthentication,
+  type HttpServer,
+} from "./decorators.js";
+/** @internal */
+export { setStatusCode } from "./decorators.js";
 export type { HttpProperty } from "./http-property.js";
-export * from "./metadata.js";
-export * from "./operations.js";
+export {
+  HttpVisibilityProvider,
+  Visibility,
+  createMetadataInfo,
+  getVisibilitySuffix,
+  isApplicableMetadata,
+  isApplicableMetadataOrBody,
+  isMetadata,
+  isVisible,
+  resolveRequestVisibility,
+  type MetadataInfo,
+  type MetadataInfoOptions,
+} from "./metadata.js";
+export {
+  getAllHttpServices,
+  getHttpOperation,
+  getHttpService,
+  isOverloadSameEndpoint,
+  listHttpOperationsIn,
+  reportIfNoRoutes,
+  validateRouteUnique,
+} from "./operations.js";
 export { getOperationParameters } from "./parameters.js";
 export {
   HttpPart,
@@ -16,10 +85,80 @@ export {
   isHttpFile,
   isOrExtendsHttpFile,
 } from "./private.decorators.js";
-export * from "./responses.js";
-export * from "./route.js";
+export { getResponsesForOperation } from "./responses.js";
+export {
+  DefaultRouteProducer,
+  addQueryParamsToUriTemplate,
+  getRouteOptionsForNamespace,
+  getRoutePath,
+  getRouteProducer,
+  getUriTemplatePathParam,
+  isSharedRoute,
+  joinPathSegments,
+  resolvePathAndParameters,
+  setRoute,
+  setRouteOptionsForNamespace,
+  setRouteProducer,
+  setSharedRoute,
+} from "./route.js";
 
-export * from "./types.js";
+export type {
+  AnyHttpAuthRef,
+  ApiKeyAuth,
+  Authentication,
+  AuthenticationOption,
+  AuthenticationOptionReference,
+  AuthenticationReference,
+  AuthorizationCodeFlow,
+  BasicAuth,
+  BearerAuth,
+  ClientCredentialsFlow,
+  CookieParameterOptions,
+  HeaderFieldOptions,
+  HttpAuth,
+  HttpAuthBase,
+  HttpAuthRef,
+  HttpBody,
+  HttpOperation,
+  HttpOperationBody,
+  HttpOperationBodyBase,
+  HttpOperationCookieParameter,
+  HttpOperationHeaderParameter,
+  HttpOperationMultipartBody,
+  HttpOperationParameter,
+  HttpOperationParameters,
+  HttpOperationPart,
+  HttpOperationPathParameter,
+  HttpOperationQueryParameter,
+  HttpOperationResponse,
+  HttpOperationResponseContent,
+  HttpService,
+  HttpServiceAuthentication,
+  HttpStatusCodeRange,
+  HttpStatusCodes,
+  HttpStatusCodesEntry,
+  HttpVerb,
+  ImplicitFlow,
+  NoAuth,
+  NoHttpAuthRef,
+  OAuth2Flow,
+  OAuth2FlowType,
+  OAuth2HttpAuthRef,
+  OAuth2Scope,
+  Oauth2Auth,
+  OpenIDConnectAuth,
+  OperationContainer,
+  OperationParameterOptions,
+  OperationVerbSelector,
+  PasswordFlow,
+  PathParameterOptions,
+  QueryParameterOptions,
+  RouteOptions,
+  RoutePath,
+  RouteProducer,
+  RouteProducerResult,
+  RouteResolutionOptions,
+} from "./types.js";
 
 /** @internal */
 export { $decorators } from "./tsp-index.js";

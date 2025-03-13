@@ -1,8 +1,8 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
+vi.resetModules();
+
 import { FinalStateValue } from "@azure-tools/typespec-azure-core";
 import assert from "assert";
-import { describe, it } from "vitest";
+import { describe, it, vi } from "vitest";
 import {
   OperationFinalStateVia,
   convertLroFinalStateVia,

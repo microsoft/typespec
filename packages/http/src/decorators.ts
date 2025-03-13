@@ -15,8 +15,6 @@ import {
   createDiagnosticCollector,
   getDoc,
   ignoreDiagnostics,
-  isArrayModelType,
-  reportDeprecated,
   typespecTypeToJson,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
@@ -81,26 +79,6 @@ export const $header: HeaderDecorator = (
       const name = headerNameOrOptions.name;
       if (name) {
         options.name = name;
-      }
-      const format = headerNameOrOptions.format;
-      if (format) {
-        reportDeprecated(
-          context.program,
-          "The `format` option of `@header` decorator is deprecated. Use `explode: true` instead of `form` and `multi`. `csv` or `simple` is the default now.",
-          entity,
-        );
-        if (
-          format === "csv" ||
-          format === "tsv" ||
-          format === "pipes" ||
-          format === "ssv" ||
-          format === "simple" ||
-          format === "form" ||
-          format === "multi"
-        ) {
-          // eslint-disable-next-line @typescript-eslint/no-deprecated
-          options.format = format;
-        }
       }
       if (headerNameOrOptions.explode) {
         options.explode = true;
@@ -174,30 +152,13 @@ export const $query: QueryDecorator = (
       : (queryNameOrOptions?.name ?? entity.name);
   const userOptions: QueryOptions =
     typeof queryNameOrOptions === "object" ? queryNameOrOptions : {};
-  if (userOptions.format) {
-    reportDeprecated(
-      context.program,
-      "The `format` option of `@query` decorator is deprecated. Use `explode: true` instead of `form` and `multi`. `csv` or `simple` is the default now.",
-      entity,
-    );
-  }
+
   const options: QueryParameterOptions = {
     type: "query",
-    explode:
-      userOptions.explode ?? (userOptions.format === "multi" || userOptions.format === "form"),
-    format: userOptions.format,
+    explode: userOptions.explode?.valueOf() ?? false,
     name: paramName,
   };
 
-  if (
-    entity.type.kind === "Model" &&
-    isArrayModelType(context.program, entity.type) &&
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    options.format === undefined
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    options.format = userOptions.explode ? "multi" : "csv";
-  }
   context.program.stateMap(HttpStateKeys.query).set(entity, options);
 };
 
@@ -289,66 +250,17 @@ export const $statusCode: StatusCodeDecorator = (
   entity: ModelProperty,
 ) => {
   context.program.stateSet(HttpStateKeys.statusCode).add(entity);
-
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  setLegacyStatusCodeState(context, entity);
 };
 
 /**
- * To not break we keep the legacy behavior of resolving the discrete status code in the decorator and saving them in the state.
- * @deprecated To remove. Added in October 2023 sprint.
- */
-function setLegacyStatusCodeState(context: DecoratorContext, entity: ModelProperty) {
-  const codes: string[] = [];
-  if (entity.type.kind === "String") {
-    if (validStatusCode(context.program, entity.type.value, entity)) {
-      codes.push(entity.type.value);
-    }
-  } else if (entity.type.kind === "Number") {
-    if (validStatusCode(context.program, String(entity.type.value), entity)) {
-      codes.push(String(entity.type.value));
-    }
-  } else if (entity.type.kind === "Union") {
-    for (const variant of entity.type.variants.values()) {
-      const option = variant.type;
-      if (option.kind === "String") {
-        if (validStatusCode(context.program, option.value, option)) {
-          codes.push(option.value);
-        }
-      } else if (option.kind === "Number") {
-        if (validStatusCode(context.program, String(option.value), option)) {
-          codes.push(String(option.value));
-        }
-      }
-    }
-  }
-
-  // Check status code value: 3 digits with first digit in [1-5]
-  // Issue a diagnostic if not valid
-  function validStatusCode(program: Program, code: string, entity: Type): boolean {
-    const statusCodePattern = /[1-5][0-9][0-9]/;
-    if (code.match(statusCodePattern)) {
-      return true;
-    }
-    reportDiagnostic(program, {
-      code: "status-code-invalid",
-      target: entity,
-      messageId: "value",
-    });
-    return false;
-  }
-  context.program.stateMap(HttpStateKeys.statusCode).set(entity, codes);
-}
-
-/**
- * @deprecated DO NOT USE, for internal use only.
+ * @internal DO NOT USE, for internal use only.
  */
 export function setStatusCode(program: Program, entity: Model | ModelProperty, codes: string[]) {
   program.stateMap(HttpStateKeys.statusCode).set(entity, codes);
 }
 
 export function isStatusCode(program: Program, entity: Type) {
-  return program.stateMap(HttpStateKeys.statusCode).has(entity);
+  return program.stateSet(HttpStateKeys.statusCode).has(entity);
 }
 
 export function getStatusCodesWithDiagnostics(
@@ -721,25 +633,9 @@ export const $route: RouteDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, entity, $route);
 
-  // Handle the deprecated `shared` option
-  let shared = false;
-  const sharedValue = (parameters as Model)?.properties.get("shared")?.type;
-  if (sharedValue !== undefined) {
-    reportDeprecated(
-      context.program,
-      "The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
-      entity,
-    );
-
-    // The type checker should have raised a diagnostic if the value isn't boolean
-    if (sharedValue.kind === "Boolean") {
-      shared = sharedValue.value;
-    }
-  }
-
   setRoute(context, entity, {
     path,
-    shared,
+    shared: false,
   });
 };
 
