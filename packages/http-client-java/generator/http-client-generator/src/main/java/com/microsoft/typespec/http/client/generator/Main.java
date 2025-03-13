@@ -248,7 +248,15 @@ public class Main {
 
     private static CodeModel loadCodeModel(String filename) throws IOException {
         String file = Files.readString(Paths.get(filename));
-        return getYaml().loadAs(file, CodeModel.class);
+        CodeModel codeModel = getYaml().loadAs(file, CodeModel.class);
+        // todo(xiaofei) remove below line after fixing mix usage of CodeModel.getOperationGroups() and
+        // CodeModel.getClients().getOperationGroups()
+        // add client's operation groups to root operation group
+        codeModel.setOperationGroups(codeModel.getClients()
+            .stream()
+            .flatMap(client -> client.getOperationGroups().stream())
+            .collect(Collectors.toList()));
+        return codeModel;
     }
 
     private static Yaml getYaml() {

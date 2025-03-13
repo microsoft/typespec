@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.core.util.CoreUtils;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
@@ -100,27 +99,6 @@ public class CodeModel extends Client {
      */
     public void setTestModel(TestModel testModel) {
         this.testModel = testModel;
-    }
-
-    @Override
-    public List<OperationGroup> getOperationGroups() {
-        // get from CodeModel root first, for Autorest compatibility
-        List<OperationGroup> operationGroups = super.getOperationGroups();
-        if (CoreUtils.isNullOrEmpty(operationGroups)) {
-            // if no operation groups, get from clients
-            return getClientOperationGroups();
-        }
-        return operationGroups;
-    }
-
-    @Override
-    public void setOperationGroups(List<OperationGroup> operationGroups) {
-        // in mgmt, we can filter out operation groups
-        super.setOperationGroups(operationGroups);
-        // mgmt can only have one client
-        if (!CoreUtils.isNullOrEmpty(getClients()) && getClients().size() == 1) {
-            getClients().get(0).setOperationGroups(operationGroups);
-        }
     }
 
     @Override
