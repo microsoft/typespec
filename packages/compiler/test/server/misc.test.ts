@@ -3,7 +3,7 @@ import { describe, it } from "vitest";
 import { SyntaxKind, TypeSpecScriptNode, parse } from "../../src/ast/index.js";
 import type { PositionDetail } from "../../src/index.js";
 import { getCompletionNodeAtPosition } from "../../src/server/serverlib.js";
-import { extractCursor } from "../../src/testing/test-server-host.js";
+import { extractCursor } from "../../src/testing/source-utils.js";
 import { dumpAST } from "../ast-test-utils.js";
 
 describe("compiler: server: misc", () => {

@@ -4,7 +4,7 @@ import { getCommentAtPosition, getPositionBeforeTrivia } from "../../src/core/pa
 import { parse } from "../../src/core/parser.js";
 import { TypeSpecScriptNode } from "../../src/core/types.js";
 import { Comment } from "../../src/index.js";
-import { extractCursor } from "../../src/testing/test-server-host.js";
+import { extractCursor } from "../../src/testing/source-utils.js";
 import { dumpAST } from "../ast-test-utils.js";
 
 describe("compiler: parser-utils", () => {

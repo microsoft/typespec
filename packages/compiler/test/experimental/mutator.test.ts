@@ -8,7 +8,6 @@ import {
   MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
 import { Model, ModelProperty, Namespace, Operation } from "../../src/index.js";
-import { expectIdenticalTypes } from "../../src/testing/expect.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper, expectTypeEquals } from "../../src/testing/test-utils.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
@@ -156,8 +155,8 @@ it.skip("doesn't duplicate references", async () => {
 
   expect(visited.map((x) => x.name)).toEqual(["Foo", "Baz", "Bar"]);
   const [MutatedFoo, _MutatedBaz, MutatedBar] = visited;
-  expectIdenticalTypes(MutatedFoo.properties.get("bar")!.type, MutatedBar);
-  expectIdenticalTypes(
+  expectTypeEquals(MutatedFoo.properties.get("bar")!.type, MutatedBar);
+  expectTypeEquals(
     (MutatedFoo.properties.get("baz")!.type as Model).properties.get("bar")?.type!,
     MutatedBar,
   );
@@ -188,7 +187,7 @@ it("doesn't duplicate references from different types", async () => {
 
   expect(visited.map((x) => x.name)).toEqual(["test", "", "Common"]);
   const [MutatedTest, _, MutatedCommon] = visited;
-  expectIdenticalTypes((MutatedTest as Operation).returnType, MutatedCommon);
+  expectTypeEquals((MutatedTest as Operation).returnType, MutatedCommon);
 });
 
 it("removes model reference from namespace", async () => {
@@ -220,7 +219,7 @@ it("removes model reference from namespace", async () => {
 
   //Original namespace should have Bar model
   expect(Foo.models.has("Bar")).toBeTruthy();
-  expectIdenticalTypes(Foo.models.get("Baz")!.namespace!, Foo);
+  expectTypeEquals(Foo.models.get("Baz")!.namespace!, Foo);
   // Mutated namespace should not have Bar model
   expect(mutatedNs.models.has("Bar")).toBeFalsy();
   // Mutated namespace is propagated to the models

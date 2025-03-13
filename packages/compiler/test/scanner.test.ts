@@ -15,7 +15,7 @@ import {
   isStatementKeyword,
 } from "../src/core/scanner.js";
 import { DiagnosticMatch, expectDiagnostics } from "../src/testing/expect.js";
-import { extractSquiggles } from "../src/testing/test-server-host.js";
+import { extractSquiggles } from "../src/testing/source-utils.js";
 
 type TokenEntry = [
   Token,

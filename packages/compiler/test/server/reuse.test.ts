@@ -3,11 +3,8 @@ import { describe, it } from "vitest";
 import { visitChildren } from "../../src/core/parser.js";
 import type { SymbolTable } from "../../src/core/types.js";
 import { Program } from "../../src/index.js";
-import {
-  createTestServerHost,
-  expectDiagnosticEmpty,
-  resolveVirtualPath,
-} from "../../src/testing/index.js";
+import { expectDiagnosticEmpty, resolveVirtualPath } from "../../src/testing/index.js";
+import { createTestServerHost } from "../../src/testing/test-server-host.js";
 import { mutate } from "../../src/utils/misc.js";
 
 describe("compiler: server: reuse", () => {

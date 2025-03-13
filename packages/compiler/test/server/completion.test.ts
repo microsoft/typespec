@@ -6,11 +6,8 @@ import {
   CompletionList,
   MarkupKind,
 } from "vscode-languageserver/node.js";
-import {
-  createTestServerHost,
-  extractCursor,
-  extractSquiggles,
-} from "../../src/testing/test-server-host.js";
+import { extractCursor, extractSquiggles } from "../../src/testing/source-utils.js";
+import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 // cspell:ignore 𐌰𐌲𐌰𐌲𐌰𐌲
 

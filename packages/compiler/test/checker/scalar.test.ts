@@ -6,7 +6,7 @@ import {
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
-  expectIdenticalTypes,
+  expectTypeEquals,
 } from "../../src/testing/index.js";
 
 describe("compiler: scalars", () => {
@@ -87,7 +87,7 @@ describe("compiler: scalars", () => {
       strictEqual(M.kind, "Model");
       const p = M.properties.get("p");
       ok(p);
-      expectIdenticalTypes(p.type, S);
+      expectTypeEquals(p.type, S);
       strictEqual(p.defaultValue?.valueKind, "NumericValue");
       strictEqual(p.defaultValue.value.asNumber(), 42);
     });
@@ -102,7 +102,7 @@ describe("compiler: scalars", () => {
       strictEqual(M.kind, "Model");
       const p = M.properties.get("p");
       ok(p);
-      expectIdenticalTypes(p.type, S);
+      expectTypeEquals(p.type, S);
       strictEqual(p.defaultValue?.valueKind, "BooleanValue");
       strictEqual(p.defaultValue.value, true);
     });
@@ -117,7 +117,7 @@ describe("compiler: scalars", () => {
       strictEqual(M.kind, "Model");
       const p = M.properties.get("p");
       ok(p);
-      expectIdenticalTypes(p.type, S);
+      expectTypeEquals(p.type, S);
       strictEqual(p.defaultValue?.valueKind, "StringValue");
       strictEqual(p.defaultValue.value, "hello");
     });
