@@ -257,9 +257,10 @@ export async function createTypeSpecProject(
           // our extension will be reinitialized if user chooses to open a new window or add to workspace with 0 or 1 folder
           // so send telemetry explicitly here before the next step
           tel.lastStep = `Next step: ${nextStep}`;
+          // send in delay mode for "Open in New Window" and "Add to workspace" to avoid telemetry lost when the extension is reinitialized
+          sendTelEvent(ResultCode.Success, nextStep === "Ignore" ? false : true /*delay*/);
 
           if (nextStep === "Open in New Window") {
-            sendTelEvent(ResultCode.Success, true);
             stateManager.saveStartUpMessage(
               {
                 popupMessage,
@@ -295,7 +296,6 @@ export async function createTypeSpecProject(
             );
 
             if (nextStep === "Add to workspace") {
-              sendTelEvent(ResultCode.Success, true);
               vscode.workspace.updateWorkspaceFolders(
                 vscode.workspace.workspaceFolders?.length ?? 0,
                 null,

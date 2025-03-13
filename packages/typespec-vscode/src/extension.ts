@@ -39,8 +39,7 @@ logger.registerLogListener("extension-log", new ExtensionLogListener(outputChann
 
 export async function activate(context: ExtensionContext) {
   const stateManager = new ExtensionStateManager(context);
-
-  telemetryClient.enableDelayMode(stateManager);
+  telemetryClient.Initialize(stateManager);
   context.subscriptions.push(telemetryClient);
 
   context.subscriptions.push(createTaskProvider());

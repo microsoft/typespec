@@ -22,7 +22,15 @@ export class TelemetryClient {
   private _logTelemetryErrorCount = 0;
   private _stateManager: ExtensionStateManager | undefined;
 
-  constructor() {
+  constructor() {}
+
+  /**
+   *
+   * @param stateManager the state manager to use for storing telemetry events which will been sent in delay (next time the extension starts) which
+   * is useful when the extension will be re-initialized for some reason (i.e. open new window for created project) and can't send telemetry events in time.
+   */
+  public Initialize(stateManager: ExtensionStateManager) {
+    this._stateManager = stateManager;
     this.initClient();
   }
 
@@ -59,14 +67,6 @@ export class TelemetryClient {
       return undefined;
     }
     return key;
-  }
-
-  /**
-   * DelayMode: the telemetry events will be stored in the state manager and sent later when our extension is started next time
-   *            It's useful when the extension will be reloaded or re-intialized for some reason
-   */
-  public enableDelayMode(stateManager: ExtensionStateManager) {
-    this._stateManager = stateManager;
   }
 
   private sendEvent(raw: RawTelemetryEvent, delay: boolean): void {

@@ -427,7 +427,6 @@ async function doEmit(
         };
         emitters.forEach((e) => {
           telemetryClient.logOperationDetailTelemetry(tel.activityId, {
-            // mask unknown emitters for privacy
             emitterName: generatePackageNameForTelemetry(e.package),
             emitterVersion: e.version,
           });
