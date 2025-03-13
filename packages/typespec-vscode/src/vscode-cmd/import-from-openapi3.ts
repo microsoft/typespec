@@ -1,5 +1,6 @@
 import { PackageJson } from "@typespec/compiler";
 import { major, minor } from "semver";
+import { inspect } from "util";
 import vscode from "vscode";
 import logger from "../log/logger.js";
 import { normalizePath } from "../path-utils.js";
@@ -119,7 +120,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
       }
 
       async function tryInstallOpenApi3Locally(
-  	packageJson: PackageJson,
+        packageJson: PackageJson,
         packageJsonFolder: string,
       ): Promise<Result<ExecOutput | undefined>> {
         if (
@@ -296,7 +297,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
         );
         if (result.code === ResultCode.Fail) {
           telemetryClient.logOperationDetailTelemetry(tel.activityId, {
-            error: `Error when importing OpenAPI to TypeSpec: ${result.details}`,
+            error: `Error when importing OpenAPI to TypeSpec: ${inspect(result.details)}`,
           });
         }
         return result;

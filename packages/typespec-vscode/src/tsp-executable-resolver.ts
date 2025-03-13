@@ -50,6 +50,7 @@ export async function resolveTypeSpecServer(
   const checkNodePromise = checkInstalledNode();
   const nodeOptions = process.env.TYPESPEC_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
+  let compilerLocation: string | undefined;
 
   // In development mode (F5 launch from source), resolve to locally built server.js.
   if (process.env.TYPESPEC_DEVELOPMENT_MODE) {
@@ -80,9 +81,7 @@ export async function resolveTypeSpecServer(
   // @typespec/compiler` in a vanilla setup.
   if (serverPath) {
     logger.info(`Server path loaded from TypeSpec extension configuration: ${serverPath}`);
-    telemetryClient.logOperationDetailTelemetry(activityId, {
-      compilerLocation: "compiler-configured-by-setting",
-    });
+    compilerLocation = "compiler-configured-by-setting";
   } else {
     logger.info(
       "Server path not configured in TypeSpec extension configuration, trying to resolve locally within current workspace.",
@@ -100,9 +99,8 @@ export async function resolveTypeSpecServer(
     });
     return useShellInExec({ command: executable, args, options });
   }
-  telemetryClient.logOperationDetailTelemetry(activityId, {
-    compilerLocation: "local-compiler",
-  });
+  compilerLocation ??= "local-compiler";
+  telemetryClient.logOperationDetailTelemetry(activityId, { compilerLocation });
   const variableResolver = new VSCodeVariableResolver({
     workspaceFolder,
     workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.

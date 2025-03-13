@@ -10,6 +10,7 @@ export enum TelemetryEventName {
   ImportFromOpenApi3 = "import-from-openapi3",
   ServerPathSettingChanged = "server-path-changed",
   OperationDetail = "operation-detail",
+  PreviewOpenApi3 = "preview-openapi3",
 }
 
 export interface TelemetryEventBase {

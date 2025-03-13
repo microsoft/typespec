@@ -144,7 +144,12 @@ export async function activate(context: ExtensionContext) {
 
   context.subscriptions.push(
     commands.registerCommand(CommandName.ShowOpenApi3, async (uri: vscode.Uri) => {
-      await showOpenApi3(uri, context, client!);
+      await telemetryClient.doOperationWithTelemetry(
+        TelemetryEventName.PreviewOpenApi3,
+        async (tel) => {
+          return await showOpenApi3(uri, context, client!, tel);
+        },
+      );
     }),
   );
 

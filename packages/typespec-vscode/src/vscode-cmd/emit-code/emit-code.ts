@@ -415,13 +415,20 @@ async function doEmit(
     async (): Promise<ResultCode> => {
       try {
         tel.lastStep = "Emit code";
+        const generatePackageNameForTelemetry = (packageName: string): string => {
+          const p = getRegisterEmittersByPackage(packageName);
+          if (p) {
+            // replace / and @ with #, otherwise vscode telemetry library will treat it as a path/email and redacted it.
+            return p.package.replace(/[/|@]/g, "#");
+          } else {
+            // for unknown emitters, hash the package name for privacy.
+            return createHash("sha256").update(packageName).digest("hex");
+          }
+        };
         emitters.forEach((e) => {
-          const hash = createHash("sha256");
           telemetryClient.logOperationDetailTelemetry(tel.activityId, {
             // mask unknown emitters for privacy
-            emitterName:
-              getRegisterEmittersByPackage(e.package)?.package ??
-              hash.update(e.package).digest("hex"),
+            emitterName: generatePackageNameForTelemetry(e.package),
             emitterVersion: e.version,
           });
         });

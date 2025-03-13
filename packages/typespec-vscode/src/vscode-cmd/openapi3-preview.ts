@@ -3,7 +3,9 @@ import * as semver from "semver";
 import * as vscode from "vscode";
 import logger from "../log/logger.js";
 import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
+import { OperationTelemetryEvent } from "../telemetry/telemetry-event.js";
 import { TspLanguageClient } from "../tsp-language-client.js";
+import { ResultCode } from "../types.js";
 import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../typespec-utils.js";
 import { createTempDir, parseJsonFromFile, throttle } from "../utils.js";
 
@@ -13,7 +15,8 @@ export async function showOpenApi3(
   uri: vscode.Uri,
   context: vscode.ExtensionContext,
   client: TspLanguageClient,
-) {
+  tel: OperationTelemetryEvent,
+): Promise<ResultCode> {
   const selectedFile = uri?.fsPath ?? vscode.window.activeTextEditor?.document.uri.fsPath;
   if (!selectedFile || !selectedFile.endsWith(".tsp")) {
     logger.error(
@@ -24,7 +27,8 @@ export async function showOpenApi3(
         showPopup: true,
       },
     );
-    return;
+    tel.lastStep = "Check selected file";
+    return ResultCode.Fail;
   }
 
   // TODO: need to support `exports`, also we should unify the logic of finding the entrypoint file
@@ -35,10 +39,11 @@ export async function showOpenApi3(
       showOutput: true,
       showPopup: true,
     });
-    return;
+    tel.lastStep = "Get entrypoint file";
+    return ResultCode.Fail;
   }
 
-  await loadOpenApi3PreviewPanel(mainTspFile, context, client);
+  return await loadOpenApi3PreviewPanel(mainTspFile, context, client, tel);
 }
 
 async function getMainTspFile(): Promise<string | undefined> {
@@ -69,14 +74,16 @@ async function loadOpenApi3PreviewPanel(
   mainTspFile: string,
   context: vscode.ExtensionContext,
   client: TspLanguageClient,
-) {
+  tel: OperationTelemetryEvent,
+): Promise<ResultCode> {
   const compilerVersion = client.initializeResult?.serverInfo?.version;
   if (!compilerVersion || semver.lt(compilerVersion, "0.65.0")) {
     logger.error("OpenAPI3 preview requires TypeSpec compiler version 0.65.0 or later.", [], {
       showOutput: true,
       showPopup: true,
     });
-    return;
+    tel.lastStep = "Check compiler version";
+    return ResultCode.Fail;
   }
 
   if (openApi3PreviewPanels.has(mainTspFile)) {
@@ -94,12 +101,14 @@ async function loadOpenApi3PreviewPanel(
           showPopup: true,
         },
       );
-      return;
+      tel.lastStep = "Get output folder";
+      return ResultCode.Fail;
     }
 
     const fileContent = await selectAndGetOpenApi3Content(mainTspFile, outputFolder, true, context);
     if (fileContent === undefined) {
-      return;
+      tel.lastStep = "Select OpenAPI3 content";
+      return ResultCode.Cancelled;
     }
 
     void panel.webview.postMessage({ command: "load", param: fileContent });
@@ -144,7 +153,8 @@ async function loadOpenApi3PreviewPanel(
 
     const fileContent = await getOpenApi3Output(true);
     if (fileContent === undefined) {
-      return;
+      tel.lastStep = "Get OpenAPI3 output";
+      return ResultCode.Fail;
     }
 
     const panel = vscode.window.createWebviewPanel(
@@ -187,6 +197,7 @@ async function loadOpenApi3PreviewPanel(
 
     loadHtml(context.extensionUri, panel);
   }
+  return ResultCode.Success;
 }
 
 let html: string | undefined;
