@@ -20,7 +20,8 @@ import type {
   Diagnostic as TypeSpecDiagnostic,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { doIO, loadFile, resolveTspMain } from "../utils/misc.js";
+import { doIO, loadFile } from "../utils/io.js";
+import { resolveTspMain } from "../utils/misc.js";
 import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";

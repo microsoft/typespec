@@ -116,19 +116,29 @@
       "explorer/context": [
         {
           "command": "typespec.importFromOpenApi3",
-          "group": "typespec@2"
+          "group": "typespec@3"
         },
         {
-          "command": "typespec.generateCode",
+          "command": "typespec.emitCode",
           "when": "explorerResourceIsFolder || resourceLangId == typespec",
           "group": "typespec@1"
+        },
+        {
+          "command": "typespec.showOpenApi3",
+          "when": "resourceLangId == typespec",
+          "group": "typespec@2"
         }
       ],
       "editor/context": [
         {
-          "command": "typespec.generateCode",
+          "command": "typespec.emitCode",
           "when": "resourceLangId == typespec",
           "group": "typespec@1"
+        },
+        {
+          "command": "typespec.showOpenApi3",
+          "when": "resourceLangId == typespec",
+          "group": "typespec@2"
         }
       ]
     },
@@ -162,8 +172,8 @@
         "category": "TypeSpec"
       },
       {
-        "command": "typespec.generateCode",
-        "title": "Generate from TypeSpec",
+        "command": "typespec.emitCode",
+        "title": "Emit from TypeSpec",
         "category": "TypeSpec"
       },
       {
@@ -179,6 +189,11 @@
       {
         "command": "typespec.importFromOpenApi3",
         "title": "Import TypeSpec from OpenApi3",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.showOpenApi3",
+        "title": "Show OpenAPI3 Documentation",
         "category": "TypeSpec"
       }
     ],
@@ -257,7 +272,9 @@
     "mocha": "^11.1.0",
     "rimraf": "~6.0.1",
     "rollup": "~4.34.9",
+    "rollup-plugin-copy": "^3.5.0",
     "semver": "^7.7.1",
+    "swagger-ui-dist": "^5.20.0",
     "typescript": "~5.8.2",
     "vitest": "^3.0.7",
     "vscode-languageclient": "~9.0.1",

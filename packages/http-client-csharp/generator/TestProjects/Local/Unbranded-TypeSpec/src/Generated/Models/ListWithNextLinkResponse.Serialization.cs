@@ -11,7 +11,7 @@ using System.Text.Json;
 namespace UnbrandedTypeSpec
 {
     /// <summary></summary>
-    public partial class ListWithNextLinkResponse : IJsonModel<ListWithNextLinkResponse>
+    internal partial class ListWithNextLinkResponse : IJsonModel<ListWithNextLinkResponse>
     {
         internal ListWithNextLinkResponse()
         {

@@ -1,4 +1,4 @@
-import { typespecVersion } from "../../../../utils/misc.js";
+import { typespecVersion } from "../../../../manifest.js";
 import { logDiagnostics } from "../../../diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
 import { CompilerOptions } from "../../../options.js";
