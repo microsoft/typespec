@@ -30,9 +30,9 @@ export async function isDirectory(path: string) {
   }
 }
 
-export async function createTempDir(tmpRoot: string): Promise<string | undefined> {
+export async function createTempDir(tmpRoot: string, prefix: string): Promise<string | undefined> {
   try {
-    return await mkdtemp(joinPaths(tmpRoot, "openapi3-preview-"));
+    return await mkdtemp(joinPaths(tmpRoot, prefix));
   } catch (e) {
     logger.error("Failed to create temp folder", [e]);
     return undefined;

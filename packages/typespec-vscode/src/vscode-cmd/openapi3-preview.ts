@@ -246,7 +246,7 @@ function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
 async function getOutputFolder(mainTspFile: string, tmpRoot: string): Promise<string | undefined> {
   let tmpFolder = openApi3TempFolders.get(mainTspFile);
   if (!tmpFolder) {
-    tmpFolder = await createTempDir(tmpRoot);
+    tmpFolder = await createTempDir(tmpRoot, "openapi3-preview-");
     if (tmpFolder) {
       openApi3TempFolders.set(mainTspFile, tmpFolder);
     }
