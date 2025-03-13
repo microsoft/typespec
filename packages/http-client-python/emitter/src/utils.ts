@@ -162,7 +162,7 @@ export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
   if (
     type.apiVersions[0] ===
     context.sdkPackage.clients.find(
-      (c) => c.clientInitialization.initializedBy === InitializedByFlags.Individually,
+      (c) => c.clientInitialization.initializedBy | InitializedByFlags.Individually,
     )?.apiVersions[0]
   )
     return undefined;
