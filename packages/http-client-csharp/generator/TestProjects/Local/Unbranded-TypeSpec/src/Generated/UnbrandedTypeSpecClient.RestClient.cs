@@ -340,7 +340,7 @@ namespace UnbrandedTypeSpec
             PipelineRequest request = message.Request;
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
-            uri.Reset(nextPage);
+            uri.Reset(nextPage ?? _endpoint);
             if (nextPage == null)
             {
                 uri.AppendPath("/link", false);

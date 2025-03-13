@@ -39,7 +39,7 @@ namespace UnbrandedTypeSpec
                 {
                     yield break;
                 }
-                message = _client.CreateListWithContinuationTokenHeaderResponseRequest(_token, _options);
+                message = _client.CreateListWithContinuationTokenHeaderResponseRequest(nextToken, _options);
             }
         }
 
