@@ -316,17 +316,6 @@ export type UseAuthDecorator = (
 ) => void;
 
 /**
- * Specify if inapplicable metadata should be included in the payload for the given entity.
- *
- * @param value If true, inapplicable metadata will be included in the payload.
- */
-export type IncludeInapplicableMetadataInPayloadDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: boolean,
-) => void;
-
-/**
  * Defines the relative route URI template for the target operation as defined by [RFC 6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
@@ -387,7 +376,6 @@ export type TypeSpecHttpDecorators = {
   head: HeadDecorator;
   server: ServerDecorator;
   useAuth: UseAuthDecorator;
-  includeInapplicableMetadataInPayload: IncludeInapplicableMetadataInPayloadDecorator;
   route: RouteDecorator;
   sharedRoute: SharedRouteDecorator;
 };

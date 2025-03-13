@@ -1,9 +1,8 @@
 export { $lib } from "./lib.js";
 export { $linter } from "./linter.js";
 
-export { HttpPartOptions } from "../generated-defs/TypeSpec.Http.Private.js";
+export type { HttpPartOptions } from "../generated-defs/TypeSpec.Http.Private.js";
 export { getAuthenticationForOperation, resolveAuthentication } from "./auth.js";
-export { getContentTypes } from "./content-types.js";
 export {
   $body,
   $bodyIgnore,
@@ -13,7 +12,6 @@ export {
   $get,
   $head,
   $header,
-  $includeInapplicableMetadataInPayload,
   $multipartBody,
   $patch,
   $path,
@@ -39,7 +37,6 @@ export {
   getStatusCodeDescription,
   getStatusCodes,
   getStatusCodesWithDiagnostics,
-  includeInapplicableMetadataInPayload,
   isBody,
   isBodyIgnore,
   isBodyRoot,

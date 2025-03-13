@@ -17,7 +17,6 @@ import {
   getQueryParamOptions,
   getServers,
   getStatusCodes,
-  includeInapplicableMetadataInPayload,
   isBody,
   isBodyIgnore,
   isBodyRoot,
@@ -27,6 +26,7 @@ import {
   isQueryParam,
   isStatusCode,
 } from "../src/decorators.js";
+import { includeInapplicableMetadataInPayload } from "../src/private.decorators.js";
 import { createHttpTestRunner } from "./test-host.js";
 describe("http: decorators", () => {
   let runner: BasicTestRunner;

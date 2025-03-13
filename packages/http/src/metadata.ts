@@ -18,7 +18,6 @@ import { TwoLevelMap } from "@typespec/compiler/utils";
 import {
   getOperationVerb,
   getPatchOptions,
-  includeInapplicableMetadataInPayload,
   isBody,
   isBodyIgnore,
   isBodyRoot,
@@ -35,6 +34,7 @@ import { HttpVerb, OperationParameterOptions } from "./types.js";
 // Used in @link JsDoc tag.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { PatchOptions } from "../generated-defs/TypeSpec.Http.js";
+import { includeInapplicableMetadataInPayload } from "./private.decorators.js";
 
 /**
  * Flags enum representation of well-known visibilities that are used in

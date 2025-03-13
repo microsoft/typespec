@@ -15,8 +15,20 @@ export type HttpPartDecorator = (
   options: HttpPartOptions,
 ) => void;
 
+/**
+ * Specify if inapplicable metadata should be included in the payload for the given entity.
+ *
+ * @param value If true, inapplicable metadata will be included in the payload.
+ */
+export type IncludeInapplicableMetadataInPayloadDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  value: boolean,
+) => void;
+
 export type TypeSpecHttpPrivateDecorators = {
   plainData: PlainDataDecorator;
   httpFile: HttpFileDecorator;
   httpPart: HttpPartDecorator;
+  includeInapplicableMetadataInPayload: IncludeInapplicableMetadataInPayloadDecorator;
 };
