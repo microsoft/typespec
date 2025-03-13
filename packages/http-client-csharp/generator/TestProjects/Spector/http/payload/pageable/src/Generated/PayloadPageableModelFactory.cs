@@ -4,66 +4,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Payload.Pageable._ServerDrivenPagination;
 using Payload.Pageable._ServerDrivenPagination.ContinuationToken;
 
 namespace Payload.Pageable
 {
-    /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class PayloadPageableModelFactory
     {
 
-        /// <summary> The Pet. </summary>
-        /// <param name="id"></param>
-        /// <param name="name"></param>
-        /// <returns> A new <see cref="Pageable.Pet"/> instance for mocking. </returns>
-        public static Pet Pet(string id = default, string name = default)
-        {
+        public static Pet Pet(string id = default, string name = default) => throw null;
 
-            return new Pet(id, name, additionalBinaryDataProperties: null);
-        }
+        public static RequestQueryResponseBodyResponse RequestQueryResponseBodyResponse(IEnumerable<Pet> pets = default, string nextToken = default) => throw null;
 
-        /// <summary> The RequestQueryResponseBodyResponse. </summary>
-        /// <param name="pets"></param>
-        /// <param name="nextToken"></param>
-        /// <returns> A new <see cref="_ServerDrivenPagination.ContinuationToken.RequestQueryResponseBodyResponse"/> instance for mocking. </returns>
-        public static RequestQueryResponseBodyResponse RequestQueryResponseBodyResponse(IEnumerable<Pet> pets = default, string nextToken = default)
-        {
-            pets ??= new ChangeTrackingList<Pet>();
+        public static RequestHeaderResponseBodyResponse RequestHeaderResponseBodyResponse(IEnumerable<Pet> pets = default, string nextToken = default) => throw null;
 
-            return new RequestQueryResponseBodyResponse(pets?.ToList(), nextToken, additionalBinaryDataProperties: null);
-        }
+        public static RequestQueryResponseHeaderResponse RequestQueryResponseHeaderResponse(IEnumerable<Pet> pets = default) => throw null;
 
-        /// <summary> The RequestHeaderResponseBodyResponse. </summary>
-        /// <param name="pets"></param>
-        /// <param name="nextToken"></param>
-        /// <returns> A new <see cref="_ServerDrivenPagination.ContinuationToken.RequestHeaderResponseBodyResponse"/> instance for mocking. </returns>
-        public static RequestHeaderResponseBodyResponse RequestHeaderResponseBodyResponse(IEnumerable<Pet> pets = default, string nextToken = default)
-        {
-            pets ??= new ChangeTrackingList<Pet>();
-
-            return new RequestHeaderResponseBodyResponse(pets?.ToList(), nextToken, additionalBinaryDataProperties: null);
-        }
-
-        /// <summary> The RequestQueryResponseHeaderResponse. </summary>
-        /// <param name="pets"></param>
-        /// <returns> A new <see cref="Pageable.RequestQueryResponseHeaderResponse"/> instance for mocking. </returns>
-        public static RequestQueryResponseHeaderResponse RequestQueryResponseHeaderResponse(IEnumerable<Pet> pets = default)
-        {
-            pets ??= new ChangeTrackingList<Pet>();
-
-            return new RequestQueryResponseHeaderResponse(pets?.ToList(), additionalBinaryDataProperties: null);
-        }
-
-        /// <summary> The RequestHeaderResponseHeaderResponse. </summary>
-        /// <param name="pets"></param>
-        /// <returns> A new <see cref="Pageable.RequestHeaderResponseHeaderResponse"/> instance for mocking. </returns>
-        public static RequestHeaderResponseHeaderResponse RequestHeaderResponseHeaderResponse(IEnumerable<Pet> pets = default)
-        {
-            pets ??= new ChangeTrackingList<Pet>();
-
-            return new RequestHeaderResponseHeaderResponse(pets?.ToList(), additionalBinaryDataProperties: null);
-        }
+        public static RequestHeaderResponseHeaderResponse RequestHeaderResponseHeaderResponse(IEnumerable<Pet> pets = default) => throw null;
     }
 }

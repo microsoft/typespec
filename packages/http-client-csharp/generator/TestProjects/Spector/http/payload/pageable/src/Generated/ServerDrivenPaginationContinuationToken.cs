@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -11,279 +10,42 @@ using Payload.Pageable;
 
 namespace Payload.Pageable._ServerDrivenPagination.ContinuationToken
 {
-    /// <summary></summary>
     public partial class ServerDrivenPaginationContinuationToken
     {
-        private readonly Uri _endpoint;
+        protected ServerDrivenPaginationContinuationToken() => throw null;
 
-        /// <summary> Initializes a new instance of ServerDrivenPaginationContinuationToken for mocking. </summary>
-        protected ServerDrivenPaginationContinuationToken()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        internal ServerDrivenPaginationContinuationToken(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual ClientResult RequestQueryResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual Task<ClientResult> RequestQueryResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] requestQueryResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult RequestQueryResponseBody(string token, string foo, string bar, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRequestQueryResponseBodyRequest(token, foo, bar, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult<RequestQueryResponseBodyResponse> RequestQueryResponseBody(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] requestQueryResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> RequestQueryResponseBodyAsync(string token, string foo, string bar, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRequestQueryResponseBodyRequest(token, foo, bar, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult<RequestQueryResponseBodyResponse>> RequestQueryResponseBodyAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> requestQueryResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<RequestQueryResponseBodyResponse> RequestQueryResponseBody(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default)
-        {
-            ClientResult result = RequestQueryResponseBody(token, foo, bar, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((RequestQueryResponseBodyResponse)result, result.GetRawResponse());
-        }
+        public virtual ClientResult RequestHeaderResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary> requestQueryResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<RequestQueryResponseBodyResponse>> RequestQueryResponseBodyAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default)
-        {
-            ClientResult result = await RequestQueryResponseBodyAsync(token, foo, bar, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((RequestQueryResponseBodyResponse)result, result.GetRawResponse());
-        }
+        public virtual Task<ClientResult> RequestHeaderResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] requestHeaderResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult RequestHeaderResponseBody(string token, string foo, string bar, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRequestHeaderResponseBodyRequest(token, foo, bar, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult<RequestHeaderResponseBodyResponse> RequestHeaderResponseBody(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] requestHeaderResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> RequestHeaderResponseBodyAsync(string token, string foo, string bar, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRequestHeaderResponseBodyRequest(token, foo, bar, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult<RequestHeaderResponseBodyResponse>> RequestHeaderResponseBodyAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> requestHeaderResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<RequestHeaderResponseBodyResponse> RequestHeaderResponseBody(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default)
-        {
-            ClientResult result = RequestHeaderResponseBody(token, foo, bar, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((RequestHeaderResponseBodyResponse)result, result.GetRawResponse());
-        }
+        public virtual ClientResult RequestQueryResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary> requestHeaderResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<RequestHeaderResponseBodyResponse>> RequestHeaderResponseBodyAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default)
-        {
-            ClientResult result = await RequestHeaderResponseBodyAsync(token, foo, bar, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((RequestHeaderResponseBodyResponse)result, result.GetRawResponse());
-        }
+        public virtual Task<ClientResult> RequestQueryResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] requestQueryResponseHeader
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult RequestQueryResponseHeader(string token, string foo, string bar, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRequestQueryResponseHeaderRequest(token, foo, bar, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult<RequestQueryResponseHeaderResponse> RequestQueryResponseHeader(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] requestQueryResponseHeader
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> RequestQueryResponseHeaderAsync(string token, string foo, string bar, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRequestQueryResponseHeaderRequest(token, foo, bar, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult<RequestQueryResponseHeaderResponse>> RequestQueryResponseHeaderAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> requestQueryResponseHeader. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<RequestQueryResponseHeaderResponse> RequestQueryResponseHeader(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default)
-        {
-            ClientResult result = RequestQueryResponseHeader(token, foo, bar, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((RequestQueryResponseHeaderResponse)result, result.GetRawResponse());
-        }
+        public virtual ClientResult RequestHeaderResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary> requestQueryResponseHeader. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<RequestQueryResponseHeaderResponse>> RequestQueryResponseHeaderAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default)
-        {
-            ClientResult result = await RequestQueryResponseHeaderAsync(token, foo, bar, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((RequestQueryResponseHeaderResponse)result, result.GetRawResponse());
-        }
+        public virtual Task<ClientResult> RequestHeaderResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] requestHeaderResponseHeader
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult RequestHeaderResponseHeader(string token, string foo, string bar, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRequestHeaderResponseHeaderRequest(token, foo, bar, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult<RequestHeaderResponseHeaderResponse> RequestHeaderResponseHeader(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] requestHeaderResponseHeader
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> RequestHeaderResponseHeaderAsync(string token, string foo, string bar, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRequestHeaderResponseHeaderRequest(token, foo, bar, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> requestHeaderResponseHeader. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<RequestHeaderResponseHeaderResponse> RequestHeaderResponseHeader(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default)
-        {
-            ClientResult result = RequestHeaderResponseHeader(token, foo, bar, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((RequestHeaderResponseHeaderResponse)result, result.GetRawResponse());
-        }
-
-        /// <summary> requestHeaderResponseHeader. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<RequestHeaderResponseHeaderResponse>> RequestHeaderResponseHeaderAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default)
-        {
-            ClientResult result = await RequestHeaderResponseHeaderAsync(token, foo, bar, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((RequestHeaderResponseHeaderResponse)result, result.GetRawResponse());
-        }
+        public virtual Task<ClientResult<RequestHeaderResponseHeaderResponse>> RequestHeaderResponseHeaderAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
     }
 }

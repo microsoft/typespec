@@ -7,17 +7,16 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Payload.Pageable._ServerDrivenPagination;
 
-namespace Payload.Pageable
+namespace UnbrandedTypeSpec
 {
-    internal partial class LinkAsyncCollectionResultOfT : AsyncCollectionResult<Pet>
+    internal partial class ListWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
-        private readonly ServerDrivenPagination _client;
+        private readonly UnbrandedTypeSpecClient _client;
         private readonly Uri _initialUri;
         private readonly RequestOptions _options;
 
-        public LinkAsyncCollectionResultOfT(ServerDrivenPagination client, Uri initialUri, RequestOptions options)
+        public ListWithNextLinkAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, Uri initialUri, RequestOptions options)
         {
             _client = client;
             _initialUri = initialUri;
@@ -26,31 +25,31 @@ namespace Payload.Pageable
 
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateLinkRequest(_initialUri, true, _options);
+            PipelineMessage message = _client.CreateListWithNextLinkRequest(_initialUri, true, _options);
             Uri nextPageUri = null;
             while (true)
             {
                 ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                nextPageUri = ((LinkResponse)result).Next;
+                nextPageUri = ((ListWithNextLinkResponse)result).Next;
                 if (nextPageUri == null)
                 {
                     yield break;
                 }
-                message = _client.CreateLinkRequest(nextPageUri, true, _options);
+                message = _client.CreateListWithNextLinkRequest(nextPageUri, true, _options);
             }
         }
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPageUri = ((LinkResponse)page).Next;
+            Uri nextPageUri = ((ListWithNextLinkResponse)page).Next;
             return ContinuationToken.FromBytes(BinaryData.FromString(nextPageUri.AbsoluteUri));
         }
 
-        protected override async IAsyncEnumerable<Pet> GetValuesFromPageAsync(ClientResult page)
+        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Pet item in ((LinkResponse)page).Pets)
+            foreach (Thing item in ((ListWithNextLinkResponse)page).Things)
             {
                 yield return item;
                 await Task.Yield();

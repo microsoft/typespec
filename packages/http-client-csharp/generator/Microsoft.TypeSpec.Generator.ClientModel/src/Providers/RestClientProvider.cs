@@ -117,12 +117,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
                     uri.Reset(endpoint).Terminate(),
-                    operation.Paging?.NextLink != null ?
-                        new IfStatement(ScmKnownParameters.AppendPath)
-                        {
-                            new MethodBodyStatements([..AppendPathParameters(uri, operation, paramMap)])
-                        } :
-                        new MethodBodyStatements([.. AppendPathParameters(uri, operation, paramMap)]),
+                    .. ConditionallyAppendPathParameters(operation, uri, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
@@ -131,6 +126,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(message)
                 ]),
                 this);
+        }
+
+        private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(InputOperation operation, ScopedApi uri, Dictionary<string, ParameterProvider> paramMap)
+        {
+            if (operation.Paging?.NextLink != null)
+            {
+                return
+                [
+                    new IfStatement(ScmKnownParameters.AppendPath)
+                    {
+                        new MethodBodyStatements([..AppendPathParameters(uri, operation, paramMap)])
+                    }
+                ];
+            }
+
+            return AppendPathParameters(uri, operation, paramMap);
         }
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
@@ -327,7 +338,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new IfStatement(valueExpression.NotEqual(Null)) { originalStatement };
         }
 
-        private IEnumerable<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             Dictionary<string, InputParameter> inputParamHash = new(operation.Parameters.ToDictionary(p => p.Name));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);

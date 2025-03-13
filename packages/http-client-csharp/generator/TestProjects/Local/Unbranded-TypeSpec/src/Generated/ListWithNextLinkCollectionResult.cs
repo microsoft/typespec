@@ -6,17 +6,16 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using Payload.Pageable._ServerDrivenPagination;
 
-namespace Payload.Pageable
+namespace UnbrandedTypeSpec
 {
-    internal partial class LinkCollectionResultOfT : CollectionResult<Pet>
+    internal partial class ListWithNextLinkCollectionResult : CollectionResult
     {
-        private readonly ServerDrivenPagination _client;
+        private readonly UnbrandedTypeSpecClient _client;
         private readonly Uri _initialUri;
         private readonly RequestOptions _options;
 
-        public LinkCollectionResultOfT(ServerDrivenPagination client, Uri initialUri, RequestOptions options)
+        public ListWithNextLinkCollectionResult(UnbrandedTypeSpecClient client, Uri initialUri, RequestOptions options)
         {
             _client = client;
             _initialUri = initialUri;
@@ -25,31 +24,26 @@ namespace Payload.Pageable
 
         public override IEnumerable<ClientResult> GetRawPages()
         {
-            PipelineMessage message = _client.CreateLinkRequest(_initialUri, true, _options);
+            PipelineMessage message = _client.CreateListWithNextLinkRequest(_initialUri, true, _options);
             Uri nextPageUri = null;
             while (true)
             {
                 ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
-                nextPageUri = ((LinkResponse)result).Next;
+                nextPageUri = ((ListWithNextLinkResponse)result).Next;
                 if (nextPageUri == null)
                 {
                     yield break;
                 }
-                message = _client.CreateLinkRequest(nextPageUri, true, _options);
+                message = _client.CreateListWithNextLinkRequest(nextPageUri, true, _options);
             }
         }
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPageUri = ((LinkResponse)page).Next;
+            Uri nextPageUri = ((ListWithNextLinkResponse)page).Next;
             return ContinuationToken.FromBytes(BinaryData.FromString(nextPageUri.AbsoluteUri));
-        }
-
-        protected override IEnumerable<Pet> GetValuesFromPage(ClientResult page)
-        {
-            return ((LinkResponse)page).Pets;
         }
     }
 }
