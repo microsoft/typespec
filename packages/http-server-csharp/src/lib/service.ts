@@ -124,12 +124,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
       return this.emitter.result.declaration(
         ensureCSharpIdentifier(this.emitter.getProgram(), array, name),
-        code`${this.emitter.emitTypeReference(elementType)}[]`,
+        code`IEnumerable<${this.emitter.emitTypeReference(elementType)}>`,
       );
     }
 
     arrayLiteral(array: Model, elementType: Type): EmitterOutput<string> {
-      return this.emitter.result.rawCode(code`${this.emitter.emitTypeReference(elementType)}[]`);
+      return this.emitter.result.rawCode(
+        code`IEnumerable<${this.emitter.emitTypeReference(elementType)}>`,
+      );
     }
 
     booleanLiteral(boolean: BooleanLiteral): EmitterOutput<string> {
@@ -416,7 +418,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     #findPropertyType(property: ModelProperty): EmittedTypeInfo {
-      return this.#opHelpers.getTypeInfo(this.emitter.getProgram(), property.type);
+      return this.#opHelpers.getTypeInfo(this.emitter.getProgram(), property.type, property);
     }
 
     #isMultipartRequest(operation: HttpOperation): boolean {

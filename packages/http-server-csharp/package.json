@@ -57,7 +57,8 @@
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^",
-    "@typespec/versioning": "workspace:^"
+    "@typespec/versioning": "workspace:^",
+    "@typespec/json-schema": "workspace:^"
   },
   "dependencies": {
     "change-case": "~5.4.4",
@@ -76,6 +77,7 @@
     "@typespec/rest": "workspace:^",
     "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
+    "@typespec/json-schema": "workspace:^",
     "@vitest/coverage-v8": "^3.0.7",
     "@vitest/ui": "^3.0.7",
     "c8": "^10.1.3",
