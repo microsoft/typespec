@@ -1,6 +1,6 @@
 /**
- * This file expose all AST nodes and types.
- * Using the TypeSpec Abstract Syntax Tree is considered an advanced usage of the compiler may change at any time.
+ * This file exposes all AST nodes and types.
+ * Using the TypeSpec Abstract Syntax Tree is considered an advanced usage of the compiler and may change at any time without notice.
  * **Note**: this is not the same thing as the _type graph_ (`Type` and its variants),  Libraries depend on the abstract syntax tree _at their own risk_!
  * Please see breaking change policy https://typespec.io/docs/handbook/breaking-change-policy/
  *
