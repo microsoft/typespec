@@ -15,9 +15,15 @@ Invoke "npm run build:emitter"
 $generatorTestDir = Join-Path $repoRoot 'generator/http-client-generator-test'
 Set-Location $generatorTestDir
 ./Generate.ps1
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
 Set-Location $PSScriptRoot
 
 $generatorTestDir = Join-Path $repoRoot 'generator/http-client-generator-clientcore-test'
 Set-Location $generatorTestDir
 ./Generate.ps1
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
 Set-Location $PSScriptRoot
