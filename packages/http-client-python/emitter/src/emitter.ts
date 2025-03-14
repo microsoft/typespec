@@ -16,7 +16,7 @@ import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
 import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
-import { md2Rst, removeUnderscoresFromNamespace } from "./utils.js";
+import { getRootNamespace, md2Rst } from "./utils.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
@@ -50,9 +50,14 @@ function addDefaultOptions(sdkContext: SdkContext) {
     options["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
   }
   if (!options["package-name"]) {
-    options["package-name"] = removeUnderscoresFromNamespace(
-      (sdkContext.sdkPackage.rootNamespace ?? "").toLowerCase(),
-    ).replace(/\./g, "-");
+    const namespace = getRootNamespace(sdkContext as PythonSdkContext<SdkServiceOperation>);
+    const packageName = namespace.replace(/\./g, "-");
+    reportDiagnostic(sdkContext.program, {
+      code: "no-package-name",
+      target: NoTarget,
+      format: { namespace, packageName },
+    });
+    options["package-name"] = packageName;
   }
   if (options.flavor !== "azure") {
     // if they pass in a flavor other than azure, we want to ignore the value
@@ -60,9 +65,6 @@ function addDefaultOptions(sdkContext: SdkContext) {
   }
   if (!options.flavor && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
     options.flavor = "azure";
-  }
-  if (options["enable-typespec-namespace"] === undefined) {
-    options["enable-typespec-namespace"] = options.flavor !== "azure";
   }
 }
 
