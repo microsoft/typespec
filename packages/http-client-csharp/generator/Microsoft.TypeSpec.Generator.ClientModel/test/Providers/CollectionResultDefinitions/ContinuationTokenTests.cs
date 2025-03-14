@@ -124,9 +124,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-
-
-
         private static void CreatePagingOperation(InputResponseLocation responseLocation)
         {
             var inputModel = InputFactory.Model("cat", properties:
