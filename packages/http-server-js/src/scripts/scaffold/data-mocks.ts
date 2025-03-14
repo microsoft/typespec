@@ -11,6 +11,14 @@ import {
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { parseCase } from "../../util/case.js";
 
+/**
+ * Generates a mock value for a TypeSpec Model.
+ * Handles arrays and records as special cases.
+ *
+ * @param type - The TypeSpec Model to mock
+ * @returns A JavaScript string representation of the mock data
+ * @throws Error if a property cannot be mocked
+ */
 function mockModel(type: Model): string {
   if ($.array.is(type)) {
     return mockArray(type);
@@ -22,6 +30,12 @@ function mockModel(type: Model): string {
 
   const mock: string[][] = [];
   const properties = $.model.getProperties(type, { includeExtended: true });
+
+  // If no properties exist, return an empty object
+  if (properties.size === 0) {
+    return "{}";
+  }
+
   for (const [name, prop] of properties) {
     if (prop.optional) {
       continue;
@@ -37,17 +51,40 @@ function mockModel(type: Model): string {
     mock.push([propName, propMock]);
   }
 
+  // If all properties were optional, return an empty object
+  if (mock.length === 0) {
+    return "{}";
+  }
+
   return `{
     ${mock.map(([name, value]) => `${name}: ${value}`).join(",\n")}
   }`;
 }
 
+/**
+ * Generates a mock array containing a single mocked element.
+ *
+ * @param type - The TypeSpec array Model to mock
+ * @returns A JavaScript string representation of the mock array
+ */
 function mockArray(type: Model): string {
   const elementType = $.array.getElementType(type);
-  const mockedType = mockType(elementType) ?? "";
+  const mockedType = mockType(elementType);
+
+  // If we can't mock the element type, return an empty array
+  if (mockedType === undefined) {
+    return "[]";
+  }
+
   return `[${mockedType}]`;
 }
 
+/**
+ * Generates a mock for a TypeSpec record type with a sample key.
+ *
+ * @param type - The TypeSpec record Model to mock
+ * @returns A JavaScript string representation of the mock record
+ */
 function mockRecord(type: Model): string {
   const elementType = $.record.getElementType(type);
   const mockedType = mockType(elementType);
@@ -61,14 +98,33 @@ function mockRecord(type: Model): string {
   }`;
 }
 
-function mockModelProperty(prop: ModelProperty): any {
+/**
+ * Mocks a TypeSpec Model property by mocking its type.
+ *
+ * @param prop - The TypeSpec model property to mock
+ * @returns A JavaScript string representation of the mocked property or undefined if it cannot be mocked
+ */
+function mockModelProperty(prop: ModelProperty): string | undefined {
   return mockType(prop.type);
 }
 
-function mockLiteral(type: LiteralType): any {
+/**
+ * Generates a mock for a TypeSpec literal value.
+ *
+ * @param type - The TypeSpec literal type to mock
+ * @returns A JavaScript string representation of the literal value
+ */
+function mockLiteral(type: LiteralType): string {
   return JSON.stringify(type.value);
 }
 
+/**
+ * Entry point for generating mock data for any TypeSpec type.
+ * Delegates to specific mock functions based on the type kind.
+ *
+ * @param type - The TypeSpec type to mock
+ * @returns A JavaScript string representation of the mock data, or undefined if the type cannot be mocked
+ */
 export function mockType(type: Type): string | undefined {
   if ($.model.is(type)) {
     return mockModel(type);
@@ -91,12 +147,18 @@ export function mockType(type: Type): string | undefined {
   }
 
   if (isVoidType(type)) {
-    return "void";
+    return "undefined"; // Return 'undefined' string for void type
   }
 
   return undefined;
 }
 
+/**
+ * Generates a mock for a TypeSpec union by mocking the first non-error variant.
+ *
+ * @param union - The TypeSpec union to mock
+ * @returns A JavaScript string representation of a mock for one variant, or undefined if no suitable variant is found
+ */
 function mockUnion(union: Union): string | undefined {
   for (const variant of union.variants.values()) {
     if (isErrorType(variant.type)) {
@@ -108,7 +170,14 @@ function mockUnion(union: Union): string | undefined {
   return undefined;
 }
 
-function mockScalar(scalar: Scalar) {
+/**
+ * Generates appropriate mock values for TypeSpec scalar types.
+ * Handles various scalar types including primitives and specialized types like dates.
+ *
+ * @param scalar - The TypeSpec scalar to mock
+ * @returns A JavaScript string representation of a suitable mock value for the scalar type
+ */
+function mockScalar(scalar: Scalar): string | undefined {
   if ($.scalar.isBoolean(scalar) || $.scalar.extendsBoolean(scalar)) {
     return JSON.stringify(true);
   }

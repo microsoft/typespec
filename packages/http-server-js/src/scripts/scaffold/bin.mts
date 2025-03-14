@@ -610,10 +610,7 @@ function* emitControllerOperationHandlers(
   httpOperations: Set<HttpOperation>,
   module: Module,
 ): Iterable<string> {
-  module.imports.push({
-    binder: ["NotImplementedError"],
-    from: httpHelperModule,
-  });
+  let importNotImplementedError = false;
   for (const httpOperation of httpOperations) {
     // TODO: unify construction of signature with emitOperation in common/interface.ts
     const op = httpOperation.operation;
@@ -668,6 +665,7 @@ function* emitControllerOperationHandlers(
     const mockReturn = mockType(op.returnType);
 
     if (mockReturn === undefined) {
+      importNotImplementedError = true;
       yield "  throw new NotImplementedError();";
     } else if (mockReturn === "void") {
       yield "  return;";
@@ -676,6 +674,13 @@ function* emitControllerOperationHandlers(
     }
     yield "}";
     yield "";
+  }
+
+  if (importNotImplementedError) {
+    module.imports.push({
+      binder: ["NotImplementedError"],
+      from: httpHelperModule,
+    });
   }
 }
 
