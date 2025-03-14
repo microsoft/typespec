@@ -2,9 +2,13 @@
 title: Examples
 ---
 
-See [examples docs](../../standard-library/examples.md) for general information about examples.
+This document provides examples specific to the HTTP library in TypeSpec. For general information about how examples work in TypeSpec, see the [examples docs](../../standard-library/examples.md).
 
 ## Multiple responses
+
+When defining HTTP operations, you often need to document different possible response types based on status codes. The `@opExample` decorator allows you to provide sample responses for each status code your operation might return.
+
+In the example below, we define an operation that can return three different responses (200 OK, 404 Not Found, and 422 Unprocessable Entity), with examples for each:
 
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
@@ -26,3 +30,10 @@ op read(): {
   error: string;
 };
 ```
+
+Each `@opExample` decorator specifies:
+
+- the status code for this example response.
+- the expected values of the response properties.
+
+This helps API consumers understand what to expect from different response scenarios and provides more comprehensive documentation for your API.
