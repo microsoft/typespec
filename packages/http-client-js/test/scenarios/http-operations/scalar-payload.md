@@ -7,9 +7,7 @@ A request that sends a body payload of scalar type
 The body is modeled as an explicit body property of type int32
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @route("/widgets")

@@ -7,9 +7,7 @@ This test validates that the emitter can handle a simple bearer authentication s
 The spec contains a simple service with a Bearer authentication scheme
 
 ```tsp
-@service({
-  title: "Test Service",
-})
+@service(#{ title: "Test Service" })
 @useAuth(BearerAuth)
 namespace Test;
 

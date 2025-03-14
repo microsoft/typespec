@@ -7,9 +7,7 @@ This test validates that the emitter can handle a key auth scheme correctly with
 The spec contains a simple service with a ApiKey authentication scheme
 
 ```tsp
-@service({
-  title: "Test Service",
-})
+@service(#{ title: "Test Service" })
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">)
 namespace Test;
 

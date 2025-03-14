@@ -5,9 +5,7 @@
 This spec defines a server that has a host template and and endpoint to fill it out.
 
 ```tsp
-@service({
-  title: "Parametrized Endpoint",
-})
+@service(#{ title: "Parametrized Endpoint" })
 @server(
   "{foo}/server/path/multiple",
   "Test server with path parameters.",

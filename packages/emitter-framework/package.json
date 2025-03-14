@@ -31,15 +31,18 @@
   "license": "MIT",
   "description": "",
   "peerDependencies": {
+    "@alloy-js/core": "^0.6.0",
+    "@alloy-js/typescript": "^0.6.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^"
   },
-  "dependencies": {
-    "@alloy-js/core": "^0.6.0",
-    "@alloy-js/typescript": "^0.6.0"
-  },
   "devDependencies": {
+    "@alloy-js/core": "^0.6.0",
+    "@alloy-js/typescript": "^0.6.0",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/rest": "workspace:^",
     "@alloy-js/babel-preset": "^0.2.0",
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.26.9",

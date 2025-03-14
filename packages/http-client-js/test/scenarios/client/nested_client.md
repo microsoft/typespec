@@ -5,9 +5,7 @@ This specs nests namespace > namespace > interface
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 model Widget {

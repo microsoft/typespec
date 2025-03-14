@@ -3,9 +3,7 @@
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 op foo(): void;
 ```
