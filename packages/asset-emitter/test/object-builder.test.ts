@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { ObjectBuilder } from "../../src/emitter-framework/builders/object-builder.js";
-import { Placeholder } from "../../src/emitter-framework/placeholder.js";
+import { ObjectBuilder } from "../src/index.js";
+import { Placeholder } from "../src/placeholder.js";
 
 describe("ObjectBuilder", () => {
   it("create simple builder", () => {

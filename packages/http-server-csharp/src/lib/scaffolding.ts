@@ -1,4 +1,4 @@
-import { AssetEmitter, code } from "@typespec/compiler/emitter-framework";
+import { AssetEmitter, code } from "@typespec/asset-emitter";
 import { GeneratedFileHeaderWithNullable } from "./boilerplate.js";
 import { CSharpType, LibrarySourceFile } from "./interfaces.js";
 

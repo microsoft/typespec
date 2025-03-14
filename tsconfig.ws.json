@@ -1,5 +1,6 @@
 {
   "references": [
+    { "path": "packages/asset-emitter/tsconfig.json" },
     { "path": "packages/compiler/tsconfig.json" },
     { "path": "packages/versioning/tsconfig.json" },
     { "path": "packages/http/tsconfig.json" },

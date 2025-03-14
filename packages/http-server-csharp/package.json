@@ -60,6 +60,7 @@
     "@typespec/versioning": "workspace:^"
   },
   "dependencies": {
+    "@typespec/asset-emitter": "workspace:^",
     "change-case": "~5.4.4",
     "cross-spawn": "^7.0.6",
     "picocolors": "~1.1.1",

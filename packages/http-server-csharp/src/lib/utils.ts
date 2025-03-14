@@ -1,3 +1,4 @@
+import { AssetEmitter, EmitterOutput, StringBuilder, code } from "@typespec/asset-emitter";
 import {
   IntrinsicScalarName,
   IntrinsicType,
@@ -18,12 +19,6 @@ import {
   isUnknownType,
   isVoidType,
 } from "@typespec/compiler";
-import {
-  AssetEmitter,
-  EmitterOutput,
-  StringBuilder,
-  code,
-} from "@typespec/compiler/emitter-framework";
 import {
   HttpOperation,
   HttpOperationParameter,

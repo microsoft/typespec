@@ -1,26 +1,4 @@
-import assert from "assert";
-import * as prettier from "prettier";
-import { describe, it } from "vitest";
-import {
-  ArrayBuilder,
-  AssetEmitter,
-  CodeTypeEmitter,
-  Context,
-  Declaration,
-  EmitEntity,
-  EmittedSourceFile,
-  EmitterOutput,
-  ObjectBuilder,
-  Placeholder,
-  Scope,
-  SourceFile,
-  StringBuilder,
-  TypeEmitter,
-  TypeSpecDeclaration,
-  code,
-  createAssetEmitter,
-} from "../../src/emitter-framework/index.js";
-import {
+import type {
   Enum,
   Interface,
   Model,
@@ -30,7 +8,29 @@ import {
   Scalar,
   Type,
   Union,
-} from "../../src/index.js";
+} from "@typespec/compiler";
+import assert from "assert";
+import * as prettier from "prettier";
+import { describe, it } from "vitest";
+import {
+  ArrayBuilder,
+  type AssetEmitter,
+  CodeTypeEmitter,
+  type Context,
+  Declaration,
+  type EmitEntity,
+  type EmittedSourceFile,
+  type EmitterOutput,
+  ObjectBuilder,
+  Placeholder,
+  type Scope,
+  type SourceFile,
+  StringBuilder,
+  TypeEmitter,
+  type TypeSpecDeclaration,
+  code,
+  createAssetEmitter,
+} from "../src/index.js";
 import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 import { TypeScriptInterfaceEmitter } from "./typescript-emitter.js";
 

@@ -1,34 +1,25 @@
-import * as prettier from "prettier";
 import {
-  BooleanLiteral,
-  Enum,
-  EnumMember,
   getDoc,
-  Interface,
-  IntrinsicType,
-  Model,
-  ModelProperty,
-  NumericLiteral,
-  Operation,
-  Scalar,
-  StringLiteral,
-  Tuple,
-  Type,
-  Union,
-  UnionVariant,
-} from "../../src/index.js";
-
-import {
-  code,
-  CodeTypeEmitter,
-  Declaration,
-  EmittedSourceFile,
-  EmitterOutput,
-  Scope,
-  SourceFile,
-  SourceFileScope,
-  StringBuilder,
-} from "../../src/emitter-framework/index.js";
+  type BooleanLiteral,
+  type Enum,
+  type EnumMember,
+  type Interface,
+  type IntrinsicType,
+  type Model,
+  type ModelProperty,
+  type NumericLiteral,
+  type Operation,
+  type Scalar,
+  type StringLiteral,
+  type Tuple,
+  type Type,
+  type Union,
+  type UnionVariant,
+} from "@typespec/compiler";
+import * as prettier from "prettier";
+import { code, Declaration, StringBuilder, type SourceFile } from "../src/index.js";
+import { CodeTypeEmitter, type EmitterOutput } from "../src/type-emitter.js";
+import type { EmittedSourceFile, Scope, SourceFileScope } from "../src/types.js";
 
 export function isArrayType(m: Model) {
   return m.name === "Array";
