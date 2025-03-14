@@ -90,6 +90,8 @@ _Option 3_. Typing `>TypeSpec: Import TypeSpec from OpenApi3` in the _Command Pa
 
 - If `@typespec/openapi3` is not installed. it will prompt `'@typespec/openapi3' is required to import OpenApi3. Do you want to install it?`. Click `Install @typespec/openapi3` to install.
 
+  > Note: When `@typespec/openapi3` is already defined in the project's `package.json`, `npm install` will be used. Otherwise, `npm install @typespec/openapi3` will be used.
+
   ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyInstallaDependencies.png)
 
 - If already installed, it will be skipped.
@@ -106,9 +108,9 @@ After Importing from OpenAPI succeeded, the corresponding `.tsp` file will be ge
 
 When an error is detected, it's necessary to document the findings by using the following form:
 
-| No  |                   Title                   |             Issue Description              |                                                                                         Repro Steps                                                                                         |    Expected Results    |              Actual Results               |  Comments  |
-| --- | :---------------------------------------: | :----------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------: | :---------------------------------------: | :--------: |
-| 1   | e.g. Import TypeSpec from OpenAPI3 failed | Failed to convert OpenAPI3 specification。 | 1. Right-click context menu of a .tsp file. <br> 2. Confirm the Project Folder. <br> 3. Specify the OpenAPI3 specification to convert. <br> 4.Verify Install Dependencies, start converting | Successful conversion. | Failed to convert OpenAPI3 specification. | Issue link |
+| No  |                   Title                   |             Issue Description             |                                                                                         Repro Steps                                                                                         |    Expected Results    |              Actual Results               |  Comments  |
+| --- | :---------------------------------------: | :---------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------: | :---------------------------------------: | :--------: |
+| 1   | e.g. Import TypeSpec from OpenAPI3 failed | Failed to convert OpenAPI3 specification. | 1. Right-click context menu of a .tsp file. <br> 2. Confirm the Project Folder. <br> 3. Specify the OpenAPI3 specification to convert. <br> 4.Verify Install Dependencies, start converting | Successful conversion. | Failed to convert OpenAPI3 specification. | Issue link |
 
 ## Test Results Summary
 

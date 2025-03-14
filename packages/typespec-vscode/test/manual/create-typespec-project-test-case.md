@@ -2,10 +2,9 @@
 
 New TypeSpec projects can be created using a variety of templates for specific purposes. TypeSpec supports the following non-branded templates:
 
-- Empty Project
 - Generic REST API
-- TypeSpec Library (With TypeScript)
-- TypeSpec Emitter (With TypeScript)
+- TypeSpec library
+- TypeSpec emitter
 
 Selecting a template involves:
 
@@ -16,7 +15,7 @@ Selecting a template involves:
 ## Test Environment
 
 - OS : Windows or Linux
-- Template : Empty Project, Generic REST API, TypeSpec Library (With TypeScript), TypeSpec Emitter (With TypeScript) ...
+- Template : Generic REST API, TypeSpec library, TypeSpec emitter ...
 
 > Note: The extension should support all test cases in VS Code for Windows and Linux.
 
@@ -72,45 +71,27 @@ Click the `Create TypeSpec Project` command, and a folder selection interface wi
 - Select a empty folder.
   If the folder is empty, skip the query and go to the next step.
 
-#### Step 4. Check if TypeSpec Compiler CLI is install. (optional)
-
-- If the TypeSpec Compiler is not installed. Will initiate the installation of the typespec compiler.
-
-  ![alt text](./images/CreateTypeSpecProject_InstallTypeSpecCompiler.png)
-
-- If the compiler is already installed locally. Skip the installation prompt and go to the next step.
-
-  > Note: Even the compiler is also installed globally, the local compiler will be used.
-
-- The compiler has been installed globally. Skip the installation prompt and go to the next step.
-
-#### Step 5. After successfully installing TypeSpec Compiler, will go through the questions of `tsp init`.
+#### Step 4. After successfully installing TypeSpec Compiler, will go through the questions of `tsp init`.
 
 1. Select a template _(Single choice)_.
 
-   **Validate:** There should be a prompt "Select a template", and should see four options: `Empty project`, `Generic REST API`, `TypeSpec Library (With TypeScript)`, `TypeSpec Emitter (With TypeScript)`.
+   **Validate:** There should be a prompt "Please select a template", and should see four options: `Generic REST API`, `TypeSpec library`, `TypeSpec emitter`.
+
+   ![alt text](./images/CreateTypeSpecProject_SelectTemplate.png)
 
 2. Input project name - _(Text input)_ by default, it is the project root folder name.
 
    ![alt text](./images/CreateTypeSpecProject_InputProjectName.png)
 
-3. Choose whether to generate a .gitignore file. _(Single choice)_ `Y/N`
+3. Select emitters. _(Multiple choice)_
 
-   ![alt text](./images/CreateTypeSpecProject_Generate_gitignoreFile.png)
+   > Note: `Select emitters` is required only when you select `Generic REST API`. This step will not appear if you select other templates.
 
-4. Select libraries to update and Select emitters. _(Multiple choice)_
+   **Validate:** Will it appear: `Select emitters?` and emitter type.
 
-   > Note: Select libraries to update is required only when you select `Generic REST API`. This step will not appear if you select other templates.
+   ![alt text](./images/CreateTypeSpecProject_GenericRESTAPI_SelectEmitters.png)
 
-   1. **Validate:** Will it appear: `Here are libraries to install or update.`
-
-      ![alt text](./images/CreateTypeSpecProject_InstallOrUpdateLibraries.png)
-
-   2. Click `OK` and Select emitters. _(Multiple choice)_
-
-      **Validate:** Will it appear: `Select emitters?` and emitter type: `@typespec/openapi3`, `@typespec/http-client-csharp`, `@typespec/http-client-java`, `@azure-tools/typespec-ts`, `@typespec/http-client-python`, `@typespec/http-server-csharp`, `@typespec/http-server-javascript`.
-
-5. Click `OK` and the project will be created, the folder structure will be set up, dependencies will be installed, and tspconfig.yaml will be updated.
+4. Click `OK` and the project will be created, the folder structure will be set up, dependencies will be installed, and tspconfig.yaml will be updated.
 
    **Validate:** Verify that the project was created correctly and the dependencies are installed.
 
@@ -120,21 +101,23 @@ Click the `Create TypeSpec Project` command, and a folder selection interface wi
 
    - Folder structure
 
-     - For `Empty project`, the folder structure.
-
-       ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_EmptyProject.png)
-
      - For `Generic REST API`, the folder structure.
 
        ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_GenericRESTAPI.png)
 
-     - For `TypeSpec Library (With TypeScript)`, the folder structure.
+     - For `TypeSpec library`, the folder structure.
 
        ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_TypeSpecLibrary.png)
 
-     - For `TypeSpec Emitter (With TypeScript)`, the folder structure.
+     - For `TypeSpec emitter`, the folder structure.
 
        ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_TypeSpecEmitter.png)
+
+#### Step 5. Choose how to open the project.
+
+After the project is created successfully, the user can choose `Add to workspace` or `Open in New Window`.
+
+![alt text](./images/CreateTypeSpecProject_OpenProject.png)
 
 ### Test Case 2: Create TypeSpec project related to Azure Data/Mgmt Plane
 
@@ -167,11 +150,7 @@ See [step 2 of test case 1](#step-2-trigger-create-typespec-project) for details
 
 See [step 3 of test case 1](#step-3-select-a-folder-as-the-root-folder-for-the-new-typespec-project) for details.
 
-#### Step 5: Check if TypeSpec Compiler CLI is install. (optional)
-
-See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-optional) for details.
-
-#### Step 6: Create a template.
+#### Step 5: Create a template.
 
 1. Select a template _(Single choice)_.
 
@@ -183,21 +162,7 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
    ![alt text](./images/CreateTypeSpecProject_InputProjectName.png)
 
-3. Choose whether to generate a .gitignore file. _(Single choice)_ `Y/N`
-
-   ![alt text](./images/CreateTypeSpecProject_Generate_gitignoreFile.png)
-
-4. Install the libraries. _(optional)_
-
-   If you choose the `stand alone` project, need to install some libraries. If you choose the `rest-api-spec repo` project, skip to the next step.
-
-   **Validate:** Will it appear: `Here are libraries to install.`
-
-   ![alt text](./images/CreateTypeSpecProject_StandAlone_InstallLibraries.png)
-
-   > Note: Depending on the template, different libraries need to be installed. The specific libraries that need to be installed take `tsp init` as the baseline.
-
-5. Input your `service namespace` or `ARM Resource Provider Name` - _(Text input)_ requires Pascal format.
+3. Input your `service namespace` or `ARM Resource Provider Name` - _(Text input)_ requires Pascal format.
 
    - For Data Plane API - Input service namespace.
 
@@ -207,13 +172,17 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
      ![alt text](./images/CreateTypeSpecProject_InputARMResourceProviderName.png)
 
-6. Press "Enter" and the project will be created.
+4. Press "Enter" and the project will be created.
 
    **Validate:** Verify that the project was created correctly.
 
    ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder.png)
 
    > Note: The name of the created file will change depending on the template used, it may be client.tsp, or employee.tsp.
+
+#### Step 6. Choose how to open the project.
+
+See [step 5](#step-5-choose-how-to-open-the-project) of test case 1 for details.
 
 ## Issue Report
 

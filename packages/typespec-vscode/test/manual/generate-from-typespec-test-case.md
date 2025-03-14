@@ -73,6 +73,16 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
 - If there is an emitter that you need, click the corresponding language emitter type, and skip to step 6 of the corresponding emitter type step `Check if packages need to be installed or updated`.
 
+- If you want to select multiple emitters to generate code at the same time.
+
+  1. click `Select multiple emitters`.
+
+     **Validate:** There should be a prompt "Select emitters for code generation", and will display all emitters configured in the `tspconfig.yaml` file.
+
+     ![alt text](./images/GeneratefromTypeSpec_yamlFileConfigurationEmittermultiple.png)
+
+  2. Click `OK`, and skip to step 6 of the corresponding emitter type step `Check if packages need to be installed or updated`.
+
 - If there is no emitter configured in `tspconfig.yaml`, skip the current step and go to the next step.
 
 **This step only appears if the emitter is configured in the `tspconfig.yaml` file.**
@@ -98,6 +108,8 @@ emit:
   1. Click `Client Code`, and select a Language.
 
      **Validate:** There should be a prompt "Select a Language for client code generation", and should see four languages: `.NET`, `Java`, `JavaScript`, `Python`.
+
+     ![alt text](./images/GenerateClientCode_SelectLanguage_clientcode.png)
 
   2. Check if packages need to be installed or updated.
 
@@ -141,6 +153,8 @@ emit:
 
      > Note: JavaScript server code emitter is experimental.
 
+     ![alt text](./images/GenerateServerStub_SelectLanguage.png)
+
   2. Check if packages need to be installed or updated.
 
      **Validate:** There should be a prompt `Here are libraries to install or update`, and confirm to install the required libraries.
@@ -164,6 +178,8 @@ emit:
   1. Click `OpenAPI Document`, and select a Language.
 
      **Validate:** There should be a prompt "Select a Language for openapi code generation", and should see languages: `OpenAPI3`.
+
+     ![alt text](./images/GenerateOpenAPI_SelectLanguage.png)
 
   2. Check if packages need to be installed or updated.
 
