@@ -166,6 +166,7 @@ export {
   getFormat,
   getFriendlyName,
   getKeyName,
+  getMediaTypeHint,
   getOpExamples,
   getOverloadedOperation,
   getOverloads,
