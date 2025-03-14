@@ -157,22 +157,18 @@ import {
 const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
-  namespace?: string;
-
   flavor?: string;
 
+  // service
+  namespace?: string;
   "service-name"?: string;
-  "service-versions"?: string[];
+  "service-versions"?: string[]; // consider to remove
 
-  "skip-special-headers"?: string[];
-
+  // sample and test
   "generate-samples"?: boolean;
   "generate-tests"?: boolean;
 
-  "enable-sync-stack"?: boolean;
-  "stream-style-serialization"?: boolean;
-  "use-object-for-unknown"?: boolean;
-
+  // customization
   "partial-update"?: boolean;
   "models-subpackage"?: string;
   "custom-types"?: string;
@@ -180,14 +176,22 @@ export interface EmitterOptionsDev {
   "customization-class"?: string;
   polling?: any;
 
-  "group-etag-headers"?: boolean;
-
+  // configure
+  "skip-special-headers"?: string[];
   "enable-subclient"?: boolean;
 
-  "advanced-versioning"?: boolean;
+  // not recommended to set
+  "group-etag-headers"?: boolean;
+  "enable-sync-stack"?: boolean;
+  "stream-style-serialization"?: boolean;
+  "use-object-for-unknown"?: boolean;
+
+  // versioning
   "api-version"?: string;
+  "advanced-versioning"?: boolean;
   "service-version-exclude-preview"?: boolean;
 
+  // dev options
   "dev-options"?: DevOptions;
 
   // internal use for codegen
