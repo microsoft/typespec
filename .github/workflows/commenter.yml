@@ -2,7 +2,7 @@ name: Make Change Comment
 
 on:
   workflow_run:
-    workflows: ["Consistency"]
+    workflows: ["Check Changes"]
     types:
       - completed
 
@@ -24,14 +24,15 @@ jobs:
           name: comment
           run-id: ${{github.event.workflow_run.id }}
           github-token: ${{secrets.GITHUB_TOKEN}}
+      - name: Display structure of downloaded files
+        run: ls -R
 
-      - uses: pnpm/action-setup@v2
-        name: Install pnpm
+      - uses: ./.github/actions/setup
 
-      - run: pnpm install --filter="@typespec/monorepo"
+      - run: pnpm install
         name: Install dependencies
 
-      - run: npx -p @chronus/github-pr-commenter --comment-file comment.json
+      - run: pnpm chronus-github-pr-commenter --comment-file comment/comment.json
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         name: Create/update comment
