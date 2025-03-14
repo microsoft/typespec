@@ -11,7 +11,7 @@ import { strictEqual } from "assert";
 import { statSync } from "fs";
 import { afterAll, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { $onEmit, _validateDotNetSdk } from "../../src/emitter.js";
-import { CodeModel } from "../../src/index.js";
+import { CodeModel } from "../../src/type/code-model.js";
 import { execAsync, execCSharpGenerator } from "../../src/lib/utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
 import {
@@ -22,7 +22,6 @@ import {
 } from "./utils/test-util.js";
 
 describe("$onEmit tests", () => {
-  // restoreAllMocks is causing the function missing the original implementation
   afterAll(() => {
     vi.restoreAllMocks();
   });
@@ -146,7 +145,6 @@ describe("Test _validateDotNetSdk", () => {
       runner,
     );
     // Restore all mocks before each test
-    // restoreAllMocks is causing the function missing the original implementation
     vi.restoreAllMocks();
   });
 
