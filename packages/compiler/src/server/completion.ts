@@ -431,7 +431,7 @@ function addIdentifierCompletion(
     }
     const documentation = getSymbolDetails(program, sym);
 
-    let item: CompletionItem = {
+    const item: CompletionItem = {
       label: label ?? key,
       documentation: documentation
         ? {
@@ -442,24 +442,15 @@ function addIdentifierCompletion(
       kind,
       insertText: printIdentifier(key) + (suffix ?? ""),
     };
+
     if (sym.name.startsWith("$")) {
       const targetNode = getSourceLocation(node);
       const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
-      item = {
-        label: label ?? key,
-        documentation: documentation
-          ? {
-              kind: MarkupKind.Markdown,
-              value: documentation,
-            }
-          : undefined,
-        kind,
-        textEdit: TextEdit.replace(
-          // Specifying replacement in the current location can avoid the problem of $ duplication
-          Range.create(lineAndChar, lineAndChar),
-          printIdentifier(key) + (suffix ?? ""),
-        ),
-      };
+      item.textEdit = TextEdit.replace(
+        // Specifying replacement in the current location can avoid the problem of $ duplication
+        Range.create(lineAndChar, lineAndChar),
+        printIdentifier(key) + (suffix ?? ""),
+      );
     }
 
     if (deprecated) {
