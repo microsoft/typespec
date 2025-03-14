@@ -143,6 +143,7 @@ const sidebar: SidebarItem[] = [
         label: "Clients",
         items: [
           "emitters/clients/introduction",
+          "emitters/clients/common-configurations",
           createLibraryReferenceStructure(
             "emitters/clients/http-client-js",
             "Javascript",
