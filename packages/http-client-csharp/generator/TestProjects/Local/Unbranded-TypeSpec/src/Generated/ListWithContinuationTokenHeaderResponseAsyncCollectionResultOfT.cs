@@ -10,43 +10,45 @@ using System.Threading.Tasks;
 
 namespace UnbrandedTypeSpec
 {
-    internal partial class ListWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class ListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly UnbrandedTypeSpecClient _client;
-        private readonly Uri _nextPage;
+        private readonly string _token;
         private readonly RequestOptions _options;
 
-        public ListWithNextLinkAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, Uri nextPage, RequestOptions options)
+        public ListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
-            _nextPage = nextPage;
+            _token = token;
             _options = options;
         }
 
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateListWithNextLinkRequest(_nextPage, _options);
-            Uri nextPageUri = null;
+            PipelineMessage message = _client.CreateListWithContinuationTokenHeaderResponseRequest(_token, _options);
+            string nextToken = null;
             while (true)
             {
                 ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                nextPageUri = ((ListWithNextLinkResponse)result).Next;
-                if (nextPageUri == null)
+                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value))
+                {
+                    nextToken = value;
+                }
+                else
                 {
                     yield break;
                 }
-                message = _client.CreateListWithNextLinkRequest(nextPageUri, _options);
+                message = _client.CreateListWithContinuationTokenHeaderResponseRequest(nextToken, _options);
             }
         }
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPage = ((ListWithNextLinkResponse)page).Next;
-            if (nextPage != null)
+            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value))
             {
-                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
+                return ContinuationToken.FromBytes(BinaryData.FromString(value));
             }
             else
             {
@@ -56,7 +58,7 @@ namespace UnbrandedTypeSpec
 
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Thing item in ((ListWithNextLinkResponse)page).Things)
+            foreach (Thing item in ((ListWithContinuationTokenHeaderResponseResponse)page).Things)
             {
                 yield return item;
                 await Task.Yield();

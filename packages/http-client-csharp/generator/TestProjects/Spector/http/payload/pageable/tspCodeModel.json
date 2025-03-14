@@ -974,7 +974,7 @@
         "SkipUrlEncoding": false
        },
        "ResponseSegments": [
-        "nextToken"
+        "next-token"
        ],
        "ResponseLocation": "Header"
       }
@@ -1139,7 +1139,7 @@
         "SkipUrlEncoding": false
        },
        "ResponseSegments": [
-        "nextToken"
+        "next-token"
        ],
        "ResponseLocation": "Header"
       }
