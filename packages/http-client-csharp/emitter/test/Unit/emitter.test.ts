@@ -21,7 +21,7 @@ import {
   typeSpecCompile,
 } from "./utils/test-util.js";
 
-describe("Expected execCSharpGenerator args are passed", () => {
+describe("$onEmit tests", () => {
   // restoreAllMocks is causing the function missing the original implementation
   afterAll(() => {
     vi.restoreAllMocks();
@@ -83,6 +83,16 @@ describe("Expected execCSharpGenerator args are passed", () => {
       existsSync: vi.fn(),
       statSync: vi.fn(),
     };
+  });
+
+  it("should apply the update-code-model callback just once", async () => {
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {
+      return model;
+    });
+    context.options["update-code-model"] = updateCallback;
+    await $onEmit(context);
+    expect(updateCallback).toHaveBeenCalledTimes(1);
   });
 
   it("should set newProject to true if .csproj file DOES NOT exist", async () => {
@@ -216,35 +226,5 @@ describe("Test _validateDotNetSdk", () => {
       program.diagnostics[0].message,
       "The .NET SDK found is version 5.0.408. Please install the .NET SDK 8 or above and ensure there is no global.json in the file system requesting a lower version. Guidance for installing the .NET SDK can be found at https://dotnet.microsoft.com/.",
     );
-  });
-});
-
-// skip the test for now, as it is not working
-describe.skip("Should apply the update-code-model callback", () => {
-  it("should apply the update-code-model callback just once", async () => {
-    const runner = await createEmitterTestHost();
-    const program = await typeSpecCompile(
-      `
-        @service
-        namespace MyService {
-          model Test {
-            prop: string;
-          }
-          op func(
-            @body body: Test
-          ): void;
-        }
-      `,
-      runner,
-      { NoEmit: false },
-    );
-
-    const context = createEmitterContext(program);
-    const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {
-      return model;
-    });
-    context.options["update-code-model"] = updateCallback;
-    await $onEmit(context);
-    expect(updateCallback).toHaveBeenCalledTimes(1);
   });
 });
