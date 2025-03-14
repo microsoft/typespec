@@ -1384,6 +1384,25 @@ model Bar {
       });
     });
 
+    it("keeps comment between decorators and model property", async () => {
+      await assertFormat({
+        code: `
+model Bar {
+      @foo
+        // comment
+  foo: string;
+}
+`,
+        expected: `
+model Bar {
+  @foo
+  // comment
+  foo: string;
+}
+`,
+      });
+    });
+
     it("keeps comment in between decorators on enum member", async () => {
       await assertFormat({
         code: `
@@ -1782,6 +1801,46 @@ union Foo {
 
   @doc("third")
   c: C,
+}
+`,
+      });
+    });
+
+    it("keeps comment in between decorators on union variant", async () => {
+      await assertFormat({
+        code: `
+      union Bar {
+      @foo
+        // comment
+    @bar
+  foo: "foo",
+}
+`,
+        expected: `
+union Bar {
+  @foo
+  // comment
+  @bar
+  foo: "foo",
+}
+`,
+      });
+    });
+
+    it("keeps comment between decorators and union variant", async () => {
+      await assertFormat({
+        code: `
+      union Bar {
+      @foo
+        // comment
+  foo: "foo",
+}
+`,
+        expected: `
+union Bar {
+  @foo
+  // comment
+  foo: "foo",
 }
 `,
       });
