@@ -75,7 +75,7 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
 - If you want to select multiple emitters to generate code at the same time.
 
-  1. click `Select multiple emitters`.
+  1. Click `Select multiple emitters`.
 
      **Validate:** There should be a prompt "Select emitters for code generation", and will display all emitters configured in the `tspconfig.yaml` file.
 
