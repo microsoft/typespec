@@ -1,4 +1,8 @@
-import { createTypeSpecLibrary, type JSONSchemaType } from "@typespec/compiler";
+import {
+  createTypeSpecLibrary,
+  paramMessage,
+  type JSONSchemaType,
+} from "@typespec/compiler";
 
 export const NAMESPACE = "TypeSpec.GraphQL";
 
@@ -93,15 +97,30 @@ const EmitterOptionsSchema: JSONSchemaType<GraphQLEmitterOptions> = {
 
 export const libDef = {
   name: "@typespec/graphql",
-  diagnostics: {},
+  diagnostics: {
+    "graphql-operation-kind-duplicate": {
+      severity: "error",
+      messages: {
+        default: paramMessage`GraphQL Operation Kind already applied to \`${"entityName"}\`.`,
+      },
+    },
+  },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,
   },
   state: {
+    operationKind: {
+      description:
+        "State for the graphql operation kind decorators (@query, @mutation, @subscription)",
+    },
     schema: { description: "State for the @schema decorator." },
   },
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
 
-export const { reportDiagnostic, createDiagnostic, stateKeys: GraphQLKeys } = $lib;
+export const {
+  reportDiagnostic,
+  createDiagnostic,
+  stateKeys: GraphQLKeys,
+} = $lib;

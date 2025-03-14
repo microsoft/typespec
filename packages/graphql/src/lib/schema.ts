@@ -7,7 +7,7 @@ import {
 } from "@typespec/compiler";
 
 import { GraphQLKeys, NAMESPACE } from "../lib.js";
-import { useStateMap } from "./state-map.js";
+import { useStateMap } from "@typespec/compiler/utils";
 
 // This will set the namespace for decorators implemented in this file
 export const namespace = NAMESPACE;
@@ -20,7 +20,9 @@ export interface Schema extends SchemaDetails {
   type: Namespace;
 }
 
-const [getSchema, setSchema, getSchemaMap] = useStateMap<Namespace, Schema>(GraphQLKeys.schema);
+const [getSchema, setSchema, getSchemaMap] = useStateMap<Namespace, Schema>(
+  GraphQLKeys.schema
+);
 
 /**
  * List all the schemas defined in the TypeSpec program
@@ -60,7 +62,7 @@ export function isSchema(program: Program, namespace: Namespace): boolean {
 export function addSchema(
   program: Program,
   namespace: Namespace,
-  details: SchemaDetails = {},
+  details: SchemaDetails = {}
 ): void {
   const schemaMap = getSchemaMap(program);
   const existing = schemaMap.get(namespace) ?? {};
@@ -70,7 +72,7 @@ export function addSchema(
 export const $schema: DecoratorFunction = (
   context: DecoratorContext,
   target: Namespace,
-  options: SchemaDetails = {},
+  options: SchemaDetails = {}
 ) => {
   validateDecoratorUniqueOnNode(context, target, $schema);
   addSchema(context.program, target, options);
