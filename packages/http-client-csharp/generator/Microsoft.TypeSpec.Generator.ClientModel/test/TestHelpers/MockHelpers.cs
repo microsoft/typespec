@@ -139,7 +139,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             codeModelInstance!.SetValue(null, mockPluginInstance.Object);
             clientModelInstance!.SetValue(null, mockPluginInstance.Object);
-            mockPluginInstance.Object.Configure();
             return mockPluginInstance;
         }
     }

@@ -44,10 +44,15 @@ namespace Microsoft.TypeSpec.Generator
         [ImportingConstructor]
         public CodeModelPlugin(GeneratorContext context)
         {
+            _instance = this;
             Configuration = context.Configuration;
             _inputLibrary = new InputLibrary(Configuration.OutputDirectory);
             TypeFactory = new TypeFactory();
             Emitter = new Emitter(Console.OpenStandardOutput());
+            foreach (var type in CustomCodeAttributeProviders)
+            {
+                AddTypeToKeep(type);
+            }
         }
 
         // for mocking
@@ -90,14 +95,6 @@ namespace Microsoft.TypeSpec.Generator
             new CodeGenSuppressAttributeDefinition(),
             new CodeGenSerializationAttributeDefinition()
         ];
-
-        public virtual void Configure()
-        {
-            foreach (var type in CustomCodeAttributeProviders)
-            {
-                AddTypeToKeep(type);
-            }
-        }
 
         public void AddVisitor(LibraryVisitor visitor)
         {

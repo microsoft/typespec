@@ -27,11 +27,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         {
             TypeFactory = new ScmTypeFactory();
             _instance = this;
-        }
-
-        public override void Configure()
-        {
-            base.Configure();
             AddVisitor(new DefaultScmLibraryVisitor());
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
