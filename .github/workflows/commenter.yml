@@ -2,7 +2,7 @@ name: Make Change Comment
 
 on:
   workflow_run:
-    workflows: ["Check Changes"]
+    workflows: ["Consistency"]
     types:
       - completed
 
