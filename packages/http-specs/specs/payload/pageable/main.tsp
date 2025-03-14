@@ -78,7 +78,7 @@ namespace ServerDrivenPagination {
           { "id": "1", "name": "dog" },
           { "id": "2", "name": "cat" }
         ],
-        "nextToken": "page2"
+        "token": "page2"
       }
       ```
       
@@ -103,7 +103,7 @@ namespace ServerDrivenPagination {
       @pageItems
       pets: Pet[];
 
-      @continuationToken nextToken?: string;
+      @continuationToken token?: string;
     };
 
     @scenario
@@ -124,7 +124,7 @@ namespace ServerDrivenPagination {
           { "id": "1", "name": "dog" },
           { "id": "2", "name": "cat" }
         ],
-        "nextToken": "page2"
+        "token": "page2"
       }
       ```
       
@@ -150,7 +150,7 @@ namespace ServerDrivenPagination {
       @pageItems
       pets: Pet[];
 
-      @continuationToken nextToken?: string;
+      @continuationToken token?: string;
     };
 
     @scenario
@@ -175,7 +175,7 @@ namespace ServerDrivenPagination {
       ```
       
       Expected response header:
-      next-token=page2
+      token=page2
       
       2. Next page request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar&token=page2
@@ -198,7 +198,7 @@ namespace ServerDrivenPagination {
       @pageItems
       pets: Pet[];
 
-      @continuationToken @header nextToken?: string;
+      @continuationToken @header token?: string;
     };
 
     @scenario
@@ -222,7 +222,7 @@ namespace ServerDrivenPagination {
       ```
       
       Expected response header:
-      next-token=page2
+      token=page2
       
       2. Next page request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
@@ -246,7 +246,7 @@ namespace ServerDrivenPagination {
       @pageItems
       pets: Pet[];
 
-      @continuationToken @header nextToken?: string;
+      @continuationToken @header token?: string;
     };
   }
 }
