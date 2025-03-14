@@ -1424,7 +1424,7 @@ enum Bar {
       });
     });
 
-    it("keeps comment between decorators and unenum member", async () => {
+    it("keeps comment between decorators and enum member", async () => {
       await assertFormat({
         code: `
       enum Bar {
