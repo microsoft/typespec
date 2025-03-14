@@ -23,7 +23,21 @@ model TypeSpec.JsonSchema.Json<Data>
 
 | Name  | Type   | Description |
 | ----- | ------ | ----------- |
-| value | `Data` |             |
+| value | `Data` | The value to be emitted as raw JSON or YAML. |
+
+#### Example
+
+```typespec
+model ExampleModel {
+  name: string;
+  age: int32;
+}
+
+model RawJsonExample is Json<ExampleModel>;
+```
+
+In this example, `RawJsonExample` will be emitted as raw JSON or YAML instead of a schema.
+
 
 ### `Format` {#TypeSpec.JsonSchema.Format}
 
@@ -52,4 +66,15 @@ enum TypeSpec.JsonSchema.Format
 | uuid                | `"uuid"`                  |             |
 | jsonPointer         | `"json-pointer"`          |             |
 | relativeJsonPointer | `"relative-json-pointer"` |             |
-| regex               | `"regex"`                 |             |
+| regex               | `"regex"`                 | A regular expression. |
+
+#### Example
+
+```typespec
+model ExampleModel {
+  @format(Format.dateTime)
+  timestamp: string;
+}
+```
+
+In this example, the `timestamp` property will be emitted with the `date-time` format in the JSON Schema.

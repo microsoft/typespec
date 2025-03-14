@@ -59,7 +59,19 @@ Specify the encoding used for the contents of a string.
 
 | Name  | Type             | Description |
 | ----- | ---------------- | ----------- |
-| value | `valueof string` | <br />      |
+| value | `valueof string` | The encoding used for the contents of the string. |
+
+#### Example
+
+```typespec
+model ExampleModel {
+  @contentEncoding("base64")
+  encodedData: string;
+}
+```
+
+In this example, the `encodedData` property will be emitted with the `base64` content encoding in the JSON Schema.
+
 
 ### `@contentMediaType` {#@TypeSpec.JsonSchema.contentMediaType}
 
@@ -77,7 +89,19 @@ Specify the content type of content stored in a string.
 
 | Name  | Type             | Description                           |
 | ----- | ---------------- | ------------------------------------- |
-| value | `valueof string` | the media type of the string contents |
+| value | `valueof string` | The media type of the string contents. |
+
+#### Example
+
+```typespec
+model ExampleModel {
+  @contentMediaType("application/json")
+  jsonData: string;
+}
+```
+
+In this example, the `jsonData` property will be emitted with the `application/json` media type in the JSON Schema.
+
 
 ### `@contentSchema` {#@TypeSpec.JsonSchema.contentSchema}
 
