@@ -1,8 +1,6 @@
-vi.resetModules();
-
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it, vi } from "vitest";
+import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import { ResponseLocation } from "../../src/type/response-location.js";
@@ -151,7 +149,7 @@ describe("Continuation token operations", () => {
     strictEqual(continuationToken.Parameter.Location, RequestLocation.Header);
     strictEqual(continuationToken.ResponseLocation, ResponseLocation.Header);
     strictEqual(continuationToken.ResponseSegments.length, 1);
-    strictEqual(continuationToken.ResponseSegments[0], "nextToken");
+    strictEqual(continuationToken.ResponseSegments[0], "next-token");
   });
 
   it("header request body response", async () => {
@@ -217,7 +215,7 @@ describe("Continuation token operations", () => {
     strictEqual(continuationToken.Parameter.Location, RequestLocation.Query);
     strictEqual(continuationToken.ResponseLocation, ResponseLocation.Header);
     strictEqual(continuationToken.ResponseSegments.length, 1);
-    strictEqual(continuationToken.ResponseSegments[0], "nextToken");
+    strictEqual(continuationToken.ResponseSegments[0], "next-token");
   });
 
   it("query request body response", async () => {

@@ -364,7 +364,7 @@ function loadOperationPaging(
 }
 
 function getResponseSegmentName(segment: SdkModelPropertyType): string {
-  return segment.kind === "header" || segment.kind === "body"
+  return segment.kind === "responseheader" || segment.kind === "body"
     ? segment.serializedName
     : segment.name;
 }
