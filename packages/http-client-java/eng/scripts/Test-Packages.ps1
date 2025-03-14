@@ -84,6 +84,9 @@ try {
         # Generate code for Spector tests
         Write-Host "Generating test projects ..."
         & "$packageRoot/eng/scripts/Generate.ps1"
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
         Write-Host 'Code generation is completed.'
 
         # Check difference between code in branch, and code just generated
