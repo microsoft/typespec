@@ -156,6 +156,45 @@ import {
 } from "./utils.js";
 const { isEqual } = pkg;
 
+export interface EmitterOptionsDev {
+  namespace?: string;
+
+  flavor?: string;
+
+  "service-name"?: string;
+  "service-versions"?: string[];
+
+  "skip-special-headers"?: string[];
+
+  "generate-samples"?: boolean;
+  "generate-tests"?: boolean;
+
+  "enable-sync-stack"?: boolean;
+  "stream-style-serialization"?: boolean;
+  "use-object-for-unknown"?: boolean;
+
+  "partial-update"?: boolean;
+  "models-subpackage"?: string;
+  "custom-types"?: string;
+  "custom-types-subpackage"?: string;
+  "customization-class"?: string;
+  polling?: any;
+
+  "group-etag-headers"?: boolean;
+
+  "enable-subclient"?: boolean;
+
+  "advanced-versioning"?: boolean;
+  "api-version"?: string;
+  "service-version-exclude-preview"?: boolean;
+
+  "dev-options"?: object;
+
+  // internal use for codegen
+  "output-dir": string;
+  arm?: boolean;
+}
+
 type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
 
 const AZURE_CORE_FOUNDATIONS_ERROR_ID = "Azure.Core.Foundations.Error";
@@ -167,7 +206,7 @@ export class CodeModelBuilder {
   private baseJavaNamespace!: string;
   private legacyJavaNamespace!: boolean; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
   private sdkContext!: SdkContext;
-  private options: EmitterOptions;
+  private options: EmitterOptionsDev;
   private codeModel: CodeModel;
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
@@ -181,7 +220,7 @@ export class CodeModelBuilder {
   private apiVersion: string | undefined;
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
-    this.options = context.options;
+    this.options = context.options as EmitterOptionsDev;
     this.program = program1;
     this.emitterContext = context;
 
