@@ -12,7 +12,11 @@ permissions:
 jobs:
   # DO NOT BUILD ANYTHING FROM A PR HERE https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
   commenter:
-    if: ${{ github.actor != 'dependabot[bot]' && !startsWith(github.head_ref, 'publish/') }}
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'&&
+      github.actor != 'dependabot[bot]' && 
+      !startsWith(github.head_ref, 'publish/') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
