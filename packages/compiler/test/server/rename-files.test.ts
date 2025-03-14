@@ -25,10 +25,9 @@ it("Rename a single file and update the content of the corresponding import at t
   await host.compilerHost.rm("./subdir/subfile.tsp", { recursive: false });
   host.addTypeSpecFile("./subdir/subfile1.tsp", "model SubFile {}");
 
-  await host.server.watchedFilesChanged({
-    changes: [
-      { uri: host.getURL("./subdir/subfile.tsp"), type: 3 },
-      { uri: host.getURL("./subdir/subfile1.tsp"), type: 1 },
+  await host.server.renameFiles({
+    files: [
+      { oldUri: host.getURL("./subdir/subfile.tsp"), newUri: host.getURL("./subdir/subfile1.tsp") },
     ],
   });
 
@@ -80,12 +79,10 @@ it("Move files and update the content of the corresponding import at the same ti
   host.addTypeSpecFile("./subdir/common.tsp", "model Base {}");
   host.addTypeSpecFile("./subdir/enum.tsp", "enum DirEnum { A, B, C }");
 
-  await host.server.watchedFilesChanged({
-    changes: [
-      { uri: host.getURL("./lib/common.tsp"), type: 3 },
-      { uri: host.getURL("./lib/enum.tsp"), type: 3 },
-      { uri: host.getURL("./subdir/common.tsp"), type: 1 },
-      { uri: host.getURL("./subdir/enum.tsp"), type: 1 },
+  await host.server.renameFiles({
+    files: [
+      { oldUri: host.getURL("./lib/common.tsp"), newUri: host.getURL("./subdir/common.tsp") },
+      { oldUri: host.getURL("./lib/enum.tsp"), newUri: host.getURL("./subdir/enum.tsp") },
     ],
   });
 
@@ -106,60 +103,6 @@ it("Move files and update the content of the corresponding import at the same ti
     `
     import "../subdir/subfile.tsp";
     import "../subdir/enum.tsp";
-    `,
-    "No changes expected",
-  );
-});
-
-it("Just adding a file will not trigger file renaming", async () => {
-  const host = await createTestServerHost();
-
-  host.addTypeSpecFile(
-    "./main.tsp",
-    `
-    import "./lib/test.tsp";
-    `,
-  );
-  host.addTypeSpecFile("./lib/test.tsp", "model Base {}");
-  host.addTypeSpecFile("./subfile.tsp", "model SubFile {}");
-
-  await host.server.watchedFilesChanged({
-    changes: [{ uri: host.getURL("./subfile.tsp"), type: 1 }],
-  });
-
-  const mainDoc = await host.compilerHost.readFile("./main.tsp");
-  deepStrictEqual(
-    mainDoc.text,
-    `
-    import "./lib/test.tsp";
-    `,
-    "No changes expected",
-  );
-});
-
-it("Just removing a file will not trigger file renaming", async () => {
-  const host = await createTestServerHost();
-
-  host.addTypeSpecFile(
-    "./main.tsp",
-    `
-    import "./lib/test.tsp";
-    `,
-  );
-  host.addTypeSpecFile("./lib/test.tsp", "model Base {}");
-  host.addTypeSpecFile("./subfile.tsp", "model SubFile {}");
-
-  await host.compilerHost.rm("./subfile.tsp", { recursive: false });
-
-  await host.server.watchedFilesChanged({
-    changes: [{ uri: host.getURL("./subfile.tsp"), type: 3 }],
-  });
-
-  const mainDoc = await host.compilerHost.readFile("./main.tsp");
-  deepStrictEqual(
-    mainDoc.text,
-    `
-    import "./lib/test.tsp";
     `,
     "No changes expected",
   );

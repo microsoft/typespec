@@ -25,6 +25,7 @@ import {
   PublishDiagnosticsParams,
   Range,
   ReferenceParams,
+  RenameFilesParams,
   RenameParams,
   SemanticTokens,
   SemanticTokensParams,
@@ -81,6 +82,7 @@ export interface Server {
   findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
   prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
   rename(params: RenameParams): Promise<WorkspaceEdit>;
+  renameFiles(params: RenameFilesParams): Promise<void>;
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
   checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
