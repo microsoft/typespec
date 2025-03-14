@@ -469,8 +469,8 @@ The fields in an OpenAPI response object are specified with the following TypeSp
   @body
   widget: Widget;
 
-  @header xRateLimitRemaining: number;
-  @header xRateLimitReset: number;
+  @header xRateLimitRemaining: int32;
+  @header xRateLimitReset: int32;
 };
 ```
 
