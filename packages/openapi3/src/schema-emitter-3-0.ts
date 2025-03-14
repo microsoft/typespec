@@ -22,6 +22,7 @@ import {
   Placeholder,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
@@ -149,7 +150,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     const variants = Array.from(union.variants.values());
     const literalVariantEnumByType: Record<string, any[]> = {};
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
-    const schemaMembers: { schema: any; type: Type | null }[] = [];
+    const schemaMembers: UnionSchemaMember[] = [];
     let nullable = false;
     const isMultipart = this.getContentType().startsWith("multipart/");
 
@@ -185,39 +186,87 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     }
 
     const wrapWithObjectBuilder = (
-      schemaMember: { schema: any; type: Type | null },
+      schemaMember: UnionSchemaMember,
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
     ): ObjectBuilder<OpenAPI3Schema> => {
       // we can just return the single schema member after applying nullable
       const schema = schemaMember.schema;
       const type = schemaMember.type;
-      const additionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
+
+      const unionWideAdditionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
         ? this.applyConstraints(union, {})
         : {};
 
       if (mergeUnionWideConstraints && nullable) {
-        additionalProps.nullable = true;
+        unionWideAdditionalProps.nullable = true;
       }
 
-      if (Object.keys(additionalProps).length === 0) {
+      if (Object.keys(unionWideAdditionalProps).length === 0) {
         return new ObjectBuilder(schema);
       } else {
         if (
           (schema instanceof Placeholder || "$ref" in schema) &&
           !(type && shouldInline(program, type))
         ) {
-          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
+          if (type && type.kind === "Model") {
             return new ObjectBuilder({
               type: "object",
               allOf: Builders.array([schema]),
-              ...additionalProps,
+              ...unionWideAdditionalProps,
+            });
+          } else if (type && type.kind === "Scalar") {
+            // TODO: remove duplicate schemas
+            const currentRootScalar = $.scalar.getStdBase(type);
+            const memberWideAdditionalProps = this.applyConstraints(type, {});
+            if (!currentRootScalar) {
+              return new ObjectBuilder(memberWideAdditionalProps);
+            }
+
+            const nullableProperty = nullable === true ? true : undefined;
+            const innerSchema = this.getSchemaForScalar(type);
+            // TODO: for the same constraints, use intersection of constraints from union wide and union member
+            //       for now, add allOf when there are union member wide constraints and union wide constraints (except for nullable)
+            if (schemaMembers.length === 1) {
+              if (
+                Object.keys(memberWideAdditionalProps).length > 0 &&
+                Object.keys(unionWideAdditionalProps).length >
+                  (unionWideAdditionalProps.nullable === undefined ? 0 : 1)
+              ) {
+                const initializer = {
+                  allOf: Builders.array([
+                    {
+                      ...innerSchema,
+                      ...memberWideAdditionalProps,
+                      nullable: nullableProperty,
+                    },
+                  ]),
+                  ...unionWideAdditionalProps,
+                };
+                initializer.nullable = undefined;
+                return new ObjectBuilder(initializer);
+              }
+              return new ObjectBuilder({
+                ...innerSchema,
+                ...memberWideAdditionalProps,
+                ...unionWideAdditionalProps,
+              });
+            }
+
+            // already has `allOf` wrapped when schemaMembers.length > 1
+            return new ObjectBuilder({
+              ...innerSchema,
+              ...memberWideAdditionalProps,
+              nullable: nullableProperty,
             });
           } else {
-            return new ObjectBuilder({ allOf: Builders.array([schema]), ...additionalProps });
+            return new ObjectBuilder({
+              allOf: Builders.array([schema]),
+              ...unionWideAdditionalProps,
+            });
           }
         } else {
           const merged = new ObjectBuilder<OpenAPI3Schema>(schema);
-          for (const [key, value] of Object.entries(additionalProps)) {
+          for (const [key, value] of Object.entries(unionWideAdditionalProps)) {
             merged.set(key, value);
           }
           return merged;
@@ -264,6 +313,11 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     }
 
     return this.applyConstraints(union, schema);
+
+    interface UnionSchemaMember {
+      schema: any;
+      type: Type | null;
+    }
   }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {

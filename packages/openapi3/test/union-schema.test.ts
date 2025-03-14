@@ -487,8 +487,7 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         x: {
           anyOf: [
             {
-              type: "object",
-              allOf: [{ $ref: "#/components/schemas/MyStr" }],
+              type: "string",
               nullable: true,
             },
             {
@@ -525,7 +524,7 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
       });
     });
 
-    describe("null and another single variant produce allOf", () => {
+    describe("null and another single variant produce allOf except for scalars", () => {
       it.each([
         ["model", "model Other {}"],
         ["enum", "enum Other {a, b}"],
@@ -540,14 +539,188 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
           nullable: true,
         });
       });
+
+      it("throws diagnostics for null enum definitions", async () => {
+        const diagnostics = await diagnoseOpenApiFor(`union Pet {null}`);
+
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi3/union-null",
+          message: "Cannot have a union containing only null types.",
+        });
+      });
     });
 
-    it("throws diagnostics for null enum definitions", async () => {
-      const diagnostics = await diagnoseOpenApiFor(`union Pet {null}`);
+    describe("null and another single scalar produce inline schema", () => {
+      it("should keep original type", async () => {
+        const openApi = await openApiFor(`
+        scalar Str extends string;
+        model Test {a: Str | null}
+      `);
+        expect(openApi.components.schemas.Test.properties.a).toEqual({
+          type: "string",
+          nullable: true,
+        });
+      });
 
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/openapi3/union-null",
-        message: "Cannot have a union containing only null types.",
+      it("should carry constraints on union", async () => {
+        const openApi = await openApiFor(`
+        scalar Num extends int32;
+        @minValue(1)
+        @maxValue(2)
+        union u { Num, null }
+      `);
+        expect(openApi.components.schemas.u).toEqual({
+          minimum: 1,
+          maximum: 2,
+          type: "integer",
+          format: "int32",
+          nullable: true,
+        });
+      });
+
+      it("should carry all constraints on union and its members", async () => {
+        const openApi = await openApiFor(`
+        @minValue(3)
+        scalar Num extends int32;
+        @minValue(2)
+        union u { Num, null }
+      `);
+        expect(openApi.components.schemas.u).toEqual({
+          allOf: [
+            {
+              minimum: 3,
+              type: "integer",
+              format: "int32",
+              nullable: true,
+            },
+          ],
+          minimum: 2,
+        });
+      });
+
+      it("should carry metadata on union members", async () => {
+        const openApi = await openApiFor(`
+        /** this is my str */
+        scalar Str1 extends string;
+        scalar Str2 extends Str1;
+        model Test {a: Str2 | null}
+      `);
+        expect(openApi.components.schemas.Str1).toEqual({
+          description: "this is my str",
+          type: "string",
+        });
+        expect(openApi.components.schemas.Str2).toEqual({
+          description: "this is my str",
+          type: "string",
+        });
+        expect(openApi.components.schemas.Test.properties.a).toEqual({
+          description: "this is my str",
+          type: "string",
+          nullable: true,
+        });
+      });
+
+      it("should carry metadata on union declaration and its members", async () => {
+        const openApi = await openApiFor(`
+        /** this is my str */
+        scalar Str1 extends string;
+        scalar Str2 extends Str1;
+        /** this is my union */
+        union Test {Str2, null}
+      `);
+        expect(openApi.components.schemas.Str1).toEqual({
+          description: "this is my str",
+          type: "string",
+        });
+        expect(openApi.components.schemas.Str2).toEqual({
+          description: "this is my str",
+          type: "string",
+        });
+        expect(openApi.components.schemas.Test.description).toBeDefined();
+        expect(openApi.components.schemas.Test.description).toBe("this is my union");
+      });
+    });
+
+    describe("null and another multiple scalars produce inline schemas", () => {
+      it("should keep original types", async () => {
+        const openApi = await openApiFor(`
+        scalar Str extends string;
+        scalar Num extends int32;
+        model Test {a: Str | Num | null}
+      `);
+        expect(openApi.components.schemas.Test.properties.a).toEqual({
+          anyOf: [
+            {
+              type: "string",
+              nullable: true,
+            },
+            {
+              type: "integer",
+              format: "int32",
+              nullable: true,
+            },
+          ],
+        });
+      });
+
+      it("should carry constraints on union declaration and its members", async () => {
+        const openApi = await openApiFor(`
+        @minValue(2)
+        scalar Num extends int32;
+        @maxLength(33)
+        scalar Str extends string;
+        @minValue(1)
+        @maxLength(100)
+        union u { Num, Str, null }
+      `);
+        expect(openApi.components.schemas.u).toEqual({
+          anyOf: [
+            {
+              minimum: 2,
+              type: "integer",
+              format: "int32",
+              nullable: true,
+            },
+            {
+              maxLength: 33,
+              type: "string",
+              nullable: true,
+            },
+          ],
+          minimum: 1,
+          maxLength: 100,
+        });
+      });
+
+      it("should carry constraints on anonymous union and its members", async () => {
+        const openApi = await openApiFor(`
+        @minValue(2)
+        scalar Num extends int32;
+        @maxLength(33)
+        scalar Str extends string;
+        model Test { 
+          @minValue(1)
+          @maxLength(100)
+          a: Num | Str | null
+        }
+      `);
+        expect(openApi.components.schemas.Test.properties.a).toEqual({
+          anyOf: [
+            {
+              minimum: 2,
+              type: "integer",
+              format: "int32",
+              nullable: true,
+            },
+            {
+              maxLength: 33,
+              type: "string",
+              nullable: true,
+            },
+          ],
+          minimum: 1,
+          maxLength: 100,
+        });
       });
     });
   });
