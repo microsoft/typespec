@@ -113,7 +113,7 @@ stages:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          NodeVersion: 18.x
+          NodeVersion: 22.x
           Os: linux
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
         parameters:
@@ -135,7 +135,7 @@ stages:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          NodeVersion: 18.x
+          NodeVersion: 22.x
           Os: windows
       - ${{ if eq(parameters.Publish, 'none') }}:
           - template: /eng/emitters/pipelines/templates/jobs/detect-api-changes.yml
@@ -182,7 +182,7 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  NodeVersion: 18.x
+                  NodeVersion: 22.x
                   Os: linux
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
@@ -200,7 +200,7 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  NodeVersion: 18.x
+                  NodeVersion: 22.x
                   Os: windows
 
   # Regen Test stage
