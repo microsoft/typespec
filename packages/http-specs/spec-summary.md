@@ -5336,42 +5336,6 @@ Expected input body:
 }
 ```
 
-### Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_get
-
-- Endpoint: `get /type/property/additionalProperties/spreadRecordDiscriminatedUnion`
-
-Expected response body:
-
-```json
-{
-  "name": "abc",
-  "prop1": { "kind": "kind0", "fooProp": "abc" },
-  "prop2": {
-    "kind": "kind1",
-    "start": "2021-01-01T00:00:00Z",
-    "end": "2021-01-02T00:00:00Z"
-  }
-}
-```
-
-### Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_put
-
-- Endpoint: `put /type/property/additionalProperties/spreadRecordDiscriminatedUnion`
-
-Expected input body:
-
-```json
-{
-  "name": "abc",
-  "prop1": { "kind": "kind0", "fooProp": "abc" },
-  "prop2": {
-    "kind": "kind1",
-    "start": "2021-01-01T00:00:00Z",
-    "end": "2021-01-02T00:00:00Z"
-  }
-}
-```
-
 ### Type_Property_AdditionalProperties_SpreadRecordNonDiscriminatedUnion_get
 
 - Endpoint: `get /type/property/additionalProperties/spreadRecordNonDiscriminatedUnion`

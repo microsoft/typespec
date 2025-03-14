@@ -20,8 +20,6 @@ import {
   SpreadFloatClient,
   SpreadModelArrayClient,
   SpreadModelClient,
-  SpreadRecordDiscriminatedUnionClient,
-  SpreadRecordForDiscriminatedUnion,
   SpreadRecordForNonDiscriminatedUnion,
   SpreadRecordForNonDiscriminatedUnion2,
   SpreadRecordForNonDiscriminatedUnion3,
@@ -367,31 +365,6 @@ describe("Missing AdditionalProperties Endpoints", () => {
     const expected = {
       flag: true,
       additionalProperties: { prop1: "abc", prop2: 43.125 },
-    };
-    it("GET returns the expected response", async () => {
-      const response = await client.get();
-      expect(response).toEqual(expected);
-    });
-    it("PUT accepts the expected input", async () => {
-      await client.put(expected);
-    });
-  });
-
-  /**
-   * Deprecated @discriminator in unions
-   */
-  describe.skip("SpreadRecordDiscriminatedUnion", () => {
-    const client = new SpreadRecordDiscriminatedUnionClient(clientOptions);
-    const expected: SpreadRecordForDiscriminatedUnion = {
-      name: "abc",
-      additionalProperties: {
-        prop1: { kind: "kind0", fooProp: "abc" },
-        prop2: {
-          kind: "kind1",
-          start: new Date("2021-01-01T00:00:00Z"),
-          end: new Date("2021-01-02T00:00:00Z"),
-        },
-      },
     };
     it("GET returns the expected response", async () => {
       const response = await client.get();

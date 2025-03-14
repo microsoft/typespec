@@ -463,17 +463,19 @@ interface SpreadRecordUnion
     > {}
 
 // ****************** spread record of discriminated unions **************************
-@discriminated(#{ envelope: "none" })
-union WidgetData {
-  kind0: WidgetData0,
-  kind1: WidgetData1,
-}
+// @discriminated(#{ envelope: "none" })
+// union WidgetData {
+//   kind0: WidgetData0,
+//   kind1: WidgetData1,
+// }
 
 model WidgetData0 {
+  kind: "kind0";
   fooProp: string;
 }
 
 model WidgetData1 {
+  kind: "kind1";
   start: utcDateTime;
   end?: utcDateTime;
 }
@@ -483,20 +485,20 @@ model WidgetData2 {
   start: string;
 }
 
-@doc("The model spread Record<WidgetData>")
-model SpreadRecordForDiscriminatedUnion {
-  @doc("The name property")
-  name: string;
+// @doc("The model spread Record<WidgetData>")
+// model SpreadRecordForDiscriminatedUnion {
+//   @doc("The name property")
+//   name: string;
 
-  ...Record<WidgetData>;
-}
+//   ...Record<WidgetData>;
+// }
 
-@route("/spreadRecordDiscriminatedUnion")
-interface SpreadRecordDiscriminatedUnion
-  extends ModelOperations<
-      SpreadRecordForDiscriminatedUnion,
-      "{'name': 'abc', 'prop1': {'kind': 'kind0', 'fooProp': 'abc'}, 'prop2': {'kind': 'kind1', 'start': '2021-01-01T00:00:00Z', 'end': '2021-01-02T00:00:00Z'}}"
-    > {}
+// @route("/spreadRecordDiscriminatedUnion")
+// interface SpreadRecordDiscriminatedUnion
+//   extends ModelOperations<
+//       SpreadRecordForDiscriminatedUnion,
+//       "{'name': 'abc', 'prop1': {'kind': 'kind0', 'fooProp': 'abc'}, 'prop2': {'kind': 'kind1', 'start': '2021-01-01T00:00:00Z', 'end': '2021-01-02T00:00:00Z'}}"
+//     > {}
 
 // ****************** spread record of non-discriminated unions but could guess a discriminator **************************
 @doc("The model spread Record<WidgetData0 | WidgetData1>")
