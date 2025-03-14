@@ -1,5 +1,8 @@
 import { JSONSchemaType } from "@typespec/compiler";
 
+// typespec-java has another "options.ts" file, with same "export".
+// If add/remove "export" here, please also check typespec-java in autorest.java repository.
+
 export const LIB_NAME = "@typespec/http-client-java";
 
 export interface DevOptions {
