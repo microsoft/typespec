@@ -67,7 +67,7 @@ $generateScript = {
   }
 
   if ($global:ExitCode -ne 0) {
-    exit $global:ExitCode
+    throw "Failed to generate from tsp $tspFile"
   }
 }
 
@@ -107,5 +107,5 @@ if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_pro
 }
 
 if ($ExitCode -ne 0) {
-  exit $ExitCode
+  throw "Failed to generate from tsp"
 }
