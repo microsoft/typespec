@@ -14,7 +14,6 @@ jobs:
   commenter:
     if: >
       github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success'&&
       github.actor != 'dependabot[bot]' && 
       !startsWith(github.head_ref, 'publish/') }}
     runs-on: ubuntu-latest
