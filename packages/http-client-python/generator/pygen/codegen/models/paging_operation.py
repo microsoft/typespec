@@ -58,6 +58,15 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         self.override_success_response_to_200 = override_success_response_to_200
         self.pager_sync: str = yaml_data.get("pagerSync") or f"{self.code_model.core_library}.paging.ItemPaged"
         self.pager_async: str = yaml_data.get("pagerAsync") or f"{self.code_model.core_library}.paging.AsyncItemPaged"
+        self.continuation_token: Dict[str, Any] = yaml_data.get("continuationToken", {})
+
+    @property
+    def has_continuation_token(self) -> bool:
+        return bool(self.continuation_token.get("input") and self.continuation_token.get("output"))
+
+    @property
+    def next_variable_name(self) -> str:
+        return "_continuation_token" if self.has_continuation_token else "next_link"
 
     def _get_attr_name(self, wire_name: str) -> str:
         response_type = self.responses[0].type
@@ -74,8 +83,8 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         return self.responses[0].get_pager(async_mode)
 
     @property
-    def continuation_token_name(self) -> Optional[str]:
-        wire_name = self.yaml_data.get("continuationTokenName")
+    def next_link_name(self) -> Optional[str]:
+        wire_name = self.yaml_data.get("nextLinkName")
         if not wire_name:
             # That's an ok scenario, it just means no next page possible
             return None

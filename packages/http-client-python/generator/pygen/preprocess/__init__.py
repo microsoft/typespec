@@ -197,9 +197,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
         if (  # pylint: disable=too-many-boolean-expressions
             body_parameter
             and body_parameter["type"]["type"] in ("model", "dict", "list")
-            and (
-                has_json_content_type(body_parameter) or (self.is_tsp and has_multi_part_content_type(body_parameter))
-            )
+            and (has_json_content_type(body_parameter) or (self.is_tsp and has_multi_part_content_type(body_parameter)))
             and not body_parameter["type"].get("xmlMetadata")
             and not any(t for t in ["flattened", "groupedBy"] if body_parameter.get(t))
         ):
