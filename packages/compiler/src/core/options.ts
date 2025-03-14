@@ -37,7 +37,18 @@ export interface CompilerOptions {
   ignoreDeprecated?: boolean;
 
   nostdlib?: boolean;
+
+  /**
+   * Do not run emitters. Same as setting `emit: []`
+   * If both `emit` and `noEmit` are set, `noEmit` takes precedence.
+   */
   noEmit?: boolean;
+
+  /**
+   * Runs emitters but do not write any output.
+   * Only runs emitters supporting this functionality
+   */
+  dryRun?: boolean;
   additionalImports?: string[];
   warningAsError?: boolean;
 

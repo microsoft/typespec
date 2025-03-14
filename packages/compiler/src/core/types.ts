@@ -2241,6 +2241,11 @@ export interface StateDef {
   readonly description?: string;
 }
 
+export interface TypeSpecLibraryCapabilities {
+  /** Only applicable for emitters. Specify that this emitter will respect the dryRun flag and run, report diagnostic but not write any output.  */
+  readonly dryRun?: boolean;
+}
+
 export interface TypeSpecLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
@@ -2250,6 +2255,10 @@ export interface TypeSpecLibraryDef<
    * Library name. MUST match package.json name.
    */
   readonly name: string;
+
+  /** Optional registration of capabilities the library/emitter provides */
+  readonly capabilities?: TypeSpecLibraryCapabilities;
+
   /**
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
    */
