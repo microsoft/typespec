@@ -440,7 +440,6 @@ function addIdentifierCompletion(
           }
         : undefined,
       kind,
-      insertText: printIdentifier(key) + (suffix ?? ""),
     };
 
     if (sym.name.startsWith("$")) {
@@ -451,6 +450,8 @@ function addIdentifierCompletion(
         Range.create(lineAndChar, lineAndChar),
         printIdentifier(key) + (suffix ?? ""),
       );
+    } else {
+      item.insertText = printIdentifier(key) + (suffix ?? "");
     }
 
     if (deprecated) {
