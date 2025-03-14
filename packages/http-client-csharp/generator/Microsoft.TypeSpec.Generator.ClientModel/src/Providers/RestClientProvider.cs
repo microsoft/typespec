@@ -634,7 +634,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (operation.Paging?.NextLink != null)
                 {
                     // Next link operations will always have an endpoint parameter of the CreateRequest method and an "appendPath" parameter
-                    sortedParams.Add(paging++, ScmKnownParameters.NextPage);
+                    sortedParams.Add(paging, ScmKnownParameters.NextPage);
                 }
             }
 
