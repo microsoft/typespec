@@ -105,3 +105,7 @@ if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_pro
   # causes git diff check to fail as the checked in file is not the same as the generated one.
   Remove-Item ./src/main/resources/META-INF/client-structure-service_apiview_properties.json -Force
 }
+
+if ($ExitCode -ne 0) {
+  exit $ExitCode
+}
