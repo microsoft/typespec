@@ -4,9 +4,11 @@
 using System.ClientModel.Primitives;
 using System.ClientModel;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Snippets;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
@@ -26,6 +28,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override CSharpType ClientCollectionAsyncResponseType => typeof(AsyncCollectionResult);
         public override CSharpType ClientCollectionResponseOfTType => typeof(CollectionResult<>);
         public override CSharpType ClientCollectionAsyncResponseOfTType => typeof(AsyncCollectionResult<>);
+
+        public override TypeProvider CreateClientCollectionResultDefinition(
+            ClientProvider client,
+            InputOperation operation,
+            CSharpType? type,
+            bool isAsync)
+        {
+            return new CollectionResultDefinition(client, operation, type, isAsync);
+        }
 
         public override CSharpType ClientResponseExceptionType => typeof(ClientResultException);
 
