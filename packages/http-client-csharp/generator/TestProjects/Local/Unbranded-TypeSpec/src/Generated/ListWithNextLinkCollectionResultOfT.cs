@@ -43,7 +43,14 @@ namespace UnbrandedTypeSpec
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             Uri nextPage = ((ListWithNextLinkResponse)page).Next;
-            return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
+            if (nextPage != null)
+            {
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
+            }
+            else
+            {
+                return null;
+            }
         }
 
         protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)

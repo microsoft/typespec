@@ -256,11 +256,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return
                     [
                         Declare(nextPageVariable, resultExpression),
-                        Return(Static(typeof(ContinuationToken))
-                            .Invoke("FromBytes", BinaryDataSnippets.FromString(
-                                nextPageType.Equals(typeof(Uri)) ?
-                                    nextPageVariable.Property("AbsoluteUri") :
-                                    nextPageVariable)))
+                        new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
+                            {
+                                Return(Static(typeof(ContinuationToken))
+                                .Invoke("FromBytes", BinaryDataSnippets.FromString(
+                                    nextPageType.Equals(typeof(Uri)) ?
+                                        nextPageVariable.Property("AbsoluteUri") :
+                                        nextPageVariable)))
+                            },
+                            Return(Null))
                     ];
                 case InputResponseLocation.Header:
                     return

@@ -44,7 +44,14 @@ namespace Sample
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
             global::System.Uri nextPage = ((global::Sample.Models.Page)page).NextCat;
-            return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.AbsoluteUri));
+            if ((nextPage != null))
+            {
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.AbsoluteUri));
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

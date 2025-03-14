@@ -4469,7 +4469,7 @@
         "SkipUrlEncoding": false
        },
        "ResponseSegments": [
-        "nextToken"
+        "next-token"
        ],
        "ResponseLocation": "Header"
       }

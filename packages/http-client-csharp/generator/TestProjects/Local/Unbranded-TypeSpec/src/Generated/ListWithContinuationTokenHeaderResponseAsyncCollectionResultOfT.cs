@@ -32,7 +32,7 @@ namespace UnbrandedTypeSpec
                 ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
-                if (result.GetRawResponse().Headers.TryGetValue("nextToken", out string value))
+                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value))
                 {
                     nextToken = value;
                 }
@@ -46,7 +46,7 @@ namespace UnbrandedTypeSpec
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            if (page.GetRawResponse().Headers.TryGetValue("nextToken", out string value))
+            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(value));
             }

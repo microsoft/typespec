@@ -47,7 +47,14 @@ namespace Sample
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
             string nextPage = ((global::Sample.Models.Page)page).NextPage;
-            return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));
+            if ((nextPage != null))
+            {
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));
+            }
+            else
+            {
+                return null;
+            }
         }
 
         protected override async global::System.Collections.Generic.IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(global::System.ClientModel.ClientResult page)

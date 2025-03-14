@@ -44,7 +44,14 @@ namespace UnbrandedTypeSpec
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             string nextPage = ((ListWithContinuationTokenResponse)page).NextToken;
-            return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
+            if (nextPage != null)
+            {
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
+            }
+            else
+            {
+                return null;
+            }
         }
 
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)

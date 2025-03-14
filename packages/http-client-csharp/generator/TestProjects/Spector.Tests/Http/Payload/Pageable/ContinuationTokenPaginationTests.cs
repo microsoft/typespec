@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var result = client.GetServerDrivenPaginationClient()
                 .GetServerDrivenPaginationContinuationTokenClient()
                 .RequestHeaderResponseBodyAsync(foo: "foo", bar: "bar");
-            await ValidateConvenience(result);
+            await ValidateConvenience(result, false);
         });
 
         [SpectorTest]
@@ -28,8 +29,8 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetServerDrivenPaginationClient()
                 .GetServerDrivenPaginationContinuationTokenClient()
-                .RequestHeaderResponseBodyAsync(foo: "foo", bar: "bar");
-            await ValidateProtocol(result);
+                .RequestHeaderResponseBodyAsync(token: null, foo: "foo", bar: "bar", options: null);
+            await ValidateProtocol(result, false);
         });
 
         [SpectorTest]
@@ -39,7 +40,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var result = client.GetServerDrivenPaginationClient()
                 .GetServerDrivenPaginationContinuationTokenClient()
                 .RequestHeaderResponseHeaderAsync(foo: "foo", bar: "bar");
-            await ValidateConvenience(result);
+            await ValidateConvenience(result, true);
         });
 
         [SpectorTest]
@@ -48,8 +49,8 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetServerDrivenPaginationClient()
                 .GetServerDrivenPaginationContinuationTokenClient()
-                .RequestHeaderResponseHeaderAsync(foo: "foo", bar: "bar");
-            await ValidateProtocol(result);
+                .RequestHeaderResponseHeaderAsync(null, foo: "foo", bar: "bar", options: null);
+            await ValidateProtocol(result, true);
         });
 
         [SpectorTest]
@@ -59,7 +60,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var result = client.GetServerDrivenPaginationClient()
                 .GetServerDrivenPaginationContinuationTokenClient()
                 .RequestQueryResponseBodyAsync(foo: "foo", bar: "bar");
-            await ValidateConvenience(result);
+            await ValidateConvenience(result, false);
         });
 
         [SpectorTest]
@@ -68,8 +69,8 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetServerDrivenPaginationClient()
                 .GetServerDrivenPaginationContinuationTokenClient()
-                .RequestQueryResponseBodyAsync(foo: "foo", bar: "bar");
-            await ValidateProtocol(result);
+                .RequestQueryResponseBodyAsync(null, foo: "foo", bar: "bar", options: null);
+            await ValidateProtocol(result, false);
         });
 
         [SpectorTest]
@@ -79,7 +80,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var result = client.GetServerDrivenPaginationClient()
                 .GetServerDrivenPaginationContinuationTokenClient()
                 .RequestQueryResponseHeaderAsync(foo: "foo", bar: "bar");
-            await ValidateConvenience(result);
+            await ValidateConvenience(result, true);
         });
 
         [SpectorTest]
@@ -88,8 +89,8 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             var client = new PageableClient(host, null);
             var result = client.GetServerDrivenPaginationClient()
                 .GetServerDrivenPaginationContinuationTokenClient()
-                .RequestQueryResponseHeaderAsync(foo: "foo", bar: "bar");
-            await ValidateProtocol(result);
+                .RequestQueryResponseHeaderAsync(null, foo: "foo", bar: "bar", options: null);
+            await ValidateProtocol(result, true);
         });
 
         [SpectorTest]
@@ -147,7 +148,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             return Task.CompletedTask;
         });
 
-        private static async Task ValidateProtocol(AsyncCollectionResult<Pet> result)
+        private static async Task ValidateProtocol(AsyncCollectionResult result, bool tokenInHeader)
         {
             int count = 0;
             var expectedPets = new Dictionary<string, string>()
@@ -160,6 +161,8 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             await foreach (var page in result.GetRawPagesAsync())
             {
                 Assert.IsNotNull(page);
+                var token = result.GetContinuationToken(page);
+                ValidateContinuationToken(token, page, tokenInHeader, count < 2);
                 var pageResult = JsonNode.Parse(page.GetRawResponse().Content.ToString())!;
                 foreach (var pet in (pageResult["pets"] as JsonArray)!)
                 {
@@ -171,7 +174,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
             }
         }
 
-        private static async Task ValidateConvenience(AsyncCollectionResult<Pet> result)
+        private static async Task ValidateConvenience(AsyncCollectionResult<Pet> result, bool tokenInHeader)
         {
             int count = 0;
             var expectedPets = new Dictionary<string, string>()
@@ -186,6 +189,52 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
                 Assert.IsNotNull(pet);
                 Assert.AreEqual((++count).ToString(), pet.Id);
                 Assert.AreEqual(expectedPets[pet.Id], pet.Name);
+            }
+
+            count = 0;
+            await foreach (var page in result.GetRawPagesAsync())
+            {
+                Assert.IsNotNull(page);
+                var token = result.GetContinuationToken(page);
+                var response = page.GetRawResponse();
+                var pageResult = JsonNode.Parse(response.Content.ToString())!;
+                ValidateContinuationToken(token, page, tokenInHeader, count < 2);
+
+                foreach (var pet in (pageResult["pets"] as JsonArray)!)
+                {
+                    Assert.IsNotNull(pet);
+                    Assert.IsNotNull(pet);
+                    Assert.AreEqual((++count).ToString(), pet!["id"]!.ToString());
+                    Assert.AreEqual(expectedPets[pet["id"]!.ToString()], pet["name"]!.ToString());
+                }
+            }
+
+            Assert.AreEqual(4, count);
+        }
+
+        private static void ValidateContinuationToken(
+            ContinuationToken? token,
+            ClientResult page,
+            bool tokenInHeader,
+            bool hasMore)
+        {
+            if (!hasMore)
+            {
+                Assert.IsNull(token);
+            }
+            else
+            {
+                string? nextTokenValue;
+                if (tokenInHeader)
+                {
+                    Assert.IsTrue(page.GetRawResponse().Headers.TryGetValue("next-token", out nextTokenValue));
+                }
+                else
+                {
+                    var pageResult = JsonNode.Parse(page.GetRawResponse().Content.ToString())!;
+                    nextTokenValue = pageResult["nextToken"]?.ToString();
+                }
+                Assert.AreEqual(token!.ToBytes().ToString(), nextTokenValue);
             }
         }
     }
