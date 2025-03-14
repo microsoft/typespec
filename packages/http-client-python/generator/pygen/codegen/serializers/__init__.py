@@ -485,8 +485,8 @@ class JinjaSerializer(ReaderAndWriter):
     # pylint: disable=line-too-long
     @property
     def sample_additional_folder(self) -> Path:
-        # For special package, we need to addtional folder when generate sampoles.
-        # For example, azure-mgmt-resource is commbied by multiple modules, and each module is multiapi package.
+        # For special package, we need to additional folder when generate sampoles.
+        # For example, azure-mgmt-resource is combined by multiple modules, and each module is multiapi package.
         # one of namespace is "azure.mgmt.resource.resources.v2020_01_01", then additional folder is "resources"
         # so that we could avoid conflict when generate samples.
         # python config: https://github.com/Azure/azure-rest-api-specs/blob/main/specification/resources/resource-manager/readme.python.md

@@ -79,7 +79,7 @@ const libDef = {
       severity: "warning",
       messages: {
         default:
-          "No 'package-name' configured in tspconfig.yaml and will infer pacakge-name from namespace.",
+          "No 'package-name' configured in tspconfig.yaml and will infer 'package-name' from namespace.",
       },
     },
     "no-valid-client": {
