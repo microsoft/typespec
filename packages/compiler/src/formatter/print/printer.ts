@@ -679,7 +679,7 @@ export function printEnumMember(
   print: PrettierChildPrint,
 ) {
   const node = path.node;
-  const id = path.call(print, "id");
+  const id = printIdentifier(node.id, "allow-reserved");
   const value = node.value ? [": ", path.call(print, "value")] : "";
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.enumMember,
