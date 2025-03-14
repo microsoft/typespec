@@ -121,7 +121,7 @@ extern dec error(target: Model);
  * scalar uuid extends string;
  * ```
  */
-extern dec format(target: string | bytes | ModelProperty, format: valueof string);
+extern dec format(target: string | ModelProperty, format: valueof string);
 
 /**
  * Specify the the pattern this string should respect using simple regular expression syntax.
@@ -422,7 +422,7 @@ extern dec discriminated(target: Union, options?: valueof DiscriminatedOptions);
  * model Dog extends Pet  {kind: "dog", bark: boolean}
  * ```
  */
-extern dec discriminator(target: Model | Union, propertyName: valueof string);
+extern dec discriminator(target: Model, propertyName: valueof string);
 
 /**
  * Known encoding to use on utcDateTime or offsetDateTime

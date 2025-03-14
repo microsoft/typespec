@@ -32,7 +32,6 @@ import {
 
 export class TestClient {
   #context: TestClientContext;
-
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
@@ -63,7 +62,6 @@ export function jsonWidgetToTransportTransform(input_?: Widget | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     id: input_.id,
     total_weight: input_.totalWeight,
@@ -114,21 +112,17 @@ A function named `foo` is generated to handle the HTTP request. It prepares the 
 ```ts src/api/testClientOperations.ts function foo
 export async function foo(client: TestClientContext, options?: FooOptions): Promise<Widget> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonWidgetToApplicationTransform(response.body)!;
   }
-
   throw createRestError(response);
 }
 ```

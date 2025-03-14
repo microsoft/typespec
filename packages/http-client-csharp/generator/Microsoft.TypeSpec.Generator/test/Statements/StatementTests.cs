@@ -491,6 +491,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
         }
 
         [Test]
+        public void TestWhileStatement()
+        {
+            var condition = True;
+            var whileStatement = new WhileStatement(condition) { Return(True) };
+
+            Assert.NotNull(Helpers.GetExpectedFromFile(), whileStatement.ToDisplayString());
+        }
+
+        [Test]
+        public void TestDoWhileStatement()
+        {
+            var condition = True;
+            var whileStatement = new DoWhileStatement(condition) { Return(True) };
+
+            Assert.NotNull(Helpers.GetExpectedFromFile(), whileStatement.ToDisplayString());
+        }
+
+        [Test]
+        public void TestYieldReturnStatement()
+        {
+            var yieldReturnStatement = YieldReturn(Literal(5));
+            Assert.AreEqual("yield return 5;\n", yieldReturnStatement.ToDisplayString());
+        }
+
+        [Test]
+        public void TestYieldBreakStatement()
+        {
+            var yieldBreakStatement = YieldBreak();
+            Assert.AreEqual("yield break;\n", yieldBreakStatement.ToDisplayString());
+        }
+
+        [Test]
         public void TestFlatten()
         {
             var ifTrueStatement = new IfStatement(True) { Return(True) };

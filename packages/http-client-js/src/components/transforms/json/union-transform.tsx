@@ -18,7 +18,11 @@ export function JsonUnionTransform(props: JsonUnionTransformProps) {
   const discriminator = $.type.getDiscriminator(props.type);
   if (discriminator) {
     // return <JsonTransformDiscriminator {...props} discriminator={discriminator}/>;
-    return <>{getJsonTransformDiscriminatorRefkey(props.type, props.target)}({props.itemRef})</>;
+    return (
+      <>
+        {getJsonTransformDiscriminatorRefkey(props.type, props.target)}({props.itemRef})
+      </>
+    );
   }
 
   const variantType = props.type.variants.values().next().value!.type;
@@ -59,15 +63,23 @@ export function JsonUnionTransformDeclaration(props: JsonUnionTransformDeclarati
   };
 
   const declarationRefkey = getJsonUnionTransformRefkey(props.type, props.target);
-  return <>
-  <JsonTransformDiscriminatorDeclaration target={props.target} type={props.type} />
-  <ts.FunctionDeclaration name={transformName} export returnType={returnType} parameters={parameters} refkey={declarationRefkey} >
-    {ay.code`
+  return (
+    <>
+      <JsonTransformDiscriminatorDeclaration target={props.target} type={props.type} />
+      <ts.FunctionDeclaration
+        name={transformName}
+        export
+        returnType={returnType}
+        parameters={parameters}
+        refkey={declarationRefkey}
+      >
+        {ay.code`
     if(!${inputRef}) {
       return ${inputRef} as any;
     }
     `}
-    return <JsonUnionTransform {...props} itemRef={inputRef} />
-  </ts.FunctionDeclaration>
-  </>;
+        return <JsonUnionTransform {...props} itemRef={inputRef} />
+      </ts.FunctionDeclaration>
+    </>
+  );
 }

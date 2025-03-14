@@ -82,7 +82,6 @@ export function jsonBirdToTransportTransform(input_?: Bird | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonBirdToTransportDiscriminator(input_),
     kind: input_.kind,
@@ -99,7 +98,6 @@ export function jsonSeaGullToTransportTransform(input_?: SeaGull | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     wingspan: input_.wingspan,
@@ -115,7 +113,6 @@ export function jsonSparrowToTransportTransform(input_?: Sparrow | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     wingspan: input_.wingspan,
@@ -131,7 +128,6 @@ export function jsonGooseToTransportTransform(input_?: Goose | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     wingspan: input_.wingspan,
@@ -152,7 +148,6 @@ export function jsonEagleToTransportTransform(input_?: Eagle | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     friends: jsonArrayBirdToTransportTransform(input_.friends),

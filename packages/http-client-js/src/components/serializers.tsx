@@ -1,4 +1,5 @@
 import * as ts from "@alloy-js/typescript";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import {
   DateDeserializer,
   DateRfc3339Serializer,
@@ -25,7 +26,8 @@ export function ModelSerializers(props: ModelSerializersProps) {
   // Todo: Handle other kinds of serialization, for example XML. Might need to
   // revisit the way we process these and might need to track the relationship
   // between the data type and the operations that consume them.
-  return <ts.SourceFile path={props.path ?? "serializers.ts"}>
+  return (
+    <ts.SourceFile path={props.path ?? "serializers.ts"}>
       <DecodeBase64 />
       <EncodeUint8Array />
       <DateDeserializer />
@@ -34,14 +36,24 @@ export function ModelSerializers(props: ModelSerializersProps) {
       <DateRfc7231Serializer />
       <DateUnixTimestampSerializer />
       <DateUnixTimestampDeserializer />
-      {operations.map(o => <TransformDeclaration operation={o} />)}
+      {operations.map((o) => (
+        <TransformDeclaration operation={o} />
+      ))}
       {dataTypes
         .filter((m) => m.kind === "Model" || m.kind === "Union")
-        .map((type) => (
-          <EncodingProvider defaults={{bytes: "base64"}}>
-            <JsonTransformDeclaration type={type} target="transport" />
-            <JsonTransformDeclaration type={type} target="application" />
-          </EncodingProvider>          
-        ))}
-    </ts.SourceFile>;
+        .map((type) => {
+          let bytesDefaultEncoding: "base64" | "none" = "base64";
+          if ($.model.is(type) && type.baseModel && $.model.isHttpFile(type.baseModel)) {
+            bytesDefaultEncoding = "none";
+          }
+
+          return (
+            <EncodingProvider defaults={{ bytes: bytesDefaultEncoding }}>
+              <JsonTransformDeclaration type={type} target="transport" />
+              <JsonTransformDeclaration type={type} target="application" />
+            </EncodingProvider>
+          );
+        })}
+    </ts.SourceFile>
+  );
 }

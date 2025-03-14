@@ -18,7 +18,6 @@ export async function get(
   options?: GetOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: {
@@ -26,17 +25,14 @@ export async function get(
       break: options?.break_,
     },
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -54,7 +50,6 @@ export interface GetOptions extends OperationOptions {
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
-
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }

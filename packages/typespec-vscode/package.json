@@ -116,19 +116,29 @@
       "explorer/context": [
         {
           "command": "typespec.importFromOpenApi3",
-          "group": "typespec@2"
+          "group": "typespec@3"
         },
         {
-          "command": "typespec.generateCode",
+          "command": "typespec.emitCode",
           "when": "explorerResourceIsFolder || resourceLangId == typespec",
           "group": "typespec@1"
+        },
+        {
+          "command": "typespec.showOpenApi3",
+          "when": "resourceLangId == typespec",
+          "group": "typespec@2"
         }
       ],
       "editor/context": [
         {
-          "command": "typespec.generateCode",
+          "command": "typespec.emitCode",
           "when": "resourceLangId == typespec",
           "group": "typespec@1"
+        },
+        {
+          "command": "typespec.showOpenApi3",
+          "when": "resourceLangId == typespec",
+          "group": "typespec@2"
         }
       ]
     },
@@ -162,8 +172,8 @@
         "category": "TypeSpec"
       },
       {
-        "command": "typespec.generateCode",
-        "title": "Generate from TypeSpec",
+        "command": "typespec.emitCode",
+        "title": "Emit from TypeSpec",
         "category": "TypeSpec"
       },
       {
@@ -179,6 +189,11 @@
       {
         "command": "typespec.importFromOpenApi3",
         "title": "Import TypeSpec from OpenApi3",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.showOpenApi3",
+        "title": "Show OpenAPI3 Documentation",
         "category": "TypeSpec"
       }
     ],
@@ -225,10 +240,11 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run compile && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
+    "build": "npm run compile && npm run copy-templates && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
     "compile": "rollup --config rollup.config.ts --configPlugin typescript --failAfterWarnings 2>&1",
     "watch": "rollup --config rollup.config.ts --configPlugin typescript --watch",
     "dogfood": "node scripts/dogfood.js",
+    "copy-templates": "node scripts/copy-templates.js",
     "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
@@ -240,6 +256,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~28.0.2",
+    "@rollup/plugin-json": "~6.1.0",
     "@rollup/plugin-node-resolve": "~16.0.0",
     "@rollup/plugin-typescript": "~12.1.2",
     "@types/mocha": "^10.0.9",
@@ -257,11 +274,14 @@
     "mocha": "^11.1.0",
     "rimraf": "~6.0.1",
     "rollup": "~4.34.9",
+    "rollup-plugin-copy": "^3.5.0",
     "semver": "^7.7.1",
+    "swagger-ui-dist": "^5.20.0",
     "typescript": "~5.8.2",
     "vitest": "^3.0.7",
     "vscode-languageclient": "~9.0.1",
     "which": "^5.0.0",
-    "yaml": "~2.7.0"
+    "yaml": "~2.7.0",
+    "ajv": "~8.17.1"
   }
 }

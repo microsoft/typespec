@@ -66,7 +66,7 @@ export function createProtobufEmitter(
     // Convert the program to a set of proto files.
     const files = tspToProto(program, options);
 
-    if (!program.compilerOptions.noEmit && !options?.noEmit && !program.hasError()) {
+    if (!program.compilerOptions.dryRun && !options?.noEmit && !program.hasError()) {
       for (const file of files) {
         // If the file has a package, emit it to a path that is shaped like the package name. Otherwise emit to
         // main.proto
@@ -1050,9 +1050,6 @@ function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget 
       return node.id;
     case SyntaxKind.ModelSpreadProperty:
       return node;
-    case SyntaxKind.ProjectionModelProperty:
-    case SyntaxKind.ProjectionModelSpreadProperty:
-      return property;
     default:
       const __exhaust: never = node;
       throw new Error(

@@ -34,21 +34,17 @@ export async function read(
   const path = parse("/widgets/{id}").expand({
     id: id,
   });
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```

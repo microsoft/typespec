@@ -792,6 +792,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.AdditionalProperties
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/6426")]
         public Task SpreadRecordDiscriminatedUnionPut() => Test(async host =>
         {
             var value = new SpreadRecordForDiscriminatedUnion("abc")
@@ -824,6 +825,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.AdditionalProperties
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/6426")]
         public Task SpreadRecordNonDiscriminatedUnionPut() => Test(async host =>
         {
             var value = new SpreadRecordForNonDiscriminatedUnion("abc")
@@ -856,6 +858,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.AdditionalProperties
         });
 
         [SpectorTest]
+        [Ignore("https://github.com/microsoft/typespec/issues/6426")]
         public Task SpreadRecordNonDiscriminatedUnion2Put() => Test(async host =>
         {
             var value = new SpreadRecordForNonDiscriminatedUnion2("abc")

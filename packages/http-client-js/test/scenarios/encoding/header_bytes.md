@@ -24,23 +24,19 @@ export async function defaultEncoding(
   options?: DefaultEncodingOptions,
 ): Promise<void> {
   const path = parse("/default").expand({});
-
   const httpRequestOptions = {
     headers: {
       value: encodeUint8Array(value, "base64")!,
     },
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -70,7 +66,6 @@ export async function defaultEncoding(
   options?: DefaultEncodingOptions,
 ): Promise<void> {
   const path = parse("/default").expand({});
-
   const httpRequestOptions = {
     headers: {
       ...(options?.value && {
@@ -78,17 +73,14 @@ export async function defaultEncoding(
       }),
     },
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -120,23 +112,19 @@ export async function get(
   options?: GetOptions,
 ): Promise<void> {
   const path = parse("/default").expand({});
-
   const httpRequestOptions = {
     headers: {
       value: encodeUint8Array(value, "base64")!,
     },
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```

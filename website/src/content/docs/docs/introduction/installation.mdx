@@ -4,38 +4,25 @@ title: Installation
 slug: docs
 ---
 
-import { Badge } from "@astrojs/starlight/components";
-import { FileTree } from "@astrojs/starlight/components";
-import { Steps } from "@astrojs/starlight/components";
+import { Aside, Badge, Tabs, TabItem, FileTree, Steps } from "@astrojs/starlight/components";
+
+## Install TypeSpec
 
 TypeSpec can be used in two ways:
 
-- A standalone executable without any additional dependencies. <Badge text="Preview" variant="caution" />
 - Npm package for use with Node.js and other package managers.
+- A standalone executable without any additional dependencies. <Badge text="Experimental" variant="caution" />
 
-## Standalone <Badge text="Preview" variant="caution" />
-
-### macOS and Linux
-
-```bash
-curl -fsSL https://typespec.io/install.sh | bash
-```
-
-### Windows
-
-```bash
-powershell -c "irm typespec.io/install.ps1|iex"
-```
-
-## With Node.js
-
+<Tabs>
+  <TabItem label="Node.JS">
+  
 Install [Node.js LTS](https://nodejs.org/en/download/) and ensure you can run the `npm` command in a command prompt:
 
 ```bash
 npm --version
 ```
 
-### Package manager
+#### Package manager
 
 TypeSpec uses node package linking to manage dependencies. Any package manager that produce a `node_modules` directory should work:
 
@@ -47,13 +34,48 @@ TypeSpec uses node package linking to manage dependencies. Any package manager t
 Yarn will not automatically install implicit peerDependencies. TypeSpec libraries rely on this. Watch for warnings for any missing dependencies.
 :::
 
-### Install tsp
+#### Install tsp (optional)
 
-The first step is to install `tsp`, the TypeSpec compiler/CLI.
+To have access to the `tsp` command globally, install the `@typespec/compiler` package:
+Altnatively, you can run `npx tsp` instead in any project that has the compiler as a dependency.
 
 ```bash
 npm install -g @typespec/compiler
 ```
+
+  </TabItem>
+  <TabItem label="Standalone (Experimental)">
+
+<Aside type="caution">The standalone CLI is currently experimental.</Aside>
+
+To install, paste this into a terminal:
+
+<Tabs>
+  <TabItem label="macOS">
+  
+```bash
+curl -fsSL https://typespec.io/install.sh | bash
+```
+
+  </TabItem>
+  <TabItem label="Windows">
+
+```bash
+powershell -c "irm typespec.io/install.ps1|iex"
+```
+
+  </TabItem>
+  <TabItem label="Linux">
+  
+```bash
+curl -fsSL https://typespec.io/install.sh | bash
+```
+
+  </TabItem>
+</Tabs>
+
+  </TabItem>
+</Tabs>
 
 ## Install the VS and VSCode extensions
 

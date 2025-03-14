@@ -24,21 +24,17 @@ interface Widgets {
 ```ts src/api/widgetsClient/widgetsClientOperations.ts function read
 export async function read(client: WidgetsClientContext, options?: ReadOptions): Promise<void> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -81,7 +77,6 @@ export function jsonWidgetToApplicationTransform(input_?: any): Widget {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     name: input_.name,
     age: input_.age,
@@ -96,21 +91,17 @@ The function reads a `Widget` instance from the response body, ensuring it only 
 ```ts src/api/widgetsClient/widgetsClientOperations.ts function read
 export async function read(client: WidgetsClientContext, options?: ReadOptions): Promise<Widget> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonWidgetToApplicationTransform(response.body)!;
   }
-
   throw createRestError(response);
 }
 ```
@@ -154,25 +145,20 @@ export async function read(
   options?: ReadOptions,
 ): Promise<Widget | void> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonWidgetToApplicationTransform(response.body)!;
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -222,25 +208,20 @@ TODO: need to implement xml serialization
 ```ts src/api/widgetsClient/widgetsClientOperations.ts function read
 export async function read(client: WidgetsClientContext, options?: ReadOptions): Promise<Widget> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonWidgetToApplicationTransform(response.body)!;
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/xml")) {
     return jsonWidgetToApplicationTransform(response.body)!;
   }
-
   throw createRestError(response);
 }
 ```

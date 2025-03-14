@@ -121,5 +121,4 @@ export const $decorators = {
   } satisfies TypeSpecDecorators,
 };
 
-// Projection function exports
 export const namespace = "TypeSpec";

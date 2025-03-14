@@ -15,5 +15,12 @@ export function ClientContextDeclaration(props: ClientContextDeclarationProps) {
   const ref = getClientcontextDeclarationRef(props.client);
   const namePolicy = ts.useTSNamePolicy();
   const name = namePolicy.getName(`${props.client.name}Context`, "class");
-  return <ts.InterfaceDeclaration export name={name} refkey={ref} extends={httpRuntimeTemplateLib.Client} />;
+  return (
+    <ts.InterfaceDeclaration
+      export
+      name={name}
+      refkey={ref}
+      extends={httpRuntimeTemplateLib.Client}
+    />
+  );
 }

@@ -32,6 +32,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public abstract CSharpType ClientResponseOfTType { get; }
 
+        public abstract CSharpType ClientCollectionResponseType { get; }
+        public abstract CSharpType ClientCollectionAsyncResponseType { get; }
+
+        public abstract CSharpType ClientCollectionResponseOfTType { get; }
+        public abstract CSharpType ClientCollectionAsyncResponseOfTType { get; }
+
         public abstract CSharpType ClientResponseExceptionType { get; }
     }
 }

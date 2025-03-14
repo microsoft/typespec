@@ -14,6 +14,7 @@ import {
   getDoc,
   getEncode,
   getErrorsDoc,
+  getFormat,
   getFriendlyName,
   getKeyName,
   getOverloadedOperation,
@@ -306,6 +307,47 @@ describe("compiler: built-in decorators", () => {
       const data2 = getPatternData(runner.program, B);
       strictEqual(data2?.pattern, pattern2);
       strictEqual(data2?.validationMessage, undefined);
+    });
+  });
+
+  describe("@format", () => {
+    it("applies @pattern to scalar", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        @format("email")
+        scalar A extends string;
+        `,
+      )) as { A: Scalar };
+
+      strictEqual(getFormat(runner.program, A), "email");
+    });
+
+    it("applies @pattern to model property", async () => {
+      const { prop } = (await runner.compile(
+        `
+        model A {
+          @test
+          @format("email")
+          prop: string;
+        }
+        `,
+      )) as { prop: ModelProperty };
+      strictEqual(getFormat(runner.program, prop), "email");
+    });
+
+    it("emit diagnostic if targeting bytes", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          @format("email")
+          prop: bytes;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @format decorator to type it is not a string",
+      });
     });
   });
 
@@ -1190,65 +1232,6 @@ describe("compiler: built-in decorators", () => {
         discriminatorPropertyName: "kind",
         envelopePropertyName: "value",
       });
-    });
-  });
-
-  describe("@discriminator on unions (LEGACY)", () => {
-    it("requires variants to be models", async () => {
-      const diagnostics = await runner.diagnose(`
-        #suppress "deprecated" "For testing"
-        @discriminator("kind")
-        union Foo {
-          a: "hi"
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminated-union-variant",
-          message: `Union variant "a" must be a model type.`,
-        },
-      ]);
-    });
-    it("requires variants to have the discriminator property", async () => {
-      const diagnostics = await runner.diagnose(`
-        model A {
-
-        }
-        #suppress "deprecated" "For testing"
-        @discriminator("kind")
-        union Foo {
-          a: A
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminated-union-variant",
-          message: `Variant "a" type is missing the discriminant property "kind".`,
-        },
-      ]);
-    });
-
-    it("requires variant discriminator properties to be string literals or string enum values", async () => {
-      const diagnostics = await runner.diagnose(`
-        model A {
-          kind: string,
-        }
-
-        #suppress "deprecated" "For testing"
-        @discriminator("kind")
-        union Foo {
-          a: A
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminated-union-variant",
-          message: `Variant "a" type's discriminant property "kind" must be a string literal or string enum member.`,
-        },
-      ]);
     });
   });
 

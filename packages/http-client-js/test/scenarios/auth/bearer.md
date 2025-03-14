@@ -27,7 +27,6 @@ The client signature should include a positional parameter for credential of typ
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
-
   constructor(endpoint: string, credential: KeyCredential, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, credential, options);
   }

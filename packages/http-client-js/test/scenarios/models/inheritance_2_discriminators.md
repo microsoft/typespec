@@ -42,21 +42,17 @@ export async function getModel(
   options?: GetModelOptions,
 ): Promise<Fish> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonFishToApplicationTransform(response.body)!;
   }
-
   throw createRestError(response);
 }
 ```
@@ -127,7 +123,6 @@ export function dateUnixTimestampDeserializer(date?: number | null): Date {
 
   return new Date(date * 1000);
 }
-
 export function jsonFishToTransportDiscriminator(input_?: Fish): any {
   if (!input_) {
     return input_ as any;
@@ -147,14 +142,12 @@ export function jsonFishToTransportTransform(input_?: Fish | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonFishToTransportDiscriminator(input_),
     age: input_.age,
     kind: input_.kind,
   }!;
 }
-
 export function jsonFishToApplicationDiscriminator(input_?: any): Fish {
   if (!input_) {
     return input_ as any;
@@ -174,14 +167,12 @@ export function jsonFishToApplicationTransform(input_?: any): Fish {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonFishToApplicationDiscriminator(input_),
     age: input_.age,
     kind: input_.kind,
   }!;
 }
-
 export function jsonSharkToTransportDiscriminator(input_?: Shark): any {
   if (!input_) {
     return input_ as any;
@@ -201,7 +192,6 @@ export function jsonSharkToTransportTransform(input_?: Shark | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonSharkToTransportDiscriminator(input_),
     kind: input_.kind,
@@ -209,7 +199,6 @@ export function jsonSharkToTransportTransform(input_?: Shark | null): any {
     age: input_.age,
   }!;
 }
-
 export function jsonSharkToApplicationDiscriminator(input_?: any): Shark {
   if (!input_) {
     return input_ as any;
@@ -229,7 +218,6 @@ export function jsonSharkToApplicationTransform(input_?: any): Shark {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonSharkToApplicationDiscriminator(input_),
     kind: input_.kind,
@@ -237,60 +225,50 @@ export function jsonSharkToApplicationTransform(input_?: any): Shark {
     age: input_.age,
   }!;
 }
-
 export function jsonSawSharkToTransportTransform(input_?: SawShark | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     sharktype: input_.sharktype,
     kind: input_.kind,
     age: input_.age,
   }!;
 }
-
 export function jsonSawSharkToApplicationTransform(input_?: any): SawShark {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     sharktype: input_.sharktype,
     kind: input_.kind,
     age: input_.age,
   }!;
 }
-
 export function jsonGoblinSharkToTransportTransform(input_?: GoblinShark | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     sharktype: input_.sharktype,
     kind: input_.kind,
     age: input_.age,
   }!;
 }
-
 export function jsonGoblinSharkToApplicationTransform(input_?: any): GoblinShark {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     sharktype: input_.sharktype,
     kind: input_.kind,
     age: input_.age,
   }!;
 }
-
 export function jsonSalmonToTransportTransform(input_?: Salmon | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     friends: jsonArrayFishToTransportTransform(input_.friends),
@@ -299,12 +277,10 @@ export function jsonSalmonToTransportTransform(input_?: Salmon | null): any {
     age: input_.age,
   }!;
 }
-
 export function jsonSalmonToApplicationTransform(input_?: any): Salmon {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     friends: jsonArrayFishToApplicationTransform(input_.friends),

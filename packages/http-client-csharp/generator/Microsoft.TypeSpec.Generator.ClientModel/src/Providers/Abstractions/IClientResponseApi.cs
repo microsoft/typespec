@@ -12,5 +12,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         CSharpType ClientResponseType { get; }
 
         CSharpType ClientResponseOfTType { get; }
+
+        CSharpType ClientCollectionResponseType { get; }
+
+        CSharpType ClientCollectionAsyncResponseType { get; }
+
+        CSharpType ClientCollectionResponseOfTType { get; }
+
+        CSharpType ClientCollectionAsyncResponseOfTType { get; }
     }
 }

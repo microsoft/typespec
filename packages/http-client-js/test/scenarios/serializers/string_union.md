@@ -29,22 +29,18 @@ export async function unionEnumName(
   options?: UnionEnumNameOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: jsonServerExtensibleEnumToTransportTransform(body),
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```

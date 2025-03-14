@@ -46,7 +46,7 @@ export function createAssetEmitter<T, TOptions extends object>(
   const sourceFiles: SourceFile<T>[] = [];
 
   const options = {
-    noEmit: program.compilerOptions.noEmit ?? false,
+    noEmit: program.compilerOptions.dryRun ?? false,
     emitterOutputDir: emitContext.emitterOutputDir,
     ...emitContext.options,
   };

@@ -1,4 +1,4 @@
-import { Children, code, refkey, Refkey } from "@alloy-js/core";
+import { Children, code, refkey, Refkey, StatementList } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Reference } from "@alloy-js/typescript";
 import { ClientOperation } from "@typespec/http-client";
@@ -18,23 +18,24 @@ export function HttpRequest(props: HttpRequestProps) {
   const requestOptionsRefkey = refkey();
   const httpResponseRefkey = props.responseRefkey ?? refkey();
   const verb = props.operation.httpOperation.verb;
-  return <>
-    <HttpRequest.Url operation={props.operation}  refkey={operationUrlRefkey}/>
-    
-    <HttpRequestOptions operation={props.operation} refkey={requestOptionsRefkey}  />
+  return (
+    <StatementList>
+      <HttpRequest.Url operation={props.operation} refkey={operationUrlRefkey} />
 
-    <ts.VarDeclaration name="response" refkey={httpResponseRefkey}>
-      {code`
-      await client.pathUnchecked(${<Reference refkey={operationUrlRefkey}/>}).${verb}(${<Reference refkey={requestOptionsRefkey}/>})
+      <HttpRequestOptions operation={props.operation} refkey={requestOptionsRefkey} />
+
+      <ts.VarDeclaration name="response" refkey={httpResponseRefkey}>
+        {code`
+      await client.pathUnchecked(${(<Reference refkey={operationUrlRefkey} />)}).${verb}(${(<Reference refkey={requestOptionsRefkey} />)})
       
       if (typeof options?.operationOptions?.onResponse === "function") {
         options?.operationOptions?.onResponse(response);
       }
 
       `}
-      
-    </ts.VarDeclaration>
-  </>;
+      </ts.VarDeclaration>
+    </StatementList>
+  );
 }
 
 export interface HttpUrlProps {
@@ -50,9 +51,18 @@ HttpRequest.Url = function HttpUrlDeclaration(props: HttpUrlProps) {
     (p) => p.kind === "path" || p.kind === "query",
   );
   const optionsParameter = getOperationOptionsParameterRefkey(props.operation.httpOperation);
-  return <EncodingProvider defaults={{bytes: "base64url"}}>
-    <ts.VarDeclaration name="path" refkey={props.refkey}>
-      {uriTemplateLib.parse}({JSON.stringify(urlTemplate)}).expand({<HttpRequestParametersExpression optionsParameter={optionsParameter!} parameters={urlParameters} />})
-    </ts.VarDeclaration>
-  </EncodingProvider>;
+  return (
+    <EncodingProvider defaults={{ bytes: "base64url" }}>
+      <ts.VarDeclaration name="path" refkey={props.refkey}>
+        {uriTemplateLib.parse}({JSON.stringify(urlTemplate)}).expand(
+        {
+          <HttpRequestParametersExpression
+            optionsParameter={optionsParameter!}
+            parameters={urlParameters}
+          />
+        }
+        )
+      </ts.VarDeclaration>
+    </EncodingProvider>
+  );
 };

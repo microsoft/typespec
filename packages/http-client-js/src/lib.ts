@@ -8,7 +8,12 @@ const EmitterOptionsSchema: JSONSchemaType<JsClientEmitterOptions> = {
   type: "object",
   additionalProperties: true,
   properties: {
-    "package-name": { type: "string", nullable: true, default: "test-package" },
+    "package-name": {
+      type: "string",
+      nullable: true,
+      default: "test-package",
+      description: "Name of the package as it will be in package.json",
+    },
   },
   required: [],
 };

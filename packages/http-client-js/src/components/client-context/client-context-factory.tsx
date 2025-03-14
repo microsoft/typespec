@@ -28,8 +28,13 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
   const parameters = buildClientParameters(props.client);
   const urlTemplate = $.client.getUrlTemplate(props.client);
   const endpointRef = ay.refkey();
-  const resolvedEndpoint =
-    <ParametrizedEndpoint refkey={endpointRef} template={urlTemplate.url} params={urlTemplate.parameters} />;
+  const resolvedEndpoint = (
+    <ParametrizedEndpoint
+      refkey={endpointRef}
+      template={urlTemplate.url}
+      params={urlTemplate.parameters}
+    />
+  );
 
   let credentialsRef: string | undefined;
   if (clientConstructor.parameters.properties.has("credential")) {
@@ -37,21 +42,28 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
   }
 
   // Filter out optional parameters, they will be passed as options
-  const args =
-    <ClientFactoryArguments client={props.client} endpointRef={endpointRef}  credentialsRef={credentialsRef}/>;
+  const args = (
+    <ClientFactoryArguments
+      client={props.client}
+      endpointRef={endpointRef}
+      credentialsRef={credentialsRef}
+    />
+  );
 
-  return <FunctionDeclaration
-  export
-  name={factoryFunctionName}
-  type={clientConstructor}
-  returnType={contextDeclarationRef}
-  refkey={ref}
-  parametersMode="replace"
-  parameters={parameters}
->
-  {resolvedEndpoint}
-  return <ts.FunctionCallExpression refkey={httpRuntimeTemplateLib.getClient} args={[args]} />
-</FunctionDeclaration>;
+  return (
+    <FunctionDeclaration
+      export
+      name={factoryFunctionName}
+      type={clientConstructor}
+      returnType={contextDeclarationRef}
+      refkey={ref}
+      parametersMode="replace"
+      parameters={parameters}
+    >
+      {resolvedEndpoint}
+      return <ts.FunctionCallExpression target={httpRuntimeTemplateLib.getClient} args={[args]} />
+    </FunctionDeclaration>
+  );
 }
 
 interface ClientFactoryArgumentsProps {
@@ -98,22 +110,26 @@ function CredentialOptions(props: CredentialOptionsProps) {
   switch (scheme.type) {
     case "http":
       // Todo: handle scopes?
-      return <ts.ObjectProperty name="credentials">
-        <ts.ObjectExpression>
-          <ts.ObjectProperty name="apiKeyHeaderName" jsValue={"Authorization"} />
-        </ts.ObjectExpression>
-      </ts.ObjectProperty>;
+      return (
+        <ts.ObjectProperty name="credentials">
+          <ts.ObjectExpression>
+            <ts.ObjectProperty name="apiKeyHeaderName" jsValue={"Authorization"} />
+          </ts.ObjectExpression>
+        </ts.ObjectProperty>
+      );
     case "apiKey":
       if (scheme.in !== "header") {
         reportDiagnostic($.program, { code: "non-model-parts", target: props.client.service });
         return null;
       }
 
-      return <ts.ObjectProperty name="credentials">
-        <ts.ObjectExpression>
-          <ts.ObjectProperty name="apiKeyHeaderName" jsValue={scheme.name} />
-        </ts.ObjectExpression>
-      </ts.ObjectProperty>;
+      return (
+        <ts.ObjectProperty name="credentials">
+          <ts.ObjectExpression>
+            <ts.ObjectProperty name="apiKeyHeaderName" jsValue={scheme.name} />
+          </ts.ObjectExpression>
+        </ts.ObjectProperty>
+      );
     default:
       return null;
   }
@@ -136,7 +152,11 @@ function ClientOptionsExpression(props: ClientOptionsExpressionProps) {
     options.push(...children);
   }
 
-  return <ts.ObjectExpression>
-    {ay.mapJoin(options, (child) => child, { joiner: ", " })}
-  </ts.ObjectExpression>;
+  return (
+    <ts.ObjectExpression>
+      <ay.For each={options} joiner="," line>
+        {(child) => child}
+      </ay.For>
+    </ts.ObjectExpression>
+  );
 }

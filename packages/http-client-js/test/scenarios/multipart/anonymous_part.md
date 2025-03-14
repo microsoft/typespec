@@ -20,16 +20,10 @@ op foo(
 ```ts src/api/testClientOperations.ts function foo
 export async function foo(
   client: TestClientContext,
-  body: {
-    temperature: {
-      body: number;
-      contentType: "text/plain";
-    };
-  },
+  body: { temperature: { body: number; contentType: "text/plain" } },
   options?: FooOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {
       "content-type": options?.contentType ?? "multipart/form-data",
@@ -37,21 +31,18 @@ export async function foo(
     body: [
       {
         name: "temperature",
-        body: body.temperature,
+        body: body.temperature.body,
       },
     ],
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```

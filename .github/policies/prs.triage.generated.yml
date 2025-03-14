@@ -96,6 +96,13 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
+                    - packages/http-client-js/**/*
+            then:
+              - addLabel:
+                  label: emitter:client:js
+          - if:
+              - includesModifiedFiles:
+                  files:
                     - packages/http-client-csharp/**/*
             then:
               - addLabel:

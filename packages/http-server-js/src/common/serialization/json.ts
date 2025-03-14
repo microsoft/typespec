@@ -261,11 +261,8 @@ function transposeExpressionToJson(
     case "StringTemplateSpan":
     case "Tuple":
     case "UnionVariant":
-    case "Function":
     case "Decorator":
     case "FunctionParameter":
-    case "Object":
-    case "Projection":
     case "ScalarConstructor":
     default:
       throw new UnimplementedError(`transformJsonExprForType: ${type.kind}`);
@@ -423,11 +420,8 @@ function transposeExpressionFromJson(
     case "StringTemplateSpan":
     case "Tuple":
     case "UnionVariant":
-    case "Function":
     case "Decorator":
     case "FunctionParameter":
-    case "Object":
-    case "Projection":
     case "ScalarConstructor":
     default:
       throw new UnimplementedError(`transformJsonExprForType: ${type.kind}`);

@@ -222,4 +222,24 @@ export class TspLanguageClient {
     const lc = new LanguageClient(id, name, { run: exe, debug: exe }, options);
     return new TspLanguageClient(lc, exe);
   }
+
+  async compileOpenApi3(
+    mainTspFile: string,
+    srcFolder: string,
+    outputFolder: string,
+  ): Promise<ExecOutput | undefined> {
+    const result = await this.runCliCommand(
+      [
+        "compile",
+        mainTspFile,
+        "--emit=@typespec/openapi3",
+        "--option",
+        "@typespec/openapi3.file-type=json",
+        "--option",
+        `@typespec/openapi3.emitter-output-dir=${outputFolder}`,
+      ],
+      srcFolder,
+    );
+    return result;
+  }
 }

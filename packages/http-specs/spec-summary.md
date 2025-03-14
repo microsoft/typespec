@@ -894,12 +894,6 @@ This test is testing sending a pipes collection format array query parameters
 
 This test is testing sending a ssv collection format array query parameters
 
-### Parameters_CollectionFormat_Query_tsv
-
-- Endpoint: `get /parameters/collection-format/query/tsv`
-
-This test is testing sending a tsv collection format array query parameters
-
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -3536,6 +3530,18 @@ Verify that the name "with" works. Send this parameter to pass with value `ok`.
 - Endpoint: `get /special-words/parameters/yield`
 
 Verify that the name "yield" works. Send this parameter to pass with value `ok`.
+
+### Streaming_Jsonl_Basic_receive
+
+- Endpoint: `get /streaming/jsonl/basic/receive`
+
+Basic jsonl streaming for response.
+
+### Streaming_Jsonl_Basic_send
+
+- Endpoint: `post /streaming/jsonl/basic/send`
+
+Basic jsonl streaming for request.
 
 ### Type_Array_BooleanValue_get
 

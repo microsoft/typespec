@@ -18,13 +18,13 @@ import { JsClientEmitterOptions } from "./lib.js";
  */
 export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
   const packageName = context.options["package-name"] ?? "test-package";
-  const output =
+  const output = (
     <Output>
       <ts.PackageDirectory
         name={packageName}
         version="1.0.0"
         path="."
-        scripts={{ "build": "tsc" }}
+        scripts={{ build: "tsc" }}
         devDependencies={{ "@types/node": "~18.19.75" }}
       >
         <ay.SourceDirectory path="src">
@@ -47,7 +47,8 @@ export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
           </ay.SourceDirectory>
         </ay.SourceDirectory>
       </ts.PackageDirectory>
-    </Output>;
+    </Output>
+  );
 
   await writeOutput(output, context.emitterOutputDir);
 }

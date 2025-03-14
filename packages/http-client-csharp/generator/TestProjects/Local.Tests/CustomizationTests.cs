@@ -11,7 +11,7 @@ namespace TestProjects.Local.Tests
         public void ModelNameIsCustomized()
         {
             var types = Assembly.GetAssembly(typeof(UnbrandedTypeSpecClient))!.GetTypes();
-            Assert.IsTrue(types.Any(t => t.Name == "ProjectedModelCustom"));
+            Assert.IsTrue(types.Any(t => t.Name == "RenamedModelCustom"));
         }
 
         [Test]

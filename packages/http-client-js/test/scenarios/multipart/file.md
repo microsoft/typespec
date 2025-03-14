@@ -29,24 +29,20 @@ export async function doThing(
   options?: DoThingOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {
       "content-type": options?.contentType ?? "multipart/form-data",
     },
     body: [createFilePartDescriptor("basicFile", bodyParam.basicFile)],
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -90,24 +86,20 @@ export async function doThing(
   options?: DoThingOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {
       "content-type": options?.contentType ?? "multipart/form-data",
     },
     body: [createFilePartDescriptor("image", bodyParam.image, "image/png")],
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -143,24 +135,20 @@ export async function doThing(
   options?: DoThingOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {
       "content-type": options?.contentType ?? "multipart/form-data",
     },
     body: [...bodyParam.files.map((files: any) => createFilePartDescriptor("files", files))],
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
