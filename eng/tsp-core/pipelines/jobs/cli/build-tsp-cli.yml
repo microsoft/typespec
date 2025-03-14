@@ -17,11 +17,11 @@ jobs:
         hostArchitecture: arm64
       ${{ if eq(parameters.platform, 'macos-x64') }}:
         name: $(MACPOOL)
-        vmImage: $(MACVMIMAGE)
+        vmImage: $(MACVMIMAGE13)
         os: macOS
       ${{ if eq(parameters.platform, 'macos-arm64') }}:
         name: $(MACPOOL)
-        vmImage: $(MACVMIMAGEM1)
+        vmImage: $(MACVMIMAGE)
         os: macOS
       ${{ if eq(parameters.platform, 'windows-x64') }}:
         name: $(WINDOWSPOOL)

@@ -13,6 +13,7 @@ import { afterAll, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { $onEmit, _validateDotNetSdk } from "../../src/emitter.js";
 import { execAsync, execCSharpGenerator } from "../../src/lib/utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
+import { CodeModel } from "../../src/type/code-model.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
@@ -20,7 +21,7 @@ import {
   typeSpecCompile,
 } from "./utils/test-util.js";
 
-describe("Expected execCSharpGenerator args are passed", () => {
+describe("$onEmit tests", () => {
   afterAll(() => {
     vi.restoreAllMocks();
   });
@@ -41,6 +42,7 @@ describe("Expected execCSharpGenerator args are passed", () => {
         sdkPackage: {},
         emitContext: args[0],
         program: args[0].program,
+        diagnostics: [],
       };
     }),
   }));
@@ -80,6 +82,16 @@ describe("Expected execCSharpGenerator args are passed", () => {
       existsSync: vi.fn(),
       statSync: vi.fn(),
     };
+  });
+
+  it("should apply the update-code-model callback just once", async () => {
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {
+      return model;
+    });
+    context.options["update-code-model"] = updateCallback;
+    await $onEmit(context);
+    expect(updateCallback).toHaveBeenCalledTimes(1);
   });
 
   it("should set newProject to true if .csproj file DOES NOT exist", async () => {
