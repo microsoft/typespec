@@ -1,4 +1,5 @@
 import {
+  InitializedByFlags,
   SdkHeaderParameter,
   SdkHttpParameter,
   SdkMethod,
@@ -160,7 +161,9 @@ export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
   // if type is added in the first version of the client, we do not need to add the versioning info
   if (
     type.apiVersions[0] ===
-    context.sdkPackage.clients.find((c) => c.initialization.access === "public")?.apiVersions[0]
+    context.sdkPackage.clients.find(
+      (c) => c.clientInitialization.initializedBy | InitializedByFlags.Individually,
+    )?.apiVersions[0]
   )
     return undefined;
   return type.apiVersions[0];
