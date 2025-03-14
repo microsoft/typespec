@@ -28,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 if (plugin.Metadata.PluginName == options.PluginName!)
                 {
+                    CodeModelPlugin.Instance = plugin.Value;
                     CodeModelPlugin.Instance.IsNewProject = options.IsNewProject;
                     loaded = true;
                     break;
