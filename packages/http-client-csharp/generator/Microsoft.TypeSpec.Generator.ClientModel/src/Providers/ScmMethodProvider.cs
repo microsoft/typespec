@@ -14,12 +14,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodBodyStatement bodyStatements,
             TypeProvider enclosingType,
             XmlDocProvider? xmlDocProvider = default,
-            CollectionResultDefinition? collectionDefinition = default)
+            TypeProvider? collectionDefinition = default)
             : base(signature, bodyStatements, enclosingType, xmlDocProvider)
         {
             CollectionDefinition = collectionDefinition;
         }
 
-        internal CollectionResultDefinition? CollectionDefinition { get; }
+        internal TypeProvider? CollectionDefinition { get; }
     }
 }
