@@ -10,11 +10,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
     public class StubLibraryPlugin : ScmCodeModelPlugin
     {
         [ImportingConstructor]
-        public StubLibraryPlugin(GeneratorContext context) : base(context) { }
-
-        public override void Configure()
+        public StubLibraryPlugin(GeneratorContext context) : base(context)
         {
-            base.Configure();
             AddVisitor(new StubLibraryVisitor());
         }
     }
