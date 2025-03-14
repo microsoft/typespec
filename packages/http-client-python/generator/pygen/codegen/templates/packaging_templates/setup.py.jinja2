@@ -11,19 +11,12 @@ from setuptools import setup, find_packages
 {% set package_name = package_name or code_model.clients[0].name %}
 
 PACKAGE_NAME = "{{ package_name|lower }}"
-{% if code_model.options["enable_typespec_namespace"] %}
 PACKAGE_NAMESPACE = "{{ code_model.namespace|lower }}"
-{% endif %}
 {% if package_mode %}
 PACKAGE_PPRINT_NAME = "{{ package_pprint_name }}"
 
-{% if code_model.options["enable_typespec_namespace"] %}
 # a.b.c => a/b/c
 package_folder_path = PACKAGE_NAMESPACE.replace(".", "/")
-{% else %}
-# a-b-c => a/b/c
-package_folder_path = PACKAGE_NAME.replace("-", "/")
-{% endif %}
 
 # Version extraction inspired from 'requests'
 with open(os.path.join(package_folder_path, "_version.py"), "r") as fd:

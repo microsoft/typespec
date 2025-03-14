@@ -16,7 +16,7 @@ import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
 import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
-import { md2Rst, removeUnderscoresFromNamespace } from "./utils.js";
+import { getRootNamespace, md2Rst } from "./utils.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
@@ -50,8 +50,12 @@ function addDefaultOptions(sdkContext: SdkContext) {
     options["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
   }
   if (!options["package-name"]) {
-    options["package-name"] = removeUnderscoresFromNamespace(
-      (sdkContext.sdkPackage.rootNamespace ?? "").toLowerCase(),
+    reportDiagnostic(sdkContext.program, {
+      code: "no-package-name",
+      target: NoTarget,
+    });
+    options["package-name"] = getRootNamespace(
+      sdkContext as PythonSdkContext<SdkServiceOperation>,
     ).replace(/\./g, "-");
   }
   if (options.flavor !== "azure") {

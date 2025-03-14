@@ -19,7 +19,7 @@ from ..models import (
     CombinedType,
     FileImport,
 )
-from .utils import get_namespace_from_package_name, json_dumps_template
+from .utils import json_dumps_template
 
 
 def is_lro(operation_type: str) -> bool:

@@ -75,6 +75,13 @@ const libDef = {
       },
     },
     // warning
+    "no-package-name": {
+      severity: "warning",
+      messages: {
+        default:
+          "No 'package-name' configured in tspconfig.yaml and will infer pacakge-name from namespace.",
+      },
+    },
     "no-valid-client": {
       severity: "warning",
       messages: {

@@ -40,7 +40,6 @@ class OptionsRetriever:
         "generate-test": False,
         "from-typespec": False,
         "emit-cross-language-definition-file": False,
-        "enable-typespec-namespace": False,
     }
 
     @property
