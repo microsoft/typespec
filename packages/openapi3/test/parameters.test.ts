@@ -43,7 +43,10 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
         explode: false,
         style: style,
       });
-      expect(param.schema.format).toBeUndefined();
+      expect(param.schema).toStrictEqual({
+        type: "array",
+        items: { type: "string" },
+      });
     });
 
     describe("doesn't set explode if explode: true (Openapi3.0 inverse default)", () => {

@@ -5,6 +5,11 @@ import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import type { OpenAPI3Schema, OpenAPISchema3_1 } from "./types.js";
 
+function isQueryParameterStyleEncoding(encoding: string | undefined): boolean {
+  if (!encoding) return false;
+  return ["ArrayEncoding.pipeDelimited", "ArrayEncoding.spaceDelimited"].includes(encoding);
+}
+
 export function applyEncoding(
   program: Program,
   typespecType: Scalar | ModelProperty,
@@ -17,6 +22,10 @@ export function applyEncoding(
 
   const encodeData = getEncode(program, typespecType);
   if (encodeData) {
+    // Query parameters have a couple of special cases where encoding ends up as style.
+    if (isQueryParameterStyleEncoding(encodeData.encoding)) {
+      return targetObject;
+    }
     const newType = getSchemaForStdScalars(encodeData.type as any, options);
     targetObject.type = newType.type;
     // If the target already has a format it takes priority. (e.g. int32)
