@@ -27,10 +27,16 @@ import {
 import { createDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import { HttpFileModel, getHttpFileModel, getHttpPart } from "./private.decorators.js";
-import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "./types.js";
+import {
+  HttpOperationBody,
+  HttpOperationFileBody,
+  HttpOperationMultipartBody,
+  HttpOperationPart,
+  HttpPayloadBody,
+} from "./types.js";
 
 export interface HttpPayload {
-  readonly body?: HttpOperationBody | HttpOperationMultipartBody;
+  readonly body?: HttpPayloadBody;
   readonly metadata: HttpProperty[];
 }
 
@@ -102,21 +108,17 @@ function resolveBody(
   metadata: HttpProperty[],
   visibility: Visibility,
   disposition: HttpPayloadDisposition,
-): DiagnosticResult<HttpOperationBody | HttpOperationMultipartBody | undefined> {
+): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
 
   const contentTypeProperty = metadata.find((x) => x.kind === "contentType");
 
   const file = getHttpFileModel(program, requestOrResponseType);
   if (file !== undefined) {
-    return diagnostics.wrap({
-      bodyKind: "single",
-      contentTypes: diagnostics.pipe(getContentTypes(file.contentType)),
-      contentTypeProperty: file.contentType,
-      type: file.contents.type,
-      isExplicit: false,
-      containsMetadataAnnotations: false,
-    });
+    if (!contentTypeProperty) {
+      // If no content-type property was specified, then this is a _literal_ file.
+      return diagnostics.join(getFileBody(file));
+    }
   }
 
   // non-model or intrinsic/array model -> response body is response type
@@ -133,7 +135,7 @@ function resolveBody(
   }
 
   // look for explicit body
-  const resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined = diagnostics.pipe(
+  const resolvedBody: HttpPayloadBody | undefined = diagnostics.pipe(
     resolveExplicitBodyProperty(program, metadata, contentTypeProperty, visibility, disposition),
   );
 
@@ -216,7 +218,7 @@ function resolveExplicitBodyProperty(
   contentTypeProperty: HttpProperty | undefined,
   visibility: Visibility,
   disposition: HttpPayloadDisposition,
-): DiagnosticResult<HttpOperationBody | HttpOperationMultipartBody | undefined> {
+): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
   let resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined;
   const duplicateTracker = new DuplicateTracker<string, Type>();
@@ -505,22 +507,33 @@ function getFilePart(
   name: string | undefined,
   file: HttpFileModel,
 ): DiagnosticResult<HttpOperationPart | undefined> {
-  const [contentTypes, diagnostics] = getContentTypes(file.contentType);
+  const [fileBody, diagnostics] = getFileBody(file);
+
   return [
     {
       multi: false,
       name,
-      body: {
-        bodyKind: "single",
-        contentTypeProperty: file.contentType,
-        contentTypes: contentTypes,
-        type: file.contents.type,
-        isExplicit: false,
-        containsMetadataAnnotations: false,
-      },
+      body: fileBody,
       filename: file.filename,
       optional: false,
       headers: [],
+    },
+    diagnostics,
+  ];
+}
+
+function getFileBody(file: HttpFileModel): DiagnosticResult<HttpOperationFileBody> {
+  const [contentTypes, diagnostics] = getContentTypes(file.contentType);
+
+  return [
+    {
+      bodyKind: "file",
+      type: file.type,
+      contents: file.contents,
+      filename: file.filename,
+      isText: file.contents.type.name === "string",
+      contentTypeProperty: file.contentType,
+      contentTypes,
     },
     diagnostics,
   ];

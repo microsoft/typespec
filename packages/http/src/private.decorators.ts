@@ -14,6 +14,7 @@ import {
   PlainDataDecorator,
 } from "../generated-defs/TypeSpec.Http.Private.js";
 import { HttpStateKeys } from "./lib.js";
+import { HttpOperationFileBody } from "./types.js";
 
 export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
   const { program } = context;
@@ -73,10 +74,10 @@ export function isOrExtendsHttpFile(program: Program, type: Type) {
 }
 
 export interface HttpFileModel {
-  readonly type: Type;
+  readonly type: Model;
   readonly contentType: ModelProperty;
   readonly filename: ModelProperty;
-  readonly contents: ModelProperty;
+  readonly contents: HttpOperationFileBody["contents"];
 }
 
 export function getHttpFileModel(program: Program, type: Type): HttpFileModel | undefined {
@@ -86,7 +87,7 @@ export function getHttpFileModel(program: Program, type: Type): HttpFileModel | 
 
   const contentType = getProperty(type, "contentType")!;
   const filename = getProperty(type, "filename")!;
-  const contents = getProperty(type, "contents")!;
+  const contents = getProperty(type, "contents")! as HttpFileModel["contents"];
 
   return { contents, contentType, filename, type };
 }
