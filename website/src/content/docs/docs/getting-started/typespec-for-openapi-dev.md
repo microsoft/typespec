@@ -1,9 +1,8 @@
 ---
-title: TypeSpec For OpenAPI Developer
+title: TypeSpec for OpenAPI Developer
 ---
 
-This guide is an introduction to TypeSpec using concepts that will be familiar to developers
-that either build or use API definitions in OpenAPI v2 or v3.
+This guide introduces TypeSpec using concepts familiar to developers who build or use API definitions in OpenAPI v2 or v3.
 
 In many cases, this will also describe how the typespec-autorest and openapi3 emitters translate
 TypeSpec designs into OpenAPI.
@@ -16,7 +15,7 @@ to the section of this document for that feature.
 
 In OpenAPI [v2](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#data-types)/[v3](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#data-types), data types are specified using the `type` and `format` fields in a schema.
 
-The TypeSpec equivalent of OpenAPI data types are the TypeSpec primitive types or [built-in models](https://typespec.io/docs/language-basics/built-in-types).
+The TypeSpec equivalents of OpenAPI data types are the TypeSpec primitive types or [built-in models](https://typespec.io/docs/language-basics/built-in-types).
 
 ### type and format
 
@@ -65,7 +64,7 @@ the format explicitly.
 
 ### JSON Schema assertions
 
-OpenAPI supports a variety of "assertions" that can be used further restrict the values allowed for a data type.
+OpenAPI supports a variety of "assertions" that can be used to further restrict the values allowed for a data type.
 These are actually borrowed into OpenAPI from JSON Schema.
 
 For `type: integer` and `type: number` data types:
@@ -92,7 +91,7 @@ For `type: array` data types:
 
 ### enum
 
-There are two ways to define an `enum` data type. One is with the [TypeSpec `enum` statement](https://typespec.io/docs/language-basics/enums), e.g.:
+There are two ways to define an `enum` data type in TypeSpec. One is with the [TypeSpec `enum` statement](https://typespec.io/docs/language-basics/enums), e.g.:
 
 <!-- To retain the quotes from the enum values -->
 <!-- prettier-ignore-start -->
@@ -149,7 +148,7 @@ on the namespace (from `@typespec/http` library). You can use this decorator mul
 
 ## Paths Object
 
-In OpenAPI, the `paths` object [[v2][v2-paths], [v3][v3-paths]] is the top-level structure for defining the operations of the API, organized with the "path" for the operation.
+In OpenAPI, the `paths` object [[v2][v2-paths], [v3][v3-paths]] is the top-level structure for defining the operations of the API, organized by the "path" for the operation.
 
 [v2-paths]: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#paths-object
 [v3-paths]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#paths-object
@@ -244,7 +243,7 @@ The `@tag` decorator can be used multiple times to specify multiple tags on an o
 
 ### Description
 
-Use the `@doc` decorator to specify the description for an operation. The value of the `@doc` decorator can be a multi-line string
+Use the `@doc` decorator to specify a description for an operation. The value of the `@doc` decorator can be a multi-line string
 and can contain markdown formatting.
 
 ```typespec
@@ -579,7 +578,7 @@ bar:
 
 ### allOf and polymorphism using allOf
 
-TypeSpec also supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI. For example:
+TypeSpec supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI. For example:
 
 ```typespec title=main.tsp
 model Pet {
@@ -819,7 +818,7 @@ in favor of explicit `content-type` and `accept` header properties in request an
 
 ## securityDefinitions / securitySchemes Object
 
-Use `@useAuth` decorator from the `@typespec/rest" library
+Use the `@useAuth` decorator from the `@typespec/rest" library
 
 ```typespec
 using TypeSpec.Http;
