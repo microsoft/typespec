@@ -10,10 +10,10 @@ import {
   ModelProperty,
   Operation,
   StringTemplate,
-  TemplateParameterDeclarationNode,
   Type,
   UnionVariant,
 } from "@typespec/compiler";
+import { TemplateParameterDeclarationNode } from "@typespec/compiler/ast";
 
 /** @internal */
 export function getTypeSignature(type: Type): string {

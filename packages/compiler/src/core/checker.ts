@@ -162,19 +162,32 @@ import {
 export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
 
 export interface Checker {
+  /** @internal */
   typePrototype: TypePrototype;
+  /**
+   * Using this API involves working with the TypeSpec Ast and may change at any time.
+   * See https://typespec.io/docs/handbook/breaking-change-policy/
+   */
   getTypeForNode(node: Node): Type;
 
-  // TODO: decide if we expose resolver and deprecate those marked with @internal @deprecated
+  /** @internal */
   checkProgram(): void;
+  /** @internal */
   checkSourceFile(file: TypeSpecScriptNode): void;
+  /** @internal */
   getGlobalNamespaceType(): Namespace;
+  /** @internal */
   getLiteralType(node: StringLiteralNode): StringLiteral;
+  /** @internal */
   getLiteralType(node: NumericLiteralNode): NumericLiteral;
+  /** @internal */
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
+  /** @internal */
   getLiteralType(node: LiteralNode): LiteralType;
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
+  /** @internal */
   resolveRelatedSymbols(node: IdentifierNode): Sym[] | undefined;
+  /** @internal */
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
   createType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T,
@@ -239,6 +252,7 @@ export interface Checker {
    * Check and resolve a type for the given type reference node.
    * @param node Node.
    * @returns Resolved type and diagnostics if there was an error.
+   * @internal use program.resolveTypeReference
    */
   resolveTypeReference(node: TypeReferenceNode): [Type | undefined, readonly Diagnostic[]];
 

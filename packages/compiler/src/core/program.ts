@@ -75,22 +75,32 @@ import {
 
 export interface Program {
   compilerOptions: CompilerOptions;
+  /** @internal */
   mainFile?: TypeSpecScriptNode;
   /** All source files in the program, keyed by their file path. */
   sourceFiles: Map<string, TypeSpecScriptNode>;
   jsSourceFiles: Map<string, JsSourceFileNode>;
+
+  /** @internal */
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
   tracer: Tracer;
   trace(area: string, message: string): void;
+  /**
+   * **DANGER** Using the checker is reserved for advanced usage and should be used with caution.
+   * API are not subject to the same stability guarantees see See https://typespec.io/docs/handbook/breaking-change-policy/
+   */
   checker: Checker;
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
+  /** @internal */
   loadTypeSpecScript(typespecScript: SourceFile): Promise<TypeSpecScriptNode>;
+  /** @internal */
   onValidate(
     cb: (program: Program) => void | Promise<void>,
     LibraryMetadata: LibraryMetadata,
   ): void;
+  /** @internal */
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
   /** @internal */
@@ -101,9 +111,12 @@ export interface Program {
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
+
+  /** @internal */
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
 
   getGlobalNamespaceType(): Namespace;
+
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
 
   /** Return location context of the given source file. */

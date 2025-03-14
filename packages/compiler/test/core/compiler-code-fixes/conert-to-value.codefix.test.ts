@@ -1,10 +1,10 @@
 import { strictEqual } from "assert";
 import { it } from "vitest";
+import { SyntaxKind } from "../../../src/ast/index.js";
 import {
   createModelToObjectValueCodeFix,
   createTupleToArrayValueCodeFix,
 } from "../../../src/core/compiler-code-fixes/convert-to-value.codefix.js";
-import { SyntaxKind } from "../../../src/index.js";
 import { expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
 
 it("it change model expression to an object value", async () => {
