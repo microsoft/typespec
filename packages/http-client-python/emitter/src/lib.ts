@@ -89,7 +89,7 @@ const libDef = {
         default: paramMessage`No valid paging items for operation '${"operationId"}'.`,
       },
     },
-    "invalid-nextlink": {
+    "invalid-next-link": {
       severity: "warning",
       messages: {
         default: paramMessage`No valid next link for operation '${"operationId"}'.`,

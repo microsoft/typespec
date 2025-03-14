@@ -112,7 +112,7 @@ function getWireNameFromPropertySegments(segments: SdkModelPropertyType[]): stri
 function getWireNameWithDiagnostics(
   context: PythonSdkContext<SdkHttpOperation>,
   segments: SdkModelPropertyType[] | undefined,
-  code: "invalid-paging-items" | "invalid-nextlink" | "invalid-lro-result",
+  code: "invalid-paging-items" | "invalid-next-link" | "invalid-lro-result",
   method?: SdkServiceMethod<SdkHttpOperation>,
 ): string | undefined {
   if (segments && segments.length > 0) {
@@ -202,7 +202,7 @@ function addPagingInformation(
   const nextLinkName = getWireNameWithDiagnostics(
     context,
     method.pagingMetadata.nextLinkSegments,
-    "invalid-nextlink",
+    "invalid-next-link",
     method,
   );
   base.responses.forEach((resp: Record<string, any>) => {
