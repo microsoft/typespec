@@ -281,30 +281,6 @@ interface Images {
 }
 ```
 
-#### Using a file as a JSON object
-
-If the Content-Type header is _explicitly_ specified in the request/response envelope, the `File` model is treated as a structural model and its data will be encoded as JSON:
-
-- `contentType` will be a string in the JSON payload.
-- `filename` will be a string in the JSON payload.
-- `content` will be a base64-encoded string in the JSON payload.
-
-```typespec
-// Explicitly declare the content-type of the request to be `"application/json"` and the File will be encoded as a JSON object instead
-@route("/files")
-interface FileInfo {
-  @post
-  upload(@header contentType: "application/json", @body file: Http.File): {
-    @statusCode statusCode: 201;
-  };
-
-  download(@path fileId: string): {
-    @header contentType: "application/json";
-    @body file: Http.File;
-  };
-}
-```
-
 ## Automatic visibility
 
 The `@typespec/rest` library understands [Lifecycle Visibility](../../language-basics/visibility.md#lifecycle-visibility) and provides functionality for emitters to apply visibility transforms based on whether a model represents a request or response and on HTTP method usage as detailed in the table below.
