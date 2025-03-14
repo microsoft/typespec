@@ -11,9 +11,9 @@ import { strictEqual } from "assert";
 import { statSync } from "fs";
 import { afterAll, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { $onEmit, _validateDotNetSdk } from "../../src/emitter.js";
-import { CodeModel } from "../../src/type/code-model.js";
 import { execAsync, execCSharpGenerator } from "../../src/lib/utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
+import { CodeModel } from "../../src/type/code-model.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
