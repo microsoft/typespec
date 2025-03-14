@@ -1424,6 +1424,65 @@ enum Bar {
       });
     });
 
+    it("keeps comment between decorators and unenum member", async () => {
+      await assertFormat({
+        code: `
+      enum Bar {
+      @foo
+        // comment
+  foo: "foo",
+}
+`,
+        expected: `
+enum Bar {
+  @foo
+  // comment
+  foo: "foo",
+}
+`,
+      });
+    });
+
+    it("keeps comment in between decorators on union variant", async () => {
+      await assertFormat({
+        code: `
+      union Bar {
+      @foo
+        // comment
+    @bar
+  foo: "foo",
+}
+`,
+        expected: `
+union Bar {
+  @foo
+  // comment
+  @bar
+  foo: "foo",
+}
+`,
+      });
+    });
+
+    it("keeps comment between decorators and union variant", async () => {
+      await assertFormat({
+        code: `
+      union Bar {
+      @foo
+        // comment
+  foo: "foo",
+}
+`,
+        expected: `
+union Bar {
+  @foo
+  // comment
+  foo: "foo",
+}
+`,
+      });
+    });
+
     it("keeps comment between statements of a flattened namespace", async () => {
       await assertFormat({
         code: `
@@ -1801,46 +1860,6 @@ union Foo {
 
   @doc("third")
   c: C,
-}
-`,
-      });
-    });
-
-    it("keeps comment in between decorators on union variant", async () => {
-      await assertFormat({
-        code: `
-      union Bar {
-      @foo
-        // comment
-    @bar
-  foo: "foo",
-}
-`,
-        expected: `
-union Bar {
-  @foo
-  // comment
-  @bar
-  foo: "foo",
-}
-`,
-      });
-    });
-
-    it("keeps comment between decorators and union variant", async () => {
-      await assertFormat({
-        code: `
-      union Bar {
-      @foo
-        // comment
-  foo: "foo",
-}
-`,
-        expected: `
-union Bar {
-  @foo
-  // comment
-  foo: "foo",
 }
 `,
       });
