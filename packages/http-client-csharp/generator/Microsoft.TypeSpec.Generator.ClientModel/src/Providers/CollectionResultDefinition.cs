@@ -260,7 +260,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Declare the initial request message
                 Declare(
                     "message",
-                    InvokeCreateRequest(_initialUri.As<Uri>()),
+                    InvokeCreateRequest(_initialUri.As<Uri>(), True),
                     out ScopedApi<PipelineMessage> message),
 
                 // Declare nextPageUri variable
@@ -286,7 +286,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     AssignAndCheckNextLinkUri(result, nextPageUri),
 
                     // Update message for next iteration
-                    message.Assign(InvokeCreateRequest(nextPageUri)).Terminate()
+                    message.Assign(InvokeCreateRequest(nextPageUri, False)).Terminate()
                 }
             ];
         }
@@ -325,9 +325,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private ScopedApi<PipelineMessage> InvokeCreateRequest(ScopedApi<Uri> nextLinkUri) => _clientField.Invoke(
+        private ScopedApi<PipelineMessage> InvokeCreateRequest(ScopedApi<Uri> nextLinkUri, ScopedApi<bool> appendPath) => _clientField.Invoke(
             $"Create{_operation.Name.ToCleanName()}Request",
-            new[] { nextLinkUri, _optionsField.AsValueExpression })
+            new[] { nextLinkUri, appendPath, _optionsField.AsValueExpression })
             .As<PipelineMessage>();
     }
 }

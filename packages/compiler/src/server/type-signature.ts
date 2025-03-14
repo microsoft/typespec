@@ -119,7 +119,7 @@ function getStringTemplateSignature(stringTemplate: StringTemplate) {
 
 function getModelPropertySignature(property: ModelProperty) {
   const ns = getQualifier(property.model);
-  return `${ns}${printIdentifier(property.name)}: ${getPrintableTypeName(property.type)}`;
+  return `${ns}${printIdentifier(property.name, "allow-reserved")}: ${getPrintableTypeName(property.type)}`;
 }
 
 function getUnionVariantSignature(variant: UnionVariant) {
@@ -127,15 +127,15 @@ function getUnionVariantSignature(variant: UnionVariant) {
     return getPrintableTypeName(variant.type);
   }
   const ns = getQualifier(variant.union);
-  return `${ns}${printIdentifier(variant.name)}: ${getPrintableTypeName(variant.type)}`;
+  return `${ns}${printIdentifier(variant.name, "allow-reserved")}: ${getPrintableTypeName(variant.type)}`;
 }
 
 function getEnumMemberSignature(member: EnumMember) {
   const ns = getQualifier(member.enum);
   const value = typeof member.value === "string" ? `"${member.value}"` : member.value;
   return value === undefined
-    ? `${ns}${printIdentifier(member.name)}`
-    : `${ns}${printIdentifier(member.name)}: ${value}`;
+    ? `${ns}${printIdentifier(member.name, "allow-reserved")}`
+    : `${ns}${printIdentifier(member.name, "allow-reserved")}: ${value}`;
 }
 
 function getAliasSignature(alias: AliasStatementNode) {

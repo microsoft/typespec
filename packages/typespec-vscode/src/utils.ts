@@ -1,7 +1,6 @@
 import type { ModuleResolutionResult, PackageJson, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 import { mkdtemp, readdir, readFile, realpath, stat } from "fs/promises";
-import { tmpdir } from "os";
 import { dirname } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
@@ -31,9 +30,9 @@ export async function isDirectory(path: string) {
   }
 }
 
-export async function createTempDir(): Promise<string | undefined> {
+export async function createTempDir(tmpRoot: string, prefix: string): Promise<string | undefined> {
   try {
-    return await mkdtemp(joinPaths(tmpdir(), "tsp-openapi3-preview-"));
+    return await mkdtemp(joinPaths(tmpRoot, prefix));
   } catch (e) {
     logger.error("Failed to create temp folder", [e]);
     return undefined;

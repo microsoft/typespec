@@ -4,8 +4,6 @@ title: Discriminated Types
 
 TypeSpec allows for the expression of unions and inheritance. However, when transmitting types over the network, many languages require a mechanism to distinguish between different union variants or models within an inheritance hierarchy.
 
-To facilitate this, TypeSpec offers the [`@discriminator` decorator](../built-in-decorators/#@discriminator).
-
 ### Implementing Discriminated Unions
 
 Unions can be marked as discriminated using the `@discriminated` decorator. This discriminator will assume the variant name is the discriminator value.
@@ -29,7 +27,8 @@ Serialize as
     "name": "Whiskers",
     "meow": true
   }
-},
+}
+// or
 {
   "kind": "dog",
   "value": {
@@ -68,7 +67,8 @@ serialize as
     "name": "Whiskers",
     "meow": true
   }
-},
+}
+// or
 {
   "dataKind": "dog",
   "data": {
@@ -81,7 +81,7 @@ serialize as
 ### Inject discriminator inline
 
 ```tsp
-@discriminated(#{ envelope: false })
+@discriminated(#{ envelope: "none" })
 union Pet {
   cat: Cat,
   dog: Dog,
@@ -106,6 +106,7 @@ serialize as
   "name": "Whiskers",
   "meow": true
 }
+// or
 {
   "kind": "dog",
   "name": "Rex",

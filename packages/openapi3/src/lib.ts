@@ -184,8 +184,11 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   required: [],
 };
 
-export const libDef = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/openapi3",
+  capabilities: {
+    dryRun: true,
+  },
   diagnostics: {
     "oneof-union": {
       severity: "error",
@@ -327,9 +330,7 @@ export const libDef = {
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
   },
-} as const;
-
-export const $lib = createTypeSpecLibrary(libDef);
+});
 export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;

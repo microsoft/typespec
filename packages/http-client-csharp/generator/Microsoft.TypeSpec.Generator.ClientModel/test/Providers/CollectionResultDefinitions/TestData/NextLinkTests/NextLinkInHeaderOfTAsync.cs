@@ -26,7 +26,7 @@ namespace Sample
 
         public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_initialUri, _options);
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_initialUri, true, _options);
             global::System.Uri nextPageUri = null;
             while (true)
             {
@@ -41,7 +41,7 @@ namespace Sample
                 {
                     yield break;
                 }
-                message = _client.CreateGetCatsRequest(nextPageUri, _options);
+                message = _client.CreateGetCatsRequest(nextPageUri, false, _options);
             }
         }
 

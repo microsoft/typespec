@@ -61,5 +61,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
 
         public static readonly ParameterProvider Endpoint =
             new ParameterProvider("endpoint", FormattableStringHelpers.Empty, typeof(Uri));
+
+        public static readonly ParameterProvider AppendPath =
+            new ParameterProvider("appendPath", FormattableStringHelpers.Empty, typeof(bool));
     }
 }

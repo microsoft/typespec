@@ -48,7 +48,7 @@
    "$id": "7",
    "Name": "JsonClient",
    "Namespace": "Serialization.EncodedName.Json",
-   "Doc": "Projection",
+   "Doc": "Encoded names",
    "Operations": [],
    "Protocol": {
     "$id": "8"

@@ -117,7 +117,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
                     uri.Reset(endpoint).Terminate(),
-                    .. AppendPathParameters(uri, operation, paramMap),
+                    .. ConditionallyAppendPathParameters(operation, uri, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
@@ -126,6 +126,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(message)
                 ]),
                 this);
+        }
+
+        private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(InputOperation operation, ScopedApi uri, Dictionary<string, ParameterProvider> paramMap)
+        {
+            if (operation.Paging?.NextLink != null)
+            {
+                return
+                [
+                    new IfStatement(ScmKnownParameters.AppendPath)
+                    {
+                        new MethodBodyStatements([..AppendPathParameters(uri, operation, paramMap)])
+                    }
+                ];
+            }
+
+            return AppendPathParameters(uri, operation, paramMap);
         }
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
@@ -322,7 +338,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new IfStatement(valueExpression.NotEqual(Null)) { originalStatement };
         }
 
-        private IEnumerable<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             Dictionary<string, InputParameter> inputParamHash = new(operation.Parameters.ToDictionary(p => p.Name));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
@@ -511,7 +527,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
-            int path = 1;
+            int path = 2;
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
@@ -610,10 +626,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     parameter.DefaultValue = null;
                 }
 
-                // Next link operations will always have an endpoint parameter in the CreateRequest method
+                // Next link operations will always have an endpoint parameter in the CreateRequest method and an "appendPath" parameter
                 if (operation.Paging?.NextLink != null)
                 {
                     sortedParams.Add(0, ScmKnownParameters.Endpoint);
+                    sortedParams.Add(1, ScmKnownParameters.AppendPath);
                 }
             }
 
