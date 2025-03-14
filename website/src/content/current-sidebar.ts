@@ -53,6 +53,7 @@ const sidebar: SidebarItem[] = [
       "handbook/style-guide",
       "handbook/formatter",
       "handbook/reproducibility",
+      "handbook/breaking-change-policy",
       {
         label: "Configuration",
         items: ["handbook/configuration/configuration", "handbook/configuration/tracing"],
