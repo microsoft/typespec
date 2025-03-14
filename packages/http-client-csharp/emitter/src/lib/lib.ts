@@ -100,8 +100,8 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
     severity: "error",
     messages: {
       default: paramMessage`Unsupported continuation location for operation ${"crossLanguageDefinitionId"}.`,
-    }
-  }
+    },
+  },
 };
 
 const $lib = createTypeSpecLibrary({

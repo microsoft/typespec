@@ -3,7 +3,6 @@
 
 import {
   getHttpOperationParameter,
-  reportDiagnostic,
   SdkBuiltInKinds,
   SdkContext,
   SdkHttpOperation,
@@ -18,7 +17,7 @@ import {
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
-import { HttpOperation, HttpStatusCodeRange } from "@typespec/http";
+import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -319,7 +318,11 @@ function loadOperationPaging(
       ResponseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
         getResponseSegmentName(segment),
       ),
-      ResponseLocation: getResponseLocation(context, method, method.pagingMetadata.nextLinkSegments[0]),
+      ResponseLocation: getResponseLocation(
+        context,
+        method,
+        method.pagingMetadata.nextLinkSegments[0],
+      ),
     };
 
     if (method.pagingMetadata.nextLinkOperation) {
@@ -373,7 +376,11 @@ function getResponseSegmentName(segment: SdkModelPropertyType): string {
     : segment.name;
 }
 
-function getResponseLocation(context: CSharpEmitterContext, method: SdkPagingServiceMethod<SdkHttpOperation>, p: SdkModelPropertyType): ResponseLocation {
+function getResponseLocation(
+  context: CSharpEmitterContext,
+  method: SdkPagingServiceMethod<SdkHttpOperation>,
+  p: SdkModelPropertyType,
+): ResponseLocation {
   switch (p?.kind) {
     case "responseheader":
       return ResponseLocation.Header;
