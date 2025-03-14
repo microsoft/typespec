@@ -1,10 +1,10 @@
 ---
-title: TypeSpec VSCode extension
+title: VSCode extension
 ---
 
 ## Installation
 
-Install the extension via the Visual Studio Code extension manager https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vscode
+Install the extension via the Visual Studio Code extension manager [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vscode)
 
 ## Configure
 
