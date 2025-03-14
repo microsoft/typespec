@@ -3,12 +3,14 @@
 
 import {
   getHttpOperationParameter,
+  reportDiagnostic,
   SdkBuiltInKinds,
   SdkContext,
   SdkHttpOperation,
   SdkHttpParameter,
   SdkHttpResponse,
   SdkModelPropertyType,
+  SdkPagingServiceMethod,
   SdkServiceMethod,
   SdkServiceResponseHeader,
   SdkType,
@@ -16,7 +18,7 @@ import {
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
 import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
-import { HttpStatusCodeRange } from "@typespec/http";
+import { HttpOperation, HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -317,7 +319,7 @@ function loadOperationPaging(
       ResponseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
         getResponseSegmentName(segment),
       ),
-      ResponseLocation: getResponseLocation(method.pagingMetadata.nextLinkSegments[0]),
+      ResponseLocation: getResponseLocation(context, method, method.pagingMetadata.nextLinkSegments[0]),
     };
 
     if (method.pagingMetadata.nextLinkOperation) {
@@ -350,6 +352,8 @@ function loadOperationPaging(
         getResponseSegmentName(segment),
       ),
       ResponseLocation: getResponseLocation(
+        context,
+        method,
         method.pagingMetadata.continuationTokenResponseSegments?.[0],
       ),
     };
@@ -369,13 +373,20 @@ function getResponseSegmentName(segment: SdkModelPropertyType): string {
     : segment.name;
 }
 
-function getResponseLocation(p: SdkModelPropertyType): ResponseLocation {
+function getResponseLocation(context: CSharpEmitterContext, method: SdkPagingServiceMethod<SdkHttpOperation>, p: SdkModelPropertyType): ResponseLocation {
   switch (p?.kind) {
     case "responseheader":
       return ResponseLocation.Header;
     case "property":
       return ResponseLocation.Body;
     default:
+      context.logger.reportDiagnostic({
+        code: "unsupported-continuation-location",
+        format: {
+          crossLanguageDefinitionId: method.crossLanguageDefinitionId,
+        },
+        target: NoTarget,
+      });
       return ResponseLocation.None;
   }
 }

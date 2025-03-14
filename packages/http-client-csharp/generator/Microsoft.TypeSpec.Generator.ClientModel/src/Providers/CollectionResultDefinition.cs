@@ -141,7 +141,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 "client",
                 FormattableStringHelpers.Empty,
                 _client.Type);
-            var createRequestParameters = _client.RestClient.GetCreateRequestMethod(_operation).Signature.Parameters;
             return
             [
                 new ConstructorProvider(
@@ -151,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         MethodSignatureModifiers.Public,
                         [
                             clientParameter,
-                            .. createRequestParameters
+                            .. _createRequestParameters
                         ]),
                     BuildConstructorBody(clientParameter),
                     this)
@@ -160,8 +159,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)
         {
-            var statements = new List<MethodBodyStatement>();
+            var statements = new List<MethodBodyStatement>(_createRequestParameters.Count + 1);
+
             statements.Add(_clientField.Assign(clientParameter).Terminate());
+
             for (int parameterNumber = 0; parameterNumber < _createRequestParameters.Count; parameterNumber++)
             {
                 var parameter = _createRequestParameters[parameterNumber];
@@ -278,10 +279,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             Return(Null))
                     ];
                 default:
-                    ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(
-                        "unsupported-next-link-location",
-                        $"Unsupported next link location: {_nextPageLocation}",
-                        _operation.CrossLanguageDefinitionId);
+                    // Invalid location is logged by the emitter.
                     return [];
             }
         }
@@ -391,10 +389,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 YieldBreak())
                         ];
                 default:
-                    ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(
-                        "unsupported-next-link-location",
-                        $"Unsupported next link location: {_nextPageLocation}",
-                        _operation.CrossLanguageDefinitionId);
+                    // Invalid location is logged by the emitter.
                     return [];
             }
         }
