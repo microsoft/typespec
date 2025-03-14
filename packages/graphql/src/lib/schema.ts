@@ -7,7 +7,7 @@ import {
 } from "@typespec/compiler";
 
 import { GraphQLKeys, NAMESPACE } from "../lib.js";
-import { useStateMap } from "./state-map.js";
+import { useStateMap } from "@typespec/compiler/utils";
 
 // This will set the namespace for decorators implemented in this file
 export const namespace = NAMESPACE;

@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@typespec/compiler";
+import type { Diagnostic, Operation } from "@typespec/compiler";
 import type { GraphQLSchema } from "graphql";
 import type { Schema } from "./lib/schema.ts";
 
@@ -16,3 +16,42 @@ export interface GraphQLSchemaRecord {
   /** The diagnostics created for this schema */
   readonly diagnostics: readonly Diagnostic[];
 }
+
+/**
+ * Specify the GraphQL operation type for the target operation to be `MUTATION`.
+ *
+ * @example
+ * ```typespec
+ * @mutation op update(): string
+ * ```
+ */
+export type MutationDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+) => void;
+
+/**
+ * Specify the GraphQL operation type for the target operation to be `QUERY`.
+ *
+ * @example
+ * ```typespec
+ * @query op get(): string
+ * ```
+ */
+export type QueryDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+) => void;
+
+/**
+ * Specify the GraphQL operation type for the target operation to be `SUBSCRIPTION`.
+ *
+ * @example
+ * ```typespec
+ * @subscription op subscribe(): string
+ * ```
+ */
+export type SubscriptionDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+) => void;
