@@ -24,7 +24,7 @@ namespace UnbrandedTypeSpec
 
         public override IEnumerable<ClientResult> GetRawPages()
         {
-            PipelineMessage message = _client.CreateListWithNextLinkRequest(_initialUri, _options);
+            PipelineMessage message = _client.CreateListWithNextLinkRequest(_initialUri, true, _options);
             Uri nextPageUri = null;
             while (true)
             {
@@ -36,7 +36,7 @@ namespace UnbrandedTypeSpec
                 {
                     yield break;
                 }
-                message = _client.CreateListWithNextLinkRequest(nextPageUri, _options);
+                message = _client.CreateListWithNextLinkRequest(nextPageUri, false, _options);
             }
         }
 

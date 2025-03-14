@@ -121,6 +121,7 @@ interface EmitterRef {
   metadata: LibraryMetadata;
   emitterOutputDir: string;
   options: Record<string, unknown>;
+  readonly library: LibraryInstance;
 }
 
 interface Validator {
@@ -160,6 +161,10 @@ export async function compile(
 
   // Emitter stage
   for (const emitter of program.emitters) {
+    // If in dry mode run and an emitter doesn't support it we have to skip it.
+    if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
+      continue;
+    }
     await emit(emitter, program);
 
     if (options.listFiles) {
@@ -235,10 +240,10 @@ async function createProgram(
 
   await loadSources(resolvedMain);
 
-  const emit = options.emit;
+  const emit = options.noEmit ? [] : (options.emit ?? []);
   const emitterOptions = options.options;
 
-  await loadEmitters(basedir, emit ?? [], emitterOptions ?? {});
+  await loadEmitters(basedir, emit, emitterOptions ?? {});
 
   if (
     oldProgram &&
@@ -531,6 +536,7 @@ async function createProgram(
         metadata,
         emitterOutputDir,
         options: emitterOptions,
+        library,
       };
     } else {
       program.trace(
