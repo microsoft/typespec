@@ -32,6 +32,20 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       strictEqual(param.name, "$select");
     });
 
+    it.each([
+      { encoding: "ArrayEncoding.pipeDelimited", style: "pipeDelimited" },
+      { encoding: "ArrayEncoding.spaceDelimited", style: "spaceDelimited" },
+    ])("can set style to $style with @encode($encoding)", async ({ encoding, style }) => {
+      const param = await getQueryParam(
+        `op test(@query @encode(${encoding}) myParam: string[]): void;`,
+      );
+      expect(param).toMatchObject({
+        explode: false,
+        style: style,
+      });
+      expect(param.schema.format).toBeUndefined();
+    });
+
     describe("doesn't set explode if explode: true (Openapi3.0 inverse default)", () => {
       it("with option", async () => {
         const param = await getQueryParam(
