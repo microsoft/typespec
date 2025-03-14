@@ -17,14 +17,13 @@ import {
   getHttpService,
   getVisibilitySuffix,
   HttpOperation,
-  HttpOperationBody,
-  HttpOperationMultipartBody,
   HttpOperationResponse,
   resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
 import { getVersioningMutators } from "@typespec/versioning";
 import assert from "assert";
+import { HttpPayloadBody } from "../../../http/src/types.js";
 
 export async function $onEmit(context: EmitContext): Promise<void> {
   // Keep track of current indentation, will increase by two spaces for each
@@ -258,9 +257,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
       return remarks.length === 0 ? "" : ` (${remarks.join(", ")})`;
     }
 
-    function getContentTypeRemark(
-      body: HttpOperationBody | HttpOperationMultipartBody | undefined,
-    ) {
+    function getContentTypeRemark(body: HttpPayloadBody | undefined) {
       const ct = body?.contentTypes;
       if (!ct || ct.length === 0 || (ct.length === 1 && ct[0] === "application/json")) {
         return "";

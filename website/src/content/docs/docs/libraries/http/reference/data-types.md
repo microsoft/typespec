@@ -218,8 +218,14 @@ model TypeSpec.Http.CreatedResponse
 ### `File` {#TypeSpec.Http.File}
 
 ```typespec
-model TypeSpec.Http.File
+model TypeSpec.Http.File<Body>
 ```
+
+#### Template Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| Body |             |
 
 #### Properties
 
@@ -227,7 +233,7 @@ model TypeSpec.Http.File
 | ------------ | -------- | ----------- |
 | contentType? | `string` |             |
 | filename?    | `string` |             |
-| contents     | `bytes`  |             |
+| contents     | `Body`   |             |
 
 ### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
 

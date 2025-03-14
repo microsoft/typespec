@@ -55,7 +55,6 @@ import {
   getStatusCodeDescription,
   HttpAuth,
   HttpOperation,
-  HttpOperationBody,
   HttpOperationMultipartBody,
   HttpOperationPart,
   HttpOperationResponse,
@@ -82,6 +81,7 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { stringify } from "yaml";
+import { HttpPayloadBody } from "../../http/src/types.js";
 import { getRef } from "./decorators.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
@@ -1098,7 +1098,7 @@ function createOAPIEmitter(
   }
 
   function getBodyContentEntry(
-    body: HttpOperationBody | HttpOperationMultipartBody,
+    body: HttpPayloadBody,
     visibility: Visibility,
     contentType: string,
     examples?: [Example, Type][],
@@ -1124,6 +1124,10 @@ function createOAPIEmitter(
         return {
           ...getBodyContentForMultipartBody(body, visibility, contentType),
           ...oai3Examples,
+        };
+      case "file":
+        return {
+          schema: getRawBinarySchema(contentType) as any,
         };
     }
   }
@@ -1153,14 +1157,17 @@ function createOAPIEmitter(
     const encodings: Record<string, OpenAPI3Encoding> = {};
     for (const [partIndex, part] of body.parts.entries()) {
       const partName = part.name ?? `part${partIndex}`;
-      let schema = isBytesKeptRaw(program, part.body.type)
-        ? getRawBinarySchema()
-        : getSchemaForSingleBody(
-            part.body.type,
-            visibility,
-            part.body.isExplicit && part.body.containsMetadataAnnotations,
-            part.body.type.kind === "Union" ? contentType : undefined,
-          );
+      let schema =
+        part.body.bodyKind === "file"
+          ? getRawBinarySchema()
+          : isBytesKeptRaw(program, part.body.type)
+            ? getRawBinarySchema()
+            : getSchemaForSingleBody(
+                part.body.type,
+                visibility,
+                part.body.isExplicit && part.body.containsMetadataAnnotations,
+                part.body.type.kind === "Union" ? contentType : undefined,
+              );
 
       if (part.multi) {
         schema = {
@@ -1309,7 +1316,7 @@ function createOAPIEmitter(
   }
 
   function getRequestBody(
-    bodies: (HttpOperationBody | HttpOperationMultipartBody)[] | undefined,
+    bodies: HttpPayloadBody[] | undefined,
     visibility: Visibility,
     examples: OperationExamples,
   ): OpenAPI3RequestBody | undefined {
