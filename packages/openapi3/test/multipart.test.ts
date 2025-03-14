@@ -594,6 +594,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
       it("part of type `bytes` produce `{}`", async () => {
         const res = await openApiFor(
           `
+      #suppress "deprecated" "For testing to migrate for 1.0-rc"
         op upload(@header contentType: "multipart/form-data", profileImage: bytes): void;
         `,
         );
@@ -612,6 +613,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
       it("part of type union `bytes | {content: bytes}` produce `{} | { content: {type: string, contentEncoding: 'base64' }`", async () => {
         const res = await openApiFor(
           `
+        #suppress "deprecated" "For testing to migrate for 1.0-rc"
         op upload(@header contentType: "multipart/form-data", profileImage: bytes | {content: bytes}): void;
         `,
         );
@@ -641,6 +643,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
       it("part of type `bytes[]` produce `type: array, items: {}`", async () => {
         const res = await openApiFor(
           `
+        #suppress "deprecated" "For testing to migrate for 1.0-rc"
         op upload(@header contentType: "multipart/form-data", profileImage: bytes[]): void;
         `,
         );
@@ -662,6 +665,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
       it("bytes inside a json part will be treated as base64 encoded by default(same as for a json body)", async () => {
         const res = await openApiFor(
           `
+        #suppress "deprecated" "For testing to migrate for 1.0-rc"
         op upload(@header contentType: "multipart/form-data", address: {city: string, icon: bytes}): void;
         `,
         );
