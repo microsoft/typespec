@@ -56,12 +56,9 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       const moduleRoot = resolvePath(__dirname, "..", "..");
 
       const outputPath = context.emitterOutputDir;
-      (options as EmitterOptionsDev)["output-dir"] = getNormalizedAbsolutePath(
-        outputPath,
-        undefined,
-      );
+      options["output-dir"] = getNormalizedAbsolutePath(outputPath, undefined);
 
-      (options as Emi).arm = codeModel.arm;
+      options.arm = codeModel.arm;
 
       const codeModelFileName = resolvePath(outputPath, "./code-model.yaml");
 

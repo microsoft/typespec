@@ -130,7 +130,7 @@ import {
   operationIsMultipart,
   operationIsMultipleContentTypes,
 } from "./operation-utils.js";
-import { EmitterOptions, LIB_NAME } from "./options.js";
+import { DevOptions, EmitterOptions, LIB_NAME } from "./options.js";
 import {
   BYTES_KNOWN_ENCODING,
   DATETIME_KNOWN_ENCODING,
@@ -188,7 +188,7 @@ export interface EmitterOptionsDev {
   "api-version"?: string;
   "service-version-exclude-preview"?: boolean;
 
-  "dev-options"?: object;
+  "dev-options"?: DevOptions;
 
   // internal use for codegen
   "output-dir": string;
