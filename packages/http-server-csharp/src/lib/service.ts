@@ -106,9 +106,7 @@ import {
 } from "./utils.js";
 
 type FileExists = (path: string) => Promise<boolean>;
-function getFileWriter(program: Program): FileExists {
-  return async (path: string) => !!(await program.host.stat(resolvePath(path)).catch((_) => false));
-}
+
 
 export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>) {
   let _unionCounter: number = 0;
@@ -116,6 +114,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const NoResourceContext: string = "RPCOperations";
   const doNotEmit: boolean = context.program.compilerOptions.dryRun || false;
 
+  function getFileWriter(program: Program): FileExists {
+    return async (path: string) => !!(await program.host.stat(resolvePath(path)).catch((_) => false));
+  }
   class CSharpCodeEmitter extends CodeTypeEmitter {
     #metadateMap: Map<Type, CSharpTypeMetadata> = new Map<Type, CSharpTypeMetadata>();
     #generatedFileHeaderWithNullable: string = GeneratedFileHeaderWithNullable;
@@ -987,6 +988,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
+      if (sourceFile.meta.emitted) {
+        return sourceFile.meta.emitted;
+      }
       if (sourceFile.meta.emitted) {
         return sourceFile.meta.emitted;
       }
