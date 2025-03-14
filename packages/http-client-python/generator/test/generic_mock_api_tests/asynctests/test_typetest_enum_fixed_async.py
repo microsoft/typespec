@@ -4,8 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from type.enum.fixed import aio, models
-from corehttp.exceptions import HttpResponseError
+from typetest.enum.fixed import aio, models
 
 
 @pytest.fixture
@@ -21,8 +20,8 @@ async def test_known_value(client):
 
 
 @pytest.mark.asyncio
-async def test_unknown_value(client: aio.FixedClient):
+async def test_unknown_value(client: aio.FixedClient, core_library):
     try:
         await client.string.put_unknown_value("Weekend")
-    except HttpResponseError as err:
+    except core_library.exceptions.HttpResponseError as err:
         assert err.status_code == 500

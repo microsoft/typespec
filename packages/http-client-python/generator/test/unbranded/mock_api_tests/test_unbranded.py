@@ -9,7 +9,7 @@ from pathlib import Path
 import traceback
 from importlib import import_module
 import pytest
-from type.scalar import ScalarClient
+from typetest.scalar import ScalarClient
 from corehttp.exceptions import HttpResponseError
 
 
