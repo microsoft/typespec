@@ -295,12 +295,15 @@ export class LibrarySourceFile {
   }) {
     this.path = params.path || "lib/";
     this.filename = params.filename;
-    this.source = params.emitter.createSourceFile(`${this.path}/${this.filename}`);
+    const source = params.emitter.createSourceFile(`${this.path}/${this.filename}`);
     this.conditional = params.conditional || false;
     this.emitted = {
-      path: this.source.path,
+      path: source.path,
       contents: params.getContents(),
     };
+
+    source.meta = { emitted: this.emitted };
+    this.source = source;
   }
   conditional: boolean;
   filename: string;

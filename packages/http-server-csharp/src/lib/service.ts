@@ -1,4 +1,5 @@
 import {
+  AssetEmitter,
   CodeTypeEmitter,
   Context,
   Declaration,
@@ -39,6 +40,7 @@ import {
   isNullType,
   isTemplateDeclaration,
   isVoidType,
+  resolvePath,
   serializeValueAsJson,
 } from "@typespec/compiler";
 import { createRekeyableMap } from "@typespec/compiler/utils";
@@ -989,6 +991,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           if (sourceFile === mock.source) return mock.emitted;
         }
       }
+      if (sourceFile.meta.emitted) {
+        return sourceFile.meta.emitted;
+      }
 
       const emittedSourceFile: EmittedSourceFile = {
         path: sourceFile.path,
@@ -1152,6 +1157,16 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
   }
 
+  type FileExists = (path: string) => Promise<boolean>;
+  function getFileWriter(
+    program: Program,
+    emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
+  ): FileExists {
+    const basePath = emitter.getOptions().emitterOutputDir;
+    return async (path: string) =>
+      !!(await program.host.stat(resolvePath(basePath, path)).catch((_) => false));
+  }
+
   function processNameSpace(program: Program, target: Namespace, service?: Service | undefined) {
     if (!service) service = getService(program, target);
     if (service) {
@@ -1222,6 +1237,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   );
   const ns = context.program.getGlobalNamespaceType();
   const options = emitter.getOptions();
+
   processNameSpace(context.program, ns);
   if (!doNotEmit) {
     const mockFiles: LibrarySourceFile[] = [];
@@ -1249,11 +1265,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         ),
       );
     }
-
+    const fileExists = getFileWriter(context.program, emitter);
     for (const file of mockFiles) {
       if (file.conditional && !options["overwrite"]) {
-        const fileInfo = await context.program.host.stat(file.path);
-        if (!fileInfo.isDirectory() && !fileInfo.isFile()) {
+        if (!(await fileExists(file.path))) {
           await emitter.emitSourceFile(file.source);
         }
       } else {
