@@ -22,7 +22,7 @@ The client emitters are defined in the `package.json` file within your project.
 
 | **Emitter Name**             | **Language** | **Version**                                                    |
 | ---------------------------- | ------------ | -------------------------------------------------------------- |
-| @azure-tools/typespec-ts     | JavaScript   | ![](https://img.shields.io/npm/v/@azure-tools/typespec-ts)     |
+| @typespec/http-client-js     | JavaScript   | ![](https://img.shields.io/npm/v/@typespec/http-client-js)     |
 | @typespec/http-client-python | Python       | ![](https://img.shields.io/npm/v/@typespec/http-client-python) |
 | @typespec/http-client-java   | Java         | ![](https://img.shields.io/npm/v/@typespec/http-client-java)   |
 | @typespec/http-client-csharp | C#           | ![](https://img.shields.io/npm/v/@typespec/http-client-csharp) |
@@ -34,7 +34,7 @@ Below is an example of the `package.json` snippet where client emitters are defi
     "@typespec/http-client-csharp": "^0.1.9-alpha.20250113.2",
     "@typespec/http-client-java": "^0.1.9",
     "@typespec/http-client-python": "^0.6.6",
-    "@azure-tools/typespec-ts": "^0.38.1",
+    "@typespec/http-client-js": "^0.1.0",
   }
 ```
 
@@ -99,7 +99,7 @@ Full configuration options can be found in the [C# Client Emitter README](https:
      - "@typespec/http-client-csharp"
      - "@typespec/http-client-java"
      - "@typespec/http-client-python"
-     - "@azure-tools/typespec-ts"
+     - "@typespec/http-client-js"
    options:
      "@typespec/http-client-csharp":
        emitter-output-dir: "{project-root}/clients/dotnet"
@@ -107,11 +107,8 @@ Full configuration options can be found in the [C# Client Emitter README](https:
        emitter-output-dir: "{project-root}/clients/java"
      "@typespec/http-client-python":
        emitter-output-dir: "{project-root}/clients/python"
-     "@azure-tools/typespec-ts":
+     "@typespec/http-client-js":
        emitter-output-dir: "{project-root}/clients/javascript"
-       packageDetails:
-         name: "${your_package_name}"
-         version: 1.0.0
    ```
 
 3. Once the package.json and tspconfig.yaml files are updated, you need to install all required dependencies by running the following command in the project root:

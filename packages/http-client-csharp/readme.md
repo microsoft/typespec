@@ -33,7 +33,7 @@ npx tsp compile main.tsp --emit @typespec/http-client-csharp
 
 You can further configure the SDK generated, using the emitter options on @typespec/http-client-csharp.
 
-You can set options in the command line directly via `--option @typespec/http-client-csharp.<optionName>=XXX`, e.g. `--option @typespec/http-client-csharp.namespace=MyService.Namespace`
+You can set options in the command line directly via `--option @typespec/http-client-csharp.<optionName>=XXX`, e.g. `--option @typespec/http-client-csharp.package-name=MyService`
 
 or
 
@@ -44,7 +44,7 @@ emit:
   - "@typespec/http-client-csharp"
 options:
   "@typespec/http-client-csharp":
-+    namespace: MyService.Namespace
++    package-name: MyService
 ```
 
 **Supported Emitter options**:

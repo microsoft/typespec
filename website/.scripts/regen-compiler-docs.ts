@@ -8,7 +8,7 @@ import {
 
 import assert from "assert";
 import { writeFile } from "fs/promises";
-import { dirname, join, resolve } from "path";
+import { dirname, join, resolve } from "pathe";
 import { fileURLToPath } from "url";
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");

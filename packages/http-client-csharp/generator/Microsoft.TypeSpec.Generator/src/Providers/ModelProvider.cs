@@ -123,7 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
             // TODO remove null check once https://github.com/Azure/typespec-azure/issues/2209 is fixed.
-            CodeModelPlugin.Instance.TypeFactory.PackageName :
+            CodeModelPlugin.Instance.TypeFactory.PrimaryNamespace :
             CodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputModel.Namespace);
 
         protected override CSharpType? GetBaseType()

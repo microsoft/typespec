@@ -8,10 +8,6 @@
 
     {{ serializer.discriminator_docstring(model) | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring='\n    ') }}
     {% endif %}
-    {% if model.has_readonly_or_constant_property %}
-
-    Readonly variables are only populated by the server, and will be ignored when sending a request.
-    {% endif %}
 
     {% if model.properties != None %}
         {% for p in model.properties %}

@@ -105,6 +105,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var classifier = GetClassifier(operation);
+            var endpoint = operation.Paging?.NextLink != null ? ScmKnownParameters.Endpoint.AsExpression() : ClientProvider.EndpointField.AsValueExpression;
 
             return new MethodProvider(
                 signature,
@@ -115,8 +116,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
-                    uri.Reset(ClientProvider.EndpointField).Terminate(),
-                    .. AppendPathParameters(uri, operation, paramMap),
+                    uri.Reset(endpoint).Terminate(),
+                    .. ConditionallyAppendPathParameters(operation, uri, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
@@ -125,6 +126,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(message)
                 ]),
                 this);
+        }
+
+        private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(InputOperation operation, ScopedApi uri, Dictionary<string, ParameterProvider> paramMap)
+        {
+            if (operation.Paging?.NextLink != null)
+            {
+                return
+                [
+                    new IfStatement(ScmKnownParameters.AppendPath)
+                    {
+                        new MethodBodyStatements([..AppendPathParameters(uri, operation, paramMap)])
+                    }
+                ];
+            }
+
+            return AppendPathParameters(uri, operation, paramMap);
         }
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
@@ -186,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var inputParameter in operation.Parameters)
             {
-                if (inputParameter.Location != RequestLocation.Header)
+                if (inputParameter.Location != InputRequestLocation.Header)
                     continue;
 
                 CSharpType? type;
@@ -216,7 +233,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var inputParameter in operation.Parameters)
             {
-                if (inputParameter.Location != RequestLocation.Query)
+                if (inputParameter.Location != InputRequestLocation.Query)
                     continue;
 
                 string? format;
@@ -321,7 +338,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new IfStatement(valueExpression.NotEqual(Null)) { originalStatement };
         }
 
-        private IEnumerable<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             Dictionary<string, InputParameter> inputParamHash = new(operation.Parameters.ToDictionary(p => p.Name));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
@@ -370,7 +387,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 else
                 {
                     inputParam = inputParamHash[paramName];
-                    if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
+                    if (inputParam.Location == InputRequestLocation.Path || inputParam.Location == InputRequestLocation.Uri)
                     {
                         GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
                     }
@@ -447,7 +464,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     property.Summary,
                     property.Doc,
                     property.Type,
-                    RequestLocation.Body,
+                    InputRequestLocation.Body,
                     null,
                     InputOperationParameterKind.Method,
                     property.IsRequired,
@@ -472,7 +489,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool TryGetSpecialHeaderParam(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameterProvider)
         {
-            if (inputParameter.Location == RequestLocation.Header)
+            if (inputParameter.Location == InputRequestLocation.Header)
             {
                 return _knownSpecialHeaderParams.TryGetValue(inputParameter.NameInRequest, out parameterProvider);
             }
@@ -510,7 +527,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
-            int path = 0;
+            int path = 2;
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
@@ -529,7 +546,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (methodType is MethodType.Protocol or MethodType.CreateRequest)
                 {
-                    if (inputParam.Location == RequestLocation.Body)
+                    if (inputParam.Location == InputRequestLocation.Body)
                     {
                         if (methodType == MethodType.CreateRequest)
                         {
@@ -601,12 +618,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
             }
 
-            // All the parameters should be required for the CreateRequest method
             if (methodType == MethodType.CreateRequest)
             {
+                // All the parameters should be required for the CreateRequest method
                 foreach (var parameter in sortedParams.Values)
                 {
                     parameter.DefaultValue = null;
+                }
+
+                // Next link operations will always have an endpoint parameter in the CreateRequest method and an "appendPath" parameter
+                if (operation.Paging?.NextLink != null)
+                {
+                    sortedParams.Add(0, ScmKnownParameters.Endpoint);
+                    sortedParams.Add(1, ScmKnownParameters.AppendPath);
                 }
             }
 

@@ -56,6 +56,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
                         typeof(string), "InternalStringProperty", new AutoPropertyBody(false), this),
                     new PropertyProvider($"PropertyTypeProperty property", MethodSignatureModifiers.Public,
                         new PropertyType().Type, "PropertyTypeProperty", new AutoPropertyBody(true), this),
+                    new PropertyProvider($"NullWireInfo property", MethodSignatureModifiers.Public,
+                        new PropertyType().Type, "NullWireInfoProperty", new AutoPropertyBody(true), this),
                 ];
             }
 
@@ -90,6 +92,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
                     new MethodSignature("Method1", $"Description of method1",
                         MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, typeof(Task<int>), null,
                         [intParam]),
+                    Throw(New.Instance(typeof(NotImplementedException))),
+                    this),
+                // explicit interface implementation
+                new MethodProvider(
+                    new MethodSignature("DisposeAsync", $"",
+                        MethodSignatureModifiers.Async, typeof(ValueTask), null,
+                        [],
+                        ExplicitInterface: new CSharpType(typeof(IAsyncDisposable))),
                     Throw(New.Instance(typeof(NotImplementedException))),
                     this)
             ];

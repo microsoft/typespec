@@ -76,7 +76,7 @@ function processReports(
 function getSuiteReportForManifest(
   report: ResolvedCoverageReport,
   manifest: ScenarioManifest,
-): GeneratorCoverageSuiteReport {
+): GeneratorCoverageSuiteReport | undefined {
   let data;
   for (const [key, value] of Object.entries(report)) {
     if (key === "generatorMetadata") {

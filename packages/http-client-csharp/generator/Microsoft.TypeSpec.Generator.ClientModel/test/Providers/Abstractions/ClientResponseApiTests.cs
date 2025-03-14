@@ -1,4 +1,5 @@
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,6 +82,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             public override CSharpType ClientResponseType => typeof(string);
 
             public override CSharpType ClientResponseOfTType => typeof(List<>);
+            public override CSharpType ClientCollectionResponseType => typeof(CollectionResult);
+            public override CSharpType ClientCollectionAsyncResponseType => typeof(AsyncCollectionResult);
+            public override CSharpType ClientCollectionResponseOfTType => typeof(CollectionResult<>);
+            public override CSharpType ClientCollectionAsyncResponseOfTType => typeof(AsyncCollectionResult<>);
 
             public override CSharpType ClientResponseExceptionType => typeof(NotImplementedException);
         }

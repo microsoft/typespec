@@ -296,8 +296,6 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       ),
     };
 
-    this.applyDiscriminator(union, schema);
-
     return this.applyConstraints(union, schema);
   }
 

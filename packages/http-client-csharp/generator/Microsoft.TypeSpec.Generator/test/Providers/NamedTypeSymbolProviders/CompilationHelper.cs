@@ -17,20 +17,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             List<SyntaxTree> files = new List<SyntaxTree>();
             foreach (var provider in providers)
             {
-                files.Add(GetTree(provider));
+                files.Add(GeneratedCodeWorkspace.GetTree(provider));
             }
 
             return CSharpCompilation.Create(
                 assemblyName: "TestAssembly",
                 syntaxTrees: [.. files],
                 references: [.. metadataReferenceTypes?.Select(t => MetadataReference.CreateFromFile(t.Assembly.Location)) ?? [], MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
-        }
-
-        private static SyntaxTree GetTree(TypeProvider provider)
-        {
-            var writer = new TypeProviderWriter(provider);
-            var file = writer.Write();
-            return CSharpSyntaxTree.ParseText(file.Content, path: Path.Join(provider.RelativeFilePath, provider.Name + ".cs"));
         }
 
         internal static INamedTypeSymbol? GetSymbol(INamespaceSymbol namespaceSymbol, string name)

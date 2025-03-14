@@ -63,7 +63,7 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
   "client-namespace-conflict": {
     severity: "warning",
     messages: {
-      default: paramMessage`namespace ${"clientNamespace"} conflicts with client ${"clientName"}, please use @clientName to specify a different name for the client.`,
+      default: paramMessage`${"message"}`,
     },
   },
   "unsupported-endpoint-url": {

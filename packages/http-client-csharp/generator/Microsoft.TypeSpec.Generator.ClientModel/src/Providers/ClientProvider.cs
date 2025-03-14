@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -147,9 +148,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _subClients = new(GetSubClients);
         }
 
-        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputClient.Namespace) ?
-            base.BuildNamespace() :
-            ScmCodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
+        private const string namespaceConflictCode = "client-namespace-conflict";
+
+        private string? _namespace;
+        // This `BuildNamespace` method has been called twice - one when building the `Type`, the other is trying to find the CustomCodeView, both of them are required.
+        // therefore here to avoid this being called twice because this method now reports a diagnostic, we cache the result.
+        protected override string BuildNamespace() => _namespace ??= BuildNamespaceCore();
+
+        private string BuildNamespaceCore()
+        {
+            // if namespace is empty, we fallback to the root namespace
+            if (string.IsNullOrEmpty(_inputClient.Namespace))
+            {
+                return base.BuildNamespace();
+            }
+            var ns = ScmCodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
+
+            // figure out if this namespace has been changed for this client
+            if (!StringExtensions.IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
+            {
+                ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(namespaceConflictCode, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
+            }
+            return ns;
+        }
 
         private IReadOnlyList<ParameterProvider> GetSubClientInternalConstructorParameters()
         {

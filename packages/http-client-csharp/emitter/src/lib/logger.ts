@@ -24,6 +24,20 @@ export class Logger {
     this.program = program;
   }
 
+  trace(level: LoggerLevel, message: string): void {
+    switch (level) {
+      case LoggerLevel.INFO:
+        this.info(message);
+        break;
+      case LoggerLevel.DEBUG:
+        this.debug(message);
+        break;
+      case LoggerLevel.VERBOSE:
+        this.verbose(message);
+        break;
+    }
+  }
+
   info(message: string): void {
     if (
       this.level === LoggerLevel.INFO ||

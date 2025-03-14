@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -93,6 +94,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                             new ParameterProvider("param1", $"", new FooTypeProvider("BarNamespace").Type)
                         ]),
                     Snippet.ThrowExpression(Snippet.Null), client),
+                new MethodProvider(new MethodSignature(
+                    "Method8",
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    null,
+                    $"",
+                    [],
+                    ExplicitInterface: new CSharpType(typeof(IAsyncDisposable))),
+                    Snippet.ThrowExpression(Snippet.Null), client)
             };
             client.MethodProviders = methods;
 

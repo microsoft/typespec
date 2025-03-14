@@ -4,9 +4,7 @@ import "@typespec/openapi";
 
 using TypeSpec.Http;
 
-@service({
-  title: "sample",
-})
+@service(#{ title: "sample" })
 namespace Sample;
 
 @doc("Error")

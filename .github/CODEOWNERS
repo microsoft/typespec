@@ -17,7 +17,12 @@
 ######################
 # Python
 ######################
-/packages/http-client-python/                @iscai-msft @tadelesh @msyyc
+/packages/http-client-python/                @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel
+
+######################
+# JavaScript
+######################
+/packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @allenjzhang @witemple-msft @chrisradek @AlitzelMendez
 
 ######################
 # Emiter Shared
@@ -27,8 +32,8 @@
 ######################
 # IDE
 ######################
-/packages/typespec-vs/                       @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
-/packages/typespec-vscode/                   @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
+/packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
+/packages/typespec-vscode/                   @RodgeFu @lirenhe @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
 /packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
 
 

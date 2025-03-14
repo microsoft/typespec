@@ -1,6 +1,5 @@
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { Model, ModelProperty, Namespace, Program, Type } from "../../src/core/index.js";
 import {
   AssetEmitter,
   CodeTypeEmitter,
@@ -10,6 +9,7 @@ import {
   TypeEmitter,
   createAssetEmitter,
 } from "../../src/emitter-framework/index.js";
+import { Model, ModelProperty, Namespace, Program, Type } from "../../src/index.js";
 import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 
 describe("emitter-framework: emitter context", () => {

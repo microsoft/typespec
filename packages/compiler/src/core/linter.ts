@@ -1,7 +1,8 @@
-import { removeUnusedCodeCodeFix } from "./compiler-code-fixes/remove-unused-code.codefix.js";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
-import { createLinterRule, defineLinter, paramMessage } from "./library.js";
+import { defineLinter } from "./library.js";
+import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
+import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
 import { createDiagnostic } from "./messages.js";
 import { NameResolver } from "./name-resolver.js";
 import type { Program } from "./program.js";
@@ -9,18 +10,15 @@ import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./
 import {
   Diagnostic,
   DiagnosticMessages,
-  IdentifierNode,
   LinterDefinition,
   LinterResolvedDefinition,
   LinterRule,
   LinterRuleContext,
   LinterRuleDiagnosticReport,
   LinterRuleSet,
-  MemberExpressionNode,
   NoTarget,
   RuleRef,
   SemanticNodeListener,
-  SyntaxKind,
 } from "./types.js";
 
 type LinterLibraryInstance = { linter: LinterResolvedDefinition };
@@ -267,7 +265,6 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
 }
 
 export const builtInLinterLibraryName = `@typespec/compiler`;
-export const builtInLinterRule_UnusedUsing = `unused-using`;
 export function createBuiltInLinterLibrary(nameResolver: NameResolver): LinterLibraryInstance {
   const builtInLinter: LinterResolvedDefinition = resolveLinterDefinition(
     builtInLinterLibraryName,
@@ -276,42 +273,11 @@ export function createBuiltInLinterLibrary(nameResolver: NameResolver): LinterLi
   return { linter: builtInLinter };
 }
 function createBuiltInLinter(nameResolver: NameResolver): LinterDefinition {
-  const unusedUsingLinterRule = createUnusedUsingLinterRule();
+  const unusedUsingLinterRule = createUnusedUsingLinterRule(nameResolver);
+
+  const unusedTemplateParameterLinterRule = createUnusedTemplateParameterLinterRule();
 
   return defineLinter({
-    rules: [unusedUsingLinterRule],
+    rules: [unusedUsingLinterRule, unusedTemplateParameterLinterRule],
   });
-
-  function createUnusedUsingLinterRule() {
-    return createLinterRule({
-      name: builtInLinterRule_UnusedUsing,
-      severity: "warning",
-      description: "Linter rules for unused using statement.",
-      messages: {
-        default: paramMessage`'using ${"code"}' is declared but never be used.`,
-      },
-      create(context) {
-        return {
-          root: (_root) => {
-            const getUsingName = (node: MemberExpressionNode | IdentifierNode): string => {
-              if (node.kind === SyntaxKind.MemberExpression) {
-                return `${getUsingName(node.base)}${node.selector}${node.id.sv}`;
-              } else {
-                // identifier node
-                return node.sv;
-              }
-            };
-            nameResolver.getUnusedUsings().forEach((target) => {
-              context.reportDiagnostic({
-                messageId: "default",
-                format: { code: getUsingName(target.name) },
-                target,
-                codefixes: [removeUnusedCodeCodeFix(target)],
-              });
-            });
-          },
-        };
-      },
-    });
-  }
 }

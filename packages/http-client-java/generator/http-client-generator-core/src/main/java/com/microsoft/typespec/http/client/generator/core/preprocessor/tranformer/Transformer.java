@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AndSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BinarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
@@ -77,9 +78,13 @@ public class Transformer {
                 group.getUsage().add(SchemaContext.OPTIONS_GROUP);
             });
         }
-        schemas.getObjects().addAll(schemas.getGroups());
-        schemas.setGroups(new ArrayList<>());
 
+        for (ObjectSchema groupSchema : schemas.getGroups()) {
+            renameType(groupSchema);
+            for (Property property : groupSchema.getProperties()) {
+                renameVariable(property);
+            }
+        }
         for (ObjectSchema objectSchema : schemas.getObjects()) {
             renameType(objectSchema);
             for (Property property : objectSchema.getProperties()) {
@@ -112,6 +117,9 @@ public class Transformer {
                 }
             }
         }
+
+        schemas.getObjects().addAll(schemas.getGroups());
+        schemas.setGroups(new ArrayList<>());
     }
 
     private void transformClients(List<Client> clients) {
@@ -208,6 +216,13 @@ public class Transformer {
                     }
                     renameOdataParameterNames(request);
                     deduplicateParameterNames(request);
+                }
+
+                if (operation.getConvenienceApi() != null
+                    && !CoreUtils.isNullOrEmpty(operation.getConvenienceApi().getRequests())) {
+                    for (Request request : operation.getConvenienceApi().getRequests()) {
+                        renameOdataParameterNames(request);
+                    }
                 }
 
                 if (operation.getExtensions() != null && operation.getExtensions().getXmsPageable() != null) {

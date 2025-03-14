@@ -31,7 +31,6 @@ async function runTemplate(
     testHost.compilerHost,
     makeScaffoldingConfig(template, {
       name: "test-template",
-      folderName: "test-template",
       template,
       ...configOverrides,
     }),

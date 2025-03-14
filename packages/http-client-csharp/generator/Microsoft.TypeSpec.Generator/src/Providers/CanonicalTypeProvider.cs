@@ -79,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                 }
 
-                string? serializedName = specProperty?.SerializationOptions.Json?.Name;
+                string? serializedName = specProperty?.SerializedName;
                 bool hasCustomSerialization = false;
                 // Update the serializedName of custom properties if necessary
                 if (_serializedNameMap.TryGetValue(customProperty.Name, out var customSerializedName) ||
@@ -140,7 +140,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     customField.WireInfo = new PropertyWireInformation(specProperty);
                 }
 
-                string? serializedName = specProperty?.SerializationOptions.Json?.Name;
+                string? serializedName = specProperty?.SerializedName;
                 bool hasCustomSerialization = false;
                 // Update the serializedName of custom properties if necessary
                 if (_serializedNameMap.TryGetValue(customField.Name, out var customSerializedName) ||

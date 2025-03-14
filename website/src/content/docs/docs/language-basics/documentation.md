@@ -14,6 +14,8 @@ TypeSpec provides two primary methods for documenting your API:
 
 The latter is less intrusive to the specification and is often preferred.
 
+In both cases while not required, the documentation should be written in Markdown format, TypeSpec tooling will assume so. [See Markdown](#markdown) for more information.
+
 ## The `@doc` decorator
 
 The `@doc` decorator can be used to attach documentation to most TypeSpec declarations. It typically accepts a string argument that serves as the documentation for the declaration.
@@ -89,3 +91,28 @@ model Dog {
 ```
 
 Comments are ignored by the compiler and do not appear in the generated output. They are intended for internal documentation of your spec and are not suitable for generating external documentation.
+
+## Markdown
+
+TypeSpec Documentation support CommonMark markdown formatting. The tooling(IDE extensions, doc generation, etc.) will process the documentation as markdown.
+Emitters can choose to render the description as it is, convert it to their preferred format or just strip any markdown information.
+
+````tsp
+@doc("This is a **bold** text")
+model Dog {
+  @doc("This is a _italic_ text")
+  name: string;
+
+  /**
+   * This contains a bullet list
+   * - one
+   * - two
+   * and code blocks
+   *
+   * ```typescript
+   * dog.age = 5;
+   * ```
+   */
+  age: int32;
+}
+````

@@ -30,7 +30,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "clientNamespace": "Payload.MultiPart",
+   "namespace": "Payload.MultiPart",
    "doc": "The FileSpecificContentType_contentType",
    "isFixed": false,
    "isFlags": false,
@@ -43,7 +43,7 @@
    "$id": "5",
    "kind": "model",
    "name": "MultiPartRequest",
-   "clientNamespace": "Payload.MultiPart",
+   "namespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.MultiPartRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -113,7 +113,7 @@
    "$id": "14",
    "kind": "model",
    "name": "ComplexPartsRequest",
-   "clientNamespace": "Payload.MultiPart",
+   "namespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.ComplexPartsRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -156,7 +156,7 @@
       "$id": "20",
       "kind": "model",
       "name": "Address",
-      "clientNamespace": "Payload.MultiPart",
+      "namespace": "Payload.MultiPart",
       "crossLanguageDefinitionId": "Payload.MultiPart.Address",
       "usage": "Input",
       "decorators": [],
@@ -282,7 +282,7 @@
    "$id": "36",
    "kind": "model",
    "name": "JsonPartRequest",
-   "clientNamespace": "Payload.MultiPart",
+   "namespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.JsonPartRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -348,7 +348,7 @@
    "$id": "44",
    "kind": "model",
    "name": "BinaryArrayPartsRequest",
-   "clientNamespace": "Payload.MultiPart",
+   "namespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.BinaryArrayPartsRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -425,7 +425,7 @@
    "$id": "54",
    "kind": "model",
    "name": "MultiBinaryPartsRequest",
-   "clientNamespace": "Payload.MultiPart",
+   "namespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.MultiBinaryPartsRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -496,7 +496,7 @@
    "$id": "63",
    "kind": "model",
    "name": "AnonymousModelRequest",
-   "clientNamespace": "",
+   "namespace": "",
    "crossLanguageDefinitionId": "Payload.MultiPart.FormData.anonymousModel.Request.anonymous",
    "usage": "MultipartFormData,Spread",
    "decorators": [],
@@ -537,7 +537,7 @@
    "$id": "68",
    "kind": "model",
    "name": "ComplexHttpPartsModelRequest",
-   "clientNamespace": "Payload.MultiPart",
+   "namespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.ComplexHttpPartsModelRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -609,7 +609,7 @@
       "$id": "77",
       "kind": "model",
       "name": "FileRequiredMetaData",
-      "clientNamespace": "Payload.MultiPart",
+      "namespace": "Payload.MultiPart",
       "crossLanguageDefinitionId": "Payload.MultiPart.FileRequiredMetaData",
       "usage": "Input",
       "decorators": [],
@@ -617,7 +617,7 @@
        "$id": "78",
        "kind": "model",
        "name": "File",
-       "clientNamespace": "TypeSpec.Http",
+       "namespace": "TypeSpec.Http",
        "crossLanguageDefinitionId": "TypeSpec.Http.File",
        "usage": "Input",
        "decorators": [],
@@ -754,7 +754,7 @@
         "$id": "96",
         "apiVersions": [],
         "type": {
-         "$id": "4762",
+         "$id": "4842",
          "kind": "string",
          "decorators": [],
          "name": "string",
@@ -785,10 +785,10 @@
         }
        },
        "contentType": {
-        "$id": "4763",
+        "$id": "4843",
         "apiVersions": [],
         "type": {
-         "$id": "4765",
+         "$id": "4845",
          "kind": "string",
          "decorators": [],
          "name": "string",
@@ -826,12 +826,12 @@
      }
     },
     {
-     "$id": "4766",
+     "$id": "4846",
      "kind": "property",
      "name": "previousAddresses",
      "serializedName": "previousAddresses",
      "type": {
-      "$id": "4767",
+      "$id": "4847",
       "kind": "array",
       "name": "ArrayAddress",
       "valueType": {
@@ -847,9 +847,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.ComplexHttpPartsModelRequest.previousAddresses",
      "serializationOptions": {
-      "$id": "4768",
+      "$id": "4848",
       "multipart": {
-       "$id": "4769",
+       "$id": "4849",
        "isFilePart": false,
        "isMulti": false,
        "defaultContentTypes": [
@@ -860,12 +860,12 @@
      }
     },
     {
-     "$id": "4770",
+     "$id": "4850",
      "kind": "property",
      "name": "pictures",
      "serializedName": "pictures",
      "type": {
-      "$id": "4771",
+      "$id": "4851",
       "kind": "array",
       "name": "ArrayHttpPart",
       "valueType": {
@@ -881,16 +881,16 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.ComplexHttpPartsModelRequest.pictures",
      "serializationOptions": {
-      "$id": "4772",
+      "$id": "4852",
       "multipart": {
-       "$id": "4773",
+       "$id": "4853",
        "isFilePart": true,
        "isMulti": true,
        "filename": {
         "$ref": "96"
        },
        "contentType": {
-        "$ref": "4763"
+        "$ref": "4843"
        },
        "defaultContentTypes": [
         "*/*"
@@ -908,21 +908,21 @@
    "$ref": "78"
   },
   {
-   "$id": "4774",
+   "$id": "4854",
    "kind": "model",
    "name": "FloatRequest",
-   "clientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
+   "namespace": "Payload.MultiPart.FormData.HttpParts.NonString",
    "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.anonymous",
    "usage": "Input,MultipartFormData",
    "decorators": [],
    "properties": [
     {
-     "$id": "4775",
+     "$id": "4855",
      "kind": "property",
      "name": "temperature",
      "serializedName": "temperature",
      "type": {
-      "$id": "4776",
+      "$id": "4856",
       "kind": "float64",
       "name": "float64",
       "crossLanguageDefinitionId": "TypeSpec.float64",
@@ -935,21 +935,21 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.anonymous.temperature",
      "serializationOptions": {
-      "$id": "4777",
+      "$id": "4857",
       "multipart": {
-       "$id": "4778",
+       "$id": "4858",
        "isFilePart": false,
        "isMulti": false,
        "contentType": {
-        "$id": "4779",
+        "$id": "4859",
         "apiVersions": [],
         "type": {
-         "$id": "5611",
+         "$id": "5738",
          "kind": "constant",
          "decorators": [],
          "value": "text/plain",
          "valueType": {
-          "$id": "5612",
+          "$id": "5739",
           "kind": "string",
           "decorators": [],
           "name": "string",
@@ -987,34 +987,34 @@
    ]
   },
   {
-   "$id": "5613",
+   "$id": "5740",
    "kind": "model",
    "name": "FloatRequestTemperature",
-   "clientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
+   "namespace": "Payload.MultiPart.FormData.HttpParts.NonString",
    "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.temperature.anonymous",
    "usage": "Input",
    "decorators": [],
    "properties": []
   },
   {
-   "$id": "5614",
+   "$id": "5741",
    "kind": "model",
    "name": "FileWithHttpPartSpecificContentTypeRequest",
-   "clientNamespace": "Payload.MultiPart",
+   "namespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.FileWithHttpPartSpecificContentTypeRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
    "properties": [
     {
-     "$id": "5615",
+     "$id": "5742",
      "kind": "property",
      "name": "profileImage",
      "serializedName": "profileImage",
      "type": {
-      "$id": "5616",
+      "$id": "5743",
       "kind": "model",
       "name": "FileSpecificContentType",
-      "clientNamespace": "Payload.MultiPart",
+      "namespace": "Payload.MultiPart",
       "crossLanguageDefinitionId": "Payload.MultiPart.FileSpecificContentType",
       "usage": "Input",
       "decorators": [],
@@ -1023,12 +1023,12 @@
       },
       "properties": [
        {
-        "$id": "5617",
+        "$id": "5744",
         "kind": "property",
         "name": "filename",
         "serializedName": "filename",
         "type": {
-         "$id": "5618",
+         "$id": "5745",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1041,16 +1041,16 @@
         "decorators": [],
         "crossLanguageDefinitionId": "Payload.MultiPart.FileSpecificContentType.filename",
         "serializationOptions": {
-         "$id": "5619"
+         "$id": "5746"
         }
        },
        {
-        "$id": "5620",
+        "$id": "5747",
         "kind": "property",
         "name": "contentType",
         "serializedName": "contentType",
         "type": {
-         "$id": "5621",
+         "$id": "5748",
          "kind": "constant",
          "valueType": {
           "$ref": "2"
@@ -1065,7 +1065,7 @@
         "decorators": [],
         "crossLanguageDefinitionId": "Payload.MultiPart.FileSpecificContentType.contentType",
         "serializationOptions": {
-         "$id": "5622"
+         "$id": "5749"
         }
        }
       ]
@@ -1077,16 +1077,16 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.FileWithHttpPartSpecificContentTypeRequest.profileImage",
      "serializationOptions": {
-      "$id": "5623",
+      "$id": "5750",
       "multipart": {
-       "$id": "5624",
+       "$id": "5751",
        "isFilePart": true,
        "isMulti": false,
        "filename": {
-        "$id": "5625",
+        "$id": "5752",
         "apiVersions": [],
         "type": {
-         "$id": "5627",
+         "$id": "5754",
          "kind": "string",
          "decorators": [],
          "name": "string",
@@ -1113,19 +1113,19 @@
         "isMultipartFileInput": false,
         "flatten": false,
         "serializationOptions": {
-         "$ref": "5619"
+         "$ref": "5746"
         }
        },
        "contentType": {
-        "$id": "5628",
+        "$id": "5755",
         "apiVersions": [],
         "type": {
-         "$id": "5631",
+         "$id": "5758",
          "kind": "constant",
          "decorators": [],
          "value": "image/jpg",
          "valueType": {
-          "$id": "5632",
+          "$id": "5759",
           "kind": "string",
           "decorators": [],
           "name": "string",
@@ -1155,7 +1155,7 @@
         "isMultipartFileInput": false,
         "flatten": false,
         "serializationOptions": {
-         "$ref": "5622"
+         "$ref": "5749"
         }
        },
        "defaultContentTypes": [
@@ -1168,19 +1168,19 @@
    ]
   },
   {
-   "$ref": "5616"
+   "$ref": "5743"
   },
   {
-   "$id": "5633",
+   "$id": "5760",
    "kind": "model",
    "name": "FileWithHttpPartRequiredContentTypeRequest",
-   "clientNamespace": "Payload.MultiPart",
+   "namespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.FileWithHttpPartRequiredContentTypeRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
    "properties": [
     {
-     "$id": "5634",
+     "$id": "5761",
      "kind": "property",
      "name": "profileImage",
      "serializedName": "profileImage",
@@ -1194,16 +1194,16 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.FileWithHttpPartRequiredContentTypeRequest.profileImage",
      "serializationOptions": {
-      "$id": "5635",
+      "$id": "5762",
       "multipart": {
-       "$id": "5636",
+       "$id": "5763",
        "isFilePart": true,
        "isMulti": false,
        "filename": {
         "$ref": "96"
        },
        "contentType": {
-        "$ref": "4763"
+        "$ref": "4843"
        },
        "defaultContentTypes": [
         "*/*"
@@ -1215,24 +1215,24 @@
    ]
   },
   {
-   "$id": "5637",
+   "$id": "5764",
    "kind": "model",
    "name": "FileWithHttpPartOptionalContentTypeRequest",
-   "clientNamespace": "Payload.MultiPart",
+   "namespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.FileWithHttpPartOptionalContentTypeRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
    "properties": [
     {
-     "$id": "5638",
+     "$id": "5765",
      "kind": "property",
      "name": "profileImage",
      "serializedName": "profileImage",
      "type": {
-      "$id": "5639",
+      "$id": "5766",
       "kind": "model",
       "name": "FileOptionalContentType",
-      "clientNamespace": "Payload.MultiPart",
+      "namespace": "Payload.MultiPart",
       "crossLanguageDefinitionId": "Payload.MultiPart.FileOptionalContentType",
       "usage": "Input",
       "decorators": [],
@@ -1241,12 +1241,12 @@
       },
       "properties": [
        {
-        "$id": "5640",
+        "$id": "5767",
         "kind": "property",
         "name": "filename",
         "serializedName": "filename",
         "type": {
-         "$id": "5641",
+         "$id": "5768",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1259,7 +1259,7 @@
         "decorators": [],
         "crossLanguageDefinitionId": "Payload.MultiPart.FileOptionalContentType.filename",
         "serializationOptions": {
-         "$id": "5642"
+         "$id": "5769"
         }
        }
       ]
@@ -1271,16 +1271,16 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.FileWithHttpPartOptionalContentTypeRequest.profileImage",
      "serializationOptions": {
-      "$id": "5643",
+      "$id": "5770",
       "multipart": {
-       "$id": "5644",
+       "$id": "5771",
        "isFilePart": true,
        "isMulti": false,
        "filename": {
-        "$id": "5645",
+        "$id": "5772",
         "apiVersions": [],
         "type": {
-         "$id": "5647",
+         "$id": "5774",
          "kind": "string",
          "decorators": [],
          "name": "string",
@@ -1307,14 +1307,14 @@
         "isMultipartFileInput": false,
         "flatten": false,
         "serializationOptions": {
-         "$ref": "5642"
+         "$ref": "5769"
         }
        },
        "contentType": {
-        "$id": "5648",
+        "$id": "5775",
         "apiVersions": [],
         "type": {
-         "$id": "5650",
+         "$id": "5777",
          "kind": "string",
          "decorators": [],
          "name": "string",
@@ -1354,27 +1354,27 @@
    ]
   },
   {
-   "$ref": "5639"
+   "$ref": "5766"
   }
  ],
  "Clients": [
   {
-   "$id": "5651",
+   "$id": "5778",
    "Name": "MultiPartClient",
-   "ClientNamespace": "Payload.MultiPart",
+   "Namespace": "Payload.MultiPart",
    "Doc": "Test for multipart",
    "Operations": [],
    "Protocol": {
-    "$id": "5652"
+    "$id": "5779"
    },
    "Parameters": [
     {
-     "$id": "5653",
+     "$id": "5780",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "5654",
+      "$id": "5781",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1389,9 +1389,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "5655",
+      "$id": "5782",
       "Type": {
-       "$id": "5656",
+       "$id": "5783",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1400,29 +1400,30 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Payload.MultiPart"
   },
   {
-   "$id": "5657",
+   "$id": "5784",
    "Name": "FormData",
-   "ClientNamespace": "Payload.MultiPart.FormData",
+   "Namespace": "Payload.MultiPart.FormData",
    "Operations": [
     {
-     "$id": "5658",
+     "$id": "5785",
      "Name": "basic",
      "ResourceName": "FormData",
      "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5659",
+       "$id": "5786",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5660",
+        "$id": "5787",
         "kind": "constant",
         "valueType": {
-         "$id": "5661",
+         "$id": "5788",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1442,7 +1443,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5662",
+       "$id": "5789",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1461,17 +1462,15 @@
      ],
      "Responses": [
       {
-       "$id": "5663",
+       "$id": "5790",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/mixed-parts",
      "RequestMediaTypes": [
@@ -1484,21 +1483,21 @@
      "Decorators": []
     },
     {
-     "$id": "5664",
+     "$id": "5791",
      "Name": "fileArrayAndBasic",
      "ResourceName": "FormData",
      "Doc": "Test content-type: multipart/form-data for mixed scenarios",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5665",
+       "$id": "5792",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5666",
+        "$id": "5793",
         "kind": "constant",
         "valueType": {
-         "$id": "5667",
+         "$id": "5794",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1518,7 +1517,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5668",
+       "$id": "5795",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1537,17 +1536,15 @@
      ],
      "Responses": [
       {
-       "$id": "5669",
+       "$id": "5796",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/complex-parts",
      "RequestMediaTypes": [
@@ -1560,21 +1557,21 @@
      "Decorators": []
     },
     {
-     "$id": "5670",
+     "$id": "5797",
      "Name": "jsonPart",
      "ResourceName": "FormData",
      "Doc": "Test content-type: multipart/form-data for scenario contains json part and binary part ",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5671",
+       "$id": "5798",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5672",
+        "$id": "5799",
         "kind": "constant",
         "valueType": {
-         "$id": "5673",
+         "$id": "5800",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1594,7 +1591,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5674",
+       "$id": "5801",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1613,17 +1610,15 @@
      ],
      "Responses": [
       {
-       "$id": "5675",
+       "$id": "5802",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/json-part",
      "RequestMediaTypes": [
@@ -1636,21 +1631,21 @@
      "Decorators": []
     },
     {
-     "$id": "5676",
+     "$id": "5803",
      "Name": "binaryArrayParts",
      "ResourceName": "FormData",
      "Doc": "Test content-type: multipart/form-data for scenario contains multi binary parts",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5677",
+       "$id": "5804",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5678",
+        "$id": "5805",
         "kind": "constant",
         "valueType": {
-         "$id": "5679",
+         "$id": "5806",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1670,7 +1665,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5680",
+       "$id": "5807",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1689,17 +1684,15 @@
      ],
      "Responses": [
       {
-       "$id": "5681",
+       "$id": "5808",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/binary-array-parts",
      "RequestMediaTypes": [
@@ -1712,21 +1705,21 @@
      "Decorators": []
     },
     {
-     "$id": "5682",
+     "$id": "5809",
      "Name": "multiBinaryParts",
      "ResourceName": "FormData",
      "Doc": "Test content-type: multipart/form-data for scenario contains multi binary parts",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5683",
+       "$id": "5810",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5684",
+        "$id": "5811",
         "kind": "constant",
         "valueType": {
-         "$id": "5685",
+         "$id": "5812",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1746,7 +1739,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5686",
+       "$id": "5813",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1765,17 +1758,15 @@
      ],
      "Responses": [
       {
-       "$id": "5687",
+       "$id": "5814",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/multi-binary-parts",
      "RequestMediaTypes": [
@@ -1788,21 +1779,21 @@
      "Decorators": []
     },
     {
-     "$id": "5688",
+     "$id": "5815",
      "Name": "checkFileNameAndContentType",
      "ResourceName": "FormData",
      "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5689",
+       "$id": "5816",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5690",
+        "$id": "5817",
         "kind": "constant",
         "valueType": {
-         "$id": "5691",
+         "$id": "5818",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1822,7 +1813,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5692",
+       "$id": "5819",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1841,17 +1832,15 @@
      ],
      "Responses": [
       {
-       "$id": "5693",
+       "$id": "5820",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/check-filename-and-content-type",
      "RequestMediaTypes": [
@@ -1864,21 +1853,21 @@
      "Decorators": []
     },
     {
-     "$id": "5694",
+     "$id": "5821",
      "Name": "anonymousModel",
      "ResourceName": "FormData",
      "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5695",
+       "$id": "5822",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5696",
+        "$id": "5823",
         "kind": "constant",
         "valueType": {
-         "$id": "5697",
+         "$id": "5824",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1898,7 +1887,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5698",
+       "$id": "5825",
        "Name": "anonymousModelRequest",
        "NameInRequest": "anonymousModelRequest",
        "Type": {
@@ -1917,17 +1906,15 @@
      ],
      "Responses": [
       {
-       "$id": "5699",
+       "$id": "5826",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/anonymous-model",
      "RequestMediaTypes": [
@@ -1941,17 +1928,17 @@
     }
    ],
    "Protocol": {
-    "$id": "5700"
+    "$id": "5827"
    },
    "Parent": "MultiPartClient",
    "Parameters": [
     {
-     "$id": "5701",
+     "$id": "5828",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "5702",
+      "$id": "5829",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1966,9 +1953,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "5703",
+      "$id": "5830",
       "Type": {
-       "$id": "5704",
+       "$id": "5831",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1977,29 +1964,30 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Payload.MultiPart.FormData"
   },
   {
-   "$id": "5705",
+   "$id": "5832",
    "Name": "FormDataHttpParts",
-   "ClientNamespace": "Payload.MultiPart.FormData.HttpParts",
+   "Namespace": "Payload.MultiPart.FormData.HttpParts",
    "Operations": [
     {
-     "$id": "5706",
+     "$id": "5833",
      "Name": "jsonArrayAndFileArray",
      "ResourceName": "HttpParts",
      "Doc": "Test content-type: multipart/form-data for mixed scenarios",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5707",
+       "$id": "5834",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5708",
+        "$id": "5835",
         "kind": "constant",
         "valueType": {
-         "$id": "5709",
+         "$id": "5836",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2019,7 +2007,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5710",
+       "$id": "5837",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -2038,17 +2026,15 @@
      ],
      "Responses": [
       {
-       "$id": "5711",
+       "$id": "5838",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/complex-parts-with-httppart",
      "RequestMediaTypes": [
@@ -2062,17 +2048,17 @@
     }
    ],
    "Protocol": {
-    "$id": "5712"
+    "$id": "5839"
    },
    "Parent": "FormData",
    "Parameters": [
     {
-     "$id": "5713",
+     "$id": "5840",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "5714",
+      "$id": "5841",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2087,9 +2073,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "5715",
+      "$id": "5842",
       "Type": {
-       "$id": "5716",
+       "$id": "5843",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2098,29 +2084,30 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts"
   },
   {
-   "$id": "5717",
+   "$id": "5844",
    "Name": "FormDataHttpPartsContentType",
-   "ClientNamespace": "Payload.MultiPart.FormData.HttpParts.ContentType",
+   "Namespace": "Payload.MultiPart.FormData.HttpParts.ContentType",
    "Operations": [
     {
-     "$id": "5718",
+     "$id": "5845",
      "Name": "imageJpegContentType",
      "ResourceName": "ContentType",
      "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5719",
+       "$id": "5846",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5720",
+        "$id": "5847",
         "kind": "constant",
         "valueType": {
-         "$id": "5721",
+         "$id": "5848",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2140,11 +2127,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5722",
+       "$id": "5849",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "5614"
+        "$ref": "5741"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2159,17 +2146,15 @@
      ],
      "Responses": [
       {
-       "$id": "5723",
+       "$id": "5850",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/check-filename-and-specific-content-type-with-httppart",
      "RequestMediaTypes": [
@@ -2182,21 +2167,21 @@
      "Decorators": []
     },
     {
-     "$id": "5724",
+     "$id": "5851",
      "Name": "requiredContentType",
      "ResourceName": "ContentType",
      "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5725",
+       "$id": "5852",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5726",
+        "$id": "5853",
         "kind": "constant",
         "valueType": {
-         "$id": "5727",
+         "$id": "5854",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2216,11 +2201,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5728",
+       "$id": "5855",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "5633"
+        "$ref": "5760"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2235,17 +2220,15 @@
      ],
      "Responses": [
       {
-       "$id": "5729",
+       "$id": "5856",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/check-filename-and-required-content-type-with-httppart",
      "RequestMediaTypes": [
@@ -2258,21 +2241,21 @@
      "Decorators": []
     },
     {
-     "$id": "5730",
+     "$id": "5857",
      "Name": "optionalContentType",
      "ResourceName": "ContentType",
      "Doc": "Test content-type: multipart/form-data for optional content type",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5731",
+       "$id": "5858",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5732",
+        "$id": "5859",
         "kind": "constant",
         "valueType": {
-         "$id": "5733",
+         "$id": "5860",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2292,11 +2275,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5734",
+       "$id": "5861",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "5637"
+        "$ref": "5764"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2311,17 +2294,15 @@
      ],
      "Responses": [
       {
-       "$id": "5735",
+       "$id": "5862",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/file-with-http-part-optional-content-type",
      "RequestMediaTypes": [
@@ -2335,17 +2316,17 @@
     }
    ],
    "Protocol": {
-    "$id": "5736"
+    "$id": "5863"
    },
    "Parent": "FormDataHttpParts",
    "Parameters": [
     {
-     "$id": "5737",
+     "$id": "5864",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "5738",
+      "$id": "5865",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2360,9 +2341,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "5739",
+      "$id": "5866",
       "Type": {
-       "$id": "5740",
+       "$id": "5867",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2371,29 +2352,30 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.ContentType"
   },
   {
-   "$id": "5741",
+   "$id": "5868",
    "Name": "FormDataHttpPartsNonString",
-   "ClientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
+   "Namespace": "Payload.MultiPart.FormData.HttpParts.NonString",
    "Operations": [
     {
-     "$id": "5742",
+     "$id": "5869",
      "Name": "float",
      "ResourceName": "NonString",
      "Doc": "Test content-type: multipart/form-data for non string",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "5743",
+       "$id": "5870",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "5744",
+        "$id": "5871",
         "kind": "constant",
         "valueType": {
-         "$id": "5745",
+         "$id": "5872",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2413,11 +2395,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "5746",
+       "$id": "5873",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "4774"
+        "$ref": "4854"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2432,17 +2414,15 @@
      ],
      "Responses": [
       {
-       "$id": "5747",
+       "$id": "5874",
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/multipart/form-data/non-string-float",
      "RequestMediaTypes": [
@@ -2456,17 +2436,17 @@
     }
    ],
    "Protocol": {
-    "$id": "5748"
+    "$id": "5875"
    },
    "Parent": "FormDataHttpParts",
    "Parameters": [
     {
-     "$id": "5749",
+     "$id": "5876",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "5750",
+      "$id": "5877",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2481,9 +2461,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "5751",
+      "$id": "5878",
       "Type": {
-       "$id": "5752",
+       "$id": "5879",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2492,7 +2472,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString"
   }
  ]
 }

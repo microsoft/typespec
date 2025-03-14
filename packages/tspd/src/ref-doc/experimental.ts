@@ -14,13 +14,16 @@ import { renderToAstroStarlightMarkdown } from "./emitters/starlight.js";
 import { extractLibraryRefDocs, ExtractRefDocOptions, extractRefDocs } from "./extractor.js";
 import { TypeSpecRefDocBase } from "./types.js";
 
+export interface GenerateLibraryDocsOptions {
+  skipJSApi?: boolean;
+}
 /**
  * @experimental this is for experimental and is for internal use only. Breaking change to this API can happen at anytime.
  */
 export async function generateLibraryDocs(
   libraryPath: string,
   outputDir: string,
-  skipJSApi: boolean = false,
+  options: GenerateLibraryDocsOptions = {},
 ): Promise<readonly Diagnostic[]> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
@@ -38,7 +41,7 @@ export async function generateLibraryDocs(
     config ?? {},
   );
   await writeFile(joinPaths(libraryPath, "README.md"), readme);
-  if (pkgJson.main && !skipJSApi) {
+  if (pkgJson.main && !options.skipJSApi) {
     await generateJsApiDocs(libraryPath, joinPaths(outputDir, "js-api"));
   }
   return diagnostics.diagnostics;

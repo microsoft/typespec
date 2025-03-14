@@ -54,7 +54,7 @@ model Dog {
   name: string;
 }
 
-@@visibility(Dog.name, "read");
+@@visibility(Dog.name, Lifecycle.Read);
 ```
 
 ## Creating decorators

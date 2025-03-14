@@ -1,4 +1,4 @@
-import { NodePackage } from "@typespec/compiler";
+import { PackageJson } from "@typespec/compiler";
 import { major, minor } from "semver";
 import vscode from "vscode";
 import logger from "../log/logger.js";
@@ -98,7 +98,7 @@ async function checkAndImport(
 }
 
 async function tryInstallOpenApi3Locally(
-  packageJson: NodePackage,
+  packageJson: PackageJson,
   packageJsonFolder: string,
 ): Promise<Result<ExecOutput | undefined>> {
   if (

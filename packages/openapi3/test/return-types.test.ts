@@ -41,7 +41,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
   it("defines responses with status codes", async () => {
     const res = await openApiFor(
       `
-      @service({ name:"Test" })
+      @service
       namespace Test {
         model CreatedResponse {
           @statusCode code: "201";
@@ -60,7 +60,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
   it("defines responses with numeric status codes", async () => {
     const res = await openApiFor(
       `
-      @service({ name:"Test" })
+      @service
       namespace Test {
         model CreatedResponse {
           @statusCode code: 201;
@@ -96,7 +96,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
   it("defines responses with headers and status codes", async () => {
     const res = await openApiFor(
       `
-      @service({ name:"Test" })
+      @service
       namespace Test {
         model ETagHeader {
           @header eTag: string;
@@ -143,7 +143,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
   it("defines responses with headers and status codes in base model", async () => {
     const res = await openApiFor(
       `
-      @service({ name:"Test" })
+      @service
       namespace Test {
         model CreatedResponse {
           @statusCode code: "201";
@@ -472,7 +472,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => 
   });
 
   describe("response model resolving to no property in the body produce no body", () => {
-    it.each(["{}", "{@header prop: string}", `{@visibility("none") prop: string}`])(
+    it.each(["{}", "{@header prop: string}", `{@invisible(Lifecycle) prop: string}`])(
       "%s",
       async (body) => {
         const res = await openApiFor(`op test(): ${body};`);

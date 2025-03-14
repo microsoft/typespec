@@ -14,7 +14,7 @@ beforeEach(async () => {
 describe("listNamespaces", () => {
   it("basic", async () => {
     await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
         namespace DemoService;
@@ -26,7 +26,7 @@ describe("listNamespaces", () => {
   it("nested", async () => {
     // we only want to return the top level namespaces
     await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       namespace DemoService {
@@ -65,7 +65,7 @@ describe("listClients", () => {
 
   it("should get the client", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService;
@@ -77,7 +77,7 @@ describe("listClients", () => {
   });
   it("get subclients", async () => {
     const { DemoService } = (await runner.compile(`
-      @service({
+      @service(#{
         title: "Widget Service",
       })
       @test namespace DemoService {

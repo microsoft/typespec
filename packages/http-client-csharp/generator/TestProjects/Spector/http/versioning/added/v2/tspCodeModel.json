@@ -54,7 +54,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.Added",
+   "namespace": "Versioning.Added",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -91,7 +91,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.Added",
+   "namespace": "Versioning.Added",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -147,7 +147,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.Added",
+   "namespace": "Versioning.Added",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -160,7 +160,7 @@
    "$id": "18",
    "kind": "model",
    "name": "ModelV1",
-   "clientNamespace": "Versioning.Added",
+   "namespace": "Versioning.Added",
    "crossLanguageDefinitionId": "Versioning.Added.ModelV1",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -245,7 +245,7 @@
         "decorators": []
        }
       ],
-      "clientNamespace": "Versioning.Added",
+      "namespace": "Versioning.Added",
       "decorators": []
      },
      "optional": false,
@@ -268,7 +268,7 @@
    "$id": "33",
    "kind": "model",
    "name": "ModelV2",
-   "clientNamespace": "Versioning.Added",
+   "namespace": "Versioning.Added",
    "crossLanguageDefinitionId": "Versioning.Added.ModelV2",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -346,7 +346,7 @@
         "decorators": []
        }
       ],
-      "clientNamespace": "Versioning.Added",
+      "namespace": "Versioning.Added",
       "decorators": []
      },
      "optional": false,
@@ -370,7 +370,7 @@
   {
    "$id": "47",
    "Name": "AddedClient",
-   "ClientNamespace": "Versioning.Added",
+   "Namespace": "Versioning.Added",
    "Doc": "Test for the `@added` decorator.",
    "Operations": [
     {
@@ -482,7 +482,6 @@
        "BodyType": {
         "$ref": "18"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -491,7 +490,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/added/api-version:{version}",
      "Path": "/v1",
      "RequestMediaTypes": [
@@ -591,7 +589,6 @@
        "BodyType": {
         "$ref": "33"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -600,7 +597,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/added/api-version:{version}",
      "Path": "/v2",
      "RequestMediaTypes": [
@@ -657,12 +653,13 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Versioning.Added"
   },
   {
    "$id": "72",
    "Name": "InterfaceV2",
-   "ClientNamespace": "Versioning.Added",
+   "Namespace": "Versioning.Added",
    "Operations": [
     {
      "$id": "73",
@@ -752,7 +749,6 @@
        "BodyType": {
         "$ref": "33"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -761,7 +757,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/added/api-version:{version}",
      "Path": "/interface-v2/v2",
      "RequestMediaTypes": [
@@ -819,7 +814,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Versioning.Added.InterfaceV2"
   }
  ]
 }

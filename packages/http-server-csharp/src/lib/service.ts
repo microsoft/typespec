@@ -25,6 +25,7 @@ import {
   isNullType,
   isTemplateDeclaration,
   isVoidType,
+  serializeValueAsJson,
 } from "@typespec/compiler";
 import {
   CodeTypeEmitter,
@@ -103,7 +104,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   let _unionCounter: number = 0;
   const controllers = new Map<string, ControllerContext>();
   const NoResourceContext: string = "RPCOperations";
-  const doNotEmit: boolean = context.program.compilerOptions.noEmit || false;
+  const doNotEmit: boolean = context.program.compilerOptions.dryRun || false;
 
   class CSharpCodeEmitter extends CodeTypeEmitter {
     #metadateMap: Map<Type, CSharpTypeMetadata> = new Map<Type, CSharpTypeMetadata>();
@@ -137,7 +138,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     unionLiteral(union: Union): EmitterOutput<string> {
       const csType = coalesceUnionTypes(this.emitter.getProgram(), union);
-      return this.emitter.result.rawCode(csType && csType.isBuiltIn ? csType.name : "object");
+      return this.emitter.result.rawCode(
+        csType ? csType.getTypeReference(this.emitter.getContext()?.scope) : "object",
+      );
     }
 
     declarationName(declarationType: TypeSpecDeclaration): string {
@@ -398,10 +401,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!,
         );
       }
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      const defaultValue = property.default
-        ? // eslint-disable-next-line @typescript-eslint/no-deprecated
-          code`${this.emitter.emitType(property.default)}`
+      const defaultValue = property.defaultValue
+        ? code`${JSON.stringify(serializeValueAsJson(this.emitter.getProgram(), property.defaultValue, property))}`
         : typeDefault;
       return this.emitter.result
         .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${

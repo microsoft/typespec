@@ -6,9 +6,7 @@ using TypeSpec.Versioning;
 
 // Simple services that is versioned and uses metadata and visibility features.
 @versioned(Versions)
-@service({
-  title: "User service",
-})
+@service(#{ title: "User service" })
 namespace UserService {
   enum Versions {
     v1,
@@ -17,7 +15,7 @@ namespace UserService {
 
   model User {
     @path id: string;
-    @visibility("create") secret: string;
+    @visibility(Lifecycle.Create) secret: string;
     name: string;
     @added(Versions.v2) age: int32;
   }

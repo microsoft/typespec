@@ -94,24 +94,7 @@ describe("compiler: config file loading", () => {
       });
     });
 
-    it("backcompat: loads old cadl-project.yaml config file if tspconfig.yaml not found", async () => {
-      const config = await loadTestConfig("backcompat/cadl-project-only");
-      deepStrictEqual(config, {
-        diagnostics: [
-          {
-            code: "deprecated",
-            message:
-              "Deprecated: `cadl-project.yaml` is deprecated. Please rename to `tspconfig.yaml`.",
-            severity: "warning",
-            target: Symbol.for("NoTarget"),
-          },
-        ],
-        outputDir: "{cwd}/tsp-output",
-        emit: ["old-emitter"],
-      });
-    });
-
-    it("backcompat: loads tspconfig.yaml even if cadl-project.yaml is found", async () => {
+    it("backcompat: loads tspconfig.yaml", async () => {
       const config = await loadTestConfig("backcompat/mixed");
       deepStrictEqual(config, {
         diagnostics: [],

@@ -5,12 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "(title)",
-})
-@info({
-  version: "0.0.0",
-})
+@service(#{ title: "(title)" })
+@info(#{ version: "0.0.0" })
 namespace title;
 
 model Pet {

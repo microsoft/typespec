@@ -41,9 +41,9 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadWithConverter("json", options, ref json)
-                    || reader.TryReadWithConverter("xml", options, ref xml)
-                    || reader.TryReadWithConverter("multipart", options, ref multipart);
+                var isKnownProperty = reader.TryReadComplexType("json", options, ref json)
+                    || reader.TryReadComplexType("xml", options, ref xml)
+                    || reader.TryReadComplexType("multipart", options, ref multipart);
 
                 if (!isKnownProperty)
                 {

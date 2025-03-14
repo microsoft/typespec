@@ -1,4 +1,6 @@
 import {
+  $invisible,
+  $removeVisibility,
   $visibility,
   DecoratorContext,
   getKeyName,
@@ -98,6 +100,8 @@ export function getResourceTypeForKeyParam(
   return program.stateMap(resourceTypeForKeyParamKey).get(param);
 }
 
+const VISIBILITY_DECORATORS = [$visibility, $invisible, $removeVisibility];
+
 function cloneKeyProperties(context: DecoratorContext, target: Model, resourceType: Model) {
   const { program } = context;
   // Add parent keys first
@@ -112,10 +116,12 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
     const keyName = getKeyName(program, keyProperty)!;
 
     const decorators = [
-      // Filter out the @visibility decorator because it might affect metadata
+      // Filter out all visibility decorators because they affect metadata
       // filtering. NOTE: Check for name equality instead of function equality
       // to deal with multiple copies of core being used.
-      ...keyProperty.decorators.filter((d) => d.decorator.name !== $visibility.name),
+      ...keyProperty.decorators.filter((d) =>
+        VISIBILITY_DECORATORS.every((visDec) => d.decorator.name !== visDec.name),
+      ),
       {
         decorator: $resourceTypeForKeyParam,
         args: [{ node: target.node, value: resourceType, jsValue: resourceType }],

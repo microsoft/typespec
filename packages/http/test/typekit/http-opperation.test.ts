@@ -15,7 +15,7 @@ describe("httpOperation:getResponses", () => {
   it("should get responses", async () => {
     const { getFoo } = (await runner.compile(`
       @test model Foo {
-        @visibility("create")
+        @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
          name: string;
@@ -44,7 +44,7 @@ describe("httpOperation:getResponses", () => {
   it("should get responses with multiple status codes", async () => {
     const { getFoo } = (await runner.compile(`
       @test model Foo {
-        @visibility("create")
+        @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
          name: string;
@@ -67,7 +67,7 @@ describe("httpOperation:getResponses", () => {
   it("should get responses with multiple status codes and contentTypes", async () => {
     const { getFoo } = (await runner.compile(`
       @test model Foo {
-        @visibility("create")
+        @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
          name: string;

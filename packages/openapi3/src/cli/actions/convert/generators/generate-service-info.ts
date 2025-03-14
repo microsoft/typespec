@@ -1,6 +1,7 @@
 import { TypeSpecServiceInfo } from "../interfaces.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateNamespaceName } from "../utils/generate-namespace-name.js";
+import { toTspValues } from "../utils/tsp-values.js";
 
 export function generateServiceInformation(serviceInfo: TypeSpecServiceInfo): string {
   const definitions: string[] = [];
@@ -8,10 +9,10 @@ export function generateServiceInformation(serviceInfo: TypeSpecServiceInfo): st
   const { name, doc, ...info } = serviceInfo;
 
   definitions.push(`
-    @service({
+    @service(#{
       title: "${name}"
     })
-    @info(${JSON.stringify(info)})
+    @info(${toTspValues(info)})
     `);
 
   if (doc) {

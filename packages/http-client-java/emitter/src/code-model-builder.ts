@@ -60,7 +60,6 @@ import {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
-  SdkMethod,
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
@@ -103,7 +102,11 @@ import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
 import pkg from "lodash";
-import { Client as CodeModelClient, EncodedSchema } from "./common/client.js";
+import {
+  Client as CodeModelClient,
+  EncodedSchema,
+  PageableContinuationToken,
+} from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
@@ -128,6 +131,9 @@ import {
   operationIsMultipleContentTypes,
 } from "./operation-utils.js";
 import {
+  BYTES_KNOWN_ENCODING,
+  DATETIME_KNOWN_ENCODING,
+  DURATION_KNOWN_ENCODING,
   ProcessingCache,
   getAccess,
   getDurationFormat,
@@ -150,6 +156,8 @@ import {
 const { isEqual } = pkg;
 
 type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
+
+const AZURE_CORE_FOUNDATIONS_ERROR_ID = "Azure.Core.Foundations.Error";
 
 export class CodeModelBuilder {
   private program: Program;
@@ -979,7 +987,7 @@ export class CodeModelBuilder {
     }
 
     // check for paged
-    this.processRouteForPaged(codeModelOperation, sdkMethod.operation.responses, sdkMethod);
+    this.processRouteForPaged(codeModelOperation, sdkMethod);
 
     // check for long-running operation
     this.processRouteForLongRunning(codeModelOperation, lroMetadata);
@@ -991,49 +999,156 @@ export class CodeModelBuilder {
 
   private processRouteForPaged(
     op: CodeModelOperation,
-    responses: SdkHttpResponse[],
-    sdkMethod: SdkMethod<SdkHttpOperation>,
+    sdkMethod: SdkServiceMethod<SdkHttpOperation>,
   ) {
-    if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
-      for (const response of responses) {
-        const bodyType = response.type;
-        if (bodyType && bodyType.kind === "model") {
-          let itemSerializedName: string | undefined = undefined;
-          let nextLinkSerializedName: string | undefined = undefined;
+    if (sdkMethod.kind !== "paging" && sdkMethod.kind !== "lropaging") {
+      return;
+    }
+    // TCGC should already verified that there is 1 response, and response body is a model
+    const responses = sdkMethod.operation.responses;
+    if (responses.length === 0) {
+      return;
+    }
+    const response = responses[0];
+    const bodyType = response.type;
+    if (!bodyType || bodyType.kind !== "model") {
+      return;
+    }
 
-          const itemSegments = sdkMethod.response.resultSegments;
-          const nextLinkSegments = sdkMethod.pagingMetadata.nextLinkSegments;
+    op.responses?.forEach((r) => {
+      if (r instanceof SchemaResponse) {
+        this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+      }
+    });
 
-          // TODO: in future the property could be nested, so that the "itemSegments" or "nextLinkSegments" would contain more than 1 element
-          if (itemSegments) {
-            // "itemsSegments" should exist for "paging"/"lropaging"
-            const lastSegment = itemSegments[itemSegments.length - 1];
-            if (lastSegment.kind === "property") {
-              itemSerializedName = getPropertySerializedName(lastSegment);
+    function getLastPropertySegment(
+      segments: SdkModelPropertyType[] | undefined,
+    ): SdkBodyModelPropertyType | undefined {
+      if (segments) {
+        const lastSegment = segments[segments.length - 1];
+        if (lastSegment.kind === "property") {
+          return lastSegment;
+        }
+      }
+      return undefined;
+    }
+    function getLastSegment(
+      segments: SdkModelPropertyType[] | undefined,
+    ): SdkModelPropertyType | undefined {
+      if (segments) {
+        return segments[segments.length - 1];
+      }
+      return undefined;
+    }
+    function getLastSegmentSerializedName(
+      segments: SdkModelPropertyType[] | undefined,
+    ): string | undefined {
+      const lastSegment = getLastPropertySegment(segments);
+      return lastSegment ? getPropertySerializedName(lastSegment) : undefined;
+    }
+
+    // TODO: in future the property could be nested, so that the "itemSegments" or "nextLinkSegments" would contain more than 1 element
+    // item/result
+    // "itemsSegments" should exist for "paging"/"lropaging"
+    const itemSerializedName = getLastSegmentSerializedName(sdkMethod.response.resultSegments);
+    // nextLink
+    const nextLinkSerializedName = getLastSegmentSerializedName(
+      sdkMethod.pagingMetadata.nextLinkSegments,
+    );
+
+    // continuationToken
+    let continuationTokenParameter: Parameter | undefined;
+    let continuationTokenResponseProperty: Property[] | undefined;
+    let continuationTokenResponseHeader: HttpHeader | undefined;
+    if (!this.isBranded()) {
+      const continuationTokenParameterSegment = getLastSegment(
+        sdkMethod.pagingMetadata.continuationTokenParameterSegments,
+      );
+      const continuationTokenResponseSegment = getLastSegment(
+        sdkMethod.pagingMetadata.continuationTokenResponseSegments,
+      );
+      if (continuationTokenParameterSegment && op.parameters) {
+        // for now, continuationToken is either request query or header parameter
+        const parameter = getHttpOperationParameter(sdkMethod, continuationTokenParameterSegment);
+        if (parameter) {
+          for (const param of op.parameters) {
+            if (param.protocol.http?.in === parameter.kind) {
+              if (
+                parameter.kind === "header" &&
+                param.language.default.serializedName.toLowerCase() ===
+                  parameter.serializedName.toLowerCase()
+              ) {
+                continuationTokenParameter = param;
+                break;
+              } else if (
+                parameter.kind === "query" &&
+                param.language.default.serializedName === parameter.serializedName
+              ) {
+                continuationTokenParameter = param;
+                break;
+              }
             }
           }
-          if (nextLinkSegments) {
-            const lastSegment = nextLinkSegments[nextLinkSegments.length - 1];
-            if (lastSegment.kind === "property") {
-              nextLinkSerializedName = getPropertySerializedName(lastSegment);
+        }
+      }
+      if (continuationTokenResponseSegment && op.responses) {
+        if (continuationTokenResponseSegment?.kind === "responseheader") {
+          // continuationToken is response header
+          for (const response of op.responses) {
+            if (response instanceof SchemaResponse && response.protocol.http) {
+              for (const header of response.protocol.http.headers) {
+                if (
+                  header.header.toLowerCase() ===
+                  continuationTokenResponseSegment.serializedName.toLowerCase()
+                ) {
+                  continuationTokenResponseHeader = header;
+                  break;
+                }
+              }
+            }
+            if (continuationTokenResponseHeader) {
+              break;
             }
           }
-
-          op.responses?.forEach((r) => {
-            if (r instanceof SchemaResponse) {
-              this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+        } else if (continuationTokenResponseSegment?.kind === "property") {
+          // continuationToken is response body property
+          // TODO: the property could be nested
+          for (const response of op.responses) {
+            if (
+              response instanceof SchemaResponse &&
+              response.schema instanceof ObjectSchema &&
+              response.schema.properties
+            ) {
+              for (const property of response.schema.properties) {
+                if (
+                  property.serializedName ===
+                  getPropertySerializedName(continuationTokenResponseSegment)
+                ) {
+                  continuationTokenResponseProperty = [property];
+                  break;
+                }
+              }
             }
-          });
-
-          op.extensions = op.extensions ?? {};
-          op.extensions["x-ms-pageable"] = {
-            itemName: itemSerializedName,
-            nextLinkName: nextLinkSerializedName,
-          };
-          break;
+            if (continuationTokenResponseProperty) {
+              break;
+            }
+          }
         }
       }
     }
+
+    op.extensions = op.extensions ?? {};
+    op.extensions["x-ms-pageable"] = {
+      itemName: itemSerializedName,
+      nextLinkName: nextLinkSerializedName,
+      continuationToken: continuationTokenParameter
+        ? new PageableContinuationToken(
+            continuationTokenParameter,
+            continuationTokenResponseProperty,
+            continuationTokenResponseHeader,
+          )
+        : undefined,
+    };
   }
 
   private processLroMetadata(
@@ -1329,7 +1444,8 @@ export class CodeModelBuilder {
 
     // group ETag header parameters, if exists
     if (this.options["group-etag-headers"]) {
-      // TODO: unsure what happens, if the etag headers is already processed by override
+      // the etag headers would be re-grouped, if they are already processed by override
+      // this may not be the expected behavior
       this.processEtagHeaderParameters(op, httpOperation);
     }
   }
@@ -1576,32 +1692,42 @@ export class CodeModelBuilder {
       }
 
       if (groupToRequestConditions || groupToMatchConditions) {
-        op.convenienceApi.requests = [];
-        const request = new Request({
-          protocol: op.requests![0].protocol,
-        });
+        // method be called, only if "op.convenienceApi"
+        let request = op.convenienceApi?.requests?.[0];
+        let requestParameters: Parameter[];
+        let requestSignatureParameters: Parameter[];
+        if (request) {
+          requestParameters = request.parameters!;
+          requestSignatureParameters = request.signatureParameters!;
+        } else {
+          op.convenienceApi!.requests = [];
+          request = new Request({
+            protocol: op.requests![0].protocol,
+          });
+          op.convenienceApi!.requests.push(request);
+
+          requestParameters = op.parameters!;
+          requestSignatureParameters = op.signatureParameters!;
+        }
         request.parameters = [];
         request.signatureParameters = [];
-        op.convenienceApi.requests.push(request);
 
-        for (const parameter of op.parameters) {
+        for (const parameter of requestParameters) {
           // copy all parameters to request
-          const clonedParameter = cloneOperationParameter(parameter);
-          request.parameters.push(clonedParameter);
+          request.parameters.push(parameter);
 
           // copy signatureParameters, but exclude etag headers (as they won't be in method signature)
           if (
-            op.signatureParameters.includes(parameter) &&
+            requestSignatureParameters.includes(parameter) &&
             !(
               parameter.language.default.serializedName &&
               etagHeaders.includes(parameter.language.default.serializedName)
             )
           ) {
-            request.signatureParameters.push(clonedParameter);
+            request.signatureParameters.push(parameter);
           }
         }
 
-        const namespace = getNamespace(httpOperation.__raw.operation); // TODO: SdkHttpOperation does not have namespace
         const schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
         const schemaDescription = groupToRequestConditions
           ? "Specifies HTTP options for conditional requests based on modification time."
@@ -1612,7 +1738,7 @@ export class CodeModelBuilder {
           new GroupSchema(schemaName, schemaDescription, {
             language: {
               default: {
-                namespace: namespace,
+                namespace: this.namespace,
               },
               java: {
                 namespace: "com.azure.core.http",
@@ -1646,6 +1772,20 @@ export class CodeModelBuilder {
             parameter.language.default.serializedName &&
             etagHeaders.includes(parameter.language.default.serializedName)
           ) {
+            if (parameter.groupedBy) {
+              // remove etag header from its original groupBy schema
+              if (
+                parameter.groupedBy.schema instanceof GroupSchema &&
+                parameter.groupedBy.schema.properties
+              ) {
+                parameter.groupedBy.schema.properties =
+                  parameter.groupedBy.schema.properties.filter(
+                    (p) => p.serializedName !== parameter.language.default.serializedName,
+                  );
+              }
+            }
+
+            // add it to RequestConditions or MatchConditions
             parameter.groupedBy = requestConditionsParameter;
 
             requestConditionsSchema.add(
@@ -2052,17 +2192,35 @@ export class CodeModelBuilder {
           return this.processArraySchema(type, nameHint);
 
         case "duration":
-          return this.processDurationSchema(type, nameHint, getDurationFormat(type));
+          if (DURATION_KNOWN_ENCODING.includes(type.encode)) {
+            return this.processDurationSchema(type, nameHint, getDurationFormat(type));
+          } else {
+            reportDiagnostic(this.program, {
+              code: "unknown-encode",
+              format: { encode: type.encode },
+              target: type.__raw ?? NoTarget,
+            });
+            return this.processBuiltInType(type.wireType, nameHint);
+          }
 
         case "constant":
           return this.processConstantSchema(type, nameHint);
 
         case "utcDateTime":
         case "offsetDateTime":
-          if (type.encode === "unixTimestamp") {
-            return this.processUnixTimeSchema(type, nameHint);
+          if (DATETIME_KNOWN_ENCODING.includes(type.encode)) {
+            if (type.encode === "unixTimestamp") {
+              return this.processUnixTimeSchema(type, nameHint);
+            } else {
+              return this.processDateTimeSchema(type, nameHint, type.encode === "rfc7231");
+            }
           } else {
-            return this.processDateTimeSchema(type, nameHint, type.encode === "rfc7231");
+            reportDiagnostic(this.program, {
+              code: "unknown-encode",
+              format: { encode: type.encode },
+              target: type.__raw ?? NoTarget,
+            });
+            return this.processBuiltInType(type.wireType, nameHint);
           }
       }
     }
@@ -2098,7 +2256,16 @@ export class CodeModelBuilder {
           return this.processDecimalSchema(type, nameHint);
 
         case "bytes":
-          return this.processByteArraySchema(type, nameHint);
+          if (!type.encode || BYTES_KNOWN_ENCODING.includes(type.encode)) {
+            return this.processByteArraySchema(type, nameHint);
+          } else {
+            reportDiagnostic(this.program, {
+              code: "unknown-encode",
+              format: { encode: type.encode },
+              target: type.__raw ?? NoTarget,
+            });
+            return this.processStringSchema(type, nameHint);
+          }
 
         case "boolean":
           return this.processBooleanSchema(type, nameHint);
@@ -2333,8 +2500,14 @@ export class CodeModelBuilder {
 
   private processObjectSchema(type: SdkModelType, name: string): ObjectSchema {
     const rawModelType = type.__raw;
+    if (!name && !type.name) {
+      reportDiagnostic(this.program, {
+        code: "empty-name",
+        target: rawModelType ?? NoTarget,
+      });
+    }
     const namespace = getNamespace(rawModelType);
-    const objectSchema = new ObjectSchema(name, type.doc ?? "", {
+    const objectSchema = new ObjectSchema(type.name ?? name, type.doc ?? "", {
       summary: type.summary,
       language: {
         default: {
@@ -2366,28 +2539,53 @@ export class CodeModelBuilder {
 
     // type is a subtype
     if (type.baseModel) {
-      const parentSchema = this.processSchema(type.baseModel, type.baseModel.name);
-      objectSchema.parents = new Relations();
-      objectSchema.parents.immediate.push(parentSchema);
-
-      if (parentSchema instanceof ObjectSchema) {
-        pushDistinct(objectSchema.parents.all, parentSchema);
-
-        parentSchema.children = parentSchema.children || new Relations();
-        pushDistinct(parentSchema.children.immediate, objectSchema);
-        pushDistinct(parentSchema.children.all, objectSchema);
-
-        if (parentSchema.parents) {
-          pushDistinct(objectSchema.parents.all, ...parentSchema.parents.all);
-
-          parentSchema.parents.all.forEach((it) => {
-            if (it instanceof ObjectSchema && it.children) {
-              pushDistinct(it.children.all, objectSchema);
+      if (
+        this.isBranded() &&
+        type.baseModel.crossLanguageDefinitionId === AZURE_CORE_FOUNDATIONS_ERROR_ID
+      ) {
+        // com.azure.core.models.ResponseError class is final, we cannot extend it
+        // therefore, copy all properties from "Error" to this class
+        const parentSchema = this.processSchema(type.baseModel, type.baseModel.name);
+        if (parentSchema instanceof ObjectSchema) {
+          parentSchema.properties?.forEach((p) => {
+            objectSchema.addProperty(p);
+            // improve the casing for Java
+            if (p.serializedName === "innererror") {
+              p.language.default.name = "innerError";
+              if (p.schema instanceof ObjectSchema) {
+                p.schema.properties?.forEach((innerErrorProperty) => {
+                  if (innerErrorProperty.serializedName === "innererror") {
+                    innerErrorProperty.language.default.name = "innerError";
+                  }
+                });
+              }
             }
           });
         }
+      } else {
+        const parentSchema = this.processSchema(type.baseModel, type.baseModel.name);
+        objectSchema.parents = new Relations();
+        objectSchema.parents.immediate.push(parentSchema);
+
+        if (parentSchema instanceof ObjectSchema) {
+          pushDistinct(objectSchema.parents.all, parentSchema);
+
+          parentSchema.children = parentSchema.children || new Relations();
+          pushDistinct(parentSchema.children.immediate, objectSchema);
+          pushDistinct(parentSchema.children.all, objectSchema);
+
+          if (parentSchema.parents) {
+            pushDistinct(objectSchema.parents.all, ...parentSchema.parents.all);
+
+            parentSchema.parents.all.forEach((it) => {
+              if (it instanceof ObjectSchema && it.children) {
+                pushDistinct(it.children.all, objectSchema);
+              }
+            });
+          }
+        }
+        objectSchema.discriminatorValue = type.discriminatorValue;
       }
-      objectSchema.discriminatorValue = type.discriminatorValue;
     }
     if (type.additionalProperties) {
       // model has additional property
@@ -2721,7 +2919,7 @@ export class CodeModelBuilder {
     // hopefully it is the root namespace of the SDK
     let baseJavaNamespace: string | undefined = undefined;
     this.sdkContext.sdkPackage.clients
-      .map((it) => it.clientNamespace)
+      .map((it) => it.namespace)
       .forEach((it) => {
         if (baseJavaNamespace === undefined || baseJavaNamespace.length > it.length) {
           baseJavaNamespace = it;
@@ -2743,7 +2941,7 @@ export class CodeModelBuilder {
       | undefined = undefined,
   ): string | undefined {
     // clientNamespace from TCGC
-    const clientNamespace: string | undefined = type?.clientNamespace;
+    const clientNamespace: string | undefined = type?.namespace;
 
     if (type) {
       const crossLanguageDefinitionId = type.crossLanguageDefinitionId;
@@ -2762,6 +2960,10 @@ export class CodeModelBuilder {
           // Azure.Core.ResourceOperationStatus<>
           // Azure.Core.Foundations.OperationStatus<>
           // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
+          return this.baseJavaNamespace;
+        } else if (crossLanguageDefinitionId === "Azure.Core.Foundations.InnerError") {
+          // Azure.Core.Foundations.InnerError
+          // this model could be generated, if a model extends Error
           return this.baseJavaNamespace;
         } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
           // models in Azure.ResourceManager
@@ -2967,18 +3169,31 @@ export class CodeModelBuilder {
 
       processedSchemas.add(schema);
       if (schema instanceof ObjectSchema || schema instanceof GroupSchema) {
+        let skipPropergateProperties = false;
+        if (
+          this.isBranded() &&
+          schema.language.default.crossLanguageDefinitionId === AZURE_CORE_FOUNDATIONS_ERROR_ID
+        ) {
+          // a temporary hack to avoid propergate usage for Azure.Core.Foundations.Error
+          // the reason is that the InnerError within cannot be mapped to azure-core ResponseInnerError, as that class is not public
+          // so generator had to generate the class, if used outside of Azure.Core.Foundations.Error (e.g., when a model extends Error)
+          skipPropergateProperties = true;
+        }
+
         if (schemaUsage.usage || schemaUsage.serializationFormats) {
-          schema.properties?.forEach((p) => {
-            if (p.readOnly && schemaUsage.usage?.includes(SchemaContext.Input)) {
-              const schemaUsageWithoutInput = {
-                usage: schemaUsage.usage.filter((it) => it !== SchemaContext.Input),
-                serializationFormats: schemaUsage.serializationFormats,
-              };
-              innerApplySchemaUsage(p.schema, schemaUsageWithoutInput);
-            } else {
-              innerApplySchemaUsage(p.schema, schemaUsage);
-            }
-          });
+          if (!skipPropergateProperties) {
+            schema.properties?.forEach((p) => {
+              if (p.readOnly && schemaUsage.usage?.includes(SchemaContext.Input)) {
+                const schemaUsageWithoutInput = {
+                  usage: schemaUsage.usage.filter((it) => it !== SchemaContext.Input),
+                  serializationFormats: schemaUsage.serializationFormats,
+                };
+                innerApplySchemaUsage(p.schema, schemaUsageWithoutInput);
+              } else {
+                innerApplySchemaUsage(p.schema, schemaUsage);
+              }
+            });
+          }
 
           if (schema instanceof ObjectSchema) {
             schema.parents?.all?.forEach((p) => innerApplySchemaUsage(p, schemaUsage));

@@ -10,6 +10,7 @@ namespace Sample
     [CodeGenSuppress("Method5", typeof(string))]
     [CodeGenSuppress("Method6", typeof(Foo))]
     [CodeGenSuppress("Method7", typeof(BarNamespace.Foo))]
+    [CodeGenSuppress("global::System.IAsyncDisposable.Method8"]
     public partial class MockInputClient
     {
     }

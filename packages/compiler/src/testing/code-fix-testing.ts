@@ -1,13 +1,8 @@
 import { ok, strictEqual } from "assert";
 import { applyCodeFix } from "../core/code-fixes.js";
-import {
-  CodeFix,
-  Node,
-  createSourceFile,
-  getNodeAtPosition,
-  parse,
-  visitChildren,
-} from "../core/index.js";
+import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
+import { createSourceFile } from "../core/source-file.js";
+import type { CodeFix, Node } from "../core/types.js";
 import { mutate } from "../utils/misc.js";
 import { createTestHost } from "./test-host.js";
 import { extractCursor } from "./test-server-host.js";
