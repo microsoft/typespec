@@ -248,15 +248,18 @@ export interface HttpServiceAuthentication {
 
 export type OperationContainer = Namespace | Interface;
 
+/** @experimental */
 export type OperationVerbSelector = (
   program: Program,
   operation: Operation,
 ) => HttpVerb | undefined;
 
+/** @experimental */
 export interface OperationParameterOptions {
   verbSelector?: OperationVerbSelector;
 }
 
+/** @experimental */
 export interface RouteOptions {
   // Other options can be passed through the interface
   [prop: string]: any;
@@ -264,15 +267,18 @@ export interface RouteOptions {
   paramOptions?: OperationParameterOptions;
 }
 
+/** @experimental */
 export interface RouteResolutionOptions extends RouteOptions {
   listOptions?: ListOperationOptions;
 }
 
+/** @experimental */
 export interface RouteProducerResult {
   uriTemplate: string;
   parameters: HttpOperationParameters;
 }
 
+/** @experimental */
 export type RouteProducer = (
   program: Program,
   operation: Operation,

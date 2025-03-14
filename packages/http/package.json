@@ -19,10 +19,10 @@
   ],
   "type": "module",
   "main": "dist/src/index.js",
-  "tspMain": "lib/http.tsp",
+  "tspMain": "lib/main.tsp",
   "exports": {
     ".": {
-      "typespec": "./lib/http.tsp",
+      "typespec": "./lib/main.tsp",
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     },
