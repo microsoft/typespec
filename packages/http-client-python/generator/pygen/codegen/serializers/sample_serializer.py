@@ -62,7 +62,7 @@ class SampleSerializer(BaseSerializer):
                 ImportType.SDKCORE,
             )
         for param in self.operation.parameters.positional + self.operation.parameters.keyword_only:
-            if not param.client_default_value and not param.optional and param.wire_name in self.sample_params:
+            if param.client_default_value is None and not param.optional and param.wire_name in self.sample_params:
                 imports.merge(param.type.imports_for_sample())
         return FileImportSerializer(imports, True)
 
@@ -80,7 +80,7 @@ class SampleSerializer(BaseSerializer):
             for p in (
                 self.code_model.clients[0].parameters.positional + self.code_model.clients[0].parameters.keyword_only
             )
-            if not (p.optional or p.client_default_value)
+            if not p.optional and p.client_default_value is None
         ]
         client_params = {
             p.client_name: special_param.get(
