@@ -32,7 +32,7 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: pnpm chronus-github-pr-commenter --comment-file comment/comment.json
+      - run: pnpm chronus-github-pr-commenter --comment-file comment.json
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         name: Create/update comment
