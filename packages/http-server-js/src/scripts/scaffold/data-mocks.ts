@@ -147,7 +147,7 @@ export function mockType(type: Type): string | undefined {
   }
 
   if (isVoidType(type)) {
-    return "undefined"; // Return 'undefined' string for void type
+    return "void";
   }
 
   return undefined;
