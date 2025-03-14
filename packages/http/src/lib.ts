@@ -31,7 +31,7 @@ export const $lib = createTypeSpecLibrary({
     "optional-path-param": {
       severity: "error",
       messages: {
-        default: paramMessage`Path parameter '${"paramName"}' cannot be optional.`,
+        default: paramMessage`Optional parameter '${"paramName"}' must be declared with a leading '/' inside '{}' in the route path. For example, use '{/${"paramName"}}' instead of '{${"paramName"}}'.`,
       },
     },
     "missing-server-param": {
