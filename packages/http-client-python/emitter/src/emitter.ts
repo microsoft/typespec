@@ -50,13 +50,14 @@ function addDefaultOptions(sdkContext: SdkContext) {
     options["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
   }
   if (!options["package-name"]) {
+    const namespace = getRootNamespace(sdkContext as PythonSdkContext<SdkServiceOperation>);
+    const packageName = namespace.replace(/\./g, "-");
     reportDiagnostic(sdkContext.program, {
       code: "no-package-name",
       target: NoTarget,
+      format: { namespace, packageName },
     });
-    options["package-name"] = getRootNamespace(
-      sdkContext as PythonSdkContext<SdkServiceOperation>,
-    ).replace(/\./g, "-");
+    options["package-name"] = packageName;
   }
   if (options.flavor !== "azure") {
     // if they pass in a flavor other than azure, we want to ignore the value

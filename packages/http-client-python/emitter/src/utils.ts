@@ -221,9 +221,7 @@ const LIB_NAMESPACE = [
 
 export function getRootNamespace(context: PythonSdkContext<SdkServiceOperation>): string {
   let rootNamespace = "";
-  if (context.sdkPackage.namespaces.length > 0) {
-    rootNamespace = context.sdkPackage.namespaces[0].fullName;
-  } else if (context.sdkPackage.clients.length > 0) {
+  if (context.sdkPackage.clients.length > 0) {
     rootNamespace = context.sdkPackage.clients[0].namespace;
   } else if (context.sdkPackage.models.length > 0) {
     const result = context.sdkPackage.models
@@ -233,6 +231,8 @@ export function getRootNamespace(context: PythonSdkContext<SdkServiceOperation>)
       result.sort();
       rootNamespace = result[0];
     }
+  } else if (context.sdkPackage.namespaces.length > 0) {
+    rootNamespace = context.sdkPackage.namespaces[0].fullName;
   }
 
   return removeUnderscoresFromNamespace(rootNamespace).toLowerCase();

@@ -78,8 +78,7 @@ const libDef = {
     "no-package-name": {
       severity: "warning",
       messages: {
-        default:
-          "No 'package-name' configured in tspconfig.yaml and will infer 'package-name' from namespace.",
+        default: paramMessage`No package-name configured in tspconfig.yaml and will infer package-name '${"packageName"}' from namespace '${"namespace"}'.`,
       },
     },
     "no-valid-client": {
