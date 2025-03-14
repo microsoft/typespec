@@ -9,7 +9,6 @@ export {
 } from "./core/checker.js";
 export {
   getPropertyType,
-  isIntrinsicType,
   isTypeSpecValueTypeOf,
   typespecTypeToJson,
   validateDecoratorNotOnType,
