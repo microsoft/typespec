@@ -52,6 +52,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal static bool TryCreate(InputModelProperty inputProperty, TypeProvider enclosingType, [NotNullWhen(true)] out PropertyProvider? property)
         {
+            var inputPropertyType = inputProperty.Type as InputModelType;
+            if (inputPropertyType != null && CodeModelPlugin.Instance.TypeFactory.TryGetPropertyTypeReplacement(inputPropertyType, out var replacement))
+            {
+                property = new PropertyProvider(inputProperty, replacement.Type, enclosingType);
+                return true;
+            }
+
             var type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
             if (type == null)
             {

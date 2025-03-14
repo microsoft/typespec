@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var inputModel in input.Models)
             {
                 var outputModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
-                if (outputModel != null)
+                if (outputModel != null && outputModel is not SystemObjectProvider)
                 {
                     models.Add(outputModel);
                     var unknownVariant = inputModel.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
