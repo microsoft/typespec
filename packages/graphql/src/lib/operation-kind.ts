@@ -1,4 +1,4 @@
-import { type DecoratorContext, type Operation } from "@typespec/compiler";
+import { type DecoratorContext, type Operation, SyntaxKind } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
 import { GraphQLKeys, NAMESPACE, reportDiagnostic } from "../lib.js";
 
@@ -13,15 +13,22 @@ const [getOperationKind, setOperationKindInternal, _getOperationKindMap] = useSt
 >(GraphQLKeys.operationKind);
 
 function validateOperationKindUniqueOnNode(context: DecoratorContext, operation: Operation) {
-  if (!getOperationKind(context.program, operation)) {
-    return true;
+  const operationKindDecorators = operation.decorators.filter(
+    (x) =>
+      OPERATION_KIND_DECORATORS.includes(x.decorator) &&
+      x.node?.kind === SyntaxKind.DecoratorExpression &&
+      x.node?.parent === operation.node,
+  );
+
+  if (operationKindDecorators.length > 1) {
+    reportDiagnostic(context.program, {
+      code: "graphql-operation-kind-duplicate",
+      format: { entityName: operation.name },
+      target: context.decoratorTarget,
+    });
+    return false;
   }
-  reportDiagnostic(context.program, {
-    code: "graphql-operation-kind-duplicate",
-    format: { entityName: operation.name },
-    target: context.decoratorTarget,
-  });
-  return false;
+  return true;
 }
 
 function setOperationKind(

@@ -41,11 +41,17 @@ describe("Operation kinds", () => {
     }>(`
       @query @mutation @test op testOperation(): string;
     `);
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/graphql/graphql-operation-kind-duplicate",
-      message: "GraphQL Operation Kind already applied to `testOperation`.",
-    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/graphql/graphql-operation-kind-duplicate",
+        message: "GraphQL Operation Kind already applied to `testOperation`.",
+      },
+      {
+        code: "@typespec/graphql/graphql-operation-kind-duplicate",
+        message: "GraphQL Operation Kind already applied to `testOperation`.",
+      },
+    ]);
     const operationKind = getOperationKind(program, testOperation);
-    expect(operationKind).toBe("Mutation");
+    expect(operationKind).toBeUndefined();
   });
 });

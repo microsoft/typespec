@@ -1,8 +1,4 @@
-import {
-  createTypeSpecLibrary,
-  paramMessage,
-  type JSONSchemaType,
-} from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage, type JSONSchemaType } from "@typespec/compiler";
 
 export const NAMESPACE = "TypeSpec.GraphQL";
 
@@ -119,8 +115,4 @@ export const libDef = {
 
 export const $lib = createTypeSpecLibrary(libDef);
 
-export const {
-  reportDiagnostic,
-  createDiagnostic,
-  stateKeys: GraphQLKeys,
-} = $lib;
+export const { reportDiagnostic, createDiagnostic, stateKeys: GraphQLKeys } = $lib;
