@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@typespec/http-specs": "0.1.0-alpha.12",
-    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.1.12.tgz",
+    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.1.13.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {
