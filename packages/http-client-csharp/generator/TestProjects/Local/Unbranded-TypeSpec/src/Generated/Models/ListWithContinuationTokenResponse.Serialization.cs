@@ -11,7 +11,7 @@ using System.Text.Json;
 namespace UnbrandedTypeSpec
 {
     /// <summary></summary>
-    public partial class ListWithContinuationTokenResponse : IJsonModel<ListWithContinuationTokenResponse>
+    internal partial class ListWithContinuationTokenResponse : IJsonModel<ListWithContinuationTokenResponse>
     {
         internal ListWithContinuationTokenResponse()
         {
