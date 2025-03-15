@@ -1417,14 +1417,6 @@ function createOAPIEmitter(
       options,
     );
 
-    // Remove invalid encodings that are meant to be on the `style` field
-    if (
-      schema.format &&
-      ["ArrayEncoding.pipeDelimited", "ArrayEncoding.spaceDelimited"].includes(schema.format)
-    ) {
-      delete schema.format;
-    }
-
     if (param.defaultValue) {
       schema.default = getDefaultValue(program, param.defaultValue, param);
     }
