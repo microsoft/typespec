@@ -64,7 +64,7 @@ op read(
 ): Widget | Error;
 ```
 
-The advantage of using doc comment syntax is that it keeps all of the documentation for a declaration in one place, making it easier to read and maintain. Additionally, it allows the generation of documentation using tools like TypeDoc without having to write a custom emitter to examine the `@doc` metadata.
+The advantage of using doc comment syntax is that it consolidates all the documentation for a declaration in one place, with distinct comment colors, making it easier to read and maintain. Additionally, it facilitates the generation of documentation using tools like TypeDoc, eliminating the need to write a custom emitter to process the @doc metadata.
 
 ### Doc comment tags
 

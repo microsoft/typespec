@@ -2,6 +2,8 @@
 title: Tracing
 ---
 
+import { Badge } from "@astrojs/starlight/components";
+
 The TypeSpec Compiler, by default, builds without any debug information. The standard output is minimal, only including any `warning` or `error` diagnostics that occur during the compilation process.
 
 However, the compiler does collect additional information that can be accessed using the `--trace` command-line interface (CLI) flag.
@@ -16,7 +18,7 @@ If you want to log multiple areas, you can use the `--trace` option more than on
 tsp compile . --trace import-resolution --trace projection
 ```
 
-To log everything, use `--trace *`. This might produce a lot of output, but you can [select specific trace areas to include](#selecting-trace-areas)
+To log everything, use `--trace *` or `--debug` but note this might produce a significant output.
 
 You can also specify the trace areas in the `tspconfig.yaml` file:
 
@@ -67,7 +69,7 @@ Here is a list of the trace areas used in the compiler:
 | `linter.extend-rule-set.end`   | Logs information about rules enabled after extending a ruleset         |
 | `linter.lint`                  | Starts the lint process and shows information of all the rules enabled |
 
-## Tracing in TypeSpec libraries
+## <Badge text="Api" variant="note"/>Tracing in TypeSpec libraries
 
 TypeSpec libraries can also emit their own traces that can be collected using the same mechanism. To avoid naming conflicts, it's recommended that a library prefixes their tracing area with the library name. This can be done by calling the `sub(subArea: string)` method on the tracer.
 

@@ -24,7 +24,7 @@ Scalars can also support template parameters. These template parameters are prim
 
 ```typespec
 @doc(Type)
-scalar Unreal<Type extends string>;
+scalar Unreal<Type extends valueof string>;
 ```
 
 ## Scalar initializers

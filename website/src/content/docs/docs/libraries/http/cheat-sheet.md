@@ -2,7 +2,11 @@
 title: Cheat sheet
 ---
 
+This cheat sheet provides quick reference examples for common HTTP patterns in TypeSpec.
+
 ## Verb
+
+HTTP verbs are specified using decorators on operations.
 
 | Feature          | Example                     |
 | ---------------- | --------------------------- |
@@ -15,13 +19,17 @@ title: Cheat sheet
 
 ## Routing
 
-| Feature                            | Example                                                                                    |
-| ---------------------------------- | ------------------------------------------------------------------------------------------ |
-| Fixed route                        | `@route("/pets") op list(): Pet[]`                                                         |
-| Route with path parameter          | `@route("/pets/{petId}") op getPet(petId: string): Pet`                                    |
-| Route with multiple path parameter | `@route("/stores/{storeId}/pets/{petId}/") op getPet(storeId: string, petId: string): Pet` |
+Route paths define the URL structure for operations. Path parameters are enclosed in curly braces `{}`.
+
+| Feature                             | Example                                                                                    |
+| ----------------------------------- | ------------------------------------------------------------------------------------------ |
+| Fixed route                         | `@route("/pets") op list(): Pet[]`                                                         |
+| Route with path parameter           | `@route("/pets/{petId}") op getPet(petId: string): Pet`                                    |
+| Route with multiple path parameters | `@route("/stores/{storeId}/pets/{petId}/") op getPet(storeId: string, petId: string): Pet` |
 
 ## Data types
+
+These examples show how to work with different parameter types and response structures.
 
 | Feature                 | Example                                     |
 | ----------------------- | ------------------------------------------- |
@@ -33,6 +41,8 @@ title: Cheat sheet
 | Status code             | `op read(): {@statusCode _: 200, ...Pet}`   |
 
 ## Server
+
+Servers define where your API is hosted. You can specify multiple servers or parameterized URLs.
 
 | Feature       | Example                                                                               |
 | ------------- | ------------------------------------------------------------------------------------- |

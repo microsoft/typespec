@@ -4,7 +4,7 @@ title: Configuration
 
 import { FileTree } from "@astrojs/starlight/components";
 
-The TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or command line flags.
+The TypeSpec compiler and libraries can be configured either via a configuration-file or command line flags.
 
 ## Configuration file
 
@@ -29,12 +29,13 @@ The file is a `yaml` document with the following structure. See the [next sectio
 model TypeSpecProjectSchema {
   extends?: string;
   parameters?: Record<{default: string}>
-  "environment-variables"?: Record<{default: string}>
-  "warn-as-error"?: boolean;
-  "output-dir"?: string;
-  "trace"?: string | string[];
-  imports?: string;
+  `environment-variables`?: Record<{default: string}>
+  `warn-as-error`?: boolean;
+  `output-dir`?: string;
+  `trace`?: string | string[];
+  imports?: string[];
   emit?: string[];
+  `dry-run`?: boolean;
   options?: Record<unknown>;
   linter?: LinterConfig;
 }
@@ -194,6 +195,7 @@ Due to this capability, emitter option names should not contain a `.` in their n
 | `imports`       | `--import`                | Additional imports to include                            |
 | `emit`          | `--emit`                  | Emitter configuration                                    |
 | `options`       | `--option` or `--options` | Emitter configuration                                    |
+| `dry-run`       | `--dry-run`               | Tell emitters to run in dryRun mode                      |
 | `linter`        |                           | Linter configuration                                     |
 
 ### `output-dir` - Configure the default output dir
@@ -341,12 +343,20 @@ linter:
 
 ### `--no-emit`
 
-This flag disables emitting. If emitters are still specified, the emitter will run but it should not write anything to the disk.
+This flag disables emitters. Emitters will not run, and no files will be emitted.
 
 This flag can also be used to suppress the "There are no emitters" warning.
 
 ```yaml title=tspconfig.yaml
 tsp compile . --no-emit
+```
+
+### `--dry-run`
+
+This flag tells compatible emitters to run in dry-run mode. In this mode, emitters will not emit any files, but will still run and log diagnostics.
+
+```yaml title=tspconfig.yaml
+tsp compile . --dry-run
 ```
 
 ## Other Command line flags

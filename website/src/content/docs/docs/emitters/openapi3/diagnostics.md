@@ -10,7 +10,28 @@ The OpenAPI emitter may produce any of the following diagnostic messages.
 
 This diagnostic is issued when a response header is defined more than once for a response of a specific status code.
 
-**work in progress**
+This diagnostic is issued when a response header is defined more than once for a response of a specific status code.
+
+To fix this issue, ensure that each response header is defined only once for each status code.
+
+#### Example
+
+```yaml
+responses:
+  "200":
+    description: Successful response
+    headers:
+      X-Rate-Limit:
+        description: The number of allowed requests in the current period
+        schema:
+          type: integer
+      X-Rate-Limit:
+        description: The number of allowed requests in the current period
+        schema:
+          type: integer
+```
+
+In this example, the `X-Rate-Limit` header is defined twice for the `200` status code. To fix this issue, remove the duplicate header definition.
 
 ## duplicate-type-name
 
@@ -21,11 +42,46 @@ To fix this issue, change the name or friendly-name of one of the models or para
 
 ## inline-cycle
 
-**work in progress**
+This diagnostic is issued when a cyclic reference is detected within inline schemas.
+
+To fix this issue, refactor the schemas to remove the cyclic reference.
+
+#### Example
+
+```yaml
+components:
+  schemas:
+    Node:
+      type: object
+      properties:
+        value:
+          type: string
+        next:
+          $ref: "#/components/schemas/Node"
+```
+
+In this example, the `Node` schema references itself, creating a cyclic reference. To fix this issue, refactor the schema to remove the cyclic reference.
 
 ## invalid-default
 
-**work in progress**
+This diagnostic is issued when a default value is invalid for the specified schema type.
+
+To fix this issue, ensure that the default value is valid for the schema type.
+
+#### Example
+
+```yaml
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        age:
+          type: integer
+          default: "twenty"
+```
+
+In this example, the `default` value for the `age` property is invalid because it is a string instead of an integer. To fix this issue, provide a valid default value.
 
 ## invalid-extension-key
 
@@ -36,7 +92,26 @@ To fix this issue, change the extension name to start with "x-".
 
 ## invalid-schema
 
-**work in progress**
+This diagnostic is issued when a schema is invalid.
+
+To fix this issue, ensure that the schema is valid according to the OpenAPI v3 specification.
+
+#### Example
+
+```yaml
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        age:
+          type: integer
+          format: "int"
+```
+
+In this example, the `format` value for the `age` property is invalid. To fix this issue, provide a valid format value such as `int32` or `int64`.
 
 ## invalid-server-variable
 

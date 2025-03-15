@@ -35,7 +35,64 @@ options:
 
 Serialize the schema as either yaml or json.
 
+#### Example
+
+To serialize the schema as JSON:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    file-type: "json"
+```
+
+To serialize the schema as YAML:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    file-type: "yaml"
+```
+
+
+**Type:** `"yaml" | "json"`
+
+Serialize the schema as either yaml or json.
+
 ### `int64-strategy`
+
+**Type:** `"string" | "number"`
+
+How to handle 64 bit integers on the wire. Options are:
+
+- string: serialize as a string (widely interoperable)
+- number: serialize as a number (not widely interoperable)
+
+#### Example
+
+To serialize 64-bit integers as strings:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    int64-strategy: "string"
+```
+
+To serialize 64-bit integers as numbers:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    int64-strategy: "number"
+```
+
 
 **Type:** `"string" | "number"`
 
@@ -50,7 +107,41 @@ How to handle 64 bit integers on the wire. Options are:
 
 When provided, bundle all the schemas into a single json schema document with schemas under $defs. The provided id is the id of the root document and is also used for the file name.
 
+#### Example
+
+To bundle all schemas into a single file:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    bundleId: "my-bundle"
+```
+
+
+**Type:** `string`
+
+When provided, bundle all the schemas into a single json schema document with schemas under $defs. The provided id is the id of the root document and is also used for the file name.
+
 ### `emitAllModels`
+
+**Type:** `boolean`
+
+When true, emit all model declarations to JSON Schema without requiring the @jsonSchema decorator.
+
+#### Example
+
+To emit all model declarations to JSON Schema:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    emitAllModels: true
+```
+
 
 **Type:** `boolean`
 
@@ -62,7 +153,43 @@ When true, emit all model declarations to JSON Schema without requiring the @jso
 
 When true, emit all references as json schema files, even if the referenced type does not have the `@jsonSchema` decorator or is not within a namespace with the `@jsonSchema` decorator.
 
+#### Example
+
+To emit all references as JSON Schema files:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    emitAllRefs: true
+```
+
+
+**Type:** `boolean`
+
+When true, emit all references as json schema files, even if the referenced type does not have the `@jsonSchema` decorator or is not within a namespace with the `@jsonSchema` decorator.
+
 ### `seal-object-schemas`
+
+**Type:** `boolean`
+
+If true, then for models emitted as object schemas we default `unevaluatedProperties` to `{ not: {} }`,
+if not explicitly specified elsewhere.
+Default: `false`
+
+#### Example
+
+To seal object schemas:
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    seal-object-schemas: true
+```
+
 
 **Type:** `boolean`
 
