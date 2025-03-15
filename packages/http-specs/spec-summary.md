@@ -1677,7 +1677,7 @@ Expected response body:
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ],
-  "nextToken": "page2"
+  "token": "page2"
 }
 ```
 
@@ -1725,7 +1725,7 @@ Expected response body:
 ```
 
 Expected response header:
-next-token=page2
+token=page2
 
 2. Next page request:
    Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
@@ -1767,7 +1767,7 @@ Expected response body:
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ],
-  "nextToken": "page2"
+  "token": "page2"
 }
 ```
 
@@ -1814,7 +1814,7 @@ Expected response body:
 ```
 
 Expected response header:
-next-token=page2
+token=page2
 
 2. Next page request:
    Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar&token=page2
