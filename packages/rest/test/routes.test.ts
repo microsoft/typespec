@@ -575,6 +575,7 @@ describe("uri template", () => {
   describe("build uriTemplate from parameter", () => {
     it.each([
       ["@path one: string", "/foo/{one}"],
+      ["@path one?: string", "/foo/{/one}"],
       ["@path(#{allowReserved: true}) one: string", "/foo/{+one}"],
       ["@path(#{explode: true}) one: string", "/foo/{one*}"],
       [`@path(#{style: "matrix"}) one: string`, "/foo/{;one}"],

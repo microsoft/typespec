@@ -116,13 +116,18 @@ function getOperationParametersForVerb(
         break;
       case "path":
         if (item.property.optional) {
-          diagnostics.add(
-            createDiagnostic({
-              code: "optional-path-param",
-              format: { paramName: item.property.name },
-              target: item.property,
-            }),
-          );
+          const uriParam = parsedUriTemplate.parameters.find((x) => x.name === item.property.name);
+          const isAutoRoute = operation.decorators.some((x) => x.definition?.name === "@autoRoute");
+
+          if (uriParam?.operator !== "/" && !isAutoRoute) {
+            diagnostics.add(
+              createDiagnostic({
+                code: "optional-path-param",
+                format: { paramName: item.property.name },
+                target: item.property,
+              }),
+            );
+          }
         }
       // eslint-disable-next-line no-fallthrough
       case "query":

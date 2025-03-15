@@ -206,7 +206,11 @@ const styleToOperator: Record<PathParameterOptions["style"], string> = {
 };
 
 export function getUriTemplatePathParam(param: HttpOperationPathParameter) {
-  const operator = param.allowReserved ? "+" : styleToOperator[param.style];
+  const operator = param.param.optional
+    ? "/"
+    : param.allowReserved
+      ? "+"
+      : styleToOperator[param.style];
   return `{${operator}${param.name}${param.explode ? "*" : ""}}`;
 }
 
