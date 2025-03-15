@@ -5,10 +5,12 @@ import type {
   InitProjectTemplate,
   ServerInitializeResult,
 } from "@typespec/compiler";
+import { inspect } from "util";
 import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
 import { TspConfigFileName } from "./const.js";
 import logger from "./log/logger.js";
+import telemetryClient from "./telemetry/telemetry-client.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
 import {
   ExecOutput,
@@ -143,7 +145,7 @@ export class TspLanguageClient {
     }
   }
 
-  async start(): Promise<void> {
+  async start(activityId: string): Promise<void> {
     try {
       if (this.client.needsStart()) {
         // please be aware that this method would popup error notification in vscode directly
@@ -173,6 +175,9 @@ export class TspLanguageClient {
           showPopup: true,
         });
       }
+      telemetryClient.logOperationDetailTelemetry(activityId, {
+        error: `Error when starting TypeSpec server: ${inspect(e)}`,
+      });
     }
   }
 
@@ -183,10 +188,11 @@ export class TspLanguageClient {
   }
 
   static async create(
+    activityId: string,
     context: ExtensionContext,
     outputChannel: LogOutputChannel,
   ): Promise<TspLanguageClient> {
-    const exe = await resolveTypeSpecServer(context);
+    const exe = await resolveTypeSpecServer(activityId, context);
     logger.debug("TypeSpec server resolved as ", [exe]);
     const watchers = [
       workspace.createFileSystemWatcher("**/*.tsp"),
