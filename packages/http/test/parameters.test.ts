@@ -84,6 +84,7 @@ it("emit diagnostic when there are multiple @body param", async () => {
 
 it("emit error if using multipart/form-data contentType parameter with a body not being a model", async () => {
   const [_, diagnostics] = await compileOperations(`
+      #suppress "deprecated" "For testing to migrate for 1.0-rc"
       @get op get(@header contentType: "multipart/form-data", @body body: string | int32): string;
     `);
 

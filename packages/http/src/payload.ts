@@ -68,6 +68,14 @@ export function resolveHttpPayload(
   const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, disposition));
 
   if (body) {
+    if (body.contentTypes.some((x) => x.startsWith("multipart/")) && body.bodyKind === "single") {
+      diagnostics.add({
+        severity: "warning",
+        code: "deprecated",
+        message: `Deprecated: Implicit multipart is deprecated, use @multipartBody instead with HttpPart`,
+        target: body.property ?? type,
+      });
+    }
     if (
       body.contentTypes.includes("multipart/form-data") &&
       body.bodyKind === "single" &&
