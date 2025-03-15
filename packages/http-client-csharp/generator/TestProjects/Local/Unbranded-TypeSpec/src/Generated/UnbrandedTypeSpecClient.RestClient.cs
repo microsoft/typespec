@@ -388,5 +388,54 @@ namespace UnbrandedTypeSpec
             message.Apply(options);
             return message;
         }
+
+        internal PipelineMessage CreateBugTestRequest(string foo, BinaryContent content, RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier204;
+            PipelineRequest request = message.Request;
+            request.Method = "POST";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/", false);
+            request.Uri = uri.ToUri();
+            request.Headers.Set("x-foo", foo);
+            request.Headers.Set("Content-Type", "application/json");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateBugTestHeaderDefaultValueRequest(BinaryContent content, RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier204;
+            PipelineRequest request = message.Request;
+            request.Method = "POST";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/bugTestHeaderDefaultValue", false);
+            request.Uri = uri.ToUri();
+            request.Headers.Set("x-foo", "cat");
+            request.Headers.Set("Content-Type", "application/json");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateBugTestWithResponseRequest(RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier200;
+            PipelineRequest request = message.Request;
+            request.Method = "GET";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/bugTestWithResponse", false);
+            request.Uri = uri.ToUri();
+            request.Headers.Set("Accept", "application/json");
+            message.Apply(options);
+            return message;
+        }
     }
 }

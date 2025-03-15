@@ -4,7 +4,7 @@
 import { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
 import { InputConstant } from "./input-constant.js";
 import { InputOperationParameterKind } from "./input-operation-parameter-kind.js";
-import { InputType } from "./input-type.js";
+import { InputModelType, InputType } from "./input-type.js";
 import { RequestLocation } from "./request-location.js";
 
 //TODO: Define VirtualParameter for HLC
@@ -30,4 +30,5 @@ export interface InputParameter {
   ArraySerializationDelimiter?: string;
   HeaderCollectionPrefix?: string;
   Decorators?: DecoratorInfo[];
+  SourceModel?: InputModelType;
 }

@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             var field = new FieldProvider(FieldModifiers.Private, new CSharpType(typeof(int)), "name", new TestTypeProvider());
             field.Type = new CSharpType(typeof(string));
-            field.WireInfo = new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "newName");
+            field.WireInfo = new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "newName", PropertyLocation.Unknown);
             var parameter = field.AsParameter;
 
             Assert.IsTrue(parameter.Type.Equals(typeof(string)));
