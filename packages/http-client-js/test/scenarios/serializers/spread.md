@@ -3,9 +3,7 @@
 ## Typespec
 
 ```tsp
-@service({
-  title: "Test Service",
-})
+@service(#{ title: "Test Service" })
 namespace Test;
 alias MultipleRequestParameters = {
   @path

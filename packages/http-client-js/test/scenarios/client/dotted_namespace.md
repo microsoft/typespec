@@ -5,9 +5,7 @@
 A dotted namespace where only the last part has content. The leading namespaces have no operations and a single sub namespace
 
 ```tsp
-@service({
-  title: "TestService",
-})
+@service(#{ title: "TestService" })
 namespace Foo.Bar.Baz;
 @get op get(): string[];
 ```
