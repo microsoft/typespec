@@ -6,7 +6,6 @@ import {
   Program,
 } from "@typespec/compiler";
 import { getOperationVerb } from "./decorators.js";
-import { createDiagnostic } from "./lib.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
@@ -115,21 +114,6 @@ function getOperationParametersForVerb(
         });
         break;
       case "path":
-        if (item.property.optional) {
-          const uriParam = parsedUriTemplate.parameters.find((x) => x.name === item.property.name);
-          const isAutoRoute = operation.decorators.some((x) => x.definition?.name === "@autoRoute");
-
-          if (uriParam?.operator !== "/" && !isAutoRoute) {
-            diagnostics.add(
-              createDiagnostic({
-                code: "optional-path-param",
-                format: { paramName: item.property.name },
-                target: item.property,
-              }),
-            );
-          }
-        }
-      // eslint-disable-next-line no-fallthrough
       case "query":
       case "cookie":
       case "header":

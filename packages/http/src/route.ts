@@ -82,8 +82,19 @@ export function resolvePathAndParameters(
   );
 
   // Ensure that all of the parameters defined in the route are accounted for in
-  // the operation parameters
+  // the operation parameters and are correctly defined when optional
   for (const routeParam of parsedUriTemplate.parameters) {
+    const parameter = parameters.parameters.find((x) => x.name === routeParam.name);
+    if (parameter?.param.optional && routeParam.operator !== "/") {
+      diagnostics.add(
+        createDiagnostic({
+          code: "optional-path-param",
+          format: { paramName: parameter.param.name },
+          target: parameter.param,
+        }),
+      );
+    }
+
     const decoded = decodeURIComponent(routeParam.name);
     if (!paramByName.has(routeParam.name) && !paramByName.has(decoded)) {
       diagnostics.add(

@@ -371,18 +371,6 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics if property is optional without default", async () => {
-      const diagnostics = await runner.diagnose(`
-        @route("/") op test(@path myPath?: string): string;
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/http/optional-path-param",
-        message:
-          "Optional parameter 'myPath' must be declared with a leading '/' inside '{}' in the route path. For example, use '{/myPath}' instead of '{myPath}'.",
-      });
-    });
-
     it("emit diagnostics if property is optional but is not expected in the route", async () => {
       const diagnostics = await runner.diagnose(`
         @route("/{myPath}") op test(@path myPath?: string): string;
