@@ -85,7 +85,7 @@ export function resolvePathAndParameters(
   // the operation parameters and are correctly defined when optional
   for (const routeParam of parsedUriTemplate.parameters) {
     const parameter = parameters.parameters.find((x) => x.name === routeParam.name);
-    if (parameter?.param.optional && routeParam.operator !== "/") {
+    if (parameter?.type === "path" && parameter.param.optional && routeParam.operator !== "/") {
       diagnostics.add(
         createDiagnostic({
           code: "optional-path-param",
