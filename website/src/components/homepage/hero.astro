@@ -60,10 +60,10 @@ import HeroIllustration from "./hero-illustration.astro";
 
   .hero-title {
     text-align: center;
-    font-size: 24px;
+    font-size: 48px;
     font-style: normal;
-    font-weight: 600;
-    line-height: 100%; /* 24px */
+    font-weight: 800;
+    line-height: 100%; /* 48px */
     letter-spacing: -0.24px;
   }
 
@@ -72,7 +72,7 @@ import HeroIllustration from "./hero-illustration.astro";
     font-size: 96px;
     font-style: normal;
     font-weight: 600;
-    line-height: 100%; /* 96px */
+    line-height: 1.5; /* 96px */
     letter-spacing: -1px;
     color: transparent;
 
@@ -89,12 +89,14 @@ import HeroIllustration from "./hero-illustration.astro";
   @media only screen and (max-width: 1024px) {
     .hero-subtitle {
       font-size: 68px;
+      line-height: 1.5;
     }
   }
 
   @media only screen and (max-width: 728px) {
     .hero-subtitle {
       font-size: 48px;
+      line-height: 1.5;
     }
   }
 
@@ -130,6 +132,16 @@ import HeroIllustration from "./hero-illustration.astro";
     gap: 10px;
     flex: 1 0 0;
     align-self: stretch;
+    height: 100vh; /* Ensure full visibility on 1080p monitor */
+  }
+
+  .hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    align-self: stretch;
+    flex-wrap: wrap;
+    order: -1; /* Move buttons to the top */
   }
 
   @media only screen and (max-width: 728px) {
@@ -142,14 +154,24 @@ import HeroIllustration from "./hero-illustration.astro";
 <div class="hero-container">
   <div class="hero-content">
     <h1 class="hero-title">TypeSpec</h1>
-    <div class="hero-subtitle">Describe APIs</div>
+    <div class="hero-subtitle">Design APIs</div>
     <DescriptionText size="large" className="hero-description">
-      Describe your data up front and generate schemas, API specifications, client / server code,
+      Design your data up front and generate schemas, API specifications, client / server code,
       docs, and more.
     </DescriptionText>
     <div class="hero-buttons">
-      <Button as="a" appearance="primary" href={Links.docs}> Get Started </Button>
-      <Button as="a" appearance="outline" href={Links.playground}> Try it out </Button>
+      <Button as="a" appearance="primary" href={Links.docs} title="Install TypeSpec">
+        Install
+      </Button>
+      <Button
+        as="a"
+        appearance="outline"
+        class="highlight"
+        href={Links.playground}
+        title="Try the Playground"
+      >
+        Playground
+      </Button>
     </div>
   </div>
   <div class="hero-demo">
