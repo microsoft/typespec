@@ -46,14 +46,11 @@
  "clients": [
   {
    "$id": "7",
-   "Name": "JsonClient",
-   "Namespace": "Serialization.EncodedName.Json",
-   "Doc": "Encoded names",
-   "Operations": [],
-   "Protocol": {
-    "$id": "8"
-   },
-   "Parameters": [
+   "name": "JsonClient",
+   "namespace": "Serialization.EncodedName.Json",
+   "doc": "Encoded names",
+   "operations": [],
+   "parameters": [
     {
      "$id": "8",
      "name": "endpoint",
