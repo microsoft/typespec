@@ -55,7 +55,6 @@ This document provides a proposal for a generated convenience layer to remove so
 ## Goals
 
 - Provide discoverable convenience methods that simplify creating and sending multipart/form-data requests.
-- Allow developers to serialize multipart/form-data requests using ModelReaderWriter.
 
 ## System ClientModel Updates
 
@@ -865,7 +864,7 @@ ClientResult response = await client.UploadCatAsync(cat);
 ```csharp
 PetStoreClient client = new PetStoreClient();
 
-await using FileStream imageStream = File.OpenRead("C:\\myDog.jpg");
+await using FileStream imageStream = File.OpenRead("C:\\myCat.jpg");
 Cat cat = new Cat("123", new MultiPartFileWithRequiredMetadata(imageStream, "myCat.jpg", "image/jpeg"));
 // get the multipart content type, which includes the boundary
 string contentType = ModelReaderWriter.Write(cat, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
