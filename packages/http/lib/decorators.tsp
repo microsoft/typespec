@@ -377,12 +377,6 @@ extern dec server(
 extern dec useAuth(target: Namespace | Interface | Operation, auth: {} | Union | {}[]);
 
 /**
- * Specify if inapplicable metadata should be included in the payload for the given entity.
- * @param value If true, inapplicable metadata will be included in the payload.
- */
-extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof boolean);
-
-/**
  * Defines the relative route URI template for the target operation as defined by [RFC 6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.

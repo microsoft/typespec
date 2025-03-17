@@ -35,8 +35,8 @@
     "test": "npm run test:emitter",
     "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
     "format": "pnpm -w format:dir packages/http-client-java && mvn spotless:apply --no-transfer-progress -T 1C --activate-profiles test -f ./generator/pom.xml",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint ./emitter --max-warnings=0",
+    "lint:fix": "eslint ./emitter --fix",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "extract-api": "npx api-extractor run --local --verbose"
   },

@@ -30,7 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsNotNull(continuation);
             Assert.AreEqual(1, continuation!.ResponseSegments.Count);
             Assert.AreEqual("nextToken", continuation.ResponseSegments[0]);
-            Assert.AreEqual(InputResponseLocation.Header, continuation.InputResponseLocation);
+            Assert.AreEqual(InputResponseLocation.Header, continuation.ResponseLocation);
             Assert.AreEqual("token", continuation.Parameter.Name);
         }
     }

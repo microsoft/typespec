@@ -7,7 +7,7 @@ import {
   TestHost,
   createTestHost,
   expectDiagnostics,
-  expectIdenticalTypes,
+  expectTypeEquals,
 } from "../../src/testing/index.js";
 
 describe("compiler: namespaces with blocks", () => {
@@ -725,6 +725,6 @@ describe("compiler: decorators in namespaces", () => {
     strictEqual(X.kind, "Model" as const);
     strictEqual(Y.kind, "Model" as const);
     ok(Y.baseModel);
-    expectIdenticalTypes(Y.baseModel, X);
+    expectTypeEquals(Y.baseModel, X);
   });
 });

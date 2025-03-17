@@ -1,7 +1,8 @@
 import { strictEqual } from "assert";
 import { it } from "vitest";
+import { SyntaxKind } from "../../../src/ast/index.js";
 import { createTripleQuoteIndentCodeFix } from "../../../src/core/compiler-code-fixes/triple-quote-indent.codefix.js";
-import { getSourceLocation, SyntaxKind } from "../../../src/index.js";
+import { getSourceLocation } from "../../../src/index.js";
 import { expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
 
 it("each triple-quote is on a new line", async () => {

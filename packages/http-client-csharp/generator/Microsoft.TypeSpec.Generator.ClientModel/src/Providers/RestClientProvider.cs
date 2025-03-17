@@ -105,7 +105,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var classifier = GetClassifier(operation);
-            var endpoint = operation.Paging?.NextLink != null ? ScmKnownParameters.Endpoint.AsExpression() : ClientProvider.EndpointField.AsValueExpression;
 
             return new MethodProvider(
                 signature,
@@ -116,8 +115,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
-                    uri.Reset(endpoint).Terminate(),
-                    .. AppendPathParameters(uri, operation, paramMap),
+                    operation.Paging?.NextLink != null ?
+                        uri.Reset(ScmKnownParameters.NextPage.AsExpression().NullCoalesce(ClientProvider.EndpointField)).Terminate() :
+                        uri.Reset(ClientProvider.EndpointField).Terminate(),
+                    .. ConditionallyAppendPathParameters(operation, uri, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.SetUri(uri),
                     .. AppendHeaderParameters(request, operation, paramMap),
@@ -126,6 +127,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(message)
                 ]),
                 this);
+        }
+
+        private IReadOnlyList<MethodBodyStatement> ConditionallyAppendPathParameters(InputOperation operation, ScopedApi uri, Dictionary<string, ParameterProvider> paramMap)
+        {
+            if (operation.Paging?.NextLink != null)
+            {
+                return
+                [
+                    new IfStatement(ScmKnownParameters.NextPage.Equal(Null))
+                    {
+                        new MethodBodyStatements([..AppendPathParameters(uri, operation, paramMap)])
+                    }
+                ];
+            }
+
+            return AppendPathParameters(uri, operation, paramMap);
         }
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
@@ -322,7 +339,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new IfStatement(valueExpression.NotEqual(Null)) { originalStatement };
         }
 
-        private IEnumerable<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private IReadOnlyList<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             Dictionary<string, InputParameter> inputParamHash = new(operation.Parameters.ToDictionary(p => p.Name));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
@@ -511,6 +528,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
+            int paging = 0;
             int path = 1;
             int required = 100;
             int bodyRequired = 200;
@@ -520,9 +538,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (InputParameter inputParam in operation.Parameters)
             {
-                if ((inputParam.Kind != InputOperationParameterKind.Method && inputParam.Kind != InputOperationParameterKind.Spread)
-                    || TryGetSpecialHeaderParam(inputParam, out var _))
+                if ((inputParam.Kind != InputOperationParameterKind.Method &&
+                     inputParam.Kind != InputOperationParameterKind.Spread) ||
+                    TryGetSpecialHeaderParam(inputParam, out _))
+                {
                     continue;
+                }
 
                 var spreadInputModel = inputParam.Kind == InputOperationParameterKind.Spread ? GetSpreadParameterModel(inputParam) : null;
 
@@ -610,10 +631,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     parameter.DefaultValue = null;
                 }
 
-                // Next link operations will always have an endpoint parameter in the CreateRequest method
                 if (operation.Paging?.NextLink != null)
                 {
-                    sortedParams.Add(0, ScmKnownParameters.Endpoint);
+                    // Next link operations will always have an endpoint parameter in the CreateRequest method
+                    sortedParams.Add(paging, ScmKnownParameters.NextPage);
                 }
             }
 
