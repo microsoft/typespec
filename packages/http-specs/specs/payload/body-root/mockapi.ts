@@ -19,7 +19,7 @@ Scenarios.Payload_BodyRoot_InputOnly = passOnSuccess({
   response: { status: 204 },
 });
 
-// Input and output scenario renamed to use RoundTripModel
+// Input and output scenario
 Scenarios.Payload_BodyRoot_InputAndOutput = passOnSuccess({
   uri: "/input-and-output/alice",
   method: "post",
@@ -63,7 +63,7 @@ Scenarios.Payload_BodyRoot_OutputOnly = passOnSuccess({
 });
 
 // Optional query scenario
-Scenarios.Payload_BodyRoot_OptionalQuery = passOnSuccess({
+Scenarios.Payload_BodyRoot_OptionalParam = passOnSuccess({
   uri: "/optional-param",
   method: "get",
   request: {
