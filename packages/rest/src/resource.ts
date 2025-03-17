@@ -11,7 +11,6 @@ import {
   Program,
   setTypeSpecNamespace,
   Type,
-  validateDecoratorTarget,
 } from "@typespec/compiler";
 import { $path } from "@typespec/http";
 import { ParentResourceDecorator } from "../generated-defs/TypeSpec.Rest.js";
@@ -84,10 +83,6 @@ export function $resourceTypeForKeyParam(
   entity: Type,
   resourceType: Type,
 ) {
-  if (!validateDecoratorTarget(context, entity, "@resourceTypeForKeyParam", "ModelProperty")) {
-    return;
-  }
-
   context.program.stateMap(resourceTypeForKeyParamKey).set(entity, resourceType);
 }
 

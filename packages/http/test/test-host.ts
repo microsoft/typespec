@@ -11,9 +11,9 @@ import {
   HttpOperation,
   HttpOperationParameter,
   HttpVerb,
-  RouteResolutionOptions,
 } from "../src/index.js";
 import { HttpTestLibrary } from "../src/testing/index.js";
+import { RouteResolutionOptions } from "../src/types.js";
 
 export async function createHttpTestHost(): Promise<TestHost> {
   return createTestHost({

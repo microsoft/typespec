@@ -9,9 +9,7 @@ In this scenario the emitter is expected to resolve the root namespace as a clie
 A dotted namespace where only the last part has stuff
 
 ```tsp
-@service({
-  title: "TestService",
-})
+@service(#{ title: "TestService" })
 namespace Foo;
 
 @route("/bar")
