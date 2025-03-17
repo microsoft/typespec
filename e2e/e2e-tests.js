@@ -70,6 +70,7 @@ async function packPackages() {
     "@typespec/http": resolvePackage("typespec-http-"),
     "@typespec/rest": resolvePackage("typespec-rest-"),
     "@typespec/versioning": resolvePackage("typespec-versioning-"),
+    "@typespec/asset-emitter": resolvePackage("typespec-asset-emitter-"),
   };
 }
 
