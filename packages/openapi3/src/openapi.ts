@@ -10,6 +10,7 @@ import {
   getAllTags,
   getAnyExtensionFromPath,
   getDoc,
+  getEncode,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -1415,6 +1416,7 @@ function createOAPIEmitter(
       applyIntrinsicDecorators(param, typeSchema),
       options,
     );
+
     if (param.defaultValue) {
       schema.default = getDefaultValue(program, param.defaultValue, param);
     }
@@ -1510,7 +1512,24 @@ function createOAPIEmitter(
       // For query parameters(style: form) the default is explode: true https://spec.openapis.org/oas/v3.0.2#fixed-fields-9
       attributes.explode = false;
     }
+    const style = getParameterStyle(httpProperty.property);
+    if (style) {
+      attributes.style = style;
+    }
+
     return attributes;
+  }
+
+  function getParameterStyle(type: ModelProperty): string | undefined {
+    const encode = getEncode(program, type);
+    if (!encode) return;
+
+    if (encode.encoding === "ArrayEncoding.pipeDelimited") {
+      return "pipeDelimited";
+    } else if (encode.encoding === "ArrayEncoding.spaceDelimited") {
+      return "spaceDelimited";
+    }
+    return;
   }
 
   function getHeaderParameterAttributes(httpProperty: HttpProperty & { kind: "header" }) {
