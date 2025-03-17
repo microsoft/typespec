@@ -941,6 +941,56 @@ it("generates appropriate types for literals in operation parameters", async () 
   );
 });
 
+it("generates appropriate types for records", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model BarResponse {
+        /** Typed record */
+        recordProp: Record<string>;
+        /** Floating point literal */
+        stringMap: Record<string>;
+      }
+
+      @route("/foo") @post op foo(recordProp: Record<string>): Record<unknown>;
+      @route("/foo") @get op bar(): BarResponse;
+      `,
+    [
+      [
+        "BarResponse.cs",
+        [
+          "public partial class BarResponse",
+          "public System.Text.Json.Nodes.JsonObject RecordProp { get; set; }",
+          "public System.Text.Json.Nodes.JsonObject StringMap { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsFooRequest.cs",
+        [
+          "public partial class ContosoOperationsFooRequest",
+          "public System.Text.Json.Nodes.JsonObject RecordProp { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(System.Text.Json.Nodes.JsonObject))]",
+          `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
+          `public virtual async Task<IActionResult> Bar()`,
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          `Task<System.Text.Json.Nodes.JsonObject> FooAsync( System.Text.Json.Nodes.JsonObject recordProp);`,
+          `Task<BarResponse> BarAsync( );`,
+        ],
+      ],
+    ],
+  );
+});
+
 it("generates appropriate types for literal tuples in operation parameters", async () => {
   await compileAndValidateMultiple(
     runner,
