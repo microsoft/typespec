@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
 import com.azure.json.JsonReader;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
