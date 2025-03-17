@@ -1319,8 +1319,7 @@ export class CSharpOperationHelpers {
             typeReference: code`System.Text.Json.Nodes.JsonObject`,
             nullableType: false,
           };
-
-        if (isArrayModelType(program, tsType)) {
+        } else if (isArrayModelType(program, tsType)) {
           modelResult = {
             typeReference: hasUniqueItems
               ? code`ISet<${this.emitter.emitTypeReference(tsType.indexer.value)}>`
@@ -1330,8 +1329,6 @@ export class CSharpOperationHelpers {
               : code`ICollection<${this.emitter.emitTypeReference(tsType.indexer.value)}>`,
             nullableType: false,
           };
-        } else if (isRecord(tsType)) {
-          modelResult = { typeReference: code`JsonObject`, nullableType: false };
         } else {
           modelResult = {
             typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
