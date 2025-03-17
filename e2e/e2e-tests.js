@@ -120,6 +120,7 @@ async function testBasicCurrentTgz(packages) {
       "@typespec/openapi": packages["@typespec/openapi"],
       "@typespec/openapi3": packages["@typespec/openapi3"],
       "@typespec/versioning": packages["@typespec/versioning"],
+      "@typespec/asset-emitter": packages["@typespec/asset-emitter"],
     },
     private: true,
   };
