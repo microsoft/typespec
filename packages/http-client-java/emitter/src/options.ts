@@ -20,7 +20,36 @@ export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   additionalProperties: true,
   properties: {
-    "dev-options": { type: "object", additionalProperties: true, nullable: true },
+    "dev-options": {
+      type: "object",
+      properties: {
+        "generate-code-model": {
+          type: "boolean",
+          nullable: true,
+          description: "Generate intermittent 'code-model.yaml' file in output directory.",
+        },
+        debug: {
+          type: "boolean",
+          nullable: true,
+          description: "Enable Java remote debug on port 5005.",
+        },
+        loglevel: {
+          type: "string",
+          nullable: true,
+          enum: ["off", "debug", "info", "warn", "error"],
+          description: "Log level for Java logging. Default is 'warn'.",
+        },
+        "java-temp-dir": {
+          type: "string",
+          nullable: true,
+          description: "Temporary working directory for Java code generator.",
+        },
+        required: [],
+      },
+      additionalProperties: false,
+      nullable: true,
+      description: "Developer options for http-client-java emitter.",
+    },
   },
   required: [],
 };
