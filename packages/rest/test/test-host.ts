@@ -11,8 +11,8 @@ import {
   HttpOperation,
   HttpOperationParameter,
   HttpVerb,
-  RouteResolutionOptions,
 } from "@typespec/http";
+import { unsafe_RouteResolutionOptions as RouteResolutionOptions } from "@typespec/http/experimental";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "../src/testing/index.js";
 

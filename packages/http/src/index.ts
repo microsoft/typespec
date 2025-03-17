@@ -1,7 +1,4 @@
-export { $lib } from "./lib.js";
-export { $linter } from "./linter.js";
-
-export { HttpPartOptions } from "../generated-defs/TypeSpec.Http.Private.js";
+export type { HttpPartOptions } from "../generated-defs/TypeSpec.Http.Private.js";
 export { getAuthenticationForOperation, resolveAuthentication } from "./auth.js";
 export { getContentTypes } from "./content-types.js";
 export {
@@ -13,7 +10,6 @@ export {
   $get,
   $head,
   $header,
-  $includeInapplicableMetadataInPayload,
   $multipartBody,
   $patch,
   $path,
@@ -39,7 +35,6 @@ export {
   getStatusCodeDescription,
   getStatusCodes,
   getStatusCodesWithDiagnostics,
-  includeInapplicableMetadataInPayload,
   isBody,
   isBodyIgnore,
   isBodyRoot,
@@ -52,6 +47,8 @@ export {
   setAuthentication,
   type HttpServer,
 } from "./decorators.js";
+export { $lib } from "./lib.js";
+export { $linter } from "./linter.js";
 /** @internal */
 export { setStatusCode } from "./decorators.js";
 export type { HttpProperty } from "./http-property.js";
@@ -75,7 +72,6 @@ export {
   isOverloadSameEndpoint,
   listHttpOperationsIn,
   reportIfNoRoutes,
-  validateRouteUnique,
 } from "./operations.js";
 export { getOperationParameters } from "./parameters.js";
 export {
@@ -87,18 +83,13 @@ export {
 } from "./private.decorators.js";
 export { getResponsesForOperation } from "./responses.js";
 export {
-  DefaultRouteProducer,
   addQueryParamsToUriTemplate,
   getRouteOptionsForNamespace,
   getRoutePath,
-  getRouteProducer,
   getUriTemplatePathParam,
   isSharedRoute,
   joinPathSegments,
-  resolvePathAndParameters,
   setRoute,
-  setRouteOptionsForNamespace,
-  setRouteProducer,
   setSharedRoute,
 } from "./route.js";
 
@@ -148,16 +139,11 @@ export type {
   Oauth2Auth,
   OpenIDConnectAuth,
   OperationContainer,
-  OperationParameterOptions,
   OperationVerbSelector,
   PasswordFlow,
   PathParameterOptions,
   QueryParameterOptions,
-  RouteOptions,
   RoutePath,
-  RouteProducer,
-  RouteProducerResult,
-  RouteResolutionOptions,
 } from "./types.js";
 
 /** @internal */

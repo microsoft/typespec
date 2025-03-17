@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import vscode, { QuickInputButton, Uri } from "vscode";
@@ -7,7 +8,10 @@ import { StartFileName, TspConfigFileName } from "../../const.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
+import telemetryClient from "../../telemetry/telemetry-client.js";
+import { OperationTelemetryEvent } from "../../telemetry/telemetry-event.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
+import { ResultCode } from "../../types.js";
 import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../../typespec-utils.js";
 import {
   ExecOutput,
@@ -137,19 +141,25 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
   };
 }
 
-async function doEmit(mainTspFile: string, emitters: Emitter[]) {
+async function doEmit(
+  mainTspFile: string,
+  emitters: Emitter[],
+  tel: OperationTelemetryEvent,
+): Promise<ResultCode> {
   if (!mainTspFile || !(await isFile(mainTspFile))) {
     logger.error(
       "Invalid typespec project. There is no main tsp file in the project. Emitting Cancelled.",
       [],
       { showOutput: false, showPopup: true },
     );
-    return;
+    tel.lastStep = "Check main tsp file for emitting";
+    return ResultCode.Fail;
   }
 
   if (emitters.length === 0) {
     logger.info("No emitter. Emitting skipped.");
-    return;
+    tel.lastStep = "Check emitters for emitting";
+    return ResultCode.Cancelled;
   }
   const baseDir = getDirectoryPath(mainTspFile);
 
@@ -273,7 +283,8 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
         showOutput: true,
         showPopup: true,
       });
-      return;
+      tel.lastStep = "Select packages to install";
+      return ResultCode.Cancelled;
     }
     /* npm install packages. */
     if (selectedPackages.length > 0) {
@@ -303,7 +314,8 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
           showOutput: false,
           showPopup: true,
         });
-        return;
+        tel.lastStep = "Install packages";
+        return ResultCode.Fail;
       }
     }
   }
@@ -319,7 +331,8 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
         showPopup: true,
       },
     );
-    return;
+    tel.lastStep = "Resolve TypeSpec CLI";
+    return ResultCode.Fail;
   }
   /*Config emitter output dir and emit in tspconfig.yaml. */
   const defaultEmitOutputDirInConfig = `{output-dir}/{emitter-name}`;
@@ -393,14 +406,31 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
     .join(", ");
   logger.info(`Start to emit ${allCodesToGenerate}...`);
   const codeInfoStr = generations.map((g) => g.codeInfo).join(", ");
-  await vscode.window.withProgress(
+  return await vscode.window.withProgress<ResultCode>(
     {
       location: vscode.ProgressLocation.Notification,
       title: `Emitting ${codeInfoStr}...`,
       cancellable: false,
     },
-    async () => {
+    async (): Promise<ResultCode> => {
       try {
+        tel.lastStep = "Emit code";
+        const generatePackageNameForTelemetry = (packageName: string): string => {
+          const p = getRegisterEmittersByPackage(packageName);
+          if (p) {
+            // replace / and @ with #, otherwise vscode telemetry library will treat it as a path/email and redacted it.
+            return p.package.replace(/[/|@]/g, "#");
+          } else {
+            // for unknown emitters, hash the package name for privacy.
+            return createHash("sha256").update(packageName).digest("hex");
+          }
+        };
+        emitters.forEach((e) => {
+          telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+            emitterName: generatePackageNameForTelemetry(e.package),
+            emitterVersion: e.version,
+          });
+        });
         const compileResult = await compile(
           cli,
           mainTspFile,
@@ -414,11 +444,13 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
             showOutput: true,
             showPopup: true,
           });
+          return ResultCode.Fail;
         } else {
           logger.info(`Emitting ${codeInfoStr}...Succeeded`, [], {
             showOutput: true,
             showPopup: true,
           });
+          return ResultCode.Success;
         }
       } catch (err: any) {
         if (typeof err === "object" && "stdout" in err && "stderr" in err && `error` in err) {
@@ -437,12 +469,17 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
             showPopup: true,
           });
         }
+        return ResultCode.Fail;
       }
     },
   );
 }
 
-export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri) {
+export async function emitCode(
+  context: vscode.ExtensionContext,
+  uri: vscode.Uri,
+  tel: OperationTelemetryEvent,
+): Promise<ResultCode> {
   let tspProjectFile: string = "";
   if (!uri) {
     const targetPathes = await TraverseMainTspFileInWorkspace();
@@ -452,7 +489,8 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
         showOutput: true,
         showPopup: true,
       });
-      return;
+      tel.lastStep = "Check entrypoint file without uri";
+      return ResultCode.Cancelled;
     } else if (targetPathes.length === 1) {
       tspProjectFile = targetPathes[0];
     } else {
@@ -480,7 +518,8 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
           showOutput: true,
           showPopup: true,
         });
-        return;
+        tel.lastStep = "Select project for entrypoint";
+        return ResultCode.Cancelled;
       }
       tspProjectFile = selectedProjectFile.path;
     }
@@ -491,7 +530,8 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
         showOutput: true,
         showPopup: true,
       });
-      return;
+      tel.lastStep = "Check entrypoint file with uri";
+      return ResultCode.Cancelled;
     }
     tspProjectFile = tspStartFile;
   }
@@ -668,11 +708,12 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     });
     if (!selectedExistingEmitters || selectedExistingEmitters.length === 0) {
       logger.info("No emitter selected. Emitting Cancelled.");
-      return;
+      tel.lastStep = "Select emitters";
+      return ResultCode.Cancelled;
     }
     logger.info(`Selected emitters: ${selectedExistingEmitters.map((e) => e.package).join(", ")}`);
 
-    await doEmit(
+    return await doEmit(
       tspProjectFile,
       selectedExistingEmitters.map(
         (e) =>
@@ -682,15 +723,17 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
             kind: EmitterKind.Unknown,
           },
       ),
+      tel,
     );
   } else {
     const selectedEmitter = await configureEmitter(context);
     logger.info(`Selected emitter: ${selectedEmitter?.package}`);
     if (selectedEmitter) {
-      await doEmit(tspProjectFile, [selectedEmitter]);
+      return await doEmit(tspProjectFile, [selectedEmitter], tel);
     } else {
       logger.info("No emitter selected. Emitting Cancelled.");
-      return;
+      tel.lastStep = "Select configured emitters";
+      return ResultCode.Cancelled;
     }
   }
 }

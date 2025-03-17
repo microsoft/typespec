@@ -23,6 +23,8 @@ import {
   normalizePath,
   resolvePath,
 } from "../path-utils.js";
+import telemetryClient from "../telemetry/telemetry-client.js";
+import { TelemetryEventName } from "../telemetry/telemetry-event.js";
 import { Result, ResultCode, SettingName } from "../types.js";
 import {
   checkAndConfirmEmptyFolder,
@@ -71,210 +73,243 @@ export async function createTypeSpecProject(
   context: ExtensionContext,
   stateManager: ExtensionStateManager,
 ) {
-  await vscode.window.withProgress(
-    {
-      location: vscode.ProgressLocation.Window,
-      cancellable: false,
-      title: "Creating TypeSpec Project...",
-    },
-    async () => {
-      const selectedRootFolder = await selectFolder(
-        "Select Folder",
-        "Select Project Folder as Root",
-      );
-      if (!selectedRootFolder) {
-        logger.info("Creating TypeSpec Project cancelled when selecting project root folder.");
-        return;
-      }
-
-      if (
-        !(await checkAndConfirmEmptyFolder(
-          selectedRootFolder,
-          "The folder selected is not empty. Are you sure you want to initialize a new project here?",
-          TITLE,
-        ))
-      ) {
-        logger.info(
-          "Creating TypeSpec Project cancelled when checking whether the project root folder is empty.",
-        );
-        return;
-      }
-      const folderName = getBaseFileName(selectedRootFolder);
-
-      const templateInfoMap = await loadInitTemplates(context);
-      if (templateInfoMap.size === 0) {
-        logger.error(
-          "Unexpected Error: No templates loaded. Please check the configuration of InitTemplatesUrls or upgrade @typespec/compiler and try again.",
-          [],
-          {
-            showOutput: true,
-            showPopup: true,
-          },
-        );
-        return;
-      }
-      const info = await selectTemplate(templateInfoMap);
-      if (info === undefined) {
-        logger.info("Creating TypeSpec Project cancelled when selecting template.");
-        return;
-      } else {
-        logger.info(`Selected template: ${info.source}.${info.name}`);
-      }
-
-      const validateResult = await validateTemplate(info);
-      if (!validateResult) {
-        logger.info("Creating TypeSpec Project cancelled when validating template.");
-        return;
-      }
-
-      const projectName = await vscode.window.showInputBox({
-        prompt: "Please input the project name",
-        value: folderName,
-        ignoreFocusOut: true,
-        validateInput: (value) => {
-          if (isWhitespaceStringOrUndefined(value)) {
-            return "Project name cannot be empty.";
-          }
-          // we don't have a full rule for project name. Just have a simple check to avoid some strange name.
-          const regex = /^(?![./])(?!.*[./]{2})[a-zA-Z0-9-~_@./]*[a-zA-Z0-9-~_@]$/;
-          if (!regex.test(value)) {
-            return "Invalid project name. Only [a-zA-Z0-9-~_@./] are allowed and cannot start/end with [./] or consecutive [./]";
-          }
-          return undefined;
+  await telemetryClient.doOperationWithTelemetry<ResultCode>(
+    TelemetryEventName.CreateProject,
+    async (tel, sendTelEvent): Promise<ResultCode> => {
+      return await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Window,
+          cancellable: false,
+          title: "Creating TypeSpec Project...",
         },
-      });
-      if (isWhitespaceStringOrUndefined(projectName)) {
-        logger.info("Creating TypeSpec Project cancelled, project name is blank");
-        return;
-      }
-
-      const selectedEmitters = await selectEmitters(info);
-      if (selectedEmitters === undefined) {
-        logger.info("Creating TypeSpec Project cancelled when selecting emitters.");
-        return;
-      }
-
-      const inputs = await setInputs(info);
-      if (inputs === undefined) {
-        logger.info("Creating TypeSpec Project cancelled when setting inputs.");
-        return;
-      }
-
-      const initTemplateConfig = makeScaffoldingConfig(info.template!, {
-        baseUri: info.baseUrl,
-        name: projectName!,
-        directory: selectedRootFolder,
-        parameters: inputs ?? {},
-        emitters: selectedEmitters,
-      });
-      const initResult = await initProject(initTemplateConfig);
-      if (initResult.code === ResultCode.Cancelled) {
-        logger.info("Creating TypeSpec Project cancelled when initializing project.");
-        return;
-      } else if (initResult.code !== ResultCode.Success) {
-        logger.error(
-          "Failed to create TypeSpec Project. Please check previous logs for details.",
-          [],
-          {
-            showOutput: true,
-            showPopup: true,
-          },
-        );
-        return;
-      }
-
-      const packageJsonPath = joinPaths(selectedRootFolder, "package.json");
-      if (!(await isFile(packageJsonPath))) {
-        logger.warning(
-          "Skip installing dependencies since no package.json is found in the project folder.",
-        );
-      } else {
-        const r = await installDependencies(selectedRootFolder);
-        if (r.code === ResultCode.Cancelled) {
-          logger.info("Installing dependencies cancelled.");
-        } else if (r.code !== ResultCode.Success) {
-          logger.warning(
-            r.details === "skipped"
-              ? "Installing dependencies is skipped. Please check previous log for details"
-              : "Installing dependencies failed. Please check previous logs for details",
-            [],
-            {
-              showOutput: true,
-              showPopup: true,
-            },
+        async (): Promise<ResultCode> => {
+          const selectedRootFolder = await selectFolder(
+            "Select Folder",
+            "Select Project Folder as Root",
           );
-        }
-      }
+          if (!selectedRootFolder) {
+            logger.info("Creating TypeSpec Project cancelled when selecting project root folder.");
+            tel.lastStep = "Select project root folder";
+            return ResultCode.Cancelled;
+          }
 
-      type nextStepChoice = "Add to workspace" | "Open in New Window" | "Ignore";
-      let nextStep: nextStepChoice = "Ignore";
-      const normalizedRootFolder = normalizePath(selectedRootFolder);
-      const isFolderOpenedInWorkspace =
-        vscode.workspace.workspaceFolders?.find(
-          (x) => normalizePath(x.uri.fsPath) === normalizedRootFolder,
-        ) !== undefined;
-      if (isFolderOpenedInWorkspace) {
-        logger.info("Project folder is already opened in workspace.");
-        nextStep = "Ignore";
-      } else {
-        logger.info("Project folder is not opened in workspace, ask user to add or open.");
-        nextStep =
-          (await vscode.window.showInformationMessage<nextStepChoice>(
-            "Project created successfully! What would you like to do next?",
-            "Add to workspace",
-            "Open in New Window",
-          )) ?? "Ignore";
-      }
+          if (
+            !(await checkAndConfirmEmptyFolder(
+              selectedRootFolder,
+              "The folder selected is not empty. Are you sure you want to initialize a new project here?",
+              TITLE,
+            ))
+          ) {
+            logger.info(
+              "Creating TypeSpec Project cancelled when checking whether the project root folder is empty.",
+            );
+            tel.lastStep = "Check empty project root folder";
+            return ResultCode.Cancelled;
+          }
+          const folderName = getBaseFileName(selectedRootFolder);
 
-      const emitterMessage = Object.entries(selectedEmitters)
-        .filter(([_k, e]) => !isWhitespaceStringOrUndefined(e.message))
-        .map(([k, e]) => `\t${k}: \n\t\t${e.message}`)
-        .join("\n");
-      const popupMessage = isWhitespaceStringOrUndefined(emitterMessage)
-        ? "Project created! You can now compile to generate artifacts from your TypeSpec\n"
-        : `Project created! You can now compile to generate artifacts from your TypeSpec. Click the button below to review the message from emitters installed.\n`;
+          const templateInfoMap = await loadInitTemplates(context);
+          if (templateInfoMap.size === 0) {
+            logger.error(
+              "Unexpected Error: No templates loaded. Please check the configuration of InitTemplatesUrls or upgrade @typespec/compiler and try again.",
+              [],
+              {
+                showOutput: true,
+                showPopup: true,
+              },
+            );
+            tel.lastStep = "Load templates";
+            return ResultCode.Fail;
+          }
+          const info = await selectTemplate(templateInfoMap);
+          if (info === undefined) {
+            logger.info("Creating TypeSpec Project cancelled when selecting template.");
+            tel.lastStep = "Select template";
+            return ResultCode.Cancelled;
+          } else {
+            logger.info(`Selected template: ${info.source}.${info.name}`);
+          }
 
-      if (nextStep === "Open in New Window") {
-        // if we are going to open a new window, persist the message to extension state because
-        // openProjectFolder will reinitialize the extension.
-        stateManager.saveStartUpMessage(
-          {
-            popupMessage,
-            detail: emitterMessage,
-            level: isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warn",
-          },
-          selectedRootFolder,
-        );
-        vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(selectedRootFolder), {
-          forceNewWindow: false,
-          forceReuseWindow: true,
-          noRecentEntry: false,
-        });
-      } else {
-        if (nextStep === "Add to workspace") {
-          vscode.workspace.updateWorkspaceFolders(
-            vscode.workspace.workspaceFolders?.length ?? 0,
-            null,
-            {
-              uri: vscode.Uri.file(selectedRootFolder),
+          const validateResult = await validateTemplate(info);
+          if (!validateResult) {
+            logger.info("Creating TypeSpec Project cancelled when validating template.");
+            tel.lastStep = "Validate template";
+            return ResultCode.Cancelled;
+          }
+
+          const projectName = await vscode.window.showInputBox({
+            prompt: "Please input the project name",
+            value: folderName,
+            ignoreFocusOut: true,
+            validateInput: (value) => {
+              if (isWhitespaceStringOrUndefined(value)) {
+                return "Project name cannot be empty.";
+              }
+              // we don't have a full rule for project name. Just have a simple check to avoid some strange name.
+              const regex = /^(?![./])(?!.*[./]{2})[a-zA-Z0-9-~_@./]*[a-zA-Z0-9-~_@]$/;
+              if (!regex.test(value)) {
+                return "Invalid project name. Only [a-zA-Z0-9-~_@./] are allowed and cannot start/end with [./] or consecutive [./]";
+              }
+              return undefined;
             },
-          );
-        }
+          });
+          if (isWhitespaceStringOrUndefined(projectName)) {
+            logger.info("Creating TypeSpec Project cancelled, project name is blank");
+            tel.lastStep = "Input project name";
+            return ResultCode.Cancelled;
+          }
 
-        logger.info(`Creating TypeSpec Project completed successfully in ${selectedRootFolder}.`);
-        // make sure this is the last one to log so that user can find the message easily to review
-        logger.log(
-          isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warn",
-          popupMessage,
-          [emitterMessage],
-          {
-            showPopup: true,
-            popupButtonText: isWhitespaceStringOrUndefined(emitterMessage)
-              ? ""
-              : "View Details in Output",
-          },
-        );
-      }
+          const selectedEmitters = await selectEmitters(info);
+          if (selectedEmitters === undefined) {
+            logger.info("Creating TypeSpec Project cancelled when selecting emitters.");
+            tel.lastStep = "Select emitters";
+            return ResultCode.Cancelled;
+          }
+
+          const inputs = await setInputs(info);
+          if (inputs === undefined) {
+            logger.info("Creating TypeSpec Project cancelled when setting inputs.");
+            tel.lastStep = "Set inputs";
+            return ResultCode.Cancelled;
+          }
+
+          const initTemplateConfig = makeScaffoldingConfig(info.template!, {
+            baseUri: info.baseUrl,
+            name: projectName!,
+            directory: selectedRootFolder,
+            parameters: inputs ?? {},
+            emitters: selectedEmitters,
+          });
+          const initResult = await initProject(initTemplateConfig);
+          if (initResult.code === ResultCode.Cancelled) {
+            logger.info("Creating TypeSpec Project cancelled when initializing project.");
+            tel.lastStep = "Initialize project";
+            return ResultCode.Cancelled;
+          } else if (initResult.code !== ResultCode.Success) {
+            logger.error(
+              "Failed to create TypeSpec Project. Please check previous logs for details.",
+              [],
+              {
+                showOutput: true,
+                showPopup: true,
+              },
+            );
+            tel.lastStep = "Initialize project";
+            return ResultCode.Fail;
+          }
+
+          const packageJsonPath = joinPaths(selectedRootFolder, "package.json");
+          if (!(await isFile(packageJsonPath))) {
+            logger.warning(
+              "Skip installing dependencies since no package.json is found in the project folder.",
+            );
+          } else {
+            const r = await installDependencies(selectedRootFolder);
+            if (r.code === ResultCode.Cancelled) {
+              logger.info("Installing dependencies cancelled.");
+            } else if (r.code !== ResultCode.Success) {
+              logger.warning(
+                r.details === "skipped"
+                  ? "Installing dependencies is skipped. Please check previous log for details"
+                  : "Installing dependencies failed. Please check previous logs for details",
+                [],
+                {
+                  showOutput: true,
+                  showPopup: true,
+                },
+              );
+              if (typeof r === "object" && "stderr" in r && typeof r.stderr === "string") {
+                telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+                  error: r.stderr,
+                });
+              }
+            }
+          }
+
+          type nextStepChoice = "Add to workspace" | "Open in New Window" | "Ignore";
+          let nextStep: nextStepChoice = "Ignore";
+          const normalizedRootFolder = normalizePath(selectedRootFolder);
+          const isFolderOpenedInWorkspace =
+            vscode.workspace.workspaceFolders?.find(
+              (x) => normalizePath(x.uri.fsPath) === normalizedRootFolder,
+            ) !== undefined;
+          if (isFolderOpenedInWorkspace) {
+            logger.info("Project folder is already opened in workspace.");
+            nextStep = "Ignore";
+          } else {
+            logger.info("Project folder is not opened in workspace, ask user to add or open.");
+            nextStep =
+              (await vscode.window.showInformationMessage<nextStepChoice>(
+                "Project created successfully! What would you like to do next?",
+                "Add to workspace",
+                "Open in New Window",
+              )) ?? "Ignore";
+          }
+
+          const emitterMessage = Object.entries(selectedEmitters)
+            .filter(([_k, e]) => !isWhitespaceStringOrUndefined(e.message))
+            .map(([k, e]) => `\t${k}: \n\t\t${e.message}`)
+            .join("\n");
+          const popupMessage = isWhitespaceStringOrUndefined(emitterMessage)
+            ? "Project created! You can now compile to generate artifacts from your TypeSpec\n"
+            : `Project created! You can now compile to generate artifacts from your TypeSpec. Click the button below to review the message from emitters installed.\n`;
+
+          // our extension will be reinitialized if user chooses to open a new window or add to workspace with 0 or 1 folder
+          // so send telemetry explicitly here before the next step
+          tel.lastStep = `Next step: ${nextStep}`;
+          // send in delay mode for "Open in New Window" and "Add to workspace" to avoid telemetry lost when the extension is reinitialized
+          sendTelEvent(ResultCode.Success, nextStep === "Ignore" ? false : true /*delay*/);
+
+          if (nextStep === "Open in New Window") {
+            stateManager.saveStartUpMessage(
+              {
+                popupMessage,
+                detail: emitterMessage,
+                level: isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warn",
+              },
+              selectedRootFolder,
+            );
+            vscode.commands.executeCommand(
+              "vscode.openFolder",
+              vscode.Uri.file(selectedRootFolder),
+              {
+                forceNewWindow: false,
+                forceReuseWindow: true,
+                noRecentEntry: false,
+              },
+            );
+          } else {
+            logger.info(
+              `Creating TypeSpec Project completed successfully in ${selectedRootFolder}.`,
+            );
+            // make sure this is the last one to log so that user can find the message easily to review
+            logger.log(
+              isWhitespaceStringOrUndefined(emitterMessage) ? "info" : "warn",
+              popupMessage,
+              [emitterMessage],
+              {
+                showPopup: true,
+                popupButtonText: isWhitespaceStringOrUndefined(emitterMessage)
+                  ? ""
+                  : "View Details in Output",
+              },
+            );
+
+            if (nextStep === "Add to workspace") {
+              vscode.workspace.updateWorkspaceFolders(
+                vscode.workspace.workspaceFolders?.length ?? 0,
+                null,
+                {
+                  uri: vscode.Uri.file(selectedRootFolder),
+                },
+              );
+            } else {
+              tel.lastStep = "Ignore next step";
+            }
+          }
+          return ResultCode.Success;
+        },
+      );
     },
   );
 }
