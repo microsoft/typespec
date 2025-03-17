@@ -125,6 +125,23 @@ function cleanAllCache() {
 }
 
 export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
+  try {
+    await onEmitMain(context);
+  } catch (error: any) {
+    const errStackStart =
+      "========================================= error stack start ================================================";
+    const errStackEnd =
+      "========================================= error stack end ================================================";
+    const errStack = error.stack ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}` : "";
+    reportDiagnostic(context.program, {
+      code: "unknown-error",
+      target: NoTarget,
+      format: { stack: errStack },
+    });
+  }
+}
+
+async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   // clean all cache to make sure emitter could work in watch mode
   cleanAllCache();
 
@@ -188,26 +205,25 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       }
     }
 
-    try {
-      if (resolvedOptions["use-pyodide"]) {
-        // here we run with pyodide
-        const pyodide = await setupPyodideCall(root);
-        // create the output folder if not exists
-        if (!fs.existsSync(outputDir)) {
-          fs.mkdirSync(outputDir, { recursive: true });
-        }
-        // mount output folder to pyodide
-        pyodide.FS.mkdirTree("/output");
-        pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: outputDir }, "/output");
-        // mount yaml file to pyodide
-        pyodide.FS.mkdirTree("/yaml");
-        pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: path.dirname(yamlPath) }, "/yaml");
-        const globals = pyodide.toPy({
-          outputFolder: "/output",
-          yamlFile: `/yaml/${path.basename(yamlPath)}`,
-          commandArgs,
-        });
-        const pythonCode = `
+    if (resolvedOptions["use-pyodide"]) {
+      // here we run with pyodide
+      const pyodide = await setupPyodideCall(root);
+      // create the output folder if not exists
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      // mount output folder to pyodide
+      pyodide.FS.mkdirTree("/output");
+      pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: outputDir }, "/output");
+      // mount yaml file to pyodide
+      pyodide.FS.mkdirTree("/yaml");
+      pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: path.dirname(yamlPath) }, "/yaml");
+      const globals = pyodide.toPy({
+        outputFolder: "/output",
+        yamlFile: `/yaml/${path.basename(yamlPath)}`,
+        commandArgs,
+      });
+      const pythonCode = `
           async def main():
             import warnings
             with warnings.catch_warnings():
@@ -217,39 +233,27 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
             black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
       
           await main()`;
-        await pyodide.runPythonAsync(pythonCode, { globals });
+      await pyodide.runPythonAsync(pythonCode, { globals });
+    } else {
+      // here we run with native python
+      let venvPath = path.join(root, "venv");
+      if (fs.existsSync(path.join(venvPath, "bin"))) {
+        venvPath = path.join(venvPath, "bin", "python");
+      } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
+        venvPath = path.join(venvPath, "Scripts", "python.exe");
       } else {
-        // here we run with native python
-        let venvPath = path.join(root, "venv");
-        if (fs.existsSync(path.join(venvPath, "bin"))) {
-          venvPath = path.join(venvPath, "bin", "python");
-        } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
-          venvPath = path.join(venvPath, "Scripts", "python.exe");
-        } else {
-          reportDiagnostic(program, {
-            code: "pyodide-flag-conflict",
-            target: NoTarget,
-          });
-        }
-        commandArgs["output-folder"] = outputDir;
-        commandArgs["tsp-file"] = yamlPath;
-        const commandFlags = Object.entries(commandArgs)
-          .map(([key, value]) => `--${key}=${value}`)
-          .join(" ");
-        const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
-        execSync(command, { stdio: [process.stdin, process.stdout] });
+        reportDiagnostic(program, {
+          code: "pyodide-flag-conflict",
+          target: NoTarget,
+        });
       }
-    } catch (error: any) {
-      const errStackStart =
-        "========================================= error stack start ================================================";
-      const errStackEnd =
-        "========================================= error stack end ================================================";
-      const errStack = error.stack ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}` : "";
-      reportDiagnostic(program, {
-        code: "unknown-error",
-        target: NoTarget,
-        format: { stack: errStack },
-      });
+      commandArgs["output-folder"] = outputDir;
+      commandArgs["tsp-file"] = yamlPath;
+      const commandFlags = Object.entries(commandArgs)
+        .map(([key, value]) => `--${key}=${value}`)
+        .join(" ");
+      const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
+      execSync(command, { stdio: [process.stdin, process.stdout] });
     }
   }
 }

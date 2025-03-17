@@ -89,10 +89,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken]);
 
             MethodBodyStatement[] methodBody;
-            CollectionResultDefinition? collection = null;
+            TypeProvider? collection = null;
             if (_isPaging)
             {
-                collection = new CollectionResultDefinition(Client, Operation, responseBodyType, isAsync);
+                collection = ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, Operation, responseBodyType, isAsync);
                 methodBody = GetPagingMethodBody(collection, ConvenienceMethodParameters, true);
             }
             else if (responseBodyType is null)
@@ -439,11 +439,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 $"The response returned from the service.",
                 parameters);
 
-            CollectionResultDefinition? collection = null;
+            TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;
             if (_isPaging)
             {
-                collection = new CollectionResultDefinition(Client, Operation, null, isAsync);
+                collection = ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, Operation, null, isAsync);
                 methodBody = GetPagingMethodBody(collection, parameters, false);
             }
             else
@@ -478,7 +478,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private MethodBodyStatement[] GetPagingMethodBody(
-            CollectionResultDefinition collection,
+            TypeProvider collection,
             IReadOnlyList<ParameterProvider> parameters,
             bool isConvenience)
         {

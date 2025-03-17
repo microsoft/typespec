@@ -137,7 +137,7 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         default:

@@ -109,6 +109,41 @@ extern dec service(target: Namespace, options?: valueof ServiceOptions);
 extern dec error(target: Model);
 
 /**
+ * Applies a media type hint to a TypeSpec type. Emitters and libraries may choose to use this hint to determine how a
+ * type should be serialized. For example, the `@typespec/http` library will use the media type hint of the response
+ * body type as a default `Content-Type` if one is not explicitly specified in the operation.
+ *
+ * Media types (also known as MIME types) are defined by RFC 6838. The media type hint should be a valid media type
+ * string as defined by the RFC, but the decorator does not enforce or validate this constraint.
+ *
+ * Notes: the applied media type is _only_ a hint. It may be overridden or not used at all. Media type hints are
+ * inherited by subtypes. If a media type hint is applied to a model, it will be inherited by all other models that
+ * `extend` it unless they delcare their own media type hint.
+ *
+ * @param mediaType The media type hint to apply to the target type.
+ *
+ * @example create a model that serializes as XML by default
+ *
+ * ```tsp
+ * @mediaTypeHint("application/xml")
+ * model Example {
+ *   @visibility(Lifecycle.Read)
+ *   id: string;
+ *
+ *   name: string;
+ * }
+ * ```
+ */
+extern dec mediaTypeHint(target: Model | Scalar | Enum | Union, mediaType: valueof string);
+
+// Cannot apply this to the scalar itself. Needs to be applied here so that we don't crash nostdlib scenarios
+@@mediaTypeHint(TypeSpec.bytes, "application/octet-stream");
+
+// @@mediaTypeHint(TypeSpec.string "text/plain") -- This is hardcoded in the compiler to avoid circularity
+// between the initialization of the string scalar and the `valueof string` required to call the
+// `mediaTypeHint` decorator.
+
+/**
  * Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
  * This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
  * The format names are open ended and are left to emitter to interpret.

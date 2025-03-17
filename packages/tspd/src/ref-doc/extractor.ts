@@ -5,7 +5,6 @@ import {
   Decorator,
   Diagnostic,
   DocContent,
-  DocUnknownTagNode,
   Enum,
   EnumMember,
   getDeprecated,
@@ -33,13 +32,13 @@ import {
   resolveLinterDefinition,
   resolvePath,
   Scalar,
-  SyntaxKind,
   TemplatedType,
   Type,
   TypeSpecLibrary,
   Union,
   type PackageJson,
 } from "@typespec/compiler";
+import { SyntaxKind, type DocUnknownTagNode } from "@typespec/compiler/ast";
 import { readFile } from "fs/promises";
 import { pathToFileURL } from "url";
 import { reportDiagnostic } from "./lib.js";

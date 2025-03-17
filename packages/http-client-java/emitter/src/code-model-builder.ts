@@ -174,7 +174,6 @@ export class CodeModelBuilder {
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
     this.processSchemaImpl(type, name),
   );
-  readonly typeUnionRefCache = new Map<Type, Union | null | undefined>(); // Union means it ref a Union type, null means it does not ref any Union, undefined means type visited but not completed
 
   // current apiVersion name to generate code
   private apiVersion: string | undefined;
