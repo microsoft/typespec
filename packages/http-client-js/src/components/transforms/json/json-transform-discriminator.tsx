@@ -1,14 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {
-  DiscriminatedUnion,
-  DiscriminatedUnionLegacy,
-  Discriminator,
-  getDiscriminatedUnion,
-  ignoreDiagnostics,
-  Model,
-  Union,
-} from "@typespec/compiler";
+import { Discriminator, Model, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { JsonTransform } from "./json-transform.jsx";
 
@@ -20,17 +12,11 @@ export interface JsonTransformDiscriminatorProps {
 }
 
 export function JsonTransformDiscriminator(props: JsonTransformDiscriminatorProps) {
-  let discriminatedUnion: DiscriminatedUnion | DiscriminatedUnionLegacy | undefined = $.union.is(
-    props.type,
-  )
-    ? $.type.getDiscriminatedUnion(props.type)
-    : undefined;
+  const discriminatedUnion = $.model.is(props.type)
+    ? $.model.getDiscriminatedUnion(props.type)
+    : $.union.getDiscriminatedUnion(props.type);
 
-  let propertyName: string | undefined = discriminatedUnion?.options.discriminatorPropertyName;
-  if (!discriminatedUnion && props.discriminator) {
-    discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(props.type, props.discriminator));
-    propertyName = props.discriminator.propertyName;
-  }
+  const propertyName = props.discriminator.propertyName;
 
   if (!discriminatedUnion || !propertyName) {
     return ay.code`${props.itemRef}`;

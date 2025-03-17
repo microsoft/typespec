@@ -35,6 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public static InputPrimitiveType Int32 { get; } = new(InputPrimitiveTypeKind.Int32, "int32", "TypeSpec.int32");
         public static InputPrimitiveType Int64 { get; } = new(InputPrimitiveTypeKind.Int64, "int64", "TypeSpec.int64");
         public static InputPrimitiveType String { get; } = new(InputPrimitiveTypeKind.String, "string", "TypeSpec.string");
+        public static InputPrimitiveType Url { get; } = new(InputPrimitiveTypeKind.Url, "url", "TypeSpec.url");
         public static InputPrimitiveType PlainTime { get; } = new(InputPrimitiveTypeKind.PlainTime, "plainTime", "TypeSpec.plainTime");
         public static InputPrimitiveType Any { get; } = new(InputPrimitiveTypeKind.Unknown, "unknown", string.Empty);
 

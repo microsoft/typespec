@@ -13,7 +13,7 @@ import {
   typespecTypeToJson,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { setStatusCode } from "@typespec/http";
+import * as http from "@typespec/http";
 import {
   DefaultResponseDecorator,
   ExtensionDecorator,
@@ -118,8 +118,7 @@ export const $defaultResponse: DefaultResponseDecorator = (
   context: DecoratorContext,
   entity: Model,
 ) => {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  setStatusCode(context.program, entity, ["*"]);
+  (http as any).setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 };
 

@@ -14,19 +14,14 @@ namespace SamplePlugin
     {
         protected override MethodProvider? VisitMethod(MethodProvider method)
         {
-            if (method is not ScmMethodProvider)
-            {
-                return method;
-            }
-
-            Emitter.Instance.Info($"Visiting method {method.Signature.Name} in type {method.EnclosingType.Type}");
+            SampleCodeModelPlugin.Instance.Emitter.Info($"Visiting method {method.Signature.Name} in type {method.EnclosingType.Type}");
             method.Signature.Update(name: $"Foo{method.Signature.Name}");
             return method;
         }
 
         protected override PropertyProvider? PreVisitProperty(InputModelProperty property, PropertyProvider? propertyProvider)
         {
-            Emitter.Instance.Info($"PreVisiting property {property.Name} in model {property.EnclosingType?.Name}");
+            SampleCodeModelPlugin.Instance.Emitter.Info($"PreVisiting property {property.Name} in model {property.EnclosingType?.Name}");
             if (propertyProvider is not null)
             {
                 return new SamplePluginPropertyProvider(property, propertyProvider.EnclosingType);
@@ -38,7 +33,7 @@ namespace SamplePlugin
             TypeProvider enclosingType,
             MethodProviderCollection? methodProvider)
         {
-            Emitter.Instance.Info($"Visiting methodProviderCollection for operation {operation.Path} in type {enclosingType.Type.Name}");
+            SampleCodeModelPlugin.Instance.Emitter.Info($"Visiting methodProviderCollection for operation {operation.Path} in type {enclosingType.Type.Name}");
             return new SamplePluginMethodProviderCollection(operation, enclosingType);
         }
     }

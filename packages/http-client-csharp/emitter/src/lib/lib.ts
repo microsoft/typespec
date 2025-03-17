@@ -96,6 +96,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       default: paramMessage`Convenience method is not supported for PATCH method, it will be turned off. Please set the '@convenientAPI' to false for operation ${"methodCrossLanguageDefinitionId"}.`,
     },
   },
+  "unsupported-continuation-location": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unsupported continuation location for operation ${"crossLanguageDefinitionId"}.`,
+    },
+  },
 };
 
 const $lib = createTypeSpecLibrary({

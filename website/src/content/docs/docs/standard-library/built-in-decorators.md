@@ -134,7 +134,7 @@ Specify the property to be used to discriminate this type.
 
 #### Target
 
-`Model | Union`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
@@ -376,7 +376,7 @@ The format names are open ended and are left to emitter to interpret.
 
 #### Target
 
-`string | bytes | ModelProperty`
+`string | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
@@ -650,6 +650,46 @@ value.
 ```typespec
 @maxValueExclusive(50)
 scalar distance is float64;
+```
+
+
+### `@mediaTypeHint` {#@mediaTypeHint}
+
+Applies a media type hint to a TypeSpec type. Emitters and libraries may choose to use this hint to determine how a
+type should be serialized. For example, the `@typespec/http` library will use the media type hint of the response
+body type as a default `Content-Type` if one is not explicitly specified in the operation.
+
+Media types (also known as MIME types) are defined by RFC 6838. The media type hint should be a valid media type
+string as defined by the RFC, but the decorator does not enforce or validate this constraint.
+
+Notes: the applied media type is _only_ a hint. It may be overridden or not used at all. Media type hints are
+inherited by subtypes. If a media type hint is applied to a model, it will be inherited by all other models that
+`extend` it unless they delcare their own media type hint.
+```typespec
+@mediaTypeHint(mediaType: valueof string)
+```
+
+#### Target
+
+`Model | Scalar | Enum | Union`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| mediaType | [valueof `string`](#string) | The media type hint to apply to the target type. |
+
+#### Examples
+##### create a model that serializes as XML by default
+
+
+```tsp
+@mediaTypeHint("application/xml")
+model Example {
+  @visibility(Lifecycle.Read)
+  id: string;
+
+  name: string;
+}
 ```
 
 

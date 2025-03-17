@@ -10,7 +10,6 @@ packages:
   - "@typespec/http-client"
   - "@typespec/http-server-csharp"
   - "@typespec/http-server-js"
-  - "@typespec/http-specs"
   - "@typespec/http"
   - "@typespec/internal-build-utils"
   - "@typespec/json-schema"

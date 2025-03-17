@@ -126,7 +126,9 @@ async function resolveTypeSpecBundleDefinition(
 
   const exports = pkg.exports
     ? Object.fromEntries(
-        Object.entries(pkg.exports).filter(([k, v]) => k !== "." && k !== "./testing"),
+        Object.entries(pkg.exports).filter(
+          ([k, v]) => k !== "." && k !== "./testing" && k !== "./internals",
+        ),
       )
     : {};
 

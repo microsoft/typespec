@@ -225,7 +225,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(responses, {
       "200": {
         content: {
-          "application/json": {
+          "text/plain": {
             schema: {
               anyOf: [
                 {
@@ -271,7 +271,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(results.paths["/1"].post.requestBody, {
       required: true,
       content: {
-        "application/json": {
+        "text/plain": {
           schema: {
             anyOf: [
               {
@@ -290,7 +290,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(results.paths["/2"].post.requestBody, {
       required: true,
       content: {
-        "application/json": {
+        "text/plain": {
           schema: {
             anyOf: [
               {
@@ -445,7 +445,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(requestBody, {
       required: true,
       content: {
-        "application/json": {
+        "text/plain": {
           schema: {
             anyOf: [
               {
@@ -464,7 +464,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(responses, {
       "200": {
         content: {
-          "application/json": {
+          "text/plain": {
             schema: {
               anyOf: [
                 {

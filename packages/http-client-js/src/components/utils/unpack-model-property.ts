@@ -18,11 +18,22 @@ export function unpackProperty(modelProperty: ModelProperty): Type {
     const nullVariant = variants.find((v) => isNullType(v.type));
     if (variants.length === 2 && nullVariant) {
       // When the union has only null and another variant unpack the non-null type
-      return variants.find((v) => v !== nullVariant)!.type;
+      const nonNullVariant = variants.find((v) => v !== nullVariant)!.type;
+      // Recursively unpack if the non-null variant is a ModelProperty
+      return $.modelProperty.is(nonNullVariant) ? unpackProperty(nonNullVariant) : nonNullVariant;
     }
 
     if (variants.length > 2 && nullVariant) {
-      const nonNullVariants = variants.filter((v) => v !== nullVariant);
+      const nonNullVariants = variants
+        .filter((v) => v !== nullVariant)
+        .map((v) => {
+          // Recursively unpack each variant if it's a ModelProperty
+          const variantType = v.type;
+          return {
+            ...v,
+            type: $.modelProperty.is(variantType) ? unpackProperty(variantType) : variantType,
+          };
+        });
       return $.union.create({ name: type.name, variants: nonNullVariants });
     }
   }

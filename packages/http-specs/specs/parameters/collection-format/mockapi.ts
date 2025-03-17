@@ -46,18 +46,6 @@ Scenarios.Parameters_CollectionFormat_Query_ssv = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-Scenarios.Parameters_CollectionFormat_Query_tsv = passOnSuccess({
-  uri: `/parameters/collection-format/query/tsv`,
-  method: "get",
-  request: {
-    params: { colors: colors.join("\t") },
-  },
-  response: {
-    status: 204,
-  },
-  kind: "MockApiDefinition",
-});
-
 Scenarios.Parameters_CollectionFormat_Query_pipes = passOnSuccess({
   uri: `/parameters/collection-format/query/pipes`,
   method: "get",

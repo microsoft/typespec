@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -66,6 +66,7 @@
   },
   "dependencies": {
     "js-yaml": "~4.1.0",
+    "marked": "^15.0.6",
     "pyodide": "0.26.2",
     "semver": "~7.6.2",
     "tsx": "~4.19.1"

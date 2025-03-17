@@ -1,5 +1,21 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.12
+
+### Features
+
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+- [#6201](https://github.com/microsoft/typespec/pull/6201) Add tests for basic jsonl streaming.
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6286](https://github.com/microsoft/typespec/pull/6286) Replace @discriminator union with @discriminated
+
+
 ## 0.1.0-alpha.11
 
 ### Features

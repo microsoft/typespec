@@ -16,6 +16,7 @@ import {
   $maxLength,
   $maxValue,
   $maxValueExclusive,
+  $mediaTypeHint,
   $minItems,
   $minLength,
   $minValue,
@@ -64,6 +65,7 @@ import {
 export const $decorators = {
   TypeSpec: {
     encode: $encode,
+    mediaTypeHint: $mediaTypeHint,
     doc: $doc,
     withOptionalProperties: $withOptionalProperties,
     withUpdateableProperties: $withUpdateableProperties,
@@ -121,5 +123,4 @@ export const $decorators = {
   } satisfies TypeSpecDecorators,
 };
 
-// Projection function exports
 export const namespace = "TypeSpec";

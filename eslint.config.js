@@ -72,12 +72,12 @@ const allFilesConfig = tsEslint.config({
  */
 export function getTypeScriptProjectRules(root) {
   return tsEslint.config({
-    files: ["**/packages/*/src/**/*.ts", "**/packages/*/src/**/*.tsx"],
-    ignores: [
-      "**/packages/http-client-csharp/**/*",
-      "**/packages/http-client-java/**/*",
-      "**/packages/http-client-python/**/*",
-    ], // Ignore isolated modules
+    files: [
+      "**/packages/*/src/**/*.ts",
+      "**/packages/*/src/**/*.tsx",
+      "**/packages/*/emitter/src/**/*.ts",
+    ],
+    ignores: ["**/packages/http-client-csharp/**/*", "**/packages/http-client-python/**/*"], // Ignore isolated modules
     plugins: {},
     languageOptions: {
       parserOptions: {
@@ -152,6 +152,7 @@ export default tsEslint.config(
       "packages/http-client-js/sample/output/**/*", // Ignore the generated http client
       "**/venv/**/*", // Ignore python virtual env
       "**/.vscode-test-web/**/*", // Ignore VSCode test web project
+      "packages/typespec-vscode/swagger-ui/swagger-ui*", // Ignore swagger-ui-dist files
       // TODO: enable
       "**/.scripts/**/*",
       "eng/tsp-core/scripts/**/*",

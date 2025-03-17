@@ -18,5 +18,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static ScopedApi<bool> IsError(this HttpResponseApi pipelineMessage)
             => pipelineMessage.Property(nameof(HttpResponseApi.IsError)).As<bool>();
+
+        public static ScopedApi<bool> TryGetHeader(
+            this ScopedApi<HttpResponseApi> pipelineMessage,
+            string name,
+            out ScopedApi<string>? value)
+        {
+            return pipelineMessage.TryGetHeader(name, out value);
+        }
     }
 }

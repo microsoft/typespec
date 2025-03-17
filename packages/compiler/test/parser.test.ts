@@ -21,6 +21,34 @@ import {
 import { dumpAST } from "./ast-test-utils.js";
 
 describe("compiler: parser", () => {
+  describe("future reserved keywords", () => {
+    const reserved = ["statemachine"];
+    // Allowed as members
+    parseEach(reserved.map((x) => `model Foo { ${x}: string}`));
+    parseEach(reserved.map((x) => `enum Foo { ${x} }`));
+    parseEach(reserved.map((x) => `union Foo { ${x}: string }`));
+    parseEach(reserved.map((x) => `const a = #{ ${x}: string };`));
+
+    // Allowed in decorator calls
+    parseEach(reserved.map((x) => `@${x} model Foo {}`));
+
+    // Allowed in member reference
+    parseEach(reserved.map((x) => `alias T = Base.${x};`));
+
+    // Error when used in declaration name
+    parseErrorEach(
+      reserved.map((x) => [`model ${x} {}`, [{ message: `${x} is a reserved keyword` }]]),
+    );
+
+    // Error when used as base or identifier reference
+    parseErrorEach(
+      reserved.map((x) => [`alias T = ${x};`, [{ message: `${x} is a reserved keyword` }]]),
+    );
+    parseErrorEach(
+      reserved.map((x) => [`alias T = ${x}.prop;`, [{ message: `${x} is a reserved keyword` }]]),
+    );
+  });
+
   describe("import statements", () => {
     parseEach(['import "x";']);
 
@@ -905,98 +933,6 @@ describe("compiler: parser", () => {
         ],
       ],
     ]);
-  });
-
-  describe("projections", () => {
-    describe("selectors", () => {
-      const selectors = ["model", "op", "interface", "union", "scalar", "someId"];
-      const codes = selectors.map((s) => `projection ${s}#tag { }`);
-      parseEach(codes);
-    });
-
-    describe("direction", () => {
-      parseEach([`projection model#tag { to { } }`, `projection model #tag { from { } }`]);
-    });
-
-    describe("projection parameters", () => {
-      parseEach([
-        `projection model#v { to(version) { } }`,
-        `projection model#foo{ from(bar, baz) { } }`,
-        `projection model#v { pre to(version) { } }`,
-        `projection model#foo{ pre from(bar, baz) { } }`,
-      ]);
-    });
-    describe("projection expressions", () => {
-      const exprs = [
-        `x || y`,
-        `x > 10 || y < 20`,
-        `x || y || z`,
-        `x && y`,
-        `x > 10 && y < 20`,
-        `x && y && z`,
-        `x && y || z && q`,
-        `x || y && z || q`,
-        `x * y`,
-        `x + y`,
-        `x / y`,
-        `x - y`,
-        `x + y * z / a + b - c`,
-        `x <= y`,
-        `x >= y`,
-        `x > y`,
-        `x < y`,
-        `!x`,
-        `x()`,
-        `x(a, b, c)`,
-        `x.y`,
-        `x().y`,
-        `x().y()`,
-        `x()()`,
-        `x()(T)`,
-        `x(T)()`,
-        `x(T).y()(T)`,
-        `self`,
-        `if x { }`,
-        `if x { a; b; } else { c; }`,
-        `if x > 1 { }`,
-        `if if x > 1 { a; } else { b; } { c; } else { d; }`,
-        `(x) => { x + 1; }`,
-        `(x) => { if x { x; } else { y; }; }`,
-        `1`,
-        `"string"`,
-        `{ x: 1 }`,
-        `{ x: if 1 { Foo; } else { Bar; } }`,
-        `[a, b]`,
-        `[]`,
-        `(a)`,
-        `(a + 1)`,
-      ];
-      const codes = exprs.map((exp) => `projection foo#tag { to { ${exp}; } }`);
-      parseEach(codes);
-    });
-
-    describe("recovery", () => {
-      parseErrorEach([
-        [
-          `projection `,
-          [/identifier, 'model', 'op', 'interface', 'union', 'enum', or 'scalar' expected./],
-        ],
-        [`projection x `, [/'#' expected/]],
-        [`projection x#`, [/Identifier expected/]],
-        [`projection x#f`, [/'{' expected/]],
-        [`projection x#f {`, [/'}' expected/]],
-        [`projection x#f { asdf`, [/from or to expected/]],
-        [`projection x#f { pre asdf`, [/from or to expected/]],
-        [`projection x#f { to (`, [/'\)' expected/]],
-        [`projection x#f { to @`, [/'{' expected/]],
-        [`projection x#f { to {`, [/} expected/]],
-        [`projection x#f { to {}`, [/'}' expected/]],
-        [`projection x#f { pre to (`, [/'\)' expected/]],
-        [`projection x#f { pre to @`, [/'{' expected/]],
-        [`projection x#f { pre to {`, [/} expected/]],
-        [`projection x#f { pre to {}`, [/'}' expected/]],
-      ]);
-    });
   });
 
   describe("invalid statement", () => {
