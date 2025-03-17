@@ -9,12 +9,12 @@ using Microsoft.CodeAnalysis;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel
 {
-    [Export(typeof(CodeModelPlugin))]
-    [ExportMetadata("PluginName", nameof(ScmCodeModelPlugin))]
-    public class ScmCodeModelPlugin : CodeModelPlugin
+    [Export(typeof(CodeModelGenerator))]
+    [ExportMetadata(GeneratorMetadataName, nameof(ScmCodeModelGenerator))]
+    public class ScmCodeModelGenerator : CodeModelGenerator
     {
-        private static ScmCodeModelPlugin? _instance;
-        internal static ScmCodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("ScmCodeModelPlugin is not loaded.");
+        private static ScmCodeModelGenerator? _instance;
+        internal static ScmCodeModelGenerator Instance => _instance ?? throw new InvalidOperationException("ScmCodeModelGenerator is not loaded.");
 
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         public override ScmTypeFactory TypeFactory { get; }
 
         [ImportingConstructor]
-        public ScmCodeModelPlugin(GeneratorContext context)
+        public ScmCodeModelGenerator(GeneratorContext context)
             : base(context)
         {
             TypeFactory = new ScmTypeFactory();

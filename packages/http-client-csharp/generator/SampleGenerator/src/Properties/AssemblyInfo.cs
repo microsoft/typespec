@@ -3,4 +3,4 @@
 
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("SamplePlugin.Tests")]
+[assembly: InternalsVisibleTo("SampleGenerator.Tests")]

@@ -6,15 +6,15 @@ using System.Reflection;
 
 namespace Microsoft.TypeSpec.Generator.Perf
 {
-    internal static class PluginInitializer
+    internal static class GeneratorInitializer
     {
         public static void Initialize()
         {
-            PluginHandler pluginHandler = new PluginHandler();
-            pluginHandler.LoadPlugin(new CommandLineOptions
+            GeneratorHandler generatorHandler = new GeneratorHandler();
+            generatorHandler.LoadGenerator(new CommandLineOptions
             {
                 OutputDirectory = Path.Combine(Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName, "Projects", "Model"),
-                PluginName = "CodeModelPlugin"
+                GeneratorName = "CodeModelGenerator"
             });
         }
     }

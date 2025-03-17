@@ -5,11 +5,11 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 
-namespace SamplePlugin
+namespace SampleGenerator
 {
-    public class SamplePluginPropertyProvider : PropertyProvider
+    public class SampleGeneratorPropertyProvider : PropertyProvider
     {
-        public SamplePluginPropertyProvider(InputModelProperty inputProperty, TypeProvider enclosingType) : base(inputProperty, enclosingType)
+        public SampleGeneratorPropertyProvider(InputModelProperty inputProperty, TypeProvider enclosingType) : base(inputProperty, enclosingType)
         {
         }
 

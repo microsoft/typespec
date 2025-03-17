@@ -38,7 +38,7 @@ function Get-TspCommand {
     $command += " --option @typespec/http-client-csharp.emitter-output-dir=$generationDir"
     $command += " --option @typespec/http-client-csharp.save-inputs=true"
     if ($generateStub) {
-        $command += " --option @typespec/http-client-csharp.plugin-name=StubLibraryPlugin"
+        $command += " --option @typespec/http-client-csharp.generator-name=StubLibraryGenerator"
     }
 
     if ($libraryNameOverride) {

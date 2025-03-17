@@ -12,11 +12,11 @@ using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
-namespace SamplePlugin.Providers
+namespace SampleGenerator.Providers
 {
-    internal class SamplePluginMethodProviderCollection : ScmMethodProviderCollection
+    internal class SampleGeneratorMethodProviderCollection : ScmMethodProviderCollection
     {
-        public SamplePluginMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
+        public SampleGeneratorMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
         {
         }
