@@ -1,4 +1,18 @@
 import {
+  ArrayBuilder,
+  AssetEmitter,
+  Context,
+  Declaration,
+  EmitEntity,
+  EmitterOutput,
+  ObjectBuilder,
+  Placeholder,
+  ReferenceCycle,
+  Scope,
+  SourceFileScope,
+  TypeEmitter,
+} from "@typespec/asset-emitter";
+import {
   BooleanLiteral,
   DiscriminatedUnion,
   Enum,
@@ -40,20 +54,6 @@ import {
   isSecret,
   resolveEncodedName,
 } from "@typespec/compiler";
-import {
-  ArrayBuilder,
-  AssetEmitter,
-  Context,
-  Declaration,
-  EmitEntity,
-  EmitterOutput,
-  ObjectBuilder,
-  Placeholder,
-  ReferenceCycle,
-  Scope,
-  SourceFileScope,
-  TypeEmitter,
-} from "@typespec/compiler/emitter-framework";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {

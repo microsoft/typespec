@@ -1,17 +1,23 @@
+import {
+  type Model,
+  type ModelProperty,
+  type Program,
+  type Type,
+  getTypeName,
+} from "@typespec/compiler";
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import {
   ArrayBuilder,
-  Context,
-  EmitEntity,
-  EmitterOutput,
+  type Context,
+  type EmitEntity,
+  type EmitterOutput,
   ObjectBuilder,
   ReferenceCycle,
-  Scope,
+  type Scope,
   TypeEmitter,
   createAssetEmitter,
-} from "../../src/emitter-framework/index.js";
-import { Model, ModelProperty, Program, Type, getTypeName } from "../../src/index.js";
+} from "../src/index.js";
 import { getHostForTypeSpecFile } from "./host.js";
 
 describe("compiler: emitter-framework: circular references", () => {

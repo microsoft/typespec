@@ -1,3 +1,4 @@
+import { AssetEmitter, EmitEntity } from "@typespec/asset-emitter";
 import {
   compilerAssert,
   createDiagnosticCollector,
@@ -41,7 +42,6 @@ import {
   Type,
   TypeNameOptions,
 } from "@typespec/compiler";
-import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
 import {
   unsafe_mutateSubgraphWithNamespace,
   unsafe_MutatorWithNamespace,
