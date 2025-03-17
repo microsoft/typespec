@@ -50,7 +50,8 @@
     "lint:fix": "eslint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/openapi3/reference",
     "regen-specs": "cross-env RECORD=true vitest run",
-    "gen-version": "node scripts/generate-version.js"
+    "gen-version": "node scripts/generate-version.js",
+    "api-extractor": "api-extractor run --local --verbose"
   },
   "files": [
     "lib/*.tsp",
