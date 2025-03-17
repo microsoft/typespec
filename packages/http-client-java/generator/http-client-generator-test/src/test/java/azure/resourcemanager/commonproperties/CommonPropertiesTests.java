@@ -11,10 +11,9 @@ import azure.resourcemanager.commonproperties.models.ManagedServiceIdentity;
 import azure.resourcemanager.commonproperties.models.ManagedServiceIdentityType;
 import azure.resourcemanager.commonproperties.models.UserAssignedIdentity;
 import com.azure.core.management.Region;
+import com.azure.core.management.exception.ManagementException;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.azure.core.management.exception.ManagementException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
@@ -69,7 +68,8 @@ public class CommonPropertiesTests {
     public void testError() {
         ApiErrorException apiErrorException = null;
         try {
-            manager.errors().define("confidential")
+            manager.errors()
+                .define("confidential")
                 .withRegion(Region.US_EAST)
                 .withExistingResourceGroup("test-rg")
                 .withProperties(new ConfidentialResourceProperties().withUsername("00"))
