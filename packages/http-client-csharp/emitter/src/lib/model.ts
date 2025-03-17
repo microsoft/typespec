@@ -6,22 +6,22 @@ import {
   getClientType,
   isAzureCoreModel,
 } from "@azure-tools/typespec-client-generator-core";
-import { Operation, Type } from "@typespec/compiler";
+import { Operation, Type, Value } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputType } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./type-converter.js";
 
-export function getDefaultValue(type: Type): any {
-  switch (type.kind) {
-    case "String":
-      return type.value;
-    case "Number":
-      return type.value;
-    case "Boolean":
-      return type.value;
-    case "Tuple":
-      return type.values.map(getDefaultValue);
+export function getDefaultValue(value: Value): any {
+  switch (value.valueKind) {
+    case "StringValue":
+      return value.value;
+    case "NumericValue":
+      return value.value;
+    case "BooleanValue":
+      return value.value;
+    case "ArrayValue":
+      return value.values.map(getDefaultValue);
     default:
       return undefined;
   }

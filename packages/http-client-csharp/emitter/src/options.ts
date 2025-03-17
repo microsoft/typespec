@@ -60,6 +60,20 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
     "plugin-name": { type: "string", nullable: true },
     "emitter-extension-path": { type: "string", nullable: true },
     "update-code-model": { type: "object", nullable: true },
+    "namespace": { type: "string", nullable: true },
+    "license": {
+      type: "object",
+      additionalProperties: false,
+      nullable: true,
+      required: ["name"],
+      properties: {
+        name: { type: "string", nullable: false },
+        company: { type: "string", nullable: true },
+        link: { type: "string", nullable: true },
+        header: { type: "string", nullable: true },
+        description: { type: "string", nullable: true },
+      }
+    }
   },
   required: [],
 };

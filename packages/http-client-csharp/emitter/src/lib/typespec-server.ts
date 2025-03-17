@@ -29,7 +29,7 @@ export function resolveServers(
     for (const [name, prop] of server.parameters) {
       const isEndpoint: boolean = endpoint === `{${name}}`;
       let defaultValue: InputConstant | undefined = undefined;
-      const value = prop.default ? getDefaultValue(prop.default) : "";
+      const value = prop.defaultValue ? getDefaultValue(prop.defaultValue) : "";
       const inputType: InputType = isEndpoint
         ? {
             kind: "url",
