@@ -18,38 +18,44 @@ export interface EmitterOptions {
 
 export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
-  additionalProperties: true,
   properties: {
+    namespace: {
+      type: "string",
+      nullable: true,
+      description:
+        "Java package/namespace. If not provided, emitter would use package name converted from TypeSpec namespace.",
+    },
     "dev-options": {
       type: "object",
+      description: "Developer options for http-client-java emitter.",
       properties: {
         "generate-code-model": {
           type: "boolean",
-          nullable: true,
           description: "Generate intermittent 'code-model.yaml' file in output directory.",
+          nullable: true,
         },
         debug: {
           type: "boolean",
-          nullable: true,
           description: "Enable Java remote debug on port 5005.",
+          nullable: true,
         },
         loglevel: {
           type: "string",
+          description: "Log level for Java logging. Default is 'warn'.",
           nullable: true,
           enum: ["off", "debug", "info", "warn", "error"],
-          description: "Log level for Java logging. Default is 'warn'.",
         },
         "java-temp-dir": {
           type: "string",
-          nullable: true,
           description: "Temporary working directory for Java code generator.",
+          nullable: true,
         },
-        required: [],
       },
-      additionalProperties: false,
       nullable: true,
-      description: "Developer options for http-client-java emitter.",
+      additionalProperties: false,
+      required: [],
     },
   },
+  additionalProperties: false,
   required: [],
 };
