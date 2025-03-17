@@ -80,9 +80,10 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
     };
     program.reportDiagnostics(sdkContext.diagnostics);
 
-    const root = createModel(sdkContext);
+    let root = createModel(sdkContext);
 
     if (root) {
+      root = options["update-code-model"](root);
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {

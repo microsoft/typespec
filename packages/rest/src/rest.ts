@@ -13,21 +13,23 @@ import {
 } from "@typespec/compiler";
 import {
   addQueryParamsToUriTemplate,
-  DefaultRouteProducer,
   getOperationParameters,
   getOperationVerb,
   getRoutePath,
-  getRouteProducer,
   getUriTemplatePathParam,
   HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
   HttpVerb,
   joinPathSegments,
-  RouteOptions,
-  RouteProducerResult,
-  setRouteProducer,
 } from "@typespec/http";
+import {
+  unsafe_DefaultRouteProducer as DefaultRouteProducer,
+  unsafe_getRouteProducer as getRouteProducer,
+  unsafe_RouteOptions as RouteOptions,
+  unsafe_RouteProducerResult as RouteProducerResult,
+  unsafe_setRouteProducer as setRouteProducer,
+} from "@typespec/http/experimental";
 import {
   ActionDecorator,
   AutoRouteDecorator,
