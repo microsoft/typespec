@@ -1,7 +1,8 @@
 import { join } from "path";
 import { describe, expect, it } from "vitest";
 import { CompletionList } from "vscode-languageserver/node.js";
-import { createTestServerHost, extractCursor } from "../../src/testing/test-server-host.js";
+import { extractCursor } from "../../src/testing/source-utils.js";
+import { createTestServerHost } from "../../src/testing/test-server-host.js";
 import { resolveVirtualPath } from "../../src/testing/test-utils.js";
 
 const rootOptions = [

@@ -69,7 +69,6 @@ export async function emitOpenApiWithDiagnostics(
   const fileType = options["file-type"] || "yaml";
   const outputFile = resolveVirtualPath("openapi" + fileType === "json" ? ".json" : ".yaml");
   const diagnostics = await runner.diagnose(code, {
-    noEmit: false,
     emit: ["@typespec/openapi3"],
     options: {
       "@typespec/openapi3": { ...options, "output-file": outputFile },
@@ -124,7 +123,7 @@ export async function openApiFor(
 export async function checkFor(code: string, options: OpenAPI3EmitterOptions = {}) {
   const host = await createOpenAPITestRunner();
   return await host.diagnose(code, {
-    noEmit: true,
+    dryRun: true,
     emit: ["@typespec/openapi3"],
     options: { "@typespec/openapi3": { ...options } },
   });
@@ -141,7 +140,10 @@ export async function oapiForModel(
     @service(#{title: "Testing model"})
     @route("/")
     namespace root {
-      op read(): { @body body: ${name} };
+      op read(): {
+        @header contentType: "application/json";
+        @body body: ${name};
+      };
     }
   `,
     undefined,
@@ -166,7 +168,6 @@ export async function openapiWithOptions(
   const outPath = resolvePath("/openapi.json");
 
   const diagnostics = await runner.diagnose(code, {
-    noEmit: false,
     emit: ["@typespec/openapi3"],
     options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
   });

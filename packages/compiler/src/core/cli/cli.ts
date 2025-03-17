@@ -112,7 +112,12 @@ async function main() {
           })
           .option("no-emit", {
             type: "boolean",
-            describe: "Run emitters but do not emit any output.",
+            describe: "Do not run any emitters.",
+          })
+          .option("dry-run", {
+            type: "boolean",
+            describe:
+              "Run emitters but do not emit any output. (Only run emitters supporting this feature)",
           })
           .option("ignore-deprecated", {
             type: "boolean",

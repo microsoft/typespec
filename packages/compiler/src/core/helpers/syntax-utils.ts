@@ -1,5 +1,5 @@
 import { CharCode, isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../charcode.js";
-import { Keywords } from "../scanner.js";
+import { Keywords, ReservedKeywords } from "../scanner.js";
 import { IdentifierNode, MemberExpressionNode, SyntaxKind, TypeReferenceNode } from "../types.js";
 
 /**
@@ -13,8 +13,11 @@ import { IdentifierNode, MemberExpressionNode, SyntaxKind, TypeReferenceNode } f
  * printIdentifier("foo bar") // `foo bar`
  * ```
  */
-export function printIdentifier(sv: string) {
-  if (needBacktick(sv)) {
+export function printIdentifier(
+  sv: string,
+  /** @internal */ context: "allow-reserved" | "disallow-reserved" = "disallow-reserved",
+) {
+  if (needBacktick(sv, context)) {
     const escapedString = sv
       .replace(/\\/g, "\\\\")
       .replace(/\n/g, "\\n")
@@ -27,8 +30,11 @@ export function printIdentifier(sv: string) {
   }
 }
 
-function needBacktick(sv: string) {
+function needBacktick(sv: string, context: "allow-reserved" | "disallow-reserved"): boolean {
   if (sv.length === 0) {
+    return false;
+  }
+  if (context === "allow-reserved" && ReservedKeywords.has(sv)) {
     return false;
   }
   if (Keywords.has(sv)) {
