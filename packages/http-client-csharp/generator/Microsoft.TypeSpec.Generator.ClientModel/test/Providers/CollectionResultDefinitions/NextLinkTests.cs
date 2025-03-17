@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CreatePagingOperation(InputResponseLocation.Body);
 
-            var collectionResultDefinition = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CreatePagingOperation(InputResponseLocation.Body);
 
-            var collectionResultDefinition = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CreatePagingOperation(InputResponseLocation.Header);
 
-            var collectionResultDefinition = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -59,7 +59,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CreatePagingOperation(InputResponseLocation.Header);
 
-            var collectionResultDefinition = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -73,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CreatePagingOperation(InputResponseLocation.Body);
 
-            var collectionResultDefinition = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -87,7 +87,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CreatePagingOperation(InputResponseLocation.Body);
 
-            var collectionResultDefinition = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -101,7 +101,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CreatePagingOperation(InputResponseLocation.Header);
 
-            var collectionResultDefinition = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "GetCatsCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -115,7 +115,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         {
             CreatePagingOperation(InputResponseLocation.Header);
 
-            var collectionResultDefinition = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "GetCatsAsyncCollectionResultOfT");
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -140,7 +140,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
             var client = InputFactory.Client("catClient", operations: [operation]);
 
-            MockHelpers.LoadMockPlugin(inputModels: () => [inputModel], clients: () => [client]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
         }
     }
 }

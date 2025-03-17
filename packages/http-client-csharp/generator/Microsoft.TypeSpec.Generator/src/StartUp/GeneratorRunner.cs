@@ -10,8 +10,8 @@ namespace Microsoft.TypeSpec.Generator
     {
         public async Task RunAsync(CommandLineOptions options)
         {
-            PluginHandler pluginHandler = new();
-            pluginHandler.LoadPlugin(options);
+            GeneratorHandler generatorHandler = new();
+            generatorHandler.LoadGenerator(options);
 
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();

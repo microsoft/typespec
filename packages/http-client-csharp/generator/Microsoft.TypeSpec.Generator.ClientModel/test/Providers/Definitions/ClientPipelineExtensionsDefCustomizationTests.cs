@@ -14,10 +14,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public async Task CanReplaceMethod()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // Find the extension definition
-            var definition = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientPipelineExtensionsDefinition);
+            var definition = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientPipelineExtensionsDefinition);
             Assert.IsNotNull(definition);
 
             // The definitions should not have the custom method
