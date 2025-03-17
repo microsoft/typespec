@@ -313,7 +313,7 @@ public class ServiceClient {
                 imports.add("com.azure.resourcemanager.resources.fluentcore.AzureServiceClient");
             }
             if (!getClientMethods().isEmpty()) {
-                addRestProxyImport(imports);
+                ClassType.REST_PROXY.addImportsTo(imports, false);
             }
 
             for (Constructor constructor : getConstructors()) {
@@ -343,8 +343,11 @@ public class ServiceClient {
                 }
             }
 
-            addPipelineBuilderImport(imports);
-            addHttpPolicyImports(imports);
+            ClassType.HTTP_PIPELINE_BUILDER.addImportsTo(imports, false);
+            ClassType.RETRY_POLICY.addImportsTo(imports, false);
+            if (JavaSettings.getInstance().isBranded()) {
+                imports.add(UserAgentPolicy.class.getName());
+            }
         }
 
         if (includeBuilderImports) {
@@ -355,21 +358,6 @@ public class ServiceClient {
         if (proxy != null) {
             proxy.addImportsTo(imports, includeImplementationImports, settings);
         }
-    }
-
-    protected void addRestProxyImport(Set<String> imports) {
-        ClassType.REST_PROXY.addImportsTo(imports, false);
-    }
-
-    protected void addHttpPolicyImports(Set<String> imports) {
-        ClassType.RETRY_POLICY.addImportsTo(imports, false);
-        if (JavaSettings.getInstance().isBranded()) {
-            imports.add(UserAgentPolicy.class.getName());
-        }
-    }
-
-    protected void addPipelineBuilderImport(Set<String> imports) {
-        ClassType.HTTP_PIPELINE_BUILDER.addImportsTo(imports, false);
     }
 
     public static class Builder {

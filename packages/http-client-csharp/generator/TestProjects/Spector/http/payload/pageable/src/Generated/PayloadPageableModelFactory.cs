@@ -13,13 +13,5 @@ namespace Payload.Pageable
     {
 
         public static Pet Pet(string id = default, string name = default) => throw null;
-
-        public static RequestQueryResponseBodyResponse RequestQueryResponseBodyResponse(IEnumerable<Pet> pets = default, string nextToken = default) => throw null;
-
-        public static RequestHeaderResponseBodyResponse RequestHeaderResponseBodyResponse(IEnumerable<Pet> pets = default, string nextToken = default) => throw null;
-
-        public static RequestQueryResponseHeaderResponse RequestQueryResponseHeaderResponse(IEnumerable<Pet> pets = default) => throw null;
-
-        public static RequestHeaderResponseHeaderResponse RequestHeaderResponseHeaderResponse(IEnumerable<Pet> pets = default) => throw null;
     }
 }

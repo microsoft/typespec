@@ -7,9 +7,7 @@ A request that sends a request with a path parameter directly on the operation s
 The path parameter is a positional parameter in the operation signature
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @route("/widgets")

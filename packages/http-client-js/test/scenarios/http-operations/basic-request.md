@@ -5,9 +5,7 @@ This test verifies that a basic `GET` request with no headers, body, or paramete
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @route("/widgets")
@@ -46,9 +44,7 @@ This test verifies that a `POST` request with headers, a body, and query paramet
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @test
@@ -110,9 +106,7 @@ This test verifies that a `GET` request with a scalar body is correctly handled.
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @route("/widgets")

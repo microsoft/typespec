@@ -4,30 +4,26 @@ import { fileURLToPath } from "url";
 import { beforeEach, describe, it } from "vitest";
 import { FormDataClient, HttpPartsClient } from "../../../generated/payload/multipart/src/index.js";
 
-describe("Payload.MultiPart", () => {
-  let __filename;
-  let __dirname;
-  let jpegContents: Uint8Array;
-  let pngContents: Uint8Array;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
+const jpegImagePath = resolve(__dirname, "../../../assets/image.jpg");
+const jpegBuffer = await readFile(jpegImagePath);
+const jpegContents = new Uint8Array(jpegBuffer);
+
+const pngImagePath = resolve(__dirname, "../../../assets/image.png");
+const pngBuffer = await readFile(pngImagePath);
+const pngContents = new Uint8Array(pngBuffer);
+
+describe("Payload.MultiPart", () => {
+  // Skipping as implicit multipart is going to be deprecated in TypeSpec
   describe.skip("FormDataClient", () => {
     const client = new FormDataClient({
       allowInsecureConnection: true,
       retryOptions: { maxRetries: 1 },
     });
 
-    beforeEach(async () => {
-      __filename = fileURLToPath(import.meta.url);
-      __dirname = dirname(__filename);
-
-      const jpegImagePath = resolve(__dirname, "../../../assets/image.jpg");
-      const jpegBuffer = await readFile(jpegImagePath);
-      jpegContents = new Uint8Array(jpegBuffer);
-
-      const pngImagePath = resolve(__dirname, "../../../assets/image.png");
-      const pngBuffer = await readFile(pngImagePath);
-      pngContents = new Uint8Array(pngBuffer);
-    });
+    beforeEach(async () => {});
 
     it("should send mixed parts with multipart/form-data", async () => {
       await client.basic({
@@ -82,7 +78,7 @@ describe("Payload.MultiPart", () => {
     });
   });
 
-  describe.skip("FormDataClient.HttpParts.ContentType", () => {
+  describe("FormDataClient.HttpParts.ContentType", () => {
     const client = new HttpPartsClient({
       allowInsecureConnection: true,
       retryOptions: { maxRetries: 1 },
@@ -93,7 +89,7 @@ describe("Payload.MultiPart", () => {
         profileImage: {
           contents: jpegContents,
           contentType: "image/jpg",
-          filename: "image.jpg",
+          filename: "hello.jpg",
         },
       });
     });
@@ -102,8 +98,8 @@ describe("Payload.MultiPart", () => {
       await client.contentTypeClient.requiredContentType({
         profileImage: {
           contents: jpegContents,
-          contentType: "image/jpg",
-          filename: "image.jpg",
+          contentType: "application/octet-stream",
+          filename: "hello.jpg",
         },
       });
     });
@@ -112,14 +108,14 @@ describe("Payload.MultiPart", () => {
       await client.contentTypeClient.optionalContentType({
         profileImage: {
           contents: jpegContents,
-          filename: "image.jpg",
+          filename: "hello.jpg",
         },
       });
     });
   });
 
   describe("FormDataClient.HttpParts", () => {
-    it.skip("should send json array and file array", async () => {
+    it("should send json array and file array", async () => {
       const client = new HttpPartsClient({
         allowInsecureConnection: true,
         retryOptions: {
@@ -146,7 +142,7 @@ describe("Payload.MultiPart", () => {
   });
 
   describe("FormDataClient.HttpParts.NonString", () => {
-    it.skip("should handle non-string float", async () => {
+    it("should handle non-string float", async () => {
       const client = new HttpPartsClient({
         allowInsecureConnection: true,
         retryOptions: {
