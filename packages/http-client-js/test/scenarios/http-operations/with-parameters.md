@@ -5,9 +5,7 @@ A typical request with path, query header and body parameters. The body is model
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @test
