@@ -3,9 +3,7 @@
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "My API",
-})
+@service(#{ title: "My API" })
 @useAuth(BearerAuth)
 namespace MyApi;
 

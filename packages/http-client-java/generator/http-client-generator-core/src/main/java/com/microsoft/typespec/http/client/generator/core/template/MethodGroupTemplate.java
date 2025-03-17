@@ -10,7 +10,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClientProperty;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
-import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
@@ -109,18 +108,13 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
 
                 TemplateUtil.writeClientMethodsAndHelpers(classBlock, methodGroupClient.getClientMethods());
 
-                writeAdditionalClassBlock(classBlock);
-
                 if (settings.isUseClientLogger()) {
                     TemplateUtil.addClientLogger(classBlock, methodGroupClient.getClassName(), javaFile.getContents());
                 }
             });
     }
 
-    protected void writeAdditionalClassBlock(JavaClass classBlock) {
-    }
-
-    protected void writeServiceProxyConstruction(JavaBlock constructor, MethodGroupClient methodGroupClient) {
+    private void writeServiceProxyConstruction(JavaBlock constructor, MethodGroupClient methodGroupClient) {
         ClassType proxyType = ClassType.REST_PROXY;
         if (JavaSettings.getInstance().isBranded()) {
             constructor.line(String.format(
