@@ -67,7 +67,7 @@ $generateScript = {
   }
 
   if ($global:ExitCode -ne 0) {
-    exit $global:ExitCode
+    throw "Failed to generate from tsp $tspFile"
   }
 }
 
@@ -106,4 +106,8 @@ if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_pro
   # the api view properties file. Because the tests run in parallel, the order is not guaranteed. This
   # causes git diff check to fail as the checked in file is not the same as the generated one.
   Remove-Item ./src/main/resources/META-INF/client-structure-service_apiview_properties.json -Force
+}
+
+if ($ExitCode -ne 0) {
+  throw "Failed to generate from tsp"
 }
