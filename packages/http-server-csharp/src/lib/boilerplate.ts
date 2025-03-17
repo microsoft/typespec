@@ -325,44 +325,48 @@ function getArrayConstraintConverter(): string {
 
         public override JsonConverter? CreateConverter(Type typeToConvert)
         {
-            return new ConstrainedArrayConverter<T>(_minItems, _maxItems);
+            if (typeof(ISet<T>).IsAssignableFrom(typeToConvert))
+            {
+                return new ConstrainedSetConverter<T>(_minItems, _maxItems);
+            }
+            else 
+            {
+                return new ConstrainedEnumerableConverter<T>(_minItems, _maxItems);
+            }
         }
-
-        
     }
 
-    public class ConstrainedArrayConverter<T> : JsonConverter<T[]>
+    public abstract class ConstrainedArrayConverter<T, TCollection> : JsonConverter<TCollection>
     {
-        public ConstrainedArrayConverter(int? min, int? max) : base()
+        protected ConstrainedArrayConverter(int? min, int? max) 
         {
             _minItems = min;
             _maxItems = max;
         }
 
-        internal int? _minItems, _maxItems;
+        protected int? _minItems, _maxItems;
         public JsonConverter<T>? InnerConverter { get; set; }
 
-        public virtual Func<ConstrainedArrayConverter<T>, JsonSerializerOptions, JsonConverter<T>> InnerConverterFactory { get; set; } = ConverterHelpers.GetStandardInnerConverter<T>;
+        public virtual Func<ConstrainedArrayConverter<T, TCollection>, JsonSerializerOptions, JsonConverter<T>> InnerConverterFactory { get; set; } = ConverterHelpers.GetStandardInnerConverter<T, TCollection>;
 
-
-        internal bool ValidateMin(int count)
+        protected bool ValidateMin(int count)
         {
             return !_minItems.HasValue || count >= _minItems.Value;
         }
 
-        internal bool ValidateMax(int count)
+        protected bool ValidateMax(int count)
         {
             return !_maxItems.HasValue || count <= _maxItems.Value;
         }
 
-        internal void ValidateRange(int count)
+        protected void ValidateRange(int count)
         {
             if (!ValidateMax(count) || !ValidateMin(count))
             {
                 throw new JsonException($"Number of array elements not in range [{(_minItems.HasValue ? _minItems.Value : 0)}, {(_maxItems.HasValue ? _maxItems.Value : Array.MaxLength)}]");
             }
         }
-        public override T[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override TCollection? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var _innerConverter = InnerConverterFactory(this, options);
             if (reader.TokenType != JsonTokenType.StartArray) { throw new JsonException("Expected start of array"); }
@@ -377,24 +381,43 @@ function getArrayConstraintConverter(): string {
                 count++;
             }
 
-            return list.ToArray();
-
+            return ConvertToCollection(list);
 
         }
 
-        public override void Write(Utf8JsonWriter writer, T[] value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer,  TCollection value, JsonSerializerOptions options)
         {
             var _innerConverter = InnerConverterFactory(this, options);
             writer.WriteStartArray();
-            for (int i = 0; i < value.Length; ++i)
-                _innerConverter.Write(writer, value[i], options);
+            foreach (var item in GetEnumerable(value))
+                _innerConverter.Write(writer, item, options);
             writer.WriteEndArray();
         }
+      
+        protected abstract TCollection ConvertToCollection(List<T> list);
+        protected abstract IEnumerable<T> GetEnumerable(TCollection collection);
+    }
+
+    public class ConstrainedEnumerableConverter<T> : ConstrainedArrayConverter<T, IEnumerable<T>>
+    {
+        public ConstrainedEnumerableConverter(int? min, int? max) : base(min, max) { }
+
+        protected override IEnumerable<T> ConvertToCollection(List<T> list) => list;
+
+        protected override IEnumerable<T> GetEnumerable(IEnumerable<T> collection) => collection;
+    }
+
+    public class ConstrainedSetConverter<T> : ConstrainedArrayConverter<T, ISet<T>>
+    {
+        public ConstrainedSetConverter(int? min, int? max) : base(min, max) { }
+        protected override ISet<T> ConvertToCollection(List<T> list) => new HashSet<T>(list);
+
+        protected override IEnumerable<T> GetEnumerable(ISet<T> collection) => collection;
     }
 
     internal static class ConverterHelpers
     {
-        internal static JsonConverter<T> GetStandardInnerConverter<T>(this ConstrainedArrayConverter<T> converter, JsonSerializerOptions options)
+        internal static JsonConverter<T> GetStandardInnerConverter<T, TCollection>(this ConstrainedArrayConverter<T, TCollection> converter, JsonSerializerOptions options)
         {
             if (converter.InnerConverter == null)
             {
@@ -434,9 +457,16 @@ public class NumericArrayConstraintAttribute<T> : ArrayConstraintAttribute<T> wh
 
     public override JsonConverter? CreateConverter(Type typeToConvert)
     {
-        var result = base.CreateConverter(typeToConvert) as ConstrainedArrayConverter<T>;
-        if (result != null) result.InnerConverterFactory = (c, o) => new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
-        return result;
+        var result = base.CreateConverter(typeToConvert);
+        if (result is ConstrainedSetConverter<T> setConverter)
+        {
+            setConverter.InnerConverterFactory = (c, o) => new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
+        }
+        else if (result is ConstrainedEnumerableConverter<T> enumerableConverter)
+        {
+            enumerableConverter.InnerConverterFactory = (c, o) =>new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
+        }
+        return result;        
     }
   }
 }`;
@@ -464,10 +494,17 @@ public class StringArrayConstraintAttribute : ArrayConstraintAttribute<string>
     public int MaxItemLength { get { return _maxItemLength.HasValue ? _maxItemLength.Value : 0; } set { _maxItemLength = value; } }
     public string? Pattern { get; set; }
 
-    override public JsonConverter<string[]> CreateConverter(Type typeToConvert)
+    override public JsonConverter? CreateConverter(Type typeToConvert)
     {
-        var result = base.CreateConverter(typeToConvert) as ConstrainedArrayConverter<string>;
-        result!.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+        var result = base.CreateConverter(typeToConvert);
+        if (result is ConstrainedSetConverter<string> setConverter)
+        {
+            setConverter.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+        }
+        else if (result is ConstrainedEnumerableConverter<string> arrayConverter)
+        {
+            arrayConverter.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+        }
         return result;
     }
 }
