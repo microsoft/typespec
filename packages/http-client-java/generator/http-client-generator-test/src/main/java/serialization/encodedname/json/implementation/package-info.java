@@ -5,7 +5,7 @@
 /**
  * <!-- start generated doc -->
  * Package containing the implementations for Json.
- * Projection.
+ * Encoded names.
  * <!-- end generated doc -->
  */
 package serialization.encodedname.json.implementation;

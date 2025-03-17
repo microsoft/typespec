@@ -37,7 +37,7 @@ op listPets(): Pet[] | PetStoreResponse;
 Attach some custom data to the OpenAPI element generated from this type.
 
 ```typespec
-@TypeSpec.OpenAPI.extension(key: valueof string, value: unknown)
+@TypeSpec.OpenAPI.extension(key: valueof string, value: valueof unknown)
 ```
 
 #### Target
@@ -46,21 +46,16 @@ Attach some custom data to the OpenAPI element generated from this type.
 
 #### Parameters
 
-| Name  | Type             | Description                         |
-| ----- | ---------------- | ----------------------------------- |
-| key   | `valueof string` | Extension key. Must start with `x-` |
-| value | `unknown`        | Extension value.                    |
+| Name  | Type              | Description      |
+| ----- | ----------------- | ---------------- |
+| key   | `valueof string`  | Extension key.   |
+| value | `valueof unknown` | Extension value. |
 
 #### Examples
 
 ```typespec
 @extension("x-custom", "My value")
-@extension(
-  "x-pageable",
-  {
-    nextLink: "x-next-link",
-  }
-)
+@extension("x-pageable", #{ nextLink: "x-next-link" })
 op read(): string;
 ```
 
@@ -99,7 +94,7 @@ Specify OpenAPI additional information.
 The service `title` and `version` are already specified using `@service`.
 
 ```typespec
-@TypeSpec.OpenAPI.info(additionalInfo: TypeSpec.OpenAPI.AdditionalInfo)
+@TypeSpec.OpenAPI.info(additionalInfo: valueof TypeSpec.OpenAPI.AdditionalInfo)
 ```
 
 #### Target
@@ -108,9 +103,9 @@ The service `title` and `version` are already specified using `@service`.
 
 #### Parameters
 
-| Name           | Type                                                                | Description            |
-| -------------- | ------------------------------------------------------------------- | ---------------------- |
-| additionalInfo | [`AdditionalInfo`](./data-types.md#TypeSpec.OpenAPI.AdditionalInfo) | Additional information |
+| Name           | Type                                                                        | Description            |
+| -------------- | --------------------------------------------------------------------------- | ---------------------- |
+| additionalInfo | [valueof `AdditionalInfo`](./data-types.md#TypeSpec.OpenAPI.AdditionalInfo) | Additional information |
 
 ### `@operationId` {#@TypeSpec.OpenAPI.operationId}
 

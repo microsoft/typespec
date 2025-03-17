@@ -4,7 +4,7 @@
 // Demonstrates customizing the namespace of a model
 namespace UnbrandedTypeSpec.Models.Custom
 {
-    [CodeGenTypeAttribute("Friend")]
+    [CodeGenType("Friend")]
     public partial class Friend
     {
     }

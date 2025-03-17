@@ -2,6 +2,6 @@
 
 /**
  * Package containing the implementations for Json.
- * Projection.
+ * Encoded names.
  */
 package serialization.encodedname.json.implementation;

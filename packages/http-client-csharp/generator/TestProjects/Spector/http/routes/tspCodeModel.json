@@ -8,7 +8,7 @@
   {
    "$id": "2",
    "Name": "RoutesClient",
-   "ClientNamespace": "Routes",
+   "Namespace": "Routes",
    "Doc": "Define scenario in building the http route/uri",
    "Operations": [
     {
@@ -23,13 +23,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/fixed",
      "BufferResponse": true,
@@ -75,12 +73,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes"
   },
   {
    "$id": "10",
    "Name": "PathParameters",
-   "ClientNamespace": "Routes.PathParameters",
+   "Namespace": "Routes.PathParameters",
    "Operations": [
     {
      "$id": "11",
@@ -116,13 +115,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/template-only/{param}",
      "BufferResponse": true,
@@ -165,13 +162,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/explicit/{param}",
      "BufferResponse": true,
@@ -214,13 +209,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/annotation-only/{param}",
      "BufferResponse": true,
@@ -267,12 +260,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters"
   },
   {
    "$id": "28",
    "Name": "PathParametersReservedExpansion",
-   "ClientNamespace": "Routes.PathParameters.ReservedExpansion",
+   "Namespace": "Routes.PathParameters.ReservedExpansion",
    "Operations": [
     {
      "$id": "29",
@@ -308,13 +302,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/reserved-expansion/template/{param}",
      "BufferResponse": true,
@@ -357,13 +349,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/reserved-expansion/annotation/{param}",
      "BufferResponse": true,
@@ -410,12 +400,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.ReservedExpansion"
   },
   {
    "$id": "42",
    "Name": "PathParametersSimpleExpansion",
-   "ClientNamespace": "Routes.PathParameters.SimpleExpansion",
+   "Namespace": "Routes.PathParameters.SimpleExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "43"
@@ -454,12 +445,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion"
   },
   {
    "$id": "48",
    "Name": "PathParametersSimpleExpansionStandard",
-   "ClientNamespace": "Routes.PathParameters.SimpleExpansion.Standard",
+   "Namespace": "Routes.PathParameters.SimpleExpansion.Standard",
    "Operations": [
     {
      "$id": "49",
@@ -495,13 +487,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/simple/standard/primitive{param}",
      "BufferResponse": true,
@@ -551,13 +541,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/simple/standard/array{param}",
      "BufferResponse": true,
@@ -612,13 +600,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/simple/standard/record{param}",
      "BufferResponse": true,
@@ -665,12 +651,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard"
   },
   {
    "$id": "69",
    "Name": "PathParametersSimpleExpansionExplode",
-   "ClientNamespace": "Routes.PathParameters.SimpleExpansion.Explode",
+   "Namespace": "Routes.PathParameters.SimpleExpansion.Explode",
    "Operations": [
     {
      "$id": "70",
@@ -706,13 +693,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/simple/explode/primitive{param}",
      "BufferResponse": true,
@@ -762,13 +747,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/simple/explode/array{param}",
      "BufferResponse": true,
@@ -823,13 +806,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/simple/explode/record{param}",
      "BufferResponse": true,
@@ -876,12 +857,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode"
   },
   {
    "$id": "90",
    "Name": "PathParametersPathExpansion",
-   "ClientNamespace": "Routes.PathParameters.PathExpansion",
+   "Namespace": "Routes.PathParameters.PathExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "91"
@@ -920,12 +902,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion"
   },
   {
    "$id": "96",
    "Name": "PathParametersPathExpansionStandard",
-   "ClientNamespace": "Routes.PathParameters.PathExpansion.Standard",
+   "Namespace": "Routes.PathParameters.PathExpansion.Standard",
    "Operations": [
     {
      "$id": "97",
@@ -961,13 +944,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/path/standard/primitive{param}",
      "BufferResponse": true,
@@ -1017,13 +998,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/path/standard/array{param}",
      "BufferResponse": true,
@@ -1078,13 +1057,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/path/standard/record{param}",
      "BufferResponse": true,
@@ -1131,12 +1108,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard"
   },
   {
    "$id": "117",
    "Name": "PathParametersPathExpansionExplode",
-   "ClientNamespace": "Routes.PathParameters.PathExpansion.Explode",
+   "Namespace": "Routes.PathParameters.PathExpansion.Explode",
    "Operations": [
     {
      "$id": "118",
@@ -1172,13 +1150,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/path/explode/primitive{param}",
      "BufferResponse": true,
@@ -1228,13 +1204,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/path/explode/array{param}",
      "BufferResponse": true,
@@ -1289,13 +1263,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/path/explode/record{param}",
      "BufferResponse": true,
@@ -1342,12 +1314,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode"
   },
   {
    "$id": "138",
    "Name": "PathParametersLabelExpansion",
-   "ClientNamespace": "Routes.PathParameters.LabelExpansion",
+   "Namespace": "Routes.PathParameters.LabelExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "139"
@@ -1386,12 +1359,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion"
   },
   {
    "$id": "144",
    "Name": "PathParametersLabelExpansionStandard",
-   "ClientNamespace": "Routes.PathParameters.LabelExpansion.Standard",
+   "Namespace": "Routes.PathParameters.LabelExpansion.Standard",
    "Operations": [
     {
      "$id": "145",
@@ -1427,13 +1401,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/label/standard/primitive{param}",
      "BufferResponse": true,
@@ -1483,13 +1455,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/label/standard/array{param}",
      "BufferResponse": true,
@@ -1544,13 +1514,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/label/standard/record{param}",
      "BufferResponse": true,
@@ -1597,12 +1565,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard"
   },
   {
    "$id": "165",
    "Name": "PathParametersLabelExpansionExplode",
-   "ClientNamespace": "Routes.PathParameters.LabelExpansion.Explode",
+   "Namespace": "Routes.PathParameters.LabelExpansion.Explode",
    "Operations": [
     {
      "$id": "166",
@@ -1638,13 +1607,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/label/explode/primitive{param}",
      "BufferResponse": true,
@@ -1694,13 +1661,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/label/explode/array{param}",
      "BufferResponse": true,
@@ -1755,13 +1720,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/label/explode/record{param}",
      "BufferResponse": true,
@@ -1808,12 +1771,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode"
   },
   {
    "$id": "186",
    "Name": "PathParametersMatrixExpansion",
-   "ClientNamespace": "Routes.PathParameters.MatrixExpansion",
+   "Namespace": "Routes.PathParameters.MatrixExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "187"
@@ -1852,12 +1816,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion"
   },
   {
    "$id": "192",
    "Name": "PathParametersMatrixExpansionStandard",
-   "ClientNamespace": "Routes.PathParameters.MatrixExpansion.Standard",
+   "Namespace": "Routes.PathParameters.MatrixExpansion.Standard",
    "Operations": [
     {
      "$id": "193",
@@ -1893,13 +1858,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/matrix/standard/primitive{param}",
      "BufferResponse": true,
@@ -1949,13 +1912,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/matrix/standard/array{param}",
      "BufferResponse": true,
@@ -2010,13 +1971,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/matrix/standard/record{param}",
      "BufferResponse": true,
@@ -2063,12 +2022,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard"
   },
   {
    "$id": "213",
    "Name": "PathParametersMatrixExpansionExplode",
-   "ClientNamespace": "Routes.PathParameters.MatrixExpansion.Explode",
+   "Namespace": "Routes.PathParameters.MatrixExpansion.Explode",
    "Operations": [
     {
      "$id": "214",
@@ -2104,13 +2064,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/matrix/explode/primitive{param}",
      "BufferResponse": true,
@@ -2160,13 +2118,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/matrix/explode/array{param}",
      "BufferResponse": true,
@@ -2221,13 +2177,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/path/matrix/explode/record{param}",
      "BufferResponse": true,
@@ -2274,12 +2228,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode"
   },
   {
    "$id": "234",
    "Name": "QueryParameters",
-   "ClientNamespace": "Routes.QueryParameters",
+   "Namespace": "Routes.QueryParameters",
    "Operations": [
     {
      "$id": "235",
@@ -2315,13 +2270,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/template-only",
      "BufferResponse": true,
@@ -2364,13 +2317,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/explicit",
      "BufferResponse": true,
@@ -2413,13 +2364,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/annotation-only",
      "BufferResponse": true,
@@ -2466,12 +2415,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters"
   },
   {
    "$id": "252",
    "Name": "QueryParametersQueryExpansion",
-   "ClientNamespace": "Routes.QueryParameters.QueryExpansion",
+   "Namespace": "Routes.QueryParameters.QueryExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "253"
@@ -2510,12 +2460,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion"
   },
   {
    "$id": "258",
    "Name": "QueryParametersQueryExpansionStandard",
-   "ClientNamespace": "Routes.QueryParameters.QueryExpansion.Standard",
+   "Namespace": "Routes.QueryParameters.QueryExpansion.Standard",
    "Operations": [
     {
      "$id": "259",
@@ -2551,13 +2502,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-expansion/standard/primitive",
      "BufferResponse": true,
@@ -2607,13 +2556,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-expansion/standard/array",
      "BufferResponse": true,
@@ -2668,13 +2615,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-expansion/standard/record",
      "BufferResponse": true,
@@ -2721,12 +2666,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard"
   },
   {
    "$id": "279",
    "Name": "QueryParametersQueryExpansionExplode",
-   "ClientNamespace": "Routes.QueryParameters.QueryExpansion.Explode",
+   "Namespace": "Routes.QueryParameters.QueryExpansion.Explode",
    "Operations": [
     {
      "$id": "280",
@@ -2762,13 +2708,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-expansion/explode/primitive",
      "BufferResponse": true,
@@ -2818,13 +2762,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-expansion/explode/array",
      "BufferResponse": true,
@@ -2879,13 +2821,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-expansion/explode/record",
      "BufferResponse": true,
@@ -2932,12 +2872,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode"
   },
   {
    "$id": "300",
    "Name": "QueryParametersQueryContinuation",
-   "ClientNamespace": "Routes.QueryParameters.QueryContinuation",
+   "Namespace": "Routes.QueryParameters.QueryContinuation",
    "Operations": [],
    "Protocol": {
     "$id": "301"
@@ -2976,12 +2917,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation"
   },
   {
    "$id": "306",
    "Name": "QueryParametersQueryContinuationStandard",
-   "ClientNamespace": "Routes.QueryParameters.QueryContinuation.Standard",
+   "Namespace": "Routes.QueryParameters.QueryContinuation.Standard",
    "Operations": [
     {
      "$id": "307",
@@ -3017,13 +2959,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-continuation/standard/primitive?fixed=true",
      "BufferResponse": true,
@@ -3073,13 +3013,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-continuation/standard/array?fixed=true",
      "BufferResponse": true,
@@ -3134,13 +3072,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-continuation/standard/record?fixed=true",
      "BufferResponse": true,
@@ -3187,12 +3123,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard"
   },
   {
    "$id": "327",
    "Name": "QueryParametersQueryContinuationExplode",
-   "ClientNamespace": "Routes.QueryParameters.QueryContinuation.Explode",
+   "Namespace": "Routes.QueryParameters.QueryContinuation.Explode",
    "Operations": [
     {
      "$id": "328",
@@ -3228,13 +3165,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-continuation/explode/primitive?fixed=true",
      "BufferResponse": true,
@@ -3284,13 +3219,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-continuation/explode/array?fixed=true",
      "BufferResponse": true,
@@ -3345,13 +3278,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/query/query-continuation/explode/record?fixed=true",
      "BufferResponse": true,
@@ -3398,12 +3329,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode"
   },
   {
    "$id": "348",
    "Name": "InInterface",
-   "ClientNamespace": "Routes",
+   "Namespace": "Routes",
    "Operations": [
     {
      "$id": "349",
@@ -3417,13 +3349,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/routes/in-interface/fixed",
      "BufferResponse": true,
@@ -3470,7 +3400,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Routes.InInterface"
   }
  ]
 }

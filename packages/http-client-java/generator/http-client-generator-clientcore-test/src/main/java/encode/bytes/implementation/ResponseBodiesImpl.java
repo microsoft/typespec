@@ -13,6 +13,7 @@ import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.utils.Base64Uri;
 
 /**
  * An instance of this class provides access to all the operations defined in ResponseBodies.
@@ -79,7 +80,8 @@ public final class ResponseBodiesImpl {
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/bytes/body/response/base64url",
-            expectedStatusCodes = { 200 })
+            expectedStatusCodes = { 200 },
+            returnValueWireType = Base64Uri.class)
         @UnexpectedResponseExceptionDetail
         Response<byte[]> base64urlSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             RequestOptions requestOptions);

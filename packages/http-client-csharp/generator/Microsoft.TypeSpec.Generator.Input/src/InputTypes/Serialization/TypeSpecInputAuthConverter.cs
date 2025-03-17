@@ -34,8 +34,8 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadWithConverter(nameof(InputAuth.ApiKey), options, ref apiKey)
-                    || reader.TryReadWithConverter(nameof(InputAuth.OAuth2), options, ref oAuth2);
+                var isKnownProperty = reader.TryReadComplexType(nameof(InputAuth.ApiKey), options, ref apiKey)
+                    || reader.TryReadComplexType(nameof(InputAuth.OAuth2), options, ref oAuth2);
 
                 if (!isKnownProperty)
                 {

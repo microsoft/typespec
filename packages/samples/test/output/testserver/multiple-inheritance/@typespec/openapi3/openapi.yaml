@@ -19,7 +19,7 @@ paths:
         default:
           description: Unexpected error
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
     put:
@@ -30,13 +30,13 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         default:
           description: Unexpected error
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
       requestBody:
@@ -60,7 +60,7 @@ paths:
         default:
           description: Unexpected error
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
     put:
@@ -71,13 +71,13 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         default:
           description: Unexpected error
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
       requestBody:
@@ -101,7 +101,7 @@ paths:
         default:
           description: Unexpected error
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
     put:
@@ -112,13 +112,13 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         default:
           description: Unexpected error
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
       requestBody:
@@ -142,7 +142,7 @@ paths:
         default:
           description: Unexpected error
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
     put:
@@ -153,13 +153,13 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         default:
           description: Unexpected error
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
       requestBody:
@@ -183,7 +183,7 @@ paths:
         default:
           description: Unexpected error
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
     put:
@@ -194,13 +194,13 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
         default:
           description: Unexpected error
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
       requestBody:

@@ -12,5 +12,6 @@
   "optionalLiteralFloat": 4.56,
   "optionalLiteralBool": false,
   "optionalNullableList": [],
+  "requiredNullableString": null,
   "extra": "stuff"
 }

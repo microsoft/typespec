@@ -119,22 +119,6 @@ public class GenericType implements IType {
         return new GenericType("com.azure.core.management.polling", "PollResult", pollResultType);
     }
 
-    public static GenericType AndroidResponse(IType typeArgument) {
-        return new GenericType("com.azure.android.core.rest", "Response", typeArgument);
-    }
-
-    public static GenericType AndroidPagedResponse(IType typeArgument) {
-        return new GenericType("com.azure.android.core.rest", "PagedResponse", typeArgument);
-    }
-
-    public static GenericType AndroidCallback(IType typeArgument) {
-        return new GenericType("com.azure.android.core.rest", "Callback", typeArgument);
-    }
-
-    public static GenericType AndroidCompletableFuture(IType typeArgument) {
-        return new GenericType("java9.util.concurrent", "CompletableFuture", typeArgument);
-    }
-
     public final String getName() {
         return name;
     }

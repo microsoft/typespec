@@ -38,29 +38,3 @@ components:
           x-bool: true
           x-number: 123
           x-string: string
-    MyConfig:
-      type: object
-      required:
-        - name
-        - age
-        - other
-      properties:
-        name:
-          type: string
-          enum:
-            - Foo
-        age:
-          type: number
-          enum:
-            - 12
-        other:
-          $ref: '#/components/schemas/NestedConfig'
-    NestedConfig:
-      type: object
-      required:
-        - id
-      properties:
-        id:
-          type: string
-          enum:
-            - some

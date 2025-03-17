@@ -8,6 +8,10 @@ export interface EmitFileOptions {
   newLine?: NewLine;
 }
 
+const emittedFilesPaths: string[] = [];
+export function flushEmittedFilesPaths(): string[] {
+  return emittedFilesPaths.splice(0, emittedFilesPaths.length);
+}
 /**
  * Helper to emit a file.
  * @param program TypeSpec Program
@@ -21,5 +25,8 @@ export async function emitFile(program: Program, options: EmitFileOptions): Prom
     options.newLine && options.newLine === "crlf"
       ? options.content.replace(/(\r\n|\n|\r)/gm, "\r\n")
       : options.content;
+
+  emittedFilesPaths.push(options.path);
+
   return await program.host.writeFile(options.path, content);
 }

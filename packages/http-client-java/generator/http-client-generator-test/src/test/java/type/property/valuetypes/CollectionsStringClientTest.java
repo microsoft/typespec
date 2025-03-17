@@ -15,7 +15,6 @@ class CollectionsStringClientTest {
     @Test
     void get() {
         CollectionsStringProperty collectionsStringProperty = client.get();
-        System.out.println(collectionsStringProperty);
         Assertions.assertEquals("hello", collectionsStringProperty.getProperty().get(0));
         Assertions.assertEquals("world", collectionsStringProperty.getProperty().get(1));
     }

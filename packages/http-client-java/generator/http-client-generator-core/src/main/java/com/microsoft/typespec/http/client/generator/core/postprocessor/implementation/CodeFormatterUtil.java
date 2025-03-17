@@ -18,21 +18,62 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 
 /**
  * Utility class that handles code formatting.
  */
 public final class CodeFormatterUtil {
+
+    private static final Pattern SPOTLESS_ERROR_PATTERN
+        = Pattern.compile("^(\\d+):\\d+: error: (.*)$", Pattern.MULTILINE);
+    private static final int SPOTLESS_FILE_CONTENT_RANGE = 3;
+
     /**
      * Formats the given files by removing unused imports and applying Eclipse code formatting.
      *
      * @param files The files to format.
      * @param plugin The plugin to use to write the formatted files.
      */
-    public static void formatCode(Map<String, String> files, NewPlugin plugin) {
-        for (Map.Entry<String, String> file : formatCodeInternal(files.entrySet())) {
-            plugin.writeFile(file.getKey(), file.getValue(), null);
+    public static void formatCode(Map<String, String> files, NewPlugin plugin, Logger logger) {
+        try {
+            for (Map.Entry<String, String> file : formatCodeInternal(files.entrySet())) {
+                plugin.writeFile(file.getKey(), file.getValue(), null);
+            }
+        } catch (SpotlessException ex) {
+            // format one file at a time, to give better error diagnostics
+            for (Map.Entry<String, String> file : files.entrySet()) {
+                try {
+                    formatCodeInternal(List.of(file));
+                } catch (RuntimeException e) {
+                    // by default, log the whole file
+                    String content = file.getValue();
+
+                    // if we can find the line number from the error message, refine the "content" to the part of file
+                    // around the line
+                    Matcher matcher = SPOTLESS_ERROR_PATTERN.matcher(e.getMessage());
+                    if (matcher.find()) {
+                        int lineNumber = Integer.parseInt(matcher.group(1));
+
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append(matcher.group(0)).append("\n");
+
+                        // line number from log starts from 1
+                        String[] lines = content.split("\n");
+                        int lineIndexBegin = Math.max(0, lineNumber - 1 - SPOTLESS_FILE_CONTENT_RANGE);
+                        int lineIndexEnd = Math.min(lines.length - 1, lineNumber - 1 + SPOTLESS_FILE_CONTENT_RANGE);
+                        for (int lineIndex = lineIndexBegin; lineIndex <= lineIndexEnd; ++lineIndex) {
+                            stringBuilder.append(lineIndex + 1).append(" ").append(lines[lineIndex]).append("\n");
+                        }
+                        content = stringBuilder.toString();
+                    }
+                    logger.error("Failed to format file '{}'\n{}", file.getKey(), content);
+                }
+            }
+            throw ex;
         }
     }
 
@@ -41,10 +82,10 @@ public final class CodeFormatterUtil {
      *
      * @param files The files to format. The entry is filename and content.
      * @return the files after format.
-     * @throws Exception If code formatting fails.
+     * @throws RuntimeException If code formatting fails.
      */
-    public static List<String> formatCode(Collection<Map.Entry<String, String>> files) throws Exception {
-        return formatCodeInternal(files).stream().map(Map.Entry::getValue).collect(Collectors.toList());
+    public static List<String> formatCode(Map<String, String> files) {
+        return formatCodeInternal(files.entrySet()).stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
 
     private static List<Map.Entry<String, String>> formatCodeInternal(Collection<Map.Entry<String, String>> files) {
@@ -101,12 +142,18 @@ public final class CodeFormatterUtil {
 
             if (process.isAlive() || process.exitValue() != 0) {
                 process.destroyForcibly();
-                throw new RuntimeException(
-                    "Spotless failed to complete within 300 seconds or failed with an error code. "
+                throw new SpotlessException(
+                    "Spotless failed to complete within 300 seconds or failed with an error code. Output:\n"
                         + Files.readString(outputFile.toPath()));
             }
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException("Failed to run Spotless on generated code.", ex);
+        }
+    }
+
+    private static final class SpotlessException extends RuntimeException {
+        public SpotlessException(String message) {
+            super(message);
         }
     }
 }

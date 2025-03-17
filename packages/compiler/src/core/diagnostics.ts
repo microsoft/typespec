@@ -17,16 +17,6 @@ import {
   Type,
 } from "./types.js";
 
-/**
- * Represents a failure while interpreting a projection.
- */
-export class ProjectionError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ProjectionError";
-  }
-}
-
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 
@@ -257,7 +247,7 @@ export function assertType<TKind extends Type["kind"][]>(
   ...kinds: TKind
 ): asserts t is Type & { kind: TKind[number] } {
   if (kinds.indexOf(t.kind) === -1) {
-    throw new ProjectionError(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
+    throw new Error(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
   }
 }
 
@@ -304,6 +294,13 @@ export interface DiagnosticCollector {
    * @example return diagnostics.wrap(routes);
    */
   wrap<T>(value: T): DiagnosticResult<T>;
+
+  /**
+   * Join the given result with the diagnostics in this collector.
+   * @param result - result to join with the diagnostics
+   * @returns - the result with the combined diagnostics
+   */
+  join<T>(result: DiagnosticResult<T>): DiagnosticResult<T>;
 }
 
 /**
@@ -317,6 +314,7 @@ export function createDiagnosticCollector(): DiagnosticCollector {
     add,
     pipe,
     wrap,
+    join,
   };
 
   function add(diagnostic: Diagnostic) {
@@ -332,6 +330,14 @@ export function createDiagnosticCollector(): DiagnosticCollector {
   }
 
   function wrap<T>(value: T): DiagnosticResult<T> {
+    return [value, diagnostics];
+  }
+
+  function join<T>(result: DiagnosticResult<T>): DiagnosticResult<T> {
+    const [value, diags] = result;
+    for (const diag of diags) {
+      diagnostics.push(diag);
+    }
     return [value, diagnostics];
   }
 }

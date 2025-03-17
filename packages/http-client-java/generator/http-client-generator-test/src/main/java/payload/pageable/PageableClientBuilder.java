@@ -40,7 +40,12 @@ import payload.pageable.implementation.PageableClientImpl;
 /**
  * A builder for creating a new instance of the PageableClient type.
  */
-@ServiceClientBuilder(serviceClients = { PageableClient.class, PageableAsyncClient.class })
+@ServiceClientBuilder(
+    serviceClients = {
+        ServerDrivenPaginationClient.class,
+        ServerDrivenPaginationContinuationTokenClient.class,
+        ServerDrivenPaginationAsyncClient.class,
+        ServerDrivenPaginationContinuationTokenAsyncClient.class })
 public final class PageableClientBuilder implements HttpTrait<PageableClientBuilder>,
     ConfigurationTrait<PageableClientBuilder>, EndpointTrait<PageableClientBuilder> {
     @Generated
@@ -264,23 +269,46 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
     }
 
     /**
-     * Builds an instance of PageableAsyncClient class.
+     * Builds an instance of ServerDrivenPaginationAsyncClient class.
      * 
-     * @return an instance of PageableAsyncClient.
+     * @return an instance of ServerDrivenPaginationAsyncClient.
      */
     @Generated
-    public PageableAsyncClient buildAsyncClient() {
-        return new PageableAsyncClient(buildInnerClient().getServerDrivenPaginations());
+    public ServerDrivenPaginationAsyncClient buildServerDrivenPaginationAsyncClient() {
+        return new ServerDrivenPaginationAsyncClient(buildInnerClient().getServerDrivenPaginations());
     }
 
     /**
-     * Builds an instance of PageableClient class.
+     * Builds an instance of ServerDrivenPaginationContinuationTokenAsyncClient class.
      * 
-     * @return an instance of PageableClient.
+     * @return an instance of ServerDrivenPaginationContinuationTokenAsyncClient.
      */
     @Generated
-    public PageableClient buildClient() {
-        return new PageableClient(buildInnerClient().getServerDrivenPaginations());
+    public ServerDrivenPaginationContinuationTokenAsyncClient
+        buildServerDrivenPaginationContinuationTokenAsyncClient() {
+        return new ServerDrivenPaginationContinuationTokenAsyncClient(
+            buildInnerClient().getServerDrivenPaginationContinuationTokens());
+    }
+
+    /**
+     * Builds an instance of ServerDrivenPaginationClient class.
+     * 
+     * @return an instance of ServerDrivenPaginationClient.
+     */
+    @Generated
+    public ServerDrivenPaginationClient buildServerDrivenPaginationClient() {
+        return new ServerDrivenPaginationClient(buildInnerClient().getServerDrivenPaginations());
+    }
+
+    /**
+     * Builds an instance of ServerDrivenPaginationContinuationTokenClient class.
+     * 
+     * @return an instance of ServerDrivenPaginationContinuationTokenClient.
+     */
+    @Generated
+    public ServerDrivenPaginationContinuationTokenClient buildServerDrivenPaginationContinuationTokenClient() {
+        return new ServerDrivenPaginationContinuationTokenClient(
+            buildInnerClient().getServerDrivenPaginationContinuationTokens());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(PageableClientBuilder.class);

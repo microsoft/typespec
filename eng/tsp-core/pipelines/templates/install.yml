@@ -2,7 +2,7 @@
 parameters:
   - name: nodeVersion
     type: string
-    default: 20.x
+    default: 22.x
 
   - name: useDotNet
     type: string

@@ -3,9 +3,7 @@ import "@typespec/openapi";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Nullable sample",
-})
+@service(#{ title: "Nullable sample" })
 namespace NullableSample;
 
 model HasNullables {

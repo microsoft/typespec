@@ -54,7 +54,11 @@ export function withCliHostAndDiagnostics<T extends CliHostArgs>(
 }
 
 export function createCLICompilerHost(options: CliHostArgs): CliCompilerHost {
-  const logSink = createConsoleSink({ pretty: options.pretty, pathRelativeTo: process.cwd() });
+  const logSink = createConsoleSink({
+    pretty: options.pretty,
+    pathRelativeTo: process.cwd(),
+    trackAction: true,
+  });
   const logger = createLogger({ sink: logSink, level: options.debug ? "trace" : "warning" });
   return { ...NodeHost, logSink, logger, debug: options.debug ?? false };
 }

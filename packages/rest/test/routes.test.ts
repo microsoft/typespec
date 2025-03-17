@@ -143,7 +143,7 @@ describe("rest: routes", () => {
   });
 
   it("autoRoute operations filter out path parameters with a string literal type", async () => {
-    const routes = await getRoutesFor(
+    const operations = await getOperations(
       `
       model ThingId {
         @path
@@ -167,14 +167,58 @@ describe("rest: routes", () => {
       }
       `,
     );
-
-    deepStrictEqual(routes, [
-      {
-        verb: "get",
-        path: "/subscriptions/{subscriptionId}/providers/Microsoft.Things/things/{thingId}",
-        params: ["subscriptionId", "thingId"],
-      },
+    expect(operations.length).toBe(1);
+    const operation = operations[0];
+    expect(operation.verb).toBe("get");
+    expect(operation.path).toBe(
+      "/subscriptions/{subscriptionId}/providers/Microsoft.Things/things/{thingId}",
+    );
+    const operationParams = operation.parameters.parameters;
+    const operationProps = operation.parameters.properties;
+    expect(operationParams.map((p) => p.name)).toEqual(["subscriptionId", "thingId"]);
+    expect(operationProps.map((p) => (p as any).options.name)).toEqual([
+      "subscriptionId",
+      "thingId",
     ]);
+  });
+
+  it("autoRoute operations does not filter out non-param http properties", async () => {
+    const operations = await getOperations(
+      `
+      model ThingId {
+        @path
+        @segment("things")
+        thingId: string;
+      }
+
+      @autoRoute
+      interface Things {
+        @put
+        op WithFilteredParam(
+          @path
+          @segment("subscriptions")
+          subscriptionId: string,
+
+          @path
+          @segment("providers")
+          provider: "Microsoft.Things",
+          ...ThingId,
+
+          @header contentType: "text/plain",
+
+          @body body: "Test Content"
+        ): string;
+      }
+      `,
+    );
+    expect(operations.length).toBe(1);
+    const operation = operations[0];
+    expect(operation.verb).toBe("put");
+    expect(operation.path).toBe(
+      "/subscriptions/{subscriptionId}/providers/Microsoft.Things/things/{thingId}",
+    );
+    const operationProps = operation.parameters.properties;
+    expect(operationProps.map((p) => p.kind)).toEqual(["path", "path", "contentType", "body"]);
   });
 
   it("emit diagnostic if passing arguments to autoroute decorators", async () => {
@@ -196,7 +240,7 @@ describe("rest: routes", () => {
           op action(): void;
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           op my is Lib.action;
           @route("my")
@@ -218,7 +262,7 @@ describe("rest: routes", () => {
           }
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           interface Mys extends Lib.Ops {
           }
@@ -241,7 +285,7 @@ describe("rest: routes", () => {
           }
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           @route("my") interface Mys2 extends Lib.Ops {}
 
@@ -263,7 +307,7 @@ describe("rest: routes", () => {
           op action(@path @segment("pets") id: string): void;
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           op my is Lib.action;
 
@@ -286,7 +330,7 @@ describe("rest: routes", () => {
           }
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           interface Mys extends Lib.Ops {}
           @route("my")
@@ -308,7 +352,7 @@ describe("rest: routes", () => {
           }
         }
 
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         namespace Test {
           interface Mys extends Lib.Ops {}
           @route("my")

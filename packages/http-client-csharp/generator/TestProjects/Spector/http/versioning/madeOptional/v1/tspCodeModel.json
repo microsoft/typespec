@@ -37,7 +37,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Versioning.MadeOptional",
+   "namespace": "Versioning.MadeOptional",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -50,7 +50,7 @@
    "$id": "6",
    "kind": "model",
    "name": "TestModel",
-   "clientNamespace": "Versioning.MadeOptional",
+   "namespace": "Versioning.MadeOptional",
    "crossLanguageDefinitionId": "Versioning.MadeOptional.TestModel",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -114,7 +114,7 @@
   {
    "$id": "15",
    "Name": "MadeOptionalClient",
-   "ClientNamespace": "Versioning.MadeOptional",
+   "Namespace": "Versioning.MadeOptional",
    "Doc": "Test for the `@madeOptional` decorator.",
    "Operations": [
     {
@@ -226,7 +226,6 @@
        "BodyType": {
         "$ref": "6"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -235,7 +234,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/made-optional/api-version:{version}",
      "Path": "/test",
      "RequestMediaTypes": [
@@ -292,7 +290,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Versioning.MadeOptional"
   }
  ]
 }

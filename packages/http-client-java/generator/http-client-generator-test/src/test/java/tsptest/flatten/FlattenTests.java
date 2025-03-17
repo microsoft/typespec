@@ -31,7 +31,7 @@ public class FlattenTests {
             = new FlattenClientImpl(pipeline, "https://localhost", FlattenServiceVersion.V2022_06_01_PREVIEW);
         FlattenAsyncClient client = new FlattenAsyncClient(impl);
 
-        client.send("id1", "host", "input1", 11, new User("user1")).block();
+        client.send("id1", "host", "input1", 11, 50, new User("user1")).block();
 
         Assertions.assertEquals("id1", idCaptor.get());
         Assertions.assertEquals(

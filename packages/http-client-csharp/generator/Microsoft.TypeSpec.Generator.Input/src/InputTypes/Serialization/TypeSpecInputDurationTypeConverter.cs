@@ -37,9 +37,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("encode", ref encode)
-                    || reader.TryReadWithConverter("wireType", options, ref wireType)
-                    || reader.TryReadWithConverter("baseType", options, ref baseType)
-                    || reader.TryReadWithConverter("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("wireType", options, ref wireType)
+                    || reader.TryReadComplexType("baseType", options, ref baseType)
+                    || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {

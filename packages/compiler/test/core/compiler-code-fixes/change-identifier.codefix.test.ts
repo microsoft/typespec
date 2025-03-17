@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
+import { SyntaxKind } from "../../../src/ast/index.js";
 import { createChangeIdentifierCodeFix } from "../../../src/core/compiler-code-fixes/change-identifier.codefix.js";
-import { SyntaxKind } from "../../../src/index.js";
 import { expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
 
 describe("CodeFix: change-identifier", () => {

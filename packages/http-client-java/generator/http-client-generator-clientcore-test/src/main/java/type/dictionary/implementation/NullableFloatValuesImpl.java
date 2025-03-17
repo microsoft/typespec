@@ -49,7 +49,8 @@ public final class NullableFloatValuesImpl {
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/dictionary/nullable-float",
-            expectedStatusCodes = { 200 })
+            expectedStatusCodes = { 200 },
+            returnValueWireType = Double.class)
         @UnexpectedResponseExceptionDetail
         Response<Map<String, Double>> getSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, RequestOptions requestOptions);

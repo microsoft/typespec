@@ -2,8 +2,9 @@ import { dirname, isAbsolute, join } from "path";
 import { ExtensionContext, workspace } from "vscode";
 import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
+import telemetryClient from "./telemetry/telemetry-client.js";
 import { SettingName } from "./types.js";
-import { isFile, loadModule, useShellInExec } from "./utils.js";
+import { checkInstalledNode, isFile, loadModule, useShellInExec } from "./utils.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
 
 /**
@@ -42,9 +43,14 @@ export async function resolveTypeSpecCli(
   }
 }
 
-export async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executable> {
+export async function resolveTypeSpecServer(
+  activityId: string,
+  context: ExtensionContext,
+): Promise<Executable> {
+  const checkNodePromise = checkInstalledNode();
   const nodeOptions = process.env.TYPESPEC_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
+  let compilerLocation: string | undefined;
 
   // In development mode (F5 launch from source), resolve to locally built server.js.
   if (process.env.TYPESPEC_DEVELOPMENT_MODE) {
@@ -75,6 +81,7 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
   // @typespec/compiler` in a vanilla setup.
   if (serverPath) {
     logger.info(`Server path loaded from TypeSpec extension configuration: ${serverPath}`);
+    compilerLocation = "compiler-configured-by-setting";
   } else {
     logger.info(
       "Server path not configured in TypeSpec extension configuration, trying to resolve locally within current workspace.",
@@ -87,8 +94,13 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
     logger.warning(
       `Can't resolve server path from either TypeSpec extension configuration or workspace, try to use default value ${executable}.`,
     );
+    telemetryClient.logOperationDetailTelemetry(activityId, {
+      compilerLocation: "global-compiler",
+    });
     return useShellInExec({ command: executable, args, options });
   }
+  compilerLocation ??= "local-compiler";
+  telemetryClient.logOperationDetailTelemetry(activityId, { compilerLocation });
   const variableResolver = new VSCodeVariableResolver({
     workspaceFolder,
     workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.
@@ -112,7 +124,15 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
   }
 
   options.env["TYPESPEC_SKIP_COMPILER_RESOLVE"] = "1";
-  return { command: "node", args: [serverPath, ...args], options };
+  const nodeInstallPath = await checkNodePromise;
+  if (nodeInstallPath.length > 0) {
+    logger.debug(`Start tsp server using node at ${nodeInstallPath}`);
+    return { command: "node", args: [serverPath, ...args], options };
+  } else {
+    // otherwise the local compiler should be installed by standalone tsp cli
+    logger.debug("Start tsp server using standalone tsp cli");
+    return { command: "tsp", args: ["--server", serverPath, ...args], options };
+  }
 }
 
 async function resolveLocalCompiler(baseDir: string): Promise<string | undefined> {

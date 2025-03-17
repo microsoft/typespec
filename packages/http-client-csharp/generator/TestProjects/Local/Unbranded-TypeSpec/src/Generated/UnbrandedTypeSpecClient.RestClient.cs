@@ -332,5 +332,61 @@ namespace UnbrandedTypeSpec
             message.Apply(options);
             return message;
         }
+
+        internal PipelineMessage CreateListWithNextLinkRequest(Uri nextPage, RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier200;
+            PipelineRequest request = message.Request;
+            request.Method = "GET";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(nextPage ?? _endpoint);
+            if (nextPage == null)
+            {
+                uri.AppendPath("/link", false);
+            }
+            request.Uri = uri.ToUri();
+            request.Headers.Set("Accept", "application/json");
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateListWithContinuationTokenRequest(string token, RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier200;
+            PipelineRequest request = message.Request;
+            request.Method = "GET";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/continuation", false);
+            if (token != null)
+            {
+                uri.AppendQuery("token", token, true);
+            }
+            request.Uri = uri.ToUri();
+            request.Headers.Set("Accept", "application/json");
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateListWithContinuationTokenHeaderResponseRequest(string token, RequestOptions options)
+        {
+            PipelineMessage message = Pipeline.CreateMessage();
+            message.ResponseClassifier = PipelineMessageClassifier200;
+            PipelineRequest request = message.Request;
+            request.Method = "GET";
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/continuation/header", false);
+            if (token != null)
+            {
+                uri.AppendQuery("token", token, true);
+            }
+            request.Uri = uri.ToUri();
+            request.Headers.Set("Accept", "application/json");
+            message.Apply(options);
+            return message;
+        }
     }
 }

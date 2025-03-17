@@ -6,13 +6,12 @@ import {
   Model,
   Namespace,
   navigateType,
-  Operation,
   Scalar,
   Type,
   Union,
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/experimental/typekit";
-import { isHttpFile } from "@typespec/http";
+import { HttpOperation, isHttpFile } from "@typespec/http";
 import { InternalClient } from "../../interfaces.js";
 
 /**
@@ -64,7 +63,7 @@ defineKit<TypekitExtension>({
       if (namespace) {
         return [...namespace.namespaces.values()].filter((ns) => this.type.isUserDefined(ns));
       }
-      return [...this.program.checker.getGlobalNamespaceType().namespaces.values()].filter(
+      return [...this.program.getGlobalNamespaceType().namespaces.values()].filter(
         (n) => getLocationContext(this.program, n).type === "project",
       );
     },
@@ -140,9 +139,9 @@ export interface TypeCollectorOptions {
 
 export function collectTypes(client: InternalClient, options: TypeCollectorOptions = {}) {
   const dataTypes = new Set<Model | Enum | Union>();
-  const operations: Operation[] = [];
+  const operations: HttpOperation[] = [];
   $.client.flat(client).forEach((c) => {
-    const ops = $.client.listServiceOperations(c);
+    const ops = $.client.listHttpOperations(c);
     operations.push(...ops);
 
     const params = $.client.getConstructor(c).parameters;
@@ -150,7 +149,7 @@ export function collectTypes(client: InternalClient, options: TypeCollectorOptio
   });
 
   for (const operation of operations) {
-    collectDataType(operation, dataTypes, options);
+    collectDataType(operation.operation, dataTypes, options);
   }
 
   return {

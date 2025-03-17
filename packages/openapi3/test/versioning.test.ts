@@ -10,7 +10,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
     const { v1, v2, v3 } = await openApiFor(
       `
       @versioned(Versions)
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace MyService {
         enum Versions {
           @useDependency(MyLibrary.Versions.A)
@@ -134,7 +134,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
       enum Versions { v1 };
     }
     @armNamespace
-    @service({title: "Widgets 'r' Us"})
+    @service(#{title: "Widgets 'r' Us"})
     @useDependency(Contoso.Library.Versions.v1)
     namespace Contoso.WidgetService {
       model Widget {
@@ -169,7 +169,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
         }
       }
       
-      @service({title: "Service"})
+      @service(#{title: "Service"})
       @useDependency(Library.Versions.v1)
       namespace Service {
         model Widget {

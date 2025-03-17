@@ -1,5 +1,3 @@
-import "../dist/src/private.decorators.js";
-
 /**
  * Private decorators. Those are meant for internal use inside Http types only.
  */
@@ -12,3 +10,9 @@ extern dec httpPart(
   type: unknown,
   options: valueof HttpPartOptions
 );
+
+/**
+ * Specify if inapplicable metadata should be included in the payload for the given entity.
+ * @param value If true, inapplicable metadata will be included in the payload.
+ */
+extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof boolean);

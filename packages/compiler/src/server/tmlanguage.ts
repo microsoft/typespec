@@ -59,7 +59,7 @@ const meta: typeof tm.meta = tm.meta;
 const identifierStart = "[_$[:alpha:]]";
 // cspell:disable-next-line
 const identifierContinue = "[_$[:alnum:]]";
-const beforeIdentifier = `(?=${identifierStart})`;
+const beforeIdentifier = `(?=(${identifierStart}|\`))`;
 const escapedIdentifier = "`(?:[^`\\\\]|\\\\.)*`";
 const simpleIdentifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const identifier = `${simpleIdentifier}|${escapedIdentifier}`;
@@ -908,142 +908,6 @@ const functionDeclarationStatement: BeginEndRule = {
   patterns: [token, operationParameters, typeAnnotation],
 };
 
-const projectionParameter: BeginEndRule = {
-  key: "projection-parameter",
-  scope: meta,
-  begin: `(${identifier})`,
-  beginCaptures: {
-    "1": { scope: "variable.name.tsp" },
-  },
-  end: `(?=\\))|${universalEnd}`,
-  patterns: [],
-};
-
-const projectionParameters: BeginEndRule = {
-  key: "projection-parameters",
-  scope: meta,
-  begin: "\\(",
-  beginCaptures: {
-    "0": { scope: "punctuation.parenthesis.open.tsp" },
-  },
-  end: "\\)",
-  endCaptures: {
-    "0": { scope: "punctuation.parenthesis.close.tsp" },
-  },
-  patterns: [token, projectionParameter],
-};
-
-const projectionExpression: IncludeRule = {
-  key: "projection-expression",
-  patterns: [
-    /* placeholder filled later due to cycle*/
-  ],
-};
-
-const projectionBody: BeginEndRule = {
-  key: "projection-body",
-  scope: meta,
-  begin: "\\{",
-  beginCaptures: {
-    "0": { scope: "punctuation.curlybrace.open.tsp" },
-  },
-  end: "\\}",
-  endCaptures: {
-    "0": { scope: "punctuation.curlybrace.close.tsp" },
-  },
-  patterns: [projectionExpression, punctuationSemicolon],
-};
-
-const ifExpression: BeginEndRule = {
-  key: "if-expression",
-  scope: meta,
-  begin: `\\b(if)\\b`,
-  beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-  },
-  end: `((?<=\\})|${universalEnd})`,
-  patterns: [projectionExpression, projectionBody],
-};
-
-const elseIfExpression: BeginEndRule = {
-  key: "else-if-expression",
-  scope: meta,
-  begin: `\\b(else)\\s+(if)\\b`,
-  beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-    "2": { scope: "keyword.other.tsp" },
-  },
-  end: `((?<=\\})|${universalEnd})`,
-  patterns: [projectionExpression, projectionBody],
-};
-
-const elseExpression: BeginEndRule = {
-  key: "else-expression",
-  scope: meta,
-  begin: `\\b(else)\\b`,
-  beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-  },
-  end: `((?<=\\})|${universalEnd})`,
-  patterns: [projectionExpression, projectionBody],
-};
-
-const functionCall: BeginEndRule = {
-  key: "function-call",
-  scope: meta,
-  begin: `(${identifier})\\s*(\\()`,
-  beginCaptures: {
-    "1": { scope: "entity.name.function.tsp" },
-    "2": { scope: "punctuation.parenthesis.open.tsp" },
-  },
-  end: `\\)`,
-  endCaptures: {
-    "0": { scope: "punctuation.parenthesis.close.tsp" },
-  },
-  patterns: [expression],
-};
-
-projectionExpression.patterns = [elseIfExpression, ifExpression, elseExpression, functionCall];
-
-const projection: BeginEndRule = {
-  key: "projection",
-  scope: meta,
-  begin: "(from|to)",
-  beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-  },
-  end: `((?<=\\})|${universalEnd})`,
-  patterns: [projectionParameters, projectionBody],
-};
-
-const projectionStatementBody: BeginEndRule = {
-  key: "projection-statement-body",
-  scope: meta,
-  begin: "\\{",
-  beginCaptures: {
-    "0": { scope: "punctuation.curlybrace.open.tsp" },
-  },
-  end: "\\}",
-  endCaptures: {
-    "0": { scope: "punctuation.curlybrace.close.tsp" },
-  },
-  patterns: [projection],
-};
-
-const projectionStatement: BeginEndRule = {
-  key: "projection-statement",
-  scope: meta,
-  begin: `\\b(projection)\\b\\s+(${identifier})(#)(${identifier})`,
-  beginCaptures: {
-    "1": { scope: "keyword.other.tsp" },
-    "2": { scope: "keyword.other.tsp" },
-    "3": { scope: "keyword.operator.selector.tsp" },
-    "4": { scope: "variable.name.tsp" },
-  },
-  end: `((?<=\\})|${universalEnd})`,
-  patterns: [projectionStatementBody],
-};
-
 // NOTE: We don't actually classify all the different expression types and their
 // punctuation yet. For now, at least, we only deal with the ones that would
 // break coloring due to breaking out of context inappropriately with parens/
@@ -1083,7 +947,6 @@ statement.patterns = [
   usingStatement,
   decoratorDeclarationStatement,
   functionDeclarationStatement,
-  projectionStatement,
   punctuationSemicolon,
 ];
 

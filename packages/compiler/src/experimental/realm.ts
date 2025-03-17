@@ -133,8 +133,6 @@ export class Realm {
   constructor(program: Program, description: string) {
     this.key = Symbol(description);
     this.#program = program;
-
-    Realm.#knownRealms.set(this.key, this);
   }
 
   #_typekit: Typekit | undefined;
@@ -234,12 +232,6 @@ export class Realm {
   /** @internal */
   public get types() {
     return this.#types;
-  }
-
-  static #knownRealms = new Map<symbol, Realm>();
-
-  static realmForKey(key: symbol, parentRealm?: Realm) {
-    return this.#knownRealms.get(key);
   }
 
   static realmForType = new WeakMap<Type, Realm>();

@@ -1,0 +1,38 @@
+name: Make Change Comment
+
+on:
+  workflow_run:
+    workflows: ["Consistency"]
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+
+jobs:
+  # DO NOT BUILD ANYTHING FROM A PR HERE https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+  commenter:
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.actor != 'dependabot[bot]' && 
+      !startsWith(github.head_ref, 'publish/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: comment
+          run-id: ${{github.event.workflow_run.id }}
+          github-token: ${{secrets.GITHUB_TOKEN}}
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - uses: ./.github/actions/setup
+
+      - run: pnpm install
+        name: Install dependencies
+
+      - run: pnpm chronus-github-pr-commenter --comment-file comment.json
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        name: Create/update comment

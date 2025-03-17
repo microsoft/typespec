@@ -17,6 +17,6 @@ $diffExcludes = @(
 
 Invoke-LoggedCommand "git -c core.safecrlf=false diff --ignore-space-at-eol --exit-code -- $diffExcludes" -IgnoreExitCode
 
-if($LastExitCode -ne 0) {
+if ($LastExitCode -ne 0) {
     throw "Changes detected"
 }

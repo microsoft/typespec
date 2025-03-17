@@ -5,7 +5,7 @@ title: Releases
 
 ## Versioning strategy for packages
 
-TypeSpec is currently in its development phase, and all packages are released with a `0.` major version. Each minor version may introduce some breaking changes to the TypeSpec language, library API, or both. These changes are documented [here](../release-notes).
+TypeSpec is currently in its development phase, and all packages are released with a `0.` major version. Each minor version may introduce some breaking changes to the TypeSpec language, library API, or both. These changes are documented [here](../../release-notes/release-2025-02-11/).
 
 Any modification to the `main` branch is automatically published under the npm `@next` tag.
 
@@ -55,4 +55,4 @@ To preview upcoming changes, you can check the milestones at https://github.com/
 
 Release notes describing the breaking changes and how to migrate can be found in this folder:
 
-[https://github.com/microsoft/typespec/tree/main/docs/release-notes](https://github.com/microsoft/typespec/tree/main/docs/release-notes)
+[https://github.com/microsoft/typespec/tree/main/website/src/content/docs/docs/release-notes](https://github.com/microsoft/typespec/tree/main/website/src/content/docs/docs/release-notes)

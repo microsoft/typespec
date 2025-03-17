@@ -4,9 +4,7 @@ import "@typespec/openapi";
 using TypeSpec.Http;
 using TypeSpec.OpenAPI;
 
-@service({
-  title: "sample",
-})
+@service(#{ title: "sample" })
 namespace Sample;
 
 @doc("Uri or local path to source data.")

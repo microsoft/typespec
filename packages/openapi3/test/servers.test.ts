@@ -7,7 +7,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("set a basic server(url)", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://example.com")
       namespace MyService {}
       `,
@@ -23,7 +23,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("set a basic server(url and desc)", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://example.com", "Main server")
       namespace MyService {}
       `,
@@ -40,7 +40,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("emit diagnostic when parameter is not a string", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://{region}.example.com", "Regional account endpoint", {region: int32})
       namespace MyService {}
       `,
@@ -55,7 +55,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("emit diagnostic when parameter is an enum of different types", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://{region}.example.com", "Regional account endpoint", {region: Region})
       namespace MyService {}
 
@@ -75,7 +75,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("emit diagnostic when parameter is a union of non string types", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://{region}.example.com", "Regional account endpoint", {region: string | int32})
       namespace MyService {}
       `,
@@ -90,7 +90,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("set a server with parameters", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://{account}.{region}.example.com", "Regional account endpoint", {region: string, account: string})
       namespace MyService {}
       `,
@@ -110,7 +110,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("set a server with parameters with defaults", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://{account}.{region}.example.com", "Regional account endpoint", {
         region?: string = "westus", 
         account?: string = "default",
@@ -133,7 +133,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("set a server with parameters with doc", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://{region}.example.com", "Regional account endpoint", {
         @doc("Region name")
         region: string,
@@ -155,7 +155,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("set a server with parameters with extensions", async () => {
     const res = await openApiFor(
       `
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://{region}.example.com", "Regional account endpoint", {
         @extension("x-custom", "Foo")
         region: string,
@@ -178,7 +178,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     const res = await openApiFor(
       `
       enum Region { westus, eastus }
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://{region}.example.com", "Regional account endpoint", {
         region: Region, 
       })
@@ -200,7 +200,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     const res = await openApiFor(
       `
       enum Region {  }
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://{region}.example.com", "Regional account endpoint", {
         region: "westus", 
       })
@@ -222,7 +222,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     const res = await openApiFor(
       `
       enum Region {  }
-      @service({title: "My service"})
+      @service(#{title: "My service"})
       @server("https://{region}.example.com", "Regional account endpoint", {
         region: "westus" | "eastus", 
       })

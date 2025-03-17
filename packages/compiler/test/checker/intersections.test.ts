@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
-import { Model, ModelProperty } from "../../src/core/index.js";
+import { Model, ModelProperty } from "../../src/index.js";
 import {
   BasicTestRunner,
   createTestHost,

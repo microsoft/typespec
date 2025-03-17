@@ -12,7 +12,7 @@ import {
   Scalar,
   visit,
 } from "yaml";
-import { TextRange } from "../core/index.js";
+import type { TextRange } from "../core/types.js";
 import { firstNonWhitespaceCharacterIndex, isWhitespaceStringOrUndefined } from "../utils/misc.js";
 import { ServerLog } from "./types.js";
 

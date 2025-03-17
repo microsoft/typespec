@@ -8,8 +8,8 @@ This document describe how the http library interpret TypeSpec built-in types an
 
 **Default behavior:**
 
-- `bytes` are serialized as `base64` when used inside a model serialized as JSON
-- In request or response body it represent a binary payload.
+- `bytes` are serialized as `base64` when used in any context that requires they be encoded to a string (such as in a model property that is serialized as JSON, or if transmitted as a string in a `"text/plain"` payload).
+- In the context of a binary payload (`"application/octet-stream"`) or an [HTTP File](./operations.md#handling-files), `bytes` are not encoded. They represent the body of the request, response, or multipart field or the file's exact contents.
 
 :::note
 This behavior is only a specification and MUST be respected by the emitter. The http library DOES NOT automatically apply the `@encode("base64")` when used inside a JSON model.

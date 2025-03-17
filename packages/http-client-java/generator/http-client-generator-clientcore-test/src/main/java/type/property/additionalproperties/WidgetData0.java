@@ -16,12 +16,6 @@ import java.io.IOException;
 @Metadata(conditions = { TypeConditions.IMMUTABLE })
 public final class WidgetData0 implements JsonSerializable<WidgetData0> {
     /*
-     * The kind property.
-     */
-    @Metadata(generated = true)
-    private final String kind = "kind0";
-
-    /*
      * The fooProp property.
      */
     @Metadata(generated = true)
@@ -35,16 +29,6 @@ public final class WidgetData0 implements JsonSerializable<WidgetData0> {
     @Metadata(generated = true)
     public WidgetData0(String fooProp) {
         this.fooProp = fooProp;
-    }
-
-    /**
-     * Get the kind property: The kind property.
-     * 
-     * @return the kind value.
-     */
-    @Metadata(generated = true)
-    public String getKind() {
-        return this.kind;
     }
 
     /**
@@ -64,7 +48,6 @@ public final class WidgetData0 implements JsonSerializable<WidgetData0> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("kind", this.kind);
         jsonWriter.writeStringField("fooProp", this.fooProp);
         return jsonWriter.writeEndObject();
     }

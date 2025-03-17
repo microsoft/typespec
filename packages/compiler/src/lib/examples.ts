@@ -76,13 +76,7 @@ function resolveUnions(program: Program, value: ObjectValue, type: Type): Type |
   for (const variant of type.variants.values()) {
     if (
       ignoreDiagnostics(
-        program.checker.isTypeAssignableTo(
-          // eslint-disable-next-line @typescript-eslint/no-deprecated
-          exactValueType ?? value.type.projectionBase ?? value.type,
-          // eslint-disable-next-line @typescript-eslint/no-deprecated
-          variant.type.projectionBase ?? variant.type,
-          value,
-        ),
+        program.checker.isTypeAssignableTo(exactValueType ?? value.type, variant.type, value),
       )
     ) {
       return variant.type;

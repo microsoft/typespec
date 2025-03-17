@@ -1,3 +1,4 @@
+import { typespecVersion } from "../../../../manifest.js";
 import { logDiagnostics } from "../../../diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
 import { CompilerOptions } from "../../../options.js";
@@ -14,6 +15,9 @@ import { CompileCliArgs, getCompilerOptions } from "./args.js";
 import { ProjectWatcher, WatchHost, createWatchHost, createWatcher } from "./watch.js";
 
 export async function compileAction(host: CliCompilerHost, args: CompileCliArgs) {
+  // eslint-disable-next-line no-console
+  console.log(`TypeSpec compiler v${typespecVersion}\n`);
+
   const diagnostics: Diagnostic[] = [];
   const entrypoint = await resolveTypeSpecEntrypoint(
     host,
@@ -177,7 +181,7 @@ function logProgramResult(
     logDiagnostics(program.diagnostics, host.logSink);
     logDiagnosticCount(program.diagnostics);
   } else {
-    log("Compilation completed successfully.");
+    log("\nCompilation completed successfully.");
   }
   // eslint-disable-next-line no-console
   console.log(); // Insert a newline

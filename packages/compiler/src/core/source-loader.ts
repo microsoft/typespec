@@ -6,7 +6,8 @@ import {
   ResolveModuleHost,
 } from "../module-resolver/module-resolver.js";
 import { PackageJson } from "../types/package-json.js";
-import { deepEquals, doIO, resolveTspMain } from "../utils/misc.js";
+import { doIO } from "../utils/io.js";
+import { deepEquals, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";

@@ -271,6 +271,12 @@ public class ModelExampleUtil {
      * @return example node
      */
     public static ExampleNode parseNodeFromParameter(ProxyMethodExample example, MethodParameter methodParameter) {
+        if (methodParameter.getProxyMethodParameter() == null) {
+            LOGGER.warn("Proxy method parameter not found for client method parameter '{}'",
+                methodParameter.getClientMethodParameter().getName());
+            return null;
+        }
+
         String serializedName = methodParameter.getSerializedName();
         if (serializedName == null
             && methodParameter.getProxyMethodParameter().getRequestParameterLocation()

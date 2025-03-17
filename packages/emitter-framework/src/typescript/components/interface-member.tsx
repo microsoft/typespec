@@ -15,7 +15,7 @@ export function InterfaceMember({ type, optional }: InterfaceMemberProps) {
   const name = namer.getName(type.name, "object-member-getter");
 
   if ($.modelProperty.is(type)) {
-    const optionality = (type.optional ?? optional) ? "?" : "";
+    const optionality = optional === true || type.optional === true ? "?" : "";
 
     if (isNeverType(type.type)) {
       return null;
@@ -27,16 +27,20 @@ export function InterfaceMember({ type, optional }: InterfaceMemberProps) {
       unpackedType = part.type;
     }
 
-    return <>
+    return (
+      <>
         "{name}"{optionality}: <TypeExpression type={unpackedType} />;
-      </>;
+      </>
+    );
   }
 
   if ($.operation.is(type)) {
     const returnType = <TypeExpression type={type.returnType} />;
     const params = <FunctionDeclaration.Parameters type={type.parameters} />;
-    return <>
+    return (
+      <>
         {name}({params}): {returnType};
-      </>;
+      </>
+    );
   }
 }

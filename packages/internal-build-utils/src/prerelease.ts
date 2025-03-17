@@ -106,8 +106,20 @@ function updateDependencyVersions(
   return clone;
 }
 
-function getPrereleaseVersionRange(manifest: BumpManifest, prereleaseTag: string) {
-  return `~${manifest.oldVersion} || >=${manifest.nextVersion}-${prereleaseTag} <${manifest.nextVersion}`;
+export function getPrereleaseVersionRange(manifest: BumpManifest, prereleaseTag: string) {
+  const parsedOldVersion = parse(manifest.oldVersion);
+  const parsedNextVersion = parse(manifest.nextVersion);
+  if (parsedOldVersion === null) {
+    throw new Error(`Invalid semver version ${manifest.oldVersion}`);
+  }
+  if (parsedNextVersion === null) {
+    throw new Error(`Invalid semver version ${manifest.nextVersion}`);
+  }
+
+  if (parsedOldVersion.major > 0 && parsedOldVersion.major === parsedNextVersion.major) {
+    return `^${manifest.oldVersion}`;
+  }
+  return `^${manifest.oldVersion} || >=${manifest.nextVersion}-${prereleaseTag} <${manifest.nextVersion}`;
 }
 
 function getDevVersion(version: string, changeCount: number) {
@@ -118,7 +130,7 @@ function getDevVersion(version: string, changeCount: number) {
   return devVersion;
 }
 
-function getNextVersion(version: string) {
+export function getNextVersion(version: string) {
   const parsed = parse(version);
   if (parsed === null) {
     throw new Error(`Invalid semver version ${version}`);

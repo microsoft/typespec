@@ -2,6 +2,7 @@ import {
   DecoratorContext,
   Model,
   ModelProperty,
+  Namespace,
   Program,
   Type,
   getProperty,
@@ -11,14 +12,10 @@ import {
   HttpPartDecorator,
   HttpPartOptions,
   PlainDataDecorator,
-  TypeSpecHttpPrivateDecorators,
 } from "../generated-defs/TypeSpec.Http.Private.js";
 import { HttpStateKeys } from "./lib.js";
 
-/** @internal */
-export const namespace = "TypeSpec.Http.Private";
-
-const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
+export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
   const { program } = context;
 
   const decoratorsToRemove = ["$header", "$body", "$query", "$path", "$statusCode"];
@@ -46,7 +43,7 @@ const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model
   }
 };
 
-const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: Model) => {
+export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: Model) => {
   context.program.stateSet(HttpStateKeys.file).add(target);
 };
 
@@ -94,7 +91,12 @@ export function getHttpFileModel(program: Program, type: Type): HttpFileModel | 
   return { contents, contentType, filename, type };
 }
 
-const $httpPart: HttpPartDecorator = (context: DecoratorContext, target: Model, type, options) => {
+export const $httpPart: HttpPartDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  type,
+  options,
+) => {
   context.program.stateMap(HttpStateKeys.httpPart).set(target, { type, options });
 };
 
@@ -108,11 +110,49 @@ export function getHttpPart(program: Program, target: Type): HttpPart | undefine
   return program.stateMap(HttpStateKeys.httpPart).get(target);
 }
 
-/** @internal */
-export const $decorators = {
-  "TypeSpec.Http.Private": {
-    httpFile: $httpFile,
-    httpPart: $httpPart,
-    plainData: $plainData,
-  } satisfies TypeSpecHttpPrivateDecorators,
-};
+/**
+ * Specifies if inapplicable metadata should be included in the payload for
+ * the given entity. This is true by default unless changed by this
+ * decorator.
+ *
+ * @param entity Target model, namespace, or model property. If applied to a
+ *               model or namespace, applies recursively to child models,
+ *               namespaces, and model properties unless overridden by
+ *               applying this decorator to a child.
+ *
+ * @param value `true` to include inapplicable metadata in payload, false to
+ *               exclude it.
+ *
+ * @see isApplicableMetadata
+ *
+ * @ignore Cause issue with conflicting function of same name for now
+ */
+export function $includeInapplicableMetadataInPayload(
+  context: DecoratorContext,
+  entity: Type,
+  value: boolean,
+) {
+  const state = context.program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayload);
+  state.set(entity, value);
+}
+
+/**
+ * Determines if the given model property should be included in the payload if it is
+ * inapplicable metadata.
+ *
+ * @see isApplicableMetadata
+ * @see $includeInapplicableMetadataInPayload
+ */
+export function includeInapplicableMetadataInPayload(
+  program: Program,
+  property: ModelProperty,
+): boolean {
+  let e: ModelProperty | Namespace | Model | undefined;
+  for (e = property; e; e = e.kind === "ModelProperty" ? e.model : e.namespace) {
+    const value = program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayload).get(e);
+    if (value !== undefined) {
+      return value;
+    }
+  }
+  return true;
+}

@@ -287,6 +287,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task CanReplaceWriteMethod()
+        {
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
+                    InputFactory.Property("Prop1", InputPrimitiveType.String),
+                    InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String))
+                ],
+                usage: InputModelTypeUsage.Json);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var methods = serializationProvider!.Methods;
+            Assert.AreEqual(10, methods.Count);
+
+            // validate the Write method doesn't exist in the serialization provider
+            Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "Write"));
+        }
+
+        [Test]
         public async Task CanReplaceDeserializationMethod()
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [

@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
+# cspell:ignore zxvf
 set -euo pipefail
 
-# cspell:ignore zxvf
-skip_shell=false
-release="latest"
+# Default values for args
+skip_shell=false # --skip-shell
+version="latest" # --version
+
 os=$(uname -s)
 platform=$(uname -ms)
 bin_name="tsp"
@@ -86,22 +88,17 @@ parse_args() {
     key="$1"
 
     case $key in
-      -d | --install-dir)
-        install_dir="$2"
-        shift # past argument
-        shift # past value
-        ;;
+      # -d | --install-dir)
+      #   install_dir="$2"
+      #   shift # past argument
+      #   shift # past value
+      #   ;;
       -s | --skip-shell)
         SKIP_SHELL="true"
         shift # past argument
         ;;
-      --force-install | --force-no-brew)
-        echo "\`--force-install\`: I hope you know what you're doing." >&2
-        FORCE_INSTALL="true"
-        shift
-        ;;
-      -r | --release)
-        release="$2"
+      --version)
+        version="$2"
         shift # past release argument
         shift # past release value
         ;;
@@ -122,11 +119,11 @@ get_filename() {
 }
 
 get_download_url() {
-  if [ "$release" = "latest" ]; then
-    release=$(find_latest_version)
+  if [ "$version" = "latest" ]; then
+    version=$(find_latest_version)
   fi
 
-  echo "https://typespec.blob.core.windows.net/dist/$release/$(get_filename)"
+  echo "https://typespec.blob.core.windows.net/dist/$version/$(get_filename)"
 }
 
 download_tsp() {
@@ -194,9 +191,9 @@ setup_shell() {
     {
       echo ''
       echo '# TypeSpec'
-      echo 'TYPESPEC_PATH="'"$install_dir"'"'
+      echo 'TYPESPEC_PATH="'"$bin_dir"'"'
       echo 'if [ -d "$TYPESPEC_PATH" ]; then'
-      echo '  export PATH="'$install_dir':$PATH"'
+      echo '  export PATH="'$bin_dir':$PATH"'
       echo 'fi'
     } | tee -a "$CONF_FILE"
 
@@ -207,7 +204,7 @@ setup_shell() {
     {
       echo ''
       echo '# TypeSpec'
-      echo 'set TYPESPEC_PATH "'"$install_dir"'"'
+      echo 'set TYPESPEC_PATH "'"$bin_dir"'"'
       echo 'if [ -d "$TYPESPEC_PATH" ]'
       echo '  set PATH "$TYPESPEC_PATH" $PATH'
       echo 'end'
@@ -224,7 +221,7 @@ setup_shell() {
     {
       echo ''
       echo '# TypeSpec'
-      echo 'TYPESPEC_PATH="'"$install_dir"'"'
+      echo 'TYPESPEC_PATH="'"$bin_dir"'"'
       echo 'if [ -d "$TYPESPEC_PATH" ]; then'
       echo '  export PATH="$TYPESPEC_PATH:$PATH"'
       echo 'fi'

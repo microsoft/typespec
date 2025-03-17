@@ -56,13 +56,13 @@ The content of a (built-in) `@doc` decorator on a parameter will be set in the d
 
 The TypeSpec parameter type will be translated into an appropriate OpenAPI schema for the parameter.
 
-Similarly, the type of the body parameter(s) will be translated into an appropriate OpenAPI schema for the request body. The request body will use the "application/json" media type unless the body model includes an explicit `content-type` header.
+Similarly, the type of the body parameter(s) will be translated into an appropriate OpenAPI schema for the request body. The request body will use a content type determined by the [default content type resolution logic](../../libraries/http/content-types.md#default-behavior) unless the body model includes an explicit `content-type` header.
 
 For more advanced details, see [metadata](../../libraries/http/operations.md#metadata).
 
 ### Responses
 
-The return type(s) of the TypeSpec operation are translated into responses for the OpenAPI operation. The status code for a response can be defined as a property in the return type model with the [(Http) `@statusCode` decorator][http-statuscode-decorator] (the property name is ignored). If the [(built-in) `@error` decorator][error-decorator] is specified on a return type, this return type becomes the "default" response for the operation. The media type for a response will be "application/json" unless the return type model includes an explicit `content-type` header. Models with different status codes and/or media types can be combined to describe complex response designs.
+The return type(s) of the TypeSpec operation are translated into responses for the OpenAPI operation. The status code for a response can be defined as a property in the return type model with the [(Http) `@statusCode` decorator][http-statuscode-decorator] (the property name is ignored). If the [(built-in) `@error` decorator][error-decorator] is specified on a return type, this return type becomes the "default" response for the operation. The media type for a response will be determined by the [default content type resolution logic](../../libraries/http/content-types.md#default-behavior) unless the return type model includes an explicit `content-type` header. Models with different status codes and/or media types can be combined to describe complex response designs.
 
 When a return type model has a property explicitly decorated with an [(Http) `@body` decorator][http-body-decorator], this is considered as the response body. In the absence of an explicit `@body`, the properties that are not marked `@statusCode` or `@header` form the response body.
 

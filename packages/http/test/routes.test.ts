@@ -79,7 +79,7 @@ describe("http: routes", () => {
       it("operation in the service namespace are included", async () => {
         const routes = await getOperations(
           `
-          @service({title: "My Service"})
+          @service(#{title: "My Service"})
           namespace MyService;
           @get op index(): void;
           `,
@@ -94,7 +94,7 @@ describe("http: routes", () => {
           @route("/not-included")
           @get op notIncluded(): void;
 
-          @service({title: "My Service"})
+          @service(#{title: "My Service"})
           namespace MyService {
             @route("/included")
             @get op included(): void;
@@ -107,7 +107,7 @@ describe("http: routes", () => {
       it("interface in the service namespace are included", async () => {
         const routes = await getOperations(
           `
-          @service({title: "My Service"})
+          @service(#{title: "My Service"})
           namespace MyService;
           interface Foo {
             @get index(): void;
@@ -120,7 +120,7 @@ describe("http: routes", () => {
       it("operation in namespace in the service namespace are be included", async () => {
         const routes = await getOperations(
           `
-          @service({title: "My Service"})
+          @service(#{title: "My Service"})
           namespace MyService;
 
           namespace MyArea{
@@ -135,7 +135,7 @@ describe("http: routes", () => {
       it("operation in a different namespace are not included", async () => {
         const routes = await getOperations(
           `
-          @service({title: "My Service"})
+          @service(#{title: "My Service"})
           namespace MyService {
             @route("/included")
             @get op test(): string;
@@ -476,30 +476,6 @@ describe("http: routes", () => {
         namespace Foo {
           @test
           @route("/get2")
-          op get2(): string;
-        }
-      `)) as { get1: Operation; get2: Operation };
-
-      strictEqual(getRoutePath(runner.program, get1)?.shared, true);
-      strictEqual(getRoutePath(runner.program, get2)?.shared, false);
-    });
-
-    it("legacy `shared: true parameter` still works", async () => {
-      const runner = await createHttpTestRunner();
-      const { get1, get2 } = (await runner.compile(`
-        @route("/test")
-        namespace Foo {
-          #suppress "deprecated"
-          @test
-          @route("/get1", { shared: true })
-          op get1(): string;
-        }
-
-        @route("/test")
-        namespace Foo {
-          #suppress "deprecated"
-          @test
-          @route("/get2", { shared: false })
           op get2(): string;
         }
       `)) as { get1: Operation; get2: Operation };

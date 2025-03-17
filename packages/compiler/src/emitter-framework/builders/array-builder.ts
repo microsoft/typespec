@@ -1,4 +1,4 @@
-import { compilerAssert } from "../../core/index.js";
+import { compilerAssert } from "../../core/diagnostics.js";
 import { Placeholder } from "../placeholder.js";
 import { EmitEntity, EmitterResult } from "../types.js";
 

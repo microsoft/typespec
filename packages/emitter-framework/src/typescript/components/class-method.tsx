@@ -23,15 +23,20 @@ export function ClassMethod(props: ClassMethodProps) {
   const returnType =
     props.returnType === null ? undefined : <TypeExpression type={getReturnType(props.type)} />;
 
-  return <ts.ClassMethod
-    refkey={refkey}
-    name={name}
-    async={props.async}
-    returnType={returnType}
-    parameters={buildParameterDescriptors(props.type.parameters, {params: props.parameters, mode: props.parametersMode})}
-   >
-    {props.children}
-   </ts.ClassMethod>;
+  return (
+    <ts.ClassMethod
+      refkey={refkey}
+      name={name}
+      async={props.async}
+      returnType={returnType}
+      parameters={buildParameterDescriptors(props.type.parameters, {
+        params: props.parameters,
+        mode: props.parametersMode,
+      })}
+    >
+      {props.children}
+    </ts.ClassMethod>
+  );
 }
 
 function isTypedMethodDeclarationProps(props: ClassMethodProps): props is ClassMethodPropsWithType {

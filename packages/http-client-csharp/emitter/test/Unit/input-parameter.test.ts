@@ -1,6 +1,8 @@
+vi.resetModules();
+
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
@@ -631,7 +633,7 @@ describe("Test Parameter Explode", () => {
       it("cookie parameter is not supported", async () => {
         const program = await typeSpecCompile(
           `
-                @service({
+                @service(#{
                   title: "Azure Csharp emitter Testing",
                 })
                 @server(

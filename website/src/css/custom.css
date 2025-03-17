@@ -1,9 +1,5 @@
 @import url("@typespec/astro-utils/css/fluentui.css");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root,
 :root[data-theme="light"],
 :root[data-theme="dark"] {

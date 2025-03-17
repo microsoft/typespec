@@ -120,6 +120,9 @@
         // Use empty node options and don't debug while profiling to get the most accurate timing
         //"TYPESPEC_SERVER_NODE_OPTIONS": "",
 
+        // Set the telemetry key environment variable to use if you dont want to set it in package.json
+        //"TYPESPEC_VSCODE_TELEMETRY_KEY": "{The instrumentation key of your Application Insights}",
+
         "TYPESPEC_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
         "TYPESPEC_DEVELOPMENT_MODE": "true"
       },

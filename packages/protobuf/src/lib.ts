@@ -52,6 +52,9 @@ const PACKAGE_NAME = "@typespec/protobuf";
 
 export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
   name: PACKAGE_NAME,
+  capabilities: {
+    dryRun: true,
+  },
   requireImports: [PACKAGE_NAME],
   diagnostics: {
     "field-index": {

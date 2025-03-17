@@ -29,7 +29,9 @@ export const TypekitPrototype: Record<string, unknown> = {};
 export type StripGuards<T> = {
   [K in keyof T]: T[K] extends (...args: infer P) => infer R
     ? (...args: P) => R
-    : StripGuards<T[K]>;
+    : T[K] extends Record<string, any>
+      ? StripGuards<T[K]>
+      : T[K];
 };
 
 export const TypekitNamespaceSymbol = Symbol.for("TypekitNamespace");

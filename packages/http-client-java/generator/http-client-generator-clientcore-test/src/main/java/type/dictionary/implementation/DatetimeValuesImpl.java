@@ -50,7 +50,8 @@ public final class DatetimeValuesImpl {
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/type/dictionary/datetime",
-            expectedStatusCodes = { 200 })
+            expectedStatusCodes = { 200 },
+            returnValueWireType = OffsetDateTime.class)
         @UnexpectedResponseExceptionDetail
         Response<Map<String, OffsetDateTime>> getSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, RequestOptions requestOptions);

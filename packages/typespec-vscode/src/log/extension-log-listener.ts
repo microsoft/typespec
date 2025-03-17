@@ -6,7 +6,7 @@ export interface ExtensionLogOptions extends LogOptions {
   showOutput?: boolean;
   /** show the log in vscode popup */
   showPopup?: boolean;
-  /** the text of the button in the popup notification, default is 'View details in Output' */
+  /** the text of the button in the popup notification, default is 'View details in Output', "" to remove the button */
   popupButtonText?: string;
   /** callback when the button in the popup notification is clicked, default is to open the TypeSpec Output */
   onPopupButtonClicked?: () => void;

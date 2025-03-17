@@ -6,7 +6,6 @@ extern alias SrvDrivenV1;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SrvDrivenV1::Resiliency.ServiceDriven;
-using SrvDrivenV1::Resiliency.SrvDriven.V1;
 
 namespace TestProjects.Spector.Tests.Http.Resiliency.SrvDriven.V1
 {

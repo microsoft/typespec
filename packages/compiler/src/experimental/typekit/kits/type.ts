@@ -1,5 +1,6 @@
+import { ignoreDiagnostics } from "../../../core/diagnostics.js";
 import { getDiscriminatedUnion } from "../../../core/helpers/discriminator-utils.js";
-import { getLocationContext } from "../../../core/index.js";
+import { getLocationContext } from "../../../core/helpers/location-context.js";
 import {
   Discriminator,
   getDiscriminator,
@@ -17,6 +18,7 @@ import { Enum, Model, Scalar, Union, type Type } from "../../../core/types.js";
 import { getDoc, getSummary } from "../../../lib/decorators.js";
 import { resolveEncodedName } from "../../../lib/encoded-names.js";
 import { defineKit } from "../define-kit.js";
+import { $ } from "../index.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
@@ -62,11 +64,6 @@ export interface TypeTypekit {
    * @param type The scalar to get the name of.z
    */
   getPlausibleName(type: Model | Union | Enum | Scalar): string;
-  /**
-   * Resolves a discriminated union for the given model or union.
-   * @param type Model or Union to resolve the discriminated union for.
-   */
-  getDiscriminatedUnion(type: Model | Union): Union | undefined;
   /**
    * Resolves the discriminator for a discriminated union. Returns undefined if the type is not a discriminated union.
    * @param type
@@ -152,6 +149,7 @@ defineKit<TypekitExtension>({
             ...type,
             decorators: [...type.decorators],
             derivedModels: [...type.derivedModels],
+            sourceModels: type.sourceModels.map((x) => ({ ...x })),
             properties: copyMap(type.properties),
             indexer: type.indexer ? { ...type.indexer } : undefined,
           });
@@ -188,15 +186,12 @@ defineKit<TypekitExtension>({
             instantiationParameters: type.instantiationParameters
               ? [...type.instantiationParameters]
               : undefined,
-            // eslint-disable-next-line @typescript-eslint/no-deprecated
-            projections: [...type.projections],
             models: copyMap(type.models as any),
             decoratorDeclarations: copyMap(type.decoratorDeclarations as any),
             enums: copyMap(type.enums as any),
             unions: copyMap(type.unions as any),
             operations: copyMap(type.operations as any),
             interfaces: copyMap(type.interfaces as any),
-            functionDeclarations: copyMap(type.functionDeclarations as any),
             namespaces: copyMap(type.namespaces as any),
             scalars: copyMap(type.scalars as any),
           });
@@ -235,23 +230,18 @@ defineKit<TypekitExtension>({
       return getPlausibleName(type);
     },
     getDiscriminator(type) {
-      return getDiscriminator(this.program, type);
-    },
-    getDiscriminatedUnion(type) {
-      const discriminator = getDiscriminator(this.program, type);
-
-      if (!discriminator) {
-        return undefined;
+      let discriminator: Discriminator | undefined;
+      if ($.model.is(type)) {
+        discriminator = getDiscriminator(this.program, type);
+      } else {
+        const unionDiscriminator = ignoreDiagnostics(getDiscriminatedUnion(this.program, type));
+        const propertyName = unionDiscriminator?.options.discriminatorPropertyName;
+        if (propertyName) {
+          discriminator = { propertyName };
+        }
       }
 
-      const [union] = getDiscriminatedUnion(type, discriminator);
-      const variants = Array.from(union.variants.entries()).map(([k, v]) =>
-        this.unionVariant.create({ name: k, type: v }),
-      );
-      return this.union.create({
-        name: union.propertyName,
-        variants,
-      });
+      return discriminator;
     },
     maxValue(type) {
       return getMaxValue(this.program, type);

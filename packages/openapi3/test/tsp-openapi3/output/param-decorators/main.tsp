@@ -5,12 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "Parameter Decorators",
-})
-@info({
-  version: "0.0.0",
-})
+@service(#{ title: "Parameter Decorators" })
+@info(#{ version: "0.0.0" })
 namespace ParameterDecorators;
 
 model Thing {

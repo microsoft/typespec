@@ -294,7 +294,7 @@ function emitModel<TServiceOperation extends SdkServiceOperation>(
     usage: type.usage,
     isXml: type.usage & UsageFlags.Xml ? true : false,
     xmlMetadata: getXmlMetadata(type),
-    clientNamespace: getClientNamespace(context, type.clientNamespace),
+    clientNamespace: getClientNamespace(context, type.namespace),
   };
 
   typesMap.set(type, newValue);
@@ -341,13 +341,16 @@ function emitEnum<TServiceOperation extends SdkServiceOperation>(
     if (!type.isFixed) {
       types.push(emitBuiltInType(type.valueType));
     }
-    return {
+
+    const newValue = {
       description: "",
       internal: true,
       type: "combined",
       types,
       xmlMetadata: {},
     };
+    typesMap.set(type, newValue);
+    return newValue;
   }
   const values: Record<string, any>[] = [];
   const name = type.name;
@@ -361,7 +364,7 @@ function emitEnum<TServiceOperation extends SdkServiceOperation>(
     values,
     xmlMetadata: {},
     crossLanguageDefinitionId: type.crossLanguageDefinitionId,
-    clientNamespace: getClientNamespace(context, type.clientNamespace),
+    clientNamespace: getClientNamespace(context, type.namespace),
   };
   for (const value of type.values) {
     newValue.values.push(emitEnumMember(value, newValue));
@@ -479,7 +482,7 @@ function emitUnion<TServiceOperation extends SdkServiceOperation>(
     type: "combined",
     types: type.variantTypes.map((x) => getType(context, x)),
     xmlMetadata: {},
-    clientNamespace: getClientNamespace(context, type.clientNamespace),
+    clientNamespace: getClientNamespace(context, type.namespace),
   });
 }
 

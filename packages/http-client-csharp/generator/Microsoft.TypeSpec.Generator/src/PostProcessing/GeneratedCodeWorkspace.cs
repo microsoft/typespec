@@ -67,12 +67,30 @@ namespace Microsoft.TypeSpec.Generator
         public async Task AddGeneratedFile(CodeFile codefile)
         {
             var document = _project.AddDocument(codefile.Name, codefile.Content, _generatedFolders);
+            await UpdateProject(document);
+        }
+
+        public async Task AddInMemoryFile(TypeProvider type)
+        {
+            var document = _project.AddDocument(type.Name, GetTree(type).GetRoot(), _generatedFolders);
+            await UpdateProject(document);
+        }
+
+        private async Task UpdateProject(Document document)
+        {
             var root = await document.GetSyntaxRootAsync();
             Debug.Assert(root != null);
 
             root = root.WithAdditionalAnnotations(Simplifier.Annotation);
             document = document.WithSyntaxRoot(root);
             _project = document.Project;
+        }
+
+        internal static SyntaxTree GetTree(TypeProvider provider)
+        {
+            var writer = new TypeProviderWriter(provider);
+            var file = writer.Write();
+            return CSharpSyntaxTree.ParseText(file.Content, path: Path.Join(provider.RelativeFilePath, provider.Name + ".cs"));
         }
 
         public async IAsyncEnumerable<(string Name, string Text)> GetGeneratedFilesAsync()

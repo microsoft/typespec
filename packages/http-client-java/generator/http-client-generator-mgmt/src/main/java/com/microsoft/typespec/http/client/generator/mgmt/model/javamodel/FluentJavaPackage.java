@@ -120,7 +120,9 @@ public class FluentJavaPackage extends JavaPackage {
         FluentMethodMockTestTemplate.ClientMethodInfo info
             = new FluentMethodMockTestTemplate.ClientMethodInfo(className, unitTest);
         FluentMethodMockTestTemplate.getInstance().write(info, javaFile);
-        addJavaFile(javaFile);
+        if (!checkDuplicateFile(javaFile.getFilePath())) {
+            addJavaFile(javaFile);
+        }
     }
 
     public void addLiveTests(FluentLiveTests liveTests) {

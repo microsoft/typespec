@@ -1,5 +1,4 @@
 import { beforeEach, describe, it } from "vitest";
-import { Diagnostic } from "../../src/index.js";
 import {
   BasicTestRunner,
   DiagnosticMatch,
@@ -380,85 +379,6 @@ describe("compiler: checker: deprecation", () => {
           `,
           [],
         );
-      });
-    });
-  });
-
-  describe("@deprecated decorator", () => {
-    function omitDeprecatedDecoratorDeprecatedDiag(
-      diagnostics: readonly Diagnostic[],
-    ): readonly Diagnostic[] {
-      return diagnostics.filter(
-        (x) =>
-          !(
-            x.code === "deprecated" &&
-            x.message ===
-              "Deprecated: @deprecated decorator is deprecated. Use the `#deprecated` directive instead."
-          ),
-      );
-    }
-    it("doesn't emit warning until it is used", async () => {
-      const diagnostics = await runner.diagnose(`
-        @deprecated("Foo is deprecated use Bar")
-        model Foo { }
-        model Test  { }
-      `);
-      expectDiagnosticEmpty(omitDeprecatedDecoratorDeprecatedDiag(diagnostics));
-    });
-
-    it("emit warning diagnostic when used via is", async () => {
-      const diagnostics = await runner.diagnose(`
-        @deprecated("Foo is deprecated use Bar")
-        model Foo { }
-
-        model Test is Foo { }
-      `);
-      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
-        code: "deprecated",
-        message: "Deprecated: Foo is deprecated use Bar",
-        severity: "warning",
-      });
-    });
-
-    it("emit warning diagnostic when used via extends", async () => {
-      const diagnostics = await runner.diagnose(`
-        @deprecated("Foo is deprecated use Bar")
-        model Foo { }
-
-        model Test extends Foo { }
-      `);
-      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
-        code: "deprecated",
-        message: "Deprecated: Foo is deprecated use Bar",
-        severity: "warning",
-      });
-    });
-
-    it("emit warning diagnostic when used via property type", async () => {
-      const diagnostics = await runner.diagnose(`
-        @deprecated("Foo is deprecated use Bar")
-        model Foo { }
-
-        model Test { foo: Foo }
-      `);
-      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
-        code: "deprecated",
-        message: "Deprecated: Foo is deprecated use Bar",
-        severity: "warning",
-      });
-    });
-
-    it("emit warning diagnostic when used via spread", async () => {
-      const diagnostics = await runner.diagnose(`
-        @deprecated("Foo is deprecated use Bar")
-        model Foo { }
-
-        model Test { ...Foo }
-      `);
-      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
-        code: "deprecated",
-        message: "Deprecated: Foo is deprecated use Bar",
-        severity: "warning",
       });
     });
   });

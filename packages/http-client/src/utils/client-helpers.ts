@@ -1,64 +1,13 @@
 import { Refkey, refkey } from "@alloy-js/core";
 import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import { getHttpService, getServers, resolveAuthentication } from "@typespec/http";
+import { getHttpService, resolveAuthentication } from "@typespec/http";
 import { InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
 
-/**
- * Returns endpoint parameters, grouped by constructor. Meaning, each constructor will have its own set of parameters.
- * @param client
- * @returns
- */
-export function getEndpointParametersPerConstructor(client: InternalClient): ModelProperty[][] {
-  const servers = getServers($.program, client.service);
-  if (servers === undefined) {
-    const name = "endpoint";
-    return [
-      [
-        $.modelProperty.create({
-          name,
-          type: $.program.checker.getStdType("string"),
-          optional: false,
-          defaultValue: getStringValue("{endpoint}"),
-        }),
-      ],
-    ];
-  }
-  const retval: ModelProperty[][] = [];
-  for (const server of servers) {
-    const overridingEndpointConstructor: ModelProperty[] = [];
-    // add a parameter for each server, this is where users can override and pass in the full server
-    overridingEndpointConstructor.push(
-      $.modelProperty.create({
-        name: "endpoint",
-        type: $.builtin.string,
-        optional: false,
-        defaultValue: getStringValue(server.url),
-      }),
-    );
-    retval.push(overridingEndpointConstructor);
-    const formattingServerUrlConstructor: ModelProperty[] = [];
-    for (const param of server.parameters.values()) {
-      formattingServerUrlConstructor.push(
-        $.modelProperty.create({
-          name: param.name,
-          type: param.type,
-          optional: param.optional,
-          defaultValue: param.defaultValue,
-        }),
-      );
-    }
-    if (formattingServerUrlConstructor.length > 0) {
-      retval.push(formattingServerUrlConstructor);
-    }
-  }
-  return retval;
-}
-
 const credentialCache = new Map<Refkey, ModelProperty>();
-export function getCredentalParameter(client: InternalClient): ModelProperty | undefined {
+export function getCredentialParameter(client: InternalClient): ModelProperty | undefined {
   const [httpService] = getHttpService($.program, client.service);
 
   const schemes = resolveAuthentication(httpService).schemes;
@@ -100,34 +49,76 @@ function getCredRefkey(credentials: StringLiteral[]): Refkey {
 
 export function getConstructors(client: InternalClient): Operation[] {
   const constructors: Operation[] = [];
-  let params: ModelProperty[] = [];
-  const credParam = getCredentalParameter(client);
+  const params: ModelProperty[] = [];
+  const servers = $.client.listServers(client);
+
+  if (servers === undefined) {
+    // If there are no servers, then we have a single constructor with a single parameter, "endpoint".
+    // This is the default behavior when there are no servers defined.
+    const endpointParam = $.modelProperty.create({
+      name: "endpoint",
+      type: $.builtin.string,
+      optional: false,
+    });
+
+    params.push(endpointParam);
+  } else {
+    // build the endpoint parameter
+    const serverDefaultUrls: { url: string; params?: Map<string, ModelProperty> }[] = [];
+
+    for (const server of servers) {
+      if (server.url) {
+        serverDefaultUrls.push({ url: server.url, params: server.parameters });
+      }
+    }
+
+    if (serverDefaultUrls.length === 1) {
+      for (const param of serverDefaultUrls[0].params?.values() ?? []) {
+        params.push(param);
+      }
+
+      const internalEndpointName = params.some((param) => param.name === "endpoint")
+        ? "_endpoint"
+        : "endpoint";
+      const endpointParam = $.modelProperty.create({
+        name: internalEndpointName,
+        type: $.builtin.string,
+        optional: false,
+        defaultValue: getStringValue(serverDefaultUrls[0].url),
+      });
+      params.push(endpointParam);
+    } else {
+      const endpointVariants = serverDefaultUrls.map((value) =>
+        $.unionVariant.create({
+          type: $.literal.createString(value.url),
+        }),
+      );
+      endpointVariants.push($.unionVariant.create({ type: $.builtin.string }));
+      const endpointUnionType = $.union.create({ variants: endpointVariants });
+
+      // If we have multiple default values, we can't chose a single one so we make the type a union of the literals and string
+      const endpointParam = $.modelProperty.create({
+        name: "endpoint",
+        type: endpointUnionType,
+        optional: false,
+      });
+
+      params.push(endpointParam);
+    }
+  }
+
+  const credParam = getCredentialParameter(client);
   if (credParam) {
     params.push(credParam);
   }
-  const endpointParams = getEndpointParametersPerConstructor(client);
-  if (endpointParams.length === 1) {
-    // this means we have a single constructor
-    params = [...endpointParams[0], ...params];
-    constructors.push(
-      $.operation.create({
-        name: "constructor",
-        parameters: params,
-        returnType: $.program.checker.voidType,
-      }),
-    );
-  } else {
-    // this means we have one constructor with overloads, one for each group of endpoint parameter
-    for (const endpointParamGrouping of endpointParams) {
-      constructors.push(
-        $.operation.create({
-          name: "constructor",
-          parameters: [...endpointParamGrouping, ...params],
-          returnType: $.program.checker.voidType,
-        }),
-      );
-    }
-  }
+
+  constructors.push(
+    $.operation.create({
+      name: "constructor",
+      parameters: params,
+      returnType: $.program.checker.voidType,
+    }),
+  );
 
   return constructors;
 }

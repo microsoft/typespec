@@ -141,7 +141,7 @@ function createTestCompilerHost(
     },
     getSourceFileKind: getSourceFileKindFromExt,
 
-    logSink: NodeHost.logSink,
+    logSink: { log: NodeHost.logSink.log },
     mkdirp: async (path: string) => path,
     fileURLToPath,
     pathToFileURL(path: string) {
@@ -328,10 +328,6 @@ async function createTestHostInternal(): Promise<TestHost> {
     mainFile: string,
     options: CompilerOptions = {},
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]> {
-    if (options.noEmit === undefined) {
-      // default for tests is noEmit
-      options = { ...options, noEmit: true };
-    }
     const p = await compileProgram(fileSystem.compilerHost, resolveVirtualPath(mainFile), options);
     program = p;
     logVerboseTestOutput((log) =>

@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using CommandLine;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -32,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (options.ShouldDebug)
             {
-                await Console.Error.WriteLineAsync("Attempting to attach debugger..");
+                Console.Error.WriteLine("Attempting to attach debugger..");
                 Debugger.Launch();
             }
 
@@ -46,6 +47,9 @@ namespace Microsoft.TypeSpec.Generator
                 Console.Error.WriteLine(e.StackTrace);
                 return 1;
             }
+
+            (CodeModelPlugin.Instance.Emitter as IDisposable)?.Dispose();
+
             return 0;
         }
     }

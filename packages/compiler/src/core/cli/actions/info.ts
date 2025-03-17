@@ -11,9 +11,9 @@ export async function printInfoAction(host: CompilerHost): Promise<readonly Diag
   console.log(`Module: ${fileURLToPath(import.meta.url)}`);
 
   const config = await loadTypeSpecConfigForPath(host, cwd, true, true);
-  const { diagnostics, filename, ...restOfConfig } = config;
+  const { diagnostics, filename, file, ...restOfConfig } = config;
 
-  console.log(`User Config: ${config.filename ?? "No config file found"}`);
+  console.log(`User Config: ${filename ?? "No config file found"}`);
   console.log("-----------");
   console.log(stringify(restOfConfig));
   console.log("-----------");

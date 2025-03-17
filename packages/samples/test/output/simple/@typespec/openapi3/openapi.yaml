@@ -17,7 +17,7 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
   /beta/{id}:
@@ -33,7 +33,7 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/json:
+            text/plain:
               schema:
                 type: string
 components: {}

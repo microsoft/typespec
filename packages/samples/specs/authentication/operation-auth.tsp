@@ -2,9 +2,7 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Authenticated service with method override",
-})
+@service(#{ title: "Authenticated service with method override" })
 @useAuth(BearerAuth | MyAuth<["read", "write"]>)
 namespace TypeSpec.OperationAuth;
 

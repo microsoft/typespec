@@ -36,15 +36,8 @@ namespace Sample.Models
             }
             if (global::Sample.Optional.IsDefined(Prop2))
             {
-                if ((Prop2 != null))
-                {
-                    writer.WritePropertyName("prop2"u8);
-                    writer.WriteStringValue(Prop2);
-                }
-                else
-                {
-                    writer.WriteNull("prop2"u8);
-                }
+                writer.WritePropertyName("prop2"u8);
+                writer.WriteStringValue(Prop2);
             }
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {

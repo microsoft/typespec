@@ -1,7 +1,9 @@
-import { Children, mapJoin } from "@alloy-js/core";
+import * as ay from "@alloy-js/core";
+import { Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Enum, Union } from "@typespec/compiler";
-import { TypeExpression } from "./type-expression.js";
+import { Enum, EnumMember, Union, UnionVariant } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/experimental/typekit";
+import { TypeExpression } from "./type-expression.jsx";
 
 export interface UnionExpressionProps {
   type: Union | Enum;
@@ -9,28 +11,29 @@ export interface UnionExpressionProps {
 }
 
 export function UnionExpression({ type, children }: UnionExpressionProps) {
-  let variants: any[];
+  const items = ($.union.is(type) ? type.variants : type.members) as Map<
+    string,
+    UnionVariant | EnumMember
+  >;
 
-  if (type.kind === "Enum") {
-    variants = mapJoin(
-      type.members,
-      (_, value) => {
-        return <ts.ValueExpression jsValue={value.value ?? value.name} />;
-      },
-      { joiner: " | " },
-    );
-  } else {
-    variants = mapJoin(
-      type.variants,
-      (_, variant) => {
-        return <TypeExpression type={variant.type} />;
-      },
-      { joiner: " | " },
-    );
-  }
+  const variants = (
+    <ay.For joiner={" | "} each={items}>
+      {(_, value) => {
+        if ($.enumMember.is(value)) {
+          return <ts.ValueExpression jsValue={value.value ?? value.name} />;
+        } else {
+          return <TypeExpression type={value.type} />;
+        }
+      }}
+    </ay.For>
+  );
 
   if (children || (Array.isArray(children) && children.length)) {
-    return <>{variants} {` | ${children}`}</>;
+    return (
+      <>
+        {variants} {` | ${children}`}
+      </>
+    );
   }
 
   return variants;

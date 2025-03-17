@@ -165,10 +165,10 @@ The Protobuf emitter supports the declaration of an operation's streaming mode u
 
   Example: `rpc Example(stream In) returns (stream Out);`
 
-[native-service]: ../../standard-library/built-in-decorators#@service
-[protobuf-service]: reference/decorators#@TypeSpec.Protobuf.service
-[protobuf-package]: reference/decorators#@TypeSpec.Protobuf.package
-[protobuf-field]: reference/decorators#@TypeSpec.Protobuf.field
-[protobuf-stream]: reference/decorators#@TypeSpec.Protobuf.stream
-[protobuf-stream-mode]: reference/data-types#TypeSpec.Protobuf.StreamMode
-[protobuf-message]: reference/decorators#@TypeSpec.Protobuf.message
+[native-service]: ../../../standard-library/built-in-decorators/#@service
+[protobuf-service]: ../reference/decorators/#@TypeSpec.Protobuf.service
+[protobuf-package]: ../reference/decorators/#@TypeSpec.Protobuf.package
+[protobuf-field]: ../reference/decorators/#@TypeSpec.Protobuf.field
+[protobuf-stream]: ../reference/decorators/#@TypeSpec.Protobuf.stream
+[protobuf-stream-mode]: ../reference/data-types/#TypeSpec.Protobuf.StreamMode
+[protobuf-message]: ../reference/decorators/#@TypeSpec.Protobuf.message

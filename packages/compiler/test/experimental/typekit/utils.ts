@@ -15,9 +15,6 @@ export async function createContextMock(program?: Program): Promise<EmitContext<
     program,
     emitterOutputDir: "",
     options: {},
-    getAssetEmitter() {
-      throw "Not implemented";
-    },
   };
 }
 

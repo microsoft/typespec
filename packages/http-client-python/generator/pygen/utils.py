@@ -44,7 +44,7 @@ def to_snake_case(name: str) -> str:
 
 
 def parse_args(
-    need_cadl_file: bool = True,
+    need_tsp_file: bool = True,
 ) -> Tuple[argparse.Namespace, Dict[str, Any]]:
     parser = argparse.ArgumentParser(
         description="Run mypy against target folder. Add a local custom plugin to the path prior to execution. "
@@ -56,10 +56,10 @@ def parse_args(
         required=True,
     )
     parser.add_argument(
-        "--cadl-file",
-        dest="cadl_file",
-        help="Serialized cadl file",
-        required=need_cadl_file,
+        "--tsp-file",
+        dest="tsp_file",
+        help="Serialized tsp file",
+        required=need_tsp_file,
     )
     parser.add_argument(
         "--debug",

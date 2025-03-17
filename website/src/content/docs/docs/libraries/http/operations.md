@@ -159,52 +159,7 @@ namespace Pets {
 
 ## Content type
 
-[See content types docs](./content-types.md)
-
-### Default behavior
-
-Depending on the body of the operation http library will assume different content types:
-
-- `bytes`: `application/octet-stream`
-- `string`: `text/plain`
-- an `object` or anything else: `application/json`
-
-**Examples:**
-
-```typespec
-op download(): bytes; // response content type is application/octet-stream
-op upload(@body file: bytes): void; // request content type is application/octet-stream
-op getContent(): string; // response content type is text/plain
-op getPet(): {
-  // response content type is application/json
-  name: string;
-};
-```
-
-### Specify content type
-
-The content type for an operation can be specified by including a header parameter named `contentType`.
-
-#### Request content type
-
-```typespec
-op uploadImage(@header contentType: "image/png", @body image: bytes): void;
-```
-
-#### Response content type:
-
-```typespec
-op downloadImage(): {
-  @header contentType: "image/png";
-  @body image: bytes;
-};
-```
-
-#### Multiple content types
-
-```typespec
-op uploadImage(@header contentType: "image/png" | "image/jpeg", @body image: bytes): void;
-```
+[See the documentation of Content-Types](./content-types.md).
 
 ## Built-in response shapes
 
@@ -274,27 +229,79 @@ namespace Pets {
 }
 ```
 
+## Handling files
+
+`@typespec/http` provides a special model [`TypeSpec.Http.File`](../http/reference/data-types.md#file-typespechttpfile) for handling file uploads and downloads in HTTP operations. When working with files, emitters need to implement special handling due to their binary nature.
+
+### Basic File Handling
+
+When the model `Http.File` (or any model that extends `Http.File`) is the _exact_ body of an HTTP request, emitters **must** treat this model with special care:
+
+- The `contentType` property should be used as the value for the `Content-Type` header in requests and vice-versa for responses.
+- The `filename` property should be used in the `Content-Disposition` header in responses and vice-versa for multipart requests (`filename` cannot be sent in a non-multipart HTTP request because `Content-Disposition` is only valid for responses and multipart requests).
+- The file content should be treated as the raw body of the request/response without any additional parsing.
+
+See [`isHttpFile`](../http/reference/js-api/functions/isHttpFile.md) for a helper that emitters/libraries can use to detect instances of `Http.File`.
+
+### Examples
+
+#### Uploading and downloading files
+
+```typespec
+// Uploading and downloading
+@route("/files")
+interface Files {
+  @post
+  upload(@body file: Http.File): {
+    @statusCode statusCode: 201;
+  };
+
+  download(@path fileId: string): Http.File;
+}
+```
+
+#### Custom file types
+
+If you want to declare specific types of files that are accepted, but still treated as binary files, declare the content types by extending the `Http.File` model and overriding the `contentType` field.
+
+```typespec
+// Custom file type for images
+model ImageFile extends Http.File {
+  contentType: "image/jpeg" | "image/png" | "image/gif";
+}
+
+@route("/images")
+interface Images {
+  @post
+  upload(@body image: ImageFile): {
+    @statusCode statusCode: 201;
+  };
+
+  download(@path imageId: string): ImageFile;
+}
+```
+
 ## Automatic visibility
 
-The `@typespec/rest` library understands the following well-known [visibilities](../../standard-library/built-in-decorators.md) and provides functionality for emitters to apply them based on whether on request vs. response and HTTP method usage as detailed in the table below.
+The `@typespec/rest` library understands [Lifecycle Visibility](../../language-basics/visibility.md#lifecycle-visibility) and provides functionality for emitters to apply visibility transforms based on whether a model represents a request or response and on HTTP method usage as detailed in the table below.
 
-See [handling visibility and metadata](../../extending-typespec/emitter-metadata-handling.md) for how to incorporate this into
+See [handling visibility and metadata](../../extending-typespec/emitter-metadata-handling.md) for details on how to incorporate this information into an emitter implementation.
 
-| Name     | Visible in           |
-| -------- | -------------------- |
-| "read"   | Any response         |
-| "query"  | GET or HEAD request  |
-| "create" | POST or PUT request  |
-| "update" | PATCH or PUT request |
-| "delete" | DELETE request       |
+| Modifier         | Visible in           |
+| ---------------- | -------------------- |
+| Lifecycle.Read   | Any response         |
+| Lifecycle.Query  | GET or HEAD request  |
+| Lifecycle.Create | POST or PUT request  |
+| Lifecycle.Update | PATCH or PUT request |
+| Lifecycle.Delete | DELETE request       |
 
 This allows a single logical TypeSpec model to be used as in the following example:
 
 ```typespec
 model User {
   name: string;
-  @visibility("read") id: string;
-  @visibility("create") password: string;
+  @visibility(Lifecycle.Read) id: string;
+  @visibility(Lifecycle.Create) password: string;
 }
 
 @route("/users")
@@ -306,7 +313,7 @@ interface Users {
 
 There is a single logical user entity represented by the single TypeSpec type `User`, but the HTTP payload for this entity varies based on context. When returned in a response, the `id` property is included, but when sent in a request, it is not. Similarly, the `password` property is only included in create requests, but not present in responses.
 
-The OpenAPI v3 emitter will apply these visibilities automatically, without explicit use of `@withVisibility`, and it will generate separate schemas suffixed by visibility when necessary. `@visibility("read")` can be expressed in OpenAPI without generating additional schema by specifying `readOnly: true` and the OpenAPI v3 emitter will leverage this a an optimization, but other visibilities will generate additional schemas. For example, `@visibility("create")` applied to a model property of a type named Widget will generate a `WidgetCreate` schema.
+The OpenAPI v3 emitter will apply these visibilities automatically, without explicit use of `@withVisibility`, and it will generate separate schemas suffixed by visibility when necessary. `@visibility(Lifecycle.Read)` can be expressed in OpenAPI without generating additional schema by specifying `readOnly: true` and the OpenAPI v3 emitter will leverage this a an optimization, but other visibilities will generate additional schemas. For example, `@visibility(Lifecycle.Create)` applied to a model property of a type named Widget will generate a `WidgetCreate` schema.
 
 Another emitter such as one generating client code can see and preserve a single logical type and deal with these HTTP payload differences by means other than type proliferation.
 
@@ -329,13 +336,13 @@ Additionally metadata that appears in an array element type always inapplicable.
 
 When metadata is deemed "inapplicable", for example, if a `@path` property is seen in a response, it becomes part of the payload instead unless the [@includeInapplicableMetadataInPayload](./reference/decorators.md#@TypeSpec.Http.includeInapplicableMetadataInPayload) decorator is used and given a value of `false`.
 
-The handling of metadata applicability furthers the goal of keeping a single logical model in TypeSpec. For example, this defines a logical `User` entity that has a name, ID and password, but further annotates that the ID is sent in the HTTP path and the HTTP body in responses. Also, using automatically visibility as before, we further indicate that the password is only present in create requests.
+The handling of metadata applicability furthers the goal of keeping a single logical model in TypeSpec. For example, this defines a logical `User` entity that has a name, ID and password, but further annotates that the ID is sent in the HTTP path and the HTTP body in responses. Also, using automatic visibility as before, we further indicate that the password is only present in create requests.
 
 ```typespec
 model User {
   name: string;
   @path id: string;
-  @visibility("create") password: string;
+  @visibility(Lifecycle.Create) password: string;
 }
 ```
 

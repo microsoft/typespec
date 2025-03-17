@@ -185,7 +185,7 @@ RESERVED_WORDS = {
     PadType.OPERATION_GROUP: [*_always_reserved],
 }
 
-CADL_RESERVED_WORDS = {
+TSP_RESERVED_WORDS = {
     PadType.PARAMETER: ["stream"],
     PadType.PROPERTY: RESERVED_MODEL_PROPERTIES,
 }

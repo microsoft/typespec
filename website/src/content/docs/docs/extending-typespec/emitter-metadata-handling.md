@@ -21,7 +21,7 @@ However, if you want your emitter to split types like OpenAPI, you can still use
 
 Here are the main APIs involved in managing these features. For more details, refer to the linked API reference documentation.
 
-- [`getRequestVisibility(HttpVerb): Visibility`](../libraries/http/reference/js-api/functions/getRequestVisibility.md) - Use this to determine the visibility implied for data in the request parameters or body. Note that [`Visibility.Read`](../libraries/http/reference/js-api/enumerations/Visibility.md) is always applied for response data, so there is no corresponding API for the response.
+- [`resolveRequestVisibility(Program, Operation, HttpVerb): Visibility`](../libraries/http/reference/js-api/functions/resolveRequestVisibility.md) - Use this to determine the visibility implied for data in the request parameters or body. Note that [`Visibility.Read`](../libraries/http/reference/js-api/enumerations/Visibility.md) is always applied for response data, so there is no corresponding API for the response.
 
 - [`MetadataInfo`](../libraries/http/reference/js-api/interfaces/MetadataInfo.md) - Create this once for each program using [`createMetadataInfo(Program, MetadataInfoOptions)`](../libraries/http/reference/js-api/functions/createMetadataInfo.md). Then use it to understand metadata and visibility implications with the APIs below.
 

@@ -9,9 +9,9 @@ import {
   ModelProperty,
   Namespace,
   Program,
-  projectProgram,
   Type,
 } from "@typespec/compiler";
+import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
 import {
   createMetadataInfo,
   getHttpService,
@@ -23,7 +23,7 @@ import {
   resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
-import { buildVersionProjections } from "@typespec/versioning";
+import { getVersioningMutators } from "@typespec/versioning";
 import assert from "assert";
 
 export async function $onEmit(context: EmitContext): Promise<void> {
@@ -42,17 +42,29 @@ export async function $onEmit(context: EmitContext): Promise<void> {
   function emitAllServiceVersions() {
     const services = listServices(context.program);
     for (const service of services) {
-      const versionProjections = buildVersionProjections(context.program, service.type);
-      for (const versionProjection of versionProjections) {
-        const projectedProgram = projectProgram(context.program, versionProjection.projections);
-        const serviceNamespace = projectedProgram.projector.projectedTypes.get(service.type);
+      const mutators = getVersioningMutators(context.program, service.type);
+      if (mutators === undefined) {
+        emitService(context.program, service.type, service.title, undefined);
+        continue;
+      }
+      if (mutators.kind === "transient") {
+        continue;
+      }
+
+      for (const snapshot of mutators.snapshots) {
+        const subgraph = unsafe_mutateSubgraphWithNamespace(
+          context.program,
+          [snapshot.mutator],
+          service.type,
+        );
+        const serviceNamespace = subgraph.type;
         assert.strictEqual(serviceNamespace?.kind, "Namespace" as const);
-        const details = getService(projectedProgram, serviceNamespace);
+        const details = getService(context.program, serviceNamespace);
         emitService(
-          projectedProgram,
+          context.program,
           serviceNamespace,
           details?.title,
-          versionProjection.version ?? details?.version,
+          snapshot.version.value ?? snapshot.version.name,
         );
       }
     }
@@ -136,7 +148,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
     function emitResponses(responses: HttpOperationResponse[]) {
       for (const response of responses) {
         for (const content of response.responses) {
-          writeLine(`response: ${response.statusCode}${getContentTypeRemark(content.body)}`);
+          writeLine(`response: ${response.statusCodes}${getContentTypeRemark(content.body)}`);
           indent();
 
           // NOTE: For response data, the visibility to apply is always Read.

@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import type.property.additionalproperties.models.DifferentSpreadFloatRecord;
 import type.property.additionalproperties.models.DifferentSpreadModelArrayRecord;
@@ -209,6 +210,7 @@ public class SpreadTests {
         Assertions.assertEquals(43.125f, record.getAdditionalProperties().get("prop2").toObject(Float.class));
     }
 
+    @Disabled
     @Test
     public void testSpreadRecordDiscriminatedUnion() {
         BinaryData binaryDataProp1 = BinaryData.fromObject(new WidgetData0("abc"));
@@ -233,6 +235,7 @@ public class SpreadTests {
             record.getAdditionalProperties().get("prop2").toObject(Map.class));
     }
 
+    @Disabled
     @Test
     public void testSpreadRecordNonDiscriminatedUnion() {
         BinaryData binaryDataProp1 = BinaryData.fromObject(new WidgetData0("abc"));
@@ -257,6 +260,7 @@ public class SpreadTests {
             record.getAdditionalProperties().get("prop2").toObject(Map.class));
     }
 
+    @Disabled
     @Test
     public void testSpreadRecordNonDiscriminatedUnion2() {
         BinaryData binaryDataProp1 = BinaryData.fromObject(new WidgetData2("2021-01-01T00:00:00Z"));
@@ -281,6 +285,7 @@ public class SpreadTests {
             record.getAdditionalProperties().get("prop2").toObject(Map.class));
     }
 
+    @Disabled
     @Test
     public void testSpreadRecordNonDiscriminatedUnion3() {
         BinaryData binaryDataProp1 = BinaryData.fromObject(

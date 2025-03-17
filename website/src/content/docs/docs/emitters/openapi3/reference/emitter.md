@@ -42,10 +42,11 @@ If the content should be serialized as YAML or JSON. Default 'yaml', it not spec
 Name of the output file.
 Output file will interpolate the following values:
 
-- service-name: Name of the service if multiple
+- service-name: Name of the service
+- service-name-if-multiple: Name of the service if multiple
 - version: Version of the service if multiple
 
-Default: `{service-name}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`
+Default: `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`
 
 Example Single service no versioning
 
@@ -102,3 +103,11 @@ How to handle safeint type. Options are:
 - `int64`: Will produce `type: integer, format: int64`
 
 Default: `int64`
+
+### `seal-object-schemas`
+
+**Type:** `boolean`
+
+If true, then for models emitted as object schemas we default `additionalProperties` to false for
+OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.
+Default: `false`

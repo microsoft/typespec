@@ -5,15 +5,18 @@ using TypeSpec.Http;
 using TypeSpec.Versioning;
 using Azure.Core.Foundations;
 
-@service({
-  title: "ErrorModel",
-})
+@service(#{ title: "ErrorModel" })
 @useDependency(Azure.Core.Versions.v1_0_Preview_2)
 namespace TspTest.ErrorModel;
 
 model Diagnostic {
   name: string;
   error: Error;
+  subError: SubError;
+}
+
+model SubError extends Error {
+  subCode: string;
 }
 
 @error

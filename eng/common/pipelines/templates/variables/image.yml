@@ -22,12 +22,10 @@ variables:
     value: azsdk-pool-mms-win-2022-1espt
   - name: WINDOWSARMVMIMAGE
     value: windows-2022-arm64-1espt
-  - name: MACVMIMAGE
+  - name: MACVMIMAGE # mac - arm64
     value: macos-latest
-  - name: MACVMIMAGE13
+  - name: MACVMIMAGE13 # mac - x64
     value: macos-13
-  - name: MACVMIMAGEM1
-    value: macos-13-arm64
 
   # Values required for pool.os field in 1es pipeline templates. Variable form
   # cannot be used, instead those values must be written directly into pool.os.

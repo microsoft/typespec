@@ -38,11 +38,11 @@ model VisibilityModel {
 /** RoundTrip model with readonly optional properties. */
 model ReadOnlyModel {
   /** Optional readonly nullable int list. */
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   optionalNullableIntList?: int32[] | null;
 
   /** Optional readonly string dictionary. */
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   optionalStringRecord?: Record<string>;
 }
 

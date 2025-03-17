@@ -157,7 +157,8 @@ async function doEmit(
   const [, diagnostics] = await host.compileAndDiagnose("main.tsp", {
     outputDir: baseOutputPath,
     noEmit: false,
-    emitters: {
+    emit: ["@typespec/protobuf"],
+    options: {
       "@typespec/protobuf": options as Record<string, unknown>,
     },
   });

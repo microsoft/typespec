@@ -40,6 +40,10 @@ configuration:
                 - hasLabel:
                     label: tspd
                 - hasLabel:
+                    label: emitter:client:all
+                - hasLabel:
+                    label: emitter:client:js
+                - hasLabel:
                     label: emitter:client:csharp
                 - hasLabel:
                     label: emitter:client:java
@@ -101,6 +105,10 @@ configuration:
                   label: meta:website
               - labelAdded:
                   label: tspd
+              - labelAdded:
+                  label: emitter:client:all
+              - labelAdded:
+                  label: emitter:client:js
               - labelAdded:
                   label: emitter:client:csharp
               - labelAdded:
@@ -165,6 +173,10 @@ configuration:
               - labelRemoved:
                   label: tspd
               - labelRemoved:
+                  label: emitter:client:all
+              - labelRemoved:
+                  label: emitter:client:js
+              - labelRemoved:
                   label: emitter:client:csharp
               - labelRemoved:
                   label: emitter:client:java
@@ -218,6 +230,10 @@ configuration:
                     label: meta:website
                 - hasLabel:
                     label: tspd
+                - hasLabel:
+                    label: emitter:client:all
+                - hasLabel:
+                    label: emitter:client:js
                 - hasLabel:
                     label: emitter:client:csharp
                 - hasLabel:

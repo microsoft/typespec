@@ -64,6 +64,8 @@ export interface InitTemplate {
  * Describes emitter dependencies that will be added to the generated project.
  */
 export interface EmitterTemplate {
+  /** Friendly name for the emitter */
+  label?: string;
   /** Emitter Selection Description */
   description?: string;
   /** Whether emitter is selected by default in the list */
@@ -126,6 +128,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
       additionalProperties: {
         type: "object",
         properties: {
+          label: { type: "string", nullable: true },
           description: { type: "string", nullable: true },
           selected: { type: "boolean", nullable: true },
           options: {} as any,

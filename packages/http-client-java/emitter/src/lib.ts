@@ -97,7 +97,13 @@ export const $lib = createTypeSpecLibrary({
     "unknown-error": {
       severity: "error",
       messages: {
-        default: paramMessage`An unknown error occurred. '${"errorMessage"}'`,
+        default: paramMessage`An unknown error occurred. ${"errorMessage"}`,
+      },
+    },
+    "generator-error": {
+      severity: "error",
+      messages: {
+        default: paramMessage`${"errorMessage"}`,
       },
     },
     "invalid-java-sdk-dependency": {
@@ -130,8 +136,20 @@ export const $lib = createTypeSpecLibrary({
         multipartFormData: paramMessage`Unrecognized type for multipart form data, kind '${"typeKind"}'.`,
       },
     },
+    "empty-name": {
+      severity: "error",
+      messages: {
+        default: "Name from TCGC is empty.",
+      },
+    },
 
     // warning
+    "generator-warning": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`${"warningMessage"}`,
+      },
+    },
     "no-service": {
       severity: "warning",
       messages: {
@@ -164,6 +182,12 @@ export const $lib = createTypeSpecLibrary({
       severity: "warning",
       messages: {
         default: paramMessage`Header parameter format '${"format"}' is not supported.`,
+      },
+    },
+    "unknown-encode": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Encode '${"encode"}' is not supported.`,
       },
     },
   },

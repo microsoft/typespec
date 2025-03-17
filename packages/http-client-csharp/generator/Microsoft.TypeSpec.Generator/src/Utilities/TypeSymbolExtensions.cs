@@ -171,7 +171,8 @@ namespace Microsoft.TypeSpec.Generator
             bool isEnum = typeSymbol.TypeKind == TypeKind.Enum || (isNullable && typeArg?.TypeKind == TypeKind.Enum);
             bool isNullableUnknownType = isNullable && typeArg?.TypeKind == TypeKind.Error;
             string name = isNullableUnknownType ? fullyQualifiedName : typeSymbol.Name;
-            string[] pieces = fullyQualifiedName.Split('.');
+            // get everything before ` in case of generics
+            string[] pieces = fullyQualifiedName.Split('`')[0].Split('.');
             List<CSharpType> arguments = [];
             INamedTypeSymbol? namedTypeArg = typeArg as INamedTypeSymbol;
             INamedTypeSymbol? enumUnderlyingType = !isNullable ? namedTypeSymbol?.EnumUnderlyingType : namedTypeArg?.EnumUnderlyingType;

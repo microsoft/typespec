@@ -180,7 +180,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock);
     }
 
-    protected void addServiceClientAnnotationImport(Set<String> imports) {
+    private void addServiceClientAnnotationImport(Set<String> imports) {
         Annotation.SERVICE_CLIENT.addImportsTo(imports);
         if (JavaSettings.getInstance().isBranded()) {
             Annotation.GENERATED.addImportsTo(imports);

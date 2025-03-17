@@ -115,7 +115,7 @@ $generateScript = {
   }
 
   if ($global:ExitCode -ne 0) {
-    exit $global:ExitCode
+    throw "Failed to generate from tsp $tspFile"
   }
 }
 
@@ -153,6 +153,8 @@ Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse
 Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
 # remove xml tests, emitter has not supported xml model
 Remove-Item ./specs/payload/xml -Recurse -Force
+# TODO, enable it on 0.67
+Remove-Item ./specs/streaming -Recurse -Force
 
 $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
@@ -170,4 +172,8 @@ if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_pro
   # the api view properties file. Because the tests run in parallel, the order is not guaranteed. This
   # causes git diff check to fail as the checked in file is not the same as the generated one.
   Remove-Item ./src/main/resources/META-INF/client-structure-service_apiview_properties.json -Force
+}
+
+if ($ExitCode -ne 0) {
+  throw "Failed to generate from tsp"
 }

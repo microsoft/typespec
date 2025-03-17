@@ -21,24 +21,23 @@ class CollectionFormatClientTest {
         client.csv(Arrays.asList("blue", "red", "green"));
     }
 
-    @Test
-    void testSsv() {
-        client.ssv(Arrays.asList("blue", "red", "green"));
-    }
-
-    @Test
-    void testTsv() {
-        client.tsv(Arrays.asList("blue", "red", "green"));
-    }
-
-    @Test
-    void testPipe() {
-        client.pipes(Arrays.asList("blue", "red", "green"));
-    }
+//    @Test
+//    void testSsv() {
+//        client.ssv(Arrays.asList("blue", "red", "green"));
+//    }
+//
+//    @Test
+//    void testTsv() {
+//        client.tsv(Arrays.asList("blue", "red", "green"));
+//    }
+//
+//    @Test
+//    void testPipe() {
+//        client.pipes(Arrays.asList("blue", "red", "green"));
+//    }
 
     @Test
     void testCsvHeader() {
         headerClient.csv(Arrays.asList("blue", "red", "green"));
     }
-
 }

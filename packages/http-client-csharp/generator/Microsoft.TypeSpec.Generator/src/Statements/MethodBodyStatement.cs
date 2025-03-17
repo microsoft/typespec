@@ -7,9 +7,9 @@ using System.Diagnostics;
 namespace Microsoft.TypeSpec.Generator.Statements
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public class MethodBodyStatement
+    public abstract class MethodBodyStatement
     {
-        internal virtual void Write(CodeWriter writer) { }
+        internal abstract void Write(CodeWriter writer);
         public static implicit operator MethodBodyStatement(MethodBodyStatement[] statements) => new MethodBodyStatements(statements);
         public static implicit operator MethodBodyStatement(List<MethodBodyStatement> statements) => new MethodBodyStatements(statements);
 
@@ -21,7 +21,15 @@ namespace Microsoft.TypeSpec.Generator.Statements
             }
         }
 
-        public static readonly MethodBodyStatement Empty = new();
+        private class PrivateEmptyStatement : MethodBodyStatement
+        {
+            internal override void Write(CodeWriter writer)
+            {
+                // Do nothing
+            }
+        }
+
+        public static readonly MethodBodyStatement Empty = new PrivateEmptyStatement();
         public static readonly MethodBodyStatement EmptyLine = new PrivateEmptyLineStatement();
 
         public string ToDisplayString() => GetDebuggerDisplay();

@@ -26,7 +26,8 @@ export async function createCSharpServiceEmitterTestRunner(
   const result = createTestWrapper(host, {
     autoUsings: ["TypeSpec.Http", "TypeSpec.Rest", "TypeSpec.Versioning"],
     compilerOptions: {
-      emitters: {
+      emit: ["@typespec/http-server-csharp"],
+      options: {
         [CSharpServiceEmitterTestLibrary.name]: emitterOptions as any,
       },
       noEmit: false,
@@ -38,7 +39,7 @@ export async function createCSharpServiceEmitterTestRunner(
 
 export function getStandardService(code: string): string {
   return `
-  @service({title: "Microsoft.Contoso"})
+  @service(#{title: "Microsoft.Contoso"})
     namespace Microsoft.Contoso {
       ${code}
     }`;

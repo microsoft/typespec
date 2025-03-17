@@ -282,6 +282,13 @@ public final class FlattenClientImpl {
 
     /**
      * The send operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maxPageSize parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -318,6 +325,13 @@ public final class FlattenClientImpl {
 
     /**
      * The send operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maxPageSize parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -432,6 +446,7 @@ public final class FlattenClientImpl {
      *     dataLong: Long (Optional)
      *     requiredUser (Required): (recursive schema, see requiredUser above)
      *     data_float: Double (Optional)
+     *     long: Long (Optional)
      *     title: String (Required)
      *     description: String (Optional)
      *     status: String(NotStarted/InProgress/Completed) (Required)
@@ -481,6 +496,7 @@ public final class FlattenClientImpl {
      *     dataLong: Long (Optional)
      *     requiredUser (Required): (recursive schema, see requiredUser above)
      *     data_float: Double (Optional)
+     *     long: Long (Optional)
      *     title: String (Required)
      *     description: String (Optional)
      *     status: String(NotStarted/InProgress/Completed) (Required)

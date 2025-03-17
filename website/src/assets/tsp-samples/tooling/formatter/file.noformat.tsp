@@ -2,7 +2,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service({ title: "Accounting firm" }) namespace MyOrg.Accounting;
+@service(#{ title: "Accounting firm" }) namespace MyOrg.Accounting;
 
 
 

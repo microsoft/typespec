@@ -58,6 +58,16 @@ public final class ErrorModelAsyncClient {
      *             innererror (Optional): (recursive schema, see innererror above)
      *         }
      *     }
+     *     subError (Required): {
+     *         code: String (Required)
+     *         message: String (Required)
+     *         target: String (Optional)
+     *         details (Optional): [
+     *             (recursive schema, see above)
+     *         ]
+     *         innererror (Optional): (recursive schema, see innererror above)
+     *         subCode: String (Required)
+     *     }
      * }
      * }
      * </pre>

@@ -84,7 +84,7 @@ try {
         # Generate code for Spector tests
         Write-Host "Generating test projects ..."
         & "$packageRoot/eng/scripts/Generate.ps1"
-        Write-Host 'Code generation is completed.'
+        Write-Host "Code generation is completed."
 
         # Check difference between code in branch, and code just generated
         try {
@@ -93,7 +93,7 @@ try {
             Write-Host 'Done. No code generation differences detected.'
         }
         catch {
-            Write-Error 'Generated code is not up to date. Please run: eng/Generate.ps1'
+            Write-Error 'Generated code is not up to date. Please run: eng/scripts/Generate.ps1'
         }
     }
 }

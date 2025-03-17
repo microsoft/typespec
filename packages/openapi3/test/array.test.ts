@@ -207,40 +207,6 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
     });
   });
 
-  it("can specify array defaults using tuple syntax (LEGACY)", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      model Pet {
-        #suppress "deprecated" "for testing"
-        names: string[] = ["bismarck"];
-        #suppress "deprecated" "for testing"
-        decimals: decimal[] = [123, 456.7];
-        #suppress "deprecated" "for testing"
-        decimal128s: decimal128[] = [123, 456.7];
-      };
-      `,
-    );
-
-    deepStrictEqual(res.schemas.Pet.properties.names, {
-      type: "array",
-      items: { type: "string" },
-      default: ["bismarck"],
-    });
-
-    deepStrictEqual(res.schemas.Pet.properties.decimals, {
-      type: "array",
-      items: { type: "number", format: "decimal" },
-      default: [123, 456.7],
-    });
-
-    deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
-      type: "array",
-      items: { type: "number", format: "decimal128" },
-      default: [123, 456.7],
-    });
-  });
-
   it("supports summary", async () => {
     const res = await oapiForModel(
       "Foo",

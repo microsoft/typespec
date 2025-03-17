@@ -1,6 +1,7 @@
 import {
   compilerAssert,
   Enum,
+  getDiscriminatedUnion,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
@@ -137,6 +138,10 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
 
   unionSchema(union: Union): ObjectBuilder<OpenAPI3Schema> {
     const program = this.emitter.getProgram();
+    const [discriminated] = getDiscriminatedUnion(program, union);
+    if (discriminated) {
+      return this.discriminatedUnion(discriminated);
+    }
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });
       return new ObjectBuilder({});
@@ -257,8 +262,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     if (!isMerge && nullable) {
       schema.nullable = true;
     }
-
-    this.applyDiscriminator(union, schema);
 
     return this.applyConstraints(union, schema);
   }

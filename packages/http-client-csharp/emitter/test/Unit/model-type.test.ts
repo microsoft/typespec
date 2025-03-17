@@ -1,6 +1,8 @@
+vi.resetModules();
+
 import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createCSharpSdkContext,
@@ -65,7 +67,6 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
     // assert we will NOT have a DiscriminatorProperty on the derived models
     assert(
       catModel?.discriminatorProperty === undefined,
@@ -148,7 +149,6 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
 
     // verify derived model Cat
     const cat = models.find((m) => m.name === "Cat");
@@ -241,7 +241,6 @@ op test(@body input: Pet): Pet;
     strictEqual(discriminatorProperty.optional, false);
     strictEqual(discriminatorProperty.readOnly, false);
     strictEqual(discriminatorProperty.discriminator, true);
-    strictEqual(discriminatorProperty.flattenedNames, undefined);
 
     // verify derived model Cat
     const cat = models.find((m) => m.name === "Cat");

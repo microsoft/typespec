@@ -1,5 +1,6 @@
 import { type ModelProperty, Program, type Scalar, getEncode } from "@typespec/compiler";
 import { ObjectBuilder } from "@typespec/compiler/emitter-framework";
+import { isHeader } from "@typespec/http";
 import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import type { OpenAPI3Schema, OpenAPISchema3_1 } from "./types.js";
@@ -11,21 +12,28 @@ export function applyEncoding(
   getEncodedFieldName: (typespecType: Scalar | ModelProperty) => string,
   options: ResolvedOpenAPI3EmitterOptions,
 ): OpenAPI3Schema & OpenAPISchema3_1 {
+  const encodedFieldName = getEncodedFieldName(typespecType);
+  const targetObject = new ObjectBuilder(target);
+
   const encodeData = getEncode(program, typespecType);
   if (encodeData) {
-    const newTarget = new ObjectBuilder(target);
     const newType = getSchemaForStdScalars(encodeData.type as any, options);
-    newTarget.type = newType.type;
+    targetObject.type = newType.type;
     // If the target already has a format it takes priority. (e.g. int32)
-    const encodedFieldName = getEncodedFieldName(typespecType);
-    newTarget[encodedFieldName] = mergeFormatAndEncoding(
-      newTarget[encodedFieldName],
+    targetObject[encodedFieldName] = mergeFormatAndEncoding(
+      targetObject[encodedFieldName],
       encodeData.encoding,
       newType.format,
     );
-    return newTarget;
+    return targetObject;
   }
-  return new ObjectBuilder(target);
+
+  if (isDateTimeHeader(program, typespecType, targetObject, encodedFieldName)) {
+    targetObject[encodedFieldName] = "http-date";
+    return targetObject;
+  }
+
+  return targetObject;
 }
 
 function mergeFormatAndEncoding(
@@ -57,4 +65,16 @@ function mergeFormatAndEncoding(
     default:
       return encodeAsFormat ?? encoding ?? format;
   }
+}
+
+function isDateTimeHeader(
+  program: Program,
+  typespecType: Scalar | ModelProperty,
+  target: ObjectBuilder<any>,
+  encodedFieldName: string,
+): boolean {
+  if (isHeader(program, typespecType) && target[encodedFieldName] === "date-time") {
+    return true;
+  }
+  return false;
 }

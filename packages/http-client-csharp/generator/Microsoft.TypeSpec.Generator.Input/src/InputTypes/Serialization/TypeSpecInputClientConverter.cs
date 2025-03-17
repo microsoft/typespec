@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public override void Write(Utf8JsonWriter writer, InputClient value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputClient? CreateInputClient(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        private InputClient? CreateInputClient(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             if (id == null)
             {
@@ -42,17 +42,19 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputParameter>? parameters = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             string? parent = null;
+            string? crossLanguageDefinitionId = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputClient.Name), ref name)
-                    || reader.TryReadString("ClientNamespace", ref @namespace)
+                    || reader.TryReadString("Namespace", ref @namespace)
                     || reader.TryReadString("Summary", ref summary)
                     || reader.TryReadString("Doc", ref doc)
-                    || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
-                    || reader.TryReadWithConverter(nameof(InputClient.Parameters), options, ref parameters)
+                    || reader.TryReadComplexType(nameof(InputClient.Operations), options, ref operations)
+                    || reader.TryReadComplexType(nameof(InputClient.Parameters), options, ref parameters)
                     || reader.TryReadString(nameof(InputClient.Parent), ref parent)
-                    || reader.TryReadWithConverter(nameof(InputClient.Decorators), options, ref decorators);
+                    || reader.TryReadComplexType(nameof(InputClient.Decorators), options, ref decorators)
+                    || reader.TryReadString("CrossLanguageDefinitionId", ref crossLanguageDefinitionId);
 
                 if (!isKnownProperty)
                 {
@@ -62,18 +64,18 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             client.Name = name ?? throw new JsonException("InputClient must have name");
             client.Namespace = @namespace ?? string.Empty;
+            client.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             client.Summary = summary;
             client.Doc = doc;
-            client.Operations = operations ?? Array.Empty<InputOperation>();
-            client.Parameters = parameters ?? Array.Empty<InputParameter>();
+            client.Operations = operations ?? [];
+            client.Parameters = parameters ?? [];
             client.Parent = parent;
             client.Decorators = decorators ?? [];
 
-            if (GetLastSegment(client.Namespace) == client.Name)
+            var lastSegment = GetLastSegment(client.Namespace);
+            if (lastSegment == client.Name)
             {
-                // invalid namespace segment found
-                // check if the list is already there
-                // get the list out
+                // invalid namespace segment found, add it into the list
                 var invalidNamespaceSegments = (List<string>)resolver.ResolveReference(TypeSpecSerialization.InvalidNamespaceSegmentsKey);
                 invalidNamespaceSegments.Add(client.Name);
             }
@@ -81,13 +83,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             return client;
         }
 
-        private static string GetLastSegment(string clientNamespace)
+        private static string GetLastSegment(string @namespace)
         {
-            var span = clientNamespace.AsSpan();
+            var span = @namespace.AsSpan();
             var index = span.LastIndexOf('.');
             if (index == -1)
             {
-                return clientNamespace;
+                return @namespace;
             }
 
             return span.Slice(index + 1).ToString();

@@ -80,7 +80,8 @@ async function cleanOutputDir(scenarioName: string) {
   const dir = resolvePath(getScenarioDir(scenarioName), "tsp-output");
   await rm(dir, { recursive: true, force: true });
 }
-describe("cli", () => {
+
+describe("help", () => {
   it("shows help", async () => {
     const { stdout } = await execCliSuccess(["--help"], {
       cwd: getScenarioDir("simple"),
@@ -89,7 +90,19 @@ describe("cli", () => {
     expect(stdout).toContain("tsp compile <path>       Compile TypeSpec source.");
     expect(stdout).toContain("tsp format <include...>  Format given list of TypeSpec files.");
   });
+});
 
+describe("info", () => {
+  it("shows information about the current", async () => {
+    const { stdout } = await execCliSuccess(["info"], {
+      cwd: getScenarioDir("with-config"),
+    });
+    expect(stdout).toContain(`User Config:`);
+    expect(stdout).toContain(`outputDir: "{project-root}/tsp-output/{custom-dir}"`);
+  });
+});
+
+describe("compile", () => {
   describe("compiling spec with warning", () => {
     it("logs warning and succeed", async () => {
       const { stdout } = await execCliSuccess(["compile", ".", "--pretty", "false"], {

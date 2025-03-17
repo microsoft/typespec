@@ -11,9 +11,9 @@ import {
   HttpOperation,
   HttpOperationParameter,
   HttpVerb,
-  RouteResolutionOptions,
 } from "../src/index.js";
 import { HttpTestLibrary } from "../src/testing/index.js";
+import { RouteResolutionOptions } from "../src/types.js";
 
 export async function createHttpTestHost(): Promise<TestHost> {
   return createTestHost({
@@ -95,7 +95,7 @@ export async function getOperationsWithServiceNamespace(
 ): Promise<[HttpOperation[], readonly Diagnostic[]]> {
   const runner = await createHttpTestRunner();
   await runner.compileAndDiagnose(
-    `@service({title: "Test Service"}) namespace TestService;
+    `@service(#{title: "Test Service"}) namespace TestService;
     ${code}`,
     {
       noEmit: true,

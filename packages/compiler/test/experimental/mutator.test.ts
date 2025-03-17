@@ -8,7 +8,6 @@ import {
   MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
 import { Model, ModelProperty, Namespace, Operation } from "../../src/index.js";
-import { expectIdenticalTypes } from "../../src/testing/expect.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper, expectTypeEquals } from "../../src/testing/test-utils.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
@@ -156,8 +155,8 @@ it.skip("doesn't duplicate references", async () => {
 
   expect(visited.map((x) => x.name)).toEqual(["Foo", "Baz", "Bar"]);
   const [MutatedFoo, _MutatedBaz, MutatedBar] = visited;
-  expectIdenticalTypes(MutatedFoo.properties.get("bar")!.type, MutatedBar);
-  expectIdenticalTypes(
+  expectTypeEquals(MutatedFoo.properties.get("bar")!.type, MutatedBar);
+  expectTypeEquals(
     (MutatedFoo.properties.get("baz")!.type as Model).properties.get("bar")?.type!,
     MutatedBar,
   );
@@ -188,7 +187,7 @@ it("doesn't duplicate references from different types", async () => {
 
   expect(visited.map((x) => x.name)).toEqual(["test", "", "Common"]);
   const [MutatedTest, _, MutatedCommon] = visited;
-  expectIdenticalTypes((MutatedTest as Operation).returnType, MutatedCommon);
+  expectTypeEquals((MutatedTest as Operation).returnType, MutatedCommon);
 });
 
 it("removes model reference from namespace", async () => {
@@ -220,7 +219,7 @@ it("removes model reference from namespace", async () => {
 
   //Original namespace should have Bar model
   expect(Foo.models.has("Bar")).toBeTruthy();
-  expectIdenticalTypes(Foo.models.get("Baz")!.namespace!, Foo);
+  expectTypeEquals(Foo.models.get("Baz")!.namespace!, Foo);
   // Mutated namespace should not have Bar model
   expect(mutatedNs.models.has("Bar")).toBeFalsy();
   // Mutated namespace is propagated to the models
@@ -329,4 +328,68 @@ it("can mutate literals", async () => {
 
   strictEqual(mutatedC.kind, "Boolean");
   strictEqual(mutatedC.value, true);
+});
+
+// When mutating everything verify all reference between types are kept in the new realm.
+describe("global graph mutation", () => {
+  const noop = { mutate: () => {} };
+  const mutator: MutatorWithNamespace = {
+    name: "test",
+    Namespace: noop,
+    Interface: noop,
+    Model: noop,
+    Union: noop,
+    UnionVariant: noop,
+    Enum: noop,
+    Scalar: noop,
+    EnumMember: noop,
+    Operation: noop,
+    ModelProperty: noop,
+  };
+
+  async function globalMutate(code: string): Promise<Namespace> {
+    await runner.compile(code);
+
+    const { type } = mutateSubgraphWithNamespace(
+      runner.program,
+      [mutator],
+      runner.program.getGlobalNamespaceType(),
+    );
+    strictEqual(type.kind, "Namespace");
+
+    return type;
+  }
+  it("mutate sourceProperty", async () => {
+    const type = await globalMutate(`
+      model Spread {
+        prop: string;
+      }
+      model Foo { ...Spread };
+    `);
+
+    const MutatedSpread = type.models.get("Spread")!;
+    const MutatedFoo = type.models.get("Foo")!;
+    expectTypeEquals(
+      MutatedFoo.properties.get("prop")?.sourceProperty,
+      MutatedSpread.properties.get("prop")!,
+    );
+    expectTypeEquals(MutatedFoo.sourceModels[0].model, MutatedSpread);
+  });
+
+  it("mutate sourceProperty and sourceModels in operation", async () => {
+    const type = await globalMutate(`
+      model Spread {
+        prop: string;
+      }
+      op foo(...Spread): void;
+    `);
+
+    const MutatedSpread = type.models.get("Spread")!;
+    const MutatedFoo = type.operations.get("foo")!;
+    expectTypeEquals(
+      MutatedFoo.parameters.properties.get("prop")?.sourceProperty,
+      MutatedSpread.properties.get("prop")!,
+    );
+    expectTypeEquals(MutatedFoo.parameters.sourceModels[0].model, MutatedSpread);
+  });
 });

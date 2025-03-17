@@ -1,8 +1,4 @@
-/* eslint-disable @typescript-eslint/no-deprecated*/
-// ^  TODO: remove when removing projection
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import type { TypeEmitter } from "../emitter-framework/type-emitter.js";
-import type { AssetEmitter } from "../emitter-framework/types.js";
 import type { ModuleResolutionResult } from "../module-resolver/module-resolver.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import type { Numeric } from "./numeric.js";
@@ -62,16 +58,6 @@ export interface BaseType {
   kind: string;
   node?: Node;
   instantiationParameters?: Type[];
-  /** @deprecated */
-  get projections(): ProjectionStatementNode[];
-  /** @deprecated */
-  projectionsByName(name: string): ProjectionStatementNode[];
-  /** @deprecated */
-  projectionSource?: Type;
-  /** @deprecated */
-  projectionBase?: Type;
-  /** @deprecated */
-  projector?: Projector;
 
   /**
    * Reflect if a type has been finished(Decorators have been called).
@@ -107,10 +93,6 @@ export interface TypeMapper {
 
 export interface TemplatedTypeBase {
   templateMapper?: TypeMapper;
-  /**
-   * @deprecated use templateMapper instead.
-   */
-  templateArguments?: (Type | Value | IndeterminateEntity)[];
   templateNode?: Node;
 }
 
@@ -128,16 +110,13 @@ export type Type =
   | Enum
   | EnumMember
   | FunctionParameter
-  | FunctionType
   | Interface
   | IntrinsicType
   | Model
   | ModelProperty
   | Namespace
   | NumericLiteral
-  | ObjectType
   | Operation
-  | Projection
   | Scalar
   | ScalarConstructor
   | StringLiteral
@@ -155,34 +134,9 @@ export type StdTypes = {
 } & Record<IntrinsicScalarName, Scalar>;
 export type StdTypeName = keyof StdTypes;
 
-export type TypeOrReturnRecord = Type | ReturnRecord;
-
 export interface ObjectType extends BaseType {
   kind: "Object";
   properties: Record<string, Type>;
-}
-
-export interface Projection extends BaseType {
-  kind: "Projection";
-  node: undefined;
-  nodeByKind: Map<string, ProjectionStatementNode>;
-  nodeByType: Map<Type, ProjectionStatementNode>;
-}
-
-export interface ProjectionApplication {
-  scope?: Type;
-  projectionName: string;
-  arguments: DecoratorArgumentValue[];
-  direction?: "from" | "to";
-}
-
-export interface Projector {
-  parentProjector?: Projector;
-  projections: ProjectionApplication[];
-  projectedTypes: Map<Type, Type>;
-  projectType(type: Type | Value): Type | Value;
-  projectedStartNode?: Type;
-  projectedGlobalNamespace?: Namespace;
 }
 
 export interface MixedParameterConstraint {
@@ -233,13 +187,6 @@ export interface NullType extends IntrinsicType {
   name: "null";
 }
 
-// represents a type that is being returned from the
-// currently executing lambda or projection
-export interface ReturnRecord {
-  kind: "Return";
-  value: Type;
-}
-
 export type IntrinsicScalarName =
   | "bytes"
   | "numeric"
@@ -267,20 +214,6 @@ export type IntrinsicScalarName =
   | "boolean"
   | "url";
 
-/**
- * Valid keys when looking up meta members for a particular type.
- * Array is a special case because it doesn't have a unique type, but does
- * carry unique meta-members.
- */
-export type MetaMemberKey = Type["kind"] | "Array";
-
-/**
- * A table to ease lookup of meta member interfaces during identifier resolution.
- * Only `type` exists today, but `value` will be added in the future.
- */
-export interface MetaMembersTable {
-  type: Partial<Record<MetaMemberKey, Sym>>;
-}
 export type NeverIndexer = {
   readonly key: NeverType;
   readonly value: undefined;
@@ -302,12 +235,7 @@ export interface RecordModelType extends Model {
 export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Model";
   name: string;
-  node?:
-    | ModelStatementNode
-    | ModelExpressionNode
-    | IntersectionExpressionNode
-    | ProjectionModelExpressionNode
-    | ObjectLiteralNode;
+  node?: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode | ObjectLiteralNode;
   namespace?: Namespace;
   indexer?: ModelIndexer;
 
@@ -366,20 +294,13 @@ export interface SourceModel {
 
 export interface ModelProperty extends BaseType, DecoratedType {
   kind: "ModelProperty";
-  node:
-    | ModelPropertyNode
-    | ModelSpreadPropertyNode
-    | ProjectionModelPropertyNode
-    | ProjectionModelSpreadPropertyNode
-    | ObjectLiteralPropertyNode;
+  node: ModelPropertyNode | ModelSpreadPropertyNode | ObjectLiteralPropertyNode;
   name: string;
   type: Type;
   // when spread or intersection operators make new property types,
   // this tracks the property we copied from.
   sourceProperty?: ModelProperty;
   optional: boolean;
-  /** @deprecated use {@link defaultValue} instead. */
-  default?: Type;
   defaultValue?: Value;
   model?: Model;
 }
@@ -637,13 +558,6 @@ export interface Namespace extends BaseType, DecoratedType {
    * Order is implementation-defined and may change.
    */
   decoratorDeclarations: Map<string, Decorator>;
-
-  /**
-   * The functions declared in the namespace.
-   *
-   * Order is implementation-defined and may change.
-   */
-  functionDeclarations: Map<string, FunctionType>;
 }
 
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
@@ -712,10 +626,6 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   variants: RekeyableMap<string | symbol, UnionVariant>;
 
   expression: boolean;
-  /**
-   * @deprecated use variants
-   */
-  readonly options: Type[];
 
   /**
    * Late-bound symbol of this interface type.
@@ -747,16 +657,6 @@ export interface Decorator extends BaseType {
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
   implementation: (...args: unknown[]) => void;
-}
-
-export interface FunctionType extends BaseType {
-  kind: "Function";
-  node?: FunctionDeclarationStatementNode;
-  namespace?: Namespace;
-  name: string;
-  parameters: MixedFunctionParameter[];
-  returnType: Type;
-  implementation: (...args: unknown[]) => unknown;
 }
 
 export interface FunctionParameterBase extends BaseType {
@@ -980,17 +880,15 @@ export const enum SymbolFlags {
   Union                 = 1 << 6,
   Alias                 = 1 << 7,
   Namespace             = 1 << 8,
-  Projection            = 1 << 9,
-  Decorator             = 1 << 10,
-  TemplateParameter     = 1 << 11,
-  ProjectionParameter   = 1 << 12,
-  Function              = 1 << 13,
-  FunctionParameter     = 1 << 14,
-  Using                 = 1 << 15,
-  DuplicateUsing        = 1 << 16,
-  SourceFile            = 1 << 17,
-  Member                = 1 << 18,
-  Const                 = 1 << 19,
+  Decorator             = 1 << 9,
+  TemplateParameter     = 1 << 10,
+  Function              = 1 << 11,
+  FunctionParameter     = 1 << 12,
+  Using                 = 1 << 13,
+  DuplicateUsing        = 1 << 14,
+  SourceFile            = 1 << 15,
+  Member                = 1 << 16,
+  Const                 = 1 << 17,
 
 
   /**
@@ -1044,8 +942,6 @@ export interface RekeyableMap<K, V> extends Map<K, V> {
  */
 export enum SyntaxKind {
   TypeSpecScript,
-  /** @deprecated Use TypeSpecScript */
-  CadlScript = TypeSpecScript,
   JsSourceFile,
   ImportStatement,
   Identifier,
@@ -1091,7 +987,6 @@ export enum SyntaxKind {
   UnknownKeyword,
   ValueOfExpression,
   TypeReference,
-  ProjectionReference,
   TemplateParameterDeclaration,
   EmptyStatement,
   InvalidStatement,
@@ -1105,36 +1000,6 @@ export enum SyntaxKind {
   DocErrorsTag,
   DocTemplateTag,
   DocUnknownTag,
-  Projection,
-  ProjectionParameterDeclaration,
-  ProjectionModelSelector,
-  ProjectionModelPropertySelector,
-  ProjectionScalarSelector,
-  ProjectionOperationSelector,
-  ProjectionUnionSelector,
-  ProjectionUnionVariantSelector,
-  ProjectionInterfaceSelector,
-  ProjectionEnumSelector,
-  ProjectionEnumMemberSelector,
-  ProjectionExpressionStatement,
-  ProjectionIfExpression,
-  ProjectionBlockExpression,
-  ProjectionMemberExpression,
-  ProjectionLogicalExpression,
-  ProjectionEqualityExpression,
-  ProjectionUnaryExpression,
-  ProjectionRelationalExpression,
-  ProjectionArithmeticExpression,
-  ProjectionCallExpression,
-  ProjectionLambdaExpression,
-  ProjectionLambdaParameterDeclaration,
-  ProjectionModelExpression,
-  ProjectionModelProperty,
-  ProjectionModelSpreadProperty,
-  ProjectionSpreadProperty,
-  ProjectionTupleExpression,
-  ProjectionStatement,
-  ProjectionDecoratorReferenceExpression,
   Return,
   JsNamespaceDeclaration,
   TemplateArgument,
@@ -1189,6 +1054,7 @@ export interface BaseNode extends TextRange {
   /**
    * Could be undefined but making this optional creates a lot of noise. In practice,
    * you will likely only access symbol in cases where you know the node has a symbol.
+   * @internal
    */
   readonly symbol: Sym;
   /** Unique id across the process used to look up NodeLinks */
@@ -1242,8 +1108,6 @@ export type Node =
   | JsNamespaceDeclarationNode
   | TemplateArgumentNode
   | TemplateParameterDeclarationNode
-  | ProjectionParameterDeclarationNode
-  | ProjectionLambdaParameterDeclarationNode
   | ModelPropertyNode
   | UnionVariantNode
   | OperationStatementNode
@@ -1265,21 +1129,7 @@ export type Node =
   | DocNode
   | DocContent
   | DocTag
-  | ProjectionStatementItem
-  | ProjectionExpression
-  | ProjectionModelSelectorNode
-  | ProjectionModelPropertySelectorNode
-  | ProjectionScalarSelectorNode
-  | ProjectionInterfaceSelectorNode
-  | ProjectionOperationSelectorNode
-  | ProjectionEnumSelectorNode
-  | ProjectionEnumMemberSelectorNode
-  | ProjectionUnionSelectorNode
-  | ProjectionUnionVariantSelectorNode
-  | ProjectionModelPropertyNode
-  | ProjectionModelSpreadPropertyNode
-  | ProjectionStatementNode
-  | ProjectionNode
+  | ReferenceExpression
   | ObjectLiteralNode
   | ObjectLiteralPropertyNode
   | ObjectLiteralSpreadPropertyNode
@@ -1341,9 +1191,6 @@ export interface ParseOptions {
   readonly docs?: boolean;
 }
 
-/** @deprecated Use TypeSpecScriptNode */
-export type CadlScriptNode = TypeSpecScriptNode;
-
 export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.TypeSpecScript;
   readonly statements: readonly Statement[];
@@ -1375,8 +1222,7 @@ export type Statement =
   | ConstStatementNode
   | CallExpressionNode
   | EmptyStatementNode
-  | InvalidStatementNode
-  | ProjectionStatementNode;
+  | InvalidStatementNode;
 
 export interface DeclarationNode {
   readonly id: IdentifierNode;
@@ -1390,9 +1236,6 @@ export type Declaration =
   | NamespaceStatementNode
   | OperationStatementNode
   | TemplateParameterDeclarationNode
-  | ProjectionStatementNode
-  | ProjectionParameterDeclarationNode
-  | ProjectionLambdaParameterDeclarationNode
   | EnumStatementNode
   | AliasStatementNode
   | ConstStatementNode
@@ -1405,9 +1248,7 @@ export type ScopeNode =
   | InterfaceStatementNode
   | AliasStatementNode
   | TypeSpecScriptNode
-  | JsSourceFileNode
-  | ProjectionLambdaExpressionNode
-  | ProjectionNode;
+  | JsSourceFileNode;
 
 export interface ImportStatementNode extends BaseNode {
   readonly kind: SyntaxKind.ImportStatement;
@@ -1462,29 +1303,6 @@ export type Expression =
   | VoidKeywordNode
   | NeverKeywordNode
   | AnyKeywordNode;
-
-export type ProjectionExpression =
-  | ProjectionLogicalExpressionNode
-  | ProjectionRelationalExpressionNode
-  | ProjectionEqualityExpressionNode
-  | ProjectionUnaryExpressionNode
-  | ProjectionArithmeticExpressionNode
-  | ProjectionCallExpressionNode
-  | ProjectionMemberExpressionNode
-  | ProjectionDecoratorReferenceExpressionNode
-  | ProjectionTupleExpressionNode
-  | ProjectionModelExpressionNode
-  | ProjectionIfExpressionNode
-  | ProjectionBlockExpressionNode
-  | ProjectionLambdaExpressionNode
-  | StringLiteralNode
-  | NumericLiteralNode
-  | BooleanLiteralNode
-  | IdentifierNode
-  | VoidKeywordNode
-  | NeverKeywordNode
-  | AnyKeywordNode
-  | ReturnExpressionNode;
 
 export type ReferenceExpression =
   | TypeReferenceNode
@@ -1761,11 +1579,6 @@ export interface AnyKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.UnknownKeyword;
 }
 
-export interface ReturnExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.Return;
-  readonly value: ProjectionExpression;
-}
-
 export interface UnionExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.UnionExpression;
   readonly options: readonly Expression[];
@@ -1796,12 +1609,6 @@ export interface TemplateArgumentNode extends BaseNode {
   readonly kind: SyntaxKind.TemplateArgument;
   readonly name?: IdentifierNode;
   readonly argument: Expression;
-}
-
-export interface ProjectionReferenceNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionReference;
-  readonly target: MemberExpressionNode | IdentifierNode;
-  readonly arguments: readonly Expression[];
 }
 
 export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseNode {
@@ -1871,189 +1678,6 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
   readonly parameters: FunctionParameterNode[];
   readonly returnType?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
-}
-
-// Projection-related Syntax
-
-export interface ProjectionModelSelectorNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionModelSelector;
-}
-
-export interface ProjectionScalarSelectorNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionScalarSelector;
-}
-
-export interface ProjectionModelPropertySelectorNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionModelPropertySelector;
-}
-
-export interface ProjectionInterfaceSelectorNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionInterfaceSelector;
-}
-
-export interface ProjectionOperationSelectorNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionOperationSelector;
-}
-
-export interface ProjectionUnionSelectorNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionUnionSelector;
-}
-
-export interface ProjectionUnionVariantSelectorNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionUnionVariantSelector;
-}
-
-export interface ProjectionEnumSelectorNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionEnumSelector;
-}
-
-export interface ProjectionEnumMemberSelectorNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionEnumMemberSelector;
-}
-
-export type ProjectionStatementItem = ProjectionExpressionStatementNode;
-
-export interface ProjectionParameterDeclarationNode extends DeclarationNode, BaseNode {
-  readonly kind: SyntaxKind.ProjectionParameterDeclaration;
-}
-
-export interface ProjectionExpressionStatementNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionExpressionStatement;
-  readonly expr: ProjectionExpression;
-}
-
-export interface ProjectionLogicalExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionLogicalExpression;
-  readonly op: "||" | "&&";
-  readonly left: ProjectionExpression;
-  readonly right: ProjectionExpression;
-}
-
-export interface ProjectionRelationalExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionRelationalExpression;
-  readonly op: "<=" | "<" | ">" | ">=";
-  readonly left: ProjectionExpression;
-  readonly right: ProjectionExpression;
-}
-
-export interface ProjectionEqualityExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionEqualityExpression;
-  readonly op: "==" | "!=";
-  readonly left: ProjectionExpression;
-  readonly right: ProjectionExpression;
-}
-
-export interface ProjectionArithmeticExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionArithmeticExpression;
-  readonly op: "+" | "-" | "*" | "/";
-  readonly left: ProjectionExpression;
-  readonly right: ProjectionExpression;
-}
-
-export interface ProjectionUnaryExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionUnaryExpression;
-  readonly op: "!";
-  readonly target: ProjectionExpression;
-}
-
-export interface ProjectionCallExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionCallExpression;
-  readonly callKind: "method" | "template";
-  readonly target: ProjectionExpression;
-  readonly arguments: ProjectionExpression[];
-}
-
-export interface ProjectionMemberExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionMemberExpression;
-  readonly base: ProjectionExpression;
-  readonly id: IdentifierNode;
-  readonly selector: "." | "::";
-}
-
-export interface ProjectionModelExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionModelExpression;
-  readonly properties: (ProjectionModelPropertyNode | ProjectionModelSpreadPropertyNode)[];
-}
-
-export interface ProjectionTupleExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionTupleExpression;
-  readonly values: ProjectionExpression[];
-}
-
-export interface ProjectionModelPropertyNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionModelProperty;
-  readonly id: IdentifierNode;
-  readonly value: ProjectionExpression;
-  readonly decorators: readonly DecoratorExpressionNode[];
-  readonly optional: boolean;
-  readonly default?: ProjectionExpression;
-}
-
-export interface ProjectionModelSpreadPropertyNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionModelSpreadProperty;
-  readonly target: ProjectionExpression;
-}
-
-export interface ProjectionIfExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionIfExpression;
-  readonly test: ProjectionExpression;
-  readonly consequent: ProjectionBlockExpressionNode;
-  readonly alternate?: ProjectionBlockExpressionNode | ProjectionIfExpressionNode;
-}
-
-export interface ProjectionBlockExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionBlockExpression;
-  readonly statements: ProjectionStatementItem[];
-}
-
-export interface ProjectionLambdaExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionLambdaExpression;
-  readonly parameters: readonly ProjectionLambdaParameterDeclarationNode[];
-  readonly locals?: SymbolTable;
-  readonly body: ProjectionBlockExpressionNode;
-}
-
-export interface ProjectionLambdaParameterDeclarationNode extends DeclarationNode, BaseNode {
-  readonly kind: SyntaxKind.ProjectionLambdaParameterDeclaration;
-}
-
-export interface ProjectionNode extends BaseNode {
-  readonly kind: SyntaxKind.Projection;
-  readonly direction: "to" | "from" | "pre_to" | "pre_from" | "<error>";
-  readonly directionId: IdentifierNode;
-  readonly modifierIds: readonly IdentifierNode[];
-  readonly parameters: ProjectionParameterDeclarationNode[];
-  readonly body: readonly ProjectionStatementItem[];
-  readonly locals?: SymbolTable;
-}
-
-/** @deprecated */
-export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
-  readonly kind: SyntaxKind.ProjectionStatement;
-  readonly selector:
-    | ProjectionModelSelectorNode
-    | ProjectionModelPropertySelectorNode
-    | ProjectionScalarSelectorNode
-    | ProjectionInterfaceSelectorNode
-    | ProjectionOperationSelectorNode
-    | ProjectionUnionSelectorNode
-    | ProjectionUnionVariantSelectorNode
-    | ProjectionEnumSelectorNode
-    | ProjectionEnumMemberSelectorNode
-    | MemberExpressionNode
-    | IdentifierNode;
-  readonly to?: ProjectionNode;
-  readonly from?: ProjectionNode;
-  readonly preTo?: ProjectionNode;
-  readonly preFrom?: ProjectionNode;
-  readonly projections: readonly ProjectionNode[];
-  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
-}
-
-/** @deprecated */
-export interface ProjectionDecoratorReferenceExpressionNode extends BaseNode {
-  readonly kind: SyntaxKind.ProjectionDecoratorReferenceExpression;
-  readonly target: MemberExpressionNode | IdentifierNode;
 }
 
 export interface IdentifierContext {
@@ -2160,6 +1784,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
   readonly esmExports: any;
 
   /* Any namespaces declared by decorators. */
+  /** @internal */
   readonly namespaceSymbols: Sym[];
 }
 
@@ -2381,12 +2006,6 @@ export interface DeprecatedDirective extends DirectiveBase {
   message: string;
 }
 
-export interface Dirent {
-  isFile(): boolean;
-  name: string;
-  isDirectory(): boolean;
-}
-
 export interface RmOptions {
   /**
    * If `true`, perform a recursive directory removal. In
@@ -2397,17 +2016,12 @@ export interface RmOptions {
   recursive?: boolean;
 }
 
-export interface CompilerHost {
+export interface SystemHost {
   /** read a file at the given url. */
   readUrl(url: string): Promise<SourceFile>;
 
   /** read a utf-8 or utf-8 with bom encoded file */
   readFile(path: string): Promise<SourceFile>;
-
-  /**
-   * Optional cache to reuse the results of parsing and binding across programs.
-   */
-  parseCache?: WeakMap<SourceFile, TypeSpecScriptNode>;
 
   /**
    * Write the file.
@@ -2435,6 +2049,19 @@ export interface CompilerHost {
    */
   mkdirp(path: string): Promise<string | undefined>;
 
+  // get info about a path
+  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
+
+  // get the real path of a possibly symlinked path
+  realpath(path: string): Promise<string>;
+}
+
+export interface CompilerHost extends SystemHost {
+  /**
+   * Optional cache to reuse the results of parsing and binding across programs.
+   */
+  parseCache?: WeakMap<SourceFile, TypeSpecScriptNode>;
+
   // get the directory TypeSpec is executing from
   getExecutionRoot(): string;
 
@@ -2444,13 +2071,7 @@ export interface CompilerHost {
   // get a promise for the ESM module shape of a JS module
   getJsImport(path: string): Promise<Record<string, any>>;
 
-  // get info about a path
-  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
-
   getSourceFileKind(path: string): SourceFileKind | undefined;
-
-  // get the real path of a possibly symlinked path
-  realpath(path: string): Promise<string>;
 
   // convert a file URL to a path in a file system
   fileURLToPath(url: string): string;
@@ -2595,17 +2216,16 @@ export interface JSONSchemaValidator {
   ): Diagnostic[];
 }
 
-/** @deprecated Use TypeSpecLibraryDef */
-export type CadlLibraryDef<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>,
-> = TypeSpecLibraryDef<T, E>;
-
 export interface StateDef {
   /**
    * Description for this state.
    */
   readonly description?: string;
+}
+
+export interface TypeSpecLibraryCapabilities {
+  /** Only applicable for emitters. Specify that this emitter will respect the dryRun flag and run, report diagnostic but not write any output.  */
+  readonly dryRun?: boolean;
 }
 
 export interface TypeSpecLibraryDef<
@@ -2617,6 +2237,10 @@ export interface TypeSpecLibraryDef<
    * Library name. MUST match package.json name.
    */
   readonly name: string;
+
+  /** Optional registration of capabilities the library/emitter provides */
+  readonly capabilities?: TypeSpecLibraryCapabilities;
+
   /**
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
    */
@@ -2634,12 +2258,6 @@ export interface TypeSpecLibraryDef<
   readonly emitter?: {
     options?: JSONSchemaType<E>;
   };
-
-  /**
-   * Configuration if library is providing linting rules/rulesets.
-   * @deprecated Use `export const $linter` instead. This will cause circular reference with linters.
-   */
-  readonly linter?: LinterDefinition;
 
   readonly state?: Record<State, StateDef>;
 }
@@ -2663,24 +2281,7 @@ export interface DecoratorImplementations {
   };
 }
 
-export interface PackageFlags {
-  /**
-   * Decorator arg marshalling algorithm. Specify how TypeSpec values are marshalled to decorator arguments.
-   * - `new` - New recommended behavior
-   *  - string value -> `string`
-   *  - numeric value -> `number` if the constraint can be represented as a JS number, Numeric otherwise(e.g. for types int64, decimal128, numeric, etc.)
-   *  - boolean value -> `boolean`
-   *  - null value -> `null`
-   *
-   * - `legacy` - DEPRECATED -  Behavior before version 0.56.0.
-   *  - string value -> `string`
-   *  - numeric value -> `number`
-   *  - boolean value -> `boolean`
-   *  - null value -> `NullType`
-   * @default new
-   */
-  readonly decoratorArgMarshalling?: "legacy" | "new";
-}
+export interface PackageFlags {}
 
 export interface LinterDefinition {
   rules: LinterRuleDefinition<string, DiagnosticMessages>[];
@@ -2754,12 +2355,6 @@ export type LinterRuleDiagnosticReport<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
 > = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
-
-/** @deprecated Use TypeSpecLibrary */
-export type CadlLibrary<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>,
-> = TypeSpecLibrary<T, E>;
 
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
@@ -2847,15 +2442,6 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
    * Emitter custom options defined in createTypeSpecLibrary
    */
   options: TOptions;
-
-  /**
-   * Get an asset emitter to write emitted output to disk using a TypeEmitter
-   *
-   * @deprecated call {@link createAssetEmitter} directly instead.
-   *
-   * @param TypeEmitterClass The TypeEmitter to construct your emitted output
-   */
-  getAssetEmitter<T>(TypeEmitterClass: typeof TypeEmitter<T, TOptions>): AssetEmitter<T, TOptions>;
 }
 
 export type LogLevel = "trace" | "warning" | "error";
@@ -2887,8 +2473,34 @@ export interface RelatedSourceLocation {
   readonly location: SourceLocation;
 }
 
+/** @internal */
+export type TaskStatus = "success" | "failure" | "skipped" | "warn";
+
+/** @internal */
+export interface TrackActionTask {
+  message: string;
+  readonly isStopped: boolean;
+  succeed(message?: string): void;
+  fail(message?: string): void;
+  warn(message?: string): void;
+  skip(message?: string): void;
+  stop(status: TaskStatus, message?: string): void;
+}
+
 export interface LogSink {
   log(log: ProcessedLog): void;
+
+  /** @internal */
+  getPath?(path: string): string;
+
+  /**
+   * @internal
+   */
+  trackAction?<T>(
+    message: string,
+    finalMessage: string,
+    asyncAction: (task: TrackActionTask) => Promise<T>,
+  ): Promise<T>;
 }
 
 export interface Logger {
@@ -2896,6 +2508,13 @@ export interface Logger {
   warn(message: string): void;
   error(message: string): void;
   log(log: LogInfo): void;
+
+  /** @internal */
+  trackAction<T>(
+    message: string,
+    finalMessage: string,
+    asyncAction: (task: TrackActionTask) => Promise<T>,
+  ): Promise<T>;
 }
 
 export interface TracerOptions {

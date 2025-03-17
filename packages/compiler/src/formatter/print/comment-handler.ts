@@ -91,6 +91,7 @@ function addCommentBetweenAnnotationsAndNode({ comment }: CommentContext) {
       enclosingNode.kind === SyntaxKind.InterfaceStatement ||
       enclosingNode.kind === SyntaxKind.ModelProperty ||
       enclosingNode.kind === SyntaxKind.EnumMember ||
+      enclosingNode.kind === SyntaxKind.UnionVariant ||
       enclosingNode.kind === SyntaxKind.UnionStatement)
   ) {
     util.addTrailingComment(precedingNode, comment);

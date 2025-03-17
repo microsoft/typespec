@@ -16,49 +16,49 @@ public class MethodGroupClient {
     /**
      * The name of the package.
      */
-    private String packageName;
+    private final String packageName;
     /**
      * The name of this client's class.
      */
-    private String className;
+    private final String className;
     /**
      * The name of this client's interface.
      */
-    private String interfaceName;
+    private final String interfaceName;
     /**
      * The interfaces that the client implements.
      */
-    private List<String> implementedInterfaces;
+    private final List<String> implementedInterfaces;
     /**
      * The REST API that this client will send requests to.
      */
-    private Proxy proxy;
+    private final Proxy proxy;
     /**
      * The name of the ServiceClient that contains this MethodGroupClient.
      */
-    private String serviceClientName;
+    private final String serviceClientName;
     /**
      * The type of this MethodGroupClient when it is used as a variable.
      */
-    private String variableType;
+    private final String variableType;
     /**
      * The variable name for any instances of this MethodGroupClient.
      */
-    private String variableName;
+    private final String variableName;
     /**
      * The client method overloads for this MethodGroupClient.
      */
-    private List<ClientMethod> clientMethods;
+    private final List<ClientMethod> clientMethods;
     /**
      * The interfaces that the client supports.
      */
-    private List<IType> supportedInterfaces;
+    private final List<IType> supportedInterfaces;
 
-    private String classBaseName;
+    private final String classBaseName;
 
-    private List<ServiceClientProperty> properties;
+    private final List<ServiceClientProperty> properties;
 
-    private String crossLanguageDefinitionId;
+    private final String crossLanguageDefinitionId;
 
     /**
      * Create a new MethodGroupClient with the provided properties.
@@ -164,8 +164,7 @@ public class MethodGroupClient {
 
         if (includeImplementationImports) {
             // ClassType proxyType = settings.isAzureOrFluent() ? ClassType.AzureProxy : ClassType.RestProxy;
-            ClassType proxyType = getProxyClassType();
-            imports.add(proxyType.getFullName());
+            imports.add(ClassType.REST_PROXY.getFullName());
 
             if (settings.isGenerateClientInterfaces()) {
                 String interfacePackage = ClientModelUtil.getServiceClientInterfacePackageName();
@@ -187,10 +186,6 @@ public class MethodGroupClient {
                 property.addImportsTo(imports, includeImplementationImports);
             }
         }
-    }
-
-    protected ClassType getProxyClassType() {
-        return ClassType.REST_PROXY;
     }
 
     public static class Builder {

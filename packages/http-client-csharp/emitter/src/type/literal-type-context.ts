@@ -4,8 +4,8 @@
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 
 export interface LiteralTypeContext {
-  ModelName: string;
-  PropertyName: string;
-  Usage: UsageFlags;
-  ClientNamespace: string;
+  modelName: string;
+  propertyName: string;
+  usage: UsageFlags;
+  namespace: string;
 }

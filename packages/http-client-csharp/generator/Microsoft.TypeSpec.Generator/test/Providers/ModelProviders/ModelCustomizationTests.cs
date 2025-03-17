@@ -32,6 +32,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanChangeEnumName()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String);
+            var enumProvider = new FixedEnumProvider(inputEnum, null);
+
+            AssertCommon(enumProvider, "NewNamespace.Models", "CustomizedEnum");
+        }
+
+        [Test]
         public async Task CanChangePropertyName()
         {
             var props = new[]

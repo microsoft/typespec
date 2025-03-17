@@ -79,6 +79,12 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                                     .collect(Collectors.joining(", "))));
                         }
                     } else {
+                        String returnValueWireTypeCode = "";
+                        if (restAPIMethod.getReturnValueWireType() != null) {
+                            returnValueWireTypeCode
+                                = ", returnValueWireType = " + restAPIMethod.getReturnValueWireType() + ".class";
+                        }
+
                         interfaceBlock.annotation(
                             "HttpRequestInformation(method = HttpMethod." + restAPIMethod.getHttpMethod().toString()
                                 + ", path = \"" + restAPIMethod.getUrlPath() + "\", expectedStatusCodes = { "
@@ -86,7 +92,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                                     .stream()
                                     .map(String::valueOf)
                                     .collect(Collectors.joining(", "))
-                                + " })");
+                                + " } " + returnValueWireTypeCode + ")");
                     }
 
                     if (!settings.isDataPlaneClient()) {
@@ -191,7 +197,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
         }
     }
 
-    protected void writeUnexpectedExceptions(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
+    private void writeUnexpectedExceptions(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
         if (JavaSettings.getInstance().isBranded()) {
             for (Map.Entry<ClassType, List<Integer>> exception : restAPIMethod.getUnexpectedResponseExceptionTypes()
                 .entrySet()) {
@@ -225,7 +231,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
         }
     }
 
-    protected void writeSingleUnexpectedException(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
+    private void writeSingleUnexpectedException(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
         if (JavaSettings.getInstance().isBranded()) {
             interfaceBlock.annotation(String.format("UnexpectedResponseExceptionType(%1$s.class)",
                 restAPIMethod.getUnexpectedResponseExceptionType()));
@@ -245,7 +251,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
         }
     }
 
-    protected void writeProxyMethodSignature(java.util.ArrayList<String> parameterDeclarationList,
+    private void writeProxyMethodSignature(java.util.ArrayList<String> parameterDeclarationList,
         ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
         String parameterDeclarations = String.join(", ", parameterDeclarationList);
         IType restAPIMethodReturnValueClientType = restAPIMethod.getReturnType().getClientType();

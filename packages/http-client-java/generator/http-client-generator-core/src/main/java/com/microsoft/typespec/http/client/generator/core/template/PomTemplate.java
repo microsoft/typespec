@@ -78,17 +78,17 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
 
             projectBlock.line();
 
-            projectBlock.block("licenses", licensesBlock -> {
-                licensesBlock.block("license", licenseBlock -> {
-                    licenseBlock.tag("name", "The MIT License (MIT)");
-                    licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
-                    licenseBlock.tag("distribution", "repo");
-                });
-            });
-
-            projectBlock.line();
-
             if (branded) {
+                projectBlock.block("licenses", licensesBlock -> {
+                    licensesBlock.block("license", licenseBlock -> {
+                        licenseBlock.tag("name", "The MIT License (MIT)");
+                        licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
+                        licenseBlock.tag("distribution", "repo");
+                    });
+                });
+
+                projectBlock.line();
+
                 projectBlock.block("scm", scmBlock -> {
                     scmBlock.tag("url", "https://github.com/Azure/azure-sdk-for-java");
                     scmBlock.tag("connection", "scm:git:git@github.com:Azure/azure-sdk-for-java.git");
@@ -119,7 +119,6 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                 propertiesBlock.tag("project.build.sourceEncoding", "UTF-8");
                 writeJacoco(propertiesBlock);
                 writeRevapi(propertiesBlock, pom);
-                writeSpotless(propertiesBlock);
             });
 
             if (!CoreUtils.isNullOrEmpty(pom.getDependencyIdentifiers())) {
@@ -178,16 +177,6 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
      */
     protected void writeRevapi(XmlBlock propertiesBlock, Pom pom) {
         // NOOP for data-plane
-    }
-
-    /**
-     * Extension for writing Spotless configuration.
-     *
-     * @param propertiesBlock The {@code <properties></properties>} XML block within the {@code pom.xml}.
-     */
-    protected void writeSpotless(XmlBlock propertiesBlock) {
-        // For now all generation will enable Spotless running.
-        propertiesBlock.tag("spotless.skip", "false");
     }
 
     /**

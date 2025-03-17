@@ -375,4 +375,55 @@ describe("emitting models", () => {
       });
     });
   });
+
+  describe("seal-object-schemas", () => {
+    it("sets unevaluatedProperties of models to { not: {} }", async () => {
+      const schemas = await emitSchema(
+        `
+          model Test {
+            nested: { foo: string; };
+          }
+        `,
+        { emitAllRefs: true, "seal-object-schemas": true },
+      );
+      assert.deepStrictEqual(schemas["Test.json"].unevaluatedProperties, { not: {} });
+      assert.deepStrictEqual(schemas["Test.json"].properties.nested.unevaluatedProperties, {
+        not: {},
+      });
+    });
+
+    it("does not affect schemas that already define unevaluatedProperties", async () => {
+      const schemas = await emitSchema(
+        `
+          model Test {
+            nested: { foo: string; ...Record<string>; };
+            ...Record<string>;
+          }
+          
+          @extension("unevaluatedProperties", #{ type: "string" })
+          model Test2 {}
+        `,
+        { emitAllRefs: true, "seal-object-schemas": true },
+      );
+      assert.deepStrictEqual(schemas["Test.json"].unevaluatedProperties, { type: "string" });
+      assert.deepStrictEqual(schemas["Test.json"].properties.nested.unevaluatedProperties, {
+        type: "string",
+      });
+      assert.deepStrictEqual(schemas["Test2.json"].unevaluatedProperties, { type: "string" });
+    });
+
+    it("does not affect schemas that have derived schemas", async () => {
+      const schemas = await emitSchema(
+        `
+          model Entity { id: string; };
+          model Widget extends Entity { kind: string; name: string; };
+          model Spinner extends Widget { kind: "spinner"; cycles: int8; }
+        `,
+        { emitAllRefs: true, "seal-object-schemas": true },
+      );
+      assert.deepStrictEqual(schemas["Entity.json"].unevaluatedProperties, undefined);
+      assert.deepStrictEqual(schemas["Widget.json"].unevaluatedProperties, undefined);
+      assert.deepStrictEqual(schemas["Spinner.json"].unevaluatedProperties, { not: {} });
+    });
+  });
 });

@@ -8,6 +8,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +20,7 @@ public class Scheme implements JsonSerializable<Scheme> {
     private Scheme.SecuritySchemeType type;
     // OAuth2
     private Set<String> scopes = new HashSet<>();
+    private List<OAuth2Flow> flows = new ArrayList<>();
     // Key
     private String name;
     private String in;
@@ -64,6 +66,19 @@ public class Scheme implements JsonSerializable<Scheme> {
      */
     public void setScopes(Set<String> scopes) {
         this.scopes = scopes;
+    }
+
+    /**
+     * Gets the flows of the OAuth2 security scheme.
+     *
+     * @return The flows of the security scheme.
+     */
+    public List<OAuth2Flow> getFlows() {
+        return flows;
+    }
+
+    public void setFlows(List<OAuth2Flow> flows) {
+        this.flows = flows;
     }
 
     /**
@@ -128,6 +143,7 @@ public class Scheme implements JsonSerializable<Scheme> {
             .writeStringField("name", name)
             .writeStringField("in", in)
             .writeStringField("prefix", prefix)
+            .writeArrayField("flows", flows, JsonWriter::writeJson)
             .writeEndObject();
     }
 
@@ -151,6 +167,8 @@ public class Scheme implements JsonSerializable<Scheme> {
                 scheme.in = reader.getString();
             } else if ("prefix".equals(fieldName)) {
                 scheme.prefix = reader.getString();
+            } else if ("flows".equals(fieldName)) {
+                scheme.flows = reader.readArray(OAuth2Flow::fromJson);
             } else {
                 reader.skipChildren();
             }

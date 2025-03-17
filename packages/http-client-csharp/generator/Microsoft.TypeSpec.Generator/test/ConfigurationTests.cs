@@ -103,6 +103,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             bool unknownBoolValue = additionalConfigOptions["unknown-bool-property"].ToObjectFromJson<bool>();
             Assert.AreEqual(true, unknownBoolValue);
+
+            Assert.AreEqual("libraryName", CodeModelPlugin.Instance.Configuration.PackageName);
+            Assert.AreEqual("Sample", CodeModelPlugin.Instance.TypeFactory.PrimaryNamespace);
         }
 
         [Test]

@@ -8,7 +8,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
     internal static class ClientResponseApiSnippets
     {
-        public static ScopedApi<HttpResponseApi> GetRawResponse(this ClientResponseApi clientResponse)
+        public static ScopedApi<HttpResponseApi> GetRawResponse(this ScopedApi<ClientResponseApi> clientResponse)
             => clientResponse.Invoke(nameof(ClientResponseApi.GetRawResponse)).As<HttpResponseApi>();
     }
 }

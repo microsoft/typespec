@@ -13,15 +13,20 @@ import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.HttpHeaderName;
+import com.azure.core.http.RequestConditions;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.DateTimeRfc1123;
+import java.time.OffsetDateTime;
 import methodoverride.implementation.MethodOverrideClientImpl;
 import methodoverride.implementation.models.GroupAllRequest;
 import methodoverride.implementation.models.GroupNoneRequest;
+import methodoverride.implementation.models.GroupPartETagRequest;
 import methodoverride.implementation.models.GroupPartRequest;
 import methodoverride.models.GroupAllOptions;
 import methodoverride.models.GroupExcludeBodyModel;
+import methodoverride.models.GroupPartETagOptions;
 import methodoverride.models.GroupPartOptions;
 import methodoverride.models.GroupQueryOptions;
 
@@ -135,6 +140,51 @@ public final class MethodOverrideClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> groupPartWithResponse(BinaryData groupPartRequest, RequestOptions requestOptions) {
         return this.serviceClient.groupPartWithResponse(groupPartRequest, requestOptions);
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifModifiedSince parameter</td></tr>
+     * <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifUnmodifiedSince parameter</td></tr>
+     * <tr><td>If-Match</td><td>String</td><td>No</td><td>The ifMatch parameter</td></tr>
+     * <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The ifNoneMatch parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     prop1: String (Required)
+     *     prop2: String (Optional)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param groupPartETagRequest The groupPartETagRequest parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> groupPartETagWithResponse(BinaryData groupPartETagRequest, RequestOptions requestOptions) {
+        return this.serviceClient.groupPartETagWithResponse(groupPartETagRequest, requestOptions);
     }
 
     /**
@@ -339,6 +389,77 @@ public final class MethodOverrideClient {
         GroupPartRequest groupPartRequestObj = new GroupPartRequest(prop1);
         BinaryData groupPartRequest = BinaryData.fromObject(groupPartRequestObj);
         groupPartWithResponse(groupPartRequest, requestOptions).getValue();
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * 
+     * @param prop1 The prop1 parameter.
+     * @param foo The foo parameter.
+     * @param options The options parameter.
+     * @param requestConditions Specifies HTTP options for conditional requests based on modification time.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void groupPartETag(String prop1, String foo, GroupPartETagOptions options,
+        RequestConditions requestConditions) {
+        // Generated convenience method for groupPartETagWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        GroupPartETagRequest groupPartETagRequestObj = new GroupPartETagRequest(prop1).setProp2(options.getProp2());
+        BinaryData groupPartETagRequest = BinaryData.fromObject(groupPartETagRequestObj);
+        String bar = options == null ? null : options.getBar();
+        OffsetDateTime ifModifiedSince = requestConditions == null ? null : requestConditions.getIfModifiedSince();
+        OffsetDateTime ifUnmodifiedSince = requestConditions == null ? null : requestConditions.getIfUnmodifiedSince();
+        String ifMatch = requestConditions == null ? null : requestConditions.getIfMatch();
+        String ifNoneMatch = requestConditions == null ? null : requestConditions.getIfNoneMatch();
+        if (foo != null) {
+            requestOptions.addQueryParam("foo", foo, false);
+        }
+        if (bar != null) {
+            requestOptions.addQueryParam("bar", bar, false);
+        }
+        if (ifModifiedSince != null) {
+            requestOptions.setHeader(HttpHeaderName.IF_MODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifModifiedSince)));
+        }
+        if (ifUnmodifiedSince != null) {
+            requestOptions.setHeader(HttpHeaderName.IF_UNMODIFIED_SINCE,
+                String.valueOf(new DateTimeRfc1123(ifUnmodifiedSince)));
+        }
+        if (ifMatch != null) {
+            requestOptions.setHeader(HttpHeaderName.IF_MATCH, ifMatch);
+        }
+        if (ifNoneMatch != null) {
+            requestOptions.setHeader(HttpHeaderName.IF_NONE_MATCH, ifNoneMatch);
+        }
+        groupPartETagWithResponse(groupPartETagRequest, requestOptions).getValue();
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * 
+     * @param prop1 The prop1 parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void groupPartETag(String prop1) {
+        // Generated convenience method for groupPartETagWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        GroupPartETagRequest groupPartETagRequestObj = new GroupPartETagRequest(prop1);
+        BinaryData groupPartETagRequest = BinaryData.fromObject(groupPartETagRequestObj);
+        groupPartETagWithResponse(groupPartETagRequest, requestOptions).getValue();
     }
 
     /**

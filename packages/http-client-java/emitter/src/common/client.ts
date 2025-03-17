@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { Aspect, Metadata, OperationGroup, Parameter, Security } from "@autorest/codemodel";
+import {
+  Aspect,
+  HttpHeader,
+  Metadata,
+  OperationGroup,
+  Parameter,
+  Property,
+  Security,
+} from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
 
 export interface Client extends Aspect {
@@ -12,9 +20,21 @@ export interface Client extends Aspect {
 
   serviceVersion?: ServiceVersion; // apiVersions is in
 
+  /**
+   * Parent client of this client, if exists.
+   */
   parent?: Client;
+  /**
+   * Sub clients of this client, if exists.
+   */
   subClients: Array<Client>;
+  /**
+   * Whether the Builder class has a public method (e.g. "buildSubClient") to initiate this client.
+   */
   buildMethodPublic: boolean;
+  /**
+   * Whether the parent client has a public accessor method (e.g. "getSubClient") to initiate this client.
+   */
   parentAccessorPublic: boolean;
 }
 
@@ -68,5 +88,32 @@ export class ServiceVersion extends Metadata {
 }
 
 export interface EncodedSchema {
+  /**
+   * The encoded type -- the type on wire.
+   * E.g., the type for SDK maybe "int32", but type on wire be "string".
+   */
   encode?: string;
+}
+
+export class PageableContinuationToken {
+  /**
+   * The parameter of the operation as continuationToken in API request.
+   */
+  parameter: Parameter;
+  // responseProperty and responseHeader is mutually exclusive
+  /**
+   * The reference to response body property of the operation as continuationToken in API request.
+   * Array because the property may be at "links.nextToken".
+   */
+  responseProperty?: Array<Property>;
+  /**
+   * The reference to response header of the operation as continuationToken in API request.
+   */
+  responseHeader?: HttpHeader;
+
+  constructor(parameter: Parameter, responseProperty?: Property[], responseHeader?: HttpHeader) {
+    this.parameter = parameter;
+    this.responseProperty = responseProperty;
+    this.responseHeader = responseHeader;
+  }
 }

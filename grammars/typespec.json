@@ -58,7 +58,7 @@
           "name": "entity.name.tag.tsp"
         }
       },
-      "end": "(?=[_$[:alpha:]])|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=([_$[:alpha:]]|`))|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -141,7 +141,7 @@
           "name": "entity.name.tag.tsp"
         }
       },
-      "end": "(?=[_$[:alpha:]])|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=([_$[:alpha:]]|`))|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -265,45 +265,6 @@
         }
       }
     },
-    "else-expression": {
-      "name": "meta.else-expression.typespec",
-      "begin": "\\b(else)\\b",
-      "beginCaptures": {
-        "1": {
-          "name": "keyword.other.tsp"
-        }
-      },
-      "end": "((?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
-      "patterns": [
-        {
-          "include": "#projection-expression"
-        },
-        {
-          "include": "#projection-body"
-        }
-      ]
-    },
-    "else-if-expression": {
-      "name": "meta.else-if-expression.typespec",
-      "begin": "\\b(else)\\s+(if)\\b",
-      "beginCaptures": {
-        "1": {
-          "name": "keyword.other.tsp"
-        },
-        "2": {
-          "name": "keyword.other.tsp"
-        }
-      },
-      "end": "((?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
-      "patterns": [
-        {
-          "include": "#projection-expression"
-        },
-        {
-          "include": "#projection-body"
-        }
-      ]
-    },
     "enum-body": {
       "name": "meta.enum-body.typespec",
       "begin": "\\{",
@@ -422,29 +383,6 @@
         }
       ]
     },
-    "function-call": {
-      "name": "meta.function-call.typespec",
-      "begin": "(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\s*(\\()",
-      "beginCaptures": {
-        "1": {
-          "name": "entity.name.function.tsp"
-        },
-        "2": {
-          "name": "punctuation.parenthesis.open.tsp"
-        }
-      },
-      "end": "\\)",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.parenthesis.close.tsp"
-        }
-      },
-      "patterns": [
-        {
-          "include": "#expression"
-        }
-      ]
-    },
     "function-declaration-statement": {
       "name": "meta.function-declaration-statement.typespec",
       "begin": "(?:(extern)\\s+)?\\b(fn)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
@@ -475,24 +413,6 @@
     "identifier-expression": {
       "name": "entity.name.type.tsp",
       "match": "\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`"
-    },
-    "if-expression": {
-      "name": "meta.if-expression.typespec",
-      "begin": "\\b(if)\\b",
-      "beginCaptures": {
-        "1": {
-          "name": "keyword.other.tsp"
-        }
-      },
-      "end": "((?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
-      "patterns": [
-        {
-          "include": "#projection-expression"
-        },
-        {
-          "include": "#projection-body"
-        }
-      ]
     },
     "import-statement": {
       "name": "meta.import-statement.typespec",
@@ -737,7 +657,7 @@
     },
     "namespace-name": {
       "name": "meta.namespace-name.typespec",
-      "begin": "(?=[_$[:alpha:]])",
+      "begin": "(?=([_$[:alpha:]]|`))",
       "end": "((?=\\{)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
       "patterns": [
         {
@@ -937,141 +857,6 @@
         }
       ]
     },
-    "projection": {
-      "name": "meta.projection.typespec",
-      "begin": "(from|to)",
-      "beginCaptures": {
-        "1": {
-          "name": "keyword.other.tsp"
-        }
-      },
-      "end": "((?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
-      "patterns": [
-        {
-          "include": "#projection-parameters"
-        },
-        {
-          "include": "#projection-body"
-        }
-      ]
-    },
-    "projection-body": {
-      "name": "meta.projection-body.typespec",
-      "begin": "\\{",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.curlybrace.open.tsp"
-        }
-      },
-      "end": "\\}",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.curlybrace.close.tsp"
-        }
-      },
-      "patterns": [
-        {
-          "include": "#projection-expression"
-        },
-        {
-          "include": "#punctuation-semicolon"
-        }
-      ]
-    },
-    "projection-expression": {
-      "patterns": [
-        {
-          "include": "#else-if-expression"
-        },
-        {
-          "include": "#if-expression"
-        },
-        {
-          "include": "#else-expression"
-        },
-        {
-          "include": "#function-call"
-        }
-      ]
-    },
-    "projection-parameter": {
-      "name": "meta.projection-parameter.typespec",
-      "begin": "(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
-      "beginCaptures": {
-        "1": {
-          "name": "variable.name.tsp"
-        }
-      },
-      "end": "(?=\\))|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
-      "patterns": []
-    },
-    "projection-parameters": {
-      "name": "meta.projection-parameters.typespec",
-      "begin": "\\(",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.parenthesis.open.tsp"
-        }
-      },
-      "end": "\\)",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.parenthesis.close.tsp"
-        }
-      },
-      "patterns": [
-        {
-          "include": "#token"
-        },
-        {
-          "include": "#projection-parameter"
-        }
-      ]
-    },
-    "projection-statement": {
-      "name": "meta.projection-statement.typespec",
-      "begin": "\\b(projection)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)(#)(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
-      "beginCaptures": {
-        "1": {
-          "name": "keyword.other.tsp"
-        },
-        "2": {
-          "name": "keyword.other.tsp"
-        },
-        "3": {
-          "name": "keyword.operator.selector.tsp"
-        },
-        "4": {
-          "name": "variable.name.tsp"
-        }
-      },
-      "end": "((?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
-      "patterns": [
-        {
-          "include": "#projection-statement-body"
-        }
-      ]
-    },
-    "projection-statement-body": {
-      "name": "meta.projection-statement-body.typespec",
-      "begin": "\\{",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.curlybrace.open.tsp"
-        }
-      },
-      "end": "\\}",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.curlybrace.close.tsp"
-        }
-      },
-      "patterns": [
-        {
-          "include": "#projection"
-        }
-      ]
-    },
     "punctuation-accessor": {
       "name": "punctuation.accessor.tsp",
       "match": "\\."
@@ -1246,9 +1031,6 @@
         },
         {
           "include": "#function-declaration-statement"
-        },
-        {
-          "include": "#projection-statement"
         },
         {
           "include": "#punctuation-semicolon"

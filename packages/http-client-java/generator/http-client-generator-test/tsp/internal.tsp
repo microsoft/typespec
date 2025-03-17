@@ -7,9 +7,7 @@ using TypeSpec.Http;
 using Azure.Core;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "Internal",
-})
+@service(#{ title: "Internal" })
 namespace TspTest.Internal;
 
 // ApiRequest and RequestInner will be generated

@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PipelinePolicyDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SecurityInfo;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import org.slf4j.Logger;
@@ -172,16 +171,5 @@ public final class TemplateHelper {
             + ".policies(policies.toArray(new HttpPipelinePolicy[0]))" + ".httpClient(httpClient)"
             + String.format(".clientOptions(%s)", localClientOptionsName) + ".build();");
         function.methodReturn("httpPipeline");
-    }
-
-    public static void createRestProxyInstance(ServiceClientTemplate template, ServiceClient serviceClient,
-        JavaBlock constructorBlock) {
-        if (!JavaSettings.getInstance().isBranded()) {
-            constructorBlock.line("this.service = %s.create(%s.class, this.httpPipeline);",
-                ClassType.REST_PROXY.getName(), serviceClient.getProxy().getName());
-        } else {
-            constructorBlock.line("this.service = %s.create(%s.class, this.httpPipeline, %s);",
-                ClassType.REST_PROXY.getName(), serviceClient.getProxy().getName(), template.getSerializerPhrase());
-        }
     }
 }

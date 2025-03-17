@@ -9,7 +9,6 @@ import {
   Decorator,
   EnumMember,
   FunctionParameter,
-  FunctionType,
   ModelProperty,
   Operation,
   StringTemplate,
@@ -55,8 +54,6 @@ function getTypeSignature(type: Type): string {
       return fence(`init ${getTypeSignature(type.scalar)}.${type.name}`);
     case "Decorator":
       return fence(getDecoratorSignature(type));
-    case "Function":
-      return fence(getFunctionSignature(type));
     case "Operation":
       return fence(getOperationSignature(type));
     case "String":
@@ -84,10 +81,6 @@ function getTypeSignature(type: Type): string {
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
       return `(tuple)\n[${fence(type.values.map(getTypeSignature).join(", "))}]`;
-    case "Projection":
-      return "(projection)";
-    case "Object":
-      return "(object)";
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
@@ -99,14 +92,6 @@ function getDecoratorSignature(type: Decorator) {
   const name = type.name.slice(1);
   const parameters = [type.target, ...type.parameters].map((x) => getFunctionParameterSignature(x));
   return `dec ${ns}${name}(${parameters.join(", ")})`;
-}
-
-function getFunctionSignature(type: FunctionType) {
-  const ns = getQualifier(type.namespace);
-  const parameters = type.parameters.map((x) => getFunctionParameterSignature(x));
-  return `fn ${ns}${printIdentifier(type.name)}(${parameters.join(", ")}): ${getPrintableTypeName(
-    type.returnType,
-  )}`;
 }
 
 function getOperationSignature(type: Operation) {
@@ -134,7 +119,7 @@ function getStringTemplateSignature(stringTemplate: StringTemplate) {
 
 function getModelPropertySignature(property: ModelProperty) {
   const ns = getQualifier(property.model);
-  return `${ns}${printIdentifier(property.name)}: ${getPrintableTypeName(property.type)}`;
+  return `${ns}${printIdentifier(property.name, "allow-reserved")}: ${getPrintableTypeName(property.type)}`;
 }
 
 function getUnionVariantSignature(variant: UnionVariant) {
@@ -142,15 +127,15 @@ function getUnionVariantSignature(variant: UnionVariant) {
     return getPrintableTypeName(variant.type);
   }
   const ns = getQualifier(variant.union);
-  return `${ns}${printIdentifier(variant.name)}: ${getPrintableTypeName(variant.type)}`;
+  return `${ns}${printIdentifier(variant.name, "allow-reserved")}: ${getPrintableTypeName(variant.type)}`;
 }
 
 function getEnumMemberSignature(member: EnumMember) {
   const ns = getQualifier(member.enum);
   const value = typeof member.value === "string" ? `"${member.value}"` : member.value;
   return value === undefined
-    ? `${ns}${printIdentifier(member.name)}`
-    : `${ns}${printIdentifier(member.name)}: ${value}`;
+    ? `${ns}${printIdentifier(member.name, "allow-reserved")}`
+    : `${ns}${printIdentifier(member.name, "allow-reserved")}: ${value}`;
 }
 
 function getAliasSignature(alias: AliasStatementNode) {

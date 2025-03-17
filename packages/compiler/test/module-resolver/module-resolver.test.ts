@@ -388,7 +388,6 @@ describe("resolve self", () => {
   it.each([
     ["at the same level", "/ws/proj"],
     ["nested", "/ws/proj/nested"],
-    ["lookup parent package.json", "/ws/proj/node_modules/test-lib/nested"],
   ])("%s", async (_, baseDir) => {
     const resolved = await resolveModule(host, "@scope/proj", {
       baseDir,

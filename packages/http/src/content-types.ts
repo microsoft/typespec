@@ -1,18 +1,5 @@
-import { createDiagnosticCollector, Diagnostic, ModelProperty, Program } from "@typespec/compiler";
-import { getHeaderFieldName } from "./decorators.js";
+import { createDiagnosticCollector, Diagnostic, ModelProperty } from "@typespec/compiler";
 import { createDiagnostic } from "./lib.js";
-
-/**
- * @deprecated Use `OperationProperty.kind === 'contentType'` instead.
- * Check if the given model property is the content type header.
- * @param program Program
- * @param property Model property.
- * @returns True if the model property is marked as a header and has the name `content-type`(case insensitive.)
- */
-export function isContentTypeHeader(program: Program, property: ModelProperty): boolean {
-  const headerName = getHeaderFieldName(program, property);
-  return Boolean(headerName && headerName.toLowerCase() === "content-type");
-}
 
 /**
  * Resolve the content types from a model property by looking at the value.

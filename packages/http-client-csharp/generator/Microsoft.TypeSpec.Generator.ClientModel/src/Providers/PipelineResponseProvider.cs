@@ -28,6 +28,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override ScopedApi<bool> IsError()
             => Original.Property(nameof(PipelineResponse.IsError)).As<bool>();
 
+        public override ScopedApi<bool> TryGetHeader(string name, out ScopedApi<string>? value)
+        {
+            var result = Original.Property(nameof(PipelineResponse.Headers))
+                .Invoke(nameof(PipelineResponseHeaders.TryGetValue), Snippet.Literal(name),
+                    new DeclarationExpression(typeof(string), "value", out var valueVariable, isOut: true)).As<bool>();
+            value = valueVariable.As<string>();
+            return result;
+        }
+
         public override HttpResponseApi FromExpression(ValueExpression original)
             => new PipelineResponseProvider(original);
 

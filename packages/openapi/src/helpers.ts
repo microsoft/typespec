@@ -157,12 +157,12 @@ export function resolveOperationId(program: Program, operation: Operation) {
 }
 
 /**
- * Determines if a property is read-only, which is defined as being
- * decorated `@visibility("read")`.
+ * Determines if a property is read-only, which is defined as having the
+ * only the `Lifecycle.Read` modifier.
  *
- * If there is more than 1 `@visibility` argument, then the property is not
- * read-only. For example, `@visibility("read", "update")` does not
- * designate a read-only property.
+ * If there is more than one Lifecycle visibility modifier active on the property,
+ * then the property is not read-only. For example, `@visibility(Lifecycle.Read, Lifecycle.Update)`
+ * does not designate a read-only property.
  */
 export function isReadonlyProperty(program: Program, property: ModelProperty) {
   const Lifecycle = getLifecycleVisibilityEnum(program);

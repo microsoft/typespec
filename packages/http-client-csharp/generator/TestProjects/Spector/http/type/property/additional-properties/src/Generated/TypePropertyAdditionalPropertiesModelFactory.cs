@@ -13,13 +13,13 @@ namespace _Type.Property.AdditionalProperties
 
         public static WidgetData2 WidgetData2(WidgetData2Kind kind = default, string start = default) => throw null;
 
-        public static WidgetData1 WidgetData1(WidgetData1Kind kind = default, DateTimeOffset start = default, DateTimeOffset? end = default) => throw null;
+        public static WidgetData1 WidgetData1(DateTimeOffset start = default, DateTimeOffset? end = default) => throw null;
 
         public static SpreadRecordForNonDiscriminatedUnion2 SpreadRecordForNonDiscriminatedUnion2(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
         public static SpreadRecordForNonDiscriminatedUnion SpreadRecordForNonDiscriminatedUnion(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static WidgetData0 WidgetData0(WidgetData0Kind kind = default, string fooProp = default) => throw null;
+        public static WidgetData0 WidgetData0(string fooProp = default) => throw null;
 
         public static SpreadRecordForDiscriminatedUnion SpreadRecordForDiscriminatedUnion(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 

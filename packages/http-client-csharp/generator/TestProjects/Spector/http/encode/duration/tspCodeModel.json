@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "DefaultDurationProperty",
-   "clientNamespace": "Encode.Duration.Property",
+   "namespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.DefaultDurationProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -53,7 +53,7 @@
    "$id": "8",
    "kind": "model",
    "name": "ISO8601DurationProperty",
-   "clientNamespace": "Encode.Duration.Property",
+   "namespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.ISO8601DurationProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -98,7 +98,7 @@
    "$id": "14",
    "kind": "model",
    "name": "Int32SecondsDurationProperty",
-   "clientNamespace": "Encode.Duration.Property",
+   "namespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.Int32SecondsDurationProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -143,7 +143,7 @@
    "$id": "20",
    "kind": "model",
    "name": "FloatSecondsDurationProperty",
-   "clientNamespace": "Encode.Duration.Property",
+   "namespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.FloatSecondsDurationProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -188,7 +188,7 @@
    "$id": "26",
    "kind": "model",
    "name": "Float64SecondsDurationProperty",
-   "clientNamespace": "Encode.Duration.Property",
+   "namespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.Float64SecondsDurationProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -233,7 +233,7 @@
    "$id": "32",
    "kind": "model",
    "name": "FloatSecondsDurationArrayProperty",
-   "clientNamespace": "Encode.Duration.Property",
+   "namespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.FloatSecondsDurationArrayProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -301,7 +301,7 @@
   {
    "$id": "41",
    "Name": "DurationClient",
-   "ClientNamespace": "Encode.Duration",
+   "Namespace": "Encode.Duration",
    "Doc": "Test for encode decorator on duration.",
    "Operations": [],
    "Protocol": {
@@ -340,12 +340,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Duration"
   },
   {
    "$id": "47",
    "Name": "Query",
-   "ClientNamespace": "Encode.Duration.Query",
+   "Namespace": "Encode.Duration.Query",
    "Operations": [
     {
      "$id": "48",
@@ -389,13 +390,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/default",
      "BufferResponse": true,
@@ -446,13 +445,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/iso8601",
      "BufferResponse": true,
@@ -503,13 +500,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/int32-seconds",
      "BufferResponse": true,
@@ -560,13 +555,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/float-seconds",
      "BufferResponse": true,
@@ -617,13 +610,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/float64-seconds",
      "BufferResponse": true,
@@ -697,13 +688,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/int32-seconds-array",
      "BufferResponse": true,
@@ -750,12 +739,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Duration.Query"
   },
   {
    "$id": "86",
    "Name": "Property",
-   "ClientNamespace": "Encode.Duration.Property",
+   "Namespace": "Encode.Duration.Property",
    "Operations": [
     {
      "$id": "87",
@@ -845,7 +835,6 @@
        "BodyType": {
         "$ref": "2"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -854,7 +843,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/default",
      "RequestMediaTypes": [
@@ -954,7 +942,6 @@
        "BodyType": {
         "$ref": "8"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -963,7 +950,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/iso8601",
      "RequestMediaTypes": [
@@ -1063,7 +1049,6 @@
        "BodyType": {
         "$ref": "14"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1072,7 +1057,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/int32-seconds",
      "RequestMediaTypes": [
@@ -1172,7 +1156,6 @@
        "BodyType": {
         "$ref": "20"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1181,7 +1164,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/float-seconds",
      "RequestMediaTypes": [
@@ -1281,7 +1263,6 @@
        "BodyType": {
         "$ref": "26"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1290,7 +1271,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/float64-seconds",
      "RequestMediaTypes": [
@@ -1390,7 +1370,6 @@
        "BodyType": {
         "$ref": "32"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1399,7 +1378,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/float-seconds-array",
      "RequestMediaTypes": [
@@ -1449,12 +1427,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Duration.Property"
   },
   {
    "$id": "146",
    "Name": "Header",
-   "ClientNamespace": "Encode.Duration.Header",
+   "Namespace": "Encode.Duration.Header",
    "Operations": [
     {
      "$id": "147",
@@ -1498,13 +1477,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/default",
      "BufferResponse": true,
@@ -1555,13 +1532,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/iso8601",
      "BufferResponse": true,
@@ -1635,13 +1610,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/iso8601-array",
      "BufferResponse": true,
@@ -1692,13 +1665,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/int32-seconds",
      "BufferResponse": true,
@@ -1749,13 +1720,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/float-seconds",
      "BufferResponse": true,
@@ -1806,13 +1775,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/float64-seconds",
      "BufferResponse": true,
@@ -1859,7 +1826,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Duration.Header"
   }
  ]
 }

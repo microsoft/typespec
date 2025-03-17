@@ -2,19 +2,6 @@ import { createDiagnosticCollector } from "../diagnostics.js";
 import { createDiagnostic } from "../messages.js";
 import type { Diagnostic, StringTemplate } from "../types.js";
 
-/**
- * @deprecated use `{@link StringTemplate["stringValue"]} property on {@link StringTemplate} instead.
- */
-export function stringTemplateToString(
-  stringTemplate: StringTemplate,
-): [string, readonly Diagnostic[]] {
-  if (stringTemplate.stringValue !== undefined) {
-    return [stringTemplate.stringValue, []];
-  } else {
-    return ["", explainStringTemplateNotSerializable(stringTemplate)];
-  }
-}
-
 export function isStringTemplateSerializable(
   stringTemplate: StringTemplate,
 ): [boolean, readonly Diagnostic[]] {

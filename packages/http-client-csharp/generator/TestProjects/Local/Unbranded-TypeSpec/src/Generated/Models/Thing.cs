@@ -18,10 +18,11 @@ namespace UnbrandedTypeSpec
         /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
         /// <param name="name"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
+        /// <param name="requiredNullableString"> required nullable string. </param>
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        public Thing(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
+        public Thing(string name, BinaryData requiredUnion, string requiredNullableString, string requiredBadDescription, IEnumerable<int> requiredNullableList)
         {
             Argument.AssertNotNull(name, nameof(name));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
@@ -29,16 +30,19 @@ namespace UnbrandedTypeSpec
 
             Name = name;
             RequiredUnion = requiredUnion;
+            RequiredNullableString = requiredNullableString;
             RequiredBadDescription = requiredBadDescription;
             OptionalNullableList = new ChangeTrackingList<int>();
             RequiredNullableList = requiredNullableList?.ToList();
         }
 
-        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, string requiredNullableString, string optionalNullableString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
             RequiredUnion = requiredUnion;
             RequiredLiteralString = requiredLiteralString;
+            RequiredNullableString = requiredNullableString;
+            OptionalNullableString = optionalNullableString;
             RequiredLiteralInt = requiredLiteralInt;
             RequiredLiteralFloat = requiredLiteralFloat;
             RequiredLiteralBool = requiredLiteralBool;
@@ -101,6 +105,12 @@ namespace UnbrandedTypeSpec
 
         /// <summary> required literal string. </summary>
         public ThingRequiredLiteralString RequiredLiteralString { get; } = "accept";
+
+        /// <summary> required nullable string. </summary>
+        public string RequiredNullableString { get; set; }
+
+        /// <summary> required optional string. </summary>
+        public string OptionalNullableString { get; set; }
 
         /// <summary> required literal int. </summary>
         public ThingRequiredLiteralInt RequiredLiteralInt { get; } = 123;

@@ -63,7 +63,7 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
   "client-namespace-conflict": {
     severity: "warning",
     messages: {
-      default: paramMessage`namespace ${"clientNamespace"} conflicts with client ${"clientName"}, please use @clientName to specify a different name for the client.`,
+      default: paramMessage`${"message"}`,
     },
   },
   "unsupported-endpoint-url": {
@@ -94,6 +94,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
     severity: "warning",
     messages: {
       default: paramMessage`Convenience method is not supported for PATCH method, it will be turned off. Please set the '@convenientAPI' to false for operation ${"methodCrossLanguageDefinitionId"}.`,
+    },
+  },
+  "unsupported-continuation-location": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unsupported continuation location for operation ${"crossLanguageDefinitionId"}.`,
     },
   },
 };

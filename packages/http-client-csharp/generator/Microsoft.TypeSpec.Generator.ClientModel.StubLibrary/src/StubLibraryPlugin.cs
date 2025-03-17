@@ -7,7 +7,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
 {
     [Export(typeof(CodeModelPlugin))]
     [ExportMetadata("PluginName", nameof(StubLibraryPlugin))]
-    public class StubLibraryPlugin : ClientModelPlugin
+    public class StubLibraryPlugin : ScmCodeModelPlugin
     {
         [ImportingConstructor]
         public StubLibraryPlugin(GeneratorContext context) : base(context) { }

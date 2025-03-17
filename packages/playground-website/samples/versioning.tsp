@@ -5,9 +5,7 @@ import "@typespec/versioning";
 using TypeSpec.Versioning;
 
 @versioned(Versions)
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 enum Versions {
