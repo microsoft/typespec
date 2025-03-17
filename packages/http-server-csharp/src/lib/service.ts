@@ -1,5 +1,4 @@
 import {
-  AssetEmitter,
   CodeTypeEmitter,
   Context,
   Declaration,
@@ -64,7 +63,6 @@ import {
   CSharpType,
   CSharpTypeMetadata,
   ControllerContext,
-  LibrarySourceFile,
   NameCasingType,
   ResponseInfo,
 } from "./interfaces.js";
@@ -105,6 +103,11 @@ import {
   isValueType,
 } from "./utils.js";
 
+type FileExists = (path: string) => Promise<boolean>;
+function getFileWriter(program: Program): FileExists {
+  return async (path: string) => !!(await program.host.stat(resolvePath(path)).catch((_) => false));
+}
+
 export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>) {
   let _unionCounter: number = 0;
   const controllers = new Map<string, ControllerContext>();
@@ -116,15 +119,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #generatedFileHeaderWithNullable: string = GeneratedFileHeaderWithNullable;
     #generatedFileHeader: string = GeneratedFileHeader;
     #sourceTypeKey: string = "sourceType";
-    #libraryFiles: LibrarySourceFile[] = getSerializationSourceFiles(this.emitter);
     #baseNamespace: string | undefined = undefined;
     #emitterOutputType = context.options["output-type"];
     #emitMocks: string | undefined = context.options["emit-mocks"];
     #useSwagger: boolean = context.options["use-swaggerui"] || false;
     #openapiPath: string = context.options["openapi-path"] || "openapi/openapi.yaml";
     #mockRegistrations: BusinessLogicRegistrations = new Map<string, BusinessLogicImplementation>();
-    #mockFiles: LibrarySourceFile[] = [];
     #opHelpers: CSharpOperationHelpers = new CSharpOperationHelpers(this.emitter);
+    #fileExists: FileExists = getFileWriter(this.emitter.getProgram());
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
       return this.emitter.result.declaration(
@@ -983,14 +985,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
-      for (const libFile of this.#libraryFiles) {
-        if (sourceFile === libFile.source) return libFile.emitted;
-      }
-      if (this.#mockFiles.length > 0) {
-        for (const mock of this.#mockFiles) {
-          if (sourceFile === mock.source) return mock.emitted;
-        }
-      }
       if (sourceFile.meta.emitted) {
         return sourceFile.meta.emitted;
       }
@@ -1096,12 +1090,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return "";
     }
 
-    writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
-      for (const source of this.#libraryFiles) {
-        sourceFiles.push(source.source);
-      }
-
-      if (this.#emitMocks === "all") {
+    async writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
+      sourceFiles.push(...getSerializationSourceFiles(this.emitter).flatMap((l) => l.source));
+      if (this.#emitMocks === "all" || this.#emitMocks === "no-project") {
         if (this.#mockRegistrations.size > 0) {
           const mocks = getBusinessLogicImplementations(
             this.emitter,
@@ -1109,11 +1100,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
             this.#useSwagger,
             this.#openapiPath,
           );
-          this.#mockFiles.push(...mocks);
+
           sourceFiles.push(...mocks.flatMap((l) => l.source));
         }
       }
-
+      async function shouldWrite(source: SourceFile<string>, exists: FileExists): Promise<boolean> {
+        return (
+          !source.meta.conditional || options.overwrite === true || !(await exists(source.path))
+        );
+      }
       const emittedSourceFiles: SourceFile<string>[] = [];
       for (const source of sourceFiles) {
         switch (this.#emitterOutputType) {
@@ -1124,13 +1119,17 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                   // do nothing
                   break;
                 default:
-                  emittedSourceFiles.push(source);
+                  if (await shouldWrite(source, this.#fileExists)) {
+                    emittedSourceFiles.push(source);
+                  }
                   break;
               }
             }
             break;
           default:
-            emittedSourceFiles.push(source);
+            if (await shouldWrite(source, this.#fileExists)) {
+              emittedSourceFiles.push(source);
+            }
             break;
         }
       }
@@ -1155,16 +1154,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
       return this.#baseNamespace;
     }
-  }
-
-  type FileExists = (path: string) => Promise<boolean>;
-  function getFileWriter(
-    program: Program,
-    emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
-  ): FileExists {
-    const basePath = emitter.getOptions().emitterOutputDir;
-    return async (path: string) =>
-      !!(await program.host.stat(resolvePath(basePath, path)).catch((_) => false));
   }
 
   function processNameSpace(program: Program, target: Namespace, service?: Service | undefined) {
@@ -1240,40 +1229,26 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
   processNameSpace(context.program, ns);
   if (!doNotEmit) {
-    const mockFiles: LibrarySourceFile[] = [];
     await ensureCleanDirectory(context.program, options.emitterOutputDir);
 
     if (options["emit-mocks"] !== "none") {
-      mockFiles.push(
-        ...getScaffoldingHelpers(
-          emitter,
-          options["use-swaggerui"] || false,
-          options["openapi-path"] || "",
-          true,
-        ),
+      getScaffoldingHelpers(
+        emitter,
+        options["use-swaggerui"] || false,
+        options["openapi-path"] || "",
+        true,
       );
     }
     if (options["emit-mocks"] === "all") {
       const [httpPort, httpsPort] = getPorts(options["http-port"], options["https-port"]);
-      mockFiles.push(
-        ...getProjectHelpers(
-          emitter,
-          options["project-name"] || "ServiceProject",
-          options["use-swaggerui"] || false,
-          httpPort,
-          httpsPort,
-        ),
+
+      getProjectHelpers(
+        emitter,
+        options["project-name"] || "ServiceProject",
+        options["use-swaggerui"] || false,
+        httpPort,
+        httpsPort,
       );
-    }
-    const fileExists = getFileWriter(context.program, emitter);
-    for (const file of mockFiles) {
-      if (file.conditional && !options["overwrite"]) {
-        if (!(await fileExists(file.path))) {
-          await emitter.emitSourceFile(file.source);
-        }
-      } else {
-        await emitter.emitSourceFile(file.source);
-      }
     }
 
     await emitter.writeOutput();

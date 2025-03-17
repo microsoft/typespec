@@ -302,7 +302,7 @@ export class LibrarySourceFile {
       contents: params.getContents(),
     };
 
-    source.meta = { emitted: this.emitted };
+    source.meta = { emitted: this.emitted, conditional: this.conditional };
     this.source = source;
   }
   conditional: boolean;

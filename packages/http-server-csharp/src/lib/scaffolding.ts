@@ -33,7 +33,8 @@ export function getScaffoldingHelpers(
       filename: "Program.cs",
       emitter: emitter,
       getContents: () => getProjectStartup(useSwagger, openApiPath, hasMockRegistration),
-      path: "../",
+      path: "..",
+      conditional: true,
     }),
   ];
   if (hasMockRegistration) {
@@ -42,13 +43,15 @@ export function getScaffoldingHelpers(
         filename: "IInitializer.cs",
         emitter: emitter,
         getContents: getInitializerInterface,
-        path: "../mocks/",
+        path: "../mocks",
+        conditional: true,
       }),
       new LibrarySourceFile({
         filename: "Initializer.cs",
         emitter: emitter,
         getContents: getInitializerImplementation,
-        path: "../mocks/",
+        path: "../mocks",
+        conditional: true,
       }),
     );
   }
@@ -70,7 +73,8 @@ export function getBusinessLogicImplementations(
         filename: `${impl.className}.cs`,
         emitter: emitter,
         getContents: () => getBusinessLogicImplementation(impl),
-        path: "../mocks/",
+        path: "../mocks",
+        conditional: true,
       }),
     );
     mocks.push(impl);
@@ -81,7 +85,8 @@ export function getBusinessLogicImplementations(
         filename: "MockRegistration.cs",
         emitter: emitter,
         getContents: () => getMockRegistration(mocks),
-        path: "../mocks/",
+        path: "../mocks",
+        conditional: true,
       }),
     );
   }
