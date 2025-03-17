@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace Microsoft.TypeSpec.Generator.Tests
 {
-    public class TestPlugin : CodeModelPlugin
+    public class TestGenerator : CodeModelGenerator
     {
-        public TestPlugin()
+        public TestGenerator()
         {
         }
     }

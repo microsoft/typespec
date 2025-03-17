@@ -5,12 +5,12 @@ using System.ComponentModel.Composition;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
 {
-    [Export(typeof(CodeModelPlugin))]
-    [ExportMetadata("PluginName", nameof(StubLibraryPlugin))]
-    public class StubLibraryPlugin : ScmCodeModelPlugin
+    [Export(typeof(CodeModelGenerator))]
+    [ExportMetadata(GeneratorMetadataName, nameof(StubLibraryGenerator))]
+    public class StubLibraryGenerator : ScmCodeModelGenerator
     {
         [ImportingConstructor]
-        public StubLibraryPlugin(GeneratorContext context) : base(context) { }
+        public StubLibraryGenerator(GeneratorContext context) : base(context) { }
 
         public override void Configure()
         {

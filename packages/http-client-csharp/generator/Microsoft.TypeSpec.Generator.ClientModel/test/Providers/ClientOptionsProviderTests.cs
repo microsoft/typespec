@@ -23,20 +23,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var categories = TestContext.CurrentContext.Test?.Properties["Category"];
             bool containsApiVersions = categories?.Contains(ApiVersionsCategory) ?? false;
 
-            // Load the mock plugin with or without api versions
+            // Load the mock generator with or without api versions
             if (containsApiVersions)
             {
                 List<string> apiVersions = ["1.0", "2.0"];
                 var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
                 var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
 
-                MockHelpers.LoadMockPlugin(
+                MockHelpers.LoadMockGenerator(
                     apiVersions: () => apiVersions,
                     inputEnums: () => [inputEnum]);
             }
             else
             {
-                MockHelpers.LoadMockPlugin();
+                MockHelpers.LoadMockGenerator();
             }
         }
 

@@ -6,14 +6,14 @@ using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests
 {
-    internal class PluginTests
+    internal class GeneratorTests
     {
         [Test]
         public void CanAddVisitors()
         {
-            var plugin = new TestPlugin();
-            plugin.AddVisitor(new TestLibraryVisitor());
-            Assert.AreEqual(1, plugin.Visitors.Count);
+            var mockGenerator = new TestGenerator();
+            mockGenerator.AddVisitor(new TestLibraryVisitor());
+            Assert.AreEqual(1, mockGenerator.Visitors.Count);
         }
     }
 }

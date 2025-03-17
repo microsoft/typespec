@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\src\SamplePlugin.csproj" />
+    <ProjectReference Include="..\src\SampleGenerator.csproj" />
   </ItemGroup>
 </Project>

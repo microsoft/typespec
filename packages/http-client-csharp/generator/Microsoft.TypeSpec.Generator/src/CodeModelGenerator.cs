@@ -14,22 +14,24 @@ using Microsoft.TypeSpec.Generator.SourceInput;
 namespace Microsoft.TypeSpec.Generator
 {
     /// <summary>
-    /// Base class for code model plugins. This class is exported via MEF and can be implemented by an inherited plugin class.
+    /// Base class for code model generators. This class is exported via MEF and can be implemented by an
+    /// inherited generator class.
     /// </summary>
     [InheritedExport]
-    [Export(typeof(CodeModelPlugin))]
-    [ExportMetadata("PluginName", nameof(CodeModelPlugin))]
-    public abstract class CodeModelPlugin
+    [Export(typeof(CodeModelGenerator))]
+    [ExportMetadata(GeneratorMetadataName, nameof(CodeModelGenerator))]
+    public abstract class CodeModelGenerator
     {
         private List<LibraryVisitor> _visitors = [];
         private List<MetadataReference> _additionalMetadataReferences = [];
-        private static CodeModelPlugin? _instance;
+        private static CodeModelGenerator? _instance;
         private List<string> _sharedSourceDirectories = [];
-        internal static CodeModelPlugin Instance
+        public const string GeneratorMetadataName = "GeneratorName";
+        internal static CodeModelGenerator Instance
         {
             get
             {
-                return _instance ?? throw new InvalidOperationException("CodeModelPlugin is not initialized");
+                return _instance ?? throw new InvalidOperationException("CodeModelGenerator is not initialized");
             }
             set
             {
@@ -42,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator
         public IReadOnlyList<LibraryVisitor> Visitors => _visitors;
 
         [ImportingConstructor]
-        public CodeModelPlugin(GeneratorContext context)
+        public CodeModelGenerator(GeneratorContext context)
         {
             Configuration = context.Configuration;
             _inputLibrary = new InputLibrary(Configuration.OutputDirectory);
@@ -52,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        protected CodeModelPlugin()
+        protected CodeModelGenerator()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
         }
@@ -62,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator
 
         public virtual Emitter Emitter { get; }
 
-        // Extensibility points to be implemented by a plugin
+        // Extensibility points to be implemented by a generator
         public virtual TypeFactory TypeFactory { get; }
 
         private SourceInputModel? _sourceInputModel;
