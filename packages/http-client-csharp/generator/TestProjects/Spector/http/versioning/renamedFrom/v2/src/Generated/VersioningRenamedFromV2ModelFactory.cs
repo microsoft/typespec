@@ -3,8 +3,9 @@
 #nullable disable
 
 using System;
+using Versioning.RenamedFrom;
 
-namespace Versioning.RenamedFrom
+namespace Versioning.RenamedFrom.V2
 {
     public static partial class VersioningRenamedFromV2ModelFactory
     {

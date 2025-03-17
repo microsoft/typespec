@@ -2,9 +2,9 @@
 
 package payload.multipart;
 
-import io.clientcore.core.annotation.Metadata;
-import io.clientcore.core.annotation.TypeConditions;
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.models.binarydata.BinaryData;
 
 /**
  * The file details for the "profileImage" field.

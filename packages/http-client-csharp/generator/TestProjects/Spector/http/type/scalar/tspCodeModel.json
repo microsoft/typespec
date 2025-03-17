@@ -8,7 +8,7 @@
   {
    "$id": "2",
    "Name": "ScalarClient",
-   "ClientNamespace": "Type.Scalar",
+   "Namespace": "Type.Scalar",
    "Operations": [],
    "Protocol": {
     "$id": "3"
@@ -46,12 +46,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Scalar"
   },
   {
    "$id": "8",
    "Name": "String",
-   "ClientNamespace": "Type.Scalar",
+   "Namespace": "Type.Scalar",
    "Operations": [
     {
      "$id": "9",
@@ -101,7 +102,6 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -110,7 +110,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/string",
      "BufferResponse": true,
@@ -183,13 +182,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Text",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/string",
      "RequestMediaTypes": [
@@ -239,12 +236,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Scalar.String"
   },
   {
    "$id": "27",
    "Name": "Boolean",
-   "ClientNamespace": "Type.Scalar",
+   "Namespace": "Type.Scalar",
    "Operations": [
     {
      "$id": "28",
@@ -294,7 +292,6 @@
         "crossLanguageDefinitionId": "TypeSpec.boolean",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -303,7 +300,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/boolean",
      "BufferResponse": true,
@@ -376,13 +372,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/boolean",
      "RequestMediaTypes": [
@@ -432,12 +426,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Scalar.Boolean"
   },
   {
    "$id": "46",
    "Name": "Unknown",
-   "ClientNamespace": "Type.Scalar",
+   "Namespace": "Type.Scalar",
    "Operations": [
     {
      "$id": "47",
@@ -487,7 +482,6 @@
         "crossLanguageDefinitionId": "",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -496,7 +490,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/unknown",
      "BufferResponse": true,
@@ -569,13 +562,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/unknown",
      "RequestMediaTypes": [
@@ -625,12 +616,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Scalar.Unknown"
   },
   {
    "$id": "65",
    "Name": "DecimalType",
-   "ClientNamespace": "Type.Scalar",
+   "Namespace": "Type.Scalar",
    "Doc": "Decimal type",
    "Operations": [
     {
@@ -680,7 +672,6 @@
         "crossLanguageDefinitionId": "TypeSpec.decimal",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -689,7 +680,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/response_body",
      "BufferResponse": true,
@@ -760,13 +750,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/resquest_body",
      "RequestMediaTypes": [
@@ -812,13 +800,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/request_parameter",
      "BufferResponse": true,
@@ -865,12 +851,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Scalar.DecimalType"
   },
   {
    "$id": "88",
    "Name": "Decimal128Type",
-   "ClientNamespace": "Type.Scalar",
+   "Namespace": "Type.Scalar",
    "Doc": "Decimal128 type",
    "Operations": [
     {
@@ -920,7 +907,6 @@
         "crossLanguageDefinitionId": "TypeSpec.decimal128",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -929,7 +915,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/response_body",
      "BufferResponse": true,
@@ -1000,13 +985,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/resquest_body",
      "RequestMediaTypes": [
@@ -1052,13 +1035,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/request_parameter",
      "BufferResponse": true,
@@ -1105,12 +1086,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Scalar.Decimal128Type"
   },
   {
    "$id": "111",
    "Name": "DecimalVerify",
-   "ClientNamespace": "Type.Scalar",
+   "Namespace": "Type.Scalar",
    "Doc": "Decimal type verification",
    "Operations": [
     {
@@ -1167,7 +1149,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1176,7 +1157,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/prepare_verify",
      "BufferResponse": true,
@@ -1247,13 +1227,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/verify",
      "RequestMediaTypes": [
@@ -1303,12 +1281,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Scalar.DecimalVerify"
   },
   {
    "$id": "131",
    "Name": "Decimal128Verify",
-   "ClientNamespace": "Type.Scalar",
+   "Namespace": "Type.Scalar",
    "Doc": "Decimal128 type verification",
    "Operations": [
     {
@@ -1365,7 +1344,6 @@
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1374,7 +1352,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/prepare_verify",
      "BufferResponse": true,
@@ -1445,13 +1422,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/verify",
      "RequestMediaTypes": [
@@ -1501,7 +1476,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Type.Scalar.Decimal128Verify"
   }
  ]
 }

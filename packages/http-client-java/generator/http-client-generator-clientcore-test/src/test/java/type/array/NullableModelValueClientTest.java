@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class NullableModelValueClientTest {
@@ -16,7 +15,6 @@ public class NullableModelValueClientTest {
     private final NullableModelValueClient client = new ArrayClientBuilder().buildNullableModelValueClient();
 
     @Test
-    @Disabled("java.lang.ClassCastException: class java.util.LinkedHashMap cannot be cast to class type.array.InnerModel")
     public void get() {
         List<InnerModel> response = client.get();
         assertEquals(3, response.size());

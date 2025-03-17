@@ -43,11 +43,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputNamespace.Name), ref name)
-                    || reader.TryReadWithConverter(nameof(InputNamespace.ApiVersions), options, ref apiVersions)
-                    || reader.TryReadWithConverter(nameof(InputNamespace.Enums), options, ref enums)
-                    || reader.TryReadWithConverter(nameof(InputNamespace.Models), options, ref models)
-                    || reader.TryReadWithConverter(nameof(InputNamespace.Clients), options, ref clients)
-                    || reader.TryReadWithConverter(nameof(InputNamespace.Auth), options, ref auth);
+                    || reader.TryReadComplexType(nameof(InputNamespace.ApiVersions), options, ref apiVersions)
+                    || reader.TryReadComplexType(nameof(InputNamespace.Enums), options, ref enums)
+                    || reader.TryReadComplexType(nameof(InputNamespace.Models), options, ref models)
+                    || reader.TryReadComplexType(nameof(InputNamespace.Clients), options, ref clients)
+                    || reader.TryReadComplexType(nameof(InputNamespace.Auth), options, ref auth);
 
                 if (!isKnownProperty)
                 {
@@ -59,8 +59,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             enums ??= Array.Empty<InputEnumType>();
             models ??= Array.Empty<InputModelType>();
             clients ??= Array.Empty<InputClient>();
-            // it is possible that no auth is defined in the typespec, in this case, we just create an empty auth.
-            auth ??= new InputAuth();
 
             return new InputNamespace(
                 name ?? throw new JsonException(),

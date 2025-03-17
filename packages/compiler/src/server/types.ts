@@ -36,8 +36,10 @@ import {
   WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver";
-import { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
-import type { CompilerHost, Program, SourceFile, TypeSpecScriptNode } from "../core/index.js";
+import type { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
+import type { CompilerOptions } from "../core/options.js";
+import type { Program } from "../core/program.js";
+import type { CompilerHost, SourceFile, TypeSpecScriptNode } from "../core/types.js";
 import { LoadedCoreTemplates } from "../init/core-templates.js";
 import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
 import { ScaffoldingConfig } from "../init/scaffold.js";
@@ -64,6 +66,7 @@ export interface CompileResult {
   readonly program: Program;
   readonly document: TextDocument;
   readonly script: TypeSpecScriptNode;
+  readonly optionsFromConfig: CompilerOptions;
 }
 
 export interface Server {

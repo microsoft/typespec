@@ -50,11 +50,11 @@ function IsSpecDir {
 }
 
 $failingSpecs = @(
-    Join-Path 'http' 'payload' 'pageable'
     Join-Path 'http' 'payload' 'xml'
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'templated'
     Join-Path 'http' 'client' 'naming' # pending until https://github.com/microsoft/typespec/issues/5653 is resolved
+    Join-Path 'http' 'streaming' 'jsonl'
 )
 
 $azureAllowSpecs = @(
@@ -152,7 +152,7 @@ if ($null -eq $filter) {
     $launchSettings = @{}
     $launchSettings.Add("profiles", @{})
     $launchSettings["profiles"].Add("Unbranded-TypeSpec", @{})
-    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p ClientModelPlugin")
+    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p ScmCodeModelPlugin")
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandName", "Executable")
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mtgExe)
     $launchSettings["profiles"].Add("Debug-Plugin-Test-TypeSpec", @{})

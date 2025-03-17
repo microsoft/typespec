@@ -43,9 +43,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override FormattableString Description
             => _isApiVersionEnum ? $"The version of the service to use." : base.Description;
 
-        protected override string BuildNamespace()
-            => _isApiVersionEnum ? CodeModelPlugin.Instance.TypeFactory.RootNamespace : base.BuildNamespace();
-
         protected override TypeProvider[] BuildSerializationProviders()
         {
             return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();

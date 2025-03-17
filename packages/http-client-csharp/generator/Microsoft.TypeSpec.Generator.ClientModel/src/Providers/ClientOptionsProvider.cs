@@ -28,11 +28,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             _inputClient = inputClient;
             _clientProvider = clientProvider;
-            var inputEnumType = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Enums
+            var inputEnumType = ScmCodeModelPlugin.Instance.InputLibrary.InputNamespace.Enums
                     .FirstOrDefault(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum));
             if (inputEnumType != null)
             {
-                _serviceVersionEnum = new(() => ClientModelPlugin.Instance.TypeFactory.CreateEnum(inputEnumType, this));
+                _serviceVersionEnum = new(() => ScmCodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnumType, this));
                 _versionProperty = new(
                     null,
                     MethodSignatureModifiers.Internal,
@@ -62,11 +62,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
         protected override string BuildName() => $"{_clientProvider.Name}Options";
+        protected override string BuildNamespace() => _clientProvider.Type.Namespace;
         protected override FormattableString Description => $"Client options for {_clientProvider.Type:C}.";
 
         protected override CSharpType[] BuildImplements()
         {
-            return [ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType];
+            return [ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType];
         }
 
         protected override FieldProvider[] BuildFields()
@@ -131,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         description = $"{parameterDescription}";
                     }
 
-                    var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type)?.PropertyInitializationType;
+                    var type = ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type)?.PropertyInitializationType;
                     if (type != null)
                     {
                         properties.Add(new(

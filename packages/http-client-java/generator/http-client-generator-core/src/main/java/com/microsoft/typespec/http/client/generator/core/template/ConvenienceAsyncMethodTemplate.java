@@ -182,7 +182,8 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
-                        return "protocolMethodData -> protocolMethodData.toObject(Base64Url.class).decodedBytes()";
+                        return "protocolMethodData -> protocolMethodData.toObject(" + ClassType.BASE_64_URL.getName()
+                            + ".class).decodedBytes()";
                     } else {
                         return "protocolMethodData -> protocolMethodData.toObject(byte[].class)";
                     }

@@ -103,10 +103,12 @@ export class NpmUtil {
           }
         }
       } else {
-        logger.error("Error getting dependencies.", [dependenciesResult.stderr]);
+        logger.error(`Error getting dependencies for ${packageFullName}.`, [
+          dependenciesResult.stderr,
+        ]);
       }
     } catch (err) {
-      logger.error("Error getting dependencies.", [err]);
+      logger.error(`Error getting dependencies for ${packageFullName}.`, [err]);
     }
 
     function parseDependency(jsonDependencies: any[]): Record<string, string[]> {

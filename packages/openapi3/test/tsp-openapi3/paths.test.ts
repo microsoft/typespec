@@ -39,12 +39,8 @@ it("generates operations with no params", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
-      title: "Test Service",
-    })
-    @info({
-      version: "1.0.0",
-    })
+    @service(#{ title: "Test Service" })
+    @info(#{ version: "1.0.0" })
     namespace TestService;
 
     @route("/") @get op rootGet(): Body<{
@@ -79,12 +75,8 @@ it("generates operations without common params", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
-      title: "Test Service",
-    })
-    @info({
-      version: "1.0.0",
-    })
+    @service(#{ title: "Test Service" })
+    @info(#{ version: "1.0.0" })
     namespace TestService;
 
     @route("/{id}") @get op idGet(@path id: string): Body<{
@@ -120,12 +112,8 @@ it("generates operations with common params", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
-      title: "Test Service",
-    })
-    @info({
-      version: "1.0.0",
-    })
+    @service(#{ title: "Test Service" })
+    @info(#{ version: "1.0.0" })
     namespace TestService;
 
     @route("/{id}") @get op idGet(@path id: string): Body<{
@@ -161,12 +149,8 @@ it("generates operations with common and specific params", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
-      title: "Test Service",
-    })
-    @info({
-      version: "1.0.0",
-    })
+    @service(#{ title: "Test Service" })
+    @info(#{ version: "1.0.0" })
     namespace TestService;
 
     @route("/{id}") @get op idGet(@path id: string, @query(#{ explode: true }) foo?: string): Body<{
@@ -218,12 +202,8 @@ it("supports overriding common params with operation params", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
-      title: "Test Service",
-    })
-    @info({
-      version: "1.0.0",
-    })
+    @service(#{ title: "Test Service" })
+    @info(#{ version: "1.0.0" })
     namespace TestService;
 
     @route("/{id}") @get op idGet(
@@ -267,12 +247,8 @@ it("supports operation summary", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
-      title: "Test Service",
-    })
-    @info({
-      version: "1.0.0",
-    })
+    @service(#{ title: "Test Service" })
+    @info(#{ version: "1.0.0" })
     namespace TestService;
 
     @route("/")
@@ -334,12 +310,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "Test Service",
-})
-@info({
-  version: "1.0.0",
-})
+@service(#{ title: "Test Service" })
+@info(#{ version: "1.0.0" })
 namespace TestService;
 
 model Foo {
@@ -395,12 +367,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         model Foo {
@@ -441,12 +409,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         @route("/") @get op getFoo(): CreatedResponse & {
@@ -485,12 +449,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         @route("/") @get op getFoo(): {
@@ -550,12 +510,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         model Foo {
@@ -607,12 +563,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         @route("/") @get op getFoo(): Body<{
@@ -651,12 +603,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         @route("/") @get op getFoo(): {
@@ -695,12 +643,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         @route("/") @get op getFoo(): {
@@ -739,12 +683,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse;
@@ -792,12 +732,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<Description = "Test Response">;
@@ -845,12 +781,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<Headers = {
@@ -900,12 +832,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<Body = string>;
@@ -955,12 +883,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
@@ -1031,12 +955,8 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
-          title: "Test Service",
-        })
-        @info({
-          version: "1.0.0",
-        })
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
         namespace TestService;
 
         scalar Foo extends string;
@@ -1094,12 +1014,8 @@ model Foo {
       using Http;
       using OpenAPI;
 
-      @service({
-        title: "Test Service",
-      })
-      @info({
-        version: "1.0.0",
-      })
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
       namespace TestService;
 
       @route("/") @get op getFoo():
@@ -1180,12 +1096,8 @@ model Foo {
       using Http;
       using OpenAPI;
 
-      @service({
-        title: "Test Service",
-      })
-      @info({
-        version: "1.0.0",
-      })
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
       namespace TestService;
 
       model Foo {
@@ -1255,12 +1167,8 @@ model Foo {
       using Http;
       using OpenAPI;
 
-      @service({
-        title: "Test Service",
-      })
-      @info({
-        version: "1.0.0",
-      })
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
       namespace TestService;
 
       model Foo {
@@ -1351,12 +1259,8 @@ model Foo {
       using Http;
       using OpenAPI;
 
-      @service({
-        title: "Test Service",
-      })
-      @info({
-        version: "1.0.0",
-      })
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
       namespace TestService;
 
       model Foo {
@@ -1424,12 +1328,8 @@ describe("requestBody", () => {
       using Http;
       using OpenAPI;
 
-      @service({
-        title: "Test Service",
-      })
-      @info({
-        version: "1.0.0",
-      })
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
       namespace TestService;
 
       model Foo {
@@ -1497,12 +1397,8 @@ describe("requestBody", () => {
       using Http;
       using OpenAPI;
 
-      @service({
-        title: "Test Service",
-      })
-      @info({
-        version: "1.0.0",
-      })
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
       namespace TestService;
 
       model Foo {
@@ -1571,12 +1467,8 @@ describe("requestBody", () => {
       using Http;
       using OpenAPI;
 
-      @service({
-        title: "Test Service",
-      })
-      @info({
-        version: "1.0.0",
-      })
+      @service(#{ title: "Test Service" })
+      @info(#{ version: "1.0.0" })
       namespace TestService;
 
       model Foo {

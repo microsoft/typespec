@@ -37,7 +37,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Server.Path.Multiple",
+   "namespace": "Server.Path.Multiple",
    "doc": "Service versions",
    "isFixed": true,
    "isFlags": false,
@@ -50,7 +50,7 @@
   {
    "$id": "6",
    "Name": "MultipleClient",
-   "ClientNamespace": "Server.Path.Multiple",
+   "Namespace": "Server.Path.Multiple",
    "Operations": [
     {
      "$id": "7",
@@ -64,13 +64,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/server/path/multiple/{apiVersion}",
      "Path": "/",
      "BufferResponse": true,
@@ -113,13 +111,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/server/path/multiple/{apiVersion}",
      "Path": "/{keyword}",
      "BufferResponse": true,
@@ -183,7 +179,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Server.Path.Multiple"
   }
  ]
 }

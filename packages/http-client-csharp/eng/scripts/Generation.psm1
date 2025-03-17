@@ -42,7 +42,7 @@ function Get-TspCommand {
     }
 
     if ($libraryNameOverride) {
-        $command += " --option @typespec/http-client-csharp.library-name=$libraryNameOverride"
+        $command += " --option @typespec/http-client-csharp.package-name=$libraryNameOverride"
     }
     
     if ($apiVersion) {

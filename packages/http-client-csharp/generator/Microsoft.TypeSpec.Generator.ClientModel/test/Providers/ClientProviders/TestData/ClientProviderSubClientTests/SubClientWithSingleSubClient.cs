@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Sample
 {
-    /// <summary></summary>
+    /// <summary> DogClient description. </summary>
     public partial class Dog
     {
         /// <summary> Initializes a new instance of Husky. </summary>

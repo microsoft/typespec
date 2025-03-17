@@ -4,91 +4,86 @@ import { describe, expect, it } from "vitest";
 import { worksFor } from "./works-for.js";
 
 worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
-  it("handles discriminated unions", async () => {
-    const res = await openApiFor(
-      `
-      model A {
-        type: "ay";
-        a: string;
-      }
+  describe("discriminated unions", () => {
+    it("use object envelope", async () => {
+      const res = await openApiFor(
+        `
+        model A {
+          a: string;
+        }
+  
+        model B {
+          b: string;
+        }
+  
+        @discriminated
+        union AorB {
+          a: A,
+          b: B
+        }
+        `,
+      );
 
-      model B {
-        type: "bee";
-        b: string;
-      }
-
-      @discriminator("type")
-      union AorB {
-        a: A,
-        b: B
-      }
-
-      op foo(x: AorB): { thing: AorB };
-      `,
-    );
-
-    deepStrictEqual(res.components.schemas.AorB, {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/A",
+      deepStrictEqual(res.components.schemas.AorB, {
+        type: "object",
+        oneOf: [{ $ref: "#/components/schemas/AorBA" }, { $ref: "#/components/schemas/AorBB" }],
+        discriminator: {
+          propertyName: "kind",
+          mapping: {
+            a: "#/components/schemas/AorBA",
+            b: "#/components/schemas/AorBB",
+          },
         },
-        {
-          $ref: "#/components/schemas/B",
+      });
+
+      deepStrictEqual(res.components.schemas.AorBA, {
+        type: "object",
+        properties: {
+          kind: { type: "string", enum: ["a"] },
+          value: { $ref: "#/components/schemas/A" },
         },
-      ],
-      discriminator: {
-        propertyName: "type",
-        mapping: {
-          ay: "#/components/schemas/A",
-          bee: "#/components/schemas/B",
+        required: ["kind", "value"],
+      });
+      deepStrictEqual(res.components.schemas.AorBB, {
+        type: "object",
+        properties: {
+          kind: { type: "string", enum: ["b"] },
+          value: { $ref: "#/components/schemas/B" },
         },
-      },
+        required: ["kind", "value"],
+      });
     });
-  });
 
-  it("handles discriminated unions with enum typed fields", async () => {
-    const res = await openApiFor(
-      `
-      enum Types {
-        A;
-        B: "bee";
-      }
-      model A {
-        type: Types.A;
-        a: string;
-      }
+    it("envelope none", async () => {
+      const res = await openApiFor(
+        `
+        model A {
+          a: string;
+        }
+  
+        model B {
+          b: string;
+        }
+  
+        @discriminated(#{envelope: "none"})
+        union AorB {
+          a: A,
+          b: B
+        }
+        `,
+      );
 
-      model B {
-        type: Types.B;
-        b: string;
-      }
-
-      @discriminator("type")
-      union AorB {
-        a: A,
-        b: B
-      }
-
-      op foo(x: AorB): { thing: AorB };
-      `,
-    );
-
-    deepStrictEqual(res.components.schemas.AorB, {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/A",
+      deepStrictEqual(res.components.schemas.AorB, {
+        type: "object",
+        oneOf: [{ $ref: "#/components/schemas/A" }, { $ref: "#/components/schemas/B" }],
+        discriminator: {
+          propertyName: "kind",
+          mapping: {
+            a: "#/components/schemas/A",
+            b: "#/components/schemas/B",
+          },
         },
-        {
-          $ref: "#/components/schemas/B",
-        },
-      ],
-      discriminator: {
-        propertyName: "type",
-        mapping: {
-          A: "#/components/schemas/A",
-          bee: "#/components/schemas/B",
-        },
-      },
+      });
     });
   });
 
@@ -214,48 +209,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
     ]);
   });
 
-  it("handles union declarations with anonymous variants", async () => {
-    const res = await openApiFor(
-      `
-      model A {
-        type: "ay";
-        a: string;
-      }
-
-      model B {
-        type: "bee";
-        b: string;
-      }
-
-      @discriminator("type")
-      union AorB {
-        A,
-        B
-      }
-
-      op foo(x: AorB): { thing: AorB };
-      `,
-    );
-
-    deepStrictEqual(res.components.schemas.AorB, {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/A",
-        },
-        {
-          $ref: "#/components/schemas/B",
-        },
-      ],
-      discriminator: {
-        propertyName: "type",
-        mapping: {
-          ay: "#/components/schemas/A",
-          bee: "#/components/schemas/B",
-        },
-      },
-    });
-  });
-
   it("handles enum unions", async () => {
     const res = await oapiForModel(
       "X",
@@ -286,20 +239,18 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
   it("handles discriminated union mapping with multiple visibilities", async () => {
     const res = await openApiFor(`
       model A {
-        type: "ay";
         a: string;
-        @visibility("create")
+        @visibility(Lifecycle.Create)
         onACreate: string;
       }
 
       model B {
-        type: "bee";
         b: string;
-        @visibility("create")
+        @visibility(Lifecycle.Create)
         onBCreate: string;
       }
 
-      @discriminator("type")
+      @discriminated(#{envelope: "none"})
       union AorB {
         a: A,
         b: B
@@ -316,7 +267,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
     `);
 
     deepStrictEqual(res.components.schemas.AorB, {
-      anyOf: [
+      oneOf: [
         {
           $ref: "#/components/schemas/A",
         },
@@ -324,16 +275,17 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
           $ref: "#/components/schemas/B",
         },
       ],
+      type: "object",
       discriminator: {
-        propertyName: "type",
+        propertyName: "kind",
         mapping: {
-          ay: "#/components/schemas/A",
-          bee: "#/components/schemas/B",
+          a: "#/components/schemas/A",
+          b: "#/components/schemas/B",
         },
       },
     });
     deepStrictEqual(res.components.schemas.AorBCreate, {
-      anyOf: [
+      oneOf: [
         {
           $ref: "#/components/schemas/ACreate",
         },
@@ -341,11 +293,12 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
           $ref: "#/components/schemas/BCreate",
         },
       ],
+      type: "object",
       discriminator: {
-        propertyName: "type",
+        propertyName: "kind",
         mapping: {
-          ay: "#/components/schemas/ACreate",
-          bee: "#/components/schemas/BCreate",
+          a: "#/components/schemas/ACreate",
+          b: "#/components/schemas/BCreate",
         },
       },
     });

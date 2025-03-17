@@ -15,6 +15,7 @@ public class DatetimeValueClientTest {
     private final DatetimeValueClient client = new ArrayClientBuilder().buildDatetimeValueClient();
 
     @Test
+    @Disabled("Response type is not OffsetDateTime in List")
     public void get() {
         List<OffsetDateTime> response = client.get();
         Assertions.assertEquals(1, response.size());

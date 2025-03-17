@@ -1,6 +1,6 @@
 {
  "$id": "1",
- "Name": "Resiliency.ServiceDriven",
+ "Name": "Resiliency.SrvDriven.V1",
  "ApiVersions": [
   "v1"
  ],
@@ -37,7 +37,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Resiliency.ServiceDriven",
+   "namespace": "Resiliency.ServiceDriven",
    "doc": "Service versions.",
    "isFixed": true,
    "isFlags": false,
@@ -50,7 +50,7 @@
   {
    "$id": "6",
    "Name": "ResiliencyServiceDrivenClient",
-   "ClientNamespace": "Resiliency.ServiceDriven",
+   "Namespace": "Resiliency.ServiceDriven",
    "Doc": "Test that we can grow up a service spec and service deployment into a multi-versioned service with full client support.",
    "Operations": [
     {
@@ -66,13 +66,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "HEAD",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/resiliency/service-driven/client:v1/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
      "Path": "/add-optional-param/from-none",
      "BufferResponse": true,
@@ -117,13 +115,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/resiliency/service-driven/client:v1/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
      "Path": "/add-optional-param/from-one-required",
      "BufferResponse": true,
@@ -168,13 +164,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/resiliency/service-driven/client:v1/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
      "Path": "/add-optional-param/from-one-optional",
      "BufferResponse": true,
@@ -264,7 +258,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Resiliency.ServiceDriven"
   }
  ]
 }

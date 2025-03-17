@@ -463,19 +463,17 @@ interface SpreadRecordUnion
     > {}
 
 // ****************** spread record of discriminated unions **************************
-@discriminator("kind")
+@discriminated(#{ envelope: "none" })
 union WidgetData {
   kind0: WidgetData0,
   kind1: WidgetData1,
 }
 
 model WidgetData0 {
-  kind: "kind0";
   fooProp: string;
 }
 
 model WidgetData1 {
-  kind: "kind1";
   start: utcDateTime;
   end?: utcDateTime;
 }

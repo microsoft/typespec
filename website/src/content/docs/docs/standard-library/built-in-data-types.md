@@ -164,6 +164,21 @@ model DeleteDog is Delete<Dog>;
 #### Properties
 None
 
+### `DiscriminatedOptions` {#DiscriminatedOptions}
+
+Options for `@discriminated` decorator.
+```typespec
+model DiscriminatedOptions
+```
+
+
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
+| envelope? | `"object" \| "none"` | How is the discriminated union serialized. |
+| discriminatorPropertyName? | [`string`](#string) | Name of the discriminator property |
+| envelopePropertyName? | [`string`](#string) | Name of the property envelopping the data |
+
 ### `ExampleOptions` {#ExampleOptions}
 
 Options for example decorators
@@ -177,20 +192,6 @@ model ExampleOptions
 |------|------|-------------|
 | title? | [`string`](#string) | The title of the example |
 | description? | [`string`](#string) | Description of the example |
-
-### `object` {#object}
-:::caution
-**Deprecated**: object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
-:::
-
-Represent a model
-```typespec
-model object
-```
-
-
-#### Properties
-None
 
 ### `OmitDefaults` {#OmitDefaults}
 

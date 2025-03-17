@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -37,5 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// Gets the C# reference string for the method.
         /// </summary>
         public FormattableString GetCRef() => $"{Name}({Parameters.GetTypesFormattable()})";
+
+        internal string FullMethodName => ExplicitInterface != null ? $"{ExplicitInterface}.{Name}" : Name;
     }
 }

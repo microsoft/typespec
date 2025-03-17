@@ -2,17 +2,6 @@ import assert from "assert";
 import * as prettier from "prettier";
 import { describe, it } from "vitest";
 import {
-  Enum,
-  Interface,
-  Model,
-  ModelProperty,
-  Operation,
-  Program,
-  Scalar,
-  Type,
-  Union,
-} from "../../src/core/index.js";
-import {
   ArrayBuilder,
   AssetEmitter,
   CodeTypeEmitter,
@@ -31,6 +20,17 @@ import {
   code,
   createAssetEmitter,
 } from "../../src/emitter-framework/index.js";
+import {
+  Enum,
+  Interface,
+  Model,
+  ModelProperty,
+  Operation,
+  Program,
+  Scalar,
+  Type,
+  Union,
+} from "../../src/index.js";
 import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 import { TypeScriptInterfaceEmitter } from "./typescript-emitter.js";
 

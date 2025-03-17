@@ -3,7 +3,7 @@
 
 package type.property.additionalproperties;
 
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;

@@ -5,12 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "OneAnyAll Service",
-})
-@info({
-  version: "0.0.0",
-})
+@service(#{ title: "OneAnyAll Service" })
+@info(#{ version: "0.0.0" })
 namespace OneAnyAllService;
 
 model Cat {

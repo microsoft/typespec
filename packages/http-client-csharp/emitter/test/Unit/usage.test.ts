@@ -1,12 +1,14 @@
+vi.resetModules();
+
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
+  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -30,7 +32,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -51,7 +53,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -72,7 +74,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -94,7 +96,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -121,7 +123,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
     const templateModel = root.Models.find((model) => model.name === "TemplateModelFoo");
@@ -151,7 +153,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.name === "BaseModel");
     const fooModel = root.Models.find((model) => model.name === "Foo");
@@ -188,7 +190,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.name === "BaseModel");
     const fooModel = root.Models.find((model) => model.name === "Foo");
@@ -215,7 +217,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooAlias = root.Models.find((model) => model.name === "TestRequest");
 
@@ -231,7 +233,7 @@ describe("Test Usage", () => {
             model Foo {
                 @doc("id of Foo")
                 @key
-                @visibility("read","create","query")
+                @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Query)
                 id: string;
                 @doc("name of Foo")
                 name: string;
@@ -263,7 +265,7 @@ describe("Test Usage", () => {
       { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooInfo = root.Models.find((model) => model.name === "FooInfo");
     const batchCreateFooListItemsRequest = root.Models.find(
@@ -293,7 +295,7 @@ describe("Test Usage", () => {
             model Foo {
                 @doc("id of Foo")
                 @key
-                @visibility("read","create","query")
+                @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Query)
                 id: string;
                 @doc("name of Foo")
                 name: string;
@@ -309,7 +311,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -328,7 +330,7 @@ describe("Test Usage", () => {
             model Foo {
                 @doc("id of Foo")
                 @key
-                @visibility("read","create","query")
+                @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Query)
                 id: string;
                 @doc("name of Foo")
                 name: string;
@@ -368,7 +370,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.name === "BaseModelWithDiscriminator");
     const derivedModel = root.Models.find(
@@ -389,7 +391,7 @@ describe("Test Usage", () => {
             model Foo {
                 @doc("id of Foo")
                 @key
-                @visibility("read","create","query")
+                @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Query)
                 id: string;
                 @doc("name of Foo")
                 name: string;
@@ -438,7 +440,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.name === "BaseModelWithDiscriminator");
     const derivedModel = root.Models.find(
@@ -475,7 +477,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const simpleEnumRenamed = root.Enums.find((enumType) => enumType.name === "SimpleEnumRenamed");
 
@@ -499,7 +501,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const renamedModel = root.Models.find((model) => model.name === "RenamedModel");
 
@@ -528,24 +530,24 @@ model HealthInsightsOperationStatus<
 > {
   @key("operationId")
   @doc("The unique ID of the operation.")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: Azure.Core.uuid;
 
   @doc("The status of the operation")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @lroStatus
   status: JobStatus;
 
   @doc("The date and time when the processing job was created.")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   createdDateTime?: utcDateTime;
 
   @doc("The date and time when the processing job is set to expire.")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   expirationDateTime?: utcDateTime;
 
   @doc("The date and time when the processing job was last updated.")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   lastUpdateDateTime?: utcDateTime;
 
   @doc("Error object that describes the error when status is Failed.")
@@ -657,7 +659,7 @@ interface LegacyLro {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const radiologyInsightsInferenceResult = root.Models.find(
       (model) => model.name === "RadiologyInsightsInferenceResult",

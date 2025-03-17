@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -69,6 +70,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             // initialize the singleton instance of the plugin
             var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(configFilePath, configuration))) { CallBase = true };
 
+            mockPlugin.Setup(p => p.Emitter).Returns(new Emitter(Console.OpenStandardOutput()));
+
             var mockTypeFactory = new Mock<TypeFactory>() { CallBase = true };
 
             if (createCSharpTypeCore != null)
@@ -83,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             if (createEnumCore != null)
             {
-                mockTypeFactory.Protected().Setup<TypeProvider?>("CreateEnumCore", ItExpr.IsAny<InputEnumType>(), ItExpr.IsAny<TypeProvider?>()).Returns((InputEnumType inputEnum, TypeProvider? type) => createEnumCore.Invoke(inputEnum, type));
+                mockTypeFactory.Protected().Setup<EnumProvider?>("CreateEnumCore", ItExpr.IsAny<InputEnumType>(), ItExpr.IsAny<TypeProvider?>()).Returns((InputEnumType inputEnum, TypeProvider? type) => createEnumCore.Invoke(inputEnum, type));
             }
 
             if (createOutputLibrary != null)

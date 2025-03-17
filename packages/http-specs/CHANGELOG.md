@@ -1,5 +1,39 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.12
+
+### Features
+
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+- [#6201](https://github.com/microsoft/typespec/pull/6201) Add tests for basic jsonl streaming.
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6286](https://github.com/microsoft/typespec/pull/6286) Replace @discriminator union with @discriminated
+
+
+## 0.1.0-alpha.11
+
+### Features
+
+- [#6140](https://github.com/microsoft/typespec/pull/6140) all parameters including headers and queries shall be passed when next call for continuation token paging
+
+
+## 0.1.0-alpha.10
+
+### Bug Fixes
+
+- [#6013](https://github.com/microsoft/typespec/pull/6013) Fixed paths in the specs/routes.
+
+### Features
+
+- [#6038](https://github.com/microsoft/typespec/pull/6038) Add test case for continuationtoken paging
+
+
 ## 0.1.0-alpha.9
 
 ### Bug Fixes

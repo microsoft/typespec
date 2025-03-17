@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             "Enum",
         ];
 
-        public InputNamespace(string name, IReadOnlyList<string> apiVersions, IReadOnlyList<InputEnumType> enums, IReadOnlyList<InputModelType> models, IReadOnlyList<InputClient> clients, InputAuth auth, IReadOnlyList<string>? invalidNamespaceSegments = null)
+        public InputNamespace(string name, IReadOnlyList<string> apiVersions, IReadOnlyList<InputEnumType> enums, IReadOnlyList<InputModelType> models, IReadOnlyList<InputClient> clients, InputAuth? auth, IReadOnlyList<string>? invalidNamespaceSegments = null)
         {
             Name = name;
             ApiVersions = apiVersions;
@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public IReadOnlyList<InputEnumType> Enums { get; init; }
         public IReadOnlyList<InputModelType> Models { get; init; }
         public IReadOnlyList<InputClient> Clients { get; init; }
-        public InputAuth Auth { get; init; }
+        public InputAuth? Auth { get; init; }
         public IReadOnlyList<string> InvalidNamespaceSegments { get; init; }
     }
 }

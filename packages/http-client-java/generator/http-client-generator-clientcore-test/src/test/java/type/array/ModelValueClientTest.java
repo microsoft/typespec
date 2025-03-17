@@ -6,7 +6,6 @@ package type.array;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ModelValueClientTest {
@@ -14,7 +13,6 @@ public class ModelValueClientTest {
     private final ModelValueClient client = new ArrayClientBuilder().buildModelValueClient();
 
     @Test
-    @Disabled("java.lang.ClassCastException: class java.util.LinkedHashMap cannot be cast to class type.array.InnerModel")
     public void get() {
         List<InnerModel> response = client.get();
         Assertions.assertEquals(2, response.size());

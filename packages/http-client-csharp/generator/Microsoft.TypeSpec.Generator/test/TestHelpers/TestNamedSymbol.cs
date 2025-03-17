@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.Snippets;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Tests
@@ -14,16 +13,18 @@ namespace Microsoft.TypeSpec.Generator.Tests
     {
         private readonly Type? _propertyType;
         private readonly string _typeName;
+        private readonly string _typeNamespace;
         protected override string BuildRelativeFilePath() => ".";
 
         protected override string BuildName() => _typeName;
 
-        protected override string BuildNamespace() => "Sample.Models";
+        protected override string BuildNamespace() => _typeNamespace;
 
-        public NamedSymbol(Type? propertyType = null, string name = "NamedSymbol")
+        public NamedSymbol(Type? propertyType = null, string name = "NamedSymbol", string @namespace = "Sample.Models")
         {
             _propertyType = propertyType;
             _typeName = name;
+            _typeNamespace = @namespace;
         }
 
         protected override FieldProvider[] BuildFields()
@@ -55,6 +56,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
                         typeof(string), "InternalStringProperty", new AutoPropertyBody(false), this),
                     new PropertyProvider($"PropertyTypeProperty property", MethodSignatureModifiers.Public,
                         new PropertyType().Type, "PropertyTypeProperty", new AutoPropertyBody(true), this),
+                    new PropertyProvider($"NullWireInfo property", MethodSignatureModifiers.Public,
+                        new PropertyType().Type, "NullWireInfoProperty", new AutoPropertyBody(true), this),
                 ];
             }
 
@@ -74,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 new ConstructorProvider(
                     new ConstructorSignature(Type, $"Initializes a new instance of {Type}",
                         MethodSignatureModifiers.Public, [intParam]),
-                    Throw(Snippet.New.Instance(typeof(NotImplementedException))),
+                    Throw(New.Instance(typeof(NotImplementedException))),
                     this)
             ];
         }
@@ -89,7 +92,15 @@ namespace Microsoft.TypeSpec.Generator.Tests
                     new MethodSignature("Method1", $"Description of method1",
                         MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, typeof(Task<int>), null,
                         [intParam]),
-                    Throw(Snippet.New.Instance(typeof(NotImplementedException))),
+                    Throw(New.Instance(typeof(NotImplementedException))),
+                    this),
+                // explicit interface implementation
+                new MethodProvider(
+                    new MethodSignature("DisposeAsync", $"",
+                        MethodSignatureModifiers.Async, typeof(ValueTask), null,
+                        [],
+                        ExplicitInterface: new CSharpType(typeof(IAsyncDisposable))),
+                    Throw(New.Instance(typeof(NotImplementedException))),
                     this)
             ];
         }

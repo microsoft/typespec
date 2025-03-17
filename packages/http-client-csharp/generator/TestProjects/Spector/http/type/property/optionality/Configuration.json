@@ -1,5 +1,4 @@
 {
   "output-folder": ".",
-  "namespace": "Type.Property.Optional",
-  "library-name": "Type.Property.Optional"
+  "package-name": "Type.Property.Optional"
 }

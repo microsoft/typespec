@@ -33,6 +33,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         }
 
         [TestCase(typeof(int))]
+        [TestCase(typeof(IList<>))]
+        [TestCase(typeof(IList<int>))]
+        [TestCase(typeof(IDictionary<,>))]
+        [TestCase(typeof(IDictionary<int, int>))]
+        [TestCase(typeof(IDictionary<string, int>))]
+        [TestCase(typeof(IDictionary<IDictionary<int, string>, IDictionary<string, int>>))]
+        public void FullyQualifiedNamePopulatedForFrameworkTypes(Type type)
+        {
+            var expectedName = type.IsGenericType ? type.Name.Substring(0, type.Name.IndexOf('`')) : type.Name;
+            Assert.AreEqual($"{type.Namespace}.{expectedName}", new CSharpType(type).FullyQualifiedName);
+        }
+
+        [Test]
+        public void FullyQualifiedNamePopulatedForTypeProviders()
+        {
+            var provider = new TestTypeProvider();
+            Assert.AreEqual("Test.TestName", provider.Type.FullyQualifiedName);
+        }
+
+        [TestCase(typeof(int))]
         [TestCase(typeof(string))]
         [TestCase(typeof(int[]))]
         [TestCase(typeof(string[]))]

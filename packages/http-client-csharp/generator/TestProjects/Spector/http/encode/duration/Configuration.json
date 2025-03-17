@@ -1,5 +1,4 @@
 {
   "output-folder": ".",
-  "namespace": "Encode.Duration",
-  "library-name": "Encode.Duration"
+  "package-name": "Encode.Duration"
 }

@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "DefaultDatetimeProperty",
-   "clientNamespace": "Encode.Datetime",
+   "namespace": "Encode.Datetime",
    "crossLanguageDefinitionId": "Encode.Datetime.DefaultDatetimeProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -53,7 +53,7 @@
    "$id": "8",
    "kind": "model",
    "name": "Rfc3339DatetimeProperty",
-   "clientNamespace": "Encode.Datetime",
+   "namespace": "Encode.Datetime",
    "crossLanguageDefinitionId": "Encode.Datetime.Rfc3339DatetimeProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -98,7 +98,7 @@
    "$id": "14",
    "kind": "model",
    "name": "Rfc7231DatetimeProperty",
-   "clientNamespace": "Encode.Datetime",
+   "namespace": "Encode.Datetime",
    "crossLanguageDefinitionId": "Encode.Datetime.Rfc7231DatetimeProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -143,7 +143,7 @@
    "$id": "20",
    "kind": "model",
    "name": "UnixTimestampDatetimeProperty",
-   "clientNamespace": "Encode.Datetime",
+   "namespace": "Encode.Datetime",
    "crossLanguageDefinitionId": "Encode.Datetime.UnixTimestampDatetimeProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -188,7 +188,7 @@
    "$id": "26",
    "kind": "model",
    "name": "UnixTimestampArrayDatetimeProperty",
-   "clientNamespace": "Encode.Datetime",
+   "namespace": "Encode.Datetime",
    "crossLanguageDefinitionId": "Encode.Datetime.UnixTimestampArrayDatetimeProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -256,7 +256,7 @@
   {
    "$id": "35",
    "Name": "DatetimeClient",
-   "ClientNamespace": "Encode.Datetime",
+   "Namespace": "Encode.Datetime",
    "Doc": "Test for encode decorator on datetime.",
    "Operations": [],
    "Protocol": {
@@ -295,12 +295,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Datetime"
   },
   {
    "$id": "41",
    "Name": "Query",
-   "ClientNamespace": "Encode.Datetime.Query",
+   "Namespace": "Encode.Datetime.Query",
    "Operations": [
     {
      "$id": "42",
@@ -344,13 +345,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/query/default",
      "BufferResponse": true,
@@ -401,13 +400,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/query/rfc3339",
      "BufferResponse": true,
@@ -458,13 +455,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/query/rfc7231",
      "BufferResponse": true,
@@ -515,13 +510,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/query/unix-timestamp",
      "BufferResponse": true,
@@ -595,13 +588,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/query/unix-timestamp-array",
      "BufferResponse": true,
@@ -648,12 +639,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Datetime.Query"
   },
   {
    "$id": "75",
    "Name": "Property",
-   "ClientNamespace": "Encode.Datetime.Property",
+   "Namespace": "Encode.Datetime.Property",
    "Operations": [
     {
      "$id": "76",
@@ -743,7 +735,6 @@
        "BodyType": {
         "$ref": "2"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -752,7 +743,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/property/default",
      "RequestMediaTypes": [
@@ -852,7 +842,6 @@
        "BodyType": {
         "$ref": "8"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -861,7 +850,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/property/rfc3339",
      "RequestMediaTypes": [
@@ -961,7 +949,6 @@
        "BodyType": {
         "$ref": "14"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -970,7 +957,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/property/rfc7231",
      "RequestMediaTypes": [
@@ -1070,7 +1056,6 @@
        "BodyType": {
         "$ref": "20"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1079,7 +1064,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/property/unix-timestamp",
      "RequestMediaTypes": [
@@ -1179,7 +1163,6 @@
        "BodyType": {
         "$ref": "26"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -1188,7 +1171,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/property/unix-timestamp-array",
      "RequestMediaTypes": [
@@ -1238,12 +1220,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Datetime.Property"
   },
   {
    "$id": "126",
    "Name": "Header",
-   "ClientNamespace": "Encode.Datetime.Header",
+   "Namespace": "Encode.Datetime.Header",
    "Operations": [
     {
      "$id": "127",
@@ -1287,13 +1270,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/header/default",
      "BufferResponse": true,
@@ -1344,13 +1325,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/header/rfc3339",
      "BufferResponse": true,
@@ -1401,13 +1380,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/header/rfc7231",
      "BufferResponse": true,
@@ -1458,13 +1435,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/header/unix-timestamp",
      "BufferResponse": true,
@@ -1538,13 +1513,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/header/unix-timestamp-array",
      "BufferResponse": true,
@@ -1591,12 +1564,13 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Datetime.Header"
   },
   {
    "$id": "160",
    "Name": "ResponseHeader",
-   "ClientNamespace": "Encode.Datetime.ResponseHeader",
+   "Namespace": "Encode.Datetime.ResponseHeader",
    "Operations": [
     {
      "$id": "161",
@@ -1610,7 +1584,6 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "163",
@@ -1637,7 +1610,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/responseheader/default",
      "BufferResponse": true,
@@ -1658,7 +1630,6 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "168",
@@ -1685,7 +1656,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/responseheader/rfc3339",
      "BufferResponse": true,
@@ -1706,7 +1676,6 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "173",
@@ -1733,7 +1702,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/responseheader/rfc7231",
      "BufferResponse": true,
@@ -1754,7 +1722,6 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [
         {
          "$id": "178",
@@ -1781,7 +1748,6 @@
       }
      ],
      "HttpMethod": "GET",
-     "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/datetime/responseheader/unix-timestamp",
      "BufferResponse": true,
@@ -1828,7 +1794,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Encode.Datetime.ResponseHeader"
   }
  ]
 }

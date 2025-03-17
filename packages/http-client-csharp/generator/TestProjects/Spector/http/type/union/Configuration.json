@@ -1,5 +1,4 @@
 {
   "output-folder": ".",
-  "namespace": "Type.Union",
-  "library-name": "Type.Union"
+  "package-name": "Type.Union"
 }

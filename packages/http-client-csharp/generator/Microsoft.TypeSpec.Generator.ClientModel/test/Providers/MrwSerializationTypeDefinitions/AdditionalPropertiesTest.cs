@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 additionalProperties: additionalPropsValueType);
             MockHelpers.LoadMockPlugin(inputModels: () => [inputModel]);
 
-            var model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+            var model = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             var serializations = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
             Assert.IsNotNull(serializations);
             var deserializationMethod = serializations!.BuildDeserializationMethod();
@@ -80,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                additionalProperties: additionalPropsValueType);
             MockHelpers.LoadMockPlugin(inputModels: () => [inputModel]);
 
-            var model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+            var model = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             var serializations = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
             Assert.IsNotNull(serializations);
 

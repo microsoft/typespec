@@ -81,13 +81,43 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             properties: [InputFactory.Property("kind", _petEnum, isRequired: true, isDiscriminator: true)],
             discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", _catEnumModel }, { "dog", _dogEnumModel } });
 
-        [Test]
-        public void BaseShouldBeAbstract()
+
+        private static IEnumerable<TestCaseData> GetBaseModels()
+        {
+            yield return new TestCaseData(_baseModel, """
+                                                      /// <summary>
+                                                      /// pet description
+                                                      /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Cat"/>, <see cref="Dog"/>, and <see cref="AnotherAnimal"/>.
+                                                      /// </summary>
+
+                                                      """);
+            yield return new TestCaseData(_baseEnumModel, """
+                                                          /// <summary>
+                                                          /// pet description
+                                                          /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Cat"/> and <see cref="Dog"/>.
+                                                          /// </summary>
+
+                                                          """);
+            yield return new TestCaseData(_animalModel, """
+                                                        /// <summary>
+                                                        /// animal description
+                                                        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Dinosaur"/>.
+                                                        /// </summary>
+
+                                                        """);
+        }
+
+        [TestCaseSource(nameof(GetBaseModels))]
+        public void BaseShouldBeAbstract(InputModelType inputModel, string expectedSummary)
         {
             MockHelpers.LoadMockPlugin();
-            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(_baseModel);
+            var baseModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             Assert.IsNotNull(baseModel);
             Assert.IsTrue(baseModel!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+
+            // Base model description should reference derived models
+            Assert.IsNotNull(baseModel.XmlDocs.Summary);
+            Assert.AreEqual(expectedSummary, baseModel.XmlDocs.Summary!.ToDisplayString());
         }
 
         [Test]

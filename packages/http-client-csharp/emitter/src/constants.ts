@@ -17,3 +17,9 @@ export const configurationFileName = "Configuration.json";
  * @internal
  */
 export const _minSupportedDotNetSdkVersion = 8;
+
+/**
+ * The default name of the code model plugin.
+ * @internal
+ */
+export const _defaultPluginName = "ScmCodeModelPlugin";

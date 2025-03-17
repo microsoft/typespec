@@ -3,7 +3,7 @@
 
 package specialwords;
 
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 

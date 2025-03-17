@@ -10,7 +10,7 @@ using Sample.Models;
 
 namespace Sample
 {
-    /// <summary></summary>
+    /// <summary> TestClient description. </summary>
     public partial class TestClient
     {
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OperationAsync(global::Sample.Models.InputEnum queryParam, global::System.Threading.CancellationToken cancellationToken = default)

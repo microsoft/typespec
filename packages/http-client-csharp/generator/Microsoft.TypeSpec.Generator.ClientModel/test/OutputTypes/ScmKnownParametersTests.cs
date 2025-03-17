@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.OutputTypes
         {
             MockHelpers.LoadMockPlugin(matchConditionsType: () => typeof(int));
 
-            var result = ClientModelPlugin.Instance.TypeFactory.MatchConditionsType;
+            var result = ScmCodeModelPlugin.Instance.TypeFactory.MatchConditionsType;
             Assert.IsNotNull(result);
             Assert.AreEqual(new CSharpType(typeof(int)), result);
         }

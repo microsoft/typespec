@@ -1,27 +1,23 @@
+import { confirm as confirmInquirer, input, select } from "@inquirer/prompts";
 import { readdir } from "fs/promises";
 import pc from "picocolors";
-import prompts from "prompts";
 import * as semver from "semver";
 import { CliCompilerHost } from "../core/cli/types.js";
-import { installTypeSpecDependencies } from "../core/install.js";
 import { createDiagnostic } from "../core/messages.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
+import { installTypeSpecDependencies } from "../install/install.js";
 import { MANIFEST } from "../manifest.js";
 import { readUrlOrPath } from "../utils/misc.js";
 import { getTypeSpecCoreTemplates } from "./core-templates.js";
 import { validateTemplateDefinitions, ValidationResult } from "./init-template-validate.js";
-import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "./init-template.js";
-import {
-  isFileSkipGeneration,
-  makeScaffoldingConfig,
-  normalizeLibrary,
-  scaffoldNewProject,
-} from "./scaffold.js";
+import { EmitterTemplate, InitTemplate } from "./init-template.js";
+import { checkbox } from "./prompts.js";
+import { isFileSkipGeneration, makeScaffoldingConfig, scaffoldNewProject } from "./scaffold.js";
 
 export interface InitTypeSpecProjectOptions {
-  templatesUrl?: string;
-  template?: string;
+  readonly templatesUrl?: string;
+  readonly template?: string;
 }
 
 export async function initTypeSpecProject(
@@ -29,6 +25,24 @@ export async function initTypeSpecProject(
   directory: string,
   options: InitTypeSpecProjectOptions = {},
 ) {
+  try {
+    await initTypeSpecProjectWorker(host, directory, options);
+  } catch (error) {
+    if (error instanceof Error && error.name === "ExitPromptError") {
+      warning("interrupted, until next time!");
+    } else {
+      // Rethrow unknown errors
+      throw error;
+    }
+  }
+}
+export async function initTypeSpecProjectWorker(
+  host: CliCompilerHost,
+  directory: string,
+  options: InitTypeSpecProjectOptions = {},
+) {
+  whiteline();
+
   if (!(await confirmDirectoryEmpty(directory))) {
     return;
   }
@@ -53,36 +67,18 @@ export async function initTypeSpecProject(
   }
 
   const template = result.templates[templateName] as InitTemplate;
-  if (template.description) {
-    // eslint-disable-next-line no-console
-    console.log(template.description);
-  }
-  const { name, includeGitignore } = await prompts([
-    {
-      type: "text",
-      name: "name",
-      message: `Project name`,
-      initial: folderName,
-    },
-    {
-      type: "confirm",
-      name: "includeGitignore",
-      message: "Do you want to generate a .gitignore file?",
-      initial: true,
-    },
-  ]);
+  const name = await input({
+    message: `Enter a project name:`,
+    default: folderName,
+  });
 
-  const libraries = await selectLibraries(template);
   const emitters = await selectEmitters(template);
   const parameters = await promptCustomParameters(template);
   const scaffoldingConfig = makeScaffoldingConfig(template, {
     baseUri: result.baseUri,
-    libraries,
     name,
     directory,
-    folderName,
     parameters,
-    includeGitignore,
     emitters,
   });
 
@@ -92,17 +88,36 @@ export async function initTypeSpecProject(
     scaffoldingConfig.template.files ?? [],
   );
 
-  // eslint-disable-next-line no-console
-  console.log("");
-
-  // eslint-disable-next-line no-console
-  console.log(pc.green("Project created successfully."));
+  whiteline();
 
   if (projectJsonCreated) {
-    // eslint-disable-next-line no-console
-    console.log(pc.green("Installing dependencies..."));
-    await installTypeSpecDependencies(host, directory);
+    await host.logSink.trackAction!(
+      "Installing dependencies",
+      "Dependencies installed",
+      async (task) => {
+        const diagnostics = await installTypeSpecDependencies(host, {
+          directory,
+          stdio: "pipe",
+          savePackageManager: true,
+        });
+
+        if (diagnostics.length > 0) {
+          if (diagnostics.some((d) => d.severity === "error")) {
+            task.fail();
+          } else {
+            task.warn();
+          }
+          logDiagnostics(diagnostics);
+        }
+      },
+    );
   }
+
+  whiteline();
+  success("Project initialized!");
+
+  // eslint-disable-next-line no-console
+  console.log(`Run ${pc.cyan(`tsp compile .`)} to run TypeSpec.`);
 
   if (Object.values(emitters).some((emitter) => emitter.message !== undefined)) {
     // eslint-disable-next-line no-console
@@ -122,15 +137,17 @@ async function promptCustomParameters(template: InitTemplate): Promise<Record<st
     return {};
   }
 
-  const promptList = [...Object.entries(template.inputs)].map(([name, input]) => {
-    return {
-      name,
-      type: input.type,
-      message: input.description,
-      initial: input.initialValue,
-    };
-  });
-  return await prompts(promptList);
+  const results: Record<string, string> = {};
+  for (const [name, templateInput] of Object.entries(template.inputs)) {
+    if (templateInput.type === "text") {
+      results[name] = await input({
+        message: templateInput.description,
+        default: templateInput.initialValue,
+      });
+    }
+  }
+
+  return results;
 }
 
 async function isDirectoryEmpty(directory: string) {
@@ -142,24 +159,34 @@ async function isDirectoryEmpty(directory: string) {
   }
 }
 
+function warning(message: string) {
+  // eslint-disable-next-line no-console
+  console.log(pc.yellow(`warning: ${message}`));
+}
+function success(message: string) {
+  // eslint-disable-next-line no-console
+  console.log(pc.green(`success: ${message}`));
+}
+function whiteline() {
+  // eslint-disable-next-line no-console
+  console.log("");
+}
+
 async function confirmDirectoryEmpty(directory: string) {
   if (await isDirectoryEmpty(directory)) {
     return true;
   }
 
-  return confirm(
-    `Folder '${directory}' is not empty. Are you sure you want to initialize a new project here?`,
-  );
+  warning(`Folder ${pc.cyan(directory)} is not empty.`);
+  whiteline();
+  return confirm(`Initialize a new project here?:`);
 }
 
 async function confirm(message: string): Promise<boolean> {
-  const { confirm } = await prompts({
-    name: "confirm",
-    type: "confirm",
+  return await confirmInquirer({
     message,
-    initial: true,
+    default: true,
   });
-  return confirm;
 }
 
 export interface LoadedTemplate {
@@ -168,6 +195,12 @@ export interface LoadedTemplate {
   readonly file: SourceFile;
 }
 async function downloadTemplates(host: CompilerHost, url: string): Promise<LoadedTemplate> {
+  warning(
+    `Downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.`,
+  );
+  if (!(await confirm("Continue"))) {
+    process.exit(1);
+  }
   let file: SourceFile;
   try {
     file = await readUrlOrPath(host, url);
@@ -197,23 +230,34 @@ async function downloadTemplates(host: CompilerHost, url: string): Promise<Loade
   return { templates: json as any, baseUri: getDirectoryPath(file.path), file };
 }
 
+function getTemplateName(template: InitTemplate) {
+  if (isTemplateCompatibleWithTspVersion(template)) {
+    return template.title;
+  } else {
+    return `${template.title} ${pc.red(`Requires tsp version ${template.compilerVersion}`)}`;
+  }
+}
+
 async function promptTemplateSelection(templates: Record<string, any>): Promise<string> {
-  const { templateName } = await prompts({
-    type: "select",
-    name: "templateName",
-    message: "Please select a template",
+  const templateName = await select({
+    message: "Select a project template:",
     choices: Object.entries(templates).map(([id, template]) => {
       return {
         value: id,
         description: template.description,
-        title:
-          template.title +
-          `\tmin compiler ver: ${
-            template.compilerVersion ? template.compilerVersion : "-not specified-"
-          }`,
+        name: getTemplateName(template),
       };
     }),
+    theme: {
+      style: {
+        description: (description: string) => pc.dim(description),
+      },
+    },
   });
+
+  if (!templateName) {
+    process.exit(1);
+  }
 
   const template = templates[templateName];
   if (!template) {
@@ -223,15 +267,20 @@ async function promptTemplateSelection(templates: Record<string, any>): Promise<
   return templateName;
 }
 
+function isTemplateCompatibleWithTspVersion(template: InitTemplate): boolean {
+  const currentCompilerVersion = MANIFEST.version;
+  return (
+    template.compilerVersion === undefined ||
+    semver.gte(currentCompilerVersion, template.compilerVersion)
+  );
+}
+
 async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<boolean> {
   // After selection, validate the template definition
   const currentCompilerVersion = MANIFEST.version;
   let validationResult: ValidationResult;
   // 1. If current version > compilerVersion, proceed with strict validation
-  if (
-    template.compilerVersion === undefined ||
-    semver.gte(currentCompilerVersion, template.compilerVersion)
-  ) {
+  if (isTemplateCompatibleWithTspVersion(template)) {
     validationResult = validateTemplateDefinitions(template, loaded.file, true);
 
     // 1.1 If strict validation fails, try relaxed validation
@@ -269,54 +318,42 @@ async function selectEmitters(template: InitTemplate): Promise<Record<string, Em
     return {};
   }
 
-  const promptList = [...Object.entries(template.emitters)].map(([name, emitter]) => {
-    return {
-      title: name,
-      description: emitter.description,
-      selected: emitter.selected ?? false,
-    };
+  const emittersList = Object.entries(template.emitters);
+
+  const maxLabelLength = emittersList.reduce(
+    (max, [name, emitter]) => Math.max(max, emitter.label?.length ?? name.length),
+    0,
+  );
+  const emitters = await checkbox({
+    message: "What emitters do you want to use?:",
+    choices: emittersList.map(([name, emitter]) => {
+      return {
+        value: name,
+        name: emitter.label
+          ? `${emitter.label.padEnd(maxLabelLength + 3)} ${pc.dim(`[${name}]`)}`
+          : name,
+        description: emitter.description,
+        checked: emitter.selected ?? false,
+      };
+    }),
+    theme: {
+      style: {
+        renderSelectedChoices: (choices: ReadonlyArray<any>) => {
+          if (choices.length === 0) {
+            return "None selected.";
+          } else {
+            return `${choices.map((x) => x.value).join(", ")}`;
+          }
+        },
+      },
+    },
   });
 
-  const { emitters } = await prompts({
-    type: "multiselect",
-    name: "emitters",
-    message: "Select emitters?",
-    choices: promptList,
-  });
-
-  const selectedEmitters = [...Object.entries(template.emitters)].filter((_, index) =>
-    emitters.includes(index),
+  const selectedEmitters = [...Object.entries(template.emitters)].filter(([key, value], index) =>
+    emitters.includes(key),
   );
 
   return Object.fromEntries(selectedEmitters);
-}
-
-async function selectLibraries(template: InitTemplate): Promise<InitTemplateLibrarySpec[]> {
-  if (template.libraries === undefined || template.libraries.length === 0) {
-    return [];
-  }
-
-  const libraryChoices = template.libraries.map((x) => ({
-    ...normalizeLibrary(x),
-    description: "",
-  }));
-
-  const { libraries } = await prompts({
-    type: "multiselect",
-    name: "libraries",
-    message: "Update the libraries?",
-    choices: libraryChoices.map((x) => {
-      return {
-        title: x.name,
-        description: x.description,
-        value: x,
-        selected: true,
-      };
-    }),
-    initial: template.libraries as any,
-  });
-
-  return libraries;
 }
 
 /**

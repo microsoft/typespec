@@ -41,8 +41,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
-            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
-            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Once(), inputModelProperty, ItExpr.Is<PropertyProvider>(m => m.Name == new PropertyProvider(inputModelProperty, TestTypeProvider.Empty).Name));
+            _mockVisitor.Protected().Verify<TypeProvider>("PreVisitModel", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
+            _mockVisitor.Protected().Verify<PropertyProvider>("PreVisitProperty", Times.Once(), inputModelProperty, ItExpr.Is<PropertyProvider>(m => m.Name == new PropertyProvider(inputModelProperty, TestTypeProvider.Empty).Name));
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
-            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputEnum, ItExpr.Is<EnumProvider>(m => m.Name == EnumProvider.Create(inputEnum, null).Name));
+            _mockVisitor.Protected().Verify<TypeProvider>("PreVisitEnum", Times.Once(), inputEnum, ItExpr.Is<EnumProvider>(m => m.Name == EnumProvider.Create(inputEnum, null).Name));
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
-            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
+            _mockVisitor.Protected().Verify<TypeProvider>("PreVisitModel", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
         }
 
         [Test]
@@ -117,16 +117,16 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 _cleanupReference = cleanupReference;
             }
-            protected internal override ModelProvider? Visit(InputModelType inputModel, ModelProvider? typeProvider)
+            protected internal override ModelProvider? PreVisitModel(InputModelType inputModel, ModelProvider? typeProvider)
             {
                 if (inputModel.Name == "Model1")
                 {
                     return null;
                 }
-                return base.Visit(inputModel, typeProvider);
+                return base.PreVisitModel(inputModel, typeProvider);
             }
 
-            protected internal override PropertyProvider? Visit(InputModelProperty inputModelProperty, PropertyProvider? propertyProvider)
+            protected internal override PropertyProvider? PreVisitProperty(InputModelProperty inputModelProperty, PropertyProvider? propertyProvider)
             {
                 if (_cleanupReference && inputModelProperty.Type.Name == "Model1")
                 {

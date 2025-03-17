@@ -5,9 +5,7 @@ import "./library.tsp";
 using TypeSpec.Versioning;
 using TypeSpec.Rest;
 
-@service({
-  title: "Pet Store Service",
-})
+@service(#{ title: "Pet Store Service" })
 @versioned(Versions)
 namespace VersionedApi;
 using TypeSpec.Http;

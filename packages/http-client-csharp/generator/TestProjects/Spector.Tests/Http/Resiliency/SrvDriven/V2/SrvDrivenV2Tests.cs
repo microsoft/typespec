@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 extern alias SrvDrivenV2;
+extern alias SrvDrivenV1;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SrvDrivenV2::Resiliency.ServiceDriven;

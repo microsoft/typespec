@@ -1,5 +1,9 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.8
+
+No changes, version bump only.
+
 ## 0.1.0-alpha.7
 
 ### Bump dependencies

@@ -24,6 +24,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
+        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Protocol);
+        private IReadOnlyList<ParameterProvider>? _protocolMethodParameters;
+
+        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Convenience);
+        private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
+        private readonly bool _isPaging;
+        private readonly InputOperationPaging? _paging;
 
         private ClientProvider Client { get; }
 
@@ -33,6 +40,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _cleanOperationName = operation.Name.ToCleanName();
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
+            _isPaging = operation.Paging != null;
+            _paging = operation.Paging;
         }
 
         protected override IReadOnlyList<MethodProvider> BuildMethods()
@@ -66,7 +75,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
-            if (isAsync)
+            if (isAsync && !_isPaging)
             {
                 methodModifier |= MethodSignatureModifiers.Async;
             }
@@ -80,8 +89,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken]);
 
             MethodBodyStatement[] methodBody;
-
-            if (responseBodyType is null)
+            TypeProvider? collection = null;
+            if (_isPaging)
+            {
+                collection = ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, Operation, responseBodyType, isAsync);
+                methodBody = GetPagingMethodBody(collection, ConvenienceMethodParameters, true);
+            }
+            else if (responseBodyType is null)
             {
                 methodBody =
                 [
@@ -100,9 +114,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ];
             }
 
-            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType);
+            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
             // XmlDocs will be null if the method isn't public
-            convenienceMethod.XmlDocs?.Exceptions.Add(new(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+            convenienceMethod.XmlDocs?.Exceptions.Add(new(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
             return convenienceMethod;
         }
 
@@ -370,12 +384,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return conversions;
         }
 
-        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Protocol);
-        private IReadOnlyList<ParameterProvider>? _protocolMethodParameters;
-
-        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Convenience);
-        private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
-
         private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
         {
             if (EnclosingType is not ClientProvider client)
@@ -384,7 +392,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
-            if (isAsync)
+            if (isAsync && !_isPaging)
             {
                 methodModifier |= MethodSignatureModifiers.Async;
             }
@@ -421,29 +429,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 optionalParameters.Clear();
             }
 
+            ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
+
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 DocHelpers.GetFormattableDescription(Operation.Summary, Operation.Doc) ?? FormattableStringHelpers.FromString(Operation.Name),
                 methodModifier,
                 GetResponseType(Operation.Responses, false, isAsync, out _),
                 $"The response returned from the service.",
-                [.. requiredParameters, .. optionalParameters, requestOptionsParameter]);
-            var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
+                parameters);
 
-            MethodBodyStatement[] methodBody =
-            [
-                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. requiredParameters, ..optionalParameters, requestOptionsParameter]), out var message),
-                Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type))),
-            ];
+            TypeProvider? collection = null;
+            MethodBodyStatement[] methodBody;
+            if (_isPaging)
+            {
+                collection = ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, Operation, null, isAsync);
+                methodBody = GetPagingMethodBody(collection, parameters, false);
+            }
+            else
+            {
+                var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
+                methodBody =
+                [
+                    UsingDeclare("message", ScmCodeModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
+                        This.Invoke(createRequestMethod.Signature,
+                            [.. parameters]), out var message),
+                    Return(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
+                        .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type)))
+                ];
+            }
 
             var protocolMethod =
-                new ScmMethodProvider(methodSignature, methodBody, EnclosingType) { IsServiceCall = true };
+                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection);
 
             // XmlDocs will be null if the method isn't public
             if (protocolMethod.XmlDocs != null)
             {
                 protocolMethod.XmlDocs?.Exceptions.Add(
-                    new(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
+                    new(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType.FrameworkType, "Service returned a non-success status code.", []));
                 List<XmlDocStatement> listItems =
                 [
                     new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
@@ -454,20 +477,108 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return protocolMethod;
         }
 
-        private static CSharpType? GetResponseType(IReadOnlyList<OperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)
+        private MethodBodyStatement[] GetPagingMethodBody(
+            TypeProvider collection,
+            IReadOnlyList<ParameterProvider> parameters,
+            bool isConvenience)
+        {
+            return (_paging!.NextLink, isConvenience) switch
+            {
+                (not null, true) =>
+                [
+                    Return(New.Instance(
+                        collection.Type,
+                        [
+                            This,
+                            Null,
+                            .. parameters,
+                            IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
+                        ]))
+                ],
+                (not null, false) =>
+                [
+                    Return(New.Instance(
+                        collection.Type,
+                        [
+                            This,
+                            Null,
+                            .. parameters
+                        ]))
+                ],
+                (null, true) =>
+                [
+                    Return(New.Instance(
+                        collection.Type,
+                        [
+                            This,
+                            .. parameters,
+                            IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
+                        ]))
+                ],
+                (null, false) =>
+                [
+                    Return(New.Instance(
+                        collection.Type,
+                        [
+                            This,
+                            .. parameters
+                        ]))
+                ]
+            };
+        }
+
+        private CSharpType GetResponseType(IReadOnlyList<InputOperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)
         {
             responseBodyType = null;
-            var returnType = isConvenience ? GetConvenienceReturnType(responses, out responseBodyType) : ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType;
+
+            if (isConvenience)
+            {
+                return GetConvenienceReturnType(responses, isAsync, out responseBodyType);
+            }
+
+            if (_isPaging)
+            {
+                return isAsync
+                    ? ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientCollectionAsyncResponseType
+                    : ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientCollectionResponseType;
+            }
+
+            var returnType = ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType;
+
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
 
-        private static CSharpType GetConvenienceReturnType(IReadOnlyList<OperationResponse> responses, out CSharpType? responseBodyType)
+        private CSharpType GetConvenienceReturnType(IReadOnlyList<InputOperationResponse> responses, bool isAsync, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            responseBodyType = response?.BodyType is null ? null : ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
-            return response is null || responseBodyType is null
-                ? ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType
-                : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
+            if (_isPaging)
+            {
+                var type = (response?.BodyType as InputModelType)?.Properties.FirstOrDefault(p =>
+                    p.SerializedName == Operation.Paging!.ItemPropertySegments[0]);
+
+                responseBodyType = response?.BodyType is null || type is null ? null : ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType((type.Type as InputArrayType)!.ValueType);
+
+                if (response == null || responseBodyType == null)
+                {
+                    return isAsync ?
+                        ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientCollectionAsyncResponseType :
+                        ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientCollectionResponseType;
+                }
+
+                return new CSharpType(
+                    isAsync ?
+                        ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientCollectionAsyncResponseOfTType.FrameworkType :
+                        ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientCollectionResponseOfTType.FrameworkType,
+                    responseBodyType);
+            }
+
+            responseBodyType = response?.BodyType is null ? null : ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
+
+            var returnType = response == null || responseBodyType == null
+                ? ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType
+                : new CSharpType(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
+
+            return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
 
         private bool ShouldAddOptionalRequestOptionsParameter()

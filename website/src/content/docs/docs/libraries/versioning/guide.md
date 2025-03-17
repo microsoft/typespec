@@ -7,18 +7,14 @@ title: Tutorial
 The primary role of the TypeSpec.Versioning library is to enable API versioning. Let's start with an API that lacks versioning.
 
 ```typespec
-@service({
-  title: "Contoso Widget Manager",
-})
+@service(#{ title: "Contoso Widget Manager" })
 namespace Contoso.WidgetManager;
 ```
 
 To introduce versioning to this API, we need to use the `@versioned` decorator on the namespace and define an enum that outlines the supported versions.
 
 ```typespec
-@service({
-  title: "Contoso Widget Manager",
-})
+@service(#{ title: "Contoso Widget Manager" })
 @versioned(Contoso.WidgetManager.Versions)
 namespace Contoso.WidgetManager;
 
@@ -34,9 +30,7 @@ Both versioned and unversioned services can declare their dependencies on versio
 For example, if our unversioned WidgetManager service depends on the Azure.Core library, we would declare it like this:
 
 ```typespec
-@service({
-  title: "Contoso Widget Manager Unversioned",
-})
+@service(#{ title: "Contoso Widget Manager Unversioned" })
 @useDependency(Azure.Core.v1_0_Preview_1)
 namespace Contoso.WidgetManager.Unversioned;
 ```
@@ -44,9 +38,7 @@ namespace Contoso.WidgetManager.Unversioned;
 If our versioned WidgetManager service depends on the Azure.Core library, we would declare it like this:
 
 ```typespec
-@service({
-  title: "Contoso Widget Manager",
-})
+@service(#{ title: "Contoso Widget Manager" })
 @versioned(Contoso.WidgetManager.Versions)
 namespace Contoso.WidgetManager;
 
@@ -59,9 +51,7 @@ enum Versions {
 Let's say we introduce a new version to our service, and it uses features from a newer version of the Azure.Core library. We can declare that dependency like this:
 
 ```typespec
-@service({
-  title: "Contoso Widget Manager",
-})
+@service(#{ title: "Contoso Widget Manager" })
 @versioned(Contoso.WidgetManager.Versions)
 namespace Contoso.WidgetManager;
 
@@ -83,9 +73,7 @@ using TypeSpec.Versioning;
 using TypeSpec.Rest;
 using TypeSpec.Http;
 
-@service({
-  title: "Contoso Widget Manager",
-})
+@service(#{ title: "Contoso Widget Manager" })
 @versioned(Contoso.WidgetManager.Versions)
 namespace Contoso.WidgetManager;
 

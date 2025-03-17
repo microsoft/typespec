@@ -110,7 +110,7 @@ model TypeSpec.Http.BasicAuth
 | Name   | Type                          | Description         |
 | ------ | ----------------------------- | ------------------- |
 | type   | `TypeSpec.Http.AuthType.http` | Http authentication |
-| scheme | `"basic"`                     | basic auth scheme   |
+| scheme | `"Basic"`                     | basic auth scheme   |
 
 ### `BearerAuth` {#TypeSpec.Http.BearerAuth}
 
@@ -131,7 +131,7 @@ model TypeSpec.Http.BearerAuth
 | Name   | Type                          | Description         |
 | ------ | ----------------------------- | ------------------- |
 | type   | `TypeSpec.Http.AuthType.http` | Http authentication |
-| scheme | `"bearer"`                    | bearer auth scheme  |
+| scheme | `"Bearer"`                    | bearer auth scheme  |
 
 ### `Body` {#TypeSpec.Http.Body}
 
@@ -253,10 +253,10 @@ model TypeSpec.Http.HeaderOptions
 
 #### Properties
 
-| Name    | Type                                                                  | Description                                               |
-| ------- | --------------------------------------------------------------------- | --------------------------------------------------------- |
-| name?   | `string`                                                              | Name of the header when sent over HTTP.                   |
-| format? | `"csv" \| "multi" \| "tsv" \| "ssv" \| "pipes" \| "simple" \| "form"` | Determines the format of the array if type array is used. |
+| Name     | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name?    | `string`  | Name of the header when sent over HTTP.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| explode? | `boolean` | Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)<br /><br />\| Style \| Explode \| Primitive value = 5 \| Array = [3, 4, 5] \| Object = {"role": "admin", "firstName": "Alex"} \|<br />\| ------ \| ------- \| ------------------- \| ----------------- \| ----------------------------------------------- \|<br />\| simple \| false \| `5   ` \| `3,4,5` \| `role,admin,firstName,Alex` \|<br />\| simple \| true \| `5` \| `3,4,5` \| `role=admin,firstName=Alex` \| |
 
 ### `HttpPart` {#TypeSpec.Http.HttpPart}
 
@@ -490,6 +490,20 @@ model TypeSpec.Http.PasswordFlow
 | refreshUrl? | `string`                                | the refresh URL                   |
 | scopes?     | `string[]`                              | list of scopes for the credential |
 
+### `PatchOptions` {#TypeSpec.Http.PatchOptions}
+
+Options for PATCH operations.
+
+```typespec
+model TypeSpec.Http.PatchOptions
+```
+
+#### Properties
+
+| Name                 | Type      | Description                                                                                                       |
+| -------------------- | --------- | ----------------------------------------------------------------------------------------------------------------- |
+| implicitOptionality? | `boolean` | If set to `false`, disables the implicit transform that makes the body of a<br />PATCH operation deeply optional. |
+
 ### `PathOptions` {#TypeSpec.Http.PathOptions}
 
 ```typespec
@@ -534,11 +548,10 @@ model TypeSpec.Http.QueryOptions
 
 #### Properties
 
-| Name     | Type                                                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| -------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| name?    | `string`                                                              | Name of the query when included in the url.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| explode? | `boolean`                                                             | If true send each value in the array/object as a separate query parameter.<br />Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)<br /><br />\| Style \| Explode \| Uri Template \| Primitive value id = 5 \| Array id = [3, 4, 5] \| Object id = {"role": "admin", "firstName": "Alex"} \|<br />\| ------ \| ------- \| -------------- \| ---------------------- \| ----------------------- \| -------------------------------------------------- \|<br />\| simple \| false \| `/users{?id}` \| `/users?id=5` \| `/users?id=3,4,5` \| `/users?id=role,admin,firstName,Alex` \|<br />\| simple \| true \| `/users{?id*}` \| `/users?id=5` \| `/users?id=3&id=4&id=5` \| `/users?role=admin&firstName=Alex` \| |
-| format?  | `"multi" \| "csv" \| "ssv" \| "tsv" \| "simple" \| "form" \| "pipes"` | Determines the format of the array if type array is used.<br />**DEPRECATED**: use explode: true instead of `multi` or `@encode`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Name     | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| -------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| name?    | `string`  | Name of the query when included in the url.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| explode? | `boolean` | If true send each value in the array/object as a separate query parameter.<br />Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)<br /><br />\| Style \| Explode \| Uri Template \| Primitive value id = 5 \| Array id = [3, 4, 5] \| Object id = {"role": "admin", "firstName": "Alex"} \|<br />\| ------ \| ------- \| -------------- \| ---------------------- \| ----------------------- \| -------------------------------------------------- \|<br />\| simple \| false \| `/users{?id}` \| `/users?id=5` \| `/users?id=3,4,5` \| `/users?id=role,admin,firstName,Alex` \|<br />\| simple \| true \| `/users{?id*}` \| `/users?id=5` \| `/users?id=3&id=4&id=5` \| `/users?role=admin&firstName=Alex` \| |
 
 ### `Response` {#TypeSpec.Http.Response}
 

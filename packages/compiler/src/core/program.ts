@@ -1,5 +1,5 @@
+import pc from "picocolors";
 import { EmitterOptions } from "../config/types.js";
-import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { setCurrentProgram } from "../experimental/typekit/index.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
@@ -12,15 +12,22 @@ import {
   resolveModule,
 } from "../module-resolver/module-resolver.js";
 import { PackageJson } from "../types/package-json.js";
-import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
+import { findProjectRoot } from "../utils/io.js";
+import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
+import { flushEmittedFilesPaths } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
-import { createLinter, resolveLinterDefinition } from "./linter.js";
+import {
+  builtInLinterLibraryName,
+  createBuiltInLinterLibrary,
+  createLinter,
+  resolveLinterDefinition,
+} from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
@@ -28,7 +35,6 @@ import { createResolver } from "./name-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
-import { createProjector } from "./projector.js";
 import {
   SourceLoader,
   SourceResolution,
@@ -36,7 +42,7 @@ import {
   loadJsFile,
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
-import { StateMap, StateSet, createStateAccessors } from "./state-accessors.js";
+import { createStateAccessors } from "./state-accessors.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -50,12 +56,11 @@ import {
   LibraryMetadata,
   LiteralType,
   LocationContext,
+  LogSink,
   ModuleLibraryMetadata,
   Namespace,
   NoTarget,
   Node,
-  ProjectionApplication,
-  Projector,
   SourceFile,
   Sym,
   SymbolFlags,
@@ -68,50 +73,50 @@ import {
   TypeSpecScriptNode,
 } from "./types.js";
 
-/** @deprecated */
-export interface ProjectedProgram extends Program {
-  projector: Projector;
-}
-
-/** @deprecated use Mutators instead */
-export function projectProgram(
-  program: Program,
-  projections: ProjectionApplication[],
-  startNode?: Type,
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-): ProjectedProgram {
-  return createProjector(program, projections, startNode);
-}
-
 export interface Program {
   compilerOptions: CompilerOptions;
+  /** @internal */
   mainFile?: TypeSpecScriptNode;
   /** All source files in the program, keyed by their file path. */
   sourceFiles: Map<string, TypeSpecScriptNode>;
   jsSourceFiles: Map<string, JsSourceFileNode>;
+
+  /** @internal */
   literalTypes: Map<string | number | boolean, LiteralType>;
   host: CompilerHost;
   tracer: Tracer;
   trace(area: string, message: string): void;
+  /**
+   * **DANGER** Using the checker is reserved for advanced usage and should be used with caution.
+   * API are not subject to the same stability guarantees see See https://typespec.io/docs/handbook/breaking-change-policy/
+   */
   checker: Checker;
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
+  /** @internal */
   loadTypeSpecScript(typespecScript: SourceFile): Promise<TypeSpecScriptNode>;
+  /** @internal */
   onValidate(
     cb: (program: Program) => void | Promise<void>,
     LibraryMetadata: LibraryMetadata,
   ): void;
+  /** @internal */
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
-  stateSets: Map<symbol, StateSet>;
+  /** @internal */
+  stateSets: Map<symbol, Set<Type>>;
   stateMap(key: symbol): Map<Type, any>;
-  stateMaps: Map<symbol, StateMap>;
+  /** @internal */
+  stateMaps: Map<symbol, Map<Type, unknown>>;
   hasError(): boolean;
   reportDiagnostic(diagnostic: Diagnostic): void;
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
+
+  /** @internal */
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
 
   getGlobalNamespaceType(): Namespace;
+
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
 
   /** Return location context of the given source file. */
@@ -129,6 +134,7 @@ interface EmitterRef {
   metadata: LibraryMetadata;
   emitterOutputDir: string;
   options: Record<string, unknown>;
+  readonly library: LibraryInstance;
 }
 
 interface Validator {
@@ -146,10 +152,50 @@ export async function compile(
   mainFile: string,
   options: CompilerOptions = {},
   oldProgram?: Program, // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
-): Promise<Program> {
+) {
+  const logger = createLogger({ sink: host.logSink });
+  const { program, shouldAbort } = await logger.trackAction(
+    "Compiling...",
+    "Compiling",
+    async (task) => {
+      const result = await createProgram(host, mainFile, options, oldProgram);
+      if (result.program.hasError()) {
+        task.fail();
+      } else if (result.program.diagnostics.length > 0) {
+        task.warn();
+      }
+      return result;
+    },
+  );
+
+  if (shouldAbort) {
+    return program;
+  }
+
+  // Emitter stage
+  for (const emitter of program.emitters) {
+    // If in dry mode run and an emitter doesn't support it we have to skip it.
+    if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
+      continue;
+    }
+    await emit(emitter, program);
+
+    if (options.listFiles) {
+      logEmittedFilesPath(host.logSink);
+    }
+  }
+  return program;
+}
+
+async function createProgram(
+  host: CompilerHost,
+  mainFile: string,
+  options: CompilerOptions = {},
+  oldProgram?: Program,
+): Promise<{ program: Program; shouldAbort: boolean }> {
   const validateCbs: Validator[] = [];
-  const stateMaps = new Map<symbol, StateMap>();
-  const stateSets = new Map<symbol, StateSet>();
+  const stateMaps = new Map<symbol, Map<Type, unknown>>();
+  const stateSets = new Map<symbol, Set<Type>>();
   const diagnostics: Diagnostic[] = [];
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
@@ -200,68 +246,61 @@ export async function compile(
   const binder = createBinder(program);
 
   if (resolvedMain === undefined) {
-    return program;
+    return { program, shouldAbort: true };
   }
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
 
   await loadSources(resolvedMain);
 
-  let emit = options.emit;
-  let emitterOptions = options.options;
-  /* eslint-disable @typescript-eslint/no-deprecated */
-  if (options.emitters) {
-    emit ??= Object.keys(options.emitters);
-    emitterOptions ??= options.emitters;
-  }
-  /* eslint-enable @typescript-eslint/no-deprecated */
+  const emit = options.noEmit ? [] : (options.emit ?? []);
+  const emitterOptions = options.options;
 
-  await loadEmitters(basedir, emit ?? [], emitterOptions ?? {});
+  await loadEmitters(basedir, emit, emitterOptions ?? {});
 
   if (
     oldProgram &&
     mapEquals(oldProgram.sourceFiles, program.sourceFiles) &&
     deepEquals(oldProgram.compilerOptions, program.compilerOptions)
   ) {
-    return oldProgram;
+    return { program: oldProgram, shouldAbort: true };
   }
 
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
   setCurrentProgram(program);
 
+  const resolver = createResolver(program);
+  resolver.resolveProgram();
+
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
+  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary(resolver));
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
-  const resolver = createResolver(program);
-  resolver.resolveProgram();
   program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
 
   if (!continueToNextStage) {
-    return program;
+    return { program, shouldAbort: true };
   }
+
   // onValidate stage
   await runValidators();
 
   validateRequiredImports();
 
   await validateLoadedLibraries();
+
   if (!continueToNextStage) {
-    return program;
+    return { program, shouldAbort: true };
   }
 
   // Linter stage
   program.reportDiagnostics(linter.lint());
 
-  // Emitter stage
-  for (const instance of emitters) {
-    await runEmitter(instance);
-  }
-
-  return program;
+  return { program, shouldAbort: false };
 
   /**
    * Validate the libraries loaded during the compilation process are compatible.
@@ -453,8 +492,7 @@ export async function compile(
 
     const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint?.esmExports.$lib;
     const metadata = computeLibraryMetadata(module, libDefinition);
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const linterDef = entrypoint?.esmExports.$linter ?? libDefinition?.linter;
+    const linterDef = entrypoint?.esmExports.$linter;
     return {
       ...resolution,
       metadata,
@@ -511,6 +549,7 @@ export async function compile(
         metadata,
         emitterOutputDir,
         options: emitterOptions,
+        library,
       };
     } else {
       program.trace(
@@ -561,25 +600,6 @@ export async function compile(
     }
 
     return metadata;
-  }
-
-  /**
-   * @param emitter Emitter ref to run
-   */
-  async function runEmitter(emitter: EmitterRef) {
-    const context: EmitContext<any> = {
-      program,
-      emitterOutputDir: emitter.emitterOutputDir,
-      options: emitter.options,
-      getAssetEmitter(TypeEmitterClass) {
-        return createAssetEmitter(program, TypeEmitterClass, this);
-      },
-    };
-    try {
-      await emitter.emitFunction(context);
-    } catch (error: unknown) {
-      throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
-    }
   }
 
   async function runValidators() {
@@ -895,11 +915,56 @@ export async function compile(
  * Resolve compiler options from input options.
  */
 function resolveOptions(options: CompilerOptions): CompilerOptions {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  const outputDir = options.outputDir ?? options.outputPath;
-  return {
-    ...options,
-    outputDir,
-    outputPath: outputDir,
+  return { ...options };
+}
+
+async function emit(emitter: EmitterRef, program: Program) {
+  const emitterName = emitter.metadata.name ?? "";
+  const relativePathForEmittedFiles =
+    transformPathForSink(program.host.logSink, emitter.emitterOutputDir) + "/";
+
+  const errorCount = program.diagnostics.filter((x) => x.severity === "error").length;
+  const warnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
+  const logger = createLogger({ sink: program.host.logSink });
+  await logger.trackAction(
+    `Running ${emitterName}...`,
+    `${emitterName}    ${pc.dim(relativePathForEmittedFiles)}`,
+    async (task) => {
+      await runEmitter(emitter, program);
+
+      const newErrorCount = program.diagnostics.filter((x) => x.severity === "error").length;
+      const newWarnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
+      if (newErrorCount > errorCount) {
+        task.fail();
+      } else if (newWarnCount > warnCount) {
+        task.warn();
+      }
+    },
+  );
+}
+
+/**
+ * @param emitter Emitter ref to run
+ */
+async function runEmitter(emitter: EmitterRef, program: Program) {
+  const context: EmitContext<any> = {
+    program,
+    emitterOutputDir: emitter.emitterOutputDir,
+    options: emitter.options,
   };
+  try {
+    await emitter.emitFunction(context);
+  } catch (error: unknown) {
+    throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
+  }
+}
+
+function logEmittedFilesPath(logSink: LogSink) {
+  flushEmittedFilesPaths().forEach((filePath) => {
+    // eslint-disable-next-line no-console
+    console.log(`    ${pc.dim(transformPathForSink(logSink, filePath))}`);
+  });
+}
+function transformPathForSink(logSink: LogSink, path: string) {
+  return logSink.getPath ? logSink.getPath(path) : path;
 }

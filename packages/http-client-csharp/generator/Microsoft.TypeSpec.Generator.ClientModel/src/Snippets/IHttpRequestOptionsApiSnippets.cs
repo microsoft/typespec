@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             => new TernaryConditionalExpression(
                 cancellationToken.Property(nameof(CancellationToken.CanBeCanceled)),
                 New.Instance(
-                    ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType,
+                    ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType,
                     arguments: [],
                     properties: new Dictionary<ValueExpression, ValueExpression>
                         { { new MemberExpression(null, nameof(RequestOptions.CancellationToken)), cancellationToken } },

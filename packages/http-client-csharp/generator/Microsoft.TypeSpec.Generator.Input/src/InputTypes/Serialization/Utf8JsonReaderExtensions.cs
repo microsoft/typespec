@@ -125,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             return true;
         }
 
-        public static bool TryReadWithConverter<T>(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref T? value)
+        public static bool TryReadComplexType<T>(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref T? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)
             {
@@ -142,7 +142,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             return true;
         }
 
-        public static bool TryReadWithConverter<T>(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref IReadOnlyList<T>? value)
+        public static bool TryReadComplexType<T>(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref IReadOnlyList<T>? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)
             {

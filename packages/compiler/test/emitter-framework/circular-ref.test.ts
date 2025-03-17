@@ -1,6 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { Model, ModelProperty, Program, Type, getTypeName } from "../../src/core/index.js";
 import {
   ArrayBuilder,
   Context,
@@ -12,6 +11,7 @@ import {
   TypeEmitter,
   createAssetEmitter,
 } from "../../src/emitter-framework/index.js";
+import { Model, ModelProperty, Program, Type, getTypeName } from "../../src/index.js";
 import { getHostForTypeSpecFile } from "./host.js";
 
 describe("compiler: emitter-framework: circular references", () => {

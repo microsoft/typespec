@@ -2,6 +2,6 @@
   "output-folder": "./outputFolder",
   "project-folder": "./projectFolder",
   "unknown-bool-property": false,
-  "library-name": "Sample.Namespace",
+  "package-name": "Sample.Namespace",
   "unknown-string-property": "unknownPropertyValue"
 }

@@ -43,7 +43,7 @@ const files = await generateExternDecorators(program, "@typespec/compiler", { na
 for (const [name, content] of Object.entries(files)) {
   const updatedContent = content.replace(
     /from "\@typespec\/compiler"/g,
-    name.endsWith(".ts-test.ts") ? `from "../src/index.js"` : `from "../src/core/index.js"`,
+    name.endsWith(".ts-test.ts") ? `from "../src/index.js"` : `from "../src/index.js"`,
   );
   const prettierConfig = await resolveConfig(root);
 

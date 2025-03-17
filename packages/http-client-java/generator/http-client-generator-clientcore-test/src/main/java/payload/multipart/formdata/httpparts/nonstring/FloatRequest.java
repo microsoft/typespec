@@ -2,8 +2,8 @@
 
 package payload.multipart.formdata.httpparts.nonstring;
 
-import io.clientcore.core.annotation.Metadata;
-import io.clientcore.core.annotation.TypeConditions;
+import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.TypeConditions;
 
 /**
  * The FloatRequest model.

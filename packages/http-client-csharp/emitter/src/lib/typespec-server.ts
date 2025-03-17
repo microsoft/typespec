@@ -1,19 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { SdkContext } from "@azure-tools/typespec-client-generator-core";
 import { getDoc, getSummary } from "@typespec/compiler";
 import { HttpServer } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
-import { NetEmitterOptions } from "../options.js";
+import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { LoggerLevel } from "./log-level.js";
-import { Logger } from "./logger.js";
 import { getDefaultValue, getInputType } from "./model.js";
 
 export interface TypeSpecServer {
@@ -23,12 +19,9 @@ export interface TypeSpecServer {
 }
 
 export function resolveServers(
-  context: SdkContext<NetEmitterOptions>,
+  sdkContext: CSharpEmitterContext,
   servers: HttpServer[],
-  typeMap: SdkTypeMap,
 ): TypeSpecServer[] {
-  const logger = new Logger(context.program, LoggerLevel.INFO);
-  const csharpEmitterContext = { ...context, logger };
   return servers.map((server) => {
     const parameters: InputParameter[] = [];
     let url: string = server.url;
@@ -43,7 +36,7 @@ export function resolveServers(
             name: "url",
             crossLanguageDefinitionId: "TypeSpec.url",
           }
-        : getInputType(csharpEmitterContext, prop, typeMap);
+        : getInputType(sdkContext, prop);
 
       if (value) {
         defaultValue = {
@@ -54,8 +47,8 @@ export function resolveServers(
       const variable: InputParameter = {
         Name: name,
         NameInRequest: name,
-        Summary: getSummary(context.program, prop),
-        Doc: getDoc(context.program, prop),
+        Summary: getSummary(sdkContext.program, prop),
+        Doc: getDoc(sdkContext.program, prop),
         Type: inputType,
         Location: RequestLocation.Uri,
         IsApiVersion: name.toLowerCase() === "apiversion" || name.toLowerCase() === "api-version",
@@ -65,7 +58,7 @@ export function resolveServers(
         IsEndpoint: isEndpoint,
         SkipUrlEncoding:
           // TODO: update this when https://github.com/Azure/typespec-azure/issues/1022 is resolved
-          getExtensions(context.program, prop).get("x-ms-skip-url-encoding") === true,
+          getExtensions(sdkContext.program, prop).get("x-ms-skip-url-encoding") === true,
         Explode: false,
         Kind: InputOperationParameterKind.Client,
         DefaultValue: defaultValue,

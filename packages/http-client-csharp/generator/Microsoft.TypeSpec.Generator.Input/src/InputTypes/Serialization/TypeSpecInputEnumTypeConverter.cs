@@ -42,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString("name", ref name)
-                    || reader.TryReadString("clientNamespace", ref @namespace)
+                    || reader.TryReadString("namespace", ref @namespace)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("access", ref accessibility)
                     || reader.TryReadString("deprecation", ref deprecated)
@@ -50,9 +50,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadString("usage", ref usageString)
                     || reader.TryReadBoolean("isFixed", ref isFixed)
-                    || reader.TryReadWithConverter("valueType", options, ref valueType)
-                    || reader.TryReadWithConverter("values", options, ref values)
-                    || reader.TryReadWithConverter("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("valueType", options, ref valueType)
+                    || reader.TryReadComplexType("values", options, ref values)
+                    || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -61,10 +61,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             name = name ?? throw new JsonException("Enum must have name");
-            if (summary is null && doc is null)
-            {
-                Console.Error.WriteLine($"[Warn]: Enum '{name}' must have either a summary or doc");
-            }
 
             if (usageString != null)
             {

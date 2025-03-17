@@ -63,14 +63,6 @@ You can reference the operation template using `is`:
 op readPet is ReadResource<Pet>;
 ```
 
-## Referencing model properties
-
-You can reference model properties using the `.` operator for identifiers.
-
-```tsp
-alias PetName = Pet.name;
-```
-
 ## Meta type references
 
 Certain operation meta types can be referenced using `::`

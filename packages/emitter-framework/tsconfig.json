@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "lib": ["es2023", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "es2022",
+    "strict": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "jsx": "preserve",
+    "jsxImportSource": "@alloy-js/core",
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDir": "./"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}

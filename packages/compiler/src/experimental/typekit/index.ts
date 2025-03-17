@@ -1,6 +1,7 @@
-import { compilerAssert, Program } from "../../core/index.js";
+import { compilerAssert } from "../../core/diagnostics.js";
+import type { Program } from "../../core/program.js";
 import { Realm } from "../realm.js";
-import { Typekit, TypekitPrototype } from "./define-kit.js";
+import { Typekit, TypekitNamespaceSymbol, TypekitPrototype } from "./define-kit.js";
 
 export * from "./define-kit.js";
 export * from "./kits/index.js";
@@ -32,14 +33,16 @@ export function createTypekit(realm: Realm): Typekit {
 
       const value = Reflect.get(target, prop, receiver);
 
+      // Wrap functions to set `this` correctly
       if (typeof value === "function") {
         return function (this: any, ...args: any[]) {
           return value.apply(proxy, args);
         };
       }
 
-      if (typeof value === "object" && value !== null) {
-        return new Proxy(value, handler);
+      // Only wrap objects marked as Typekit namespaces
+      if (typeof value === "object" && value !== null && isTypekitNamespace(value)) {
+        return new Proxy(value, handler); // Wrap namespace objects
       }
 
       return value;
@@ -48,6 +51,11 @@ export function createTypekit(realm: Realm): Typekit {
 
   const proxy = new Proxy(tk, handler);
   return proxy;
+}
+
+// Helper function to check if an object is a Typekit namespace
+function isTypekitNamespace(obj: any): boolean {
+  return obj && !!obj[TypekitNamespaceSymbol];
 }
 
 // #region Default Typekit

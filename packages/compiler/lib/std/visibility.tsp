@@ -55,7 +55,7 @@ namespace TypeSpec;
  * }
  * ```
  */
-extern dec visibility(target: ModelProperty, ...visibilities: valueof (string | EnumMember)[]);
+extern dec visibility(target: ModelProperty, ...visibilities: valueof EnumMember[]);
 
 /**
  * Indicates that a property is not visible in the given visibility class.
@@ -142,7 +142,7 @@ extern dec removeVisibility(target: ModelProperty, ...visibilities: valueof Enum
  * }
  * ```
  */
-extern dec withVisibility(target: Model, ...visibilities: valueof (string | EnumMember)[]);
+extern dec withVisibility(target: Model, ...visibilities: valueof EnumMember[]);
 
 /**
  * Set the visibility of key properties in a model if not already set.
@@ -151,7 +151,7 @@ extern dec withVisibility(target: Model, ...visibilities: valueof (string | Enum
  * but will not change the visibility of any properties that have visibility set _explicitly_, even if the visibility
  * is the same as the default visibility.
  *
- * Visibility may be explicitly set using any of the following decorators:
+ * Visibility may be set explicitly using any of the following decorators:
  *
  * - `@visibility`
  * - `@removeVisibility`
@@ -159,7 +159,7 @@ extern dec withVisibility(target: Model, ...visibilities: valueof (string | Enum
  *
  * @param visibility The desired default visibility value. If a key property already has visibility set, it will not be changed.
  */
-extern dec withDefaultKeyVisibility(target: Model, visibility: valueof string | EnumMember);
+extern dec withDefaultKeyVisibility(target: Model, visibility: valueof EnumMember);
 
 /**
  * Declares the visibility constraint of the parameters of a given operation.
@@ -167,29 +167,23 @@ extern dec withDefaultKeyVisibility(target: Model, visibility: valueof string | 
  * A parameter or property nested within a parameter will be visible if it has _any_ of the visibilities
  * in the list.
  *
- * WARNING: If no arguments are provided to this decorator, the `@typespec/http` library considers only properties
- * that do not have visibility modifiers _explicitly_ configured to be visible. Additionally, the HTTP library will
- * disable the feature of `@patch` operations that causes the properties of the request body to become effectively
- * optional. Some specifications have used this configuration in the past to describe exact PATCH bodies, but using this
- * decorator with no arguments in that manner is not recommended. The legacy behavior of `@parameterVisibility` with no
- * arguments is preserved for backwards compatibility pending a future review and possible deprecation.
+ * It is invalid to call this decorator with no visibility modifiers.
  *
  * @param visibilities List of visibility modifiers that apply to the parameters of this operation.
  */
-extern dec parameterVisibility(target: Operation, ...visibilities: valueof (string | EnumMember)[]);
+extern dec parameterVisibility(target: Operation, ...visibilities: valueof EnumMember[]);
 
 /**
  * Declares the visibility constraint of the return type of a given operation.
  *
  * A property within the return type of the operation will be visible if it has _any_ of the visibilities
- * in the list, or if the list is empty (in which case the property is always visible).
+ * in the list.
+ *
+ * It is invalid to call this decorator with no visibility modifiers.
  *
  * @param visibilities List of visibility modifiers that apply to the return type of this operation.
  */
-extern dec returnTypeVisibility(
-  target: Operation,
-  ...visibilities: valueof (string | EnumMember)[]
-);
+extern dec returnTypeVisibility(target: Operation, ...visibilities: valueof EnumMember[]);
 
 /**
  * Returns the model with non-updateable properties removed.

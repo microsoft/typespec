@@ -119,7 +119,7 @@ public class Postprocessor {
         }
 
         try {
-            CodeFormatterUtil.formatCode(javaFiles, plugin);
+            CodeFormatterUtil.formatCode(javaFiles, plugin, logger);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             MockHelpers.LoadMockPlugin(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
 
-            var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             var methodCollection = new ScmMethodProviderCollection(inputOperation, client!);
             Assert.IsNotNull(methodCollection);
@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             MockHelpers.LoadMockPlugin(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
 
-            var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             var methodCollection = new ScmMethodProviderCollection(inputOperation, client!);
             Assert.IsNotNull(methodCollection);
@@ -129,13 +129,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         InputFactory.Parameter(
                             "spread",
                             _spreadModel,
-                            location: RequestLocation.Body,
+                            location: InputRequestLocation.Body,
                             isRequired: true,
                             kind: InputOperationParameterKind.Spread),
                         InputFactory.Parameter(
                             "p1",
                             InputPrimitiveType.Boolean,
-                            location: RequestLocation.Path,
+                            location: InputRequestLocation.Path,
                             isRequired: true,
                             kind: InputOperationParameterKind.Method)
                     ]));

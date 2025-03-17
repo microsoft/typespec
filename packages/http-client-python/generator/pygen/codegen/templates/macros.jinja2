@@ -4,10 +4,6 @@
 {% for line in list_result %}
     {% set prefix = "" if loop.index == 1 else " " %}
     {% set suffix = suffix_string if list_result | length == loop.index %}
-    {% if line | length > 120 %}
-{{ prefix }}{{ line + "  # pylint: disable=line-too-long" }}{{ suffix }}
-    {% else %}
 {{ prefix }}{{ line }}{{ suffix }}
-    {% endif %}
 {% endfor %}
 {% endmacro %}

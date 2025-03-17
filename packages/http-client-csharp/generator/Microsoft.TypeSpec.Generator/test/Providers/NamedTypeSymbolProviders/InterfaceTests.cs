@@ -28,7 +28,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var methods = namedTypeSymbolProvider.Methods;
 
             Assert.AreEqual(1, methods.Count);
-            Assert.AreEqual("global::System.ClientModel.Primitives.IJsonModel<T>.Write", methods[0].Signature.Name);
+            Assert.AreEqual("global::System.ClientModel.Primitives.IJsonModel<global::Sample.Model>.Write", methods[0].Signature.FullMethodName);
+            Assert.AreEqual("Write", methods[0].Signature.Name);
             Assert.AreEqual(2, methods[0].Signature.Parameters.Count);
             Assert.IsTrue(methods[0].Signature.Parameters[0].Type.Equals(typeof(Utf8JsonWriter)));
             Assert.IsTrue(methods[0].Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions)));
@@ -74,7 +75,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override MethodProvider[] BuildMethods()
             {
-                var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.None, null, $"", [ new ParameterProvider("writer", $"", typeof(Utf8JsonWriter)), new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions)) ], null, null, null, new CSharpType(typeof(IJsonModel<>)));
+                var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.None, null, $"", [ new ParameterProvider("writer", $"", typeof(Utf8JsonWriter)), new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions)) ], null, null, null, new CSharpType(typeof(IJsonModel<>), Type));
                 return [new MethodProvider(sig, Snippet.ThrowExpression(Snippet.Null), this, null)];
             }
 

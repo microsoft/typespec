@@ -1,5 +1,4 @@
 {
   "output-folder": ".",
-  "namespace": "Parameters.CollectionFormat",
-  "library-name": "Parameters.CollectionFormat"
+  "package-name": "Parameters.CollectionFormat"
 }

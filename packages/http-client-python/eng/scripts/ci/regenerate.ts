@@ -58,6 +58,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   },
   "type/array": {
     "package-name": "typetest-array",
+    "use-pyodide": "true",
   },
   "type/dictionary": {
     "package-name": "typetest-dictionary",
@@ -85,6 +86,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   },
   "type/model/inheritance/recursive": {
     "package-name": "typetest-model-recursive",
+    "use-pyodide": "true",
   },
   "type/model/usage": {
     "package-name": "typetest-model-usage",
@@ -220,6 +222,9 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
         // after fix test generation for nested operation group, remove this check
         if (mainTspRelativePath.includes("client-operation-group")) return;
 
+        // after https://github.com/Azure/autorest.python/issues/3043 fixed, remove this check
+        if (mainTspRelativePath.includes("azure/client-generator-core/api-version")) return;
+
         const hasMainTsp = await promises
           .access(mainTspPath)
           .then(() => true)
@@ -311,10 +316,24 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
   });
 }
 
+async function runTaskPool(tasks: Array<() => Promise<void>>, poolLimit: number): Promise<void> {
+  let currentIndex = 0;
+
+  async function worker() {
+    while (currentIndex < tasks.length) {
+      const index = currentIndex++;
+      await tasks[index]();
+    }
+  }
+
+  const workers = new Array(Math.min(poolLimit, tasks.length)).fill(null).map(() => worker());
+  await Promise.all(workers);
+}
+
 async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
   if (flags.flavor === undefined) {
     await regenerate({ flavor: "azure", ...flags });
-    await regenerate({ flavor: "unbranded", pyodide: true, ...flags });
+    await regenerate({ flavor: "unbranded", ...flags });
   } else {
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
@@ -326,11 +345,22 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
       _getCmdList(subdirectory, flagsResolved),
     );
-    const PromiseCommands = cmdList.map((tspCommand) => executeCommand(tspCommand));
-    await Promise.all(PromiseCommands);
+
+    // Create tasks as functions for the pool
+    const tasks: Array<() => Promise<void>> = cmdList.map((tspCommand) => {
+      return () => executeCommand(tspCommand);
+    });
+
+    // Run tasks with a concurrency limit
+    await runTaskPool(tasks, 30);
   }
 }
 
+const start = performance.now();
 regenerate(argv.values)
-  .then(() => console.log("Regeneration successful"))
+  .then(() =>
+    console.log(
+      `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
+    ),
+  )
   .catch((error) => console.error(`Regeneration failed: ${error.message}`));

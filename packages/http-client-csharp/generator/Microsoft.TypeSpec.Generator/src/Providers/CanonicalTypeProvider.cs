@@ -44,10 +44,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;
 
-        // TODO - Implement BuildMethods, etc as needed
         protected override ConstructorProvider[] BuildConstructors()
         {
             return [.. _generatedTypeProvider.Constructors, .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
+        }
+
+        protected override MethodProvider[] BuildMethods()
+        {
+            return [.. _generatedTypeProvider.Methods, .. _generatedTypeProvider.CustomCodeView?.Methods ?? []];
         }
 
         protected override PropertyProvider[] BuildProperties()
@@ -75,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                 }
 
-                string? serializedName = specProperty?.SerializationOptions.Json?.Name;
+                string? serializedName = specProperty?.SerializedName;
                 bool hasCustomSerialization = false;
                 // Update the serializedName of custom properties if necessary
                 if (_serializedNameMap.TryGetValue(customProperty.Name, out var customSerializedName) ||
@@ -136,7 +140,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     customField.WireInfo = new PropertyWireInformation(specProperty);
                 }
 
-                string? serializedName = specProperty?.SerializationOptions.Json?.Name;
+                string? serializedName = specProperty?.SerializedName;
                 bool hasCustomSerialization = false;
                 // Update the serializedName of custom properties if necessary
                 if (_serializedNameMap.TryGetValue(customField.Name, out var customSerializedName) ||

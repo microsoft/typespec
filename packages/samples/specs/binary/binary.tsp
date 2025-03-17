@@ -2,9 +2,7 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Binary sample",
-})
+@service(#{ title: "Binary sample" })
 namespace BinarySample;
 
 model HasBytes {
@@ -13,7 +11,7 @@ model HasBytes {
 
 model BytesBody<ContentType> {
   @body body: bytes;
-  @header contentType: ContentType;
+  @header("content-type") contentType: ContentType;
 }
 
 @route("/test")

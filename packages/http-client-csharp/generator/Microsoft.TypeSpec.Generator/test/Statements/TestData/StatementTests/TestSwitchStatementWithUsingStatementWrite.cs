@@ -6,6 +6,7 @@ public bool Foo()
         case true:
             using (var x = new global::System.IO.MemoryStream())
             {
+                // some comment explaining the return
                 return foo;
             }
         default:
