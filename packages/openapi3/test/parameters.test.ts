@@ -32,6 +32,23 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       strictEqual(param.name, "$select");
     });
 
+    it.each([
+      { encoding: "ArrayEncoding.pipeDelimited", style: "pipeDelimited" },
+      { encoding: "ArrayEncoding.spaceDelimited", style: "spaceDelimited" },
+    ])("can set style to $style with @encode($encoding)", async ({ encoding, style }) => {
+      const param = await getQueryParam(
+        `op test(@query @encode(${encoding}) myParam: string[]): void;`,
+      );
+      expect(param).toMatchObject({
+        explode: false,
+        style: style,
+      });
+      expect(param.schema).toStrictEqual({
+        type: "array",
+        items: { type: "string" },
+      });
+    });
+
     describe("doesn't set explode if explode: true (Openapi3.0 inverse default)", () => {
       it("with option", async () => {
         const param = await getQueryParam(
@@ -433,7 +450,7 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
         `,
         );
         strictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"], undefined);
-        ok(res.paths["/"].post.requestBody.content["application/json"]);
+        ok(res.paths["/"].post.requestBody.content["text/plain"]);
       });
     });
   });

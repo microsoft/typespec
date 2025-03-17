@@ -906,7 +906,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         });
     }
 
-    protected void generatePagingSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    private void generatePagingSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
@@ -981,7 +981,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    protected void generatePagingAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    private void generatePagingAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
@@ -1023,7 +1023,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
     }
 
-    protected void generateResumable(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    private void generateResumable(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         typeBlock.publicMethod(clientMethod.getDeclaration(), function -> {
@@ -1034,7 +1034,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         });
     }
 
-    protected void generateSimpleAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
+    private void generateSimpleAsync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
         JavaSettings settings) {
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), (function -> {
@@ -1485,11 +1485,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     protected boolean contextInParameters(ClientMethod clientMethod) {
-        return clientMethod.getParameters().stream().anyMatch(param -> getContextType().equals(param.getClientType()));
-    }
-
-    protected IType getContextType() {
-        return ClassType.CONTEXT;
+        return clientMethod.getParameters().stream().anyMatch(param -> ClassType.CONTEXT.equals(param.getClientType()));
     }
 
     /**
