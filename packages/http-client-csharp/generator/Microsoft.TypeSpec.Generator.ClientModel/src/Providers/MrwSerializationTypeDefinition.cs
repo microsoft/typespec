@@ -1444,13 +1444,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyIsReadOnly,
                 propertyIsNullable,
                 writePropertySerializationStatements);
-            if (propertyIsReadOnly && wrapInIsDefinedStatement is not IfStatement)
-            {
-                wrapInIsDefinedStatement = new IfStatement(_isNotEqualToWireConditionSnippet)
-                {
-                    wrapInIsDefinedStatement
-                };
-            }
 
             return wrapInIsDefinedStatement;
         }
@@ -1464,19 +1457,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool propertyIsNullable,
             MethodBodyStatement writePropertySerializationStatement)
         {
-            // Non-nullable value types can be serialized directly
-            if (IsNonNullableValueType(propertyType))
+            if (!propertyIsReadOnly)
             {
-                return writePropertySerializationStatement;
+                // Non-nullable value types can be serialized directly
+                if (IsNonNullableValueType(propertyType))
+                {
+                    return writePropertySerializationStatement;
+                }
+
+                // Required properties that are not nullable can be serialized directly
+                if (propertyIsRequired && !propertyIsNullable)
+                {
+                    return writePropertySerializationStatement;
+                }
             }
 
-            // Required properties that are not nullable can be serialized directly
-            if (propertyIsRequired && !propertyIsNullable)
-            {
-                return writePropertySerializationStatement;
-            }
-
-            // Conditionally serialize based on whether the property is a collection or a single value
+            // Conditionally serialize based on whether the property is a collection or a single value and whether it is readonly
             return CreateConditionalSerializationStatement(
                 propertyType,
                 propertyExpression,
@@ -1753,6 +1749,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string serializedName,
             MethodBodyStatement writePropertySerializationStatement)
         {
+            if (isRequired && isReadOnly)
+            {
+                return new IfStatement(_isNotEqualToWireConditionSnippet)
+                {
+                    writePropertySerializationStatement
+                };
+            }
+
             var isDefinedCondition = propertyType is { IsCollection: true, IsReadOnlyMemory: false }
                 ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression)
                 : OptionalSnippets.IsDefined(propertyMemberExpression);

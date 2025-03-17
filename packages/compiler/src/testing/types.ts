@@ -1,5 +1,6 @@
-import { CompilerHost, Diagnostic, Program, Type } from "../core/index.js";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
+import type { Program } from "../core/program.js";
+import type { CompilerHost, Diagnostic, Type } from "../core/types.js";
 
 export interface TestFileSystem {
   readonly compilerHost: CompilerHost;

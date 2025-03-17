@@ -320,6 +320,38 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
         testEncode("decimal128", { type: "string", format: "decimal128" }, null, "string"));
     });
   });
+
+  describe("using @header decorator on date-time", () => {
+    async function testHeaderDecorator(body: string, expectedFormat: string) {
+      const res = await openApiFor(`op single(@header("Created-At") ${body} ): void;`);
+      deepStrictEqual(res.paths["/"].get.parameters[0].schema, {
+        type: "string",
+        format: expectedFormat,
+      });
+    }
+
+    it("@header decorator applied to utcDateTime", async () => {
+      await testHeaderDecorator("createdAt: utcDateTime;", "http-date");
+    });
+
+    it("@header decorator applied to offsetDateTime", async () => {
+      await testHeaderDecorator("createdAt: offsetDateTime;", "http-date");
+    });
+
+    it("@header decorator applied to utcDateTime with encoding", async () => {
+      await testHeaderDecorator(
+        "@encode(DateTimeKnownEncoding.rfc3339) createdAt: utcDateTime;",
+        "date-time",
+      );
+    });
+
+    it("@header decorator applied to offsetDateTime with encoding", async () => {
+      await testHeaderDecorator(
+        "@encode(DateTimeKnownEncoding.rfc3339) createdAt: offsetDateTime;",
+        "date-time",
+      );
+    });
+  });
 });
 
 worksFor(["3.0.0"], ({ oapiForModel }) => {

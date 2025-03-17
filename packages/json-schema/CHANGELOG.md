@@ -1,5 +1,13 @@
 # Change Log - @typespec/json-schema
 
+## 0.66.0
+
+### Features
+
+- [#5994](https://github.com/microsoft/typespec/pull/5994) Adds `seal-object-schemas` emitter option to automatically set additionalProperties/unevaluatedProperties to `{ not: {} }` wherever possible
+- [#5961](https://github.com/microsoft/typespec/pull/5961) Updates JsonSchema and Open API 3.1 emitters to use unevaluatedProperties instead of additionalProperties, and updates Open API 3 emitters to match JsonSchema behavior of treating `Record<never>` as setting `additionalProperties: { not: {} }`
+
+
 ## 0.65.0
 
 ### Bump dependencies

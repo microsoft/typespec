@@ -1,4 +1,4 @@
-import { mapJoin, Refkey, refkey } from "@alloy-js/core";
+import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
@@ -20,44 +20,47 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
     type = props.type;
   }
 
-  const members = mapJoin(
-    type.members,
-    (key, value) => {
-      return <EnumMember
-      type={value}
-      refkey={$.union.is(props.type)
-        ? refkey(props.type.variants.get(key))
-        : refkey(value)
-      } />;
-    },
-    { joiner: ",\n" },
-  );
-
   if (!props.type.name || props.type.name === "") {
     reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
 
   const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name!, "enum");
+  const members = Array.from(type.members.entries());
 
-  return <ts.EnumDeclaration
-    name={name}
-    refkey={refkey(props.type)}
-    default={props.default}
-    export={props.export}
-  >
-    { members }
-  </ts.EnumDeclaration>;
+  return (
+    <ts.EnumDeclaration
+      name={name}
+      refkey={ay.refkey(props.type)}
+      default={props.default}
+      export={props.export}
+    >
+      <ay.For each={members} joiner={",\n"}>
+        {([key, value]) => {
+          return (
+            <EnumMember
+              type={value}
+              refkey={
+                $.union.is(props.type) ? ay.refkey(props.type.variants.get(key)) : ay.refkey(value)
+              }
+            />
+          );
+        }}
+      </ay.For>
+    </ts.EnumDeclaration>
+  );
 }
 
 export interface EnumMemberProps {
   type: TspEnumMember;
-  refkey?: Refkey;
+  refkey?: ay.Refkey;
 }
 
 export function EnumMember(props: EnumMemberProps) {
-  return <ts.EnumMember
-    name={props.type.name}
-    jsValue={props.type.value ?? props.type.name}
-    refkey={refkey(props.refkey ?? props.type)}
-  />;
+  return (
+    <ts.EnumMember
+      name={props.type.name}
+      jsValue={props.type.value ?? props.type.name}
+      refkey={ay.refkey(props.refkey ?? props.type)}
+    />
+  );
 }

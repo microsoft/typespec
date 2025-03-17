@@ -51,9 +51,10 @@ export function buildParameterDescriptor(
 ): [string, ts.ParameterDescriptor] {
   const namePolicy = ts.useTSNamePolicy();
   const paramName = namePolicy.getName(modelProperty.name, "parameter");
+  const isOptional = modelProperty.optional || modelProperty.defaultValue !== undefined;
   const paramDescriptor: ts.ParameterDescriptor = {
     refkey: getRefkey(modelProperty),
-    optional: modelProperty.optional,
+    optional: isOptional,
     type: TypeExpression({ type: modelProperty.type }),
   };
 

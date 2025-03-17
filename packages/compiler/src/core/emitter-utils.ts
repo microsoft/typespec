@@ -1,4 +1,4 @@
-import { getDirectoryPath, getRelativePathFromDirectory } from "./path-utils.js";
+import { getDirectoryPath } from "./path-utils.js";
 import type { Program } from "./program.js";
 
 export type NewLine = "lf" | "crlf";
@@ -26,7 +26,7 @@ export async function emitFile(program: Program, options: EmitFileOptions): Prom
       ? options.content.replace(/(\r\n|\n|\r)/gm, "\r\n")
       : options.content;
 
-  emittedFilesPaths.push(getRelativePathFromDirectory(outputFolder, options.path, true));
+  emittedFilesPaths.push(options.path);
 
   return await program.host.writeFile(options.path, content);
 }

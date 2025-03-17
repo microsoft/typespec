@@ -6,9 +6,7 @@ using TypeSpec.Http;
 using Azure.Core;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "EnumService",
-})
+@service(#{ title: "EnumService" })
 namespace TspTest.EnumService;
 
 #suppress "@azure-tools/typespec-azure-core/use-extensible-enum" "For testing"
@@ -195,14 +193,10 @@ interface EnumOp {
   @post
   @route("operation/stringenumarrayheader")
   setStringEnumArrayHeader(
-    @header({
-      format: "csv",
-    })
+    @header
     colorArray: ColorModel[],
 
-    @header({
-      format: "csv",
-    })
+    @header
     colorArrayOpt?: ColorModel[],
   ): string;
 }

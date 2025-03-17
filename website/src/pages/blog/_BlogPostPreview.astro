@@ -50,7 +50,8 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
   }
 
   :global([data-theme="light"]) .image-container {
-    background: radial-gradient(
+    background:
+      radial-gradient(
         46.56% 45.08% at 56.04% 55.33%,
         rgba(0, 50, 255, 0.1) 0%,
         rgba(0, 0, 0, 0) 100%
@@ -69,7 +70,8 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
   }
 
   :global([data-theme="dark"]) .image-container {
-    background: radial-gradient(
+    background:
+      radial-gradient(
         46.56% 45.08% at 56.04% 55.33%,
         rgba(0, 50, 255, 0.2) 0%,
         rgba(0, 0, 0, 0) 100%

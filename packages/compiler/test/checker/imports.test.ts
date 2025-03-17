@@ -5,7 +5,7 @@ import {
   LocationContext,
   ModuleLibraryMetadata,
   ProjectLocationContext,
-} from "../../src/core/index.js";
+} from "../../src/index.js";
 import {
   TestHost,
   createTestHost,

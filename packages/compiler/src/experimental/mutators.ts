@@ -1,4 +1,5 @@
-import { compilerAssert, getLocationContext, TemplatedType } from "../core/index.js";
+import { compilerAssert } from "../core/diagnostics.js";
+import { getLocationContext } from "../core/helpers/location-context.js";
 import { Program } from "../core/program.js";
 import { isTemplateInstance, isType } from "../core/type-utils.js";
 import {
@@ -6,12 +7,10 @@ import {
   Decorator,
   DecoratorArgument,
   FunctionParameter,
-  FunctionType,
   IntrinsicType,
   Model,
   Namespace,
-  ObjectType,
-  Projection,
+  TemplatedType,
   TemplateParameter,
   Type,
   TypeMapper,
@@ -209,14 +208,7 @@ export enum MutatorFlow {
  */
 export type MutableType = Exclude<
   Type,
-  | TemplateParameter
-  | IntrinsicType
-  | FunctionType
-  | Decorator
-  | FunctionParameter
-  | ObjectType
-  | Projection
-  | Namespace
+  TemplateParameter | IntrinsicType | Decorator | FunctionParameter | Namespace
 >;
 
 /**
@@ -228,11 +220,8 @@ function isMutableTypeWithNamespace(type: Type): type is MutableTypeWithNamespac
   switch (type.kind) {
     case "TemplateParameter":
     case "Intrinsic":
-    case "Function":
     case "Decorator":
     case "FunctionParameter":
-    case "Object":
-    case "Projection":
       return false;
     default:
       void (type satisfies MutableTypeWithNamespace);
@@ -249,11 +238,8 @@ export function isMutableType(type: Type): type is MutableType {
   switch (type.kind) {
     case "TemplateParameter":
     case "Intrinsic":
-    case "Function":
     case "Decorator":
     case "FunctionParameter":
-    case "Object":
-    case "Projection":
     case "Namespace":
       return false;
     default:
