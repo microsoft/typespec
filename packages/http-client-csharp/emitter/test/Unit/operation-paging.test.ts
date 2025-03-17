@@ -1,6 +1,8 @@
+vi.resetModules();
+
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import { ResponseLocation } from "../../src/type/response-location.js";
@@ -112,6 +114,46 @@ describe("Next link operations", () => {
     strictEqual(paging.nextLink?.responseSegments[0], "next");
     strictEqual(paging.nextLink?.responseSegments[1], "nested");
   });
+
+  it("next link as invalid location", async () => {
+    const program = await typeSpecCompile(
+      `
+        @list
+        op link(): {
+          @pageItems
+          items: Foo[];
+
+          @nextLink @query
+          next?: url;
+        };
+        model Foo {
+          bar: string;
+          baz: int32;
+        };
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const paging = root.clients[0].operations[0].paging;
+    ok(paging);
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    strictEqual(paging.nextLink?.responseLocation, ResponseLocation.None);
+    strictEqual(paging.nextLink?.responseSegments.length, 1);
+    strictEqual(paging.nextLink?.responseSegments[0], "next");
+
+    strictEqual(program.diagnostics.length, 1);
+    strictEqual(
+      program.diagnostics[0].code,
+      "@typespec/http-client-csharp/unsupported-continuation-location",
+    );
+    strictEqual(
+      program.diagnostics[0].message,
+      `Unsupported continuation location for operation ${root.clients[0].operations[0].crossLanguageDefinitionId}.`,
+    );
+  });
 });
 
 describe("Continuation token operations", () => {
@@ -149,7 +191,7 @@ describe("Continuation token operations", () => {
     strictEqual(continuationToken.parameter.location, RequestLocation.Header);
     strictEqual(continuationToken.responseLocation, ResponseLocation.Header);
     strictEqual(continuationToken.responseSegments.length, 1);
-    strictEqual(continuationToken.responseSegments[0], "nextToken");
+    strictEqual(continuationToken.responseSegments[0], "next-token");
   });
 
   it("header request body response", async () => {
@@ -215,7 +257,7 @@ describe("Continuation token operations", () => {
     strictEqual(continuationToken.parameter.location, RequestLocation.Query);
     strictEqual(continuationToken.responseLocation, ResponseLocation.Header);
     strictEqual(continuationToken.responseSegments.length, 1);
-    strictEqual(continuationToken.responseSegments[0], "nextToken");
+    strictEqual(continuationToken.responseSegments[0], "next-token");
   });
 
   it("query request body response", async () => {
@@ -249,5 +291,47 @@ describe("Continuation token operations", () => {
     strictEqual(continuationToken.responseLocation, ResponseLocation.Body);
     strictEqual(continuationToken.responseSegments.length, 1);
     strictEqual(continuationToken.responseSegments[0], "nextToken");
+  });
+
+  it("query request invalid response location", async () => {
+    const program = await typeSpecCompile(
+      `
+        @list
+        op link(@continuationToken @query token?: string): {
+          @pageItems
+          items: Foo[];
+          @query @continuationToken nextToken?: string;
+        };
+        model Foo {
+          bar: string;
+          baz: int32;
+        };
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const paging = root.clients[0].operations[0].paging;
+    ok(paging);
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    const continuationToken = paging.continuationToken;
+    ok(continuationToken);
+    strictEqual(continuationToken.parameter.name, "token");
+    strictEqual(continuationToken.parameter.nameInRequest, "token");
+    strictEqual(continuationToken.parameter.location, RequestLocation.Query);
+    strictEqual(continuationToken.responseLocation, ResponseLocation.None);
+    strictEqual(continuationToken.responseSegments.length, 1);
+    strictEqual(continuationToken.responseSegments[0], "nextToken");
+    strictEqual(program.diagnostics.length, 1);
+    strictEqual(
+      program.diagnostics[0].code,
+      "@typespec/http-client-csharp/unsupported-continuation-location",
+    );
+    strictEqual(
+      program.diagnostics[0].message,
+      `Unsupported continuation location for operation ${root.clients[0].operations[0].crossLanguageDefinitionId}.`,
+    );
   });
 });

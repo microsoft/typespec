@@ -9,6 +9,7 @@ import {
   SdkHttpParameter,
   SdkHttpResponse,
   SdkModelPropertyType,
+  SdkPagingServiceMethod,
   SdkServiceMethod,
   SdkServiceResponseHeader,
   SdkType,
@@ -321,7 +322,11 @@ function loadOperationPaging(
       responseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
         getResponseSegmentName(segment),
       ),
-      responseLocation: getResponseLocation(method.pagingMetadata.nextLinkSegments[0]),
+      responseLocation: getResponseLocation(
+        context,
+        method,
+        method.pagingMetadata.nextLinkSegments[0],
+      ),
     };
 
     if (method.pagingMetadata.nextLinkOperation) {
@@ -354,6 +359,8 @@ function loadOperationPaging(
         getResponseSegmentName(segment),
       ),
       responseLocation: getResponseLocation(
+        context,
+        method,
         method.pagingMetadata.continuationTokenResponseSegments?.[0],
       ),
     };
@@ -368,18 +375,29 @@ function loadOperationPaging(
 }
 
 function getResponseSegmentName(segment: SdkModelPropertyType): string {
-  return segment.kind === "header" || segment.kind === "body"
+  return segment.kind === "responseheader" || segment.kind === "body"
     ? segment.serializedName
     : segment.name;
 }
 
-function getResponseLocation(p: SdkModelPropertyType): ResponseLocation {
+function getResponseLocation(
+  context: CSharpEmitterContext,
+  method: SdkPagingServiceMethod<SdkHttpOperation>,
+  p: SdkModelPropertyType,
+): ResponseLocation {
   switch (p?.kind) {
     case "responseheader":
       return ResponseLocation.Header;
     case "property":
       return ResponseLocation.Body;
     default:
+      context.logger.reportDiagnostic({
+        code: "unsupported-continuation-location",
+        format: {
+          crossLanguageDefinitionId: method.crossLanguageDefinitionId,
+        },
+        target: NoTarget,
+      });
       return ResponseLocation.None;
   }
 }

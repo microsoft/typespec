@@ -77,6 +77,6 @@ class BlackScriptPlugin(Plugin):
 
 
 if __name__ == "__main__":
-    # CADL pipeline will call this
-    args, unknown_args = parse_args(need_cadl_file=False)
+    # TSP pipeline will call this
+    args, unknown_args = parse_args(need_tsp_file=False)
     BlackScriptPlugin(output_folder=args.output_folder, **unknown_args).process()

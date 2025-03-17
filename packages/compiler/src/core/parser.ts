@@ -7,6 +7,7 @@ import {
   isComment,
   isKeyword,
   isPunctuation,
+  isReservedKeyword,
   isStatementKeyword,
   isTrivia,
   skipContinuousIdentifier,
@@ -737,8 +738,29 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseIdOrValueForVariant(): Expression {
+    const nextToken = token();
+
+    let id: IdentifierNode | undefined;
+    if (isReservedKeyword(nextToken)) {
+      id = parseIdentifier({ allowReservedIdentifier: true });
+      // If the next token is not a colon this means we tried to use the reserved keyword as a type reference
+      if (token() !== Token.Colon) {
+        error({ code: "reserved-identifier", messageId: "future", format: { name: id.sv } });
+      }
+      return {
+        kind: SyntaxKind.TypeReference,
+        target: id,
+        arguments: [],
+        ...finishNode(id.pos),
+      };
+    } else {
+      return parseExpression();
+    }
+  }
+
   function parseUnionVariant(pos: number, decorators: DecoratorExpressionNode[]): UnionVariantNode {
-    const idOrExpr = parseExpression();
+    const idOrExpr = parseIdOrValueForVariant();
     if (parseOptional(Token.Colon)) {
       let id: IdentifierNode | undefined = undefined;
 
@@ -785,7 +807,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseUsingStatement(pos: number): UsingStatementNode {
     parseExpected(Token.UsingKeyword);
-    const name = parseIdentifierOrMemberExpression(undefined, true);
+    const name = parseIdentifierOrMemberExpression();
     parseExpected(Token.Semicolon);
 
     return {
@@ -1010,6 +1032,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier({
       message: "property",
       allowStringLiteral: true,
+      allowReservedIdentifier: true,
     });
 
     const optional = parseOptional(Token.Question);
@@ -1056,6 +1079,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseObjectLiteralProperty(pos: number): ObjectLiteralPropertyNode {
     const id = parseIdentifier({
       message: "property",
+      allowReservedIdentifier: true,
     });
 
     parseExpected(Token.Colon);
@@ -1170,6 +1194,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier({
       message: "enumMember",
       allowStringLiteral: true,
+      allowReservedIdentifier: true,
     });
 
     let value: StringLiteralNode | NumericLiteralNode | undefined;
@@ -1366,7 +1391,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     message?: keyof CompilerDiagnostics["token-expected"],
   ): TypeReferenceNode {
     const pos = tokenPos();
-    const target = parseIdentifierOrMemberExpression(message);
+    const target = parseIdentifierOrMemberExpression({
+      message,
+      allowReservedIdentifierInMember: true,
+    });
     return parseReferenceExpressionInternal(target, pos);
   }
 
@@ -1374,7 +1402,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     message?: keyof CompilerDiagnostics["token-expected"],
   ): TypeReferenceNode | CallExpressionNode {
     const pos = tokenPos();
-    const target = parseIdentifierOrMemberExpression(message);
+    const target = parseIdentifierOrMemberExpression({
+      message,
+      allowReservedIdentifierInMember: true,
+    });
     if (token() === Token.OpenParen) {
       const { items: args } = parseList(ListKind.FunctionArguments, parseExpression);
       return {
@@ -1451,7 +1482,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     // identifier. We want to parse `@ model Foo` as invalid decorator
     // `@<missing identifier>` applied to `model Foo`, and not as `@model`
     // applied to invalid statement `Foo`.
-    const target = parseIdentifierOrMemberExpression(undefined, false);
+    const target = parseIdentifierOrMemberExpression({ allowReservedIdentifierInMember: true });
     const { items: args } = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
     if (args.length === 0) {
       error({ code: "augment-decorator-target" });
@@ -1513,7 +1544,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     // identifier. We want to parse `@ model Foo` as invalid decorator
     // `@<missing identifier>` applied to `model Foo`, and not as `@model`
     // applied to invalid statement `Foo`.
-    const target = parseIdentifierOrMemberExpression(undefined, false);
+    const target = parseIdentifierOrMemberExpression({
+      allowReservedIdentifier: true,
+      allowReservedIdentifierInMember: true,
+    });
     const { items: args } = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
     return {
       kind: SyntaxKind.DecoratorExpression,
@@ -1581,14 +1615,16 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     }
   }
 
-  function parseIdentifierOrMemberExpression(
-    message?: keyof CompilerDiagnostics["token-expected"],
-    recoverFromKeyword = true,
-  ): IdentifierNode | MemberExpressionNode {
+  function parseIdentifierOrMemberExpression(options?: {
+    message?: keyof CompilerDiagnostics["token-expected"];
+    // Temporary solution see doc on parseIdentifier
+    allowReservedIdentifier?: boolean;
+    allowReservedIdentifierInMember?: boolean;
+  }): IdentifierNode | MemberExpressionNode {
     const pos = tokenPos();
     let base: IdentifierNode | MemberExpressionNode = parseIdentifier({
-      message,
-      recoverFromKeyword,
+      message: options?.message,
+      allowReservedIdentifier: options?.allowReservedIdentifier,
     });
     while (token() !== Token.EndOfFile) {
       if (parseOptional(Token.Dot)) {
@@ -1601,7 +1637,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           // `@Outer.model` applied to invalid statement `M {}` instead of
           // having incomplete decorator `@Outer.` applied to `model M {}`.
           id: parseIdentifier({
-            recoverFromKeyword: false,
+            allowReservedIdentifier: options?.allowReservedIdentifierInMember,
           }),
           selector: ".",
           ...finishNode(pos),
@@ -1912,10 +1948,17 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseIdentifier(options?: {
     message?: keyof CompilerDiagnostics["token-expected"];
     allowStringLiteral?: boolean; // Allow string literals to be used as identifiers for backward-compatibility, but convert to an identifier node.
-    recoverFromKeyword?: boolean;
+
+    // Temporary solution to allow reserved keywords as identifiers in certain contexts. This should get expanded to a more general solution per keyword category.
+    allowReservedIdentifier?: boolean;
   }): IdentifierNode {
-    if (options?.recoverFromKeyword !== false && isKeyword(token())) {
+    if (isKeyword(token())) {
       error({ code: "reserved-identifier" });
+      return createMissingIdentifier();
+    } else if (isReservedKeyword(token())) {
+      if (!options?.allowReservedIdentifier) {
+        error({ code: "reserved-identifier", messageId: "future", format: { name: tokenValue() } });
+      }
     } else if (
       token() !== Token.Identifier &&
       (!options?.allowStringLiteral || token() !== Token.StringLiteral)

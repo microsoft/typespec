@@ -14,19 +14,19 @@ namespace Sample
     internal partial class GetCatsAsyncCollectionResultOfT : global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Cat>
     {
         private readonly global::Sample.CatClient _client;
-        private readonly global::System.Uri _initialUri;
+        private readonly global::System.Uri _nextPage;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public GetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, global::System.Uri initialUri, global::System.ClientModel.Primitives.RequestOptions options)
+        public GetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, global::System.Uri nextPage, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
-            _initialUri = initialUri;
+            _nextPage = nextPage;
             _options = options;
         }
 
         public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_initialUri, _options);
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_nextPage, _options);
             global::System.Uri nextPageUri = null;
             while (true)
             {
@@ -44,8 +44,15 @@ namespace Sample
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            global::System.Uri nextPageUri = ((global::Sample.Models.Page)page).NextCat;
-            return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPageUri.AbsoluteUri));
+            global::System.Uri nextPage = ((global::Sample.Models.Page)page).NextCat;
+            if ((nextPage != null))
+            {
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.AbsoluteUri));
+            }
+            else
+            {
+                return null;
+            }
         }
 
         protected override async global::System.Collections.Generic.IAsyncEnumerable<global::Sample.Models.Cat> GetValuesFromPageAsync(global::System.ClientModel.ClientResult page)

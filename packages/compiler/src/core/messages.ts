@@ -180,6 +180,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Keyword cannot be used as identifier.",
+      future: paramMessage`${"name"} is a reserved keyword`,
     },
   },
   "invalid-directive-location": {

@@ -4,30 +4,43 @@ title: Content types
 
 ## Default behavior
 
-Content type is assumed to be `application/json` by default regardless of the type of the request or response body.
+By default, if the content-type is not explicitly specified, the HTTP library will use the [`@mediaTypeHint`](../../standard-library/built-in-decorators.md#mediatypehint-mediatypehint) of the body type. For built-in TypeSpec types, the default content-type values are:
+
+- `"application/json"` if the body is a Model or a union that contains `null`.
+- `"application/octet-stream"` if the body is `TypeSpec.bytes` or a scalar that extends it (unless that scalar provides its own `@mediaTypeHint`).
+- `"text/plain"` if the body is any other scalar type that does not have a `@mediaTypeHint`.
 
 **Examples:**
 
 ```typespec
-op download(): bytes; // Returns a json string with the bytes serialized as a base64.
-op getContent(): string; // Returns a json string
+// Returns an application/octet-stream binary body
+op download(): bytes;
+
+// Returns a text/plain string
+op getContent(): string;
+
+// Returns an application/json body that is either a string or the `null` value
+op getContentNullable(): string | null;
+
+// Returns an application/json body with a `name` property.
 op getPet(): {
-  // Json object with a name property.
   name: string;
 };
 ```
 
-## Specify content type
+The same logic applies to requests and response bodies, and it uses the precise type of the body if `@body` or `@bodyRoot` are used.
 
-The content type for an operation can be specified by including a header parameter named `contentType`.
+## Specifying Content-Type
 
-#### Request content type
+You can specify the content type for an operation by including a header parameter named `contentType`.
+
+### Request Content-Type
 
 ```typespec
 op uploadImage(@header contentType: "image/png", @body image: bytes): void;
 ```
 
-#### Response content type:
+### Response Content-Type
 
 ```typespec
 op downloadImage(): {
@@ -36,24 +49,24 @@ op downloadImage(): {
 };
 ```
 
-#### Multiple content types
+### Multiple Content-Type values
 
-If there is multiples content types for the same body, they can be specified using a union of string.
+If there are multiple content types for the same body, you can specify them as a union of strings.
 
 ```typespec
 op uploadImage(@header contentType: "image/png" | "image/jpeg", @body image: bytes): void;
 ```
 
-## Content type negotiation
+## Content-Type negotiation
 
-There could be cases where you might the same endpoint to return different content depending on the content type requested. This can be achieved in 2 ways:
+In some cases, the same endpoint might return different content depending on the requested content type. This can be achieved in two ways:
 
-- using shared routes where different content response is represented as a different operation that share the same endpoint
-- using overloads where each different content response is an overload.
+- Using shared routes where different content responses are represented as different operations that share the same endpoint.
+- Using overloads where each different content response is an overload.
 
-For example assuming there is an api that lets you download the avatar as a `png` or `jpeg` which is decided by what `Accept` header is sent.
+For example, an API that lets you download an avatar as either `png` or `jpeg` based on the `Accept` header.
 
-### Option 1: Using shared route
+### Option 1: Using a shared route
 
 ```tsp
 model PngImage {
@@ -100,4 +113,4 @@ op getAvatarAsJpeg(@header accept: "image/jpeg"): JpegImage;
 
 ## Multipart request
 
-See [Multipart docs](./multipart.md)
+See [the documentation of multipart requests and responses for more information](./multipart.md).
