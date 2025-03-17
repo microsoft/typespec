@@ -221,7 +221,9 @@ model ChildExtensionResourceProperties {
   provisioningState?: ProvisioningState;
 }
 
-model ManagedMaintenanceWindowStatusContent is TrackedResource<ManagedMaintenanceWindowStatusContentProperties> {
+/** Resource for testing conflict name with operation group. */
+model ManagedMaintenanceWindowStatusContent
+  is TrackedResource<ManagedMaintenanceWindowStatusContentProperties> {
   ...ResourceNameParameter<ManagedMaintenanceWindowStatusContent>;
 }
 
