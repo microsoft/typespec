@@ -23,8 +23,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public OptionalDefinition()
         {
-            _genericChangeTrackingList = CodeModelPlugin.Instance.TypeFactory.ListInitializationType;
-            _genericChangeTrackingDictionary = CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType;
+            _genericChangeTrackingList = CodeModelGenerator.Instance.TypeFactory.ListInitializationType;
+            _genericChangeTrackingDictionary = CodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType;
             _tKey = _genericChangeTrackingDictionary.Arguments[0];
             _tValue = _genericChangeTrackingDictionary.Arguments[1];
         }

@@ -13,11 +13,11 @@ namespace Microsoft.TypeSpec.Generator
     {
         private const string OutputDirectoryOptionName = "DIRECTORY";
         private const string ShouldDebugOptionName = "debug";
-        private const string PluginNameOptionName = "pluginName";
+        private const string GeneratorNameOptionName = "generatorName";
         private const string NewProjectOptionName = "new-project";
         private const string CmdLineOutputDirectoryOptionHelpText = "The path to the directory containing the input files to the generator including the code model file and the configuration file for the generator.";
         private const string CmdLineDebugOptionHelpText = "Attempt to attach the debugger on execute.";
-        private const string CmdLinePluginOptionHelpText = "The name of the plugin to execute.";
+        private const string CmdLineGeneratorOptionHelpText = "The name of the generator to execute.";
         private const string CmdLineNewProjectOptionHelpText = "Indicates if the generator should create the project files such as csproj, sln, etc.";
 
         /// <summary>
@@ -30,8 +30,8 @@ namespace Microsoft.TypeSpec.Generator
         [Option(longName: ShouldDebugOptionName, Required = false, Default = false, Hidden = true, HelpText = CmdLineDebugOptionHelpText)]
         public bool ShouldDebug { get; set; }
 
-        [Option(longName: PluginNameOptionName, shortName: 'p', Required = true, Hidden = false, HelpText = CmdLinePluginOptionHelpText)]
-        public string? PluginName { get; set; }
+        [Option(longName: GeneratorNameOptionName, shortName: 'g', Required = true, Hidden = false, HelpText = CmdLineGeneratorOptionHelpText)]
+        public string? GeneratorName { get; set; }
 
         [Option(longName: NewProjectOptionName, shortName: 'n', Required = false, Default = false, Hidden = false, HelpText = CmdLineNewProjectOptionHelpText)]
         public bool IsNewProject { get; set; }

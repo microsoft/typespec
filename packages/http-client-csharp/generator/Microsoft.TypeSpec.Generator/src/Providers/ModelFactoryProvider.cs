@@ -28,9 +28,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName()
         {
-            var span = CodeModelPlugin.Instance.Configuration.PackageName.AsSpan();
+            var span = CodeModelGenerator.Instance.Configuration.PackageName.AsSpan();
             if (span.IndexOf('.') == -1)
-                return string.Concat(CodeModelPlugin.Instance.Configuration.PackageName, ModelFactorySuffix);
+                return string.Concat(CodeModelGenerator.Instance.Configuration.PackageName, ModelFactorySuffix);
 
             Span<char> dest = stackalloc char[span.Length + ModelFactorySuffix.Length];
             int j = 0;
@@ -52,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
-        protected override string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Name);
+        protected override string BuildNamespace() => CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name);
 
         protected override XmlDocProvider BuildXmlDocs()
         {
@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var methods = new List<MethodProvider>(_models.Count());
             foreach (var model in _models)
             {
-                var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model);
+                var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
 
                 if (modelProvider is null)
                     continue;

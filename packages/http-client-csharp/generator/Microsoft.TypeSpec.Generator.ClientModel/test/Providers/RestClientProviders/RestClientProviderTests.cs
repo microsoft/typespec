@@ -30,7 +30,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
         public RestClientProviderTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]

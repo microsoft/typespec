@@ -7,7 +7,7 @@ import OverviewIllustration from "../components/homepage/overview-illustration.a
 import { Links } from "../constants";
 import Section from "../components/section.astro";
 import FeatureList from "../components/feature-list.astro";
-import { link } from "@typespec/astro-utils/utils/link";
+import { link } from "../utils/index";
 import ExtensibilityIllustration from "../components/homepage/extensibility-illustration.astro";
 import LightDarkImg from "../components/light-dark-img.astro";
 import OpenAPI3HeroIllustration from "@site/src/components/homepage/openapi3-hero-illustration.astro";
@@ -53,6 +53,14 @@ import Button from "../components/button.astro";
     align-self: stretch;
   }
 
+  .overview-summary .primary-text {
+    font-size: 2em; /* Make the text 2x larger */
+  }
+
+  .overview-description {
+    text-align: center; /* Center the paragraph */
+  }
+
   .closing {
     display: flex;
     padding: 80px 60px;
@@ -88,7 +96,7 @@ import Button from "../components/button.astro";
   <SectionedLayout>
     <div class="overview">
       <div class="overview-summary">
-        <PrimaryText>Why TypeSpec</PrimaryText>
+        <PrimaryText className="primary-text">Why TypeSpec</PrimaryText>
         <div class="overview-subtitle">API-First for developers</div>
         <DescriptionText size="large" className="overview-description">
           With TypeSpec, remove the handwritten files that slow you down, and generate
