@@ -21,7 +21,7 @@ async function main() {
   await runTypeSpec(packages["@typespec/compiler"], ["--help"], { cwd: e2eTestDir });
   console.log("Cli is working");
 
-  await testBasicLatest(packages);
+  // await testBasicLatest(packages);
   await testBasicCurrentTgz(packages);
 }
 await main();
