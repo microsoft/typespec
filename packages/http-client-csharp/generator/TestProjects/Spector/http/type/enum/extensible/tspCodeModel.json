@@ -214,15 +214,9 @@
        "NameInRequest": "Accept",
        "Type": {
         "$id": "27",
-        "kind": "constant",
-        "valueType": {
-         "$id": "28",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
        "Location": "Header",
@@ -231,14 +225,14 @@
        "IsEndpoint": false,
        "Explode": false,
        "IsRequired": true,
-       "Kind": "Constant",
+       "Kind": "Method",
        "Decorators": [],
        "SkipUrlEncoding": false
       }
      ],
      "Responses": [
       {
-       "$id": "29",
+       "$id": "28",
        "StatusCodes": [
         200
        ],
@@ -248,6 +242,7 @@
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
+        "text/plain",
         "application/json"
        ]
       }
@@ -262,26 +257,20 @@
      "Decorators": []
     },
     {
-     "$id": "30",
+     "$id": "29",
      "Name": "getUnknownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "31",
+       "$id": "30",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "32",
-        "kind": "constant",
-        "valueType": {
-         "$id": "33",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
+        "$id": "31",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
        "Location": "Header",
@@ -290,14 +279,14 @@
        "IsEndpoint": false,
        "Explode": false,
        "IsRequired": true,
-       "Kind": "Constant",
+       "Kind": "Method",
        "Decorators": [],
        "SkipUrlEncoding": false
       }
      ],
      "Responses": [
       {
-       "$id": "34",
+       "$id": "32",
        "StatusCodes": [
         200
        ],
@@ -307,6 +296,7 @@
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
+        "text/plain",
         "application/json"
        ]
       }
@@ -321,27 +311,21 @@
      "Decorators": []
     },
     {
-     "$id": "35",
+     "$id": "33",
      "Name": "putKnownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "36",
+       "$id": "34",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are text/plain,application/json",
        "Type": {
-        "$id": "37",
-        "kind": "constant",
-        "valueType": {
-         "$id": "38",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
+        "$id": "35",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
        "Location": "Header",
@@ -350,12 +334,12 @@
        "IsEndpoint": false,
        "Explode": false,
        "IsRequired": true,
-       "Kind": "Constant",
+       "Kind": "Method",
        "Decorators": [],
        "SkipUrlEncoding": false
       },
       {
-       "$id": "39",
+       "$id": "36",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -374,7 +358,7 @@
      ],
      "Responses": [
       {
-       "$id": "40",
+       "$id": "37",
        "StatusCodes": [
         204
        ],
@@ -385,9 +369,7 @@
      "HttpMethod": "PUT",
      "Uri": "{endpoint}",
      "Path": "/type/enum/extensible/string/known-value",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
+     "RequestMediaTypes": [],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
@@ -395,27 +377,21 @@
      "Decorators": []
     },
     {
-     "$id": "41",
+     "$id": "38",
      "Name": "putUnknownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "42",
+       "$id": "39",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are text/plain,application/json",
        "Type": {
-        "$id": "43",
-        "kind": "constant",
-        "valueType": {
-         "$id": "44",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
+        "$id": "40",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
        "Location": "Header",
@@ -424,12 +400,12 @@
        "IsEndpoint": false,
        "Explode": false,
        "IsRequired": true,
-       "Kind": "Constant",
+       "Kind": "Method",
        "Decorators": [],
        "SkipUrlEncoding": false
       },
       {
-       "$id": "45",
+       "$id": "41",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -448,7 +424,7 @@
      ],
      "Responses": [
       {
-       "$id": "46",
+       "$id": "42",
        "StatusCodes": [
         204
        ],
@@ -459,9 +435,7 @@
      "HttpMethod": "PUT",
      "Uri": "{endpoint}",
      "Path": "/type/enum/extensible/string/unknown-value",
-     "RequestMediaTypes": [
-      "application/json"
-     ],
+     "RequestMediaTypes": [],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
@@ -470,17 +444,17 @@
     }
    ],
    "Protocol": {
-    "$id": "47"
+    "$id": "43"
    },
    "Parent": "ExtensibleClient",
    "Parameters": [
     {
-     "$id": "48",
+     "$id": "44",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "49",
+      "$id": "45",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -495,9 +469,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "50",
+      "$id": "46",
       "Type": {
-       "$id": "51",
+       "$id": "47",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
