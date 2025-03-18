@@ -490,6 +490,52 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param resource Resource create parameters.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
+     * with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String topLevelArmResourceName,
+        TopLevelArmResourceInner resource) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+        }
+        if (resource == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+        } else {
+            resource.validate();
+        }
+        final String contentType = "application/json";
+        final String accept = "application/json";
+        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, contentType, accept, resource,
+            Context.NONE);
+    }
+
+    /**
+     * Create a TopLevelArmResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param resource Resource create parameters.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -591,7 +637,10 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String topLevelArmResourceName, TopLevelArmResourceInner resource) {
-        return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourceName, resource).getSyncPoller();
+        Response<BinaryData> response
+            = createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, resource);
+        return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(response,
+            TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, Context.NONE);
     }
 
     /**
@@ -610,7 +659,10 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String topLevelArmResourceName, TopLevelArmResourceInner resource, Context context) {
-        return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourceName, resource, context).getSyncPoller();
+        Response<BinaryData> response
+            = createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, resource, context);
+        return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(response,
+            TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, context);
     }
 
     /**
@@ -666,7 +718,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceInner resource) {
-        return createOrUpdateAsync(resourceGroupName, topLevelArmResourceName, resource).block();
+        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, resource).getFinalResult();
     }
 
     /**
@@ -684,7 +736,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceInner resource, Context context) {
-        return createOrUpdateAsync(resourceGroupName, topLevelArmResourceName, resource, context).block();
+        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, resource, context).getFinalResult();
     }
 
     /**
@@ -946,6 +998,41 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> deleteWithResponse(String resourceGroupName, String topLevelArmResourceName) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, accept, Context.NONE);
+    }
+
+    /**
+     * Delete a TopLevelArmResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourceName arm resource name for path.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1029,7 +1116,8 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String topLevelArmResourceName) {
-        return beginDeleteAsync(resourceGroupName, topLevelArmResourceName).getSyncPoller();
+        Response<BinaryData> response = deleteWithResponse(resourceGroupName, topLevelArmResourceName);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
     }
 
     /**
@@ -1046,7 +1134,8 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String topLevelArmResourceName,
         Context context) {
-        return beginDeleteAsync(resourceGroupName, topLevelArmResourceName, context).getSyncPoller();
+        Response<BinaryData> response = deleteWithResponse(resourceGroupName, topLevelArmResourceName, context);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, context);
     }
 
     /**
@@ -1093,7 +1182,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName) {
-        deleteAsync(resourceGroupName, topLevelArmResourceName).block();
+        beginDelete(resourceGroupName, topLevelArmResourceName).getFinalResult();
     }
 
     /**
@@ -1108,7 +1197,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName, Context context) {
-        deleteAsync(resourceGroupName, topLevelArmResourceName, context).block();
+        beginDelete(resourceGroupName, topLevelArmResourceName, context).getFinalResult();
     }
 
     /**
@@ -1562,6 +1651,41 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> actionWithResponse(String resourceGroupName, String topLevelArmResourceName) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.actionSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, accept, Context.NONE);
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourceName arm resource name for path.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1646,7 +1770,9 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ResultInner>, ResultInner> beginAction(String resourceGroupName,
         String topLevelArmResourceName) {
-        return beginActionAsync(resourceGroupName, topLevelArmResourceName).getSyncPoller();
+        Response<BinaryData> response = actionWithResponse(resourceGroupName, topLevelArmResourceName);
+        return this.client.<ResultInner, ResultInner>getLroResult(response, ResultInner.class, ResultInner.class,
+            Context.NONE);
     }
 
     /**
@@ -1663,7 +1789,9 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ResultInner>, ResultInner> beginAction(String resourceGroupName,
         String topLevelArmResourceName, Context context) {
-        return beginActionAsync(resourceGroupName, topLevelArmResourceName, context).getSyncPoller();
+        Response<BinaryData> response = actionWithResponse(resourceGroupName, topLevelArmResourceName, context);
+        return this.client.<ResultInner, ResultInner>getLroResult(response, ResultInner.class, ResultInner.class,
+            context);
     }
 
     /**
@@ -1711,7 +1839,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ResultInner action(String resourceGroupName, String topLevelArmResourceName) {
-        return actionAsync(resourceGroupName, topLevelArmResourceName).block();
+        return beginAction(resourceGroupName, topLevelArmResourceName).getFinalResult();
     }
 
     /**
@@ -1727,7 +1855,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ResultInner action(String resourceGroupName, String topLevelArmResourceName, Context context) {
-        return actionAsync(resourceGroupName, topLevelArmResourceName, context).block();
+        return beginAction(resourceGroupName, topLevelArmResourceName, context).getFinalResult();
     }
 
     /**

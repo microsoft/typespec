@@ -103,7 +103,7 @@ public final class ArmResourceProviderManager {
      * @return the Configurable instance allowing configurations.
      */
     public static Configurable configure() {
-        return new Configurable();
+        return new ArmResourceProviderManager.Configurable();
     }
 
     /**

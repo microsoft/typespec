@@ -456,6 +456,51 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @param topLevelArmResourceName arm resource name for path.
      * @param childExtensionResourceName ChildExtensionResources.
      * @param resource Resource create parameters.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return extensionResource of Top Level Arm Resource along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> createOrUpdateWithResponse(String resourceUri, String topLevelArmResourceName,
+        String childExtensionResourceName, ChildExtensionResourceInner resource) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (resourceUri == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+        }
+        if (topLevelArmResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+        }
+        if (childExtensionResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter childExtensionResourceName is required and cannot be null."));
+        }
+        if (resource == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+        } else {
+            resource.validate();
+        }
+        final String contentType = "application/json";
+        final String accept = "application/json";
+        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
+            topLevelArmResourceName, childExtensionResourceName, contentType, accept, resource, Context.NONE);
+    }
+
+    /**
+     * Create a ChildExtensionResource.
+     * 
+     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param childExtensionResourceName ChildExtensionResources.
+     * @param resource Resource create parameters.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -559,8 +604,10 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     public SyncPoller<PollResult<ChildExtensionResourceInner>, ChildExtensionResourceInner> beginCreateOrUpdate(
         String resourceUri, String topLevelArmResourceName, String childExtensionResourceName,
         ChildExtensionResourceInner resource) {
-        return beginCreateOrUpdateAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource)
-            .getSyncPoller();
+        Response<BinaryData> response
+            = createOrUpdateWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource);
+        return this.client.<ChildExtensionResourceInner, ChildExtensionResourceInner>getLroResult(response,
+            ChildExtensionResourceInner.class, ChildExtensionResourceInner.class, Context.NONE);
     }
 
     /**
@@ -580,8 +627,10 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     public SyncPoller<PollResult<ChildExtensionResourceInner>, ChildExtensionResourceInner> beginCreateOrUpdate(
         String resourceUri, String topLevelArmResourceName, String childExtensionResourceName,
         ChildExtensionResourceInner resource, Context context) {
-        return beginCreateOrUpdateAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource,
-            context).getSyncPoller();
+        Response<BinaryData> response = createOrUpdateWithResponse(resourceUri, topLevelArmResourceName,
+            childExtensionResourceName, resource, context);
+        return this.client.<ChildExtensionResourceInner, ChildExtensionResourceInner>getLroResult(response,
+            ChildExtensionResourceInner.class, ChildExtensionResourceInner.class, context);
     }
 
     /**
@@ -639,7 +688,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildExtensionResourceInner createOrUpdate(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName, ChildExtensionResourceInner resource) {
-        return createOrUpdateAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource).block();
+        return beginCreateOrUpdate(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource)
+            .getFinalResult();
     }
 
     /**
@@ -658,8 +708,8 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildExtensionResourceInner createOrUpdate(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName, ChildExtensionResourceInner resource, Context context) {
-        return createOrUpdateAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource, context)
-            .block();
+        return beginCreateOrUpdate(resourceUri, topLevelArmResourceName, childExtensionResourceName, resource, context)
+            .getFinalResult();
     }
 
     /**
@@ -927,6 +977,43 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childExtensionResourceName ChildExtensionResources.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> deleteWithResponse(String resourceUri, String topLevelArmResourceName,
+        String childExtensionResourceName) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (resourceUri == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+        }
+        if (topLevelArmResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+        }
+        if (childExtensionResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter childExtensionResourceName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
+            topLevelArmResourceName, childExtensionResourceName, accept, Context.NONE);
+    }
+
+    /**
+     * Delete a ChildExtensionResource.
+     * 
+     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param childExtensionResourceName ChildExtensionResources.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1015,7 +1102,9 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName) {
-        return beginDeleteAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName).getSyncPoller();
+        Response<BinaryData> response
+            = deleteWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
     }
 
     /**
@@ -1033,8 +1122,9 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName, Context context) {
-        return beginDeleteAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, context)
-            .getSyncPoller();
+        Response<BinaryData> response
+            = deleteWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, context);
     }
 
     /**
@@ -1086,7 +1176,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceUri, String topLevelArmResourceName, String childExtensionResourceName) {
-        deleteAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName).block();
+        beginDelete(resourceUri, topLevelArmResourceName, childExtensionResourceName).getFinalResult();
     }
 
     /**
@@ -1103,7 +1193,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceUri, String topLevelArmResourceName, String childExtensionResourceName,
         Context context) {
-        deleteAsync(resourceUri, topLevelArmResourceName, childExtensionResourceName, context).block();
+        beginDelete(resourceUri, topLevelArmResourceName, childExtensionResourceName, context).getFinalResult();
     }
 
     /**

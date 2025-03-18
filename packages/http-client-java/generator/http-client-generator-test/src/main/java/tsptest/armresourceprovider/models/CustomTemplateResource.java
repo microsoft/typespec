@@ -181,8 +181,9 @@ public interface CustomTemplateResource {
          * The stage of the CustomTemplateResource definition which contains all the minimum required properties for the
          * resource to be created, but also allows for any other optional properties to be specified.
          */
-        interface WithCreate extends WithTags, WithIdentity, WithDog, WithNamedEmptyModel, WithAnonymousEmptyModel,
-            WithPriority, WithIfMatch, WithIfNoneMatch {
+        interface WithCreate extends DefinitionStages.WithTags, DefinitionStages.WithIdentity, DefinitionStages.WithDog,
+            DefinitionStages.WithNamedEmptyModel, DefinitionStages.WithAnonymousEmptyModel,
+            DefinitionStages.WithPriority, DefinitionStages.WithIfMatch, DefinitionStages.WithIfNoneMatch {
             /**
              * Executes the create request.
              * 
@@ -309,7 +310,7 @@ public interface CustomTemplateResource {
      * 
      * @return the stage of resource update.
      */
-    Update update();
+    CustomTemplateResource.Update update();
 
     /**
      * The template for CustomTemplateResource update.

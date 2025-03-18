@@ -498,6 +498,56 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
      * @param resource Resource create parameters.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return subresource of Top Level Arm Resource along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String topLevelArmResourceName,
+        String childResourceName, ChildResourceInner resource) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+        }
+        if (childResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
+        }
+        if (resource == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+        } else {
+            resource.validate();
+        }
+        final String contentType = "application/json";
+        final String accept = "application/json";
+        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, contentType,
+            accept, resource, Context.NONE);
+    }
+
+    /**
+     * Create a ChildResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param childResourceName ChildResources.
+     * @param resource Resource create parameters.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -603,8 +653,10 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ChildResourceInner>, ChildResourceInner> beginCreateOrUpdate(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName, ChildResourceInner resource) {
-        return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourceName, childResourceName, resource)
-            .getSyncPoller();
+        Response<BinaryData> response
+            = createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, resource);
+        return this.client.<ChildResourceInner, ChildResourceInner>getLroResult(response, ChildResourceInner.class,
+            ChildResourceInner.class, Context.NONE);
     }
 
     /**
@@ -623,8 +675,10 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ChildResourceInner>, ChildResourceInner> beginCreateOrUpdate(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName, ChildResourceInner resource, Context context) {
-        return beginCreateOrUpdateAsync(resourceGroupName, topLevelArmResourceName, childResourceName, resource,
-            context).getSyncPoller();
+        Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName,
+            childResourceName, resource, context);
+        return this.client.<ChildResourceInner, ChildResourceInner>getLroResult(response, ChildResourceInner.class,
+            ChildResourceInner.class, context);
     }
 
     /**
@@ -681,7 +735,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceInner resource) {
-        return createOrUpdateAsync(resourceGroupName, topLevelArmResourceName, childResourceName, resource).block();
+        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource)
+            .getFinalResult();
     }
 
     /**
@@ -700,8 +755,8 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChildResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, ChildResourceInner resource, Context context) {
-        return createOrUpdateAsync(resourceGroupName, topLevelArmResourceName, childResourceName, resource, context)
-            .block();
+        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, resource, context)
+            .getFinalResult();
     }
 
     /**
@@ -991,6 +1046,48 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> deleteWithResponse(String resourceGroupName, String topLevelArmResourceName,
+        String childResourceName) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+        }
+        if (childResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
+            Context.NONE);
+    }
+
+    /**
+     * Delete a ChildResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param childResourceName ChildResources.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1084,7 +1181,9 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName) {
-        return beginDeleteAsync(resourceGroupName, topLevelArmResourceName, childResourceName).getSyncPoller();
+        Response<BinaryData> response
+            = deleteWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
     }
 
     /**
@@ -1102,7 +1201,9 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName, String topLevelArmResourceName,
         String childResourceName, Context context) {
-        return beginDeleteAsync(resourceGroupName, topLevelArmResourceName, childResourceName, context).getSyncPoller();
+        Response<BinaryData> response
+            = deleteWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, context);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, context);
     }
 
     /**
@@ -1153,7 +1254,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
-        deleteAsync(resourceGroupName, topLevelArmResourceName, childResourceName).block();
+        beginDelete(resourceGroupName, topLevelArmResourceName, childResourceName).getFinalResult();
     }
 
     /**
@@ -1170,7 +1271,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void delete(String resourceGroupName, String topLevelArmResourceName, String childResourceName,
         Context context) {
-        deleteAsync(resourceGroupName, topLevelArmResourceName, childResourceName, context).block();
+        beginDelete(resourceGroupName, topLevelArmResourceName, childResourceName, context).getFinalResult();
     }
 
     /**
@@ -1504,6 +1605,48 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> actionWithoutBodyWithResponse(String resourceGroupName, String topLevelArmResourceName,
+        String childResourceName) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+        }
+        if (childResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter childResourceName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.actionWithoutBodySync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, childResourceName, accept,
+            Context.NONE);
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param childResourceName ChildResources.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1597,8 +1740,9 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginActionWithoutBody(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName) {
-        return beginActionWithoutBodyAsync(resourceGroupName, topLevelArmResourceName, childResourceName)
-            .getSyncPoller();
+        Response<BinaryData> response
+            = actionWithoutBodyWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
     }
 
     /**
@@ -1616,8 +1760,9 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<Void>, Void> beginActionWithoutBody(String resourceGroupName,
         String topLevelArmResourceName, String childResourceName, Context context) {
-        return beginActionWithoutBodyAsync(resourceGroupName, topLevelArmResourceName, childResourceName, context)
-            .getSyncPoller();
+        Response<BinaryData> response
+            = actionWithoutBodyWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, context);
+        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, context);
     }
 
     /**
@@ -1670,7 +1815,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName) {
-        actionWithoutBodyAsync(resourceGroupName, topLevelArmResourceName, childResourceName).block();
+        beginActionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName).getFinalResult();
     }
 
     /**
@@ -1687,7 +1832,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName,
         Context context) {
-        actionWithoutBodyAsync(resourceGroupName, topLevelArmResourceName, childResourceName, context).block();
+        beginActionWithoutBody(resourceGroupName, topLevelArmResourceName, childResourceName, context).getFinalResult();
     }
 
     /**
