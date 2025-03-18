@@ -1494,20 +1494,15 @@ export interface OpenApiConfig {
   };
 }
 
-export type EmitterOptions = Record<string, unknown> & {
-  "emitter-output-dir"?: string;
-};
-export async function getOpenAPIConfig(program: Program): Promise<OpenApiConfig> {
+export async function getOpenApiConfig(program: Program): Promise<OpenApiConfig> {
   const root = program.projectRoot;
   const [options, _] = await resolveCompilerOptions(program.host, {
-    cwd: program.host.getExecutionRoot(),
+    cwd: root,
     entrypoint: resolvePath(root, "main.tsp"),
   });
   const oaiOptions =
-    options.configFile &&
-    options.configFile.options &&
-    Object.keys(options.configFile.options).includes("@typespec/openapi3")
-      ? options.configFile.options["@typeSpec/openapi3"]
+    options.options !== undefined && Object.keys(options.options).includes("@typespec/openapi3")
+      ? options.options["@typespec/openapi3"]
       : undefined;
 
   return {

@@ -9,8 +9,7 @@ model Widget {
   @path
   id: string;
 
-  other: boolean = true;
-  weight?: int32;
+  weight: int32;
   color: "red" | "blue";
 }
 

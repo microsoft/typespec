@@ -52,6 +52,7 @@ import {
 } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { execFile } from "child_process";
+import path from "path";
 import { getEncodedNameAttribute } from "./attributes.js";
 import {
   GeneratedFileHeader,
@@ -98,6 +99,7 @@ import {
   getModelAttributes,
   getModelDeclarationName,
   getModelInstantiationName,
+  getOpenApiConfig,
   getOperationVerbDecorator,
   isEmptyResponseModel,
   isValueType,
@@ -1231,11 +1233,20 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   if (!doNotEmit) {
     await ensureCleanDirectory(context.program, options.emitterOutputDir);
 
+    async function getOpenApiPath(): Promise<string> {
+      if (options["openapi-path"]) return options["openapi-path"];
+      const openApiSettings = await getOpenApiConfig(context.program);
+      if (openApiSettings.outputDir) {
+        return path.join(openApiSettings.outputDir, openApiSettings.fileName || "openapi.yaml");
+      }
+      return "";
+    }
+
     if (options["emit-mocks"] !== "none") {
       getScaffoldingHelpers(
         emitter,
         options["use-swaggerui"] || false,
-        options["openapi-path"] || "",
+        await getOpenApiPath(),
         true,
       );
     }
