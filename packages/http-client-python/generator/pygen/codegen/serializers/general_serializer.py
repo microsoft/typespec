@@ -85,8 +85,8 @@ class GeneralSerializer(BaseSerializer):
             serialize_namespace=self.serialize_namespace,
         )
 
-    def serialize_vendor_file(self) -> str:
-        template = self.env.get_template("vendor.py.jinja2")
+    def need_vendor_utils_file(self) -> str:
+        template = self.env.get_template("vendor_utils.py.jinja2")
         clients = self.code_model.get_clients(self.client_namespace)
 
         # configure imports
@@ -111,7 +111,7 @@ class GeneralSerializer(BaseSerializer):
             for client in clients:
                 if client.has_mixin:
                     file_import.add_submodule_import(
-                        "._configuration",
+                        ".._configuration",
                         f"{client.name}Configuration",
                         ImportType.LOCAL,
                     )

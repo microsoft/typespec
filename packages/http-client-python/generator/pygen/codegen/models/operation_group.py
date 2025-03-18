@@ -147,7 +147,7 @@ class OperationGroup(BaseModel):
                 self.code_model.get_relative_import_path(
                     serialize_namespace,
                     self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
-                    module_name="_vendor",
+                    module_name="_vendor.utils",
                 ),
                 f"{self.client.name}MixinABC",
                 ImportType.LOCAL,
@@ -183,7 +183,7 @@ class OperationGroup(BaseModel):
                 self.code_model.get_relative_import_path(
                     serialize_namespace,
                     self.code_model.get_imported_namespace_for_client(self.code_model.namespace, async_mode),
-                    module_name="_vendor",
+                    module_name="_vendor.utils",
                 ),
                 "raise_if_not_implemented",
                 ImportType.LOCAL,

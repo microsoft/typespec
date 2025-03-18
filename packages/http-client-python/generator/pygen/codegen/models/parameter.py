@@ -275,7 +275,7 @@ class BodyParameter(_ParameterBase):
         if self.is_form_data:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"),
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor.utils"),
                 "prepare_multipart_form_data",
                 ImportType.LOCAL,
             )

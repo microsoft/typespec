@@ -245,8 +245,10 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         """
         return client_namespace == self.namespace
 
-    def need_vendored_code(self, async_mode: bool, client_namespace: str) -> bool:
-        """Whether we need to vendor code in the _vendor.py in specific namespace"""
+    def need_vendor_folder(self, async_mode: bool, client_namespace: str) -> bool:
+        return self.need_vendor_utils(async_mode, client_namespace)
+
+    def need_vendor_utils(self, async_mode: bool, client_namespace: str) -> bool:
         return (
             self.need_vendored_form_data(async_mode, client_namespace)
             or self.need_vendored_etag(client_namespace)
