@@ -11,8 +11,8 @@ from setuptools import setup, find_packages
 {% set package_name = package_name or code_model.clients[0].name %}
 
 PACKAGE_NAME = "{{ package_name|lower }}"
-PACKAGE_NAMESPACE = "{{ code_model.namespace|lower }}"
 {% if package_mode %}
+PACKAGE_NAMESPACE = "{{ code_model.namespace|lower }}"
 PACKAGE_PPRINT_NAME = "{{ package_pprint_name }}"
 
 # a.b.c => a/b/c
