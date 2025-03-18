@@ -142,8 +142,8 @@ function processOAuth2(scheme: Oauth2Auth<OAuth2Flow[]>): InputAuth | undefined 
     }
   }
   return scopes
-    ? ({
+    ? {
         oAuth2: { scopes: Array.from(scopes.values()) },
-      })
+      }
     : undefined;
 }
