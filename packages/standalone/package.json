@@ -27,6 +27,7 @@
     "check": "tsx ./scripts/check.ts",
     "watch": "tsc -p . --watch",
     "test": "vitest run",
+    "test:e2e": "pnpm check",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
     "lint": "eslint . --ext .ts --max-warnings=0",

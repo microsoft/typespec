@@ -894,12 +894,6 @@ This test is testing sending a pipes collection format array query parameters
 
 This test is testing sending a ssv collection format array query parameters
 
-### Parameters_CollectionFormat_Query_tsv
-
-- Endpoint: `get /parameters/collection-format/query/tsv`
-
-This test is testing sending a tsv collection format array query parameters
-
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -3537,6 +3531,18 @@ Verify that the name "with" works. Send this parameter to pass with value `ok`.
 
 Verify that the name "yield" works. Send this parameter to pass with value `ok`.
 
+### Streaming_Jsonl_Basic_receive
+
+- Endpoint: `get /streaming/jsonl/basic/receive`
+
+Basic jsonl streaming for response.
+
+### Streaming_Jsonl_Basic_send
+
+- Endpoint: `post /streaming/jsonl/basic/send`
+
+Basic jsonl streaming for request.
+
 ### Type_Array_BooleanValue_get
 
 - Endpoint: `get /type/array/boolean`
@@ -5327,42 +5333,6 @@ Expected input body:
 {
   "knownProp": [{ "state": "ok" }, { "state": "ok" }],
   "prop": [{ "state": "ok" }, { "state": "ok" }]
-}
-```
-
-### Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_get
-
-- Endpoint: `get /type/property/additionalProperties/spreadRecordDiscriminatedUnion`
-
-Expected response body:
-
-```json
-{
-  "name": "abc",
-  "prop1": { "kind": "kind0", "fooProp": "abc" },
-  "prop2": {
-    "kind": "kind1",
-    "start": "2021-01-01T00:00:00Z",
-    "end": "2021-01-02T00:00:00Z"
-  }
-}
-```
-
-### Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_put
-
-- Endpoint: `put /type/property/additionalProperties/spreadRecordDiscriminatedUnion`
-
-Expected input body:
-
-```json
-{
-  "name": "abc",
-  "prop1": { "kind": "kind0", "fooProp": "abc" },
-  "prop2": {
-    "kind": "kind1",
-    "start": "2021-01-01T00:00:00Z",
-    "end": "2021-01-02T00:00:00Z"
-  }
 }
 ```
 

@@ -29,8 +29,9 @@ public class ResponseTemplate implements IJavaTemplate<ClientResponse, JavaFile>
         JavaSettings settings = JavaSettings.getInstance();
 
         Set<String> imports = new HashSet<>();
-        addRequestAndHeaderImports(imports);
-        IType restResponseType = getRestResponseType(response);
+        imports.add("com.azure.core.http.HttpRequest");
+        imports.add("com.azure.core.http.HttpHeaders");
+        IType restResponseType = GenericType.RestResponse(response.getHeadersType(), response.getBodyType());
         restResponseType.addImportsTo(imports, true);
 
         boolean isStreamResponse = response.getBodyType().equals(GenericType.FLUX_BYTE_BUFFER);
@@ -96,14 +97,5 @@ public class ResponseTemplate implements IJavaTemplate<ClientResponse, JavaFile>
                     methodBlock -> methodBlock.line("getValue().subscribe(bb -> { }, t -> { }).dispose();"));
             }
         });
-    }
-
-    protected IType getRestResponseType(ClientResponse response) {
-        return GenericType.RestResponse(response.getHeadersType(), response.getBodyType());
-    }
-
-    protected void addRequestAndHeaderImports(java.util.Set<String> imports) {
-        imports.add("com.azure.core.http.HttpRequest");
-        imports.add("com.azure.core.http.HttpHeaders");
     }
 }

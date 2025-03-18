@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { camelToSnakeCase } from "../src/utils.js";
+import { camelToSnakeCase, md2Rst } from "../src/utils.js";
 
 describe("typespec-python: utils", () => {
   it("camelToSnakeCase", async () => {
@@ -18,5 +18,10 @@ describe("typespec-python: utils", () => {
     for (const [input, expected] of Object.entries(cases)) {
       strictEqual(camelToSnakeCase(input), expected);
     }
+  });
+
+  it("md2rst", async () => {
+    const des = "Format: <MajorVersion>.<MinorVersion>.<Patch>";
+    strictEqual(md2Rst(des), "Format: <MajorVersion>.<MinorVersion>.<Patch>");
   });
 });

@@ -43,15 +43,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? deprecated = null;
             string? accessibility = null;
             IReadOnlyList<InputParameter>? parameters = null;
-            IReadOnlyList<OperationResponse>? responses = null;
+            IReadOnlyList<InputOperationResponse>? responses = null;
             string? httpMethod = null;
             string? uri = null;
             string? path = null;
             string? externalDocsUrl = null;
             IReadOnlyList<string>? requestMediaTypes = null;
             bool bufferResponse = false;
-            OperationLongRunning? longRunning = null;
-            OperationPaging? paging = null;
+            InputOperationLongRunning? longRunning = null;
+            InputOperationPaging? paging = null;
             bool generateProtocolMethod = false;
             bool generateConvenienceMethod = false;
             string? crossLanguageDefinitionId = null;
@@ -65,20 +65,20 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("Doc", ref doc)
                     || reader.TryReadString(nameof(InputOperation.Deprecated), ref deprecated)
                     || reader.TryReadString(nameof(InputOperation.Accessibility), ref accessibility)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Parameters), options, ref parameters)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Responses), options, ref responses)
+                    || reader.TryReadComplexType(nameof(InputOperation.Parameters), options, ref parameters)
+                    || reader.TryReadComplexType(nameof(InputOperation.Responses), options, ref responses)
                     || reader.TryReadString(nameof(InputOperation.HttpMethod), ref httpMethod)
                     || reader.TryReadString(nameof(InputOperation.Uri), ref uri)
                     || reader.TryReadString(nameof(InputOperation.Path), ref path)
                     || reader.TryReadString(nameof(InputOperation.ExternalDocsUrl), ref externalDocsUrl)
-                    || reader.TryReadWithConverter(nameof(InputOperation.RequestMediaTypes), options, ref requestMediaTypes)
+                    || reader.TryReadComplexType(nameof(InputOperation.RequestMediaTypes), options, ref requestMediaTypes)
                     || reader.TryReadBoolean(nameof(InputOperation.BufferResponse), ref bufferResponse)
-                    || reader.TryReadWithConverter(nameof(InputOperation.LongRunning), options, ref longRunning)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Paging), options, ref paging)
+                    || reader.TryReadComplexType(nameof(InputOperation.LongRunning), options, ref longRunning)
+                    || reader.TryReadComplexType(nameof(InputOperation.Paging), options, ref paging)
                     || reader.TryReadBoolean(nameof(InputOperation.GenerateProtocolMethod), ref generateProtocolMethod)
                     || reader.TryReadBoolean(nameof(InputOperation.GenerateConvenienceMethod), ref generateConvenienceMethod)
                     || reader.TryReadString(nameof(InputOperation.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Decorators), options, ref decorators);
+                    || reader.TryReadComplexType(nameof(InputOperation.Decorators), options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             operation.Deprecated = deprecated;
             operation.Accessibility = accessibility;
             operation.Parameters = parameters ?? Array.Empty<InputParameter>();
-            operation.Responses = responses ?? Array.Empty<OperationResponse>();
+            operation.Responses = responses ?? Array.Empty<InputOperationResponse>();
             operation.HttpMethod = httpMethod ?? throw new JsonException("InputOperation must have HttpMethod");
             operation.Uri = uri ?? throw new JsonException("InputOperation must have Uri");
             operation.Path = path ?? throw new JsonException("InputOperation must have Path");

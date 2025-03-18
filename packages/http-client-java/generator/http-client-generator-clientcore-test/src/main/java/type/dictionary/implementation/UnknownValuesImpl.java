@@ -51,7 +51,7 @@ public final class UnknownValuesImpl {
             path = "/type/dictionary/unknown",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Map<String, Object>> getSync(@HostParam("endpoint") String endpoint,
+        Response<Map<String, BinaryData>> getSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, RequestOptions requestOptions);
 
         @HttpRequestInformation(
@@ -70,7 +70,7 @@ public final class UnknownValuesImpl {
      * <pre>
      * {@code
      * {
-     *     String: Object (Required)
+     *     String: BinaryData (Required)
      * }
      * }
      * </pre>
@@ -79,7 +79,7 @@ public final class UnknownValuesImpl {
      * @throws HttpResponseException thrown if the service returns an error.
      * @return the response.
      */
-    public Response<Map<String, Object>> getWithResponse(RequestOptions requestOptions) {
+    public Response<Map<String, BinaryData>> getWithResponse(RequestOptions requestOptions) {
         final String accept = "application/json";
         return service.getSync(this.client.getEndpoint(), accept, requestOptions);
     }
@@ -91,7 +91,7 @@ public final class UnknownValuesImpl {
      * <pre>
      * {@code
      * {
-     *     String: Object (Required)
+     *     String: BinaryData (Required)
      * }
      * }
      * </pre>

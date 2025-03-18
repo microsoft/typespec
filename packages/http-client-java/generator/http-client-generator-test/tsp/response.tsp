@@ -22,8 +22,8 @@ enum ApiVersions {
 op RpcOperationWithAdditionalResponse<
   TParams,
   TResponse extends TypeSpec.Reflection.Model,
-  TAdditionalResponse extends object,
-  Traits extends object = {},
+  TAdditionalResponse extends {},
+  Traits extends {} = {},
   TErrorResponse = Azure.Core.Foundations.ErrorResponse
 > is Foundations.Operation<
   TParams & Azure.Core.Traits.Private.TraitProperties<Traits, TraitLocation.Parameters>,

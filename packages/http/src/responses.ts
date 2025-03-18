@@ -112,7 +112,6 @@ function processResponseType(
     // the first model for this statusCode/content type pair carries the
     // description for the endpoint. This could probably be improved.
     const response: HttpOperationResponse = responses.get(statusCode) ?? {
-      statusCode: typeof statusCode === "object" ? "*" : (String(statusCode) as any),
       statusCodes: statusCode,
       type: responseType,
       description: getResponseDescription(program, operation, responseType, statusCode, metadata),

@@ -39,7 +39,7 @@
     "@emotion/react": "^11.14.0",
     "@fluentui/react-components": "~9.60.0",
     "@fluentui/react-icons": "^2.0.279",
-    "@typespec/spec-coverage-sdk": "workspace:~",
+    "@typespec/spec-coverage-sdk": "workspace:^",
     "react": "~18.3.1",
     "react-dom": "~18.3.1",
     "react-markdown": "^10.0.1"

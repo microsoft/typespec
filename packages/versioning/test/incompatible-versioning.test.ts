@@ -25,27 +25,6 @@ describe("versioning: incompatible use of decorators", () => {
     });
   });
 
-  it("emit diagnostic when @service(#{version: 'X'}) is used with @versioned", async () => {
-    const diagnostics = await runner.diagnose(`
-    #suppress "deprecated" "For test"
-    @versioned(Versions)
-    @service(#{
-      title: "Widget Service",
-      version: "v3"
-    })
-    namespace DemoService;
-
-    enum Versions {
-      v1,
-      v2,
-    }
-    `);
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/versioning/no-service-fixed-version",
-      severity: "error",
-    });
-  });
-
   it("emit diagnostic when version enum has duplicate values", async () => {
     const diagnostics = await runner.diagnose(`
     @versioned(Versions)

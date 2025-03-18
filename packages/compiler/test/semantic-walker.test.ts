@@ -1,6 +1,13 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  NavigationOptions,
+  getProperty,
+  navigateProgram,
+  navigateType,
+  navigateTypesInNamespace,
+} from "../src/core/semantic-walker.js";
+import {
   Enum,
   Interface,
   ListenerFlow,
@@ -13,14 +20,7 @@ import {
   Union,
   UnionVariant,
   getNamespaceFullName,
-} from "../src/core/index.js";
-import {
-  NavigationOptions,
-  getProperty,
-  navigateProgram,
-  navigateType,
-  navigateTypesInNamespace,
-} from "../src/core/semantic-walker.js";
+} from "../src/index.js";
 import {
   BasicTestRunner,
   TestHost,
