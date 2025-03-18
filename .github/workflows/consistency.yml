@@ -27,11 +27,6 @@ jobs:
           !startsWith(github.head_ref, 'revert-') 
         }}
     steps:
-      - run: |
-          echo "Checking changes"
-          echo "Run: ${{ env.run }}"
-          echo "Run2: ${{ env.run == 'true' }}"
-        name: Check changes
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
@@ -41,28 +36,28 @@ jobs:
 
       - run: git fetch --force --no-tags origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}
         name: Get ${{ github.event.pull_request.base.ref }} ref for ${{ github.ref}}, evt ${{ github.event_name }}
-        if: ${{ env.run == true}}
+        if: ${{ env.run == true }}
 
       - run: pnpm install
         name: Install dependencies
-        if: ${{ env.run }}
+        if: ${{ env.run == true }}
 
       - name: Create PR Comment
         run: pnpm chronus-github get-pr-comment --out ./comment-out/comment.json
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        if: ${{ env.run  }}
+        if: ${{ env.run == true }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: comment
           path: comment-out/
           retention-days: 1 # Only need for the next workflow so don't need to waste storageretention-days
-        if: ${{ env.run }}
+        if: ${{ env.run == true }}
 
       - run: pnpm chronus verify --since ${{ github.event.pull_request.base.ref }}
         name: Check changelog
-        if: ${{ env.run}}
+        if: ${{ env.run == true }}
 
   # Validate spell check
   spellcheck:
