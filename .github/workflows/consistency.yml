@@ -25,7 +25,25 @@ jobs:
           !startsWith(github.head_ref, 'backmerge/') &&
           !startsWith(github.head_ref, 'revert-') 
         }}
+      run2: |
+        ${{
+          !startsWith(github.head_ref, 'fix/') &&
+          !startsWith(github.head_ref, 'dependabot/') &&
+          !startsWith(github.head_ref, 'backmerge/') &&
+          !startsWith(github.head_ref, 'backmerge/') &&
+          !startsWith(github.head_ref, 'revert-') 
+        }}
     steps:
+      - run: |
+          echo "Running on ${{ github.event_name }} for ${{ github.head_ref }}"
+          echo "Run a: ${{ env.run }}"
+          echo "Run b: ${{ env.run  == true }}"
+          echo "Run c: ${{ env.run  == 'true' }}"
+          echo "Run2 a: ${{ env.run2 }}"
+          echo "Run2 b: ${{ env.run2  == true }}"
+          echo "Run2 c: ${{ env.run2  == 'true' }}"
+        name: Check if we should run
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
@@ -39,7 +57,7 @@ jobs:
 
       - run: pnpm install
         name: Install dependencies
-        if: ${{ env.run == true }}
+        if: ${{ env.run2 == true }}
 
       - name: Create PR Comment
         run: pnpm chronus-github get-pr-comment --out ./comment-out/comment.json
