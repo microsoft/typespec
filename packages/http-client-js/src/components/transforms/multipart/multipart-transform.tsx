@@ -20,12 +20,10 @@ export function MultipartTransform(props: MultipartTransformProps) {
 
   const itemRef = transportNamer.getApplicationName(props.body.property);
 
-  const partTransform = ay.mapJoin(
-    httpParts,
-    (part) => <HttpPartTransform part={part} itemRef={itemRef}/>,
-    {
-      joiner: ",\n",
-    },
+  const partTransform = (
+    <ay.For each={httpParts} comma line>
+      {(part) => <HttpPartTransform part={part} itemRef={itemRef} />}
+    </ay.For>
   );
 
   return <>[{partTransform}]</>;

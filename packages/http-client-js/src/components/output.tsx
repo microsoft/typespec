@@ -14,13 +14,13 @@ export interface OutputProps {
 export function Output(props: OutputProps) {
   const tsNamePolicy = ts.createTSNamePolicy();
   const defaultTransformNamePolicy = createTransformNamePolicy();
-  return <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib, httpRuntimeTemplateLib]}>
-    <ClientLibrary>
-      <TransformNamePolicyContext.Provider value={defaultTransformNamePolicy}>
-        <EncodingProvider>
-          {props.children}
-        </EncodingProvider>
-      </TransformNamePolicyContext.Provider>
-    </ClientLibrary>
-    </ay.Output>;
+  return (
+    <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib, httpRuntimeTemplateLib]}>
+      <ClientLibrary>
+        <TransformNamePolicyContext.Provider value={defaultTransformNamePolicy}>
+          <EncodingProvider>{props.children}</EncodingProvider>
+        </TransformNamePolicyContext.Provider>
+      </ClientLibrary>
+    </ay.Output>
+  );
 }

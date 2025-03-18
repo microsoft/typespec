@@ -33,24 +33,20 @@ export async function send(
   options?: SendOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: {
       prop: jsonEnumsOnlyCasesToTransportTransform(prop),
     },
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -68,7 +64,6 @@ export interface SendOptions extends OperationOptions {}
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
-
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
@@ -83,7 +78,6 @@ export function jsonEnumsOnlyCasesToTransportTransform(input_?: EnumsOnlyCases |
   if (!input_) {
     return input_ as any;
   }
-
   return {
     lr: input_.lr,
     ud: input_.ud,

@@ -50,11 +50,11 @@ function IsSpecDir {
 }
 
 $failingSpecs = @(
-    Join-Path 'http' 'payload' 'pageable'
     Join-Path 'http' 'payload' 'xml'
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'templated'
     Join-Path 'http' 'client' 'naming' # pending until https://github.com/microsoft/typespec/issues/5653 is resolved
+    Join-Path 'http' 'streaming' 'jsonl'
 )
 
 $azureAllowSpecs = @(
@@ -145,24 +145,24 @@ foreach ($directory in $directories) {
 if ($null -eq $filter) {
     Write-Host "Writing new launch settings" -ForegroundColor Cyan
     $mtgExe = "`$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
-    $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.TypeSpec.Generator.exe"
+    $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SampleGenerator/Debug/net8.0/Microsoft.TypeSpec.Generator.exe"
     $unbrandedSpec = "TestProjects/Local/Unbranded-TypeSpec"
-    $unbrandedPluginSpec = "TestProjects/Plugin/Unbranded-TypeSpec"
+    $unbrandedSampleGeneratorSpec = "TestProjects/SampleGenerator/Unbranded-TypeSpec"
 
     $launchSettings = @{}
     $launchSettings.Add("profiles", @{})
     $launchSettings["profiles"].Add("Unbranded-TypeSpec", @{})
-    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p ScmCodeModelPlugin")
+    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -g ScmCodeModelGenerator")
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandName", "Executable")
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mtgExe)
-    $launchSettings["profiles"].Add("Debug-Plugin-Test-TypeSpec", @{})
-    $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedPluginSpec -p SampleCodeModelPlugin")
-    $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandName", "Executable")
-    $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("executablePath", $sampleExe)
+    $launchSettings["profiles"].Add("Debug-SampleGenerator-Test-TypeSpec", @{})
+    $launchSettings["profiles"]["Debug-SampleGenerator-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSampleGeneratorSpec -g SampleCodeModelGenerator")
+    $launchSettings["profiles"]["Debug-SampleGenerator-Test-TypeSpec"].Add("commandName", "Executable")
+    $launchSettings["profiles"]["Debug-SampleGenerator-Test-TypeSpec"].Add("executablePath", $sampleExe)
 
     foreach ($kvp in $spectorLaunchProjects.GetEnumerator()) {
         $launchSettings["profiles"].Add($kvp.Key, @{})
-        $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -p StubLibraryPlugin")
+        $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -g StubLibraryGenerator")
         $launchSettings["profiles"][$kvp.Key].Add("commandName", "Executable")
         $launchSettings["profiles"][$kvp.Key].Add("executablePath", $mtgExe)
     }

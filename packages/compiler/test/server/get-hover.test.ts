@@ -1,7 +1,8 @@
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
 import { Hover, MarkupKind } from "vscode-languageserver/node.js";
-import { createTestServerHost, extractCursor } from "../../src/testing/test-server-host.js";
+import { extractCursor } from "../../src/testing/source-utils.js";
+import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 describe("compiler: server: on hover", () => {
   describe("scalar", () => {

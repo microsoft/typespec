@@ -7,9 +7,7 @@ This test validates that the emitter can generate the correct client signature w
 The spec contains 2 Schemas Bearer and ApiKey
 
 ```tsp
-@service({
-  title: "Test Service",
-})
+@service(#{ title: "Test Service" })
 @useAuth(BearerAuth | ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">)
 namespace Test;
 
@@ -28,7 +26,6 @@ TODO: Revisit if we need additional types since it will be difficult at runtime 
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
-
   constructor(endpoint: string, credential: KeyCredential, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, credential, options);
   }

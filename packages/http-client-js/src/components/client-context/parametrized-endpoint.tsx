@@ -13,27 +13,38 @@ export interface ParametrizedEndpointProps {
 export function ParametrizedEndpoint(props: ParametrizedEndpointProps) {
   const propNamer = useTransformNamePolicy();
   const paramsRef = ay.refkey();
-  const params =
+  const params = (
     <ts.VarDeclaration name="params" type={"Record<string, any>"} refkey={paramsRef}>
-    <ts.ObjectExpression>
-      {ay.mapJoin(props.params, (p) => {
-        const applicationName = propNamer.getApplicationName(p);
-        const transportName = propNamer.getTransportName(p);
-        const defaultValue = p.defaultValue ? ` ?? ${getDefaultValue(p)}` : "";
-        const itemRef = p.optional ? `options?.${applicationName}${defaultValue}` : applicationName;
-        return <ts.ObjectProperty name={transportName} value={itemRef}/>
-      }, {joiner: ",\n"})}
-    </ts.ObjectExpression>
-  </ts.VarDeclaration>;
+      <ts.ObjectExpression>
+        <ay.For each={props.params} joiner="," line>
+          {(p) => {
+            const applicationName = propNamer.getApplicationName(p);
+            const transportName = propNamer.getTransportName(p);
+            const defaultValue = p.defaultValue ? ` ?? ${getDefaultValue(p)}` : "";
+            const itemRef = p.optional
+              ? `options?.${applicationName}${defaultValue}`
+              : applicationName;
+            return <ts.ObjectProperty name={transportName} value={itemRef} />;
+          }}
+        </ay.For>
+      </ts.ObjectExpression>
+    </ts.VarDeclaration>
+  );
 
-  const resolvedEndpoint =
+  const resolvedEndpoint = (
     <ts.VarDeclaration name="resolvedEndpoint" refkey={props.refkey}>
-    {ay.code`
+      {ay.code`
       "${props.template}".replace(/{([^}]+)}/g, (_, key) =>
         key in ${paramsRef} ? String(params[key]) : (() => { throw new Error(\`Missing parameter: $\{key}\`); })()
       );
     `}
-  </ts.VarDeclaration>;
+    </ts.VarDeclaration>
+  );
 
-  return [params, resolvedEndpoint];
+  return (
+    <ay.StatementList>
+      {params}
+      {resolvedEndpoint}
+    </ay.StatementList>
+  );
 }

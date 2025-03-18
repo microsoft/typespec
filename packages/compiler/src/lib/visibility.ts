@@ -15,7 +15,7 @@ import type {
   WithVisibilityFilterDecorator,
 } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorTarget, validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
-import { compilerAssert } from "../core/index.js";
+import { compilerAssert } from "../core/diagnostics.js";
 import { reportDiagnostic } from "../core/messages.js";
 import type { Program } from "../core/program.js";
 import {

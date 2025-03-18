@@ -22,24 +22,20 @@ export async function foo(
   options?: FooOptions,
 ): Promise<void> {
   const path = parse("/foo").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: {
       profileImage: encodeUint8Array(profileImage, "base64")!,
     },
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```

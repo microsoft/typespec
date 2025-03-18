@@ -13,9 +13,11 @@ export interface ClientContextProps {
 export function ClientContext(props: ClientContextProps) {
   const namePolicy = ts.useTSNamePolicy();
   const fileName = namePolicy.getName(props.client.name + "Context", "variable");
-  return <ts.SourceFile path={`${fileName}.ts`}>
-     <ClientContextDeclaration client={props.client} />
+  return (
+    <ts.SourceFile path={`${fileName}.ts`}>
+      <ClientContextDeclaration client={props.client} />
       <ClientContextOptionsDeclaration client={props.client} />
       <ClientContextFactoryDeclaration client={props.client} />
-  </ts.SourceFile>;
+    </ts.SourceFile>
+  );
 }

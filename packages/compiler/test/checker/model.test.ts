@@ -194,49 +194,6 @@ describe("compiler: models", () => {
         deepStrictEqual(foo.defaultValue?.value, "up-value");
       });
     });
-
-    describe("set deprecated default property", () => {
-      const testCases: [string, string, any][] = [
-        ["boolean", `false`, { kind: "Boolean", value: false, isFinished: false }],
-        ["boolean", `true`, { kind: "Boolean", value: true, isFinished: false }],
-        ["string", `"foo"`, { kind: "String", value: "foo", isFinished: false }],
-        ["int32", `123`, { kind: "Number", value: 123, valueAsString: "123", isFinished: false }],
-        ["int32 | null", `null`, { kind: "Intrinsic", name: "null", isFinished: false }],
-      ];
-
-      it.each(testCases)(`foo?: %s = %s`, async (type, defaultValue, expectedValue) => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
-          model A { @test foo?: ${type} = ${defaultValue} }
-          `,
-        );
-        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        expect({ ...foo.default }).toMatchObject(expectedValue);
-      });
-
-      it(`foo?: string[] = #["abc"] result is not set`, async () => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
-        model A { @test foo?: string[] = #["abc"] }
-        `,
-        );
-        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        deepStrictEqual(foo.default, undefined);
-      });
-
-      it(`foo?: {name: string} = #{name: "abc"} result is not set`, async () => {
-        testHost.addTypeSpecFile(
-          "main.tsp",
-          `
-        model A { @test foo?: {name: string} = #{name: "abc"} }
-        `,
-        );
-        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        deepStrictEqual(foo.default, undefined);
-      });
-    });
   });
 
   describe("doesn't allow a default of different type than the property type", () => {

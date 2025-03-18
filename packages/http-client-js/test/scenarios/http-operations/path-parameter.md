@@ -7,9 +7,7 @@ A request that sends a request with a path parameter directly on the operation s
 The path parameter is a positional parameter in the operation signature
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @route("/widgets")
@@ -34,21 +32,17 @@ export async function read(
   const path = parse("/widgets/{id}").expand({
     id: id,
   });
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```

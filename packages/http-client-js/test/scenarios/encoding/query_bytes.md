@@ -26,21 +26,17 @@ export async function defaultEncoding(
   const path = parse("/default{?value}").expand({
     value: encodeUint8Array(value, "base64url")!,
   });
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```

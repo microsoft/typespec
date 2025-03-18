@@ -3,9 +3,7 @@
 ## Typespec
 
 ```tsp
-@service({
-  title: "Test Service",
-})
+@service(#{ title: "Test Service" })
 namespace Test;
 alias MultipleRequestParameters = {
   @path
@@ -47,7 +45,6 @@ export async function spreadWithMultipleParameters(
   const path = parse("/{id}").expand({
     id: id,
   });
-
   const httpRequestOptions = {
     headers: {
       "x-ms-test-header": xMsTestHeader,
@@ -59,17 +56,14 @@ export async function spreadWithMultipleParameters(
       optionalStringList: jsonArrayStringToTransportTransform(options?.optionalStringList),
     },
   };
-
   const response = await client.pathUnchecked(path).put(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```

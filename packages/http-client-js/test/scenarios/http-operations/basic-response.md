@@ -5,9 +5,7 @@ This test verifies that a response with status `204` and no body is correctly ha
 ## **TypeSpec**
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @route("/widgets")
@@ -24,21 +22,17 @@ interface Widgets {
 ```ts src/api/widgetsClient/widgetsClientOperations.ts function read
 export async function read(client: WidgetsClientContext, options?: ReadOptions): Promise<void> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -52,9 +46,7 @@ This test verifies that a response with a body containing a `Widget` model is co
 ## **TypeSpec**
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @test
@@ -81,7 +73,6 @@ export function jsonWidgetToApplicationTransform(input_?: any): Widget {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     name: input_.name,
     age: input_.age,
@@ -96,21 +87,17 @@ The function reads a `Widget` instance from the response body, ensuring it only 
 ```ts src/api/widgetsClient/widgetsClientOperations.ts function read
 export async function read(client: WidgetsClientContext, options?: ReadOptions): Promise<Widget> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonWidgetToApplicationTransform(response.body)!;
   }
-
   throw createRestError(response);
 }
 ```
@@ -124,9 +111,7 @@ This test verifies that a response with multiple status codes (`200` and `204`) 
 ## **TypeSpec**
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @test
@@ -154,25 +139,20 @@ export async function read(
   options?: ReadOptions,
 ): Promise<Widget | void> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonWidgetToApplicationTransform(response.body)!;
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -186,9 +166,7 @@ This test verifies that a response with multiple content types is correctly hand
 ## **TypeSpec**
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 model Widget {
@@ -222,25 +200,20 @@ TODO: need to implement xml serialization
 ```ts src/api/widgetsClient/widgetsClientOperations.ts function read
 export async function read(client: WidgetsClientContext, options?: ReadOptions): Promise<Widget> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonWidgetToApplicationTransform(response.body)!;
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/xml")) {
     return jsonWidgetToApplicationTransform(response.body)!;
   }
-
   throw createRestError(response);
 }
 ```

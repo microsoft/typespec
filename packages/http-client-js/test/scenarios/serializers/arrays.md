@@ -60,7 +60,6 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     my_values: jsonArrayInt32ToTransportTransform(input_.myValues),
   }!;
@@ -74,21 +73,17 @@ Handles the API request, expecting a `Widget` response and applying the correct 
 ```ts src/api/clientOperations.ts function foo
 export async function foo(client: ClientContext, options?: FooOptions): Promise<Foo> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonFooToApplicationTransform(response.body)!;
   }
-
   throw createRestError(response);
 }
 ```
@@ -122,7 +117,6 @@ export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     myValues: jsonArrayInt32ToApplicationTransform(input_.my_values),
   }!;
@@ -175,7 +169,6 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     my_values: jsonArrayBarToTransportTransform(input_.myValues),
   }!;
@@ -191,7 +184,6 @@ export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     myValues: jsonArrayBarToApplicationTransform(input_.my_values),
   }!;

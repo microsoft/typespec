@@ -5,9 +5,7 @@ This test verifies that a basic `GET` request with no headers, body, or paramete
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @route("/widgets")
@@ -24,21 +22,17 @@ interface Widgets {
 ```ts src/api/widgetsClient/widgetsClientOperations.ts function read
 export async function read(client: WidgetsClientContext, options?: ReadOptions): Promise<void> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -50,9 +44,7 @@ This test verifies that a `POST` request with headers, a body, and query paramet
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @test
@@ -87,7 +79,6 @@ export async function read(
     id: id,
     foo: foo,
   });
-
   const httpRequestOptions = {
     headers: {
       etag: etag,
@@ -96,17 +87,14 @@ export async function read(
       name: name,
     },
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -118,9 +106,7 @@ This test verifies that a `GET` request with a scalar body is correctly handled.
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @route("/widgets")
@@ -141,22 +127,18 @@ export async function read(
   options?: ReadOptions,
 ): Promise<void> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: count,
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```

@@ -32,6 +32,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
 
+        public ValueExpression AsValueExpression => this;
+
         public TypeProvider EnclosingType { get; }
 
         internal string? OriginalName { get; init; }

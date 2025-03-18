@@ -17,7 +17,6 @@ export async function getWithParams(
   options?: GetWithParamsOptions,
 ): Promise<number> {
   const path = parse("/").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: {
@@ -25,17 +24,14 @@ export async function getWithParams(
       age: options?.age,
     },
   };
-
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return response.body!;
   }
-
   throw createRestError(response);
 }
 ```
@@ -56,7 +52,6 @@ export interface GetWithParamsOptions extends OperationOptions {
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
-
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }

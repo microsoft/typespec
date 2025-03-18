@@ -11,7 +11,6 @@ import {
   Type,
   compilerAssert,
   getEncode,
-  getProjectedName,
   isArrayModelType,
   isRecordModelType,
   resolveEncodedName,
@@ -84,7 +83,6 @@ function propertyRequiresJsonSerialization(ctx: JsContext, property: ModelProper
     isHttpMetadata(ctx, property) ||
     getEncode(ctx.program, property) ||
     resolveEncodedName(ctx.program, property, "application/json") !== property.name ||
-    getProjectedName(ctx.program, property, "json") ||
     (isSerializable(property.type) && requiresJsonSerialization(ctx, property.type))
   );
 }
@@ -132,9 +130,7 @@ function* emitToJson(
 
       for (const property of type.properties.values()) {
         const encodedName =
-          getProjectedName(ctx.program, property, "json") ??
-          resolveEncodedName(ctx.program, property, "application/json") ??
-          property.name;
+          resolveEncodedName(ctx.program, property, "application/json") ?? property.name;
 
         const expr = transposeExpressionToJson(
           ctx,
@@ -265,11 +261,8 @@ function transposeExpressionToJson(
     case "StringTemplateSpan":
     case "Tuple":
     case "UnionVariant":
-    case "Function":
     case "Decorator":
     case "FunctionParameter":
-    case "Object":
-    case "Projection":
     case "ScalarConstructor":
     default:
       throw new UnimplementedError(`transformJsonExprForType: ${type.kind}`);
@@ -297,9 +290,7 @@ function* emitFromJson(
 
       for (const property of type.properties.values()) {
         const encodedName =
-          getProjectedName(ctx.program, property, "json") ??
-          resolveEncodedName(ctx.program, property, "application/json") ??
-          property.name;
+          resolveEncodedName(ctx.program, property, "application/json") ?? property.name;
 
         const expr = transposeExpressionFromJson(
           ctx,
@@ -325,10 +316,7 @@ function* emitFromJson(
       yield* writeCodeTree(ctx, codeTree, {
         subject: "input",
         referenceModelProperty(p) {
-          const jsonName =
-            getProjectedName(ctx.program, p, "json") ??
-            resolveEncodedName(ctx.program, p, "application/json") ??
-            p.name;
+          const jsonName = resolveEncodedName(ctx.program, p, "application/json") ?? p.name;
           return "input[" + JSON.stringify(jsonName) + "]";
         },
         renderResult(type) {
@@ -432,11 +420,8 @@ function transposeExpressionFromJson(
     case "StringTemplateSpan":
     case "Tuple":
     case "UnionVariant":
-    case "Function":
     case "Decorator":
     case "FunctionParameter":
-    case "Object":
-    case "Projection":
     case "ScalarConstructor":
     default:
       throw new UnimplementedError(`transformJsonExprForType: ${type.kind}`);

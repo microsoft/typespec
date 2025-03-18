@@ -22,11 +22,13 @@ export function ClientOperations(props: ClientOperationsProps) {
     return null;
   }
 
-  return <ts.SourceFile path={`${fileName}.ts`}>
-  {ay.mapJoin(clientOperations, (operation) => {
-    return <ClientOperation clientOperation={operation} />;
-  })}
-</ts.SourceFile>;
+  return (
+    <ts.SourceFile path={`${fileName}.ts`}>
+      <ay.For each={clientOperations}>
+        {(operation) => <ClientOperation clientOperation={operation} />}
+      </ay.For>
+    </ts.SourceFile>
+  );
 }
 
 export interface ClientOperationProps {
@@ -42,11 +44,21 @@ export function ClientOperation(props: ClientOperationProps) {
     client: { type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
     ...getOperationParameters(props.clientOperation.httpOperation),
   };
-  return <>
-  <OperationOptionsDeclaration operation={props.clientOperation.httpOperation} />
-  <FunctionDeclaration export async type={props.clientOperation.httpOperation.operation} returnType={<TypeExpression type={returnType} />} parametersMode="replace" parameters={signatureParams}>
-      <HttpRequest operation={props.clientOperation} responseRefkey={responseRefkey} />
-      <HttpResponse operation={props.clientOperation} responseRefkey={responseRefkey} />
-    </FunctionDeclaration>;
-    </>;
+  return (
+    <>
+      <OperationOptionsDeclaration operation={props.clientOperation.httpOperation} />
+      <FunctionDeclaration
+        export
+        async
+        type={props.clientOperation.httpOperation.operation}
+        returnType={<TypeExpression type={returnType} />}
+        parametersMode="replace"
+        parameters={signatureParams}
+      >
+        <HttpRequest operation={props.clientOperation} responseRefkey={responseRefkey} />
+        <HttpResponse operation={props.clientOperation} responseRefkey={responseRefkey} />
+      </FunctionDeclaration>
+      ;
+    </>
+  );
 }

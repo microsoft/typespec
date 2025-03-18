@@ -5,9 +5,7 @@
 The following TypeSpec block defines a service and several data models that serve as the foundation for our serializer tests. It starts with a base model, Bird, which uses a discriminator (kind) to support polymorphic behavior. Several derived models—SeaGull, Sparrow, Goose, and Eagle—are declared, each with a specific kind value to enable precise runtime type dispatching. Notably, the Eagle model includes additional complex properties (an array, a record, and a singular instance of Bird) to thoroughly test serialization of nested and compound types. This specification also exposes an HTTP GET endpoint returning a polymorphic Bird instance, ensuring that the generated TypeScript serializers handle these scenarios correctly.
 
 ```tsp
-@service({
-  title: "Test Service",
-})
+@service(#{ title: "Test Service" })
 namespace Test;
 
 @doc("This is base model for polymorphic single level inheritance with a discriminator.")
@@ -82,7 +80,6 @@ export function jsonBirdToTransportTransform(input_?: Bird | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     ...jsonBirdToTransportDiscriminator(input_),
     kind: input_.kind,
@@ -99,7 +96,6 @@ export function jsonSeaGullToTransportTransform(input_?: SeaGull | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     wingspan: input_.wingspan,
@@ -115,7 +111,6 @@ export function jsonSparrowToTransportTransform(input_?: Sparrow | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     wingspan: input_.wingspan,
@@ -131,7 +126,6 @@ export function jsonGooseToTransportTransform(input_?: Goose | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     wingspan: input_.wingspan,
@@ -152,7 +146,6 @@ export function jsonEagleToTransportTransform(input_?: Eagle | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     kind: input_.kind,
     friends: jsonArrayBirdToTransportTransform(input_.friends),

@@ -20,22 +20,18 @@ op omit(@body body?: BodyModel): NoContentResponse;
 ```ts src/api/testClientOperations.ts function set
 export async function set(client: TestClientContext, options?: SetOptions): Promise<void> {
   const path = parse("/set").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: jsonBodyModelToTransportTransform(options?.body),
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```
@@ -47,7 +43,6 @@ export function jsonBodyModelToTransportTransform(input_?: BodyModel | null): an
   if (!input_) {
     return input_ as any;
   }
-
   return {
     name: input_.name,
   }!;

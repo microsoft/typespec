@@ -2,6 +2,8 @@
   "name": "@typespec/http-client-js",
   "version": "0.1.0",
   "type": "module",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/packages/http-client-js/README.md",
   "scripts": {
     "build-src": "babel src -d dist/src --extensions .ts,.tsx",
     "build": "tsc -p . && npm run build-src",
@@ -19,6 +21,7 @@
     "stop:server": "npx tsp-spector server stop",
     "test:e2e": "npm run emit:e2e && node eng/scripts/run-e2e-tests.js",
     "run:e2e": "node eng/scripts/run-e2e-tests.js",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-js/reference --skip-js",
     "emit:e2e": "node eng/scripts/emit-e2e.js"
   },
   "exports": {
@@ -43,31 +46,32 @@
   "license": "MIT",
   "description": "TypeSpec library for emitting Http Client libraries for JavaScript/TypeScript",
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~",
-    "@typespec/emitter-framework": "workspace:~",
-    "@typespec/http": "workspace:~",
-    "@typespec/http-client": "workspace:~",
-    "@typespec/rest": "workspace:~"
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/rest": "workspace:^"
   },
   "dependencies": {
-    "@alloy-js/core": "^0.5.0",
-    "@alloy-js/typescript": "^0.5.0",
+    "@typespec/emitter-framework": "workspace:^",
+    "@typespec/http-client": "workspace:^",
+    "@alloy-js/core": "^0.6.0",
+    "@alloy-js/typescript": "^0.6.0",
     "prettier": "~3.5.3"
   },
   "devDependencies": {
-    "@alloy-js/babel-preset": "^0.1.1",
+    "@typespec/http": "workspace:^",
+    "@alloy-js/babel-preset": "^0.2.0",
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.26.9",
     "@rollup/plugin-babel": "^6.0.4",
     "@types/yargs": "~17.0.33",
-    "@typespec/http-specs": "0.1.0-alpha.11",
-    "@typespec/spector": "workspace:~",
+    "@typespec/http-specs": "workspace:^",
+    "@typespec/spector": "workspace:^",
     "@typespec/ts-http-runtime": "0.1.0",
-    "@typespec/versioning": "workspace:~",
+    "@typespec/tspd": "workspace:^",
+    "@typespec/versioning": "workspace:^",
     "@vitest/ui": "^3.0.7",
     "picocolors": "~1.1.1",
     "concurrently": "^9.1.2",
-    "dotenv": "^16.4.7",
     "execa": "^9.5.2",
     "fs-extra": "^11.2.0",
     "globby": "~14.1.0",

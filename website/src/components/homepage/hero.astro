@@ -10,7 +10,6 @@ import HeroIllustration from "./hero-illustration.astro";
     background-repeat: no-repeat;
     width: 100%;
     background-size: 100vw 94%;
-
     display: flex;
     padding: 120px 80px 52px 80px;
     flex-direction: column;
@@ -60,10 +59,10 @@ import HeroIllustration from "./hero-illustration.astro";
 
   .hero-title {
     text-align: center;
-    font-size: 24px;
+    font-size: 48px;
     font-style: normal;
-    font-weight: 600;
-    line-height: 100%; /* 24px */
+    font-weight: 800;
+    line-height: 100%;
     letter-spacing: -0.24px;
   }
 
@@ -72,10 +71,9 @@ import HeroIllustration from "./hero-illustration.astro";
     font-size: 96px;
     font-style: normal;
     font-weight: 600;
-    line-height: 100%; /* 96px */
+    line-height: 1.5;
     letter-spacing: -1px;
     color: transparent;
-
     background: linear-gradient(
       127deg,
       #6dc2b1 -17.91%,
@@ -89,12 +87,14 @@ import HeroIllustration from "./hero-illustration.astro";
   @media only screen and (max-width: 1024px) {
     .hero-subtitle {
       font-size: 68px;
+      line-height: 1.5;
     }
   }
 
   @media only screen and (max-width: 728px) {
     .hero-subtitle {
       font-size: 48px;
+      line-height: 1.5;
     }
   }
 
@@ -130,6 +130,7 @@ import HeroIllustration from "./hero-illustration.astro";
     gap: 10px;
     flex: 1 0 0;
     align-self: stretch;
+    height: 100vh; /* Ensure full visibility on 1080p monitor */
   }
 
   @media only screen and (max-width: 728px) {
@@ -142,15 +143,25 @@ import HeroIllustration from "./hero-illustration.astro";
 <div class="hero-container">
   <div class="hero-content">
     <h1 class="hero-title">TypeSpec</h1>
-    <div class="hero-subtitle">Describe APIs</div>
+    <div class="hero-buttons">
+      <Button as="a" appearance="primary" href={Links.docs} title="Install TypeSpec">
+        Install
+      </Button>
+      <Button
+        as="a"
+        appearance="outline"
+        class="highlight"
+        href={Links.playground}
+        title="Try the Playground"
+      >
+        Playground
+      </Button>
+    </div>
+    <div class="hero-subtitle">Design APIs</div>
     <DescriptionText size="large" className="hero-description">
-      Describe your data up front and generate schemas, API specifications, client / server code,
+      Design your data up front and generate schemas, API specifications, client / server code,
       docs, and more.
     </DescriptionText>
-    <div class="hero-buttons">
-      <Button as="a" appearance="primary" href={Links.docs}> Get Started </Button>
-      <Button as="a" appearance="outline" href={Links.playground}> Try it out </Button>
-    </div>
   </div>
   <div class="hero-demo">
     <HeroIllustration />

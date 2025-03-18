@@ -142,7 +142,6 @@ const diagnostics = {
       unexpected: paramMessage`Unexpected token ${"token"}`,
       numericOrStringLiteral: "Expected numeric or string literal.",
       identifier: "Identifier expected.",
-      projectionDirection: "from or to expected.",
       expression: "Expression expected.",
       statement: "Statement expected.",
       property: "Property expected.",
@@ -181,6 +180,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Keyword cannot be used as identifier.",
+      future: paramMessage`${"name"} is a reserved keyword`,
     },
   },
   "invalid-directive-location": {
@@ -193,15 +193,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
-    },
-  },
-  "invalid-projection": {
-    severity: "error",
-    messages: {
-      default: "Invalid projection",
-      wrongType: "Non-projection can't be used to project",
-      noTo: "Projection missing to projection",
-      projectionError: paramMessage`An error occurred when projecting this type: ${"message"}`,
     },
   },
   "default-required": {
@@ -401,7 +392,8 @@ const diagnostics = {
     messages: {
       default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
       model: paramMessage`${"name"} refers to a model type, but is being used as a value here. Use #{} to create an object value.`,
-      tuple: paramMessage`${"name"} refers to a tuple type, but is being used as a value here. Use #[] to create an array value.`,
+      modelExpression: `Is a model expression type, but is being used as a value here. Use #{} to create an object value.`,
+      tuple: `Is a tuple type, but is being used as a value here. Use #[] to create an array value.`,
       templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
     },
   },
@@ -545,6 +537,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "A function declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "function-unsupported": {
+    severity: "error",
+    messages: {
+      default: "Function are currently not supported.",
     },
   },
   "missing-implementation": {

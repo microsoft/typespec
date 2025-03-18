@@ -18,9 +18,22 @@ export function OperationOptionsDeclaration(props: OperationOptionsProps) {
     (p) => p.property.optional || hasDefaultValue(p),
   );
 
-  return <ts.InterfaceDeclaration export name={interfaceName} extends={getOperationOptionsInterfaceRefkey()} refkey={getOperationOptionsTypeRefkey(props.operation)}>
-    {ay.mapJoin(optionalParameters, (parameter) => (
-      <ts.InterfaceMember name={parameter.property.name} optional type={<ef.TypeExpression type={parameter.property.type} />} />
-    ))}
-  </ts.InterfaceDeclaration>;
+  return (
+    <ts.InterfaceDeclaration
+      export
+      name={interfaceName}
+      extends={getOperationOptionsInterfaceRefkey()}
+      refkey={getOperationOptionsTypeRefkey(props.operation)}
+    >
+      <ay.For each={optionalParameters} line>
+        {(parameter) => (
+          <ts.InterfaceMember
+            name={parameter.property.name}
+            optional
+            type={<ef.TypeExpression type={parameter.property.type} />}
+          />
+        )}
+      </ay.For>
+    </ts.InterfaceDeclaration>
+  );
 }

@@ -7,9 +7,7 @@ A request that sends a body payload of scalar type
 The body is modeled as an explicit body property of type int32
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 @route("/widgets")
@@ -32,22 +30,18 @@ export async function create(
   options?: CreateOptions,
 ): Promise<void> {
   const path = parse("/widgets").expand({});
-
   const httpRequestOptions = {
     headers: {},
     body: count,
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (+response.status === 204 && !response.body) {
     return;
   }
-
   throw createRestError(response);
 }
 ```

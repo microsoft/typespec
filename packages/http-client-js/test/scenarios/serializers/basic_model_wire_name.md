@@ -28,7 +28,6 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     element_name: input_.elementName,
     age: input_.age,
@@ -41,7 +40,6 @@ export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;
   }
-
   return {
     elementName: input_.element_name,
     age: input_.age,

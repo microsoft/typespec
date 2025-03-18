@@ -17,7 +17,7 @@ export function FilePartTransform(props: FilePartTransformProps) {
   if (defaultContentType) {
     args.push(ts.ValueExpression({ jsValue: defaultContentType }));
   }
-  return <ts.FunctionCallExpression refkey={getCreateFilePartDescriptorReference()} args={args} />;
+  return <ts.FunctionCallExpression target={getCreateFilePartDescriptorReference()} args={args} />;
 }
 
 function getContentType(part: HttpOperationPart) {

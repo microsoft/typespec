@@ -1,4 +1,10 @@
 import { getEffectiveModelType } from "../../../core/checker.js";
+import { ignoreDiagnostics } from "../../../core/diagnostics.js";
+import {
+  DiscriminatedUnionLegacy,
+  getDiscriminatedUnionFromInheritance,
+} from "../../../core/helpers/discriminator-utils.js";
+import { getDiscriminator } from "../../../core/intrinsic-type-state.js";
 import type {
   Model,
   ModelIndexer,
@@ -116,6 +122,11 @@ export interface ModelKit {
    * @returns The record representing additional properties, or undefined if there are none.
    */
   getAdditionalPropertiesRecord(model: Model): Model | undefined;
+  /**
+   * Resolves a discriminated union for the given model from inheritance.
+   * @param type Model to resolve the discriminated union for.
+   */
+  getDiscriminatedUnion(model: Model): DiscriminatedUnionLegacy | undefined;
 }
 
 interface TypekitExtension {
@@ -233,6 +244,14 @@ defineKit<TypekitExtension>({
       }
 
       return undefined;
+    },
+    getDiscriminatedUnion(model) {
+      const discriminator = getDiscriminator(this.program, model);
+      if (!discriminator) {
+        return undefined;
+      }
+
+      return ignoreDiagnostics(getDiscriminatedUnionFromInheritance(model, discriminator));
     },
   },
 });

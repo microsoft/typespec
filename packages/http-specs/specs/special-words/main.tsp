@@ -56,7 +56,7 @@ interface Operations {
   @opNameScenario("and") and(): void;
   @opNameScenario("as") as(): void;
   @opNameScenario("assert") assert(): void;
-  @opNameScenario("async") async(): void;
+  @opNameScenario("async") `async`(): void;
   @opNameScenario("await") await(): void;
   @opNameScenario("break") break(): void;
   @opNameScenario("class") class(): void;
@@ -84,7 +84,7 @@ interface Operations {
   @opNameScenario("return") `return`(): void;
   @opNameScenario("try") try(): void;
   @opNameScenario("while") while(): void;
-  @opNameScenario("with") with(): void;
+  @opNameScenario("with") `with`(): void;
   @opNameScenario("yield") yield(): void;
 }
 
@@ -144,7 +144,7 @@ namespace Models {
   model and is Base;
   model as is Base;
   model assert is Base;
-  model async is Base;
+  model `async` is Base;
   model await is Base;
   model break is Base;
   model class is Base;
@@ -172,13 +172,13 @@ namespace Models {
   model `return` is Base;
   model try is Base;
   model while is Base;
-  model with is Base;
+  model `with` is Base;
   model yield is Base;
 
   @modelNameScenario("and") op withAnd(@body body: and): void;
   @modelNameScenario("as") op withAs(@body body: as): void;
   @modelNameScenario("assert") op withAssert(@body body: assert): void;
-  @modelNameScenario("async") op withAsync(@body body: async): void;
+  @modelNameScenario("async") op withAsync(@body body: `async`): void;
   @modelNameScenario("await") op withAwait(@body body: await): void;
   @modelNameScenario("break") op withBreak(@body body: break): void;
   @modelNameScenario("class") op withClass(@body body: class): void;
@@ -206,7 +206,7 @@ namespace Models {
   @modelNameScenario("return") op withReturn(@body body: `return`): void;
   @modelNameScenario("try") op withTry(@body body: try): void;
   @modelNameScenario("while") op withWhile(@body body: while): void;
-  @modelNameScenario("with") op withWith(@body body: with): void;
+  @modelNameScenario("with") op withWith(@body body: `with`): void;
   @modelNameScenario("yield") op withYield(@body body: yield): void;
 }
 

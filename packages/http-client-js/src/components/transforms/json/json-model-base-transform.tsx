@@ -15,5 +15,10 @@ export function JsonModelBaseTransform(props: JsonModelBaseTransformProps) {
     return null;
   }
 
-  return <>...<JsonTransform {...props} type={baseModel} />,</>;
+  return (
+    <>
+      ...
+      <JsonTransform {...props} type={baseModel} />,
+    </>
+  );
 }

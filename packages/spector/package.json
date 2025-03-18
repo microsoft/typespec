@@ -37,12 +37,12 @@
   "dependencies": {
     "@azure/identity": "~4.7.0",
     "@types/js-yaml": "^4.0.5",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/http": "workspace:~",
-    "@typespec/rest": "workspace:~",
-    "@typespec/spec-api": "workspace:~",
-    "@typespec/spec-coverage-sdk": "workspace:~",
-    "@typespec/versioning": "workspace:~",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/http": "workspace:^",
+    "@typespec/rest": "workspace:^",
+    "@typespec/spec-api": "workspace:^",
+    "@typespec/spec-coverage-sdk": "workspace:^",
+    "@typespec/versioning": "workspace:^",
     "ajv": "~8.17.1",
     "axios": "^1.8.1",
     "body-parser": "^1.20.3",
@@ -72,7 +72,7 @@
     "@types/node-fetch": "^2.6.12",
     "@types/xml2js": "^0.4.11",
     "@types/yargs": "~17.0.33",
-    "@typespec/tspd": "workspace:~",
+    "@typespec/tspd": "workspace:^",
     "rimraf": "~6.0.1",
     "typescript": "~5.8.2"
   }

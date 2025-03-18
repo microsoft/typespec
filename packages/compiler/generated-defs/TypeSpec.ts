@@ -12,7 +12,7 @@ import type {
   Type,
   Union,
   UnionVariant,
-} from "../src/core/index.js";
+} from "../src/index.js";
 
 export interface ServiceOptions {
   readonly title?: string;
@@ -40,6 +40,37 @@ export interface VisibilityFilter {
   readonly all?: readonly EnumValue[];
   readonly none?: readonly EnumValue[];
 }
+
+/**
+ * Applies a media type hint to a TypeSpec type. Emitters and libraries may choose to use this hint to determine how a
+ * type should be serialized. For example, the `@typespec/http` library will use the media type hint of the response
+ * body type as a default `Content-Type` if one is not explicitly specified in the operation.
+ *
+ * Media types (also known as MIME types) are defined by RFC 6838. The media type hint should be a valid media type
+ * string as defined by the RFC, but the decorator does not enforce or validate this constraint.
+ *
+ * Notes: the applied media type is _only_ a hint. It may be overridden or not used at all. Media type hints are
+ * inherited by subtypes. If a media type hint is applied to a model, it will be inherited by all other models that
+ * `extend` it unless they delcare their own media type hint.
+ *
+ * @param mediaType The media type hint to apply to the target type.
+ * @example create a model that serializes as XML by default
+ *
+ * ```tsp
+ * @mediaTypeHint("application/xml")
+ * model Example {
+ *   @visibility(Lifecycle.Read)
+ *   id: string;
+ *
+ *   name: string;
+ * }
+ * ```
+ */
+export type MediaTypeHintDecorator = (
+  context: DecoratorContext,
+  target: Model | Scalar | Enum | Union,
+  mediaType: string,
+) => void;
 
 /**
  * Specify how to encode the target type.
@@ -452,27 +483,6 @@ export type FriendlyNameDecorator = (
 ) => void;
 
 /**
- * Provide a set of known values to a string type.
- *
- * @param values Known values enum.
- * @example
- * ```typespec
- * @knownValues(KnownErrorCode)
- * scalar ErrorCode extends string;
- *
- * enum KnownErrorCode {
- *   NotFound,
- *   Invalid,
- * }
- * ```
- */
-export type KnownValuesDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  values: Enum,
-) => void;
-
-/**
  * Mark a model property as the key to identify instances of that type
  *
  * @param altName Name of the property. If not specified, the decorated property name is used.
@@ -506,28 +516,6 @@ export type OverloadDecorator = (
   context: DecoratorContext,
   target: Operation,
   overloadbase: Operation,
-) => void;
-
-/**
- * DEPRECATED: Use `@encodedName` instead.
- *
- * Provide an alternative name for this type.
- *
- * @param targetName Projection target
- * @param projectedName Alternative name
- * @example
- * ```typespec
- * model Certificate {
- *   @projectedName("json", "exp")
- *   expireAt: int32;
- * }
- * ```
- */
-export type ProjectedNameDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  targetName: string,
-  projectedName: string,
 ) => void;
 
 /**
@@ -634,7 +622,7 @@ export type DiscriminatedDecorator = (
  */
 export type DiscriminatorDecorator = (
   context: DecoratorContext,
-  target: Model | Union,
+  target: Model,
   propertyName: string,
 ) => void;
 
@@ -1098,6 +1086,7 @@ export type WithVisibilityFilterDecorator = (
 export type WithLifecycleUpdateDecorator = (context: DecoratorContext, target: Model) => void;
 
 export type TypeSpecDecorators = {
+  mediaTypeHint: MediaTypeHintDecorator;
   encode: EncodeDecorator;
   doc: DocDecorator;
   withOptionalProperties: WithOptionalPropertiesDecorator;
@@ -1124,10 +1113,8 @@ export type TypeSpecDecorators = {
   secret: SecretDecorator;
   tag: TagDecorator;
   friendlyName: FriendlyNameDecorator;
-  knownValues: KnownValuesDecorator;
   key: KeyDecorator;
   overload: OverloadDecorator;
-  projectedName: ProjectedNameDecorator;
   encodedName: EncodedNameDecorator;
   discriminated: DiscriminatedDecorator;
   discriminator: DiscriminatorDecorator;

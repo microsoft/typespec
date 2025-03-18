@@ -109,6 +109,41 @@ extern dec service(target: Namespace, options?: valueof ServiceOptions);
 extern dec error(target: Model);
 
 /**
+ * Applies a media type hint to a TypeSpec type. Emitters and libraries may choose to use this hint to determine how a
+ * type should be serialized. For example, the `@typespec/http` library will use the media type hint of the response
+ * body type as a default `Content-Type` if one is not explicitly specified in the operation.
+ *
+ * Media types (also known as MIME types) are defined by RFC 6838. The media type hint should be a valid media type
+ * string as defined by the RFC, but the decorator does not enforce or validate this constraint.
+ *
+ * Notes: the applied media type is _only_ a hint. It may be overridden or not used at all. Media type hints are
+ * inherited by subtypes. If a media type hint is applied to a model, it will be inherited by all other models that
+ * `extend` it unless they delcare their own media type hint.
+ *
+ * @param mediaType The media type hint to apply to the target type.
+ *
+ * @example create a model that serializes as XML by default
+ *
+ * ```tsp
+ * @mediaTypeHint("application/xml")
+ * model Example {
+ *   @visibility(Lifecycle.Read)
+ *   id: string;
+ *
+ *   name: string;
+ * }
+ * ```
+ */
+extern dec mediaTypeHint(target: Model | Scalar | Enum | Union, mediaType: valueof string);
+
+// Cannot apply this to the scalar itself. Needs to be applied here so that we don't crash nostdlib scenarios
+@@mediaTypeHint(TypeSpec.bytes, "application/octet-stream");
+
+// @@mediaTypeHint(TypeSpec.string "text/plain") -- This is hardcoded in the compiler to avoid circularity
+// between the initialization of the string scalar and the `valueof string` required to call the
+// `mediaTypeHint` decorator.
+
+/**
  * Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
  * This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
  * The format names are open ended and are left to emitter to interpret.
@@ -121,7 +156,7 @@ extern dec error(target: Model);
  * scalar uuid extends string;
  * ```
  */
-extern dec format(target: string | bytes | ModelProperty, format: valueof string);
+extern dec format(target: string | ModelProperty, format: valueof string);
 
 /**
  * Specify the the pattern this string should respect using simple regular expression syntax.
@@ -280,24 +315,6 @@ extern dec tag(target: Namespace | Interface | Operation, tag: valueof string);
 extern dec friendlyName(target: unknown, name: valueof string, formatArgs?: unknown);
 
 /**
- * Provide a set of known values to a string type.
- * @param values Known values enum.
- *
- * @example
- * ```typespec
- * @knownValues(KnownErrorCode)
- * scalar ErrorCode extends string;
- *
- * enum KnownErrorCode {
- *   NotFound,
- *   Invalid,
- * }
- * ```
- */
-#deprecated "This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator."
-extern dec knownValues(target: string | numeric | ModelProperty, values: Enum);
-
-/**
  * Mark a model property as the key to identify instances of that type
  * @param altName Name of the property. If not specified, the decorated property name is used.
  *
@@ -324,28 +341,6 @@ extern dec key(target: ModelProperty, altName?: valueof string);
  * ```
  */
 extern dec overload(target: Operation, overloadbase: Operation);
-
-/**
- * DEPRECATED: Use `@encodedName` instead.
- *
- * Provide an alternative name for this type.
- * @param targetName Projection target
- * @param projectedName Alternative name
- *
- * @example
- * ```typespec
- * model Certificate {
- *   @projectedName("json", "exp")
- *   expireAt: int32;
- * }
- * ```
- */
-#deprecated "Use `@encodedName` instead for changing the name over the wire."
-extern dec projectedName(
-  target: unknown,
-  targetName: valueof string,
-  projectedName: valueof string
-);
 
 /**
  * Provide an alternative name for this type when serialized to the given mime type.
@@ -462,7 +457,7 @@ extern dec discriminated(target: Union, options?: valueof DiscriminatedOptions);
  * model Dog extends Pet  {kind: "dog", bark: boolean}
  * ```
  */
-extern dec discriminator(target: Model | Union, propertyName: valueof string);
+extern dec discriminator(target: Model, propertyName: valueof string);
 
 /**
  * Known encoding to use on utcDateTime or offsetDateTime

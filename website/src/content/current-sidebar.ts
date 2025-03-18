@@ -52,6 +52,7 @@ const sidebar: SidebarItem[] = [
       "handbook/cli",
       "handbook/style-guide",
       "handbook/formatter",
+      "handbook/package-manager",
       "handbook/reproducibility",
       {
         label: "Configuration",
@@ -141,7 +142,15 @@ const sidebar: SidebarItem[] = [
       ]),
       {
         label: "Clients",
-        items: ["emitters/clients/introduction"],
+        items: [
+          "emitters/clients/introduction",
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-js",
+            "Javascript",
+            false,
+            [],
+          ),
+        ],
       },
     ],
   },

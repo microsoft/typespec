@@ -26,9 +26,12 @@ export function ArrayPartTransform(props: ArrayPartTransformProps) {
     name: partElementName,
   };
 
-  return <>
-        {inputExpression}.map({mapCallbackSignature} {ay.code`=> (${<HttpPartTransform itemRef={null} part={partElement} />})`} )
-      </>;
+  return (
+    <>
+      {inputExpression}.map({mapCallbackSignature}{" "}
+      {ay.code`=> (${(<HttpPartTransform itemRef={null} part={partElement} />)})`} )
+    </>
+  );
 }
 
 function getPartRef(itemRef: ay.Children, partName: string) {

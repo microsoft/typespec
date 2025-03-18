@@ -13,9 +13,7 @@ describe("Typescript Union Declaration", () => {
       const res = render(
         <Output>
           <SourceFile path="test.ts">
-            <UnionDeclaration name="MyUnion"> 
-              "red" | "blue"
-            </UnionDeclaration>
+            <UnionDeclaration name="MyUnion">"red" | "blue"</UnionDeclaration>
           </SourceFile>
         </Output>,
       );
@@ -105,9 +103,7 @@ describe("Typescript Union Declaration", () => {
         const res = render(
           <Output>
             <SourceFile path="test.ts">
-              <UnionDeclaration type={union}>
-                "three"
-              </UnionDeclaration>
+              <UnionDeclaration type={union}>"three"</UnionDeclaration>
             </SourceFile>
           </Output>,
         );
@@ -135,10 +131,10 @@ describe("Typescript Union Declaration", () => {
 
         const res = render(
           <Output>
-              <SourceFile path="test.ts">
-                let x: <UnionExpression type={union} /> = "one";
-              </SourceFile>
-            </Output>,
+            <SourceFile path="test.ts">
+              let x: <UnionExpression type={union} /> = "one";
+            </SourceFile>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");

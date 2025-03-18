@@ -13,12 +13,14 @@ export interface HttpRequestOptionsProps {
 }
 
 export function HttpRequestOptions(props: HttpRequestOptionsProps) {
-  return <ts.VarDeclaration name="httpRequestOptions" refkey={props.refkey}>
-    <ts.ObjectExpression>
-      <HttpRequestOptions.Headers operation={props.operation} />
-      <HttpRequestOptions.Body operation={props.operation} />
-    </ts.ObjectExpression>
-  </ts.VarDeclaration>;
+  return (
+    <ts.VarDeclaration name="httpRequestOptions" refkey={props.refkey}>
+      <ts.ObjectExpression>
+        <HttpRequestOptions.Headers operation={props.operation} />
+        <HttpRequestOptions.Body operation={props.operation} />
+      </ts.ObjectExpression>
+    </ts.VarDeclaration>
+  );
 }
 
 export interface HttpRequestOptionsHeadersProps {
@@ -36,9 +38,13 @@ HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(
   );
 
   const optionsParam = getOperationOptionsParameterRefkey(props.operation.httpOperation);
-  return <EncodingProvider defaults={{bytes: "base64", datetime: "rfc7231"}}><ts.ObjectProperty name="headers">
+  return (
+    <EncodingProvider defaults={{ bytes: "base64", datetime: "rfc7231" }}>
+      <ts.ObjectProperty name="headers">
         <HttpRequestParametersExpression parameters={headers} optionsParameter={optionsParam} />,
-    </ts.ObjectProperty></EncodingProvider>;
+      </ts.ObjectProperty>
+    </EncodingProvider>
+  );
 };
 
 export interface HttpRequestOptionsBodyProps {
@@ -55,13 +61,17 @@ HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOpti
     return <></>;
   }
   // The transformer to apply to the body.
-  const bodyTransform = <>
-      <OperationTransformExpression operation={props.operation}/>
-  </>;
+  const bodyTransform = (
+    <>
+      <OperationTransformExpression operation={props.operation} />
+    </>
+  );
 
-  return <>
-    <ts.ObjectProperty name="body" value={bodyTransform} />,
-    </>;
+  return (
+    <>
+      <ts.ObjectProperty name="body" value={bodyTransform} />,
+    </>
+  );
 };
 
 export function JSONSerializer(props: { children?: Children }) {

@@ -1,13 +1,13 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
+import { Type } from "../src/core/types.js";
 import {
   DecoratorContext,
   TypeSpecValue,
   typespecTypeToJson,
   validateDecoratorNotOnType,
   validateDecoratorUniqueOnNode,
-} from "../src/core/index.js";
-import { Type } from "../src/core/types.js";
+} from "../src/index.js";
 import {
   BasicTestRunner,
   createTestHost,

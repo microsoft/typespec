@@ -15,17 +15,37 @@ export function getFileTypeReference() {
 }
 
 export function MultipartHelpers(props: MultipartHelpersProps) {
-  return <ts.SourceFile path="multipart-helpers.ts">
-    <ts.InterfaceDeclaration name="File" export refkey={getFileTypeReference()}>
-    contents: {getFileContentsTypeReference()};
-    contentType?: string;
-    filename?: string;
-    </ts.InterfaceDeclaration>
-    <ts.TypeDeclaration name="FileContents" export kind="type" refkey={getFileContentsTypeReference()}>
-      {ay.mapJoin(["string", "NodeJS.ReadableStream", "ReadableStream<Uint8Array>", "Uint8Array", "Blob"], (t) => t, {joiner: " | "})}
-    </ts.TypeDeclaration>
-    <ts.FunctionDeclaration name="createFilePartDescriptor" parameters={getCreateFilePartParameters()} export returnType="any" refkey={getCreateFilePartDescriptorReference()}>
-      {ay.code`
+  return (
+    <ts.SourceFile path="multipart-helpers.ts">
+      <ts.InterfaceDeclaration name="File" export refkey={getFileTypeReference()}>
+        contents: {getFileContentsTypeReference()}; contentType?: string; filename?: string;
+      </ts.InterfaceDeclaration>
+      <ts.TypeDeclaration
+        name="FileContents"
+        export
+        kind="type"
+        refkey={getFileContentsTypeReference()}
+      >
+        {ay.mapJoin(
+          () => [
+            "string",
+            "NodeJS.ReadableStream",
+            "ReadableStream<Uint8Array>",
+            "Uint8Array",
+            "Blob",
+          ],
+          (t) => t,
+          { joiner: " | " },
+        )}
+      </ts.TypeDeclaration>
+      <ts.FunctionDeclaration
+        name="createFilePartDescriptor"
+        parameters={getCreateFilePartParameters()}
+        export
+        returnType="any"
+        refkey={getCreateFilePartDescriptorReference()}
+      >
+        {ay.code`
        if (fileInput.contents) {
           return {
             name: partName,
@@ -41,8 +61,9 @@ export function MultipartHelpers(props: MultipartHelpersProps) {
           };
         }
       `}
-    </ts.FunctionDeclaration>
-  </ts.SourceFile>;
+      </ts.FunctionDeclaration>
+    </ts.SourceFile>
+  );
 }
 
 function getCreateFilePartParameters() {

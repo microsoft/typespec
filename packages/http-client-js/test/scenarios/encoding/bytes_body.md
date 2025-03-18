@@ -22,27 +22,23 @@ export async function foo(
   options?: FooOptions,
 ): Promise<Uint8Array> {
   const path = parse("/default").expand({});
-
   const httpRequestOptions = {
     headers: {
       "content-type": options?.contentType ?? "application/octet-stream",
     },
     body: value,
   };
-
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-
   if (
     +response.status === 200 &&
     response.headers["content-type"]?.includes("application/octet-stream")
   ) {
     return response.body!;
   }
-
   throw createRestError(response);
 }
 ```

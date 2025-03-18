@@ -13,7 +13,5 @@ export function EncodingProvider(props: EncodingProviderProps) {
     ...props.defaults,
   };
 
-  return <EncodingContext.Provider value={defaults}>
-      {props.children}
-    </EncodingContext.Provider>;
+  return <EncodingContext.Provider value={defaults}>{props.children}</EncodingContext.Provider>;
 }

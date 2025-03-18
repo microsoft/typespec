@@ -5,9 +5,7 @@ This specs nests namespace > namespace > interface
 ## TypeSpec
 
 ```tsp
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 model Widget {
@@ -77,10 +75,8 @@ export class DemoServiceClient {
     this.widgetsClient = new WidgetsClient(endpoint, options);
   }
 }
-
 export class WidgetsClient {
   #context: WidgetsClientContext;
-
   constructor(endpoint: string, options?: WidgetsClientOptions) {
     this.#context = createWidgetsClientContext(endpoint, options);
   }

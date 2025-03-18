@@ -1,4 +1,18 @@
 import {
+  ArrayBuilder,
+  type Context,
+  Declaration,
+  type EmitEntity,
+  type EmittedSourceFile,
+  type EmitterOutput,
+  ObjectBuilder,
+  Placeholder,
+  type Scope,
+  type SourceFile,
+  type SourceFileScope,
+  TypeEmitter,
+} from "@typespec/asset-emitter";
+import {
   type BooleanLiteral,
   type DiagnosticTarget,
   type Enum,
@@ -15,6 +29,7 @@ import {
   type Type,
   type Union,
   type UnionVariant,
+  type Value,
   compilerAssert,
   emitFile,
   explainStringTemplateNotSerializable,
@@ -34,26 +49,10 @@ import {
   getPattern,
   getRelativePathFromDirectory,
   getSummary,
-  isArrayModelType,
-  isNullType,
   isType,
   joinPaths,
   serializeValueAsJson,
 } from "@typespec/compiler";
-import {
-  ArrayBuilder,
-  type Context,
-  Declaration,
-  type EmitEntity,
-  type EmittedSourceFile,
-  type EmitterOutput,
-  ObjectBuilder,
-  Placeholder,
-  type Scope,
-  type SourceFile,
-  type SourceFileScope,
-  TypeEmitter,
-} from "@typespec/compiler/emitter-framework";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { stringify } from "yaml";
 import {
@@ -182,10 +181,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const result = new ObjectBuilder(propertyType.value);
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    if (property.default) {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      result.default = this.#getDefaultValue(property.type, property.default);
+    if (property.defaultValue) {
+      result.default = this.#getDefaultValue(property, property.defaultValue);
     }
 
     if (result.anyOf && isOneOf(this.emitter.getProgram(), property)) {
@@ -198,51 +195,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return result;
   }
 
-  #getDefaultValue(type: Type, defaultType: Type): any {
-    const program = this.emitter.getProgram();
-
-    switch (defaultType.kind) {
-      case "String":
-        return defaultType.value;
-      case "Number":
-        return defaultType.value;
-      case "Boolean":
-        return defaultType.value;
-      case "Tuple":
-        compilerAssert(
-          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
-          "setting tuple default to non-tuple value",
-        );
-
-        if (type.kind === "Tuple") {
-          return defaultType.values.map((defaultTupleValue, index) =>
-            this.#getDefaultValue(type.values[index], defaultTupleValue),
-          );
-        } else {
-          return defaultType.values.map((defaultTuplevalue) =>
-            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue),
-          );
-        }
-
-      case "Intrinsic":
-        return isNullType(defaultType)
-          ? null
-          : reportDiagnostic(program, {
-              code: "invalid-default",
-              format: { type: defaultType.kind },
-              target: defaultType,
-            });
-      case "EnumMember":
-        return defaultType.value ?? defaultType.name;
-      case "UnionVariant":
-        return this.#getDefaultValue(type, defaultType.type);
-      default:
-        reportDiagnostic(program, {
-          code: "invalid-default",
-          format: { type: defaultType.kind },
-          target: defaultType,
-        });
-    }
+  #getDefaultValue(modelProperty: ModelProperty, defaultType: Value): any {
+    return serializeValueAsJson(this.emitter.getProgram(), defaultType, modelProperty);
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {
@@ -714,7 +668,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
   }
   async writeOutput(sourceFiles: SourceFile<Record<string, any>>[]): Promise<void> {
-    if (this.emitter.getOptions().noEmit) {
+    if (this.emitter.getProgram().compilerOptions.dryRun) {
       return;
     }
     this.#reportDuplicateIds();
