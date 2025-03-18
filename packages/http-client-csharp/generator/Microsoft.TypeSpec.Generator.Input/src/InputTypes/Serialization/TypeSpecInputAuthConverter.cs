@@ -17,12 +17,12 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         public override InputAuth? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => ReadInputNamespace(ref reader, options, _referenceHandler.CurrentResolver);
+            => ReadInputAuth(ref reader, options, _referenceHandler.CurrentResolver);
 
         public override void Write(Utf8JsonWriter writer, InputAuth value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputAuth? ReadInputNamespace(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
+        private static InputAuth? ReadInputAuth(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             if (reader.TokenType == JsonTokenType.StartObject)
             {
