@@ -326,8 +326,9 @@ function getScalarEncoder(ctx: SerializationContext, type: Scalar, scalar: JsSca
     const encodingName = encoding.encoding ?? "default";
     const scalarEncoder = scalar.getEncoding(encodingName, encoding.type);
 
-    // TODO/witemple - we should detect this before realizing models and use a transform to
-    // represent the defective scalar as the encoding target type.
+    // TODO - we should detect this before realizing models and use a transform to represent
+    // the defective scalar as the encoding target type.
+    // See: https://github.com/microsoft/typespec/issues/6376
     if (!scalarEncoder) {
       reportDiagnostic(ctx.program, {
         code: "unknown-encoding",

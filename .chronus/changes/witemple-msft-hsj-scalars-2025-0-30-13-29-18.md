@@ -1,7 +1,7 @@
 ---
 changeKind: feature
 packages:
-  - "@typespec/http-server-javascript"
+  - "@typespec/http-server-js"
 ---
 
-Support encoding/decoding scalar types.
+Added support for encoding and decoding scalar types and default encodings prescribed by convention.
