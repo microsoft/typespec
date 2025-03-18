@@ -9,6 +9,10 @@ import {
   SdkHttpOperation,
   SdkHttpParameter,
   SdkHttpResponse,
+  SdkLroPagingServiceMethod,
+  SdkLroServiceMethod,
+  SdkMethodParameter,
+  SdkMethodResponse,
   SdkModelPropertyType,
   SdkPagingServiceMethod,
   SdkServiceMethod,
@@ -43,8 +47,61 @@ import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString } from "./utils.js";
+import { InputBasicServiceMethod, InputLongRunningPagingServiceMethod, InputLongRunningServiceMethod, InputPagingServiceMethod, InputServiceMethod } from "../type/input-service-method.js";
+import { InputServiceMethodResponse } from "../type/input-service-method-response.js";
 
 export function fromSdkServiceMethod(
+  sdkContext: CSharpEmitterContext,
+  method: SdkServiceMethod<SdkHttpOperation>,
+  uri: string,
+  rootApiVersions: string[],
+): InputServiceMethod | undefined {
+  switch (method.kind) {
+    case "basic":
+      return createServiceMethod<InputBasicServiceMethod>(sdkContext, method, uri, rootApiVersions);
+    case "paging":
+      return fromSdkPagingServiceMethod(sdkContext, method, uri, rootApiVersions);
+    case "lro":
+      return fromSdkLroServiceMethod(sdkContext, method, uri, rootApiVersions);
+    case "lropaging":
+      return fromSdkLroPagingServiceMethod(sdkContext, method, uri, rootApiVersions);
+    default:
+      // TO-DO: Add diagnostic for unsupported service method kind
+      return undefined
+  }
+}
+
+export function fromSdkPagingServiceMethod(
+  sdkContext: CSharpEmitterContext,
+  method: SdkPagingServiceMethod<SdkHttpOperation>,
+  uri: string,
+  rootApiVersions: string[],
+): InputPagingServiceMethod {
+  // TODO: Add paging-specific properties
+  return createServiceMethod<InputPagingServiceMethod>(sdkContext, method, uri, rootApiVersions);
+}
+
+export function fromSdkLroServiceMethod(
+  sdkContext: CSharpEmitterContext,
+  method: SdkLroServiceMethod<SdkHttpOperation>,
+  uri: string,
+  rootApiVersions: string[],
+): InputLongRunningServiceMethod {
+  // TODO: Add lro-specific properties
+  return createServiceMethod<InputLongRunningServiceMethod>(sdkContext, method, uri, rootApiVersions);
+}
+
+export function fromSdkLroPagingServiceMethod(
+  sdkContext: CSharpEmitterContext,
+  method: SdkLroPagingServiceMethod<SdkHttpOperation>,
+  uri: string,
+  rootApiVersions: string[],
+): InputLongRunningPagingServiceMethod {
+  // TODO: Add lro paging-specific properties
+  return createServiceMethod<InputLongRunningPagingServiceMethod>(sdkContext, method, uri, rootApiVersions);
+}
+
+export function fromSdkServiceMethodOperation(
   sdkContext: CSharpEmitterContext,
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
@@ -118,6 +175,40 @@ export function getParameterDefaultValue(
   };
 }
 
+/**
+ * Base function for creating service methods from SDK methods
+ */
+function createServiceMethod<T extends InputServiceMethod>(
+  sdkContext: CSharpEmitterContext,
+  method: SdkServiceMethod<SdkHttpOperation>,
+  uri: string,
+  rootApiVersions: string[],
+): T {
+  return {
+    kind: method.kind,
+    name: method.name,
+    accessibility: method.access,
+    apiVersions: method.apiVersions,
+    doc: method.doc,
+    summary: method.summary,
+    operation: fromSdkServiceMethodOperation(
+      sdkContext,
+      method,
+      uri,
+      rootApiVersions,
+    ),
+    parameters: [...fromSdkServiceMethodParameters(sdkContext, method.parameters, rootApiVersions).values()],
+    response: fromSdkServiceMethodResponse(sdkContext, method.response),
+    exception: method.exception
+      ? fromSdkServiceMethodResponse(sdkContext, method.exception)
+      : undefined,
+    isOverride: method.isOverride,
+    generateConvenient: method.generateConvenient,
+    generateProtocol: method.generateProtocol,
+    crossLanguageDefinitionId: method.crossLanguageDefinitionId,
+  } as T;
+}
+
 function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInKinds {
   switch (typeof value) {
     case "string":
@@ -138,6 +229,33 @@ function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInK
   }
 }
 
+function fromSdkServiceMethodParameters(
+  sdkContext: CSharpEmitterContext,
+  methodParameters: SdkMethodParameter[],
+  rootApiVersions: string[],
+): Map<SdkMethodParameter, InputParameter> {
+  const parameters = new Map<SdkMethodParameter, InputParameter>();
+  for (const p of methodParameters) {
+    const param = fromParameter(sdkContext, p, rootApiVersions);
+    parameters.set(p, param);
+  }
+
+  return parameters;
+}
+
+function fromSdkServiceMethodResponse(
+  sdkContext: CSharpEmitterContext,
+  methodResponse: SdkMethodResponse
+): InputServiceMethodResponse {
+  return {
+    type: methodResponse.type ? fromSdkType(sdkContext, methodResponse.type) : undefined,
+    resultSegments: methodResponse.resultSegments?.map((segment) =>
+      getResponseSegmentName(segment),
+    ),
+  }
+}
+
+
 function fromSdkOperationParameters(
   sdkContext: CSharpEmitterContext,
   operation: SdkHttpOperation,
@@ -154,12 +272,12 @@ function fromSdkOperationParameters(
       return parameters;
     }
 
-    const param = fromSdkHttpOperationParameter(sdkContext, p, rootApiVersions);
+    const param = fromParameter(sdkContext, p, rootApiVersions);
     parameters.set(p, param);
   }
 
   if (operation.bodyParam) {
-    const bodyParam = fromSdkHttpOperationParameter(
+    const bodyParam = fromParameter(
       sdkContext,
       operation.bodyParam,
       rootApiVersions,
@@ -169,7 +287,7 @@ function fromSdkOperationParameters(
   return parameters;
 }
 
-function fromSdkHttpOperationParameter(
+function fromParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkModelPropertyType,
   rootApiVersions: string[],
@@ -346,7 +464,7 @@ function loadOperationPaging(
     };
 
     if (method.pagingMetadata.nextLinkOperation) {
-      nextLink.operation = fromSdkServiceMethod(
+      nextLink.operation = fromSdkServiceMethodOperation(
         context,
         method.pagingMetadata.nextLinkOperation,
         uri,
@@ -366,7 +484,7 @@ function loadOperationPaging(
       method.pagingMetadata.continuationTokenParameterSegments.length - 1
     ] as SdkModelPropertyType;
     continuationToken = {
-      parameter: fromSdkHttpOperationParameter(
+      parameter: fromParameter(
         context,
         getHttpOperationParameter(method, lastParameterSegment)!,
         rootApiVersions,

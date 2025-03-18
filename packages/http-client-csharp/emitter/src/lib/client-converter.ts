@@ -6,6 +6,7 @@ import {
   SdkEndpointParameter,
   SdkEndpointType,
   SdkHttpOperation,
+  SdkServiceMethod,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
@@ -53,9 +54,17 @@ function fromSdkClient(
     namespace: client.namespace,
     doc: client.doc,
     summary: client.summary,
-    operations: client.methods
+    methods: client.methods
       .filter((m) => m.kind !== "clientaccessor")
-      .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions)),
+      .map((m) =>
+        fromSdkServiceMethod(
+          sdkContext,
+          m as SdkServiceMethod<SdkHttpOperation>,
+          uri,
+          rootApiVersions,
+        ),
+      )
+      .filter((m) => m !== undefined),
     parameters: clientParameters,
     decorators: client.decorators,
     crossLanguageDefinitionId: client.crossLanguageDefinitionId,

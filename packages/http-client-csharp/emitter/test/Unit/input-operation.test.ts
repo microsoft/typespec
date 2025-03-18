@@ -38,9 +38,9 @@ describe("Test Operation", () => {
         const root = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
-        strictEqual(root.clients[0].operations.length, 1);
+        strictEqual(root.clients[0].methods.length, 1);
 
-        const operation = root.clients[0].operations[0];
+        const operation = root.clients[0].methods[0].operation;
         ok(operation);
         strictEqual(operation.parameters.length, 4);
 
@@ -95,9 +95,9 @@ describe("Test Operation", () => {
         const root = createModel(sdkContext);
 
         strictEqual(root.clients.length, 1);
-        strictEqual(root.clients[0].operations.length, 1);
+        strictEqual(root.clients[0].methods.length, 1);
 
-        const operation = root.clients[0].operations[0];
+        const operation = root.clients[0].methods[0].operation;
         ok(operation);
 
         strictEqual(operation.responses.length, 1);

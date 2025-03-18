@@ -34,14 +34,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ClientProvider Client { get; }
 
-        public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
-            : base(operation, enclosingType)
+        public ScmMethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
+            : base(serviceMethod, enclosingType)
         {
-            _cleanOperationName = operation.Name.ToCleanName();
+            _cleanOperationName = serviceMethod.Operation.Name.ToCleanName();
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
-            _isPaging = operation.Paging != null;
-            _paging = operation.Paging;
+            _isPaging = serviceMethod.Operation.Paging != null;
+            _paging = serviceMethod.Operation.Paging;
         }
 
         protected override IReadOnlyList<MethodProvider> BuildMethods()

@@ -38,6 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? @namespace = null;
             string? summary = null;
             string? doc = null;
+            IReadOnlyList<InputServiceMethod>? methods = null;
             IReadOnlyList<InputOperation>? operations = null;
             IReadOnlyList<InputParameter>? parameters = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
@@ -51,6 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("namespace", ref @namespace)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
+                    || reader.TryReadComplexType("methods", options, ref methods)
                     || reader.TryReadComplexType("operations", options, ref operations)
                     || reader.TryReadComplexType("parameters", options, ref parameters)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
@@ -69,6 +71,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             client.Summary = summary;
             client.Doc = doc;
+            client.Methods = methods ?? [];
             client.Operations = operations ?? [];
             client.Parameters = parameters ?? [];
             client.Decorators = decorators ?? [];

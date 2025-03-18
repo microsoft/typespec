@@ -292,7 +292,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 type ?? InputPrimitiveType.String);
         }
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
         {
             // when this client has parent, we add the constructed client into the `children` list of the parent
             var clientChildren = new List<InputClient>();
@@ -302,6 +302,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
                 string.Empty,
                 doc ?? $"{name} description",
+                methods is null ? [] : [.. methods],
                 operations is null ? [] : [.. operations],
                 parameters is null ? [] : [.. parameters],
                 parent,
