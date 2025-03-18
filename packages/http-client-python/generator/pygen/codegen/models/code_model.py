@@ -402,3 +402,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     @staticmethod
     def has_non_json_models(models: List[ModelType]) -> bool:
         return any(m for m in models if m.base != "json")
+
+    @property
+    def is_tsp(self) -> bool:
+        return self.options.get("tsp_file") is not None
