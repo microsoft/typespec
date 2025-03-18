@@ -19,9 +19,11 @@ PACKAGE_NAMESPACE = "{{ code_model.namespace|lower }}"
 # a.b.c => a/b/c
 package_folder_path = PACKAGE_NAMESPACE.replace(".", "/")
 {% else %}
+
 # a-b-c => a/b/c
 package_folder_path = PACKAGE_NAME.replace("-", "/")
 {% endif %}
+
 # Version extraction inspired from 'requests'
 with open(os.path.join(package_folder_path, "_version.py"), "r") as fd:
     version = re.search(
@@ -40,6 +42,8 @@ version = "{{ package_version }}"
 {% set author_email = "" %}
 {% set url = "" %}
 {% endif %}
+
+
 setup(
     name=PACKAGE_NAME,
     version=version,
