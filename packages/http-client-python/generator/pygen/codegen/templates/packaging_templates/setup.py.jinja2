@@ -12,9 +12,9 @@ from setuptools import setup, find_packages
 
 PACKAGE_NAME = "{{ package_name|lower }}"
 {% if package_mode %}
-PACKAGE_NAMESPACE = "{{ code_model.namespace|lower }}"
-{% if code_model.is_tsp %}
 PACKAGE_PPRINT_NAME = "{{ package_pprint_name }}"
+{% if code_model.is_tsp %}
+PACKAGE_NAMESPACE = "{{ code_model.namespace|lower }}"
 
 # a.b.c => a/b/c
 package_folder_path = PACKAGE_NAMESPACE.replace(".", "/")
