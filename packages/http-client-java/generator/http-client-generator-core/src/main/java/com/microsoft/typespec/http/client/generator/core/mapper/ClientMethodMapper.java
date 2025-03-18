@@ -165,7 +165,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         List<ClientMethod> methods = new ArrayList<>();
 
         // If this operation is part of a group it'll need to be referenced with a more specific target.
-        ClientMethod.Builder builder = getClientMethodBuilder()
+        ClientMethod.Builder builder = new ClientMethod.Builder()
             .clientReference((operation.getOperationGroup() == null
                 || operation.getOperationGroup().getLanguage().getJava().getName().isEmpty()) ? "this" : "this.client")
             .setCrossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(operation));
@@ -218,9 +218,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                 List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
 
-                final boolean isPageable = operation.getExtensions() != null
-                    && operation.getExtensions().getXmsPageable() != null
-                    && shouldGeneratePagingMethods();
+                final boolean isPageable
+                    = operation.getExtensions() != null && operation.getExtensions().getXmsPageable() != null;
                 if (isPageable) {
                     // remove maxpagesize parameter from client method API, for Azure, it would be in e.g.
                     // PagedIterable.iterableByPage(int)
@@ -1096,7 +1095,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     private ClientMethodParameter getContextParameter() {
         return new ClientMethodParameter.Builder().description("The context to associate with this operation.")
-            .wireType(this.getContextType())
+            .wireType(ClassType.CONTEXT)
             .name("context")
             .requestParameterLocation(RequestParameterLocation.NONE)
             .annotations(Collections.emptyList())
@@ -1106,29 +1105,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .finalParameter(false)
             .required(false)
             .build();
-    }
-
-    /**
-     * Gets the Context type.
-     *
-     * @return The Context type.
-     */
-    protected IType getContextType() {
-        return ClassType.CONTEXT;
-    }
-
-    /**
-     * Creates the synchronous {@code withResponse} type.
-     *
-     * @param syncReturnType The return type.
-     * @param operation The operation.
-     * @param isProtocolMethod Whether this is a protocol method.
-     * @param settings Autorest generation settings.
-     * @return The synchronous {@code withResponse} type.
-     */
-    protected IType createSyncReturnWithResponseType(IType syncReturnType, Operation operation,
-        boolean isProtocolMethod, JavaSettings settings) {
-        return this.createSyncReturnWithResponseType(syncReturnType, operation, isProtocolMethod, settings, false);
     }
 
     /**
@@ -1169,7 +1145,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param syncReturnType The synchronous return type.
      * @return The simple synchronous REST response {@link ReturnValue}.
      */
-    protected ReturnValue createSimpleSyncRestResponseReturnValue(Operation operation, IType syncReturnWithResponse,
+    private ReturnValue createSimpleSyncRestResponseReturnValue(Operation operation, IType syncReturnWithResponse,
         IType syncReturnType) {
         return new ReturnValue(returnTypeDescription(operation, syncReturnWithResponse, syncReturnType),
             syncReturnWithResponse);
@@ -1183,8 +1159,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param syncReturnType The synchronous return type.
      * @return The simple asynchronous REST response {@link ReturnValue}.
      */
-    protected ReturnValue createSimpleAsyncRestResponseReturnValue(Operation operation,
-        IType asyncRestResponseReturnType, IType syncReturnType) {
+    private ReturnValue createSimpleAsyncRestResponseReturnValue(Operation operation, IType asyncRestResponseReturnType,
+        IType syncReturnType) {
         return new ReturnValue(returnTypeDescription(operation, asyncRestResponseReturnType, syncReturnType),
             asyncRestResponseReturnType);
     }
@@ -1196,7 +1172,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param syncReturnType The synchronous return value.
      * @return The simple synchronous return value.
      */
-    protected ReturnValue createSimpleSyncReturnValue(Operation operation, IType syncReturnType) {
+    private ReturnValue createSimpleSyncReturnValue(Operation operation, IType syncReturnType) {
         return new ReturnValue(returnTypeDescription(operation, syncReturnType, syncReturnType), syncReturnType);
     }
 
@@ -1208,8 +1184,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param syncReturnType The synchronous return type.
      * @return The simple asynchronous return value.
      */
-    protected ReturnValue createSimpleAsyncReturnValue(Operation operation, IType asyncReturnType,
-        IType syncReturnType) {
+    private ReturnValue createSimpleAsyncReturnValue(Operation operation, IType asyncReturnType, IType syncReturnType) {
         return new ReturnValue(returnTypeDescription(operation, asyncReturnType, syncReturnType), asyncReturnType);
     }
 
@@ -1326,20 +1301,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     }
 
     /**
-     * Whether paging methods should be generated.
-     *
-     * @return Whether paging methods should be generated.
-     */
-    protected boolean shouldGeneratePagingMethods() {
-        return true;
-    }
-
-    /**
      * Creates an asynchronous void return type.
      *
      * @return The asynchronous void return type.
      */
-    protected IType createAsyncVoidReturnType() {
+    private IType createAsyncVoidReturnType() {
         return GenericType.Mono(ClassType.VOID);
     }
 
@@ -1349,7 +1315,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param restAPIMethodReturnBodyClientType The type of the body.
      * @return The asynchronous body return type.
      */
-    protected IType createAsyncBodyReturnType(IType restAPIMethodReturnBodyClientType) {
+    private IType createAsyncBodyReturnType(IType restAPIMethodReturnBodyClientType) {
         return GenericType.Mono(restAPIMethodReturnBodyClientType);
     }
 
@@ -1358,7 +1324,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      *
      * @return The asynchronous binary return type.
      */
-    protected IType createAsyncBinaryReturnType() {
+    private IType createAsyncBinaryReturnType() {
         return GenericType.Flux(ClassType.BYTE_BUFFER);
     }
 
@@ -1368,7 +1334,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param elementType The element type of the page.
      * @return The synchronous paged return type.
      */
-    protected IType createPagedSyncReturnType(IType elementType) {
+    private IType createPagedSyncReturnType(IType elementType) {
         return GenericType.PagedIterable(elementType);
     }
 
@@ -1378,7 +1344,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param elementType The element type of the page.
      * @return The asynchronous paged return type.
      */
-    protected IType createPagedAsyncReturnType(IType elementType) {
+    private IType createPagedAsyncReturnType(IType elementType) {
         return GenericType.PagedFlux(elementType);
     }
 
@@ -1388,7 +1354,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param elementType The element type of the page.
      * @return The asynchronous paged REST response return type.
      */
-    protected IType createPagedRestResponseReturnType(IType elementType) {
+    private IType createPagedRestResponseReturnType(IType elementType) {
         return GenericType.Mono(GenericType.PagedResponse(elementType));
     }
 
@@ -1436,15 +1402,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      */
     protected IType createProtocolPagedRestResponseReturnTypeSync() {
         return GenericType.PagedResponse(ClassType.BINARY_DATA);
-    }
-
-    /**
-     * Gets a {@link ClientMethod.Builder}.
-     *
-     * @return A {@link ClientMethod.Builder}.
-     */
-    protected ClientMethod.Builder getClientMethodBuilder() {
-        return new ClientMethod.Builder();
     }
 
     /**

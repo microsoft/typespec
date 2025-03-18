@@ -1,6 +1,6 @@
 import { SdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
-import { _defaultPluginName, tspOutputFileName } from "./constants.js";
+import { _defaultGeneratorName, tspOutputFileName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { CodeModel } from "./type/code-model.js";
 
@@ -19,7 +19,7 @@ export interface CSharpEmitterOptions extends SdkEmitterOptions {
   debug?: boolean;
   logLevel?: LoggerLevel;
   "disable-xml-docs"?: boolean;
-  "plugin-name"?: string;
+  "generator-name"?: string;
   "emitter-extension-path"?: string;
   "update-code-model"?: (model: CodeModel) => CodeModel;
 }
@@ -57,7 +57,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
     },
     "disable-xml-docs": { type: "boolean", nullable: true },
-    "plugin-name": { type: "string", nullable: true },
+    "generator-name": { type: "string", nullable: true },
     "emitter-extension-path": { type: "string", nullable: true },
     "update-code-model": { type: "object", nullable: true },
   },
@@ -80,7 +80,7 @@ export const defaultOptions = {
   "package-name": undefined,
   debug: undefined,
   logLevel: LoggerLevel.INFO,
-  "plugin-name": _defaultPluginName,
+  "generator-name": _defaultGeneratorName,
   "emitter-extension-path": undefined,
   "update-code-model": (model: CodeModel) => model,
 };

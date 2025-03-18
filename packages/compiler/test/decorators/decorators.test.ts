@@ -1,6 +1,7 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  Enum,
   Model,
   ModelProperty,
   Namespace,
@@ -17,6 +18,7 @@ import {
   getFormat,
   getFriendlyName,
   getKeyName,
+  getMediaTypeHint,
   getOverloadedOperation,
   getOverloads,
   getPattern,
@@ -1340,6 +1342,103 @@ describe("compiler: built-in decorators", () => {
         }
       `)) as { expireAt: ModelProperty };
       strictEqual(resolveEncodedName(runner.program, expireAt, "application/xml"), "expireAt");
+    });
+  });
+
+  describe("@mediaTypeHint", () => {
+    it("returns correct media type hint for string", async () => {
+      const { A, B, C } = (await runner.compile(`
+        @test
+        @mediaTypeHint("application/json")
+        scalar A extends string;
+
+        @test
+        scalar B extends A;
+
+        @test
+        scalar C extends string;
+      `)) as { A: Scalar; B: Scalar; C: Scalar };
+
+      const string = runner.program.checker.getStdType("string");
+
+      strictEqual(getMediaTypeHint(runner.program, A), "application/json");
+      strictEqual(getMediaTypeHint(runner.program, string), "text/plain");
+
+      strictEqual(getMediaTypeHint(runner.program, B), "application/json");
+
+      strictEqual(getMediaTypeHint(runner.program, C), "text/plain");
+    });
+
+    it("returns correct media type hint for bytes", async () => {
+      const { A, B, C } = (await runner.compile(`
+        @test
+        @mediaTypeHint("application/json")
+        scalar A extends bytes;
+
+        @test
+        scalar B extends A;
+
+        @test
+        scalar C extends bytes;
+      `)) as { A: Scalar; B: Scalar; C: Scalar };
+
+      strictEqual(getMediaTypeHint(runner.program, A), "application/json");
+      strictEqual(getMediaTypeHint(runner.program, A.baseScalar!), "application/octet-stream");
+
+      strictEqual(getMediaTypeHint(runner.program, B), "application/json");
+
+      strictEqual(getMediaTypeHint(runner.program, C), "application/octet-stream");
+    });
+
+    it("returns correct media type hint for model", async () => {
+      const { A, B, C, D } = (await runner.compile(`
+        @test
+        model A {}
+
+        @test
+        @mediaTypeHint("application/xml")
+        model B extends A {}
+
+        @test
+        model C extends B {}
+
+        @test
+        @mediaTypeHint("application/json")
+        model D extends C {}
+      `)) as { A: Model; B: Model; C: Model; D: Model };
+
+      strictEqual(getMediaTypeHint(runner.program, A), undefined);
+      strictEqual(getMediaTypeHint(runner.program, B), "application/xml");
+      strictEqual(getMediaTypeHint(runner.program, C), "application/xml");
+      strictEqual(getMediaTypeHint(runner.program, D), "application/json");
+    });
+
+    it("returns correct media type hint for enum", async () => {
+      const { A, B } = (await runner.compile(`
+        @test
+        enum A { a, b }
+
+        @test
+        @mediaTypeHint("application/json")
+        enum B { a, b }
+      `)) as { A: Enum; B: Enum };
+
+      strictEqual(getMediaTypeHint(runner.program, A), undefined);
+      strictEqual(getMediaTypeHint(runner.program, B), "application/json");
+    });
+
+    it("returns correct media type hint for union", async () => {
+      const { A, B } = (await runner.compile(`
+        @test
+        union A {}
+
+        @test
+        @mediaTypeHint("text/plain")
+        union B {}
+      `)) as { A: Union; B: Union };
+
+      strictEqual(getMediaTypeHint(runner.program, A), undefined);
+      strictEqual(getMediaTypeHint(runner.program, B), "text/plain");
     });
   });
 });

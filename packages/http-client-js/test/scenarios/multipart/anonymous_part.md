@@ -31,7 +31,7 @@ export async function foo(
     body: [
       {
         name: "temperature",
-        body: body.temperature,
+        body: body.temperature.body,
       },
     ],
   };

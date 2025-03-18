@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
     {
         public const string TestHelpersFolder = "TestHelpers";
 
-        public async static Task<Mock<CodeModelPlugin>> LoadMockPluginAsync(
+        public async static Task<Mock<CodeModelGenerator>> LoadMockGeneratorAsync(
             Func<InputType, CSharpType?>? createCSharpTypeCore = null,
             Func<InputModelType, ModelProvider?>? createModelCore = null,
             Func<InputEnumType, TypeProvider?, EnumProvider?>? createEnumCore = null,
@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             IEnumerable<string>? sharedSourceDirectories = null,
             IEnumerable<string>? typesToKeep = null)
         {
-            var mockPlugin = LoadMockPlugin(
+            var mockGenerator = LoadMockGenerator(
                 createCSharpTypeCore,
                 createModelCore,
                 createEnumCore,
@@ -49,12 +49,12 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var compilationResult = compilation == null ? null : await compilation();
 
             var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult)) { CallBase = true };
-            mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+            mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
-            return mockPlugin;
+            return mockGenerator;
         }
 
-        public static Mock<CodeModelPlugin> LoadMockPlugin(
+        public static Mock<CodeModelGenerator> LoadMockGenerator(
             Func<InputType, CSharpType?>? createCSharpTypeCore = null,
             Func<InputModelType, ModelProvider?>? createModelCore = null,
             Func<InputEnumType, TypeProvider?, EnumProvider?>? createEnumCore = null,
@@ -67,10 +67,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             IEnumerable<string>? typesToKeep = null)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
-            // initialize the singleton instance of the plugin
-            var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(configFilePath, configuration))) { CallBase = true };
+            // initialize the singleton instance of the generator
+            var mockGenerator = new Mock<CodeModelGenerator>(new GeneratorContext(Configuration.Load(configFilePath, configuration))) { CallBase = true };
 
-            mockPlugin.Setup(p => p.Emitter).Returns(new Emitter(Console.OpenStandardOutput()));
+            mockGenerator.Setup(p => p.Emitter).Returns(new Emitter(Console.OpenStandardOutput()));
 
             var mockTypeFactory = new Mock<TypeFactory>() { CallBase = true };
 
@@ -91,7 +91,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             if (createOutputLibrary != null)
             {
-                mockPlugin.Setup(p => p.OutputLibrary).Returns(createOutputLibrary);
+                mockGenerator.Setup(p => p.OutputLibrary).Returns(createOutputLibrary);
             }
 
             Mock<InputLibrary> mockInputLibrary = new Mock<InputLibrary>() { CallBase = true };
@@ -100,18 +100,18 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 models: inputModelTypes,
                 enums: inputEnumTypes));
 
-            mockPlugin.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
+            mockGenerator.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
 
-            mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            mockGenerator.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
-            mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+            mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             if (additionalMetadataReferences != null)
             {
                 foreach (var reference in additionalMetadataReferences)
                 {
-                    mockPlugin.Object.AddMetadataReference(reference);
+                    mockGenerator.Object.AddMetadataReference(reference);
                 }
             }
 
@@ -119,7 +119,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 foreach (var directory in sharedSourceDirectories)
                 {
-                    mockPlugin.Object.AddSharedSourceDirectory(directory);
+                    mockGenerator.Object.AddSharedSourceDirectory(directory);
                 }
             }
 
@@ -127,13 +127,13 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 foreach (var type in typesToKeep)
                 {
-                    mockPlugin.Object.AddTypeToKeep(type);
+                    mockGenerator.Object.AddTypeToKeep(type);
                 }
             }
 
-            CodeModelPlugin.Instance = mockPlugin.Object;
+            CodeModelGenerator.Instance = mockGenerator.Object;
 
-            return mockPlugin;
+            return mockGenerator;
         }
     }
 }

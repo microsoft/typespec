@@ -17,7 +17,6 @@ import {
   getQueryParamOptions,
   getServers,
   getStatusCodes,
-  includeInapplicableMetadataInPayload,
   isBody,
   isBodyIgnore,
   isBodyRoot,
@@ -27,6 +26,7 @@ import {
   isQueryParam,
   isStatusCode,
 } from "../src/decorators.js";
+import { includeInapplicableMetadataInPayload } from "../src/private.decorators.js";
 import { createHttpTestRunner } from "./test-host.js";
 describe("http: decorators", () => {
   let runner: BasicTestRunner;
@@ -1140,7 +1140,7 @@ describe("http: decorators", () => {
     });
     it("can specify at namespace level", async () => {
       const { M } = await runner.compile(`
-        @includeInapplicableMetadataInPayload(false)
+        @Private.includeInapplicableMetadataInPayload(false)
         namespace Foo;
         @test model M {p: string; }
       `);
@@ -1154,7 +1154,7 @@ describe("http: decorators", () => {
     it("can specify at model level", async () => {
       const { M } = await runner.compile(`
       namespace Foo;
-      @includeInapplicableMetadataInPayload(false) @test model M { p: string; }
+      @Private.includeInapplicableMetadataInPayload(false) @test model M { p: string; }
     `);
 
       strictEqual(M.kind, "Model" as const);
@@ -1166,7 +1166,7 @@ describe("http: decorators", () => {
     it("can specify at property level", async () => {
       const { M } = await runner.compile(`
       namespace Foo;
-      @test model M { @includeInapplicableMetadataInPayload(false) p: string; }
+      @test model M { @Private.includeInapplicableMetadataInPayload(false) p: string; }
     `);
 
       strictEqual(M.kind, "Model" as const);
@@ -1178,9 +1178,9 @@ describe("http: decorators", () => {
 
     it("can be overridden", async () => {
       const { M } = await runner.compile(`
-      @includeInapplicableMetadataInPayload(false)
+      @Private.includeInapplicableMetadataInPayload(false)
       namespace Foo;
-      @includeInapplicableMetadataInPayload(true) @test model M { p: string; }
+      @Private.includeInapplicableMetadataInPayload(true) @test model M { p: string; }
     `);
 
       strictEqual(M.kind, "Model" as const);

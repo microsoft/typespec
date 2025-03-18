@@ -5,7 +5,6 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
-using System.Threading.Tasks;
 using Payload.Pageable;
 
 namespace Payload.Pageable._ServerDrivenPagination.ContinuationToken
@@ -16,36 +15,36 @@ namespace Payload.Pageable._ServerDrivenPagination.ContinuationToken
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult RequestQueryResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual CollectionResult RequestQueryResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RequestQueryResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual AsyncCollectionResult RequestQueryResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        public virtual ClientResult<RequestQueryResponseBodyResponse> RequestQueryResponseBody(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<Pet> RequestQueryResponseBody(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<RequestQueryResponseBodyResponse>> RequestQueryResponseBodyAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<Pet> RequestQueryResponseBodyAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult RequestHeaderResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual CollectionResult RequestHeaderResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RequestHeaderResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual AsyncCollectionResult RequestHeaderResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        public virtual ClientResult<RequestHeaderResponseBodyResponse> RequestHeaderResponseBody(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<Pet> RequestHeaderResponseBody(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<RequestHeaderResponseBodyResponse>> RequestHeaderResponseBodyAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<Pet> RequestHeaderResponseBodyAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult RequestQueryResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual CollectionResult RequestQueryResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RequestQueryResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual AsyncCollectionResult RequestQueryResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        public virtual ClientResult<RequestQueryResponseHeaderResponse> RequestQueryResponseHeader(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<Pet> RequestQueryResponseHeader(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<RequestQueryResponseHeaderResponse>> RequestQueryResponseHeaderAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<Pet> RequestQueryResponseHeaderAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult RequestHeaderResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual CollectionResult RequestHeaderResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RequestHeaderResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
+        public virtual AsyncCollectionResult RequestHeaderResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        public virtual ClientResult<RequestHeaderResponseHeaderResponse> RequestHeaderResponseHeader(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual CollectionResult<Pet> RequestHeaderResponseHeader(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<RequestHeaderResponseHeaderResponse>> RequestHeaderResponseHeaderAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual AsyncCollectionResult<Pet> RequestHeaderResponseHeaderAsync(string token = null, string foo = null, string bar = null, CancellationToken cancellationToken = default) => throw null;
     }
 }

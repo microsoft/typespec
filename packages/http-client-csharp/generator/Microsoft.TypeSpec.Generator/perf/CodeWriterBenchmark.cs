@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Perf
 
         public CodeWriterBenchmark()
         {
-            PluginInitializer.Initialize();
+            GeneratorInitializer.Initialize();
             var properties = new[]
             {
                 new InputModelProperty("MyProperty", null, "The property of mine", InputPrimitiveType.Int32, true, false, false, new(json: new("myProperty")))

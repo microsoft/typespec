@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 $"Create{operation.Name.ToCleanName()}Request",
                 null,
                 MethodSignatureModifiers.Internal,
-                ScmCodeModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
+                ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                 null,
                 [.. parameters, options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
@@ -105,7 +105,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var classifier = GetClassifier(operation);
-            var endpoint = operation.Paging?.NextLink != null ? ScmKnownParameters.Endpoint.AsExpression() : ClientProvider.EndpointField.AsValueExpression;
 
             return new MethodProvider(
                 signature,
@@ -116,7 +115,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
                     Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
-                    uri.Reset(endpoint).Terminate(),
+                    operation.Paging?.NextLink != null ?
+                        uri.Reset(ScmKnownParameters.NextPage.AsExpression().NullCoalesce(ClientProvider.EndpointField)).Terminate() :
+                        uri.Reset(ClientProvider.EndpointField).Terminate(),
                     .. ConditionallyAppendPathParameters(operation, uri, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
                     request.SetUri(uri),
@@ -134,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return
                 [
-                    new IfStatement(ScmKnownParameters.AppendPath)
+                    new IfStatement(ScmKnownParameters.NextPage.Equal(Null))
                     {
                         new MethodBodyStatements([..AppendPathParameters(uri, operation, paramMap)])
                     }
@@ -164,14 +165,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var classifierNameSuffix = string.Join(string.Empty, statusCodes);
                     var classifierBackingField = new FieldProvider(
                         FieldModifiers.Private | FieldModifiers.Static,
-                        ScmCodeModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
+                        ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                         $"_pipelineMessageClassifier{classifierNameSuffix}",
                         this);
 
                     var classifierProperty = new PropertyProvider(
                         null,
                         MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
-                        ScmCodeModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
+                        ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                         classifierBackingField.Name.Substring(1).ToCleanName(),
                         new ExpressionPropertyBody(
                             classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)))),
@@ -315,14 +316,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     changeTrackingCollectionDeclaration = Declare(
                         "changeTrackingDictionary",
-                        ScmCodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(parameterType.Arguments),
+                        ScmCodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(parameterType.Arguments),
                         out changeTrackingReference);
                 }
                 else
                 {
                     changeTrackingCollectionDeclaration = Declare(
                         "changeTrackingList",
-                        ScmCodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(parameterType
+                        ScmCodeModelGenerator.Instance.TypeFactory.ListInitializationType.MakeGenericType(parameterType
                             .Arguments),
                         out changeTrackingReference);
                 }
@@ -417,16 +418,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression valueExpression)
         {
-            type = ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
+            type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             if (inputParam.Kind == InputOperationParameterKind.Constant && !(operation.IsMultipartFormData && inputParam.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
-                format = ScmCodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
+                format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
             }
             else if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
             {
                 valueExpression = parameterProvider.DefaultValue!;
-                format = ScmCodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
+                format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type).ToFormatSpecifier();
             }
             else
             {
@@ -477,9 +478,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     null,
                     null);
 
-                var paramProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateParameter(inputParameter).ToPublicInputParameter();
+                var paramProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParameter).ToPublicInputParameter();
                 paramProvider.DefaultValue = !inputParameter.IsRequired ? Default : null;
-                paramProvider.SpreadSource = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+                paramProvider.SpreadSource = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
 
                 builtParameters[index++] = paramProvider;
             }
@@ -527,7 +528,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
-            int path = 2;
+            int paging = 0;
+            int path = 1;
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
@@ -536,13 +538,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (InputParameter inputParam in operation.Parameters)
             {
-                if ((inputParam.Kind != InputOperationParameterKind.Method && inputParam.Kind != InputOperationParameterKind.Spread)
-                    || TryGetSpecialHeaderParam(inputParam, out var _))
+                if ((inputParam.Kind != InputOperationParameterKind.Method &&
+                     inputParam.Kind != InputOperationParameterKind.Spread) ||
+                    TryGetSpecialHeaderParam(inputParam, out _))
+                {
                     continue;
+                }
 
                 var spreadInputModel = inputParam.Kind == InputOperationParameterKind.Spread ? GetSpreadParameterModel(inputParam) : null;
 
-                ParameterProvider? parameter = ScmCodeModelPlugin.Instance.TypeFactory.CreateParameter(inputParam).ToPublicInputParameter();
+                ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam).ToPublicInputParameter();
 
                 if (methodType is MethodType.Protocol or MethodType.CreateRequest)
                 {
@@ -626,11 +631,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     parameter.DefaultValue = null;
                 }
 
-                // Next link operations will always have an endpoint parameter in the CreateRequest method and an "appendPath" parameter
                 if (operation.Paging?.NextLink != null)
                 {
-                    sortedParams.Add(0, ScmKnownParameters.Endpoint);
-                    sortedParams.Add(1, ScmKnownParameters.AppendPath);
+                    // Next link operations will always have an endpoint parameter in the CreateRequest method
+                    sortedParams.Add(paging, ScmKnownParameters.NextPage);
                 }
             }
 
