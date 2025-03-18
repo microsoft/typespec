@@ -107,7 +107,6 @@ import {
 
 type FileExists = (path: string) => Promise<boolean>;
 
-
 export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>) {
   let _unionCounter: number = 0;
   const controllers = new Map<string, ControllerContext>();
@@ -115,7 +114,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const doNotEmit: boolean = context.program.compilerOptions.dryRun || false;
 
   function getFileWriter(program: Program): FileExists {
-    return async (path: string) => !!(await program.host.stat(resolvePath(path)).catch((_) => false));
+    return async (path: string) =>
+      !!(await program.host.stat(resolvePath(path)).catch((_) => false));
   }
   class CSharpCodeEmitter extends CodeTypeEmitter {
     #metadateMap: Map<Type, CSharpTypeMetadata> = new Map<Type, CSharpTypeMetadata>();
