@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
-import { resolvePath, typespecVersion } from "@typespec/compiler";
+import { resolvePath } from "@typespec/compiler";
 import { spawn } from "cross-spawn";
 import pc from "picocolors";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 async function main() {
-  console.log(`TypeSpec Http Server Emitter for C-Sharp v${typespecVersion}\n`);
+  console.log(`TypeSpec Http Server Emitter for C-Sharp \n`);
 
   await yargs(hideBin(process.argv))
     .scriptName("hscs")
@@ -102,7 +102,6 @@ async function main() {
         }
       },
     )
-    .version(typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }
 

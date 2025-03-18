@@ -34,6 +34,8 @@ extends:
           - template: /eng/tsp-core/pipelines/jobs/build-for-publish.yml@self
           - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli-all.yml@self
           - template: /eng/tsp-core/pipelines/jobs/e2e.yml@self
+            parameters:
+              azLogin: true
 
       - stage: publish_npm
         displayName: Publish Npm Packages

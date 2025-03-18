@@ -14,19 +14,19 @@ namespace Sample
     internal partial class GetCatsAsyncCollectionResultOfT : global::System.ClientModel.AsyncCollectionResult<global::Sample.Models.Cat>
     {
         private readonly global::Sample.CatClient _client;
-        private readonly global::System.Uri _initialUri;
+        private readonly global::System.Uri _nextPage;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public GetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, global::System.Uri initialUri, global::System.ClientModel.Primitives.RequestOptions options)
+        public GetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, global::System.Uri nextPage, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
-            _initialUri = initialUri;
+            _nextPage = nextPage;
             _options = options;
         }
 
         public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_initialUri, _options);
+            global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_nextPage, _options);
             global::System.Uri nextPageUri = null;
             while (true)
             {

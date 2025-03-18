@@ -32,19 +32,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
         public static ParameterProvider ClientOptions(CSharpType clientOptionsType)
             => new("options", $"The options for configuring the client.", clientOptionsType.WithNullable(true), initializationValue: New.Instance(clientOptionsType.WithNullable(true)));
         public static readonly ParameterProvider OptionalRequestOptions = new(
-            ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName,
+            ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName,
             $"The request options, which can override default behaviors of the client pipeline on a per-call basis.",
-            ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType.WithNullable(true),
+            ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType.WithNullable(true),
             defaultValue: Null);
-        public static readonly ParameterProvider RequestOptions = new(ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, $"The request options, which can override default behaviors of the client pipeline on a per-call basis.", ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
-        public static readonly ParameterProvider RequestContent = new("content", $"The content to send as the body of the request.", ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType, location: ParameterLocation.Body) { Validation = ParameterValidationType.AssertNotNull };
+        public static readonly ParameterProvider RequestOptions = new(ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, $"The request options, which can override default behaviors of the client pipeline on a per-call basis.", ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
+        public static readonly ParameterProvider RequestContent = new("content", $"The content to send as the body of the request.", ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType, location: ParameterLocation.Body) { Validation = ParameterValidationType.AssertNotNull };
         public static readonly ParameterProvider CancellationToken = new("cancellationToken", $"The cancellation token that can be used to cancel the operation.", new CSharpType(typeof(CancellationToken)), defaultValue: Default);
 
         // There is intentionally no default value here to avoid ambiguous calls between convenience and protocol methods.
         public static readonly ParameterProvider OptionalRequestContent = new(
             "content",
             $"The content to send as the body of the request.",
-            ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType.WithNullable(true),
+            ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.WithNullable(true),
             location: ParameterLocation.Body);
 
         // Known header parameters
@@ -59,7 +59,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
 
         public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string), wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, false, false, false, "Content-Type"));
 
-        public static readonly ParameterProvider Endpoint =
-            new ParameterProvider("endpoint", FormattableStringHelpers.Empty, typeof(Uri));
+        public static readonly ParameterProvider NextPage =
+            new ParameterProvider("nextPage", FormattableStringHelpers.Empty, typeof(Uri));
     }
 }

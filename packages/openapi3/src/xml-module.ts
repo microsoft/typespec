@@ -1,3 +1,4 @@
+import { ArrayBuilder, ObjectBuilder } from "@typespec/asset-emitter";
 import {
   ArrayModelType,
   Enum,
@@ -8,7 +9,6 @@ import {
   isArrayModelType,
   resolveEncodedName,
 } from "@typespec/compiler";
-import { ArrayBuilder, ObjectBuilder } from "@typespec/compiler/emitter-framework";
 import { reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { OpenAPI3Schema, OpenAPI3XmlSchema, OpenAPISchema3_1 } from "./types.js";

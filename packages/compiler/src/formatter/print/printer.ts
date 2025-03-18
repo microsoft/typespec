@@ -180,7 +180,7 @@ export function printNode(
       return printInterfaceStatement(path as AstPath<InterfaceStatementNode>, options, print);
     // Others.
     case SyntaxKind.Identifier:
-      return printIdentifier(node, options);
+      return printIdentifier(node);
     case SyntaxKind.StringLiteral:
       return printStringLiteral(path as AstPath<StringLiteralNode>, options);
     case SyntaxKind.NumericLiteral:
@@ -507,7 +507,12 @@ export function printDecorator(
   print: PrettierChildPrint,
 ) {
   const args = printDecoratorArgs(path, options, print);
-  return ["@", path.call(print, "target"), args];
+  const node = path.node;
+  const name =
+    node.target.kind === SyntaxKind.Identifier
+      ? printIdentifier(node.target, "allow-reserved")
+      : path.call(print, "target");
+  return ["@", name, args];
 }
 
 export function printAugmentDecorator(
@@ -674,7 +679,7 @@ export function printEnumMember(
   print: PrettierChildPrint,
 ) {
   const node = path.node;
-  const id = path.call(print, "id");
+  const id = printIdentifier(node.id, "allow-reserved");
   const value = node.value ? [": ", path.call(print, "value")] : "";
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.enumMember,
@@ -720,7 +725,8 @@ export function printUnionVariant(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  const id = path.node.id === undefined ? "" : [path.call(print, "id"), ": "];
+  const id =
+    path.node.id === undefined ? "" : [printIdentifier(path.node.id, "allow-reserved"), ": "];
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.unionVariant,
   });
@@ -902,7 +908,8 @@ export function printMemberExpression(
 ): Doc {
   const node = path.node;
 
-  return [node.base ? [path.call(print, "base"), node.selector] : "", path.call(print, "id")];
+  const id = printIdentifier(node.id, "allow-reserved");
+  return [node.base ? [path.call(print, "base"), node.selector] : "", id];
 }
 
 export function printModelExpression(
@@ -952,7 +959,7 @@ export function printObjectLiteralProperty(
   print: PrettierChildPrint,
 ) {
   const node = path.node;
-  const id = printIdentifier(node.id, options);
+  const id = printIdentifier(node.id, "allow-reserved");
   return [printDirectives(path, options, print), id, ": ", path.call(print, "value")];
 }
 
@@ -1140,7 +1147,7 @@ export function printModelProperty(
   const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
     tryInline: DecoratorsTryInline.modelProperty,
   });
-  const id = printIdentifier(node.id, options);
+  const id = printIdentifier(node.id, "allow-reserved");
   return [
     printDirectives(path, options, print),
     decorators,
@@ -1151,8 +1158,11 @@ export function printModelProperty(
   ];
 }
 
-function printIdentifier(id: IdentifierNode, options: TypeSpecPrettierOptions) {
-  return printIdentifierString(id.sv);
+function printIdentifier(
+  id: IdentifierNode,
+  context: "allow-reserved" | "disallow-reserved" = "disallow-reserved",
+) {
+  return printIdentifierString(id.sv, context);
 }
 
 function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {

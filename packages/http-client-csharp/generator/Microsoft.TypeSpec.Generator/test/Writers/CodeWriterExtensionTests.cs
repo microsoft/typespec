@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
     {
         public CodeWriterExtensionTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         // Test that an exception is not thrown when the extension methods are null.

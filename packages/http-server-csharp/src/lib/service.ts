@@ -1,4 +1,18 @@
 import {
+  CodeTypeEmitter,
+  Context,
+  Declaration,
+  EmitEntity,
+  EmittedSourceFile,
+  EmitterOutput,
+  Scope,
+  SourceFile,
+  StringBuilder,
+  TypeSpecDeclaration,
+  code,
+  createAssetEmitter,
+} from "@typespec/asset-emitter";
+import {
   BooleanLiteral,
   EmitContext,
   Enum,
@@ -27,20 +41,6 @@ import {
   isVoidType,
   serializeValueAsJson,
 } from "@typespec/compiler";
-import {
-  CodeTypeEmitter,
-  Context,
-  Declaration,
-  EmitEntity,
-  EmittedSourceFile,
-  EmitterOutput,
-  Scope,
-  SourceFile,
-  StringBuilder,
-  TypeSpecDeclaration,
-  code,
-  createAssetEmitter,
-} from "@typespec/compiler/emitter-framework";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import {
   HttpOperation,
@@ -104,7 +104,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   let _unionCounter: number = 0;
   const controllers = new Map<string, ControllerContext>();
   const NoResourceContext: string = "RPCOperations";
-  const doNotEmit: boolean = context.program.compilerOptions.noEmit || false;
+  const doNotEmit: boolean = context.program.compilerOptions.dryRun || false;
 
   class CSharpCodeEmitter extends CodeTypeEmitter {
     #metadateMap: Map<Type, CSharpTypeMetadata> = new Map<Type, CSharpTypeMetadata>();
@@ -1217,7 +1217,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     CSharpCodeEmitter,
     context,
   );
-  const ns = context.program.checker.getGlobalNamespaceType();
+  const ns = context.program.getGlobalNamespaceType();
   const options = emitter.getOptions();
   processNameSpace(context.program, ns);
   if (!doNotEmit) {

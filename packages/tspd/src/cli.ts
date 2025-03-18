@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { NodeHost, logDiagnostics, resolvePath, typespecVersion } from "@typespec/compiler";
+import { NodeHost, logDiagnostics, resolvePath } from "@typespec/compiler";
 import pc from "picocolors";
 import yargs from "yargs";
 import { generateExternSignatures } from "./gen-extern-signatures/gen-extern-signatures.js";
@@ -31,7 +31,7 @@ function logExperimentalWarning(type: "log" | "error") {
 }
 
 async function main() {
-  console.log(`TypeSpec Developer Tools v${typespecVersion}\n`);
+  console.log(`TypeSpec Developer Tools\n`);
 
   await yargs(process.argv.slice(2))
     .scriptName("tspd")
@@ -119,7 +119,6 @@ async function main() {
         }
       },
     )
-    .version(typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }
 
