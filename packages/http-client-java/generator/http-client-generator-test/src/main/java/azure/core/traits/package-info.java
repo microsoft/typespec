@@ -8,4 +8,4 @@
  * Illustrates Azure Core operation customizations by traits.
  * <!-- end generated doc -->
  */
-package azure.core.trait;
+package azure.core.traits;
