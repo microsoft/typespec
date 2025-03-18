@@ -33,7 +33,7 @@ npx tsp compile main.tsp --emit @typespec/http-client-csharp
 
 You can further configure the SDK generated, using the emitter options on @typespec/http-client-csharp.
 
-You can set options in the command line directly via `--option @typespec/http-client-csharp.<optionName>=XXX`, e.g. `--option @typespec/http-client-csharp.namespace=MyService.Namespace`
+You can set options in the command line directly via `--option @typespec/http-client-csharp.<optionName>=XXX`, e.g. `--option @typespec/http-client-csharp.package-name=MyService`
 
 or
 
@@ -44,7 +44,7 @@ emit:
   - "@typespec/http-client-csharp"
 options:
   "@typespec/http-client-csharp":
-+    namespace: MyService.Namespace
++    package-name: MyService
 ```
 
 **Supported Emitter options**:
@@ -60,7 +60,7 @@ options:
 - `new-project` set to `true` to overwrite the csproj if it already exists. The default value is `false`.
 - `save-inputs` set to `true` to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the C# generator. The default value is `false`.
 - `debug` set to `true` to automatically attempt to attach to a debugger when executing the C# generator. The default value is `false`.
-- `plugin-name` by default this is set to `ScmCodeModelPlugin`. Plugin authors can set this to the name of a plugin that inherits from `ScmCodeModelPlugin`.
+- `generator-name` by default this is set to `ScmCodeModelGenerator`. Generator authors can set this to the name of a generator that inherits from `ScmCodeModelGenerator`.
 
 ## Convenience API
 

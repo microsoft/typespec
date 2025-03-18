@@ -308,7 +308,6 @@
        "BodyType": {
         "$ref": "10"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -317,7 +316,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/renamed-from/api-version:{version}",
      "Path": "/test",
      "RequestMediaTypes": [
@@ -374,7 +372,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Versioning.RenamedFrom"
   },
   {
    "$id": "41",
@@ -469,7 +468,6 @@
        "BodyType": {
         "$ref": "10"
        },
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
@@ -478,7 +476,6 @@
       }
      ],
      "HttpMethod": "POST",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/renamed-from/api-version:{version}",
      "Path": "/interface/test",
      "RequestMediaTypes": [
@@ -536,7 +533,8 @@
      "Kind": "Client"
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Versioning.RenamedFrom.OldInterface"
   }
  ]
 }

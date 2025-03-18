@@ -32,6 +32,10 @@ import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext } from "./common/schemas/usage.js";
 import { getNamespace } from "./utils.js";
 
+export const DURATION_KNOWN_ENCODING = ["ISO8601", "seconds"];
+export const DATETIME_KNOWN_ENCODING = ["rfc3339", "rfc7231", "unixTimestamp"];
+export const BYTES_KNOWN_ENCODING = ["base64", "base64url"];
+
 /** Acts as a cache for processing inputs.
  *
  * If the input is undefined, the output is always undefined.
@@ -342,11 +346,12 @@ export function isArmCommonType(entity: Type): boolean {
 }
 
 export function getPropertySerializedName(property: SdkBodyModelPropertyType): string {
-  // TODO: remove the "property.serializedName" after bug https://github.com/microsoft/typespec/pull/5702 is fixed
+  // still fallback to "property.name", as for orphan model, serializationOptions.json is undefined
   return (
     property.serializationOptions.json?.name ??
     property.serializationOptions.multipart?.name ??
-    property.serializedName
+    property.__raw?.name ??
+    property.name
   );
 }
 

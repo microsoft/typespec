@@ -19,7 +19,7 @@
   ],
   "main": "dist/tmlanguage-generator.js",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -37,9 +37,9 @@
     "plist": "~3.1.0"
   },
   "devDependencies": {
-    "@types/node": "~22.10.10",
+    "@types/node": "~22.13.9",
     "@types/plist": "~3.0.5",
     "rimraf": "~6.0.1",
-    "typescript": "~5.7.3"
+    "typescript": "~5.8.2"
   }
 }

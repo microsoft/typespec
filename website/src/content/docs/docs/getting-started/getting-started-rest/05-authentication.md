@@ -21,9 +21,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;
 

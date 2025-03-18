@@ -7,7 +7,7 @@ export async function execCSharpGenerator(
   options: {
     generatorPath: string;
     outputFolder: string;
-    pluginName: string;
+    generatorName: string;
     newProject: boolean;
     debug: boolean;
   },
@@ -18,8 +18,8 @@ export async function execCSharpGenerator(
     "Major",
     options.generatorPath,
     options.outputFolder,
-    "-p",
-    options.pluginName,
+    "-g",
+    options.generatorName,
   ];
   if (options.newProject) {
     args.push("--new-project");
@@ -90,11 +90,7 @@ function processJsonRpc(context: CSharpEmitterContext, message: string) {
     if (crossLanguageDefinitionId === undefined) {
       return undefined;
     }
-    const target = context.__typeCache.crossLanguageDefinitionIds.get(crossLanguageDefinitionId);
-    if (target) {
-      return target.__raw;
-    }
-    return undefined;
+    return context.__typeCache.crossLanguageDefinitionIds.get(crossLanguageDefinitionId);
   }
 }
 

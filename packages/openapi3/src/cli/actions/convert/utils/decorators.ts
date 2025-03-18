@@ -44,20 +44,16 @@ function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator |
     args: [],
   };
 
-  let format: string | undefined;
   let decoratorArgs: TypeSpecDecorator["args"][0] | undefined;
   switch (parameter.in) {
     case "header":
-      format = getHeaderFormat(parameter.style);
+      decoratorArgs = getHeaderArgs(parameter);
       break;
     case "query":
       decoratorArgs = getQueryArgs(parameter);
       break;
   }
 
-  if (format) {
-    decorator.args.push({ format });
-  }
   if (decoratorArgs) {
     decorator.args.push(decoratorArgs);
   }
@@ -118,8 +114,12 @@ function getNormalizedQueryOptions({
   return queryOptions;
 }
 
-function getHeaderFormat(style?: string): string | undefined {
-  return style === "simple" ? "simple" : undefined;
+function getHeaderArgs({ explode }: OpenAPI3Parameter): TSValue | undefined {
+  if (explode === true) {
+    return createTSValue(`#{ explode: true }`);
+  }
+
+  return;
 }
 
 export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpecDecorator[] {

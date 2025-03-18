@@ -40,19 +40,23 @@ const FirstResponseTokenInHeader = {
   }),
   headers: {
     "next-token": "page2",
+    foo: "foo",
   },
 };
 
 const RequestTokenInQuery = {
-  params: { token: "page2" },
+  params: { token: "page2", bar: "bar" },
+  headers: { foo: "foo" },
 };
 
-const RequestTokenInHeader = { headers: { token: "page2" } };
+const RequestTokenInHeader = { headers: { token: "page2", foo: "foo" }, params: { bar: "bar" } };
 
 function createTests(reqInfo: "query" | "header", resInfo: "body" | "header") {
   const uri = `/payload/pageable/server-driven-pagination/continuationtoken/request-${reqInfo}-response-${resInfo}`;
   function createHandler() {
     return (req: MockRequest) => {
+      req.expect.containsHeader("foo", "foo");
+      req.expect.containsQueryParam("bar", "bar");
       const token = reqInfo === "header" ? req.headers?.token : req.query?.token;
       switch (token) {
         case undefined:
@@ -73,7 +77,7 @@ function createTests(reqInfo: "query" | "header", resInfo: "body" | "header") {
     {
       uri: uri,
       method: "get",
-      request: {},
+      request: { headers: { foo: "foo" }, params: { bar: "bar" } },
       response: resInfo === "header" ? FirstResponseTokenInHeader : FirstResponseTokenInBody,
       handler: createHandler(),
       kind: "MockApiDefinition",

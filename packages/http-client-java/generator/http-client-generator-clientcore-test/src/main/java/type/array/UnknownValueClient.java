@@ -36,7 +36,7 @@ public final class UnknownValueClient {
      * <pre>
      * {@code
      * [
-     *     Object (Required)
+     *     BinaryData (Required)
      * ]
      * }
      * </pre>
@@ -46,7 +46,7 @@ public final class UnknownValueClient {
      * @return the response.
      */
     @Metadata(generated = true)
-    public Response<List<Object>> getWithResponse(RequestOptions requestOptions) {
+    public Response<List<BinaryData>> getWithResponse(RequestOptions requestOptions) {
         return this.serviceClient.getWithResponse(requestOptions);
     }
 
@@ -57,7 +57,7 @@ public final class UnknownValueClient {
      * <pre>
      * {@code
      * [
-     *     Object (Required)
+     *     BinaryData (Required)
      * ]
      * }
      * </pre>
@@ -80,7 +80,7 @@ public final class UnknownValueClient {
      * @return the response.
      */
     @Metadata(generated = true)
-    public List<Object> get() {
+    public List<BinaryData> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).getValue();
@@ -95,7 +95,7 @@ public final class UnknownValueClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @Metadata(generated = true)
-    public void put(List<Object> body) {
+    public void put(List<BinaryData> body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
         putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();

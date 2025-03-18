@@ -12,7 +12,12 @@ import type {
   Type,
   Union,
   UnionVariant,
-} from "../src/core/index.js";
+} from "../src/index.js";
+
+export interface ServiceOptions {
+  readonly title?: string;
+  readonly version?: string;
+}
 
 export interface DiscriminatedOptions {
   readonly envelope?: "object" | "none";
@@ -35,6 +40,37 @@ export interface VisibilityFilter {
   readonly all?: readonly EnumValue[];
   readonly none?: readonly EnumValue[];
 }
+
+/**
+ * Applies a media type hint to a TypeSpec type. Emitters and libraries may choose to use this hint to determine how a
+ * type should be serialized. For example, the `@typespec/http` library will use the media type hint of the response
+ * body type as a default `Content-Type` if one is not explicitly specified in the operation.
+ *
+ * Media types (also known as MIME types) are defined by RFC 6838. The media type hint should be a valid media type
+ * string as defined by the RFC, but the decorator does not enforce or validate this constraint.
+ *
+ * Notes: the applied media type is _only_ a hint. It may be overridden or not used at all. Media type hints are
+ * inherited by subtypes. If a media type hint is applied to a model, it will be inherited by all other models that
+ * `extend` it unless they delcare their own media type hint.
+ *
+ * @param mediaType The media type hint to apply to the target type.
+ * @example create a model that serializes as XML by default
+ *
+ * ```tsp
+ * @mediaTypeHint("application/xml")
+ * model Example {
+ *   @visibility(Lifecycle.Read)
+ *   id: string;
+ *
+ *   name: string;
+ * }
+ * ```
+ */
+export type MediaTypeHintDecorator = (
+  context: DecoratorContext,
+  target: Model | Scalar | Enum | Union,
+  mediaType: string,
+) => void;
 
 /**
  * Specify how to encode the target type.
@@ -130,7 +166,7 @@ export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: 
  * but will not change the visibility of any properties that have visibility set _explicitly_, even if the visibility
  * is the same as the default visibility.
  *
- * Visibility may be explicitly set using any of the following decorators:
+ * Visibility may be set explicitly using any of the following decorators:
  *
  * - `@visibility`
  * - `@removeVisibility`
@@ -141,7 +177,7 @@ export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: 
 export type WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  visibility: string | EnumValue,
+  visibility: EnumValue,
 ) => void;
 
 /**
@@ -191,27 +227,6 @@ export type ErrorsDocDecorator = (
 ) => void;
 
 /**
- * Mark this type as deprecated.
- *
- * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
- *
- * @deprecated Use the `#deprecated` [directive](https://typespec.io/docs/language-basics/directives/#deprecated) instead.
- * @param message Deprecation message.
- * @example
- * Use the `#deprecated` directive instead:
- *
- * ```typespec
- * #deprecated "Use ActionV2"
- * op Action<Result>(): Result;
- * ```
- */
-export type DeprecatedDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  message: string,
-) => void;
-
-/**
  * Mark this namespace as describing a service and configure service properties.
  *
  * @param options Optional configuration for the service.
@@ -222,19 +237,19 @@ export type DeprecatedDecorator = (
  * ```
  * @example Setting service title
  * ```typespec
- * @service({title: "Pet store"})
+ * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
  * @example Setting service version
  * ```typespec
- * @service({version: "1.0"})
+ * @service(#{version: "1.0"})
  * namespace PetStore;
  * ```
  */
 export type ServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  options?: Type,
+  options?: ServiceOptions,
 ) => void;
 
 /**
@@ -468,27 +483,6 @@ export type FriendlyNameDecorator = (
 ) => void;
 
 /**
- * Provide a set of known values to a string type.
- *
- * @param values Known values enum.
- * @example
- * ```typespec
- * @knownValues(KnownErrorCode)
- * scalar ErrorCode extends string;
- *
- * enum KnownErrorCode {
- *   NotFound,
- *   Invalid,
- * }
- * ```
- */
-export type KnownValuesDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  values: Enum,
-) => void;
-
-/**
  * Mark a model property as the key to identify instances of that type
  *
  * @param altName Name of the property. If not specified, the decorated property name is used.
@@ -522,28 +516,6 @@ export type OverloadDecorator = (
   context: DecoratorContext,
   target: Operation,
   overloadbase: Operation,
-) => void;
-
-/**
- * DEPRECATED: Use `@encodedName` instead.
- *
- * Provide an alternative name for this type.
- *
- * @param targetName Projection target
- * @param projectedName Alternative name
- * @example
- * ```typespec
- * model Certificate {
- *   @projectedName("json", "exp")
- *   expireAt: int32;
- * }
- * ```
- */
-export type ProjectedNameDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  targetName: string,
-  projectedName: string,
 ) => void;
 
 /**
@@ -650,7 +622,7 @@ export type DiscriminatedDecorator = (
  */
 export type DiscriminatorDecorator = (
   context: DecoratorContext,
-  target: Model | Union,
+  target: Model,
   propertyName: string,
 ) => void;
 
@@ -908,7 +880,7 @@ export type InspectTypeNameDecorator = (
 export type VisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  ...visibilities: (string | EnumValue)[]
+  ...visibilities: EnumValue[]
 ) => void;
 
 /**
@@ -1004,7 +976,7 @@ export type RemoveVisibilityDecorator = (
 export type WithVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  ...visibilities: (string | EnumValue)[]
+  ...visibilities: EnumValue[]
 ) => void;
 
 /**
@@ -1013,33 +985,30 @@ export type WithVisibilityDecorator = (
  * A parameter or property nested within a parameter will be visible if it has _any_ of the visibilities
  * in the list.
  *
- * WARNING: If no arguments are provided to this decorator, the `@typespec/http` library considers only properties
- * that do not have visibility modifiers _explicitly_ configured to be visible. Additionally, the HTTP library will
- * disable the feature of `@patch` operations that causes the properties of the request body to become effectively
- * optional. Some specifications have used this configuration in the past to describe exact PATCH bodies, but using this
- * decorator with no arguments in that manner is not recommended. The legacy behavior of `@parameterVisibility` with no
- * arguments is preserved for backwards compatibility pending a future review and possible deprecation.
+ * It is invalid to call this decorator with no visibility modifiers.
  *
  * @param visibilities List of visibility modifiers that apply to the parameters of this operation.
  */
 export type ParameterVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: (string | EnumValue)[]
+  ...visibilities: EnumValue[]
 ) => void;
 
 /**
  * Declares the visibility constraint of the return type of a given operation.
  *
  * A property within the return type of the operation will be visible if it has _any_ of the visibilities
- * in the list, or if the list is empty (in which case the property is always visible).
+ * in the list.
+ *
+ * It is invalid to call this decorator with no visibility modifiers.
  *
  * @param visibilities List of visibility modifiers that apply to the return type of this operation.
  */
 export type ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
   target: Operation,
-  ...visibilities: (string | EnumValue)[]
+  ...visibilities: EnumValue[]
 ) => void;
 
 /**
@@ -1117,6 +1086,7 @@ export type WithVisibilityFilterDecorator = (
 export type WithLifecycleUpdateDecorator = (context: DecoratorContext, target: Model) => void;
 
 export type TypeSpecDecorators = {
+  mediaTypeHint: MediaTypeHintDecorator;
   encode: EncodeDecorator;
   doc: DocDecorator;
   withOptionalProperties: WithOptionalPropertiesDecorator;
@@ -1128,7 +1098,6 @@ export type TypeSpecDecorators = {
   summary: SummaryDecorator;
   returnsDoc: ReturnsDocDecorator;
   errorsDoc: ErrorsDocDecorator;
-  deprecated: DeprecatedDecorator;
   service: ServiceDecorator;
   error: ErrorDecorator;
   format: FormatDecorator;
@@ -1144,10 +1113,8 @@ export type TypeSpecDecorators = {
   secret: SecretDecorator;
   tag: TagDecorator;
   friendlyName: FriendlyNameDecorator;
-  knownValues: KnownValuesDecorator;
   key: KeyDecorator;
   overload: OverloadDecorator;
-  projectedName: ProjectedNameDecorator;
   encodedName: EncodedNameDecorator;
   discriminated: DiscriminatedDecorator;
   discriminator: DiscriminatorDecorator;

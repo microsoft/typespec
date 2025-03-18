@@ -94,6 +94,9 @@ public final class BuiltinAsyncClient {
      *         unixTimestamp: Long (Optional)
      *         base64: byte[] (Optional)
      *         base64url: Base64Url (Optional)
+     *         unknownDurationFormat: String (Optional)
+     *         unknownDateTimeFormat: String (Optional)
+     *         unknownBytes: String (Optional)
      *     }
      * }
      * }
@@ -152,6 +155,9 @@ public final class BuiltinAsyncClient {
      *         unixTimestamp: Long (Optional)
      *         base64: byte[] (Optional)
      *         base64url: Base64Url (Optional)
+     *         unknownDurationFormat: String (Optional)
+     *         unknownDateTimeFormat: String (Optional)
+     *         unknownBytes: String (Optional)
      *     }
      * }
      * }

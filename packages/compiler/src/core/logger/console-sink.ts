@@ -2,7 +2,9 @@ import { codeFrameColumns } from "@babel/code-frame";
 import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
-import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
+import { getRelativePathFromDirectory } from "../path-utils.js";
+import { LogLevel, LogSink, ProcessedLog, SourceLocation, TrackActionTask } from "../types.js";
+import { DynamicTask } from "./dynamic-task.js";
 import { supportsHyperlink } from "./support-hyperlinks.js";
 
 export interface FormatLogOptions {
@@ -11,16 +13,31 @@ export interface FormatLogOptions {
   excludeLogLevel?: boolean;
 }
 
-export interface ConsoleSinkOptions extends FormatLogOptions {}
+export interface ConsoleSinkOptions extends FormatLogOptions {
+  /** @internal */
+  trackAction?: boolean;
+}
 
 export function createConsoleSink(options: ConsoleSinkOptions = {}): LogSink {
   function log(data: ProcessedLog) {
+    const isTTY = process.stdout?.isTTY && !process.env.CI;
+    if (isTTY) {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+    }
     // eslint-disable-next-line no-console
     console.log(formatLog(data, options));
   }
 
   return {
     log,
+    getPath: (path) =>
+      options.pathRelativeTo
+        ? getRelativePathFromDirectory(options.pathRelativeTo, path, false)
+        : path,
+    trackAction: options.trackAction
+      ? (message, finalMessage, action) => trackAction(message, finalMessage, action)
+      : undefined,
   };
 }
 
@@ -72,7 +89,7 @@ function formatLevel(options: FormatLogOptions, level: LogLevel) {
 function formatSourceLocation(options: FormatLogOptions, location: SourceLocation) {
   const postition = getLineAndColumn(location);
   const prePath = options.pathRelativeTo
-    ? relative(process.cwd(), location.file.path)
+    ? relative(options.pathRelativeTo, location.file.path)
     : location.file.path;
 
   const path = color(options, prePath, pc.cyan);
@@ -128,4 +145,25 @@ function getLineAndColumn(location: SourceLocation): RealLocation {
     result.end = { line: end.line + 1, column: end.character + 1 };
   }
   return result;
+}
+
+export async function trackAction<T>(
+  message: string,
+  finalMessage: string,
+  asyncAction: (task: TrackActionTask) => Promise<T>,
+): Promise<T> {
+  const task = new DynamicTask(message, finalMessage, process.stderr);
+  task.start();
+
+  try {
+    const result = await asyncAction(task);
+    if (!task.isStopped) {
+      task.succeed();
+    }
+
+    return result;
+  } catch (error) {
+    task.fail(message);
+    throw error;
+  }
 }

@@ -6,9 +6,7 @@ import "@typespec/json-schema";
 using Http;
 using JsonSchema;
 
-@service({
-  title: "Todo App",
-})
+@service(#{ title: "Todo App" })
 @useAuth(BearerAuth | ApiKeyAuth<ApiKeyLocation.cookie, "session-id">)
 @jsonSchema
 namespace Todo;

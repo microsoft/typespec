@@ -5,12 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "Widget Service",
-})
-@info({
-  version: "0.0.0",
-})
+@service(#{ title: "Widget Service" })
+@info(#{ version: "0.0.0" })
 namespace WidgetService;
 
 model Error {

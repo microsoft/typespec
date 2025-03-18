@@ -1,4 +1,4 @@
-import { typespecVersion } from "../../../../utils/misc.js";
+import { typespecVersion } from "../../../../manifest.js";
 import { logDiagnostics } from "../../../diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
 import { CompilerOptions } from "../../../options.js";
@@ -181,7 +181,7 @@ function logProgramResult(
     logDiagnostics(program.diagnostics, host.logSink);
     logDiagnosticCount(program.diagnostics);
   } else {
-    log("Compilation completed successfully.");
+    log("\nCompilation completed successfully.");
   }
   // eslint-disable-next-line no-console
   console.log(); // Insert a newline

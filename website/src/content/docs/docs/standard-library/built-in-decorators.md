@@ -53,37 +53,6 @@ The modifiers passed to this decorator _MUST_ be members of the target Enum.
 
 
 
-### `@deprecated` {#@deprecated}
-:::caution
-**Deprecated**: @deprecated decorator is deprecated. Use the `#deprecated` directive instead.
-:::
-
-Mark this type as deprecated.
-
-NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
-```typespec
-@deprecated(message: valueof string)
-```
-
-#### Target
-
-`unknown`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| message | [valueof `string`](#string) | Deprecation message. |
-
-#### Examples
-
-Use the `#deprecated` directive instead:
-
-```typespec
-#deprecated "Use ActionV2"
-op Action<Result>(): Result;
-```
-
-
 ### `@discriminated` {#@discriminated}
 
 Specify that this union is discriminated.
@@ -165,7 +134,7 @@ Specify the property to be used to discriminate this type.
 
 #### Target
 
-`Model | Union`
+`Model`
 
 #### Parameters
 | Name | Type | Description |
@@ -407,7 +376,7 @@ The format names are open ended and are left to emitter to interpret.
 
 #### Target
 
-`string | bytes | ModelProperty`
+`string | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
@@ -537,38 +506,6 @@ Mark a model property as the key to identify instances of that type
 ```typespec
 model Pet {
   @key id: string;
-}
-```
-
-
-### `@knownValues` {#@knownValues}
-:::caution
-**Deprecated**: This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator.
-:::
-
-Provide a set of known values to a string type.
-```typespec
-@knownValues(values: Enum)
-```
-
-#### Target
-
-`string | numeric | ModelProperty`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| values | `Enum` | Known values enum. |
-
-#### Examples
-
-```typespec
-@knownValues(KnownErrorCode)
-scalar ErrorCode extends string;
-
-enum KnownErrorCode {
-  NotFound,
-  Invalid,
 }
 ```
 
@@ -713,6 +650,46 @@ value.
 ```typespec
 @maxValueExclusive(50)
 scalar distance is float64;
+```
+
+
+### `@mediaTypeHint` {#@mediaTypeHint}
+
+Applies a media type hint to a TypeSpec type. Emitters and libraries may choose to use this hint to determine how a
+type should be serialized. For example, the `@typespec/http` library will use the media type hint of the response
+body type as a default `Content-Type` if one is not explicitly specified in the operation.
+
+Media types (also known as MIME types) are defined by RFC 6838. The media type hint should be a valid media type
+string as defined by the RFC, but the decorator does not enforce or validate this constraint.
+
+Notes: the applied media type is _only_ a hint. It may be overridden or not used at all. Media type hints are
+inherited by subtypes. If a media type hint is applied to a model, it will be inherited by all other models that
+`extend` it unless they delcare their own media type hint.
+```typespec
+@mediaTypeHint(mediaType: valueof string)
+```
+
+#### Target
+
+`Model | Scalar | Enum | Union`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| mediaType | [valueof `string`](#string) | The media type hint to apply to the target type. |
+
+#### Examples
+##### create a model that serializes as XML by default
+
+
+```tsp
+@mediaTypeHint("application/xml")
+model Example {
+  @visibility(Lifecycle.Read)
+  id: string;
+
+  name: string;
+}
 ```
 
 
@@ -998,14 +975,9 @@ Declares the visibility constraint of the parameters of a given operation.
 A parameter or property nested within a parameter will be visible if it has _any_ of the visibilities
 in the list.
 
-WARNING: If no arguments are provided to this decorator, the `@typespec/http` library considers only properties
-that do not have visibility modifiers _explicitly_ configured to be visible. Additionally, the HTTP library will
-disable the feature of `@patch` operations that causes the properties of the request body to become effectively
-optional. Some specifications have used this configuration in the past to describe exact PATCH bodies, but using this
-decorator with no arguments in that manner is not recommended. The legacy behavior of `@parameterVisibility` with no
-arguments is preserved for backwards compatibility pending a future review and possible deprecation.
+It is invalid to call this decorator with no visibility modifiers.
 ```typespec
-@parameterVisibility(...visibilities: valueof string | EnumMember[])
+@parameterVisibility(...visibilities: valueof EnumMember[])
 ```
 
 #### Target
@@ -1015,7 +987,7 @@ arguments is preserved for backwards compatibility pending a future review and p
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string \| EnumMember[]` | List of visibility modifiers that apply to the parameters of this operation. |
+| visibilities | `valueof EnumMember[]` | List of visibility modifiers that apply to the parameters of this operation. |
 
 
 
@@ -1081,38 +1053,6 @@ model Page<T> {
 ```
 
 
-### `@projectedName` {#@projectedName}
-:::caution
-**Deprecated**: Use `@encodedName` instead for changing the name over the wire.
-:::
-
-DEPRECATED: Use `@encodedName` instead.
-
-Provide an alternative name for this type.
-```typespec
-@projectedName(targetName: valueof string, projectedName: valueof string)
-```
-
-#### Target
-
-`unknown`
-
-#### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| targetName | [valueof `string`](#string) | Projection target |
-| projectedName | [valueof `string`](#string) | Alternative name |
-
-#### Examples
-
-```typespec
-model Certificate {
-  @projectedName("json", "exp")
-  expireAt: int32;
-}
-```
-
-
 ### `@removeVisibility` {#@removeVisibility}
 
 Removes visibility modifiers from a property.
@@ -1175,9 +1115,11 @@ op get(): Pet | NotFound;
 Declares the visibility constraint of the return type of a given operation.
 
 A property within the return type of the operation will be visible if it has _any_ of the visibilities
-in the list, or if the list is empty (in which case the property is always visible).
+in the list.
+
+It is invalid to call this decorator with no visibility modifiers.
 ```typespec
-@returnTypeVisibility(...visibilities: valueof string | EnumMember[])
+@returnTypeVisibility(...visibilities: valueof EnumMember[])
 ```
 
 #### Target
@@ -1187,7 +1129,7 @@ in the list, or if the list is empty (in which case the property is always visib
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string \| EnumMember[]` | List of visibility modifiers that apply to the return type of this operation. |
+| visibilities | `valueof EnumMember[]` | List of visibility modifiers that apply to the return type of this operation. |
 
 
 
@@ -1217,7 +1159,7 @@ scalar Password is string;
 
 Mark this namespace as describing a service and configure service properties.
 ```typespec
-@service(options?: ServiceOptions)
+@service(options?: valueof ServiceOptions)
 ```
 
 #### Target
@@ -1227,7 +1169,7 @@ Mark this namespace as describing a service and configure service properties.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| options | [`ServiceOptions`](./built-in-data-types.md#ServiceOptions) | Optional configuration for the service. |
+| options | [valueof `ServiceOptions`](./built-in-data-types.md#ServiceOptions) | Optional configuration for the service. |
 
 #### Examples
 
@@ -1239,14 +1181,14 @@ namespace PetStore;
 ##### Setting service title
 
 ```typespec
-@service({title: "Pet store"})
+@service(#{title: "Pet store"})
 namespace PetStore;
 ```
 
 ##### Setting service version
 
 ```typespec
-@service({version: "1.0"})
+@service(#{version: "1.0"})
 namespace PetStore;
 ```
 
@@ -1323,7 +1265,7 @@ The default settings may be overridden using the `@returnTypeVisibility` and `@p
 
 See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
 ```typespec
-@visibility(...visibilities: valueof string | EnumMember[])
+@visibility(...visibilities: valueof EnumMember[])
 ```
 
 #### Target
@@ -1333,7 +1275,7 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string \| EnumMember[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof EnumMember[]` | List of visibilities which apply to this property. |
 
 #### Examples
 
@@ -1361,13 +1303,13 @@ This will set the visibility modifiers of all key properties in the model if the
 but will not change the visibility of any properties that have visibility set _explicitly_, even if the visibility
 is the same as the default visibility.
 
-Visibility may be explicitly set using any of the following decorators:
+Visibility may be set explicitly using any of the following decorators:
 
 - `@visibility`
 - `@removeVisibility`
 - `@invisible`
 ```typespec
-@withDefaultKeyVisibility(visibility: valueof string | EnumMember)
+@withDefaultKeyVisibility(visibility: valueof EnumMember)
 ```
 
 #### Target
@@ -1377,7 +1319,7 @@ Visibility may be explicitly set using any of the following decorators:
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibility | `valueof string \| EnumMember` | The desired default visibility value. If a key property already has visibility set, it will not be changed. |
+| visibility | `valueof EnumMember` | The desired default visibility value. If a key property already has visibility set, it will not be changed. |
 
 
 
@@ -1516,7 +1458,7 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 ```typespec
-@withVisibility(...visibilities: valueof string | EnumMember[])
+@withVisibility(...visibilities: valueof EnumMember[])
 ```
 
 #### Target
@@ -1526,7 +1468,7 @@ not necessary to use this decorator.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string \| EnumMember[]` | List of visibilities that apply to this property. |
+| visibilities | `valueof EnumMember[]` | List of visibilities that apply to this property. |
 
 #### Examples
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 /**
  * The name resolver is responsible for resolving identifiers to symbols and
  * creating symbols for types that become known during this process. After name
@@ -81,8 +80,6 @@ import {
   NodeFlags,
   NodeLinks,
   OperationStatementNode,
-  ProjectionDecoratorReferenceExpressionNode,
-  ProjectionStatementNode,
   ResolutionResult,
   ResolutionResultFlags,
   ScalarStatementNode,
@@ -125,12 +122,6 @@ export interface NameResolver {
 
   /** Return augment decorator nodes that are bound to this symbol */
   getAugmentDecoratorsForSym(symbol: Sym): AugmentDecoratorStatementNode[];
-
-  /** Return template parameters which are not used. */
-  getUnusedTemplateParameterDeclarationNodes(): Set<TemplateParameterDeclarationNode>;
-
-  /** Set unused template parameter */
-  setUnusedTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void;
 
   /**
    * Resolve the member expression using the given symbol as base.
@@ -196,11 +187,6 @@ export function createResolver(program: Program): NameResolver {
   const nullSym = createSymbol(undefined, "null", SymbolFlags.None);
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
 
-  /**
-   * Tracking the template parameters that are not used.
-   */
-  const unusedTemplateParameterDeclarationNodes = new Set<TemplateParameterDeclarationNode>();
-
   return {
     symbols: { global: globalNamespaceSym, null: nullSym },
     resolveProgram() {
@@ -244,8 +230,6 @@ export function createResolver(program: Program): NameResolver {
 
     getAugmentDecoratorsForSym,
     getUnusedUsings,
-    getUnusedTemplateParameterDeclarationNodes,
-    setUnusedTemplateParameterDeclarationNode,
   };
 
   function getUnusedUsings(): UsingStatementNode[] {
@@ -281,14 +265,6 @@ export function createResolver(program: Program): NameResolver {
     return mergedSymbols.get(sym) || sym;
   }
 
-  function setUnusedTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void {
-    if (!node) return;
-    unusedTemplateParameterDeclarationNodes.add(node);
-  }
-
-  function getUnusedTemplateParameterDeclarationNodes(): Set<TemplateParameterDeclarationNode> {
-    return unusedTemplateParameterDeclarationNodes;
-  }
   /**
    * @internal
    */
@@ -1264,7 +1240,6 @@ export function createResolver(program: Program): NameResolver {
         bindTemplateParameter(node);
         break;
       case SyntaxKind.DecoratorExpression:
-      case SyntaxKind.ProjectionDecoratorReferenceExpression:
         resolveDecoratorTarget(node);
         break;
       case SyntaxKind.AugmentDecoratorStatement:
@@ -1273,8 +1248,6 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.CallExpression:
         resolveTypeReference(node.target);
         break;
-      case SyntaxKind.ProjectionStatement:
-        resolveProjection(node);
         break;
     }
 
@@ -1285,19 +1258,8 @@ export function createResolver(program: Program): NameResolver {
     visitChildren(node, bindAndResolveNode);
   }
 
-  function resolveProjection(projection: ProjectionStatementNode) {
-    switch (projection.selector.kind) {
-      case SyntaxKind.Identifier:
-      case SyntaxKind.MemberExpression:
-        resolveTypeReference(projection.selector);
-    }
-  }
-
   function resolveDecoratorTarget(
-    decorator:
-      | DecoratorExpressionNode
-      | AugmentDecoratorStatementNode
-      | ProjectionDecoratorReferenceExpressionNode,
+    decorator: DecoratorExpressionNode | AugmentDecoratorStatementNode,
   ) {
     resolveTypeReference(decorator.target, { resolveDecorators: true });
   }

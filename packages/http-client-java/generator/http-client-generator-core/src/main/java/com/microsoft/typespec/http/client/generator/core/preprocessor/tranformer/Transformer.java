@@ -78,9 +78,13 @@ public class Transformer {
                 group.getUsage().add(SchemaContext.OPTIONS_GROUP);
             });
         }
-        schemas.getObjects().addAll(schemas.getGroups());
-        schemas.setGroups(new ArrayList<>());
 
+        for (ObjectSchema groupSchema : schemas.getGroups()) {
+            renameType(groupSchema);
+            for (Property property : groupSchema.getProperties()) {
+                renameVariable(property);
+            }
+        }
         for (ObjectSchema objectSchema : schemas.getObjects()) {
             renameType(objectSchema);
             for (Property property : objectSchema.getProperties()) {
@@ -113,6 +117,9 @@ public class Transformer {
                 }
             }
         }
+
+        schemas.getObjects().addAll(schemas.getGroups());
+        schemas.setGroups(new ArrayList<>());
     }
 
     private void transformClients(List<Client> clients) {

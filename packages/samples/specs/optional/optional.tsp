@@ -2,9 +2,7 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Optional sample",
-})
+@service(#{ title: "Optional sample" })
 namespace OptionalSample;
 
 model HasOptional {

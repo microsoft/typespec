@@ -7,9 +7,9 @@ try {
 }
 
 import yargs from "yargs";
-import { typespecVersion } from "../../utils/misc.js";
+import { installTypeSpecDependencies } from "../../install/install.js";
+import { typespecVersion } from "../../manifest.js";
 import { getTypeSpecEngine } from "../engine.js";
-import { installTypeSpecDependencies } from "../install.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { formatAction } from "./actions/format.js";
 import { printInfoAction } from "./actions/info.js";
@@ -58,11 +58,6 @@ async function main() {
             type: "string",
             demandOption: true,
           })
-          .option("output-path", {
-            type: "string",
-            deprecated: "Use `output-dir` instead.",
-            hidden: true,
-          })
           .option("output-dir", {
             type: "string",
             describe:
@@ -96,6 +91,11 @@ async function main() {
             string: true,
             describe: "Name of the emitters",
           })
+          .option("list-files", {
+            type: "boolean",
+            default: false,
+            describe: "List paths of emitted files.",
+          })
           .option("trace", {
             type: "array",
             string: true,
@@ -112,7 +112,12 @@ async function main() {
           })
           .option("no-emit", {
             type: "boolean",
-            describe: "Run emitters but do not emit any output.",
+            describe: "Do not run any emitters.",
+          })
+          .option("dry-run", {
+            type: "boolean",
+            describe:
+              "Run emitters but do not emit any output. (Only run emitters supporting this feature)",
           })
           .option("ignore-deprecated", {
             type: "boolean",
@@ -212,8 +217,17 @@ async function main() {
     .command(
       "install",
       "Install TypeSpec dependencies",
-      () => {},
-      withCliHost((host) => installTypeSpecDependencies(host, process.cwd())),
+      (cmd) =>
+        cmd.option("save-package-manager", {
+          type: "boolean",
+          description: "Update the packageManager field with the package manger version and hash",
+        }),
+      withCliHostAndDiagnostics((host, args) =>
+        installTypeSpecDependencies(host, {
+          directory: process.cwd(),
+          savePackageManager: args["save-package-manager"],
+        }),
+      ),
     )
     .command(
       "info",

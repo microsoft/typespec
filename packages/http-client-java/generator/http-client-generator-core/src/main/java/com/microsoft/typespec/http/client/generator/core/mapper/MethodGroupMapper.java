@@ -58,7 +58,7 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
     private MethodGroupClient createMethodGroupClient(OperationGroup methodGroup,
         List<ServiceClientProperty> parentClientProperties) {
         JavaSettings settings = JavaSettings.getInstance();
-        MethodGroupClient.Builder builder = createMethodGroupClientBuilder();
+        MethodGroupClient.Builder builder = new MethodGroupClient.Builder();
 
         String classBaseName = methodGroup.getLanguage().getJava().getName();
         builder.classBaseName(classBaseName);
@@ -87,7 +87,7 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
         builder.className(className);
 
         if (!CoreUtils.isNullOrEmpty(methodGroup.getOperations())) {
-            Proxy.Builder proxyBuilder = createProxyBuilder();
+            Proxy.Builder proxyBuilder = new Proxy.Builder();
 
             String restAPIName
                 = CodeNamer.toPascalCase(CodeNamer.getPlural(methodGroup.getLanguage().getJava().getName()));
@@ -169,14 +169,6 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
         builder.crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(methodGroup));
 
         return builder.build();
-    }
-
-    protected MethodGroupClient.Builder createMethodGroupClientBuilder() {
-        return new MethodGroupClient.Builder();
-    }
-
-    protected Proxy.Builder createProxyBuilder() {
-        return new Proxy.Builder();
     }
 
     protected List<IType> supportedInterfaces(OperationGroup operationGroup, List<ClientMethod> clientMethods) {

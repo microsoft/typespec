@@ -229,7 +229,7 @@ namespace Microsoft.TypeSpec.Generator
         internal IDisposable WriteXmlDocs(XmlDocProvider? docs)
         {
             var scope = AmbientScope();
-            if (CodeModelPlugin.Instance.Configuration.DisableXmlDocs || docs is null)
+            if (CodeModelGenerator.Instance.Configuration.DisableXmlDocs || docs is null)
             {
                 return scope;
             }
@@ -240,7 +240,7 @@ namespace Microsoft.TypeSpec.Generator
 
         internal void WriteXmlDocsNoScope(XmlDocProvider? docs)
         {
-            if (CodeModelPlugin.Instance.Configuration.DisableXmlDocs || docs is null)
+            if (CodeModelGenerator.Instance.Configuration.DisableXmlDocs || docs is null)
                 return;
 
             if (docs.Inherit is not null)
@@ -874,7 +874,7 @@ namespace Microsoft.TypeSpec.Generator
                 .ThenBy(ns => ns, StringComparer.Ordinal);
             if (header)
             {
-                string licenseString = CodeModelPlugin.Instance.LicenseString;
+                string licenseString = CodeModelGenerator.Instance.LicenseString;
                 if (!string.IsNullOrEmpty(licenseString))
                 {
                     builder.Append(licenseString);

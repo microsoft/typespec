@@ -1,9 +1,7 @@
 import "@typespec/http";
 import "@typespec/rest";
 
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
 using TypeSpec.Http;

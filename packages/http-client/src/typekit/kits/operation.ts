@@ -1,5 +1,6 @@
 import { ModelProperty, Operation, Type } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { HttpOperation } from "@typespec/http";
 import { InternalClient as Client } from "../../interfaces.js";
 import { getConstructors } from "../../utils/client-helpers.js";
 import { clientOperationCache } from "./client.js";
@@ -31,7 +32,7 @@ export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation
    * Gets the client in which the operation is defined
    * @param operation operation to find out which client it belongs to
    */
-  getClient(operation: Operation): Client | undefined;
+  getClient(operation: HttpOperation): Client | undefined;
 }
 
 interface SdkKit {

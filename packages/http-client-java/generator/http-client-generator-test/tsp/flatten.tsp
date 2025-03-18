@@ -6,9 +6,7 @@ using TypeSpec.Http;
 using TypeSpec.Versioning;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "Flatten",
-})
+@service(#{ title: "Flatten" })
 @server(
   "{endpoint}/openai",
   "Flatten",
@@ -51,6 +49,9 @@ alias LongRequest = {
   @clientName("dataFloat")
   @encodedName("application/json", "data_float")
   float?: float64;
+
+  // reserved keyword
+  long?: int64;
 };
 
 model User {

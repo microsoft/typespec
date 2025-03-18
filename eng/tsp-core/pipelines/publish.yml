@@ -16,7 +16,7 @@ extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
     BinSkimSettings:
-      analyzeTargetGlob: +:file|**/*.dll;+:file|**/*.exe;-:f|**/tsp.exe # Flag issue with node binary which we can't fix https://github.com/nodejs/node/issues/42100
+      analyzeTargetGlob: +:file|*.exe;-:f|**/tsp.exe # Flag issue with node binary which we can't fix https://github.com/nodejs/node/issues/42100
     variables:
       - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
 
@@ -33,6 +33,9 @@ extends:
         jobs:
           - template: /eng/tsp-core/pipelines/jobs/build-for-publish.yml@self
           - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli-all.yml@self
+          - template: /eng/tsp-core/pipelines/jobs/e2e.yml@self
+            parameters:
+              azLogin: true
 
       - stage: publish_npm
         displayName: Publish Npm Packages
@@ -92,7 +95,6 @@ extends:
               - script: |
                   docker build -f ./docker/Dockerfile \
                     -t $(imageName):latest \
-                    -t $(imageName):alpine \
                     .
                 displayName: "Build"
               - script: docker push $(imageName) --all-tags

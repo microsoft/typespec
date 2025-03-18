@@ -8,9 +8,7 @@ using Azure.Core;
 using Azure.Core.Traits;
 using Azure.ClientGenerator.Core;
 
-@service({
-  title: "LongRunning",
-})
+@service(#{ title: "LongRunning" })
 @versioned(ApiVersions)
 @route("/long-running")
 namespace TspTest.LongRunning {

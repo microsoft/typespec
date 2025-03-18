@@ -1,6 +1,7 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  Enum,
   Model,
   ModelProperty,
   Namespace,
@@ -14,9 +15,10 @@ import {
   getDoc,
   getEncode,
   getErrorsDoc,
+  getFormat,
   getFriendlyName,
   getKeyName,
-  getKnownValues,
+  getMediaTypeHint,
   getOverloadedOperation,
   getOverloads,
   getPattern,
@@ -310,6 +312,47 @@ describe("compiler: built-in decorators", () => {
     });
   });
 
+  describe("@format", () => {
+    it("applies @pattern to scalar", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        @format("email")
+        scalar A extends string;
+        `,
+      )) as { A: Scalar };
+
+      strictEqual(getFormat(runner.program, A), "email");
+    });
+
+    it("applies @pattern to model property", async () => {
+      const { prop } = (await runner.compile(
+        `
+        model A {
+          @test
+          @format("email")
+          prop: string;
+        }
+        `,
+      )) as { prop: ModelProperty };
+      strictEqual(getFormat(runner.program, prop), "email");
+    });
+
+    it("emit diagnostic if targeting bytes", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          @format("email")
+          prop: bytes;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "decorator-wrong-target",
+        message: "Cannot apply @format decorator to type it is not a string",
+      });
+    });
+  });
+
   describe("@returnsDoc", () => {
     it("applies @returnsDoc on operation", async () => {
       const { test } = (await runner.compile(
@@ -428,102 +471,6 @@ describe("compiler: built-in decorators", () => {
         diagnostics[0].message,
         `Cannot apply @error decorator to A since it is not assignable to Model`,
       );
-    });
-  });
-
-  describe("@knownValues", () => {
-    it("assign the known values to string scalar", async () => {
-      const { Bar } = (await runner.compile(`
-        enum Foo {one: "one", two: "two"}
-        #suppress "deprecated" "For testing"
-        @test
-        @knownValues(Foo)
-        scalar Bar extends string;
-      `)) as { Bar: Scalar };
-
-      ok(Bar.kind);
-      const knownValues = getKnownValues(runner.program, Bar);
-      ok(knownValues);
-      strictEqual(knownValues.kind, "Enum");
-    });
-
-    it("assign the known values to number scalar", async () => {
-      const { Bar } = (await runner.compile(`
-        enum Foo {
-          one: 1; 
-          two: 2;
-        }
-        #suppress "deprecated" "For testing"
-        @test
-        @knownValues(Foo)
-        scalar Bar extends int32;
-      `)) as { Bar: Scalar };
-
-      ok(Bar.kind);
-      const knownValues = getKnownValues(runner.program, Bar);
-      ok(knownValues);
-      strictEqual(knownValues.kind, "Enum");
-    });
-
-    it("emit diagnostics when used on non model", async () => {
-      const diagnostics = await runner.diagnose(`
-        enum Foo {one, two}
-        #suppress "deprecated" "For testing"
-        @knownValues(Foo)
-        enum Bar {}
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "decorator-wrong-target",
-        message:
-          "Cannot apply @knownValues decorator to Bar since it is not assignable to string | numeric | ModelProperty",
-      });
-    });
-
-    it("emit diagnostics when enum has invalid members", async () => {
-      const diagnostics = await runner.diagnose(`
-         enum Foo {
-          one: 1; 
-          two: 2;
-        }
-        #suppress "deprecated" "For testing"
-        @knownValues(Foo)
-        scalar Bar extends string;
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "known-values-invalid-enum",
-        message: "Enum cannot be used on this type. Member one is not assignable to type Bar.",
-      });
-    });
-
-    it("emit diagnostics when used on non string model", async () => {
-      const diagnostics = await runner.diagnose(`
-        #suppress "deprecated" "For testing"
-        enum Foo {one, two}
-        @knownValues(Foo)
-        model Bar {}
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "decorator-wrong-target",
-        message:
-          "Cannot apply @knownValues decorator to Bar since it is not assignable to string | numeric | ModelProperty",
-      });
-    });
-
-    it("emit diagnostics when known values is not an enum", async () => {
-      const diagnostics = await runner.diagnose(`
-        model Foo {}
-        #suppress "deprecated" "For testing"
-        @knownValues(Foo)
-        scalar Bar extends string;
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument",
-        message: "Argument of type 'Foo' is not assignable to parameter of type 'Enum'",
-      });
     });
   });
 
@@ -1290,65 +1237,6 @@ describe("compiler: built-in decorators", () => {
     });
   });
 
-  describe("@discriminator on unions (LEGACY)", () => {
-    it("requires variants to be models", async () => {
-      const diagnostics = await runner.diagnose(`
-        #suppress "deprecated" "For testing"
-        @discriminator("kind")
-        union Foo {
-          a: "hi"
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminated-union-variant",
-          message: `Union variant "a" must be a model type.`,
-        },
-      ]);
-    });
-    it("requires variants to have the discriminator property", async () => {
-      const diagnostics = await runner.diagnose(`
-        model A {
-
-        }
-        #suppress "deprecated" "For testing"
-        @discriminator("kind")
-        union Foo {
-          a: A
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminated-union-variant",
-          message: `Variant "a" type is missing the discriminant property "kind".`,
-        },
-      ]);
-    });
-
-    it("requires variant discriminator properties to be string literals or string enum values", async () => {
-      const diagnostics = await runner.diagnose(`
-        model A {
-          kind: string,
-        }
-
-        #suppress "deprecated" "For testing"
-        @discriminator("kind")
-        union Foo {
-          a: A
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-discriminated-union-variant",
-          message: `Variant "a" type's discriminant property "kind" must be a string literal or string enum member.`,
-        },
-      ]);
-    });
-  });
-
   describe("@encodedName", () => {
     it("emit error if passing invalid mime type", async () => {
       const diagnostics = await runner.diagnose(`
@@ -1454,6 +1342,103 @@ describe("compiler: built-in decorators", () => {
         }
       `)) as { expireAt: ModelProperty };
       strictEqual(resolveEncodedName(runner.program, expireAt, "application/xml"), "expireAt");
+    });
+  });
+
+  describe("@mediaTypeHint", () => {
+    it("returns correct media type hint for string", async () => {
+      const { A, B, C } = (await runner.compile(`
+        @test
+        @mediaTypeHint("application/json")
+        scalar A extends string;
+
+        @test
+        scalar B extends A;
+
+        @test
+        scalar C extends string;
+      `)) as { A: Scalar; B: Scalar; C: Scalar };
+
+      const string = runner.program.checker.getStdType("string");
+
+      strictEqual(getMediaTypeHint(runner.program, A), "application/json");
+      strictEqual(getMediaTypeHint(runner.program, string), "text/plain");
+
+      strictEqual(getMediaTypeHint(runner.program, B), "application/json");
+
+      strictEqual(getMediaTypeHint(runner.program, C), "text/plain");
+    });
+
+    it("returns correct media type hint for bytes", async () => {
+      const { A, B, C } = (await runner.compile(`
+        @test
+        @mediaTypeHint("application/json")
+        scalar A extends bytes;
+
+        @test
+        scalar B extends A;
+
+        @test
+        scalar C extends bytes;
+      `)) as { A: Scalar; B: Scalar; C: Scalar };
+
+      strictEqual(getMediaTypeHint(runner.program, A), "application/json");
+      strictEqual(getMediaTypeHint(runner.program, A.baseScalar!), "application/octet-stream");
+
+      strictEqual(getMediaTypeHint(runner.program, B), "application/json");
+
+      strictEqual(getMediaTypeHint(runner.program, C), "application/octet-stream");
+    });
+
+    it("returns correct media type hint for model", async () => {
+      const { A, B, C, D } = (await runner.compile(`
+        @test
+        model A {}
+
+        @test
+        @mediaTypeHint("application/xml")
+        model B extends A {}
+
+        @test
+        model C extends B {}
+
+        @test
+        @mediaTypeHint("application/json")
+        model D extends C {}
+      `)) as { A: Model; B: Model; C: Model; D: Model };
+
+      strictEqual(getMediaTypeHint(runner.program, A), undefined);
+      strictEqual(getMediaTypeHint(runner.program, B), "application/xml");
+      strictEqual(getMediaTypeHint(runner.program, C), "application/xml");
+      strictEqual(getMediaTypeHint(runner.program, D), "application/json");
+    });
+
+    it("returns correct media type hint for enum", async () => {
+      const { A, B } = (await runner.compile(`
+        @test
+        enum A { a, b }
+
+        @test
+        @mediaTypeHint("application/json")
+        enum B { a, b }
+      `)) as { A: Enum; B: Enum };
+
+      strictEqual(getMediaTypeHint(runner.program, A), undefined);
+      strictEqual(getMediaTypeHint(runner.program, B), "application/json");
+    });
+
+    it("returns correct media type hint for union", async () => {
+      const { A, B } = (await runner.compile(`
+        @test
+        union A {}
+
+        @test
+        @mediaTypeHint("text/plain")
+        union B {}
+      `)) as { A: Union; B: Union };
+
+      strictEqual(getMediaTypeHint(runner.program, A), undefined);
+      strictEqual(getMediaTypeHint(runner.program, B), "text/plain");
     });
   });
 });

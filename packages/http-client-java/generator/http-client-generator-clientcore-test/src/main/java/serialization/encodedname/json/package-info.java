@@ -2,6 +2,6 @@
 
 /**
  * Package containing the classes for Json.
- * Projection.
+ * Encoded names.
  */
 package serialization.encodedname.json;

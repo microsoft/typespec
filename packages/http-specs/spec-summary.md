@@ -894,12 +894,6 @@ This test is testing sending a pipes collection format array query parameters
 
 This test is testing sending a ssv collection format array query parameters
 
-### Parameters_CollectionFormat_Query_tsv
-
-- Endpoint: `get /parameters/collection-format/query/tsv`
-
-This test is testing sending a tsv collection format array query parameters
-
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -1670,7 +1664,10 @@ Test case for using continuation token as pagination. Continuation token is pass
 Two requests need to be tested.
 
 1. Initial request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body?bar=bar
+
+Expected request header:
+foo=foo
 
 Expected response body:
 
@@ -1685,10 +1682,11 @@ Expected response body:
 ```
 
 2. Next page request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body?bar=bar
 
-Expected header:
+Expected request header:
 token=page2
+foo=foo
 
 Expected response body:
 
@@ -1710,8 +1708,12 @@ Test case for using continuation token as pagination. Continuation token is pass
 Two requests need to be tested.
 
 1. Initial request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header
-   Expected response body:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
 
 ```json
 {
@@ -1726,10 +1728,11 @@ Expected response header:
 next-token=page2
 
 2. Next page request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?bar=bar
 
 Expected request header:
 token=page2
+foo=foo
 
 Expected response body:
 
@@ -1751,8 +1754,12 @@ Test case for using continuation token as pagination. Continuation token is pass
 Two requests need to be tested.
 
 1. Initial request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body
-   Expected response body:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
 
 ```json
 {
@@ -1765,7 +1772,10 @@ Two requests need to be tested.
 ```
 
 2. Next page request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?token=page2
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?bar=bar&token=page2
+
+Expected request header:
+foo=foo
 
 Expected response body:
 
@@ -1787,8 +1797,12 @@ Test case for using continuation token as pagination. Continuation token is pass
 Two requests need to be tested.
 
 1. Initial request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header
-   Expected response body:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar
+
+Expected request header:
+foo=foo
+
+Expected response body:
 
 ```json
 {
@@ -1803,8 +1817,12 @@ Expected response header:
 next-token=page2
 
 2. Next page request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?token=page2
-   Expected response body:
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?bar=bar&token=page2
+
+Expected request header:
+foo=foo
+
+Expected response body:
 
 ```json
 {
@@ -3512,6 +3530,18 @@ Verify that the name "with" works. Send this parameter to pass with value `ok`.
 - Endpoint: `get /special-words/parameters/yield`
 
 Verify that the name "yield" works. Send this parameter to pass with value `ok`.
+
+### Streaming_Jsonl_Basic_receive
+
+- Endpoint: `get /streaming/jsonl/basic/receive`
+
+Basic jsonl streaming for response.
+
+### Streaming_Jsonl_Basic_send
+
+- Endpoint: `post /streaming/jsonl/basic/send`
+
+Basic jsonl streaming for request.
 
 ### Type_Array_BooleanValue_get
 
@@ -5303,42 +5333,6 @@ Expected input body:
 {
   "knownProp": [{ "state": "ok" }, { "state": "ok" }],
   "prop": [{ "state": "ok" }, { "state": "ok" }]
-}
-```
-
-### Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_get
-
-- Endpoint: `get /type/property/additionalProperties/spreadRecordDiscriminatedUnion`
-
-Expected response body:
-
-```json
-{
-  "name": "abc",
-  "prop1": { "kind": "kind0", "fooProp": "abc" },
-  "prop2": {
-    "kind": "kind1",
-    "start": "2021-01-01T00:00:00Z",
-    "end": "2021-01-02T00:00:00Z"
-  }
-}
-```
-
-### Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_put
-
-- Endpoint: `put /type/property/additionalProperties/spreadRecordDiscriminatedUnion`
-
-Expected input body:
-
-```json
-{
-  "name": "abc",
-  "prop1": { "kind": "kind0", "fooProp": "abc" },
-  "prop2": {
-    "kind": "kind1",
-    "start": "2021-01-01T00:00:00Z",
-    "end": "2021-01-02T00:00:00Z"
-  }
 }
 ```
 

@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void ValidateScope()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
 
             List<ParameterProvider> parameters = new List<ParameterProvider>
             {

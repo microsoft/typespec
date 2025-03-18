@@ -3,9 +3,7 @@ import "@typespec/rest";
 using TypeSpec.Http;
 using TypeSpec.Rest;
 
-@service({
-  title: "Polymorphism sample",
-})
+@service(#{ title: "Polymorphism sample" })
 namespace PolymorphismSample;
 
 @discriminator("kind")
