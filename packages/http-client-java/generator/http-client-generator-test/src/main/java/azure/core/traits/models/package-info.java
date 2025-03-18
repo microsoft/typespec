@@ -4,8 +4,8 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the implementations for Traits.
+ * Package containing the data models for Traits.
  * Illustrates Azure Core operation customizations by traits.
  * <!-- end generated doc -->
  */
-package azure.core.trait.implementation;
+package azure.core.traits.models;
