@@ -26,7 +26,24 @@ jobs:
           !startsWith(github.head_ref, 'backmerge/') &&
           !startsWith(github.head_ref, 'revert-') 
         }}
+      run2: |
+        !startsWith(github.head_ref, 'publish/') &&
+        !startsWith(github.head_ref, 'dependabot/') &&
+        !startsWith(github.head_ref, 'fix/') &&
+        !startsWith(github.head_ref, 'backmerge/') &&
+        !startsWith(github.head_ref, 'revert-')
+      run3: ${{ !startsWith(github.head_ref, 'fix/') }}
     steps:
+      - run: |
+          echo "Checking changes"
+          echo "PR: ${{ github.event.pull_request.number }}"
+          echo "Branch: ${{ github.head_ref }}"
+          echo "Base: ${{ github.base_ref }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Run: ${{ env.run }}"
+          echo "Run: ${{ env.run2 }}"
+          echo "Run: ${{ env.run3 }}"
+        name: Check changes
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
