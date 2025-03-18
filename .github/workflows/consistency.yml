@@ -26,6 +26,11 @@ jobs:
           !startsWith(github.head_ref, 'revert-') 
         }}
     steps:
+      - run: |
+          echo "Checking changes"
+          echo "Run: ${{ env.run }}"
+          echo "Run2: ${{ env.run == 'true' }}"
+        name: Check changes
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
