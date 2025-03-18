@@ -110,7 +110,7 @@ async function main() {
           console.log(
             `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
           );
-          if (useSwagger) {
+          if (useSwagger && overwrite) {
             console.log(
               `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
             );

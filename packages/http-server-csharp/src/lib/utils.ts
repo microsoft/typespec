@@ -18,6 +18,8 @@ import {
   isTemplateInstance,
   isUnknownType,
   isVoidType,
+  resolveCompilerOptions,
+  resolvePath,
 } from "@typespec/compiler";
 import {
   HttpOperation,
@@ -1481,4 +1483,37 @@ export async function getFreePort(minPort: number, maxPort: number, tries: numbe
       });
     });
   }
+}
+
+export interface OpenApiConfig {
+  emitted: boolean;
+  outputDir?: string;
+  fileName?: any;
+  options?: Record<string, unknown> & {
+    "emitter-output-dir"?: string;
+  };
+}
+
+export type EmitterOptions = Record<string, unknown> & {
+  "emitter-output-dir"?: string;
+};
+export async function getOpenAPIConfig(program: Program): Promise<OpenApiConfig> {
+  const root = program.projectRoot;
+  const [options, _] = await resolveCompilerOptions(program.host, {
+    cwd: program.host.getExecutionRoot(),
+    entrypoint: resolvePath(root, "main.tsp"),
+  });
+  const oaiOptions =
+    options.configFile &&
+    options.configFile.options &&
+    Object.keys(options.configFile.options).includes("@typespec/openapi3")
+      ? options.configFile.options["@typeSpec/openapi3"]
+      : undefined;
+
+  return {
+    emitted: options.emit !== undefined && options.emit.includes("@typespec/openapi3"),
+    outputDir: oaiOptions?.["emitter-output-dir"],
+    fileName: oaiOptions?.["output-file"],
+    options: oaiOptions,
+  };
 }
