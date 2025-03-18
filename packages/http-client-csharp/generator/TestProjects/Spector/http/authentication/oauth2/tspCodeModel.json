@@ -170,7 +170,7 @@
   "$id": "19",
   "oAuth2": {
    "$id": "20",
-   "Scopes": [
+   "scopes": [
     "https://security.microsoft.com/.default"
    ]
   }
