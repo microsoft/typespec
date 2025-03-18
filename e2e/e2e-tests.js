@@ -78,6 +78,7 @@ async function runTypeSpec(compilerTgz, args, options) {
   await runOrExit(npxCmd, ["-y", "-p", compilerTgz, "tsp", ...args], { ...options });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function testBasicLatest(packages) {
   const basicLatestDir = join(e2eTestDir, "basic-latest");
   const outputDir = join(basicLatestDir, "tsp-output");
