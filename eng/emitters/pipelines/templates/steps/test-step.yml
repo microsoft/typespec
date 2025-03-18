@@ -11,7 +11,6 @@ parameters:
     type: string
 
   # Node version
-  #  Currently not installing node in this template, but keeping this parameter for future use
   - name: NodeVersion
     type: string
     default: "20.x"
@@ -47,6 +46,12 @@ steps:
   - download: current
     artifact: ${{ parameters.BuildArtifactName }}
     displayName: Download build artifacts
+
+  - task: NodeTool@0
+    displayName: Install Node.js
+    retryCountOnTaskFailure: 3
+    inputs:
+      versionSpec: ${{ parameters.NodeVersion }}
 
   - ${{ parameters.AdditionalInitializeSteps }}
 
