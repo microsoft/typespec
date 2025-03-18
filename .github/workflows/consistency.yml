@@ -18,12 +18,14 @@ jobs:
     if: github.event_name == 'pull_request'
     env:
       # We are doing this instead of moving it above in if so the job always run and succeed even if the condition is not met
-      run: >
-        !startsWith(github.head_ref, 'publish/') &&
-        !startsWith(github.head_ref, 'dependabot/') &&
-        !startsWith(github.head_ref, 'fix/') &&
-        !startsWith(github.head_ref, 'backmerge/') &&
-        !startsWith(github.head_ref, 'revert-')
+      run: |
+        ${{
+          !startsWith(github.head_ref, 'publish/') &&
+          !startsWith(github.head_ref, 'dependabot/') &&
+          !startsWith(github.head_ref, 'fix/') &&
+          !startsWith(github.head_ref, 'backmerge/') &&
+          !startsWith(github.head_ref, 'revert-') 
+        }}
     steps:
       - uses: actions/checkout@v4
         with:
