@@ -9,7 +9,7 @@ import {
 } from "vscode-languageserver";
 import { getSymNode } from "../core/binder.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
-import { compilerAssert } from "../core/diagnostics.js";
+import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getFirstAncestor, positionInRange } from "../core/parser.js";
 import {
