@@ -7,7 +7,7 @@ export async function execCSharpGenerator(
   options: {
     generatorPath: string;
     outputFolder: string;
-    pluginName: string;
+    generatorName: string;
     newProject: boolean;
     debug: boolean;
   },
@@ -18,8 +18,8 @@ export async function execCSharpGenerator(
     "Major",
     options.generatorPath,
     options.outputFolder,
-    "-p",
-    options.pluginName,
+    "-g",
+    options.generatorName,
   ];
   if (options.newProject) {
     args.push("--new-project");

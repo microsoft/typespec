@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [SetUp]
         public async Task Setup()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: () => Task.FromResult(_compilation));
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Task.FromResult(_compilation));
         }
 
         [Test]

@@ -17,17 +17,17 @@ namespace Microsoft.TypeSpec.Generator
             internal set => _typeProviders = value;
         }
 
-        internal Lazy<ModelFactoryProvider> ModelFactory { get; } = new(() => new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models));
+        internal Lazy<ModelFactoryProvider> ModelFactory { get; } = new(() => new ModelFactoryProvider(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models));
 
         private static TypeProvider[] BuildEnums()
         {
-            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+            var input = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
             var enums = new List<TypeProvider>(input.Enums.Count);
             foreach (var inputEnum in input.Enums)
             {
                 if (inputEnum.Usage.HasFlag(Input.InputModelTypeUsage.ApiVersionEnum))
                     continue;
-                var outputEnum = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
+                var outputEnum = CodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
 
                 // If there is a custom code view for a fixed enum, then we should not emit the generated enum as the custom code will have
                 // the implementation. We will still need to emit the serialization code.
@@ -46,18 +46,18 @@ namespace Microsoft.TypeSpec.Generator
 
         private static TypeProvider[] BuildModels()
         {
-            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+            var input = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
             var models = new List<TypeProvider>(input.Models.Count);
             foreach (var inputModel in input.Models)
             {
-                var outputModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+                var outputModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
                 if (outputModel != null)
                 {
                     models.Add(outputModel);
                     var unknownVariant = inputModel.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
                     if (unknownVariant != null)
                     {
-                        var unknownModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(unknownVariant);
+                        var unknownModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(unknownVariant);
                         if (unknownModel != null)
                         {
                             models.Add(unknownModel);
@@ -79,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator
                 new ArgumentDefinition(),
                 new OptionalDefinition(),
                 .. BuildModelFactory(),
-                .. CodeModelPlugin.Instance.CustomCodeAttributeProviders
+                .. CodeModelGenerator.Instance.CustomCodeAttributeProviders
             ];
         }
 

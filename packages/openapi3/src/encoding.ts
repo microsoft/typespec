@@ -1,9 +1,14 @@
+import { ObjectBuilder } from "@typespec/asset-emitter";
 import { type ModelProperty, Program, type Scalar, getEncode } from "@typespec/compiler";
-import { ObjectBuilder } from "@typespec/compiler/emitter-framework";
-import { isHeader } from "@typespec/http";
+import { isHeader, isQueryParam } from "@typespec/http";
 import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import type { OpenAPI3Schema, OpenAPISchema3_1 } from "./types.js";
+
+function isParameterStyleEncoding(encoding: string | undefined): boolean {
+  if (!encoding) return false;
+  return ["ArrayEncoding.pipeDelimited", "ArrayEncoding.spaceDelimited"].includes(encoding);
+}
 
 export function applyEncoding(
   program: Program,
@@ -17,6 +22,10 @@ export function applyEncoding(
 
   const encodeData = getEncode(program, typespecType);
   if (encodeData) {
+    // Query parameters have a couple of special cases where encoding ends up as style.
+    if (isQueryParam(program, typespecType) && isParameterStyleEncoding(encodeData.encoding)) {
+      return targetObject;
+    }
     const newType = getSchemaForStdScalars(encodeData.type as any, options);
     targetObject.type = newType.type;
     // If the target already has a format it takes priority. (e.g. int32)

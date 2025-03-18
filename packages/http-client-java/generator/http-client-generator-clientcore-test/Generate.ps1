@@ -34,10 +34,6 @@ $generateScript = {
   } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
     # override namespace for reserved keyword "enum"
     $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.fixed"""
-  } elseif ($tspFile -match "type[\\/]array" -or $tspFile -match "type[\\/]dictionary") {
-    # TODO https://github.com/Azure/autorest.java/issues/2964
-    # also serve as a test for "use-object-for-unknown" emitter option
-    $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
@@ -67,7 +63,7 @@ $generateScript = {
   }
 
   if ($global:ExitCode -ne 0) {
-    exit $global:ExitCode
+    throw "Failed to generate from tsp $tspFile"
   }
 }
 
@@ -106,4 +102,8 @@ if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_pro
   # the api view properties file. Because the tests run in parallel, the order is not guaranteed. This
   # causes git diff check to fail as the checked in file is not the same as the generated one.
   Remove-Item ./src/main/resources/META-INF/client-structure-service_apiview_properties.json -Force
+}
+
+if ($ExitCode -ne 0) {
+  throw "Failed to generate from tsp"
 }
