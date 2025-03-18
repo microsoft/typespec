@@ -116,7 +116,7 @@ import { OrSchema } from "./common/schemas/relationship.js";
 import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
 import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./external-schemas.js";
-import { EmitterOptions, LIB_NAME, createDiagnostic, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
 import {
   CONTENT_TYPE_KEY,
@@ -130,6 +130,7 @@ import {
   operationIsMultipart,
   operationIsMultipleContentTypes,
 } from "./operation-utils.js";
+import { DevOptions, EmitterOptions, LIB_NAME } from "./options.js";
 import {
   BYTES_KNOWN_ENCODING,
   DATETIME_KNOWN_ENCODING,
@@ -155,6 +156,49 @@ import {
 } from "./utils.js";
 const { isEqual } = pkg;
 
+export interface EmitterOptionsDev {
+  flavor?: string;
+
+  // service
+  namespace?: string;
+  "service-name"?: string;
+  "service-versions"?: string[]; // consider to remove
+
+  // sample and test
+  "generate-samples"?: boolean;
+  "generate-tests"?: boolean;
+
+  // customization
+  "partial-update"?: boolean;
+  "models-subpackage"?: string;
+  "custom-types"?: string;
+  "custom-types-subpackage"?: string;
+  "customization-class"?: string;
+  polling?: any;
+
+  // configure
+  "skip-special-headers"?: string[];
+  "enable-subclient"?: boolean;
+
+  // not recommended to set
+  "group-etag-headers"?: boolean;
+  "enable-sync-stack"?: boolean;
+  "stream-style-serialization"?: boolean;
+  "use-object-for-unknown"?: boolean;
+
+  // versioning
+  "api-version"?: string;
+  "advanced-versioning"?: boolean;
+  "service-version-exclude-preview"?: boolean;
+
+  // dev options
+  "dev-options"?: DevOptions;
+
+  // internal use for codegen
+  "output-dir": string;
+  arm?: boolean;
+}
+
 type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
 
 const AZURE_CORE_FOUNDATIONS_ERROR_ID = "Azure.Core.Foundations.Error";
@@ -166,7 +210,7 @@ export class CodeModelBuilder {
   private baseJavaNamespace!: string;
   private legacyJavaNamespace!: boolean; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
   private sdkContext!: SdkContext;
-  private options: EmitterOptions;
+  private options: EmitterOptionsDev;
   private codeModel: CodeModel;
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
@@ -179,7 +223,7 @@ export class CodeModelBuilder {
   private apiVersion: string | undefined;
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
-    this.options = context.options;
+    this.options = context.options as EmitterOptionsDev;
     this.program = program1;
     this.emitterContext = context;
 
