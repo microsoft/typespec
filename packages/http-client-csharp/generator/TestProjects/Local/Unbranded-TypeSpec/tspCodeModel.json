@@ -3890,7 +3890,7 @@
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
-        "application/json",
+        "text/plain",
         "application/json",
         "application/json",
         "application/json",
