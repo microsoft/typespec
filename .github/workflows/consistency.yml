@@ -30,7 +30,7 @@ jobs:
       - run: |
           echo "Checking changes"
           echo "Run: ${{ env.run }}"
-          echo "Run2: ${{ env.run == 'true'}"
+          echo "Run2: ${{ env.run == 'true' }}"
         name: Check changes
       - uses: actions/checkout@v4
         with:
