@@ -16,6 +16,13 @@ jobs:
     name: Check Changes
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    variables:
+      # We are doing this instead of moving it above in if so the job always run and succeed even if the condition is not met
+      run: >
+        !startsWith(github.head_ref, 'publish/') &&
+        !startsWith(github.head_ref, 'dependabot/') &&
+        !startsWith(github.head_ref, 'backmerge/') &&
+        !startsWith(github.head_ref, 'revert-')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,31 +33,28 @@ jobs:
 
       - run: git fetch --force --no-tags origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}
         name: Get ${{ github.event.pull_request.base.ref }} ref for ${{ github.ref}}, evt ${{ github.event_name }}
+        if: ${{ variables.run }}
 
       - run: pnpm install
         name: Install dependencies
+        if: ${{ variables.run }}
 
       - name: Create PR Comment
         run: pnpm chronus-github get-pr-comment --out ./comment-out/comment.json
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        if: ${{ github.actor != 'dependabot[bot]' && !startsWith(github.head_ref, 'publish/') }}
+        if: ${{ variables.run }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: comment
           path: comment-out/
           retention-days: 1 # Only need for the next workflow so don't need to waste storageretention-days
-        if: ${{ github.actor != 'dependabot[bot]' && !startsWith(github.head_ref, 'publish/') }}
+        if: ${{ variables.run }}
 
       - run: pnpm chronus verify --since ${{ github.event.pull_request.base.ref }}
         name: Check changelog
-        if: |
-          !startsWith(github.head_ref, 'publish/') &&
-          !startsWith(github.head_ref, 'dependabot/') &&
-          !startsWith(github.head_ref, 'backmerge/') &&
-          !startsWith(github.head_ref, 'revert-')
-        if: ${{ github.actor != 'dependabot[bot]' && !startsWith(github.head_ref, 'publish/') }}
+        if: ${{ variables.run }}
 
   # Validate spell check
   spellcheck:
