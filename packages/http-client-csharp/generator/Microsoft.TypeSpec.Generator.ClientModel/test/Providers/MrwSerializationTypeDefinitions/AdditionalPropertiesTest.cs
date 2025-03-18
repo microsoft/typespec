@@ -24,9 +24,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
                 ],
                 additionalProperties: additionalPropsValueType);
-            MockHelpers.LoadMockPlugin(inputModels: () => [inputModel]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
 
-            var model = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
             var serializations = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
             Assert.IsNotNull(serializations);
             var deserializationMethod = serializations!.BuildDeserializationMethod();
@@ -78,9 +78,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                    InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
                ],
                additionalProperties: additionalPropsValueType);
-            MockHelpers.LoadMockPlugin(inputModels: () => [inputModel]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
 
-            var model = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
             var serializations = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
             Assert.IsNotNull(serializations);
 

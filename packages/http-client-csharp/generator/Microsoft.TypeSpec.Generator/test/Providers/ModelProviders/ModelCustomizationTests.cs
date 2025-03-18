@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanChangeModelName()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanChangeEnumName()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
 
             var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String);
@@ -53,11 +53,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: new[] { inputModel },
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
 
             AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
 
@@ -85,11 +85,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: new[] { inputModel },
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
 
             AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
 
@@ -124,11 +124,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: new[] { inputModel },
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
             AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
 
             // the property should be added to the custom code view
@@ -147,11 +147,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
             AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
 
             // the property should be added to the custom code view
@@ -175,11 +175,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
             AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
 
             // the field should be added to the custom code view
@@ -213,11 +213,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
             AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
 
             // the property should be added to the custom code view
@@ -251,11 +251,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
             AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
 
             // the property should be added to the custom code view
@@ -278,7 +278,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanChangePropertyAccessibility()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: new[] {
                     InputFactory.Model("mockInputModel", properties: new[] {
                         InputFactory.Property("prop1", InputPrimitiveType.String)
@@ -287,7 +287,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
-            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
 
             AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
 
@@ -315,7 +315,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TestCase]
         public async Task CanChangeToStruct()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -332,7 +332,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanChangeModelNameAndToStructAtSameTime()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -351,7 +351,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanChangeAccessibility()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[] {
                 InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
@@ -367,7 +367,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanChangeEnumToExtensibleEnum()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[] {
                 InputFactory.EnumMember.Int32("val1", 1),
@@ -384,7 +384,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanChangeExtensibleEnumToEnum()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[] {
                 InputFactory.EnumMember.Int32("val1", 1),
@@ -405,7 +405,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanAddProperties()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var props = new[]
             {
@@ -445,7 +445,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanRemoveProperty()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: new[] {
                     InputFactory.Model("mockInputModel", properties: new[] {
                         InputFactory.Property("Prop1", InputPrimitiveType.String)
@@ -454,18 +454,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
-            Assert.AreEqual(0, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Properties.Count);
+            Assert.AreEqual(0, mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Properties.Count);
         }
 
         [Test]
         public async Task CanRemoveField()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [InputFactory.Model("mockInputModel", properties: [])],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
-            Assert.AreEqual(0, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Fields.Count);
+            Assert.AreEqual(0, mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Fields.Count);
         }
 
         [Test]
@@ -478,7 +478,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 InputFactory.EnumMember.Int32("Blue", 3)
             };
             var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
-            await MockHelpers.LoadMockPluginAsync(
+            await MockHelpers.LoadMockGeneratorAsync(
                 inputEnumTypes: [inputEnum],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
@@ -506,7 +506,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task DoesNotGenerateExistingProperty()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -521,7 +521,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t is ModelProvider);
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t is ModelProvider);
             Assert.IsNotNull(modelTypeProvider);
             var customCodeView = modelTypeProvider!.CustomCodeView;
 
@@ -554,7 +554,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "baseModel",
                 usage: InputModelTypeUsage.Input,
                 properties: [InputFactory.Property("BaseProp", InputPrimitiveType.Int32, isRequired: true)]);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -570,7 +570,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
 
-            var modelTypeProvider = plugin.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t is ModelProvider && t.Name == "MockInputModel");
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t is ModelProvider && t.Name == "MockInputModel");
             Assert.IsNotNull(modelTypeProvider);
 
             var baseModelTypeProvider = (modelTypeProvider as ModelProvider)?.BaseModelProvider;
@@ -605,7 +605,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 usage: InputModelTypeUsage.Input,
                 properties: new[] { InputFactory.Property("SubProperty", InputPrimitiveType.Int32) });
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: new[] {
                     InputFactory.Model(
                         "mockInputModel",
@@ -623,13 +623,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await csharpGen.ExecuteAsync();
 
             // The generated code should not contain any ctors
-            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors);
+            Assert.IsEmpty(mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors);
         }
 
         [Test]
         public async Task CanReplaceField()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: new[] {
                     InputFactory.Model(
                         "mockInputModel",
@@ -643,13 +643,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await csharpGen.ExecuteAsync();
 
             // The generated code should not contain any fields
-            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Fields);
+            Assert.IsEmpty(mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Fields);
         }
 
         [Test]
         public async Task DoesNotReplaceDefaultConstructorIfNotCustomized()
         {
-            var plugin = MockHelpers.LoadMockPlugin(
+            var mockGenerator = MockHelpers.LoadMockGenerator(
                 inputModelTypes: new[] {
                     InputFactory.Model(
                         "mockInputModel",
@@ -661,7 +661,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             await csharpGen.ExecuteAsync();
 
-            var ctors = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
+            var ctors = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
             Assert.AreEqual(2, ctors.Count);
             Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)));
             Assert.IsTrue(ctors.Any(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
@@ -676,7 +676,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "originalEnum",
                 InputPrimitiveType.String,
                 values: [InputFactory.EnumMember.String("bar", "bar")]);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -692,7 +692,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             await csharpGen.ExecuteAsync();
 
-            var ctors = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
+            var ctors = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
             Assert.AreEqual(2, ctors.Count);
 
             var publicCtor = ctors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
@@ -708,7 +708,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task DoesNotIncludeReqCustomFieldLiteralInDefaultCtor()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -724,7 +724,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             await csharpGen.ExecuteAsync();
 
-            var ctors = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
+            var ctors = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel").Constructors;
             Assert.AreEqual(2, ctors.Count);
 
             var publicCtor = ctors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
@@ -740,7 +740,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanChangeModelToAbstract()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: new[] {
                     InputFactory.Model(
                         "mockInputModel",
@@ -754,28 +754,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await csharpGen.ExecuteAsync();
 
             // The generated type should be abstract
-            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
             Assert.IsTrue(modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
             Assert.IsTrue(modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             Assert.IsFalse(modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed));
 
             // There should be no model factory as there are no constructible models
-            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.Where(t => t is ModelFactoryProvider));
+            Assert.IsEmpty(mockGenerator.Object.OutputLibrary.TypeProviders.Where(t => t is ModelFactoryProvider));
         }
 
         [Test]
         public async Task CanCustomizePropertyIntoReadOnlyMemory()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
             var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelFactoryProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelFactoryProvider);
+            var modelFactoryProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelFactoryProvider);
             Assert.IsNotNull(modelFactoryProvider);
             var writer = new TypeProviderWriter(modelFactoryProvider);
             var file = writer.Write();
@@ -785,7 +785,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task CanCustomizeDiscriminatorModel()
         {
-            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
             var discriminatorValues = InputFactory.Enum("discriminatorValue", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
@@ -801,12 +801,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 properties: [modelProp, discriminatorProp],
                 derivedModels: [fooModel, barModel], usage: InputModelTypeUsage.Json);
 
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel, fooModel, barModel],
                 inputEnumTypes: [discriminatorValues],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "FooModel");
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "FooModel");
             Assert.IsNotNull(modelProvider);
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();

@@ -105,7 +105,7 @@ describe("$onEmit tests", () => {
     expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
       generatorPath: expect.any(String),
       outputFolder: expect.any(String),
-      pluginName: "ScmCodeModelPlugin",
+      generatorName: "ScmCodeModelGenerator",
       newProject: true, // Ensure this is passed as true
       debug: false,
     });
@@ -120,7 +120,7 @@ describe("$onEmit tests", () => {
     expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
       generatorPath: expect.any(String),
       outputFolder: expect.any(String),
-      pluginName: "ScmCodeModelPlugin",
+      generatorName: "ScmCodeModelGenerator",
       newProject: false, // Ensure this is passed as false
       debug: false,
     });

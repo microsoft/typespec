@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
     public class InputLibraryVisitorTests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private Mock<ScmCodeModelPlugin> _mockPlugin;
+        private Mock<ScmCodeModelGenerator> _mockGenerator;
         private Mock<ScmLibraryVisitor> _mockVisitor;
         private Mock<InputLibrary> _mockInputLibrary;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -24,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         {
             _mockInputLibrary = new Mock<InputLibrary>();
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("Sample"));
-            _mockPlugin = MockHelpers.LoadMockPlugin(
+            _mockGenerator = MockHelpers.LoadMockGenerator(
                 createInputLibrary: () => _mockInputLibrary.Object,
                 createClientCore: inputClient => new ClientProvider(inputClient));
             _mockVisitor = new Mock<ScmLibraryVisitor> { CallBase = true };
@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         [Test]
         public void PreVisitsMethods()
         {
-            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
+            _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
             var inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.Any, isRequired: true, isReadOnly: true);
             var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
@@ -54,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         [Test]
         public void PreVisitsClients()
         {
-            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
+            _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
 
             var inputClient = InputFactory.Client("fooClient");
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
