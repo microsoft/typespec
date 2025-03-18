@@ -71,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             project = project
                 .AddMetadataReferences([
                     MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                    ..CodeModelPlugin.Instance.AdditionalMetadataReferences
+                    ..CodeModelGenerator.Instance.AdditionalMetadataReferences
                     ])
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: new WorkspaceMetadataReferenceResolver(), nullableContextOptions: NullableContextOptions.Disable));

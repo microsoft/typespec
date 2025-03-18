@@ -17,6 +17,10 @@ Adding new keywords for future use:
   - `struct`
   - `record`
   - `module`
+  - `mod`
+  - `pub`
+  - `sub`
+  - `typeref`
   - `trait`
   - `this`
   - `self`

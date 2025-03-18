@@ -50,7 +50,8 @@
     "lint:fix": "eslint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/openapi3/reference",
     "regen-specs": "cross-env RECORD=true vitest run",
-    "gen-version": "node scripts/generate-version.js"
+    "gen-version": "node scripts/generate-version.js",
+    "api-extractor": "api-extractor run --local --verbose"
   },
   "files": [
     "lib/*.tsp",
@@ -58,6 +59,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
+    "@typespec/asset-emitter": "workspace:^",
     "@apidevtools/swagger-parser": "~10.1.1",
     "openapi-types": "~12.1.3",
     "yaml": "~2.7.0"

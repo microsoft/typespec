@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.8.0
+
+### Features
+
+- [#6242](https://github.com/microsoft/typespec/pull/6242) support continuation token for paging
+
+
 ## 0.7.1
 
 ### Bug Fixes
