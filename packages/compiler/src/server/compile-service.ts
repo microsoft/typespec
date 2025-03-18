@@ -7,8 +7,6 @@ import {
 } from "../config/config-loader.js";
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
-import { getLocationInYamlScript } from "../yaml/diagnostics.js";
-import { parseYaml } from "../yaml/parser.js";
 import { compilerAssert, formatDiagnostic } from "../core/diagnostics.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
@@ -24,6 +22,8 @@ import type {
 } from "../core/types.js";
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import { parseYaml } from "../yaml/parser.js";
 import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
