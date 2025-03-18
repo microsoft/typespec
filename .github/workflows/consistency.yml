@@ -22,7 +22,6 @@ jobs:
         ${{
           !startsWith(github.head_ref, 'publish/') &&
           !startsWith(github.head_ref, 'dependabot/') &&
-          !startsWith(github.head_ref, 'fix/') &&
           !startsWith(github.head_ref, 'backmerge/') &&
           !startsWith(github.head_ref, 'revert-') 
         }}
