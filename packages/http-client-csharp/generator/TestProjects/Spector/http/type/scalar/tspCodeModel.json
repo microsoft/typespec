@@ -75,7 +75,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -105,7 +105,7 @@
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
-        "application/json"
+        "text/plain"
        ]
       }
      ],
@@ -129,7 +129,7 @@
        "$id": "16",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are text/plain",
        "Type": {
         "$id": "17",
         "kind": "constant",
@@ -140,7 +140,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -190,7 +190,7 @@
      "Uri": "{endpoint}",
      "Path": "/type/scalar/string",
      "RequestMediaTypes": [
-      "application/json"
+      "text/plain"
      ],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
@@ -265,7 +265,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -295,7 +295,7 @@
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
-        "application/json"
+        "text/plain"
        ]
       }
      ],
@@ -319,7 +319,7 @@
        "$id": "35",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are text/plain",
        "Type": {
         "$id": "36",
         "kind": "constant",
@@ -330,7 +330,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -380,7 +380,7 @@
      "Uri": "{endpoint}",
      "Path": "/type/scalar/boolean",
      "RequestMediaTypes": [
-      "application/json"
+      "text/plain"
      ],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
@@ -645,7 +645,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -675,7 +675,7 @@
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
-        "application/json"
+        "text/plain"
        ]
       }
      ],
@@ -698,7 +698,7 @@
        "$id": "73",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are text/plain",
        "Type": {
         "$id": "74",
         "kind": "constant",
@@ -709,7 +709,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -758,7 +758,7 @@
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/resquest_body",
      "RequestMediaTypes": [
-      "application/json"
+      "text/plain"
      ],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
@@ -880,7 +880,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -910,7 +910,7 @@
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
-        "application/json"
+        "text/plain"
        ]
       }
      ],
@@ -933,7 +933,7 @@
        "$id": "96",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are text/plain",
        "Type": {
         "$id": "97",
         "kind": "constant",
@@ -944,7 +944,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -993,7 +993,7 @@
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/resquest_body",
      "RequestMediaTypes": [
-      "application/json"
+      "text/plain"
      ],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
@@ -1175,7 +1175,7 @@
        "$id": "120",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are text/plain",
        "Type": {
         "$id": "121",
         "kind": "constant",
@@ -1186,7 +1186,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -1235,7 +1235,7 @@
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal/verify",
      "RequestMediaTypes": [
-      "application/json"
+      "text/plain"
      ],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
@@ -1370,7 +1370,7 @@
        "$id": "140",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are text/plain",
        "Type": {
         "$id": "141",
         "kind": "constant",
@@ -1381,7 +1381,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -1430,7 +1430,7 @@
      "Uri": "{endpoint}",
      "Path": "/type/scalar/decimal128/verify",
      "RequestMediaTypes": [
-      "application/json"
+      "text/plain"
      ],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,

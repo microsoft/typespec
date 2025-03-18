@@ -82,7 +82,7 @@
        "$id": "10",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are text/plain",
        "Type": {
         "$id": "11",
         "kind": "constant",
@@ -93,7 +93,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -120,7 +120,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -171,7 +171,7 @@
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
-        "application/json"
+        "text/plain"
        ]
       }
      ],
@@ -179,7 +179,7 @@
      "Uri": "{endpoint}/versioning/return-type-changed-from/api-version:{version}",
      "Path": "/test",
      "RequestMediaTypes": [
-      "application/json"
+      "text/plain"
      ],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,

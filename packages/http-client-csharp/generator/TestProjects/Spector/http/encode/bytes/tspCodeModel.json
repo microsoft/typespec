@@ -1215,7 +1215,7 @@
        "$id": "122",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/octet-stream",
        "Type": {
         "$id": "123",
         "kind": "constant",
@@ -1226,7 +1226,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "application/octet-stream",
         "decorators": []
        },
        "Location": "Header",
@@ -1247,7 +1247,6 @@
         "$id": "126",
         "kind": "bytes",
         "name": "bytes",
-        "encode": "base64",
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
@@ -1276,7 +1275,7 @@
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/request/default",
      "RequestMediaTypes": [
-      "application/json"
+      "application/octet-stream"
      ],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
@@ -1448,7 +1447,7 @@
        "$id": "143",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/octet-stream",
        "Type": {
         "$id": "144",
         "kind": "constant",
@@ -1459,7 +1458,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "application/octet-stream",
         "decorators": []
        },
        "Location": "Header",
@@ -1509,7 +1508,7 @@
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/request/base64",
      "RequestMediaTypes": [
-      "application/json"
+      "application/octet-stream"
      ],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
@@ -1527,7 +1526,7 @@
        "$id": "150",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/octet-stream",
        "Type": {
         "$id": "151",
         "kind": "constant",
@@ -1538,7 +1537,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "application/octet-stream",
         "decorators": []
        },
        "Location": "Header",
@@ -1588,7 +1587,7 @@
      "Uri": "{endpoint}",
      "Path": "/encode/bytes/body/request/base64url",
      "RequestMediaTypes": [
-      "application/json"
+      "application/octet-stream"
      ],
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
@@ -1662,7 +1661,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "application/octet-stream",
         "decorators": []
        },
        "Location": "Header",
@@ -1686,14 +1685,13 @@
         "$id": "167",
         "kind": "bytes",
         "name": "bytes",
-        "encode": "base64",
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
-        "application/json"
+        "application/octet-stream"
        ]
       }
      ],
@@ -1890,7 +1888,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "application/octet-stream",
         "decorators": []
        },
        "Location": "Header",
@@ -1921,7 +1919,7 @@
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
-        "application/json"
+        "application/octet-stream"
        ]
       }
      ],
@@ -1954,7 +1952,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "text/plain",
         "decorators": []
        },
        "Location": "Header",
@@ -1993,7 +1991,7 @@
        "Headers": [],
        "IsErrorResponse": false,
        "ContentTypes": [
-        "application/json"
+        "text/plain"
        ]
       }
      ],

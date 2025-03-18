@@ -208,7 +208,7 @@
       {
        "$id": "27",
        "Name": "oldQuery",
-       "NameInRequest": "newQuery",
+       "NameInRequest": "oldQuery",
        "Type": {
         "$id": "28",
         "kind": "string",
