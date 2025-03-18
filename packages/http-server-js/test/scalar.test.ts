@@ -73,6 +73,7 @@ describe("scalar", () => {
       "uint8",
       "uint16",
       "uint32",
+      "safeint",
     );
 
     const [ctx, mod] = createFakeModule(runner.program);

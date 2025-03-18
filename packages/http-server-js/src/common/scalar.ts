@@ -11,6 +11,9 @@ import { HttpOperationParameter } from "@typespec/http";
 import { module as dateTimeModule } from "../../generated-defs/helpers/datetime.js";
 import { UnreachableError } from "../util/error.js";
 
+/**
+ * A specification of a TypeSpec scalar type.
+ */
 export interface ScalarInfo {
   /**
    * The TypeScript type that represents the scalar, or a function if the scalar requires a representation
@@ -116,6 +119,9 @@ export interface ScalarEncodingVia {
   decodeTemplate?: MaybeDependent<string>;
 }
 
+/**
+ * Resolves the encoding of Duration values to a number of seconds.
+ */
 const DURATION_NUMBER_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
   module.imports.push({ from: dateTimeModule, binder: ["Duration"] });
 
@@ -125,6 +131,9 @@ const DURATION_NUMBER_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
   };
 };
 
+/**
+ * Resolves the encoding of Duration values to a BigInt number of seconds.
+ */
 const DURATION_BIGINT_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
   module.imports.push({ from: dateTimeModule, binder: ["Duration"] });
 
@@ -315,14 +324,26 @@ export function emitScalar(ctx: JsContext, scalar: Scalar, module: Module): stri
   return `type ${name} = ${jsScalar.type};`;
 }
 
+/**
+ * Helper function template that makes any type T computable sensitive to the JsContext and module it is referenced from.
+ */
 interface Contextualized<T> {
   (ctx: JsContext, module: Module): T;
 }
 
+/**
+ * The store of scalars for a given program.
+ */
 type ScalarStore = Map<Scalar, Contextualized<JsScalar>>;
 
+/**
+ * The store of all scalars known to the emitter in all active Programs.
+ */
 const __JS_SCALARS_MAP = new WeakMap<Program, ScalarStore>();
 
+/**
+ * Gets the scalar store for a given program.
+ */
 function getScalarStore(program: Program): ScalarStore {
   let scalars = __JS_SCALARS_MAP.get(program);
 
@@ -334,6 +355,9 @@ function getScalarStore(program: Program): ScalarStore {
   return scalars;
 }
 
+/**
+ * Initializes a scalar store for a given program.
+ */
 function createScalarStore(program: Program): ScalarStore {
   const m = new Map<Scalar, Contextualized<JsScalar>>();
 
@@ -350,6 +374,15 @@ function createScalarStore(program: Program): ScalarStore {
   return m;
 }
 
+/**
+ * Binds a ScalarInfo specification to a JsScalar.
+ *
+ * @param program - The program that contains the scalar.
+ * @param scalar - The scalar to bind.
+ * @param scalarInfo - The scalar information spec to bind.
+ * @param store - The scalar store to use for the scalar.
+ * @returns a function that takes a JsContext and Module and returns a JsScalar.
+ */
 function createJsScalar(
   program: Program,
   scalar: Scalar,
@@ -358,11 +391,12 @@ function createJsScalar(
 ): Contextualized<JsScalar> {
   return (ctx, module) => {
     const _http: { [K in HttpOperationParameter["type"]]?: Encoder } = {};
+    let _type: string | undefined = undefined;
+
     const self = {
       get type() {
-        return typeof scalarInfo.type === "function"
-          ? scalarInfo.type(ctx, module)
-          : scalarInfo.type;
+        return (_type ??=
+          typeof scalarInfo.type === "function" ? scalarInfo.type(ctx, module) : scalarInfo.type);
       },
 
       scalar,
@@ -378,12 +412,13 @@ function createJsScalar(
         encodingSpec =
           typeof encodingSpec === "function" ? encodingSpec(ctx, module) : encodingSpec;
 
+        let _target: JsScalar | undefined = undefined;
         let _decodeTemplate: string | undefined = undefined;
         let _encodeTemplate: string | undefined = undefined;
 
         return {
           get target() {
-            return store.get(target)!(ctx, module);
+            return (_target ??= store.get(target)!(ctx, module));
           },
 
           decode(subject) {
@@ -477,6 +512,9 @@ function createJsScalar(
     return self;
   };
 
+  /**
+   * Helper to get the HTTP encoders for the scalar.
+   */
   function getHttpEncoder(
     ctx: JsContext,
     module: Module,
@@ -506,12 +544,23 @@ function createJsScalar(
   }
 }
 
+/**
+ * Returns `true` if the encoding is provided `via` another encoding. False otherwise.
+ */
 function isVia(encoding: ScalarEncoding): encoding is ScalarEncodingVia {
   return "via" in encoding;
 }
 
+/** Map to ensure we don't report the same unrecognized scalar many times. */
 const REPORTED_UNRECOGNIZED_SCALARS = new WeakMap<Program, Set<Scalar>>();
 
+/**
+ * Reports a scalar as unrecognized, so that the spec author knows it is treated as `unknown`.
+ *
+ * @param ctx - The emitter context.
+ * @param scalar - The scalar that was not recognized.
+ * @param target - The diagnostic target to report the error on.
+ */
 export function reportUnrecognizedScalar(
   ctx: JsContext,
   scalar: Scalar,
@@ -539,21 +588,24 @@ export function reportUnrecognizedScalar(
   reported.add(scalar);
 }
 
+/**
+ * Gets the default string encoder for HTTP metadata.
+ */
 function getDefaultHttpStringEncoder(
   ctx: JsContext,
   module: Module,
   form: HttpOperationParameter["type"],
 ): Encoder {
-  const [string, diagnostics] = ctx.program.resolveTypeReference("TypeSpec.string");
-
-  if (diagnostics.length > 0 || !string || string.kind !== "Scalar") {
-    throw new UnreachableError(`Failed to resolve built-in scalar 'TypeSpec.string'`);
-  }
+  const string = ctx.program.checker.getStdType("string");
 
   const scalar = getJsScalar(ctx, module, string, NoTarget);
 
-  const encode = form === "path" ? HTTP_ENCODE_STRING_URLENCODED : HTTP_ENCODE_STRING;
-  const decode = form === "path" ? HTTP_DECODE_STRING_URLENCODED : HTTP_DECODE_STRING;
+  // For query and path parameters, we have to URL-encode the string.
+
+  const encode =
+    form === "path" || form === "query" ? HTTP_ENCODE_STRING_URLENCODED : HTTP_ENCODE_STRING;
+  const decode =
+    form === "path" || form === "query" ? HTTP_DECODE_STRING_URLENCODED : HTTP_DECODE_STRING;
 
   return {
     target: scalar,
@@ -562,36 +614,96 @@ function getDefaultHttpStringEncoder(
   };
 }
 
+// Encoders for HTTP metadata.
 const HTTP_ENCODE_STRING: Encoder["encode"] = (subject) => `JSON.stringify(${subject})`;
 const HTTP_DECODE_STRING: Encoder["decode"] = (subject) => `JSON.parse(${subject})`;
 
+// URL-encoders for HTTP metadata.
 const HTTP_ENCODE_STRING_URLENCODED: Encoder["encode"] = (subject) =>
   `encodeURIComponent(JSON.stringify(${subject}))`;
 const HTTP_DECODE_STRING_URLENCODED: Encoder["decode"] = (subject) =>
   `JSON.parse(decodeURIComponent(${subject}))`;
 
+/**
+ * An encoder that encodes a scalar type to the `target` scalar type.
+ *
+ * The type that this encoder encodes _from_ is the type of the scalar that it is bound to. It _MUST_ be used only with expressions
+ * of the type that represents the source scalar.
+ */
 export interface Encoder {
+  /**
+   * The target scalar type that this encoder encodes to.
+   */
   readonly target: JsScalar;
+
+  /**
+   * Produces an expression that encodes the `subject` expression of the source type into the target.
+   *
+   * @param subject - An expression of the type that represents the source scalar.
+   */
   encode(subject: string): string;
+
+  /**
+   * Produces an expression that decodes the `subject` expression from the target into the source type.
+   *
+   * @param subject - An expression of the type that represents the target scalar.
+   */
   decode(subject: string): string;
 }
 
+/**
+ * A representation of a TypeSpec scalar in TypeScript.
+ */
 export interface JsScalar {
+  /**
+   * The TypeScript type that represents the scalar.
+   */
   readonly type: string;
 
+  /**
+   * The TypeSpec scalar that it represents, or "unknown" if the Scalar is not recognized.
+   */
   readonly scalar: Scalar | "unknown";
 
+  /**
+   * Get an encoder that encodes this scalar type to a different scalar type using a given encoding.
+   *
+   * @param encoding - the encoding to use (e.g. "base64", "base64url", etc.)
+   * @param target - the target scalar type to encode to
+   * @returns an encoder that encodes this scalar type to the target scalar type using the given encoding, or undefined
+   * if the encoding is not supported.
+   */
   getEncoding(encoding: string, target: Scalar): Encoder | undefined;
 
+  /**
+   * Get the default encoder for a given media type.
+   *
+   * @param mimeType - the media type to get the default encoder for (e.g. "application/json", "text/plain", etc.)
+   * @returns an encoder that encodes this scalar type to the target scalar type using the given encoding, or undefined
+   * if no default encoder is defined for the given media type.
+   */
   getDefaultMimeEncoding(mimeType: string): Encoder | undefined;
 
+  /**
+   * Whether this scalar can be used directly in JSON serialization.
+   *
+   * If true, this scalar will be represented faithfully if it is passed to JSON.stringify or JSON.parse.
+   */
   isJsonCompatible: boolean;
 
+  /**
+   * A map of encoders when this type is used in HTTP metadata.
+   */
   readonly http: {
     readonly [K in HttpOperationParameter["type"]]: Encoder;
   };
 }
 
+/**
+ * A dummy encoder that just converts the value to a string and does not decode it.
+ *
+ * This is used for "unknown" scalars.
+ */
 const DEFAULT_STRING_ENCODER_RAW: Omit<Encoder, "target"> = {
   encode(subject) {
     return `String(${subject})`;
