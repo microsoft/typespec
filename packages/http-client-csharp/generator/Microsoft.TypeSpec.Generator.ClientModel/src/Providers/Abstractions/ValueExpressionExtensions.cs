@@ -15,21 +15,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (typeof(T).Name)
             {
                 case nameof(ClientResponseApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.FromExpression(valueExpression);
                 case nameof(HttpResponseApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.FromExpression(valueExpression);
                 case nameof(HttpRequestOptionsApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.FromExpression(valueExpression);
                 case nameof(HttpMessageApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpMessageApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.FromExpression(valueExpression);
                 case nameof(HttpRequestApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.FromExpression(valueExpression);
                 case nameof(ClientPipelineApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.FromExpression(valueExpression);
                 case nameof(StatusCodeClassifierApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.FromExpression(valueExpression);
                 case nameof(RequestContentApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.FromExpression(valueExpression);
                 default:
                     throw new InvalidOperationException($"Invalid type {typeof(T)}");
             }
@@ -40,21 +40,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (typeof(T).Name)
             {
                 case nameof(ClientResponseApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.FromExpression(valueExpression);
                 case nameof(HttpResponseApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.FromExpression(valueExpression);
                 case nameof(HttpRequestOptionsApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.FromExpression(valueExpression);
                 case nameof(HttpMessageApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpMessageApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.FromExpression(valueExpression);
                 case nameof(HttpRequestApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.FromExpression(valueExpression);
                 case nameof(ClientPipelineApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.FromExpression(valueExpression);
                 case nameof(StatusCodeClassifierApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.FromExpression(valueExpression);
                 case nameof(RequestContentApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.FromExpression(valueExpression);
                 default:
                     throw new InvalidOperationException($"Invalid type {typeof(T)}");
             }
@@ -65,21 +65,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (typeof(T).Name)
             {
                 case nameof(ClientResponseApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.FromExpression(valueExpression);
                 case nameof(HttpResponseApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.FromExpression(valueExpression);
                 case nameof(HttpRequestOptionsApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.FromExpression(valueExpression);
                 case nameof(HttpMessageApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpMessageApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.FromExpression(valueExpression);
                 case nameof(HttpRequestApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.FromExpression(valueExpression);
                 case nameof(ClientPipelineApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.FromExpression(valueExpression);
                 case nameof(StatusCodeClassifierApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.FromExpression(valueExpression);
                 case nameof(RequestContentApi):
-                    return (T)(object)ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.FromExpression(valueExpression);
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.FromExpression(valueExpression);
                 default:
                     throw new InvalidOperationException($"Invalid type {typeof(T)}");
             }

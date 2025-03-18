@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
 
         public ArgumentSnippetsTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [Test]

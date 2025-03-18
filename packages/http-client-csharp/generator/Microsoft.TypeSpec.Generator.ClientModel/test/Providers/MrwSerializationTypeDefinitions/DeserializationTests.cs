@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
     {
         public DeserializationTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider)
+            MockHelpers.LoadMockGenerator(createSerializationsCore: (inputType, typeProvider)
                 => inputType is InputModelType modeltype ? [new MockMrwProvider(modeltype, (typeProvider as ModelProvider)!)] : []);
         }
 
