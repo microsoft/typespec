@@ -80,25 +80,27 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
                     "PollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType, defaultPollInterval, activationResponse, context)"))
                 .build();
 
-            MethodTemplate getLroResultSyncMethod = MethodTemplate.builder()
-                .imports(Arrays.asList(PollResult.class.getName(), Mono.class.getName(),
-                    ClassType.RESPONSE.getFullName(), ByteBuffer.class.getName(), Type.class.getName(),
-                    ClassType.SYNC_POLLER_FACTORY.getFullName(), ClassType.BINARY_DATA.getFullName(), ClassType.SYNC_POLLER.getFullName()))
-                .methodSignature(
-                    "<T, U> SyncPoller<PollResult<T>, U> getLroResult(Response<BinaryData> activationResponse, Type pollResultType, Type finalResultType, Context context)")
-                .comment(comment -> {
-                    comment.description("Gets long running operation result.");
-                    comment.param("activationResponse", "the response of activation operation.");
-                    comment.param("pollResultType", "type of poll result.");
-                    comment.param("finalResultType", "type of final result.");
-                    comment.param("context", "the context shared by all requests.");
-                    comment.param("<T>", "type of poll result.");
-                    comment.param("<U>", "type of final result.");
-                    comment.methodReturns("SyncPoller for poll result and final result.");
-                })
-                .method(method -> method.methodReturn(
-                    "SyncPollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType, defaultPollInterval, () -> activationResponse, context)"))
-                .build();
+            MethodTemplate getLroResultSyncMethod
+                = MethodTemplate.builder()
+                    .imports(Arrays.asList(
+                        PollResult.class.getName(), Mono.class.getName(), ClassType.RESPONSE.getFullName(),
+                        ByteBuffer.class.getName(), Type.class.getName(), ClassType.SYNC_POLLER_FACTORY.getFullName(),
+                        ClassType.BINARY_DATA.getFullName(), ClassType.SYNC_POLLER.getFullName()))
+                    .methodSignature(
+                        "<T, U> SyncPoller<PollResult<T>, U> getLroResult(Response<BinaryData> activationResponse, Type pollResultType, Type finalResultType, Context context)")
+                    .comment(comment -> {
+                        comment.description("Gets long running operation result.");
+                        comment.param("activationResponse", "the response of activation operation.");
+                        comment.param("pollResultType", "type of poll result.");
+                        comment.param("finalResultType", "type of final result.");
+                        comment.param("context", "the context shared by all requests.");
+                        comment.param("<T>", "type of poll result.");
+                        comment.param("<U>", "type of final result.");
+                        comment.methodReturns("SyncPoller for poll result and final result.");
+                    })
+                    .method(method -> method.methodReturn(
+                        "SyncPollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType, defaultPollInterval, () -> activationResponse, context)"))
+                    .build();
 
             MethodTemplate getLroFinalResultOrErrorMethod = MethodTemplate.builder()
                 .imports(Arrays.asList(PollerFlux.class.getName(), PollResult.class.getName(), Mono.class.getName(),

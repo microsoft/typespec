@@ -422,8 +422,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                                 operation, createSyncReturnWithResponseType(ClassType.BINARY_DATA, operation,
                                     isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored()),
                                 ClassType.BINARY_DATA);
-                            builder.methodVisibility(NOT_VISIBLE)
-                                .returnValue(binaryDataResponse);
+                            builder.methodVisibility(NOT_VISIBLE).returnValue(binaryDataResponse);
                         } else {
                             builder.methodVisibility(simpleSyncMethodVisibility);
                         }

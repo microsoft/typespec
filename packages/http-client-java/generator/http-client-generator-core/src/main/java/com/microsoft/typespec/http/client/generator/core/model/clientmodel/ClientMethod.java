@@ -514,10 +514,9 @@ public class ClientMethod {
 
             // sync-stack, lro (+ pageable)
             if (settings.isSyncStackEnabled() && settings.isFluent()) {
-                if ((
-                    type == ClientMethodType.PagingSyncSinglePage
-                        && proxyMethod != null
-                        && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()))
+                if ((type == ClientMethodType.PagingSyncSinglePage
+                    && proxyMethod != null
+                    && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()))
                     || type == ClientMethodType.LongRunningBeginSync) {
                     ClassType.SYNC_POLLER_FACTORY.addImportsTo(imports, false);
                 }
