@@ -268,7 +268,11 @@ const SCALARS = new Map<string, ScalarInfo>([
       // This little no-op encoding makes it so that we can attempt to encode string to itself infallibly and it will
       // do nothing. We therefore don't need to redundantly describe HTTP encodings for query, header, etc. because
       // they rely on the ["TypeSpec.string", "default"] encoding in the absence of a more specific encoding.
-      encodings: { "TypeSpec.string": { default: { encodeTemplate: "{}", decodeTemplate: "{}" } } },
+      encodings: {
+        "TypeSpec.string": {
+          default: { encodeTemplate: "{}", decodeTemplate: "{}" },
+        },
+      },
       isJsonCompatible: true,
     },
   ],
@@ -600,29 +604,16 @@ function getDefaultHttpStringEncoder(
 
   const scalar = getJsScalar(ctx, module, string, NoTarget);
 
-  // For query and path parameters, we have to URL-encode the string.
-
-  const encode =
-    form === "path" || form === "query" ? HTTP_ENCODE_STRING_URLENCODED : HTTP_ENCODE_STRING;
-  const decode =
-    form === "path" || form === "query" ? HTTP_DECODE_STRING_URLENCODED : HTTP_DECODE_STRING;
-
   return {
     target: scalar,
-    encode,
-    decode,
+    encode: HTTP_ENCODE_STRING,
+    decode: HTTP_DECODE_STRING,
   };
 }
 
 // Encoders for HTTP metadata.
 const HTTP_ENCODE_STRING: Encoder["encode"] = (subject) => `JSON.stringify(${subject})`;
 const HTTP_DECODE_STRING: Encoder["decode"] = (subject) => `JSON.parse(${subject})`;
-
-// URL-encoders for HTTP metadata.
-const HTTP_ENCODE_STRING_URLENCODED: Encoder["encode"] = (subject) =>
-  `encodeURIComponent(JSON.stringify(${subject}))`;
-const HTTP_DECODE_STRING_URLENCODED: Encoder["decode"] = (subject) =>
-  `JSON.parse(decodeURIComponent(${subject}))`;
 
 /**
  * An encoder that encodes a scalar type to the `target` scalar type.

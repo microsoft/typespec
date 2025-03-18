@@ -1,4 +1,4 @@
-import { ModelProperty, NoTarget, Program, Scalar } from "@typespec/compiler";
+import { ModelProperty, NoTarget, Scalar } from "@typespec/compiler";
 import { BasicTestRunner, createTestRunner } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
@@ -14,7 +14,7 @@ describe("scalar", () => {
     runner = await createTestRunner();
   });
 
-  function createFakeModule(program: Program): [JsContext, Module] {
+  function createFakeModule(): [JsContext, Module] {
     const module: Module = {
       name: "example",
       cursor: createPathCursor(),
@@ -25,7 +25,7 @@ describe("scalar", () => {
 
     // Min context
     const ctx: JsContext = {
-      program,
+      program: runner.program,
       rootModule: module,
     } as JsContext;
 
@@ -53,7 +53,7 @@ describe("scalar", () => {
   it("has no-op encoding for string", async () => {
     const [string] = await getScalar("TypeSpec.string");
 
-    const [ctx, mod] = createFakeModule(runner.program);
+    const [ctx, mod] = createFakeModule();
 
     const jsScalar = getJsScalar(ctx, mod, string, NoTarget);
 
@@ -76,7 +76,7 @@ describe("scalar", () => {
       "safeint",
     );
 
-    const [ctx, mod] = createFakeModule(runner.program);
+    const [ctx, mod] = createFakeModule();
 
     for (const number of numbers) {
       const jsScalar = getJsScalar(ctx, mod, number, NoTarget);
@@ -102,7 +102,7 @@ describe("scalar", () => {
   it("encodes and decodes types that coerce to bigint using default string encoding", async () => {
     const [string, ...bigints] = await getScalar("string", "uint64", "int64", "integer");
 
-    const [ctx, mod] = createFakeModule(runner.program);
+    const [ctx, mod] = createFakeModule();
 
     for (const bigint of bigints) {
       const jsScalar = getJsScalar(ctx, mod, bigint, NoTarget);
@@ -128,7 +128,7 @@ describe("scalar", () => {
   it("bytes base64 encoding", async () => {
     const [string, bytes] = await getScalar("TypeSpec.string", "TypeSpec.bytes");
 
-    const [ctx, mod] = createFakeModule(runner.program);
+    const [ctx, mod] = createFakeModule();
 
     const jsScalar = getJsScalar(ctx, mod, bytes, NoTarget);
 
@@ -155,7 +155,7 @@ describe("scalar", () => {
   it("bytes base64url encoding", async () => {
     const [string, bytes] = await getScalar("TypeSpec.string", "TypeSpec.bytes");
 
-    const [ctx, mod] = createFakeModule(runner.program);
+    const [ctx, mod] = createFakeModule();
 
     const jsScalar = getJsScalar(ctx, mod, bytes, NoTarget);
 
@@ -186,7 +186,7 @@ describe("scalar", () => {
     it("produces correct parse template for ISO8601 duration", async () => {
       const [Duration, string] = await getScalar("TypeSpec.duration", "TypeSpec.string");
 
-      const [ctx, mod] = createFakeModule(runner.program);
+      const [ctx, mod] = createFakeModule();
 
       const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
 
@@ -202,7 +202,7 @@ describe("scalar", () => {
     it("produces correct write template for ISO8601 duration", async () => {
       const [Duration, string] = await getScalar("TypeSpec.duration", "TypeSpec.string");
 
-      const [ctx, mod] = createFakeModule(runner.program);
+      const [ctx, mod] = createFakeModule();
 
       const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
 
@@ -218,7 +218,7 @@ describe("scalar", () => {
     it("can parse and write ISO8601 duration", async () => {
       const [Duration, string] = await getScalar("TypeSpec.duration", "TypeSpec.string");
 
-      const [ctx, mod] = createFakeModule(runner.program);
+      const [ctx, mod] = createFakeModule();
 
       const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
 
@@ -245,7 +245,7 @@ describe("scalar", () => {
     it("allows default string encoding through via", async () => {
       const [Duration, string] = await getScalar("duration", "string");
 
-      const [ctx, mod] = createFakeModule(runner.program);
+      const [ctx, mod] = createFakeModule();
 
       const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
 
@@ -269,7 +269,7 @@ describe("scalar", () => {
     it("allows encoding seconds to number types", async () => {
       const [Duration, int32, uint32] = await getScalar("duration", "int32", "uint32");
 
-      const [ctx, mod] = createFakeModule(runner.program);
+      const [ctx, mod] = createFakeModule();
 
       const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
 
@@ -307,7 +307,7 @@ describe("scalar", () => {
     it("allows encoding seconds to bigint types", async () => {
       const [Duration, int64, uint64] = await getScalar("duration", "int64", "uint64");
 
-      const [ctx, mod] = createFakeModule(runner.program);
+      const [ctx, mod] = createFakeModule();
 
       const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
 
