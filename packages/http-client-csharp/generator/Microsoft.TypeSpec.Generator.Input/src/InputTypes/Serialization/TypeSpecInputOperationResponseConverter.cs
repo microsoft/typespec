@@ -8,11 +8,11 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal sealed class TypeSpecOperationResponseConverter : JsonConverter<InputOperationResponse>
+    internal sealed class TypeSpecInputOperationResponseConverter : JsonConverter<InputOperationResponse>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public TypeSpecOperationResponseConverter(TypeSpecReferenceHandler referenceHandler)
+        public TypeSpecInputOperationResponseConverter(TypeSpecReferenceHandler referenceHandler)
         {
             _referenceHandler = referenceHandler;
         }

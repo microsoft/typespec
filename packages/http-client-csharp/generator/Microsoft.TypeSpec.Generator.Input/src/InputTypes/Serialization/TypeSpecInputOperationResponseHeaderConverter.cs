@@ -7,11 +7,11 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal sealed class TypeSpecOperationResponseHeaderConverter : JsonConverter<InputOperationResponseHeader>
+    internal sealed class TypeSpecInputOperationResponseHeaderConverter : JsonConverter<InputOperationResponseHeader>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public TypeSpecOperationResponseHeaderConverter(TypeSpecReferenceHandler referenceHandler)
+        public TypeSpecInputOperationResponseHeaderConverter(TypeSpecReferenceHandler referenceHandler)
         {
             _referenceHandler = referenceHandler;
         }
