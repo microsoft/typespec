@@ -115,11 +115,14 @@ $generateScript = {
   }
 
   if ($global:ExitCode -ne 0) {
-    exit $global:ExitCode
+    throw "Failed to generate from tsp $tspFile"
   }
 }
 
+# hack to allow additionalProperties in this test
+(Get-Content -Path "../../emitter/src/options.ts") -replace "additionalProperties: false,", "additionalProperties: true," | Set-Content -Path "../../emitter/src/options.ts"
 ./Setup.ps1
+(Get-Content -Path "../../emitter/src/options.ts") -replace "additionalProperties: true,", "additionalProperties: false," | Set-Content -Path "../../emitter/src/options.ts"
 
 New-Item -Path ./existingcode/src/main/java/tsptest -ItemType Directory -Force | Out-Null
 
@@ -172,4 +175,8 @@ if (Test-Path ./src/main/resources/META-INF/client-structure-service_apiview_pro
   # the api view properties file. Because the tests run in parallel, the order is not guaranteed. This
   # causes git diff check to fail as the checked in file is not the same as the generated one.
   Remove-Item ./src/main/resources/META-INF/client-structure-service_apiview_properties.json -Force
+}
+
+if ($ExitCode -ne 0) {
+  throw "Failed to generate from tsp"
 }

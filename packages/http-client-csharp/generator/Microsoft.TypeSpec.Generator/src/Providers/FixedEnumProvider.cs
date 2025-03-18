@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
+            return CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;

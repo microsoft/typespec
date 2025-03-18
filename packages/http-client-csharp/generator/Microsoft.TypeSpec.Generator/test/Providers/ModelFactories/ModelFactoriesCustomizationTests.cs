@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [Test]
         public async Task CanReplaceModelMethod()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             await csharpGen.ExecuteAsync();
 
             // Find the model factory provider
-            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
             Assert.IsNotNull(modelFactory);
 
             // The model factory should be public
@@ -63,7 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [Test]
         public async Task DoesNotReplaceMethodIfNotCustomized()
         {
-            var plugin = MockHelpers.LoadMockPlugin(
+            var mockGenerator = MockHelpers.LoadMockGenerator(
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -75,7 +75,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             await csharpGen.ExecuteAsync();
 
             // Find the model factory provider
-            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
             Assert.IsNotNull(modelFactory);
 
             // The model factory should be public
@@ -97,7 +97,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [Test]
         public async Task CanChangeAccessibilityOfModelFactory()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -116,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             await csharpGen.ExecuteAsync();
 
             // Find the model factory provider
-            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
             Assert.IsNotNull(modelFactory);
 
             // The model factory should be internal
@@ -130,7 +130,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [Test]
         public async Task OmitsModelFactoryMethodIfModelTypeInternal()
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -146,7 +146,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             await csharpGen.ExecuteAsync();
 
             // Model factory should be omitted since there are no methods to generate
-            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
             Assert.IsNull(modelFactory);
         }
 
@@ -156,7 +156,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task OmitsModelFactoryMethodIfParamTypeInternal()
         {
             var modelProperty = InputFactory.Property("Prop1", InputFactory.Model("otherModel"));
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -171,7 +171,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             await csharpGen.ExecuteAsync();
 
             // Model factory should be omitted since there are no methods to generate
-            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
             Assert.IsNull(modelFactory);
         }
 
@@ -179,7 +179,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [TestCase(false)]
         public async Task CanCustomizeModelFullConstructor(bool extraParameters)
         {
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -196,7 +196,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             await csharpGen.ExecuteAsync();
 
             // Find the model factory provider
-            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
             Assert.IsNotNull(modelFactory);
 
             // The model factory should be public

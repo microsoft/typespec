@@ -24,13 +24,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
     {
         public MrwSerializationTypeDefinitionTests()
         {
-            MockHelpers.LoadMockPlugin(createSerializationsCore: (inputType, typeProvider) =>
+            MockHelpers.LoadMockGenerator(createSerializationsCore: (inputType, typeProvider) =>
                 inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
         }
 
         internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
         {
-            var model = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
             var serializations = model!.SerializationProviders;
 
             Assert.AreEqual(1, serializations.Count);

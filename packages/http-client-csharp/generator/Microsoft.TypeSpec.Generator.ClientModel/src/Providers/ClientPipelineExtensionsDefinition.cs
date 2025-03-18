@@ -24,9 +24,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ClientPipelineExtensionsDefinition()
         {
-            _pipelineParam = new ParameterProvider("pipeline", FormattableStringHelpers.Empty, ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineType);
-            _messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, ScmCodeModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType);
-            _requestOptionsParam = new ParameterProvider(ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, FormattableStringHelpers.Empty, ScmCodeModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
+            _pipelineParam = new ParameterProvider("pipeline", FormattableStringHelpers.Empty, ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ClientPipelineType);
+            _messageParam = new ParameterProvider("message", FormattableStringHelpers.Empty, ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType);
+            _requestOptionsParam = new ParameterProvider(ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, FormattableStringHelpers.Empty, ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
             _pipeline = _pipelineParam.ToApi<ClientPipelineApi>();
             _message = _messageParam.ToApi<HttpMessageApi>();
             _options = _requestOptionsParam.ToApi<HttpRequestOptionsApi>();
@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider ProcessHeadAsBoolMessage()
         {
             MethodSignature signature = GetProcessHeadAsBoolMessageSignature(false);
-            var responseVariable = new VariableExpression(ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, "response");
+            var responseVariable = new VariableExpression(ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, "response");
             var response = responseVariable.ToApi<HttpResponseApi>();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider ProcessHeadAsBoolMessageAsync()
         {
             MethodSignature signature = GetProcessHeadAsBoolMessageSignature(true);
-            var responseVariable = new VariableExpression(ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, "response");
+            var responseVariable = new VariableExpression(ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, "response");
             var response = responseVariable.ToApi<HttpResponseApi>();
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
@@ -84,15 +84,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(200)).AndExpr(ValueExpression.Empty.LessThan(Literal(300))), new MethodBodyStatement[]
                     {
-                        Return(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromValue<bool>(True, response))
+                        Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromValue<bool>(True, response))
                     }),
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(400)).AndExpr(ValueExpression.Empty.LessThan(Literal(500))), new MethodBodyStatement[]
                     {
-                        Return(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromValue<bool>(False, response))
+                        Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromValue<bool>(False, response))
                     }),
                     new SwitchCaseStatement(Array.Empty<ValueExpression>(), new MethodBodyStatement[]
                     {
-                        Return(new NewInstanceExpression(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, new NewInstanceExpression(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, [response])]))
+                        Return(new NewInstanceExpression(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, new NewInstanceExpression(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, [response])]))
                     })
                 ]),
             };
@@ -105,7 +105,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 modifiers |= MethodSignatureModifiers.Async;
             }
-            var clientResultType = new CSharpType(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, typeof(bool));
+            var clientResultType = new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, typeof(bool));
             return new MethodSignature(
                 isAsync ? "ProcessHeadAsBoolMessageAsync" : "ProcessHeadAsBoolMessage",
                 null,
@@ -132,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 isAsync ? "ProcessMessageAsync" : "ProcessMessage",
                 null,
                 modifiers,
-                isAsync ? new CSharpType(typeof(ValueTask<>), ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType) : ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType,
+                isAsync ? new CSharpType(typeof(ValueTask<>), ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType) : ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType,
                 null,
                 [_pipelineParam, _messageParam, _requestOptionsParam]);
         }

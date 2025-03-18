@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? GetCustomCodeView()
-            => CodeModelPlugin.Instance.SourceInputModel.FindForType(BuildNamespace(), BuildName());
+            => CodeModelGenerator.Instance.SourceInputModel.FindForType(BuildNamespace(), BuildName());
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
 
@@ -125,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
 
-        protected virtual string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.PrimaryNamespace;
+        protected virtual string BuildNamespace() => CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
 
         private TypeSignatureModifiers? _declarationModifiers;
 

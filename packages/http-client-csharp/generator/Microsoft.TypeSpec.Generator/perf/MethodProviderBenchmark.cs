@@ -30,7 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Perf
         [GlobalSetup]
         public void GlobalSetup()
         {
-            PluginInitializer.Initialize();
+            GeneratorInitializer.Initialize();
         }
 
         [Benchmark]
