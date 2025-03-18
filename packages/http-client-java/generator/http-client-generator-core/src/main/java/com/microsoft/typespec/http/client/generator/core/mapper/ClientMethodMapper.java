@@ -646,14 +646,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             return returnTypeHolder;
         }
 
-        IType responseBodyType = MapperUtils.handleResponseSchema(operation, settings);
+        IType responseBodyType = MapperUtils.getExpectedResponseBodyType(operation, settings);
         if (isProtocolMethod && JavaSettings.getInstance().isBranded()) {
-            responseBodyType = SchemaUtil.removeModelFromResponse(responseBodyType, operation);
+            responseBodyType = SchemaUtil.tryMapToBinaryData(responseBodyType, operation);
         }
 
-        returnTypeHolder.asyncRestResponseReturnType = Mappers.getProxyMethodMapper()
-            .getAsyncRestResponseReturnType(operation, responseBodyType, isProtocolMethod, settings,
-                isCustomHeaderIgnored)
+        returnTypeHolder.asyncRestResponseReturnType = AsyncResponseTypeFactory
+            .create(operation, responseBodyType, isProtocolMethod, settings, isCustomHeaderIgnored)
             .getClientType();
 
         IType restAPIMethodReturnBodyClientType = responseBodyType.getClientType();

@@ -3,6 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import static com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil.toImmutableList;
+import static com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil.toImmutableMapOfList;
+import static com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil.toImmutableSet;
+
 import com.azure.core.http.ContentType;
 import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.HttpExceptionType;
@@ -27,7 +31,7 @@ public class ProxyMethod {
     /**
      * The value that is returned from this method.
      */
-    protected IType returnType;
+    private final IType returnType;
     /**
      * Get the HTTP method that will be used for this method.
      */
@@ -103,17 +107,30 @@ public class ProxyMethod {
     private ProxyMethod syncProxy;
     private final boolean customHeaderIgnored;
 
-    protected ProxyMethod(String requestContentType, IType returnType, HttpMethod httpMethod, String baseUrl,
-        String urlPath, List<Integer> responseExpectedStatusCodes, ClassType unexpectedResponseExceptionType,
-        Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes, String name,
-        List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters, String description,
-        IType returnValueWireType, IType responseBodyType, IType rawResponseBodyType, boolean isResumable,
-        Set<String> responseContentTypes, String operationId, Map<String, ProxyMethodExample> examples,
-        List<String> specialHeaders) {
-        this(requestContentType, returnType, httpMethod, baseUrl, urlPath, responseExpectedStatusCodes,
-            unexpectedResponseExceptionType, unexpectedResponseExceptionTypes, name, parameters, allParameters,
-            description, returnValueWireType, responseBodyType, rawResponseBodyType, isResumable, responseContentTypes,
-            operationId, examples, specialHeaders, false, name, false);
+    public ProxyMethod.Builder newBuilder() {
+        return new ProxyMethod.Builder().requestContentType(requestContentType)
+            .returnType(returnType)
+            .httpMethod(httpMethod)
+            .baseURL(baseUrl)
+            .urlPath(urlPath)
+            .unexpectedResponseExceptionTypes(unexpectedResponseExceptionTypes)
+            .responseExpectedStatusCodes(responseExpectedStatusCodes)
+            .unexpectedResponseExceptionType(unexpectedResponseExceptionType)
+            .name(name)
+            .baseName(baseName)
+            .parameters(parameters)
+            .allParameters(allParameters)
+            .description(description)
+            .returnValueWireType(returnValueWireType)
+            .responseBodyType(responseBodyType)
+            .rawResponseBodyType(rawResponseBodyType)
+            .isResumable(isResumable)
+            .responseContentTypes(responseContentTypes)
+            .examples(examples)
+            .specialHeaders(specialHeaders)
+            .operationId(operationId)
+            .isSync(isSync)
+            .customHeaderIgnored(customHeaderIgnored);
     }
 
     /**
@@ -139,7 +156,7 @@ public class ProxyMethod {
      * @param isSync indicates if this proxy method is a synchronous method.
      * @param baseName the base name of the REST method.
      */
-    protected ProxyMethod(String requestContentType, IType returnType, HttpMethod httpMethod, String baseUrl,
+    private ProxyMethod(String requestContentType, IType returnType, HttpMethod httpMethod, String baseUrl,
         String urlPath, List<Integer> responseExpectedStatusCodes, ClassType unexpectedResponseExceptionType,
         Map<ClassType, List<Integer>> unexpectedResponseExceptionTypes, String name,
         List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters, String description,
@@ -732,10 +749,11 @@ public class ProxyMethod {
          */
         public ProxyMethod build() {
             return new ProxyMethod(requestContentType, returnType, httpMethod, baseUrl, urlPath,
-                responseExpectedStatusCodes, unexpectedResponseExceptionType, unexpectedResponseExceptionTypes, name,
-                parameters, allParameters, description, returnValueWireType, responseBodyType, rawResponseBodyType,
-                isResumable, responseContentTypes, operationId, examples, specialHeaders, isSync, baseName,
-                customHeaderIgnored);
+                toImmutableList(responseExpectedStatusCodes), unexpectedResponseExceptionType,
+                toImmutableMapOfList(unexpectedResponseExceptionTypes), name, toImmutableList(parameters),
+                toImmutableList(allParameters), description, returnValueWireType, responseBodyType, rawResponseBodyType,
+                isResumable, toImmutableSet(responseContentTypes), operationId, examples,
+                toImmutableList(specialHeaders), isSync, baseName, customHeaderIgnored);
         }
     }
 }
