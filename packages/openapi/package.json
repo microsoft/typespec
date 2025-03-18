@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi",
-  "version": "0.66.0",
+  "version": "0.67.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing OpenAPI concepts",
   "homepage": "https://typespec.io",

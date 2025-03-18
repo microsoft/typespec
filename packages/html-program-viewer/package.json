@@ -1,6 +1,6 @@
 {
   "name": "@typespec/html-program-viewer",
-  "version": "0.66.0",
+  "version": "0.67.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting an html view of the program.",
   "homepage": "https://typespec.io",
