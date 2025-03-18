@@ -21,7 +21,7 @@ async function main() {
   await runTypeSpec(packages["@typespec/compiler"], ["--help"], { cwd: e2eTestDir });
   console.log("Cli is working");
 
-  // await testBasicLatest(packages);
+  await testBasicLatest(packages);
   await testBasicCurrentTgz(packages);
 }
 await main();
@@ -78,7 +78,6 @@ async function runTypeSpec(compilerTgz, args, options) {
   await runOrExit(npxCmd, ["-y", "-p", compilerTgz, "tsp", ...args], { ...options });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function testBasicLatest(packages) {
   const basicLatestDir = join(e2eTestDir, "basic-latest");
   const outputDir = join(basicLatestDir, "tsp-output");
