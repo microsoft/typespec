@@ -139,7 +139,7 @@ public interface ConfidentialResource {
          * The stage of the ConfidentialResource definition which contains all the minimum required properties for the
          * resource to be created, but also allows for any other optional properties to be specified.
          */
-        interface WithCreate extends WithTags, WithProperties {
+        interface WithCreate extends DefinitionStages.WithTags, DefinitionStages.WithProperties {
             /**
              * Executes the create request.
              * 

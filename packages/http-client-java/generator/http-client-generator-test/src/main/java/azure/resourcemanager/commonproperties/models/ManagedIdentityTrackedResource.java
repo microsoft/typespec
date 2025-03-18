@@ -153,7 +153,8 @@ public interface ManagedIdentityTrackedResource {
          * The stage of the ManagedIdentityTrackedResource definition which contains all the minimum required properties
          * for the resource to be created, but also allows for any other optional properties to be specified.
          */
-        interface WithCreate extends WithTags, WithProperties, WithIdentity {
+        interface WithCreate
+            extends DefinitionStages.WithTags, DefinitionStages.WithProperties, DefinitionStages.WithIdentity {
             /**
              * Executes the create request.
              * 
@@ -215,7 +216,7 @@ public interface ManagedIdentityTrackedResource {
      * 
      * @return the stage of resource update.
      */
-    Update update();
+    ManagedIdentityTrackedResource.Update update();
 
     /**
      * The template for ManagedIdentityTrackedResource update.

@@ -91,7 +91,7 @@ public final class CommonPropertiesManager {
      * @return the Configurable instance allowing configurations.
      */
     public static Configurable configure() {
-        return new Configurable();
+        return new CommonPropertiesManager.Configurable();
     }
 
     /**
