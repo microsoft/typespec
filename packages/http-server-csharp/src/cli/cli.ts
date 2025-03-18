@@ -4,6 +4,7 @@ import { spawn } from "cross-spawn";
 import pc from "picocolors";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { getFreePort } from "../lib/utils.js";
 
 async function main() {
   console.log(`TypeSpec Http Server Emitter for C-Sharp \n`);
@@ -17,8 +18,8 @@ async function main() {
       "boolean-negation": false,
     })
     .command(
-      "scaffold [--use-swaggerui] <project-directory> <path-to-spec>",
-      "Generate a complete project with mock implementation at the given project-directory for the given spec.  This required dotnet 9: https://dotnet.microsoft.com/download.",
+      "scaffold [options] <project-directory> <path-to-spec>",
+      "Generate a complete project with mock implementation at the given project-directory for the given spec.  This requires dotnet 9: https://dotnet.microsoft.com/download.",
       (cmd) => {
         return cmd
           .option("use-swaggerui", {
@@ -26,6 +27,24 @@ async function main() {
               "Include generated OpenAPI and a SwaggerUI endpoint in the service project.  THIS OPTION REQUIRES '@typespec/openapi3' as a dependency of your typespec project.",
             type: "boolean",
             default: false,
+          })
+          .option("project-name", {
+            description: "The name of the generated project.",
+            type: "string",
+            default: "ServiceProject",
+          })
+          .option("http-port", {
+            description: "The http port for the generated project to use locally",
+            type: "number",
+          })
+          .option("https-port", {
+            description: "The https port for the generated service to listen on locally.",
+            type: "number",
+          })
+          .option("overwrite", {
+            description: "Overwrite existing mock implementations",
+            type: "boolean",
+            default: true,
           })
           .positional("project-directory", {
             description: "Path to the directory where the project will be created.",
@@ -42,29 +61,15 @@ async function main() {
         const projectDir = resolvePath(process.cwd(), args["project-directory"]);
         const pathToSpec = resolvePath(process.cwd(), args["path-to-spec"]);
         const useSwagger: boolean = args["use-swaggerui"];
-        console.log(pc.bold("Generating new Project"));
-        let result = await runScriptAsync("dotnet", ["new", "web", "-o", projectDir, "--force"]);
-        if (result !== 0) {
-          console.log(
-            pc.bold(
-              "Dotnet version 9 cli is required for scaffolding.  Download here: https://dotnet.microsoft.com/download ",
-            ),
-          );
-          return;
-        }
-        if (useSwagger) {
-          console.log(pc.bold("Adding OpenApi generation support"));
-          console.log(pc.green(`> dotnet add ${projectDir} package SwashBuckle.AspNetCore`));
-          result = await runScriptAsync("dotnet", [
-            "add",
-            projectDir,
-            "package",
-            "SwashBuckle.AspNetCore",
-          ]);
-        }
-        console.log(pc.bold("Compiling spec with mock implementations"));
+        const overwrite: boolean = args["overwrite"];
+        const projectName: string = args["project-name"];
+        const httpPort: number = args["http-port"] || (await getFreePort(5000, 5999));
+        const httpsPort: number = args["https-port"] || (await getFreePort(7000, 7999));
+        console.log(pc.bold("Compiling spec to create project with mock implementations"));
+        console.log(pc.bold(`using http port ${httpPort} and https port ${httpsPort}`));
         const generatedTargetDir = resolvePath(process.cwd(), projectDir, "generated");
         const generatedOpenApiDir = resolvePath(process.cwd(), projectDir, "openapi");
+        const openApiPath = resolvePath(generatedOpenApiDir, "openapi.yaml");
         const compileArgs: string[] = [
           "tsp",
           "compile",
@@ -75,7 +80,18 @@ async function main() {
           `@typespec/http-server-csharp.emitter-output-dir=${generatedTargetDir}`,
           "--option",
           "@typespec/http-server-csharp.emit-mocks=all",
+          "--option",
+          `@typespec/http-server-csharp.project-name=${projectName}`,
         ];
+        if (overwrite) {
+          compileArgs.push("--option", "@typespec/http-server-csharp.overwrite=true");
+        }
+        if (httpPort) {
+          compileArgs.push("--option", `@typespec/http-server-csharp.http-port=${httpPort}`);
+        }
+        if (httpsPort) {
+          compileArgs.push("--option", `@typespec/http-server-csharp.https-port=${httpsPort}`);
+        }
 
         const swaggerArgs: string[] = [
           "--emit",
@@ -84,14 +100,21 @@ async function main() {
           `@typespec/openapi3.emitter-output-dir=${generatedOpenApiDir}`,
           "--option",
           "@typespec/http-server-csharp.use-swaggerui=true",
+          "--option",
+          `@typespec/http-server-csharp.openapi-path=${openApiPath}`,
         ];
         if (useSwagger) compileArgs.push(...swaggerArgs);
-        result = await runScriptAsync("npx", compileArgs);
+        const result = await runScriptAsync("npx", compileArgs);
         if (result === 0) {
           console.log(pc.bold(`Your project was successfully created at "${projectDir}"`));
           console.log(
-            `You can build and start the project using 'dotnet run --project ${projectDir}'`,
+            `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
           );
+          if (useSwagger) {
+            console.log(
+              `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
+            );
+          }
         } else {
           console.log(pc.bold("There were one or more errors"));
           if (useSwagger) {
@@ -115,17 +138,14 @@ function internalError(error: unknown) {
 
 function runScriptAsync(cmd: string, args: string[]): Promise<number> {
   let resolver: (value: number | PromiseLike<number>) => void;
-  let rejecter: (value: unknown) => void;
-  const promise = new Promise<number>((resolve, reject) => {
+  const promise = new Promise<number>((resolve, _) => {
     resolver = resolve;
-    rejecter = reject;
   });
   console.log(pc.green(`> ${cmd} ${args.join(" ")}`));
   const proc = spawn(cmd, args);
   proc.stdout?.on("data", (data) => console.log(pc.dim(data)));
   proc.stderr?.on("data", (data) => {
-    console.error(data);
-    rejecter(data);
+    console.log(pc.dim(data));
   });
   proc.on("close", (_, __) => {
     resolver(proc.exitCode || 0);

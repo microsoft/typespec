@@ -93,12 +93,12 @@ import {
   getCSharpType,
   getCSharpTypeForIntrinsic,
   getCSharpTypeForScalar,
+  getFreePort,
   getHttpDeclParameters,
   getModelAttributes,
   getModelDeclarationName,
   getModelInstantiationName,
   getOperationVerbDecorator,
-  getPorts,
   isEmptyResponseModel,
   isValueType,
 } from "./utils.js";
@@ -1240,7 +1240,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       );
     }
     if (options["emit-mocks"] === "all") {
-      const [httpPort, httpsPort] = getPorts(options["http-port"], options["https-port"]);
+      const httpPort = options["http-port"] || (await getFreePort(5000, 5999));
+      const httpsPort = options["https-port"] || (await getFreePort(7000, 7999));
 
       getProjectHelpers(
         emitter,

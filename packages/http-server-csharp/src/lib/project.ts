@@ -109,20 +109,20 @@ function getLaunchSettings(httpPort: number, httpsPort: number): string {
   return `{
     "$schema": "https://json.schemastore.org/launchsettings.json",
     "profiles": {
-      "http": {
-        "commandName": "Project",
-        "dotnetRunMessages": true,
-        "launchBrowser": true,
-        "applicationUrl": "http://localhost:${httpPort}",
-        "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
-        }
-      },
       "https": {
         "commandName": "Project",
         "dotnetRunMessages": true,
         "launchBrowser": true,
         "applicationUrl": "https://localhost:${httpsPort};http://localhost:${httpPort}",
+        "environmentVariables": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
+      "http": {
+        "commandName": "Project",
+        "dotnetRunMessages": true,
+        "launchBrowser": true,
+        "applicationUrl": "http://localhost:${httpPort}",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development"
         }
