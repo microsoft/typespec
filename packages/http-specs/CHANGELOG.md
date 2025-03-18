@@ -1,5 +1,17 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.13
+
+### Breaking Changes
+
+- [#6361](https://github.com/microsoft/typespec/pull/6361) Remove tsv test and migrate ssv/pipes test of collection format.
+
+### Bug Fixes
+
+- [#6464](https://github.com/microsoft/typespec/pull/6464) Suppress implicit multipart deprecation for this release
+- [#6425](https://github.com/microsoft/typespec/pull/6425) Remove SpreadRecordForDiscriminatedUnion case
+
+
 ## 0.1.0-alpha.12
 
 ### Features

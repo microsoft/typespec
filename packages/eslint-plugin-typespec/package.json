@@ -1,6 +1,6 @@
 {
   "name": "@typespec/eslint-plugin",
-  "version": "0.66.0",
+  "version": "0.67.0",
   "author": "Microsoft Corporation",
   "description": "Eslint plugin providing set of rules to be used in the JS/TS code of TypeSpec libraries",
   "homepage": "https://typespec.io",

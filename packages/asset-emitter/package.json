@@ -1,6 +1,6 @@
 {
   "name": "@typespec/asset-emitter",
-  "version": "0.66.0",
+  "version": "0.67.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec Asset Emitter, this is to be replaced by the new emitter framework",
   "homepage": "https://typespec.io",

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi3",
-  "version": "0.66.0",
+  "version": "0.67.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec",
   "homepage": "https://typespec.io",
