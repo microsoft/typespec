@@ -49,6 +49,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public void DeserializeResponseHeadersInModel()
+        {
+            var inputModel = InputFactory.Model(
+                "ModelWithResponseHeaders",
+                properties:
+                [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, kind: InputModelPropertyKind.Header),
+                    InputFactory.Property("cat", InputPrimitiveType.String, wireName: "x-cat", isRequired: true, kind: InputModelPropertyKind.Header),
+                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+            var writer = new TypeProviderWriter(mrwProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [TestCaseSource(nameof(TestDeserializationStatementTestCases))]
         public void TestDeserializationStatement(InputModelProperty prop, bool hasNullCheck, bool hasNullAssignment)
         {

@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsDiscriminator { get; }
         public PropertyLocation Location { get; }
 
-        public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName, PropertyLocation location)
+        public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName, PropertyLocation location = PropertyLocation.Unknown)
             : base(serializationFormat, serializedName)
         {
             IsRequired = isRequired;
@@ -43,6 +43,8 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 InputModelPropertyKind.Header => PropertyLocation.Header,
                 InputModelPropertyKind.Property => PropertyLocation.Body,
+                InputModelPropertyKind.Query => PropertyLocation.Query,
+                InputModelPropertyKind.Path => PropertyLocation.Path,
                 _ => PropertyLocation.Unknown,
             };
     }

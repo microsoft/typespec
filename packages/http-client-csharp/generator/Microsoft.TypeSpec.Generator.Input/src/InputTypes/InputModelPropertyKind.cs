@@ -8,6 +8,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         Property = 0,
         Header = 1,
         Query = 2,
-        Path = 3,
+        Path = 3
     }
 }

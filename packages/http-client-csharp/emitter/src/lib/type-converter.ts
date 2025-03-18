@@ -11,11 +11,9 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkHeaderParameter,
+  SdkHttpParameter,
   SdkModelPropertyType,
   SdkModelType,
-  SdkPathParameter,
-  SdkQueryParameter,
   SdkTupleType,
   SdkType,
   SdkUnionType,
@@ -25,7 +23,6 @@ import {
 import { Model, NoTarget } from "@typespec/compiler";
 import { Visibility } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
-import { InputModelPropertyKind } from "../type/input-model-property-kind.js";
 import {
   InputArrayType,
   InputDateTimeType,
@@ -35,6 +32,7 @@ import {
   InputEnumTypeValue,
   InputLiteralType,
   InputModelProperty,
+  InputModelPropertyKind,
   InputModelType,
   InputPrimitiveType,
   InputType,
@@ -204,21 +202,20 @@ export function fromSdkModelType(
     literalTypeContext: LiteralTypeContext,
   ): InputModelProperty | undefined {
     switch (property.kind) {
-      // TO-DO: Handle other kinds of properties
       case "property":
         return fromSdkBodyModelProperty(sdkContext, property, literalTypeContext);
       case "header":
       case "query":
       case "path":
-        return fromNonBodySdkModelProperty(sdkContext, property, literalTypeContext);
+        return fromSdkHttpParameterModelProperty(sdkContext, property, literalTypeContext);
       default:
         return undefined;
     }
   }
 
-  function fromNonBodySdkModelProperty(
+  function fromSdkHttpParameterModelProperty(
     sdkContext: CSharpEmitterContext,
-    property: SdkHeaderParameter | SdkQueryParameter | SdkPathParameter,
+    property: SdkHttpParameter,
     literalTypeContext: LiteralTypeContext,
   ): InputModelProperty {
     const targetType = property.type;
@@ -259,7 +256,7 @@ export function fromSdkModelType(
     literalTypeContext.propertyName = serializedName;
 
     const modelProperty: InputModelProperty = {
-      kind: getModelPropertyKind(property),
+      kind: InputModelPropertyKind.Property,
       name: property.name,
       serializedName: serializedName,
       summary: property.summary,
@@ -523,7 +520,6 @@ function isReadOnly(prop: SdkModelPropertyType): boolean {
 }
 
 function getModelPropertyKind(prop: SdkModelPropertyType): InputModelPropertyKind {
-  // TO-DO: Handle other kinds of properties
   switch (prop.kind) {
     case "header":
       return InputModelPropertyKind.Header;

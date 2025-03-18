@@ -145,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             _endpointParameterName = new(GetEndpointParameterName);
             _additionalClientFields = new(BuildAdditionalClientFields);
-            _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
+            _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Methods.SelectMany(m => m.Operation.Parameters).Where(p => p.Kind == InputParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
             _subClientInternalConstructorParams = new(GetSubClientInternalConstructorParameters);
             _clientParameters = new(GetClientParameters);
             _subClients = new(GetSubClients);
@@ -296,8 +296,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 false,
                                 p.Type is InputNullableType,
                                 false,
-                                p.NameInRequest,
-                                PropertyLocation.Unknown));
+                                p.NameInRequest));
                         if (p.IsApiVersion)
                         {
                             _apiVersionField = field;
@@ -508,12 +507,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var subClients = _subClients.Value;
             var subClientCount = subClients.Count;
-            List<MethodProvider> methods = new List<MethodProvider>((_inputClient.Operations.Count * 4) + subClientCount);
+            List<MethodProvider> methods = new List<MethodProvider>((_inputClient.Methods.Count * 4) + subClientCount);
 
-            // Build methods for all the operations
-            foreach (var operation in _inputClient.Operations)
+            foreach (var serviceMethod in _inputClient.Methods)
             {
-                var clientMethods = ScmCodeModelGenerator.Instance.TypeFactory.CreateMethods(operation, this);
+                var clientMethods = ScmCodeModelGenerator.Instance.TypeFactory.CreateMethods(serviceMethod, this);
                 if (clientMethods != null)
                 {
                     methods.AddRange(clientMethods);

@@ -46,8 +46,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public FieldProvider? Field { get; set; }
 
-        public TypeProvider? SourceModel { get; }
-
         /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
         /// </summary>
@@ -57,9 +55,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Name = inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
-            if (!inputParameter.IsRequired && !type.IsCollection)
+            if (!inputParameter.IsRequired)
             {
-                type = type.WithNullable(true);
+                type = !type.IsCollection ? type.WithNullable(true) : type;
                 DefaultValue = Snippet.Null;
             }
             Type = type;
@@ -68,11 +66,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : ParameterValidationType.None;
             WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.NameInRequest);
             Location = inputParameter.Location.ToParameterLocation();
-
-            if (inputParameter.SourceModel != null)
-            {
-                SourceModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputParameter.SourceModel);
-            }
         }
 
         public ParameterProvider(
@@ -89,8 +82,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ValueExpression? initializationValue = null,
             ParameterLocation? location = null,
             WireInformation? wireInfo = null,
-            ParameterValidationType? validation = null,
-            TypeProvider? sourceModel = null)
+            ParameterValidationType? validation = null)
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
@@ -108,7 +100,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InitializationValue = initializationValue;
             WireInfo = wireInfo ?? new WireInformation(SerializationFormat.Default, name);
             Location = location ?? ParameterLocation.Unknown;
-            SourceModel = sourceModel;
         }
 
         private ParameterProvider? _inputParameter;
@@ -134,11 +125,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 InitializationValue,
                 location: Location,
                 wireInfo: WireInfo,
-                validation: Validation,
-                sourceModel: SourceModel)
+                validation: Validation)
             {
                 _asVariable = AsExpression,
-                SpreadSource = SpreadSource,
+                SpreadSource = SpreadSource
             };
         }
 

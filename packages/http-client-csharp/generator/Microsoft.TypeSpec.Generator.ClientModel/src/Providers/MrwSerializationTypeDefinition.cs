@@ -620,7 +620,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
 
             // Deserialize any response headers if applicable
-            IfStatement? ifResponseHeadersNotNull = null;
+            MethodBodyStatement ifResponseHeadersNotNull = MethodBodyStatement.Empty;
             if (_hasResponseHeaders)
             {
                 ifResponseHeadersNotNull = new IfStatement(_responseHeadersDeserializationParameter.NotEqual(Null))
@@ -636,7 +636,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { valueKindEqualsNullReturn },
                 GetPropertyVariableDeclarations(),
                 deserializePropertiesForEachStatement,
-                ifResponseHeadersNotNull ?? MethodBodyStatement.Empty,
+                ifResponseHeadersNotNull,
                 Return(New.Instance(_model.Type, GetSerializationCtorParameterValues()))
             ];
         }
