@@ -1,4 +1,4 @@
-import { ArrayBuilder, ObjectBuilder } from "@typespec/asset-emitter";
+import { ArrayBuilder, ObjectBuilder, Placeholder } from "@typespec/asset-emitter";
 import {
   ArrayModelType,
   Enum,
@@ -9,6 +9,7 @@ import {
   isArrayModelType,
   resolveEncodedName,
 } from "@typespec/compiler";
+import { shouldInline } from "@typespec/openapi";
 import { reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { OpenAPI3Schema, OpenAPI3XmlSchema, OpenAPISchema3_1 } from "./types.js";
@@ -122,16 +123,19 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
           ? xmlName
           : resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
 
-        if ("type" in refSchema.items) {
-          refSchema.items = new ObjectBuilder({
-            ...refSchema.items,
-            xml: { name: propXmlName },
-          });
-        } else {
+        if (
+          (refSchema.items instanceof Placeholder || "$ref" in refSchema.items) &&
+          !(propValue && shouldInline(program, propValue))
+        ) {
           const items = new ArrayBuilder();
           items.push(refSchema.items);
           refSchema.items = new ObjectBuilder({
             allOf: items,
+            xml: { name: propXmlName },
+          });
+        } else {
+          refSchema.items = new ObjectBuilder({
+            ...refSchema.items,
             xml: { name: propXmlName },
           });
         }
@@ -147,7 +151,12 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
         emitObject.allOf.push(refSchema);
       }
 
-      if (isAttribute && !refSchema.type && prop.type?.kind === "Enum") {
+      if (
+        isAttribute &&
+        (refSchema instanceof Placeholder || "$ref" in refSchema) &&
+        !(prop.type && shouldInline(program, prop.type)) &&
+        prop.type?.kind !== "Model"
+      ) {
         emitObject.allOf = new ArrayBuilder();
         emitObject.allOf.push(refSchema);
       }
