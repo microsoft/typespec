@@ -36,6 +36,7 @@
     "workspaceContains:**/tspconfig.yaml"
   ],
   "icon": "./icons/logo.png",
+  "telemetryKey": "00000000-0000-0000-0000-000000000000",
   "contributes": {
     "viewsWelcome": [
       {
@@ -248,6 +249,7 @@
     "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
+    "update-telemetry-key": "node scripts/update-telemetry-key.js",
     "package-vsix": "vsce package",
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
@@ -268,6 +270,7 @@
     "@typespec/internal-build-utils": "workspace:^",
     "@vitest/coverage-v8": "^3.0.7",
     "@vitest/ui": "^3.0.7",
+    "@vscode/extension-telemetry": "^0.6.2",
     "@vscode/test-web": "^0.0.67",
     "@vscode/vsce": "~3.2.2",
     "c8": "^10.1.3",

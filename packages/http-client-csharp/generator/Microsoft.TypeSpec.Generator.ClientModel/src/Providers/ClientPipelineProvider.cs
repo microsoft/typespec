@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override CSharpType? TokenCredentialType => null; // Scm library does not support token credentials yet.
 
         public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
-            => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), [options, New.Array(ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType), perRetryPolicies, New.Array(ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType)]).As<ClientPipeline>();
+            => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), [options, New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType), perRetryPolicies, New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType)]).As<ClientPipeline>();
 
         public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
             => new PipelineMessageProvider(Original.Invoke(nameof(ClientPipeline.CreateMessage)));
@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
         {
             // Scm library does not support token credentials yet. The throw here is intentional.
-            // For a plugin that supports token credentials, they could override this implementation as well as the above TokenCredentialType property.
+            // For a generator that supports token credentials, they could override this implementation as well as the above TokenCredentialType property.
             throw new NotImplementedException();
         }
 
@@ -62,10 +62,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(message.Response().IsError().And(new BinaryOperatorExpression("&", options.NullConditional().Property("ErrorOptions"), options.NoThrow()).NotEqual(options.NoThrow())))
                 {
-                    Throw(New.Instance(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, message.Response()))
+                    Throw(New.Instance(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, message.Response()))
                 },
                 MethodBodyStatement.EmptyLine,
-                Declare("response", ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, new TernaryConditionalExpression(message.BufferResponse(), message.Response(), message.Invoke(nameof(PipelineMessage.ExtractResponse))), out var response),
+                Declare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, new TernaryConditionalExpression(message.BufferResponse(), message.Response(), message.Invoke(nameof(PipelineMessage.ExtractResponse))), out var response),
                 Return(response)
             ];
 
@@ -76,10 +76,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 MethodBodyStatement.EmptyLine,
                 new IfStatement(message.Response().IsError().And(new BinaryOperatorExpression("&", options.NullConditional().Property("ErrorOptions"), options.NoThrow()).NotEqual(options.NoThrow())))
                 {
-                    Throw(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().CreateAsync(message.Response()))
+                    Throw(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().CreateAsync(message.Response()))
                 },
                 MethodBodyStatement.EmptyLine,
-                Declare("response", ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, new TernaryConditionalExpression(message.BufferResponse(), message.Response(), message.Invoke(nameof(PipelineMessage.ExtractResponse))), out var response),
+                Declare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, new TernaryConditionalExpression(message.BufferResponse(), message.Response(), message.Invoke(nameof(PipelineMessage.ExtractResponse))), out var response),
                 Return(response)
             ];
     }

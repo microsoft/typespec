@@ -4,7 +4,7 @@ import { joinPaths } from "../core/path-utils.js";
 import type { Program } from "../core/program.js";
 import { isTemplateDeclaration } from "../core/type-utils.js";
 import type { EmitContext, Model, Namespace, Type } from "../core/types.js";
-import { CustomKeyMap } from "./custom-key-map.js";
+import { CustomKeyMap } from "../utils/custom-key-map.js";
 import { Placeholder } from "./placeholder.js";
 import { resolveDeclarationReferenceScope } from "./ref-scope.js";
 import { ReferenceCycle } from "./reference-cycle.js";
@@ -46,7 +46,7 @@ export function createAssetEmitter<T, TOptions extends object>(
   const sourceFiles: SourceFile<T>[] = [];
 
   const options = {
-    noEmit: program.compilerOptions.noEmit ?? false,
+    noEmit: program.compilerOptions.dryRun ?? false,
     emitterOutputDir: emitContext.emitterOutputDir,
     ...emitContext.options,
   };

@@ -1,3 +1,4 @@
+import { AssetEmitter, EmitEntity } from "@typespec/asset-emitter";
 import {
   compilerAssert,
   createDiagnosticCollector,
@@ -9,6 +10,7 @@ import {
   getAllTags,
   getAnyExtensionFromPath,
   getDoc,
+  getEncode,
   getFormat,
   getMaxItems,
   getMaxLength,
@@ -40,7 +42,6 @@ import {
   Type,
   TypeNameOptions,
 } from "@typespec/compiler";
-import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
 import {
   unsafe_mutateSubgraphWithNamespace,
   unsafe_MutatorWithNamespace,
@@ -291,7 +292,7 @@ function createOAPIEmitter(
       }
     }
 
-    if (program.compilerOptions.noEmit || program.hasError()) {
+    if (program.compilerOptions.dryRun || program.hasError()) {
       return;
     }
 
@@ -1415,6 +1416,7 @@ function createOAPIEmitter(
       applyIntrinsicDecorators(param, typeSchema),
       options,
     );
+
     if (param.defaultValue) {
       schema.default = getDefaultValue(program, param.defaultValue, param);
     }
@@ -1510,7 +1512,24 @@ function createOAPIEmitter(
       // For query parameters(style: form) the default is explode: true https://spec.openapis.org/oas/v3.0.2#fixed-fields-9
       attributes.explode = false;
     }
+    const style = getParameterStyle(httpProperty.property);
+    if (style) {
+      attributes.style = style;
+    }
+
     return attributes;
+  }
+
+  function getParameterStyle(type: ModelProperty): string | undefined {
+    const encode = getEncode(program, type);
+    if (!encode) return;
+
+    if (encode.encoding === "ArrayEncoding.pipeDelimited") {
+      return "pipeDelimited";
+    } else if (encode.encoding === "ArrayEncoding.spaceDelimited") {
+      return "spaceDelimited";
+    }
+    return;
   }
 
   function getHeaderParameterAttributes(httpProperty: HttpProperty & { kind: "header" }) {

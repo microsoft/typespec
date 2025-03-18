@@ -12,19 +12,19 @@ namespace UnbrandedTypeSpec
     internal partial class ListWithNextLinkAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly UnbrandedTypeSpecClient _client;
-        private readonly Uri _initialUri;
+        private readonly Uri _nextPage;
         private readonly RequestOptions _options;
 
-        public ListWithNextLinkAsyncCollectionResult(UnbrandedTypeSpecClient client, Uri initialUri, RequestOptions options)
+        public ListWithNextLinkAsyncCollectionResult(UnbrandedTypeSpecClient client, Uri nextPage, RequestOptions options)
         {
             _client = client;
-            _initialUri = initialUri;
+            _nextPage = nextPage;
             _options = options;
         }
 
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
-            PipelineMessage message = _client.CreateListWithNextLinkRequest(_initialUri, _options);
+            PipelineMessage message = _client.CreateListWithNextLinkRequest(_nextPage, _options);
             Uri nextPageUri = null;
             while (true)
             {
@@ -42,8 +42,15 @@ namespace UnbrandedTypeSpec
 
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPageUri = ((ListWithNextLinkResponse)page).Next;
-            return ContinuationToken.FromBytes(BinaryData.FromString(nextPageUri.AbsoluteUri));
+            Uri nextPage = ((ListWithNextLinkResponse)page).Next;
+            if (nextPage != null)
+            {
+                return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.AbsoluteUri));
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

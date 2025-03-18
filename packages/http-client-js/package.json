@@ -2,6 +2,8 @@
   "name": "@typespec/http-client-js",
   "version": "0.1.0",
   "type": "module",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/packages/http-client-js/README.md",
   "scripts": {
     "build-src": "babel src -d dist/src --extensions .ts,.tsx",
     "build": "tsc -p . && npm run build-src",
@@ -45,17 +47,18 @@
   "description": "TypeSpec library for emitting Http Client libraries for JavaScript/TypeScript",
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",
-    "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^",
-    "@typespec/http-client": "workspace:^",
     "@typespec/rest": "workspace:^"
   },
   "dependencies": {
+    "@typespec/emitter-framework": "workspace:^",
+    "@typespec/http-client": "workspace:^",
     "@alloy-js/core": "^0.6.0",
     "@alloy-js/typescript": "^0.6.0",
     "prettier": "~3.5.3"
   },
   "devDependencies": {
+    "@typespec/http": "workspace:^",
     "@alloy-js/babel-preset": "^0.2.0",
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.26.9",

@@ -6,7 +6,7 @@
     "TypeSpec"
   ],
   "author": "Microsoft Corporation",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/Microsoft/typespec/blob/main/packages/http-client-java/README.md",
   "repository": {
     "type": "git",
@@ -35,8 +35,8 @@
     "test": "npm run test:emitter",
     "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
     "format": "pnpm -w format:dir packages/http-client-java && mvn spotless:apply --no-transfer-progress -T 1C --activate-profiles test -f ./generator/pom.xml",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint ./emitter --max-warnings=0",
+    "lint:fix": "eslint ./emitter --fix",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "extract-api": "npx api-extractor run --local --verbose"
   },
@@ -55,7 +55,10 @@
     "@typespec/openapi": ">=0.66.0 <1.0.0",
     "@typespec/rest": ">=0.66.0 <1.0.0",
     "@typespec/versioning": ">=0.66.0 <1.0.0",
-    "@typespec/xml": ">=0.66.0 <1.0.0"
+    "@typespec/xml": ">=0.66.0 <1.0.0",
+    "@typespec/events": ">=0.66.0 <1.0.0",
+    "@typespec/sse": ">=0.66.0 <1.0.0",
+    "@typespec/streams": ">=0.66.0 <1.0.0"
   },
   "dependencies": {
     "@autorest/codemodel": "~4.20.0",
@@ -80,6 +83,9 @@
     "@typespec/openapi": "0.66.0",
     "@typespec/rest": "0.66.0",
     "@typespec/versioning": "0.66.0",
+    "@typespec/events": "0.66.0",
+    "@typespec/sse": "0.66.0",
+    "@typespec/streams": "0.66.0",
     "@vitest/coverage-v8": "^3.0.8",
     "@vitest/ui": "^3.0.8",
     "c8": "~10.1.3",

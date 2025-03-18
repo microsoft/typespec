@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -23,18 +24,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly InputOperation _operation;
         private readonly bool _isAsync;
         private readonly ClientProvider _client;
-        private FieldProvider _clientField;
-        private readonly FieldProvider _optionsField;
+        private readonly FieldProvider _clientField;
+        private readonly FieldProvider? _optionsField;
         private readonly CSharpType _responseType;
         private readonly CSharpType? _itemModelType;
-        private readonly string? _nextLinkPropertyName;
-        private readonly FieldProvider _initialUri;
-        private readonly InputResponseLocation? _nextLinkLocation;
+        private readonly string? _nextPagePropertyName;
+        private readonly InputResponseLocation? _nextPageLocation;
 
-        private static ParameterProvider PageParameter =
+        private static readonly ParameterProvider PageParameter =
             new("page", FormattableStringHelpers.Empty, new CSharpType(typeof(ClientResult)));
 
         private readonly string _itemsPropertyName;
+        private readonly InputOperationPaging _paging;
+        private readonly FieldProvider[] _requestFields;
+        private readonly IReadOnlyList<ParameterProvider> _createRequestParameters;
+        private readonly int? _nextTokenParameterIndex;
 
         public CollectionResultDefinition(ClientProvider client, InputOperation operation, CSharpType? itemModelType, bool isAsync)
         {
@@ -44,35 +48,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _client.Type,
                 "_client",
                 this);
-            _initialUri = new FieldProvider(
-                FieldModifiers.Private | FieldModifiers.ReadOnly,
-                new CSharpType(typeof(Uri)),
-                "_initialUri",
-                this);
-            _optionsField = new FieldProvider(
-                FieldModifiers.Private | FieldModifiers.ReadOnly,
-                new CSharpType(typeof(RequestOptions)),
-                "_options",
-                this);
+            _operation = operation;
+            _paging = _operation.Paging!;
+
+            _createRequestParameters = _client.RestClient.GetCreateRequestMethod(_operation).Signature.Parameters;
+
+            var fields = new List<FieldProvider>();
+            for (int paramIndex = 0; paramIndex < _createRequestParameters.Count; paramIndex++)
+            {
+                var parameter = _createRequestParameters[paramIndex];
+                if (parameter.Name == _paging.ContinuationToken?.Parameter.Name)
+                {
+                    _nextTokenParameterIndex = paramIndex;
+                }
+                var field = new FieldProvider(
+                    FieldModifiers.Private | FieldModifiers.ReadOnly,
+                    parameter.Type,
+                    $"_{parameter.Name}",
+                    this);
+                fields.Add(field);
+                if (field.Name == "_options")
+                {
+                    _optionsField = field;
+                }
+            }
+
+            _requestFields = fields.ToArray();
 
             _itemModelType = itemModelType;
-            _operation = operation;
             _isAsync = isAsync;
 
             var response = _operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
-            var responseModel = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
+            var responseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
             // TODO Nested models are not supported yet https://github.com/Azure/typespec-azure/issues/2287
-            var paging = _operation.Paging!;
-            var nextLinkPropertyName = paging.NextLink?.ResponseSegments[0];
-            _nextLinkLocation = paging.NextLink?.ResponseLocation;
+
+            var nextPagePropertyName = _paging.NextLink != null
+                ? _paging.NextLink.ResponseSegments[0]
+                : _paging.ContinuationToken!.ResponseSegments[0];
+            _nextPageLocation = _paging.NextLink?.ResponseLocation ?? _paging.ContinuationToken!.ResponseLocation;
 
             // TODO Nested models are not supported https://github.com/Azure/typespec-azure/issues/2287
-            var itemsPropertyName = paging.ItemPropertySegments[0];
+            var itemsPropertyName = _paging.ItemPropertySegments[0];
             var itemsModelPropertyName = responseModel.CanonicalView.Properties
                 .FirstOrDefault(p => p.WireInfo?.SerializedName == itemsPropertyName)?.Name;
             if (itemsModelPropertyName == null)
             {
-                ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     "missing-items-property",
                     $"Missing items property: {itemsPropertyName}",
                     _operation.CrossLanguageDefinitionId);
@@ -81,15 +102,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Find the model property that has the serialized name matching the next link.
             // Use the canonical view in case the property was customized.
-            if (_nextLinkLocation == InputResponseLocation.Body)
+            if (_nextPageLocation == InputResponseLocation.Body)
             {
-                _nextLinkPropertyName =
+                _nextPagePropertyName =
                     responseModel.CanonicalView.Properties.FirstOrDefault(
-                        p => p.WireInfo?.SerializedName == nextLinkPropertyName)?.Name;
+                        p => p.WireInfo?.SerializedName == nextPagePropertyName)?.Name;
             }
-            else if (_nextLinkLocation == InputResponseLocation.Header)
+            else if (_nextPageLocation == InputResponseLocation.Header)
             {
-                _nextLinkPropertyName = nextLinkPropertyName;
+                _nextPagePropertyName = nextPagePropertyName;
             }
 
             _responseType = responseModel.Type;
@@ -103,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
-        protected override FieldProvider[] BuildFields() => [_clientField, _initialUri, _optionsField];
+        protected override FieldProvider[] BuildFields() => [_clientField, .. _requestFields];
 
         protected override CSharpType[] BuildImplements() =>
          (_modelType: _itemModelType, _isAsync) switch
@@ -120,14 +141,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 "client",
                 FormattableStringHelpers.Empty,
                 _client.Type);
-            var initialUriParameter = new ParameterProvider(
-                "initialUri",
-                FormattableStringHelpers.Empty,
-                new CSharpType(typeof(Uri)));
-            var optionsParameter = new ParameterProvider(
-                "options",
-                FormattableStringHelpers.Empty,
-                new CSharpType(typeof(RequestOptions)));
             return
             [
                 new ConstructorProvider(
@@ -137,17 +150,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         MethodSignatureModifiers.Public,
                         [
                             clientParameter,
-                            initialUriParameter,
-                            optionsParameter
+                            .. _createRequestParameters
                         ]),
-                    new[]
-                        {
-                            _clientField.Assign(clientParameter).Terminate(),
-                            _initialUri.Assign(initialUriParameter).Terminate(),
-                            _optionsField.Assign(optionsParameter).Terminate()
-                        },
+                    BuildConstructorBody(clientParameter),
                     this)
             ];
+        }
+
+        private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)
+        {
+            var statements = new List<MethodBodyStatement>(_createRequestParameters.Count + 1);
+
+            statements.Add(_clientField.Assign(clientParameter).Terminate());
+
+            for (int parameterNumber = 0; parameterNumber < _createRequestParameters.Count; parameterNumber++)
+            {
+                var parameter = _createRequestParameters[parameterNumber];
+                var field = _requestFields[parameterNumber];
+                statements.Add(field.Assign(parameter).Terminate());
+            }
+            return statements.ToArray();
         }
 
         protected override MethodProvider[] BuildMethods()
@@ -168,7 +190,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             typeof(ClientResult)),
                         FormattableStringHelpers.Empty,
                         []),
-                    BuildGetRawPages(),
+                    _paging.NextLink != null ? BuildGetRawPagesForNextLink() : BuildGetRawPagesForContinuationToken(),
                     this),
 
                 new MethodProvider(
@@ -222,59 +244,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildGetContinuationToken()
         {
-            switch (_nextLinkLocation)
+            CSharpType nextPageType = _paging.NextLink != null
+                ? new CSharpType(typeof(Uri))
+                : _requestFields[0].Type;
+            var nextPageVariable = new VariableExpression(nextPageType, "nextPage");
+
+            switch (_nextPageLocation)
             {
                 case InputResponseLocation.Body:
                     var resultExpression = PageParameter.AsExpression().CastTo(_responseType)
-                        .Property(_nextLinkPropertyName!).As<Uri>();
+                        .Property(_nextPagePropertyName!);
                     return
                     [
-                        Declare("nextPageUri", resultExpression, out ScopedApi<Uri> nextPageUri),
-                        Return(Static(typeof(ContinuationToken))
-                            .Invoke("FromBytes", BinaryDataSnippets.FromString(nextPageUri.Property("AbsoluteUri"))))
+                        Declare(nextPageVariable, resultExpression),
+                        new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
+                            {
+                                Return(Static(typeof(ContinuationToken))
+                                .Invoke("FromBytes", BinaryDataSnippets.FromString(
+                                    nextPageType.Equals(typeof(Uri)) ?
+                                        nextPageVariable.Property("AbsoluteUri") :
+                                        nextPageVariable)))
+                            },
+                            Return(Null))
                     ];
                 case InputResponseLocation.Header:
                     return
                     [
                         new IfElseStatement(
                             new IfStatement(PageParameter.ToApi<ClientResponseApi>().GetRawResponse()
-                                .TryGetHeader(_nextLinkPropertyName!, out var nextLinkHeader))
+                                .TryGetHeader(_nextPagePropertyName!, out var nextLinkHeader))
                             {
                                 Return(Static(typeof(ContinuationToken)).Invoke("FromBytes", BinaryDataSnippets.FromString(nextLinkHeader!)))
                             },
                             Return(Null))
                     ];
                 default:
-                    ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(
-                        "unsupported-next-link-location",
-                        $"Unsupported next link location: {_nextLinkLocation}",
-                        _operation.CrossLanguageDefinitionId);
+                    // Invalid location is logged by the emitter.
                     return [];
             }
         }
 
-        private MethodBodyStatement[] BuildGetRawPages()
+        private MethodBodyStatement[] BuildGetRawPagesForNextLink()
         {
+            var nextPageVariable = new VariableExpression(typeof(Uri), "nextPageUri");
             return
             [
                 // Declare the initial request message
                 Declare(
                     "message",
-                    InvokeCreateRequest(_initialUri.As<Uri>()),
+                    InvokeCreateRequestForNextLink(_requestFields[0].As<Uri>()),
                     out ScopedApi<PipelineMessage> message),
 
                 // Declare nextPageUri variable
-                Declare("nextPageUri", Null.As<Uri>(), out ScopedApi<Uri> nextPageUri),
+                Declare(nextPageVariable, Null.As<Uri>()),
 
                 // Generate the while loop
                 new WhileStatement(True)
                 {
                     Declare(
                         "result",
-                        ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
+                        ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
                             _clientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
                                 message.ToApi<HttpMessageApi>(),
-                                _optionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
+                                _optionsField!.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
                                 _isAsync)).ToApi<ClientResponseApi>(),
                         out ClientResponseApi result),
 
@@ -283,24 +315,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
 
                     // Assign nextLinkUri from the result and check if it is null
-                    AssignAndCheckNextLinkUri(result, nextPageUri),
+                    AssignAndCheckNextPageVariable(result, nextPageVariable),
 
                     // Update message for next iteration
-                    message.Assign(InvokeCreateRequest(nextPageUri)).Terminate()
+                    message.Assign(InvokeCreateRequestForNextLink(nextPageVariable)).Terminate()
                 }
             ];
         }
 
-        private MethodBodyStatement[] AssignAndCheckNextLinkUri(ClientResponseApi result, ScopedApi<Uri> nextPageUri)
+        private MethodBodyStatement[] BuildGetRawPagesForContinuationToken()
         {
-            switch (_nextLinkLocation)
+            var nextTokenVariable = new VariableExpression(_requestFields[0].Type, "nextToken");
+            return
+            [
+                // Declare the initial request message
+                Declare(
+                    "message",
+                    InvokeCreateRequestForContinuationToken(_requestFields[_nextTokenParameterIndex!.Value]),
+                    out ScopedApi<PipelineMessage> message),
+
+                // Declare nextToken variable
+                Declare(nextTokenVariable, Null),
+
+                // Generate the while loop
+                new WhileStatement(True)
+                {
+                    Declare(
+                        "result",
+                        ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
+                            _clientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
+                                message.ToApi<HttpMessageApi>(),
+                                _optionsField!.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
+                                _isAsync)).ToApi<ClientResponseApi>(),
+                        out ClientResponseApi result),
+
+                    // Yield return result
+                    YieldReturn(result),
+                    MethodBodyStatement.EmptyLine,
+
+                    // Assign nextLinkUri from the result and check if it is null
+                    AssignAndCheckNextPageVariable(result, nextTokenVariable),
+
+                    // Update message for next iteration
+                    message.Assign(InvokeCreateRequestForContinuationToken(nextTokenVariable)).Terminate()
+                }
+            ];
+        }
+
+        private MethodBodyStatement[] AssignAndCheckNextPageVariable(ClientResponseApi result, VariableExpression nextPage)
+        {
+            switch (_nextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = result.CastTo(_responseType).Property(_nextLinkPropertyName!).As<Uri>();
+                    var resultExpression = result.CastTo(_responseType).Property(_nextPagePropertyName!);
                     return
                     [
-                        nextPageUri.Assign(resultExpression).Terminate(),
-                        new IfStatement(nextPageUri.Equal(Null))
+                        nextPage.Assign(resultExpression).Terminate(),
+                        new IfStatement(nextPage.Equal(Null))
                         {
                             YieldBreak()
                         },
@@ -309,25 +380,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return
                         [
                             new IfElseStatement(
-                                new IfStatement(result.GetRawResponse().TryGetHeader(_nextLinkPropertyName!, out var nextLinkHeader))
+                                new IfStatement(result.GetRawResponse().TryGetHeader(_nextPagePropertyName!, out var nextLinkHeader))
                                 {
-                                        nextPageUri.Assign(New.Instance<Uri>(nextLinkHeader!))
-                                            .Terminate(),
+                                        nextPage.Type.Equals(typeof(Uri)) ?
+                                            nextPage.Assign(New.Instance<Uri>(nextLinkHeader!)).Terminate() :
+                                            nextPage.Assign(nextLinkHeader!).Terminate(),
                                 },
                                 YieldBreak())
                         ];
                 default:
-                    ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(
-                        "unsupported-next-link-location",
-                        $"Unsupported next link location: {_nextLinkLocation}",
-                        _operation.CrossLanguageDefinitionId);
+                    // Invalid location is logged by the emitter.
                     return [];
             }
         }
 
-        private ScopedApi<PipelineMessage> InvokeCreateRequest(ScopedApi<Uri> nextLinkUri) => _clientField.Invoke(
+        private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri) => _clientField.Invoke(
             $"Create{_operation.Name.ToCleanName()}Request",
-            new[] { nextLinkUri, _optionsField.AsValueExpression })
+            // we replace the first argument (the initialUri) with the nextPageUri
+            [nextPageUri, .. _requestFields[1..]])
             .As<PipelineMessage>();
+
+        private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)
+        {
+            ValueExpression[] arguments = _requestFields.Select(f => f.AsValueExpression).ToArray();
+
+            // Replace the nextToken field with the nextToken variable
+            arguments[_nextTokenParameterIndex!.Value] = nextToken;
+
+            return _clientField.Invoke(
+                    $"Create{_operation.Name.ToCleanName()}Request",
+                    arguments)
+                .As<PipelineMessage>();
+        }
     }
 }
