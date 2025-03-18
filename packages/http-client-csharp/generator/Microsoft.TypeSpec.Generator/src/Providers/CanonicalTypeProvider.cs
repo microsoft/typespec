@@ -102,8 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             !customProperty.Body.HasSetter,
                             customProperty.Type.IsNullable,
                             false,
-                            serializedName ?? customProperty.Name.ToVariableName(),
-                            PropertyLocation.Unknown);
+                            serializedName ?? customProperty.Name.ToVariableName());
                     }
                     else
                     {
@@ -164,8 +163,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             true,
                             customField.Type.IsNullable,
                             false,
-                            serializedName ?? customField.Name.ToVariableName(),
-                            PropertyLocation.Unknown);
+                            serializedName ?? customField.Name.ToVariableName());
                     }
                     else
                     {

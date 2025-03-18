@@ -114,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     p.Name.Equals("repeatabilityRequestId", StringComparison.OrdinalIgnoreCase)));
             }
 
-            var spreadInputParameter = inputOperation.Parameters.FirstOrDefault(p => p.Kind == InputOperationParameterKind.Spread);
+            var spreadInputParameter = inputOperation.Parameters.FirstOrDefault(p => p.Kind == InputParameterKind.Spread);
             if (spreadInputParameter != null)
             {
                 Assert.AreEqual(_spreadModel.Properties.Count + 1, methodParameters.Count);
@@ -197,7 +197,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [TestCaseSource(nameof(GetSpreadParameterModelTestCases))]
         public void TestGetSpreadParameterModel(InputParameter inputParameter)
         {
-            if (inputParameter.Kind == InputOperationParameterKind.Spread)
+            if (inputParameter.Kind == InputParameterKind.Spread)
             {
                 var model = RestClientProvider.GetSpreadParameterModel(inputParameter);
                 Assert.AreEqual(_spreadModel, model);
@@ -225,7 +225,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var client = InputFactory.Client("TestClient",
                 operations: [
                     InputFactory.Operation("OperationWithApiVersion",
-                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, kind: InputOperationParameterKind.Client)])
+                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, kind: InputParameterKind.Client)])
                     ]);
             var clientProvider = new ClientProvider(client);
             var restClientProvider = new MockClientProvider(client, clientProvider);
@@ -501,13 +501,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     _spreadModel,
                     location: InputRequestLocation.Body,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Spread),
+                    kind: InputParameterKind.Spread),
                 InputFactory.Parameter(
                     "p2",
                     InputPrimitiveType.Boolean,
                     location: InputRequestLocation.Path,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method)
+                    kind: InputParameterKind.Method)
             ]);
 
         private static readonly InputOperation OperationWithMixedParamOrdering = InputFactory.Operation(
@@ -520,49 +520,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Query,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // optional query param
                 InputFactory.Parameter(
                     "optionalQuery",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Query,
                     isRequired: false,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // required path param
                 InputFactory.Parameter(
                     "requiredPath",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Path,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // required header param
                 InputFactory.Parameter(
                     "requiredHeader",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Header,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // optional header param
                 InputFactory.Parameter(
                     "optionalHeader",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Header,
                     isRequired: false,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // content type param
                 InputFactory.Parameter(
                     "optionalContentType",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Header,
                     isContentType: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 // body param
                 InputFactory.Parameter(
                     "body",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Body,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method)
+                    kind: InputParameterKind.Method)
             ]);
 
         private static readonly InputOperation OperationWithOnlyPathParams = InputFactory.Operation(
@@ -574,19 +574,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Path,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 InputFactory.Parameter(
                     "a",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Path,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method),
+                    kind: InputParameterKind.Method),
                 InputFactory.Parameter(
                     "b",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Path,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Method)
+                    kind: InputParameterKind.Method)
             ]);
 
         private readonly static InputClient SingleOpInputClient = InputFactory.Client("TestClient", operations: [BasicOperation]);
@@ -648,9 +648,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         private static IEnumerable<TestCaseData> GetSpreadParameterModelTestCases =>
         [
             // spread param
-            new TestCaseData(InputFactory.Parameter("spread", _spreadModel, location: InputRequestLocation.Body, kind: InputOperationParameterKind.Spread, isRequired: true)),
+            new TestCaseData(InputFactory.Parameter("spread", _spreadModel, location: InputRequestLocation.Body, kind: InputParameterKind.Spread, isRequired: true)),
             // non spread param
-            new TestCaseData(InputFactory.Parameter("p1", InputPrimitiveType.Boolean, location: InputRequestLocation.Path, isRequired: true, kind: InputOperationParameterKind.Method))
+            new TestCaseData(InputFactory.Parameter("p1", InputPrimitiveType.Boolean, location: InputRequestLocation.Path, isRequired: true, kind: InputParameterKind.Method))
 
         ];
 
@@ -677,7 +677,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputPrimitiveType.String,
                 location: InputRequestLocation.Uri,
                 isRequired: true,
-                kind: InputOperationParameterKind.Client,
+                kind: InputParameterKind.Client,
                 isEndpoint: true,
                 isApiVersion: false);
 
@@ -686,7 +686,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputPrimitiveType.String,
                 location: InputRequestLocation.Uri,
                 isRequired: true,
-                kind: InputOperationParameterKind.Client,
+                kind: InputParameterKind.Client,
                 isApiVersion: true);
 
             InputParameter enumApiVersionParameter = InputFactory.Parameter(
@@ -703,7 +703,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     ]),
                 location: InputRequestLocation.Uri,
                 isRequired: true,
-                kind: InputOperationParameterKind.Client,
+                kind: InputParameterKind.Client,
                 isApiVersion: true);
 
             yield return new TestCaseData(

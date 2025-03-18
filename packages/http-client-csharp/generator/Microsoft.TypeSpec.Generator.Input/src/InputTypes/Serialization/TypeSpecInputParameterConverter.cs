@@ -45,7 +45,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? arraySerializationDelimiter = null;
             string? headerCollectionPrefix = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
-            InputModelType? sourceModel = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
@@ -65,8 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("explode", ref explode)
                     || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
                     || reader.TryReadString("headerCollectionPrefix", ref headerCollectionPrefix)
-                    || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadComplexType("sourceModel", options, ref sourceModel);
+                    || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -88,9 +86,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 throw new JsonException("Parameter must have kind");
             }
-            Enum.TryParse<InputOperationParameterKind>(kind, ignoreCase: true, out var parameterKind);
+            Enum.TryParse<InputParameterKind>(kind, ignoreCase: true, out var parameterKind);
 
-            if (parameterKind == InputOperationParameterKind.Constant && parameterType is not InputLiteralType)
+            if (parameterKind == InputParameterKind.Constant && parameterType is not InputLiteralType)
             {
                 throw new JsonException($"Operation parameter '{name}' is constant, but its type is '{parameterType.Name}'.");
             }
@@ -111,8 +109,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 skipUrlEncoding: skipUrlEncoding,
                 explode: explode,
                 arraySerializationDelimiter: arraySerializationDelimiter,
-                headerCollectionPrefix: headerCollectionPrefix,
-                sourceModel: sourceModel)
+                headerCollectionPrefix: headerCollectionPrefix)
             {
                 Decorators = decorators ?? []
             };

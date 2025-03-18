@@ -9,5 +9,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         Header = 1,
         Query = 2,
         Path = 3,
+        Cookie = 4,
     }
 }

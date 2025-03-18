@@ -745,7 +745,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var client = InputFactory.Client(TestClientName,
                 operations: [
                     InputFactory.Operation("OperationWithApiVersion",
-                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, kind: InputOperationParameterKind.Client, isApiVersion: true)])
+                            parameters: [InputFactory.Parameter("apiVersion", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, kind: InputParameterKind.Client, isApiVersion: true)])
                     ]);
             var clientProvider = new ClientProvider(client);
             Assert.IsNotNull(clientProvider);
@@ -986,12 +986,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "optionalParam",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputParameterKind.Client),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location:InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true)
                 });
                 yield return new TestCaseData(new List<InputParameter>
@@ -1002,28 +1002,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: false),
                     InputFactory.Parameter(
                         "requiredParam2",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: true),
                     InputFactory.Parameter(
                         "requiredParam3",
                         InputPrimitiveType.Int64,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.Int64(2),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: true),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: null,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true)
                 });
             }
@@ -1039,12 +1039,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "optionalParam",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputParameterKind.Client),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location:InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true)
                 },
                 new List<ExpectedFieldProvider>
@@ -1061,28 +1061,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: false),
                     InputFactory.Parameter(
                         "requiredParam2",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: true),
                     InputFactory.Parameter(
                         "requiredParam3",
                         InputPrimitiveType.Int64,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.Int64(2),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: true),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: null,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true)
                 },
                 new List<ExpectedFieldProvider>
@@ -1156,7 +1156,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                 _spreadModel,
                                 location: InputRequestLocation.Body,
                                 isRequired: true,
-                                kind: InputOperationParameterKind.Spread),
+                                kind: InputParameterKind.Spread),
                         ])
                     ]));
             }
@@ -1183,13 +1183,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "optionalParam",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client),
+                        kind: InputParameterKind.Client),
                     InputFactory.Parameter(
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
                         defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true)
                 }).SetProperty("caseName", "WithDefault");
                 // scenario where endpoint is required
@@ -1199,14 +1199,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         KnownParameters.Endpoint.Name,
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isRequired: true,
                         isEndpoint: true),
                     InputFactory.Parameter(
                         "optionalParam",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client)
+                        kind: InputParameterKind.Client)
                 }).SetProperty("caseName", "WithRequired");
             }
         }
@@ -1340,7 +1340,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "param",
                         InputPrimitiveType.String,
                         location: InputRequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
+                        kind: InputParameterKind.Client,
                         isEndpoint: true,
                         defaultValue: InputFactory.Constant.String("mockValue")),
                     New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
@@ -1356,7 +1356,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Uri,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Client,
+                    kind: InputParameterKind.Client,
                     isEndpoint: true,
                     isApiVersion: false);
 
@@ -1365,7 +1365,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Uri,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Client,
+                    kind: InputParameterKind.Client,
                     isApiVersion: true);
 
                 InputParameter enumApiVersionParameter = InputFactory.Parameter(
@@ -1382,7 +1382,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         ]),
                     location: InputRequestLocation.Uri,
                     isRequired: true,
-                    kind: InputOperationParameterKind.Client,
+                    kind: InputParameterKind.Client,
                     isApiVersion: true);
 
                 yield return new TestCaseData(

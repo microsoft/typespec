@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             MockHelpers.LoadMockGenerator();
 
-            var param = InputFactory.Parameter("name", InputPrimitiveType.String, kind: InputOperationParameterKind.Spread);
+            var param = InputFactory.Parameter("name", InputPrimitiveType.String, kind: InputParameterKind.Spread);
             var paramProvider1 = CodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
             var paramProvider2 = CodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
             Assert.IsFalse(ReferenceEquals(paramProvider1, paramProvider2));

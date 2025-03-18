@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 defaultValue: Constant.String(contentType),
                 nameInRequest: "Content-Type",
                 isContentType: true,
-                kind: InputOperationParameterKind.Constant);
+                kind: InputParameterKind.Constant);
 
         public static InputParameter Parameter(
             string name,
@@ -76,13 +76,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputConstant? defaultValue = null,
             InputRequestLocation location = InputRequestLocation.Body,
             bool isRequired = false,
-            InputOperationParameterKind kind = InputOperationParameterKind.Method,
+            InputParameterKind kind = InputParameterKind.Method,
             bool isEndpoint = false,
             bool isContentType = false,
             bool isApiVersion = false,
             bool explode = false,
-            string? delimiter = null,
-            InputModelType? sourceModel = null)
+            string? delimiter = null)
         {
             return new InputParameter(
                 name,
@@ -100,8 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 explode,
                 delimiter,
-                null,
-                sourceModel);
+                null);
         }
 
         public static InputNamespace Namespace(
@@ -292,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 type ?? InputPrimitiveType.String);
         }
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
         {
             // when this client has parent, we add the constructed client into the `children` list of the parent
             var clientChildren = new List<InputClient>();
@@ -302,6 +300,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
                 string.Empty,
                 doc ?? $"{name} description",
+                methods is null ? [] : [.. methods],
                 operations is null ? [] : [.. operations],
                 parameters is null ? [] : [.. parameters],
                 parent,

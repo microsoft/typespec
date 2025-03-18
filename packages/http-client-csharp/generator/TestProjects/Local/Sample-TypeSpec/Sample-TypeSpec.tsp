@@ -420,3 +420,68 @@ model Page<T> {
 @convenientAPI(true)
 @list
 op ListWithPaging(): Page<Thing>;
+
+model HeaderBugReproModel {
+    @header("x-foo")
+    foo: string;
+
+    bar: int32;
+  }
+
+op bugTest(@bodyRoot body: HeaderBugReproModel): void;
+
+  model Animal {
+    @header("x-foo")
+    foo: "cat";
+
+    bar: int32;
+  }
+
+  @route("/bugTestHeaderDefaultValue")
+  op bugTestHeaderDefaultValue(@bodyRoot body: Animal): void;
+
+  model ModelWithHeaderResponse {
+    @header("x-foo")
+    foo: string;
+
+    bar: int32;
+  }
+
+  @route("/bugTestWithResponse")
+  op bugTestWithResponse(): ModelWithHeaderResponse;
+
+  model ModelWithHeaderRoundTrip {
+    @header("x-foo")
+    foo: string;
+
+    bar: int32;
+  }
+
+  @route("/headerBugTestRoundTrip")
+  op headerBugTestRoundTrip(@bodyRoot body: ModelWithHeaderRoundTrip): ModelWithHeaderRoundTrip;
+
+  model ModelWithQueryRequest {
+    @query
+    foo: string;
+
+    bar: int32;
+  }
+
+  @route("/queryBugTest")
+  op queryBugTest(@bodyRoot body: ModelWithQueryRequest): void;
+
+  @route("/queryBugTestRoundTrip")
+  op queryBugTestRoundTrip(@bodyRoot body: ModelWithQueryRequest): ModelWithQueryRequest;
+
+  model ModelWithPathRequest {
+    @path
+    foo: string;
+
+    bar: int32;
+  }
+
+  @route("/pathBugTest")
+  op pathBugTest(@bodyRoot body: ModelWithPathRequest): void;
+
+  @route("/pathBugTestRoundTrip")
+  op pathBugTestRoundTrip(@bodyRoot body: ModelWithPathRequest): ModelWithPathRequest;

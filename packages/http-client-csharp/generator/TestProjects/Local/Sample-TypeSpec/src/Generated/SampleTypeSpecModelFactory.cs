@@ -163,7 +163,7 @@ namespace SampleTypeSpec
         /// <summary> The HeaderBugReproModel. </summary>
         /// <param name="foo"></param>
         /// <param name="bar"></param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.HeaderBugReproModel"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.HeaderBugReproModel"/> instance for mocking. </returns>
         public static HeaderBugReproModel HeaderBugReproModel(string foo = default, int bar = default)
         {
 
@@ -173,7 +173,7 @@ namespace SampleTypeSpec
         /// <summary> The Animal. </summary>
         /// <param name="foo"></param>
         /// <param name="bar"></param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.Animal"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.Animal"/> instance for mocking. </returns>
         public static Animal Animal(AnimalXFoo foo = default, int bar = default)
         {
 
@@ -183,7 +183,7 @@ namespace SampleTypeSpec
         /// <summary> The ModelWithHeaderResponse. </summary>
         /// <param name="foo"></param>
         /// <param name="bar"></param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.ModelWithHeaderResponse"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.ModelWithHeaderResponse"/> instance for mocking. </returns>
         public static ModelWithHeaderResponse ModelWithHeaderResponse(string foo = default, int bar = default)
         {
 
@@ -193,7 +193,7 @@ namespace SampleTypeSpec
         /// <summary> The ModelWithHeaderRoundTrip. </summary>
         /// <param name="foo"></param>
         /// <param name="bar"></param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.ModelWithHeaderRoundTrip"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.ModelWithHeaderRoundTrip"/> instance for mocking. </returns>
         public static ModelWithHeaderRoundTrip ModelWithHeaderRoundTrip(string foo = default, int bar = default)
         {
 
@@ -203,7 +203,7 @@ namespace SampleTypeSpec
         /// <summary> The ModelWithQueryRequest. </summary>
         /// <param name="foo"></param>
         /// <param name="bar"></param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.ModelWithQueryRequest"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.ModelWithQueryRequest"/> instance for mocking. </returns>
         public static ModelWithQueryRequest ModelWithQueryRequest(string foo = default, int bar = default)
         {
 
@@ -213,7 +213,7 @@ namespace SampleTypeSpec
         /// <summary> The ModelWithPathRequest. </summary>
         /// <param name="foo"></param>
         /// <param name="bar"></param>
-        /// <returns> A new <see cref="UnbrandedTypeSpec.ModelWithPathRequest"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="SampleTypeSpec.ModelWithPathRequest"/> instance for mocking. </returns>
         public static ModelWithPathRequest ModelWithPathRequest(string foo = default, int bar = default)
         {
 
