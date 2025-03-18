@@ -1,4 +1,4 @@
-import { AssetEmitter } from "@typespec/compiler/emitter-framework";
+import { AssetEmitter } from "@typespec/asset-emitter";
 import { CSharpType, LibrarySourceFile } from "./interfaces.js";
 import { CSharpServiceEmitterOptions } from "./lib.js";
 
