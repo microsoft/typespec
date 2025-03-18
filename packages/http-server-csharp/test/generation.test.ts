@@ -1,5 +1,5 @@
-import { Program, Type, navigateProgram, resolvePath } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import { Program, Type, navigateProgram } from "@typespec/compiler";
+import { BasicTestRunner, resolveVirtualPath } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, it } from "vitest";
 import { getPropertySource, getSourceModel } from "../src/lib/utils.js";
@@ -1417,8 +1417,10 @@ it("Produces correct scaffolding", async () => {
 
 it("Does not overwrite mock files", async () => {
   const runner = await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" });
-  const outputDir = "Z:/test/@typespec/http-server-csharp";
-  runner.fs.set(resolvePath(outputDir, "../", "ServiceProject.csproj"), "ServiceProject\n");
+  runner.fs.set(
+    resolveVirtualPath("@typespec", "http-server-csharp", "../", "ServiceProject.csproj"),
+    "ServiceProject\n",
+  );
   await compileAndValidateMultiple(runner, multipartSpec, [
     ["ServiceProject.csproj", ["ServiceProject"]],
   ]);
@@ -1429,8 +1431,10 @@ it("Does overwrite mock files with overWrite option", async () => {
     "emit-mocks": "all",
     overwrite: true,
   });
-  const outputDir = "Z:/test/@typespec/http-server-csharp";
-  runner.fs.set(resolvePath(outputDir, "../", "ServiceProject.csproj"), "ServiceProject\n");
+  runner.fs.set(
+    resolveVirtualPath("@typespec", "http-server-csharp", "../", "ServiceProject.csproj"),
+    "ServiceProject\n",
+  );
   await compileAndValidateMultiple(runner, multipartSpec, [
     ["ServiceProject.csproj", ["<TargetFramework>net9.0</TargetFramework>"]],
   ]);
