@@ -1,5 +1,12 @@
 # Change Log - @typespec/eslint-plugin
 
+## 0.67.0
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+
 ## 0.66.0
 
 No changes, version bump only.
