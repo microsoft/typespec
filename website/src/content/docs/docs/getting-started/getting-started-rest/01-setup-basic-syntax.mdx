@@ -7,7 +7,7 @@ import { FileTree } from "@astrojs/starlight/components";
 
 ## Introduction
 
-Welcome to our tutorial on using TypeSpec to define REST APIs with HTTP. In this section, we'll introduce you to TypeSpec, help you set up your environment, and cover the basic syntax and structure of TypeSpec. By the end of this section, you'll have a solid foundation to build upon in the subsequent sections.
+Welcome to our tutorial on using TypeSpec to define REST APIs with HTTP. In this section, we'll introduce you to TypeSpec, help you set up your development environment, and cover the basic syntax and structure of TypeSpec. By the end of this section, you'll have a solid foundation to build upon in the subsequent sections.
 
 ### What is TypeSpec?
 
@@ -95,7 +95,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 // highlight-start
-@service({
+@service(#{
   title: "Pet Store",
 })
 @server("https://example.com", "Single server endpoint")
@@ -124,9 +124,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 
 // highlight-next-line
@@ -155,9 +153,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;
 
@@ -196,9 +192,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;
 

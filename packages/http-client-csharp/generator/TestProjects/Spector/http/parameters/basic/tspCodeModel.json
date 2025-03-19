@@ -123,7 +123,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Parameters.Basic"
   },
   {
    "$id": "18",
@@ -188,13 +189,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/parameters/basic/explicit-body/simple",
      "RequestMediaTypes": [
@@ -244,7 +243,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Parameters.Basic.ExplicitBody"
   },
   {
    "$id": "30",
@@ -309,13 +309,11 @@
        "StatusCodes": [
         204
        ],
-       "BodyMediaType": "Json",
        "Headers": [],
        "IsErrorResponse": false
       }
      ],
      "HttpMethod": "PUT",
-     "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/parameters/basic/implicit-body/simple",
      "RequestMediaTypes": [
@@ -365,7 +363,8 @@
      }
     }
    ],
-   "Decorators": []
+   "Decorators": [],
+   "CrossLanguageDefinitionId": "Parameters.Basic.ImplicitBody"
   }
  ]
 }

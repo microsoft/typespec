@@ -642,7 +642,6 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
-                name,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -657,6 +656,7 @@ namespace UnbrandedTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                null,
                 null);
             ClientResult result = AnonymousBody(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
@@ -688,7 +688,6 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
-                name,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -703,6 +702,7 @@ namespace UnbrandedTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                null,
                 null);
             ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
@@ -871,31 +871,31 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
+        /// <param name="name"> name of the ModelWithClientName. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<ProjectedModelCustom> ProjectedNameModel(string name, CancellationToken cancellationToken = default)
+        public virtual ClientResult<RenamedModelCustom> ProjectedNameModel(string name, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            ProjectedModelCustom spreadModel = new ProjectedModelCustom(name, null);
+            RenamedModelCustom spreadModel = new RenamedModelCustom(name, null);
             ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((ProjectedModelCustom)result, result.GetRawResponse());
+            return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
+        /// <param name="name"> name of the ModelWithClientName. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<ProjectedModelCustom>> ProjectedNameModelAsync(string name, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<RenamedModelCustom>> ProjectedNameModelAsync(string name, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            ProjectedModelCustom spreadModel = new ProjectedModelCustom(name, null);
+            RenamedModelCustom spreadModel = new RenamedModelCustom(name, null);
             ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((ProjectedModelCustom)result, result.GetRawResponse());
+            return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1266,6 +1266,158 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(p1, nameof(p1));
 
             return await WithApiVersionAsync(p1, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with nextlink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult ListWithNextLink(RequestOptions options)
+        {
+            return new ListWithNextLinkCollectionResult(this, null, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with nextlink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult ListWithNextLinkAsync(RequestOptions options)
+        {
+            return new ListWithNextLinkAsyncCollectionResult(this, null, options);
+        }
+
+        /// <summary> List things with nextlink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Thing> ListWithNextLink(CancellationToken cancellationToken = default)
+        {
+            return new ListWithNextLinkCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> List things with nextlink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Thing> ListWithNextLinkAsync(CancellationToken cancellationToken = default)
+        {
+            return new ListWithNextLinkAsyncCollectionResultOfT(this, null, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with continuation token
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult ListWithContinuationToken(string token, RequestOptions options)
+        {
+            return new ListWithContinuationTokenCollectionResult(this, token, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with continuation token
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult ListWithContinuationTokenAsync(string token, RequestOptions options)
+        {
+            return new ListWithContinuationTokenAsyncCollectionResult(this, token, options);
+        }
+
+        /// <summary> List things with continuation token. </summary>
+        /// <param name="token"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Thing> ListWithContinuationToken(string token = null, CancellationToken cancellationToken = default)
+        {
+            return new ListWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> List things with continuation token. </summary>
+        /// <param name="token"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Thing> ListWithContinuationTokenAsync(string token = null, CancellationToken cancellationToken = default)
+        {
+            return new ListWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with continuation token header response
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult ListWithContinuationTokenHeaderResponse(string token, RequestOptions options)
+        {
+            return new ListWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with continuation token header response
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult ListWithContinuationTokenHeaderResponseAsync(string token, RequestOptions options)
+        {
+            return new ListWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
+        }
+
+        /// <summary> List things with continuation token header response. </summary>
+        /// <param name="token"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Thing> ListWithContinuationTokenHeaderResponse(string token = null, CancellationToken cancellationToken = default)
+        {
+            return new ListWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> List things with continuation token header response. </summary>
+        /// <param name="token"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Thing> ListWithContinuationTokenHeaderResponseAsync(string token = null, CancellationToken cancellationToken = default)
+        {
+            return new ListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
     }
 }

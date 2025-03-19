@@ -316,6 +316,20 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
   });
 }
 
+async function runTaskPool(tasks: Array<() => Promise<void>>, poolLimit: number): Promise<void> {
+  let currentIndex = 0;
+
+  async function worker() {
+    while (currentIndex < tasks.length) {
+      const index = currentIndex++;
+      await tasks[index]();
+    }
+  }
+
+  const workers = new Array(Math.min(poolLimit, tasks.length)).fill(null).map(() => worker());
+  await Promise.all(workers);
+}
+
 async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
   if (flags.flavor === undefined) {
     await regenerate({ flavor: "azure", ...flags });
@@ -331,11 +345,22 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
       _getCmdList(subdirectory, flagsResolved),
     );
-    const PromiseCommands = cmdList.map((tspCommand) => executeCommand(tspCommand));
-    await Promise.all(PromiseCommands);
+
+    // Create tasks as functions for the pool
+    const tasks: Array<() => Promise<void>> = cmdList.map((tspCommand) => {
+      return () => executeCommand(tspCommand);
+    });
+
+    // Run tasks with a concurrency limit
+    await runTaskPool(tasks, 30);
   }
 }
 
+const start = performance.now();
 regenerate(argv.values)
-  .then(() => console.log("Regeneration successful"))
+  .then(() =>
+    console.log(
+      `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
+    ),
+  )
   .catch((error) => console.error(`Regeneration failed: ${error.message}`));

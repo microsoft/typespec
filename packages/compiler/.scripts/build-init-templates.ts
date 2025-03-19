@@ -35,7 +35,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
           "emitter-output-dir": "{output-dir}/clients/java",
         },
       },
-      "@azure-tools/typespec-ts": {
+      "@typespec/http-client-js": {
         label: "JavaScript client",
         options: {
           "emitter-output-dir": "{output-dir}/clients/js",
@@ -54,7 +54,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
         },
       },
       "@typespec/http-server-js": {
-        description: "JavaScript server stubs",
+        label: "JavaScript server stubs",
         options: {
           "emitter-output-dir": "{output-dir}/server",
         },

@@ -8,9 +8,7 @@ import "@typespec/openapi";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Grpc Library sample",
-})
+@service(#{ title: "Grpc Library sample" })
 namespace GrpcLibrarySample;
 
 @doc("""

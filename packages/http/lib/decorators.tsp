@@ -12,9 +12,15 @@ model HeaderOptions {
   name?: string;
 
   /**
-   * Determines the format of the array if type array is used.
+   * Equivalent of adding `*` in the path parameter as per [RFC-6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
+   *
+   *  | Style  | Explode | Primitive value = 5 | Array = [3, 4, 5] | Object = {"role": "admin", "firstName": "Alex"} |
+   *  | ------ | ------- | ------------------- | ----------------- | ----------------------------------------------- |
+   *  | simple | false   | `5   `              | `3,4,5`           | `role,admin,firstName,Alex`                     |
+   *  | simple | true    | `5`                 | `3,4,5`           | `role=admin,firstName=Alex`                     |
+   *
    */
-  format?: "csv" | "multi" | "tsv" | "ssv" | "pipes" | "simple" | "form";
+  explode?: boolean;
 }
 
 /**
@@ -37,7 +43,7 @@ model HeaderOptions {
  * op update(@header ifMatch: string): void; // headerName: if-match
  * ```
  */
-extern dec header(target: ModelProperty, headerNameOrOptions?: string | HeaderOptions);
+extern dec header(target: ModelProperty, headerNameOrOptions?: valueof string | HeaderOptions);
 
 /**
  * Cookie Options.
@@ -91,12 +97,6 @@ model QueryOptions {
    *
    */
   explode?: boolean;
-
-  /**
-   * Determines the format of the array if type array is used.
-   * **DEPRECATED**: use explode: true instead of `multi` or `@encode`
-   */
-  format?: "multi" | "csv" | "ssv" | "tsv" | "simple" | "form" | "pipes";
 }
 
 /**
@@ -377,18 +377,11 @@ extern dec server(
 extern dec useAuth(target: Namespace | Interface | Operation, auth: {} | Union | {}[]);
 
 /**
- * Specify if inapplicable metadata should be included in the payload for the given entity.
- * @param value If true, inapplicable metadata will be included in the payload.
- */
-extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof boolean);
-
-/**
  * Defines the relative route URI template for the target operation as defined by [RFC 6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
  * @param uriTemplate Uri template for this operation.
- * @param options _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
  *
  * @example Simple path parameter
  *
@@ -407,13 +400,7 @@ extern dec includeInapplicableMetadataInPayload(target: unknown, value: valueof 
  * @route("/files{?select,filter}") op listFullUriTemplate(select?: string, filter?: string): Files[];
  * ```
  */
-extern dec route(
-  target: Namespace | Interface | Operation,
-  path: valueof string,
-  options?: {
-    shared?: boolean,
-  }
-);
+extern dec route(target: Namespace | Interface | Operation, path: valueof string);
 
 /**
  * `@sharedRoute` marks the operation as sharing a route path with other operations.

@@ -1,5 +1,5 @@
 import "@typespec/streams";
-import "../http.tsp";
+import "../main.tsp";
 
 using TypeSpec.Streams;
 

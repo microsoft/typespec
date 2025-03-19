@@ -27,25 +27,9 @@ namespace Query {
     """)
   @route("/ssv")
   op ssv(
-    #suppress "deprecated" "Deprecated in next release"
     @doc("Possible values for colors are [blue,red,green]")
-    @query({
-      format: "ssv",
-    })
-    colors: string[],
-  ): NoContentResponse;
-
-  @scenario
-  @scenarioDoc("""
-    This test is testing sending a tsv collection format array query parameters
-    """)
-  @route("/tsv")
-  op tsv(
-    #suppress "deprecated" "Deprecated in next release"
-    @doc("Possible values for colors are [blue,red,green]")
-    @query({
-      format: "tsv",
-    })
+    @query
+    @encode(ArrayEncoding.spaceDelimited)
     colors: string[],
   ): NoContentResponse;
 
@@ -55,11 +39,9 @@ namespace Query {
     """)
   @route("/pipes")
   op pipes(
-    #suppress "deprecated" "Deprecated in next release"
     @doc("Possible values for colors are [blue,red,green]")
-    @query({
-      format: "pipes",
-    })
+    @query
+    @encode(ArrayEncoding.pipeDelimited)
     colors: string[],
   ): NoContentResponse;
 
@@ -84,9 +66,7 @@ namespace Header {
   @route("/csv")
   op csv(
     @doc("Possible values for colors are [blue,red,green]")
-    @header({
-      format: "csv",
-    })
+    @header
     colors: string[],
   ): NoContentResponse;
 }

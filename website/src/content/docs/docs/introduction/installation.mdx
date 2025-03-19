@@ -4,56 +4,65 @@ title: Installation
 slug: docs
 ---
 
-import { Badge } from "@astrojs/starlight/components";
-import { FileTree } from "@astrojs/starlight/components";
-import { Steps } from "@astrojs/starlight/components";
+import { Aside, Badge, Tabs, TabItem, FileTree, Steps } from "@astrojs/starlight/components";
+
+## Install TypeSpec
 
 TypeSpec can be used in two ways:
 
-- A standalone executable without any additional dependencies. <Badge text="Preview" variant="caution" />
-- Npm package for use with Node.js and other package managers.
+- Npm package for use with [Node.js](https://nodejs.org/)
+- A standalone executable without any additional dependencies. <Badge text="Experimental" variant="caution" />
 
-## Standalone <Badge text="Preview" variant="caution" />
+<Tabs>
+  <TabItem label="Node.JS">
 
-### macOS and Linux
+<Steps>
 
+1. Install [Node.js LTS](https://nodejs.org/en/download/)
+
+2. Install the TypeSpec CLI
+
+   ```bash
+   npm install -g @typespec/compiler
+   ```
+
+</Steps>
+
+[See package manager doc](../handbook/package-manager.md) for more information on package managers.
+
+  </TabItem>
+  <TabItem label="Standalone (Experimental)">
+
+<Aside type="caution">The standalone CLI is currently experimental.</Aside>
+
+To install, paste this into a terminal:
+
+<Tabs>
+  <TabItem label="macOS">
+  
 ```bash
 curl -fsSL https://typespec.io/install.sh | bash
 ```
 
-### Windows
+  </TabItem>
+  <TabItem label="Windows">
 
 ```bash
 powershell -c "irm typespec.io/install.ps1|iex"
 ```
 
-## With Node.js
-
-Install [Node.js LTS](https://nodejs.org/en/download/) and ensure you can run the `npm` command in a command prompt:
-
+  </TabItem>
+  <TabItem label="Linux">
+  
 ```bash
-npm --version
+curl -fsSL https://typespec.io/install.sh | bash
 ```
 
-### Package manager
+  </TabItem>
+</Tabs>
 
-TypeSpec uses node package linking to manage dependencies. Any package manager that produce a `node_modules` directory should work:
-
-- npm 7+. To update npm, run `npm install -g npm`
-- pnpm
-- yarn
-
-:::caution
-Yarn will not automatically install implicit peerDependencies. TypeSpec libraries rely on this. Watch for warnings for any missing dependencies.
-:::
-
-### Install tsp
-
-The first step is to install `tsp`, the TypeSpec compiler/CLI.
-
-```bash
-npm install -g @typespec/compiler
-```
+  </TabItem>
+</Tabs>
 
 ## Install the VS and VSCode extensions
 

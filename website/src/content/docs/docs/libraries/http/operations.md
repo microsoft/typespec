@@ -159,52 +159,7 @@ namespace Pets {
 
 ## Content type
 
-[See content types docs](./content-types.md)
-
-### Default behavior
-
-Depending on the body of the operation http library will assume different content types:
-
-- `bytes`: `application/octet-stream`
-- `string`: `text/plain`
-- an `object` or anything else: `application/json`
-
-**Examples:**
-
-```typespec
-op download(): bytes; // response content type is application/octet-stream
-op upload(@body file: bytes): void; // request content type is application/octet-stream
-op getContent(): string; // response content type is text/plain
-op getPet(): {
-  // response content type is application/json
-  name: string;
-};
-```
-
-### Specify content type
-
-The content type for an operation can be specified by including a header parameter named `contentType`.
-
-#### Request content type
-
-```typespec
-op uploadImage(@header contentType: "image/png", @body image: bytes): void;
-```
-
-#### Response content type:
-
-```typespec
-op downloadImage(): {
-  @header contentType: "image/png";
-  @body image: bytes;
-};
-```
-
-#### Multiple content types
-
-```typespec
-op uploadImage(@header contentType: "image/png" | "image/jpeg", @body image: bytes): void;
-```
+[See the documentation of Content-Types](./content-types.md).
 
 ## Built-in response shapes
 
@@ -271,6 +226,58 @@ namespace Pets {
   op read(@path petId: int32, @header ifMatch?: string): ReadResponse<Pet>;
   @post
   op create(...Pet): CreateResponse;
+}
+```
+
+## Handling files
+
+`@typespec/http` provides a special model [`TypeSpec.Http.File`](../http/reference/data-types.md#file-typespechttpfile) for handling file uploads and downloads in HTTP operations. When working with files, emitters need to implement special handling due to their binary nature.
+
+### Basic File Handling
+
+When the model `Http.File` (or any model that extends `Http.File`) is the _exact_ body of an HTTP request, emitters **must** treat this model with special care:
+
+- The `contentType` property should be used as the value for the `Content-Type` header in requests and vice-versa for responses.
+- The `filename` property should be used in the `Content-Disposition` header in responses and vice-versa for multipart requests (`filename` cannot be sent in a non-multipart HTTP request because `Content-Disposition` is only valid for responses and multipart requests).
+- The file content should be treated as the raw body of the request/response without any additional parsing.
+
+See [`isHttpFile`](../http/reference/js-api/functions/isHttpFile.md) for a helper that emitters/libraries can use to detect instances of `Http.File`.
+
+### Examples
+
+#### Uploading and downloading files
+
+```typespec
+// Uploading and downloading
+@route("/files")
+interface Files {
+  @post
+  upload(@body file: Http.File): {
+    @statusCode statusCode: 201;
+  };
+
+  download(@path fileId: string): Http.File;
+}
+```
+
+#### Custom file types
+
+If you want to declare specific types of files that are accepted, but still treated as binary files, declare the content types by extending the `Http.File` model and overriding the `contentType` field.
+
+```typespec
+// Custom file type for images
+model ImageFile extends Http.File {
+  contentType: "image/jpeg" | "image/png" | "image/gif";
+}
+
+@route("/images")
+interface Images {
+  @post
+  upload(@body image: ImageFile): {
+    @statusCode statusCode: 201;
+  };
+
+  download(@path imageId: string): ImageFile;
 }
 ```
 

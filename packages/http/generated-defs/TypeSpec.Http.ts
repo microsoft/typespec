@@ -7,6 +7,11 @@ import type {
   Type,
 } from "@typespec/compiler";
 
+export interface HeaderOptions {
+  readonly name?: string;
+  readonly explode?: boolean;
+}
+
 export interface CookieOptions {
   readonly name?: string;
 }
@@ -14,7 +19,6 @@ export interface CookieOptions {
 export interface QueryOptions {
   readonly name?: string;
   readonly explode?: boolean;
-  readonly format?: "multi" | "csv" | "ssv" | "tsv" | "simple" | "form" | "pipes";
 }
 
 export interface PathOptions {
@@ -78,7 +82,7 @@ export type BodyDecorator = (context: DecoratorContext, target: ModelProperty) =
 export type HeaderDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  headerNameOrOptions?: Type,
+  headerNameOrOptions?: string | HeaderOptions,
 ) => void;
 
 /**
@@ -312,23 +316,11 @@ export type UseAuthDecorator = (
 ) => void;
 
 /**
- * Specify if inapplicable metadata should be included in the payload for the given entity.
- *
- * @param value If true, inapplicable metadata will be included in the payload.
- */
-export type IncludeInapplicableMetadataInPayloadDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: boolean,
-) => void;
-
-/**
  * Defines the relative route URI template for the target operation as defined by [RFC 6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  *
  * @param uriTemplate Uri template for this operation.
- * @param options _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations.
  * @example Simple path parameter
  *
  * ```typespec
@@ -348,7 +340,6 @@ export type RouteDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
   path: string,
-  options?: Type,
 ) => void;
 
 /**
@@ -385,7 +376,6 @@ export type TypeSpecHttpDecorators = {
   head: HeadDecorator;
   server: ServerDecorator;
   useAuth: UseAuthDecorator;
-  includeInapplicableMetadataInPayload: IncludeInapplicableMetadataInPayloadDecorator;
   route: RouteDecorator;
   sharedRoute: SharedRouteDecorator;
 };

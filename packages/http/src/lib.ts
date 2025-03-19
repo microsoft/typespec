@@ -160,12 +160,6 @@ export const $lib = createTypeSpecLibrary({
         default: "Part used in multipart/form-data must have a name.",
       },
     },
-    "header-format-required": {
-      severity: "error",
-      messages: {
-        default: `A format must be specified for @header when type is an array. e.g. @header({format: "csv"})`,
-      },
-    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },

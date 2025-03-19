@@ -1,4 +1,4 @@
-import { Diagnostic, ModelProperty, Namespace, Operation } from "@typespec/compiler";
+import { ModelProperty, Namespace } from "@typespec/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
@@ -17,7 +17,6 @@ import {
   getQueryParamOptions,
   getServers,
   getStatusCodes,
-  includeInapplicableMetadataInPayload,
   isBody,
   isBodyIgnore,
   isBodyRoot,
@@ -27,13 +26,7 @@ import {
   isQueryParam,
   isStatusCode,
 } from "../src/decorators.js";
-import {
-  Visibility,
-  createMetadataInfo,
-  getRequestVisibility,
-  resolveRequestVisibility,
-} from "../src/metadata.js";
-import { getHttpOperation } from "../src/operations.js";
+import { includeInapplicableMetadataInPayload } from "../src/private.decorators.js";
 import { createHttpTestRunner } from "./test-host.js";
 describe("http: decorators", () => {
   let runner: BasicTestRunner;
@@ -90,11 +83,12 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when header name is not a string or of type HeaderOptions", async () => {
+    it("emit diagnostics when header name is not a string or of value HeaderOptions", async () => {
       const diagnostics = await runner.diagnose(`
           op test(@header(123) MyHeader: string): string;
-          op test2(@header({ name: 123 }) MyHeader: string): string;
-          op test3(@header({ format: "invalid" }) MyHeader: string): string;
+          op test2(@header(#{ name: 123 }) MyHeader: string): string;
+          op test3(@header(#{ format: "invalid" }) MyHeader: string): string;
+          op test4(@header(#{ explode: "invalid" }) MyHeader: string): string;
         `);
 
       expectDiagnostics(diagnostics, [
@@ -107,18 +101,10 @@ describe("http: decorators", () => {
         {
           code: "invalid-argument",
         },
+        {
+          code: "invalid-argument",
+        },
       ]);
-    });
-
-    it("emit diagnostics when header is not specifing format but is an array", async () => {
-      const diagnostics = await runner.diagnose(`
-          op test(@header MyHeader: string[]): string;
-        `);
-
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/http/header-format-required",
-        message: `A format must be specified for @header when type is an array. e.g. @header({format: "csv"})`,
-      });
     });
 
     it("generate header name from property name", async () => {
@@ -140,7 +126,7 @@ describe("http: decorators", () => {
 
     it("override header with HeaderOptions", async () => {
       const { SingleString } = await runner.compile(`
-          @put op test(@test @header({name: "x-single-string"}) SingleString: string): string;
+          @put op test(@test @header(#{name: "x-single-string"}) SingleString: string): string;
         `);
 
       deepStrictEqual(getHeaderFieldOptions(runner.program, SingleString), {
@@ -148,6 +134,19 @@ describe("http: decorators", () => {
         name: "x-single-string",
       });
       strictEqual(getHeaderFieldName(runner.program, SingleString), "x-single-string");
+    });
+
+    it("specify explode", async () => {
+      const { MyHeader } = await runner.compile(`
+        @put op test(@test @header(#{ explode: true }) MyHeader: string): string;
+      `);
+
+      deepStrictEqual(getHeaderFieldOptions(runner.program, MyHeader), {
+        type: "header",
+        name: "my-header",
+        explode: true,
+      });
+      strictEqual(getHeaderFieldName(runner.program, MyHeader), "my-header");
     });
   });
 
@@ -285,39 +284,7 @@ describe("http: decorators", () => {
       expect(getQueryParamOptions(runner.program, selects)).toEqual({
         type: "query",
         name: "selects",
-        format: "multi",
         explode: true,
-      });
-    });
-
-    describe("LEGACY: change format for array value", () => {
-      ["csv", "tsv", "ssv", "simple", "pipes"].forEach((format) => {
-        it(`set query format to "${format}"`, async () => {
-          const { selects } = await runner.compile(`
-            #suppress "deprecated" "Test"
-            op test(@test @query(#{name: "$select", format: "${format}"}) selects: string[]): string;
-          `);
-          deepStrictEqual(getQueryParamOptions(runner.program, selects), {
-            type: "query",
-            name: "$select",
-            explode: false,
-            format,
-          });
-        });
-      });
-      ["form"].forEach((format) => {
-        it(`set query format to "${format}"`, async () => {
-          const { selects } = await runner.compile(`
-            #suppress "deprecated" "Test"
-            op test(@test @query(#{name: "$select", format: "${format}"}) selects: string[]): string;
-          `);
-          deepStrictEqual(getQueryParamOptions(runner.program, selects), {
-            type: "query",
-            name: "$select",
-            explode: true,
-            format,
-          });
-        });
       });
     });
   });
@@ -337,19 +304,6 @@ describe("http: decorators", () => {
         {
           code: "@typespec/http/duplicate-operation",
           message: `Duplicate operation "test2" routed at "get /test".`,
-        },
-      ]);
-    });
-
-    it("emits diagnostic when deprecated `shared` option is used", async () => {
-      const diagnostics = await runner.diagnose(`
-        @route("/test", { shared: true }) op test(): string;
-      `);
-      expectDiagnostics(diagnostics, [
-        {
-          code: "deprecated",
-          message:
-            "Deprecated: The `shared` option is deprecated, use the `@sharedRoute` decorator instead.",
         },
       ]);
     });
@@ -392,17 +346,6 @@ describe("http: decorators", () => {
         @route("/test") @post op test3(): string;
       `);
       expectDiagnosticEmpty(diagnostics);
-    });
-
-    it("emit diagnostic when wrong type for shared is provided", async () => {
-      const diagnostics = await runner.diagnose(`
-        @route("/test", {shared: "yes"}) op test(): string;
-      `);
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-argument",
-        },
-      ]);
     });
   });
 
@@ -844,7 +787,7 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -869,7 +812,7 @@ describe("http: decorators", () => {
                 id: "MyAuth",
                 description: "My custom basic auth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -891,7 +834,7 @@ describe("http: decorators", () => {
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1027,7 +970,7 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1037,7 +980,7 @@ describe("http: decorators", () => {
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1059,13 +1002,13 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1087,7 +1030,7 @@ describe("http: decorators", () => {
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1104,7 +1047,7 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1130,7 +1073,7 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1140,7 +1083,7 @@ describe("http: decorators", () => {
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
@@ -1166,36 +1109,19 @@ describe("http: decorators", () => {
               {
                 id: "BasicAuth",
                 type: "http",
-                scheme: "basic",
+                scheme: "Basic",
                 model: expect.objectContaining({ kind: "Model" }),
               },
               {
                 id: "BearerAuth",
                 type: "http",
-                scheme: "bearer",
+                scheme: "Bearer",
                 model: expect.objectContaining({ kind: "Model" }),
               },
             ],
           },
         ],
       });
-    });
-  });
-
-  describe("@visibility", () => {
-    it("warns on unsupported write visibility", async () => {
-      const diagnostics = await runner.diagnose(`
-        @test model M {
-          @visibility("write") w: string;
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          severity: "warning",
-          code: "visibility-legacy",
-        },
-      ]);
     });
   });
 
@@ -1214,7 +1140,7 @@ describe("http: decorators", () => {
     });
     it("can specify at namespace level", async () => {
       const { M } = await runner.compile(`
-        @includeInapplicableMetadataInPayload(false)
+        @Private.includeInapplicableMetadataInPayload(false)
         namespace Foo;
         @test model M {p: string; }
       `);
@@ -1228,7 +1154,7 @@ describe("http: decorators", () => {
     it("can specify at model level", async () => {
       const { M } = await runner.compile(`
       namespace Foo;
-      @includeInapplicableMetadataInPayload(false) @test model M { p: string; }
+      @Private.includeInapplicableMetadataInPayload(false) @test model M { p: string; }
     `);
 
       strictEqual(M.kind, "Model" as const);
@@ -1240,7 +1166,7 @@ describe("http: decorators", () => {
     it("can specify at property level", async () => {
       const { M } = await runner.compile(`
       namespace Foo;
-      @test model M { @includeInapplicableMetadataInPayload(false) p: string; }
+      @test model M { @Private.includeInapplicableMetadataInPayload(false) p: string; }
     `);
 
       strictEqual(M.kind, "Model" as const);
@@ -1252,9 +1178,9 @@ describe("http: decorators", () => {
 
     it("can be overridden", async () => {
       const { M } = await runner.compile(`
-      @includeInapplicableMetadataInPayload(false)
+      @Private.includeInapplicableMetadataInPayload(false)
       namespace Foo;
-      @includeInapplicableMetadataInPayload(true) @test model M { p: string; }
+      @Private.includeInapplicableMetadataInPayload(true) @test model M { p: string; }
     `);
 
       strictEqual(M.kind, "Model" as const);
@@ -1262,100 +1188,6 @@ describe("http: decorators", () => {
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
         true,
       );
-    });
-  });
-
-  describe("@parameterVisibility", () => {
-    it("ensures getRequestVisibility and resolveRequestVisibility return the same value for default PATCH operations", async () => {
-      const { testPatch } = await runner.compile(`
-      @patch
-      @test op testPatch(): void;
-      `);
-      deepStrictEqual(
-        getRequestVisibility("patch"),
-        resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
-      );
-    });
-
-    it("ensures getRequestVisibility and resolveRequestVisibility return expected values for customized PATCH operations", async () => {
-      const { testPatch } = await runner.compile(`
-      @parameterVisibility(Lifecycle.Create, Lifecycle.Update)
-      @patch
-      @test op testPatch(): void;
-      `);
-      deepStrictEqual(getRequestVisibility("patch"), Visibility.Update | Visibility.Patch);
-      deepStrictEqual(
-        resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
-        Visibility.Update | Visibility.Create | Visibility.Patch,
-      );
-    });
-
-    it("ensures legacy behavior of parameterVisibility with no arguments", async () => {
-      const [{ test }, compilerDiagnostics] = (await runner.compileAndDiagnose(`
-        model Example {
-          @visibility(Lifecycle.Read)
-          @path
-          id: string;
-
-          // @parameterVisibility with no args activates a hidden mode that hides all properties with explicit
-          // visibility.
-          @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Update, Lifecycle.Delete, Lifecycle.Query)
-          stillNotVisible: string;
-
-          // This is the only property that will be visible in the payload.
-          name: string
-        }
-
-      @parameterVisibility
-      @test
-      @route("/test")
-      @patch op test(@path id: Example.id, @bodyRoot example: Example): void;
-      `)) as [{ test: Operation }, Diagnostic[]];
-
-      expectDiagnostics(compilerDiagnostics, {
-        code: "operation-visibility-constraint-empty",
-        severity: "warning",
-      });
-
-      const requestVisibility = resolveRequestVisibility(runner.program, test, "patch");
-      deepStrictEqual(
-        requestVisibility,
-        Visibility.All | Visibility.Patch | Visibility.LegacyParameterVisibility,
-      );
-      deepStrictEqual(
-        resolveRequestVisibility(runner.program, test, "get"),
-        Visibility.All | Visibility.LegacyParameterVisibility,
-      );
-
-      const [httpOperation, diagnostics] = getHttpOperation(runner.program, test);
-
-      // Ensure id parameter is not duplicated in route
-      strictEqual(httpOperation.uriTemplate, "/test/{id}");
-
-      const metadataInfo = createMetadataInfo(runner.program);
-
-      const { body: requestBody } = httpOperation.parameters;
-
-      strictEqual(diagnostics.length, 0);
-      ok(requestBody);
-      strictEqual(requestBody.bodyKind, "single");
-      strictEqual(requestBody.type.kind, "Model");
-      strictEqual(requestBody.type.name, "Example");
-
-      const properties = {
-        id: requestBody.type.properties.get("id")!,
-        stillNotVisible: requestBody.type.properties.get("stillNotVisible")!,
-        name: requestBody.type.properties.get("name")!,
-      } as const;
-
-      strictEqual(metadataInfo.isPayloadProperty(properties.id, requestVisibility), false);
-      strictEqual(
-        metadataInfo.isPayloadProperty(properties.stillNotVisible, requestVisibility),
-        false,
-      );
-      strictEqual(metadataInfo.isPayloadProperty(properties.name, requestVisibility), true);
-
-      strictEqual(metadataInfo.isOptional(properties.name, requestVisibility), false);
     });
   });
 });

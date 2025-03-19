@@ -12,9 +12,6 @@ import {
   JsSourceFileNode,
   ModelStatementNode,
   NodeFlags,
-  ProjectionExpressionStatementNode,
-  ProjectionLambdaExpressionNode,
-  ProjectionStatementNode,
   Sym,
   SymbolFlags,
   SymbolTable,
@@ -356,55 +353,6 @@ describe("compiler: binder", () => {
     assertBindings("Bar", ANode.locals!, {
       T: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
       U: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
-    });
-  });
-
-  it("binds projection statements", () => {
-    const code = `
-      projection Foo#proj {
-        to(a) { }
-      }
-      projection model#proj {
-        to(a) { }
-        from(a) { }
-      }
-      projection op#proj {
-        to(a) { }
-      }
-    `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 0);
-    assertBindings("root", script.symbol.exports!, {
-      proj: {
-        declarations: [
-          SyntaxKind.ProjectionStatement,
-          SyntaxKind.ProjectionStatement,
-          SyntaxKind.ProjectionStatement,
-        ],
-        flags: SymbolFlags.Projection | SymbolFlags.Declaration,
-      },
-    });
-    const toNode = (script.statements[0] as ProjectionStatementNode).to!;
-    assertBindings("Foo#proj to", toNode.locals!, {
-      a: { flags: SymbolFlags.ProjectionParameter | SymbolFlags.Declaration },
-    });
-  });
-
-  it("binds projection lambda expressions", () => {
-    const code = `
-      projection model#proj {
-        to() {
-          (a) => { 1; };
-        }
-      }
-    `;
-    const script = bindTypeSpec(code);
-    const lambdaNode = (
-      (script.statements[0] as ProjectionStatementNode).to!
-        .body[0] as ProjectionExpressionStatementNode
-    ).expr as ProjectionLambdaExpressionNode;
-    assertBindings("lambda", lambdaNode.locals!, {
-      a: { flags: SymbolFlags.FunctionParameter | SymbolFlags.Declaration },
     });
   });
 

@@ -209,7 +209,7 @@ None
 Specify this property is to be sent or received as an HTTP header.
 
 ```typespec
-@TypeSpec.Http.header(headerNameOrOptions?: string | TypeSpec.Http.HeaderOptions)
+@TypeSpec.Http.header(headerNameOrOptions?: valueof string | TypeSpec.Http.HeaderOptions)
 ```
 
 #### Target
@@ -218,9 +218,9 @@ Specify this property is to be sent or received as an HTTP header.
 
 #### Parameters
 
-| Name                | Type                                    | Description                                                                                                                                                                                                 |
-| ------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| headerNameOrOptions | `string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over HTTP or header options.<br />By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`) |
+| Name                | Type                                            | Description                                                                                                                                                                                                 |
+| ------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headerNameOrOptions | `valueof string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over HTTP or header options.<br />By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`) |
 
 #### Examples
 
@@ -245,24 +245,6 @@ op read(): {
 }; // headerName: content-type
 op update(@header ifMatch: string): void; // headerName: if-match
 ```
-
-### `@includeInapplicableMetadataInPayload` {#@TypeSpec.Http.includeInapplicableMetadataInPayload}
-
-Specify if inapplicable metadata should be included in the payload for the given entity.
-
-```typespec
-@TypeSpec.Http.includeInapplicableMetadataInPayload(value: valueof boolean)
-```
-
-#### Target
-
-`unknown`
-
-#### Parameters
-
-| Name  | Type              | Description                                                     |
-| ----- | ----------------- | --------------------------------------------------------------- |
-| value | `valueof boolean` | If true, inapplicable metadata will be included in the payload. |
 
 ### `@multipartBody` {#@TypeSpec.Http.multipartBody}
 
@@ -422,7 +404,7 @@ Defines the relative route URI template for the target operation as defined by [
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-@TypeSpec.Http.route(path: valueof string, options?: { shared: boolean })
+@TypeSpec.Http.route(path: valueof string)
 ```
 
 #### Target
@@ -431,10 +413,9 @@ Defines the relative route URI template for the target operation as defined by [
 
 #### Parameters
 
-| Name    | Type             | Description                                                                                                                                               |
-| ------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| path    | `valueof string` |                                                                                                                                                           |
-| options | `{...}`          | _DEPRECATED_ Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
+| Name | Type             | Description |
+| ---- | ---------------- | ----------- |
+| path | `valueof string` |             |
 
 #### Examples
 

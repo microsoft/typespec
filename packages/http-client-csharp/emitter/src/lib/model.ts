@@ -41,7 +41,7 @@ export function getInputType(
 
 export function navigateModels(sdkContext: CSharpEmitterContext) {
   for (const type of getAllModels(sdkContext)) {
-    if (type.name === "" || isAzureCoreModel(type)) {
+    if (isAzureCoreModel(type)) {
       continue;
     }
     if (type.kind === "model") {

@@ -6,9 +6,7 @@ using TypeSpec.Versioning;
 
 // Simple services that is versioned and uses metadata and visibility features.
 @versioned(Versions)
-@service({
-  title: "User service",
-})
+@service(#{ title: "User service" })
 namespace UserService {
   enum Versions {
     v1,

@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
     {
         public ExpressionsTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [Test]

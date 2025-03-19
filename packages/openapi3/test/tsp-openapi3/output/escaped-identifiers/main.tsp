@@ -5,12 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "Sample API",
-})
-@info({
-  version: "1.0.0",
-})
+@service(#{ title: "Sample API" })
+@info(#{ version: "1.0.0" })
 namespace SampleAPI;
 
 scalar `Foo-Bar` extends string;

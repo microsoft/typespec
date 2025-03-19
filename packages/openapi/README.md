@@ -107,7 +107,7 @@ Specify OpenAPI additional information.
 The service `title` and `version` are already specified using `@service`.
 
 ```typespec
-@TypeSpec.OpenAPI.info(additionalInfo: TypeSpec.OpenAPI.AdditionalInfo)
+@TypeSpec.OpenAPI.info(additionalInfo: valueof TypeSpec.OpenAPI.AdditionalInfo)
 ```
 
 ##### Target
@@ -116,9 +116,9 @@ The service `title` and `version` are already specified using `@service`.
 
 ##### Parameters
 
-| Name           | Type                                | Description            |
-| -------------- | ----------------------------------- | ---------------------- |
-| additionalInfo | [`AdditionalInfo`](#additionalinfo) | Additional information |
+| Name           | Type                                        | Description            |
+| -------------- | ------------------------------------------- | ---------------------- |
+| additionalInfo | [valueof `AdditionalInfo`](#additionalinfo) | Additional information |
 
 #### `@operationId`
 

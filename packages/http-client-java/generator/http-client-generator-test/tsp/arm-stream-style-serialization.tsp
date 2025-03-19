@@ -14,9 +14,7 @@ using TypeSpec.OpenAPI;
 using Azure.ClientGenerator.Core;
 
 @armProviderNamespace
-@service({
-  title: "ArmStreamStyleSerialization",
-})
+@service(#{ title: "ArmStreamStyleSerialization" })
 @versioned(Versions)
 @doc("Arm Resource Provider management API.")
 namespace TspTest.ArmStreamStyleSerialization;

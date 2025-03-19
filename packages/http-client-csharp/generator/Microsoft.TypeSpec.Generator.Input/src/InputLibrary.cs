@@ -25,11 +25,11 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
 
         private InputNamespace? _inputNamespace;
-        public virtual InputNamespace InputNamespace => _inputNamespace ??= Load(_codeModelPath);
+        public virtual InputNamespace InputNamespace => _inputNamespace ??= Load();
 
-        internal InputNamespace Load(string outputDirectory)
+        internal InputNamespace Load()
         {
-            var codeModelFile = Path.Combine(outputDirectory, CodeModelInputFileName);
+            var codeModelFile = Path.Combine(_codeModelPath, CodeModelInputFileName);
             if (!File.Exists(codeModelFile))
             {
                 throw new InvalidOperationException($"File {codeModelFile} does not exist.");

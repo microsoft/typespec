@@ -1,5 +1,30 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.11
+
+### Features
+
+- [#6447](https://github.com/microsoft/typespec/pull/6447) Return data stubs from scaffolded controllers
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6411](https://github.com/microsoft/typespec/pull/6411) Add support for new `dryRun` emitter option
+
+
+## 0.58.0-alpha.10
+
+### Features
+
+- [#5996](https://github.com/microsoft/typespec/pull/5996) Emitter Framework V2
+- [#6164](https://github.com/microsoft/typespec/pull/6164) Renamed package `@typespec/http-server-javascript` to `@typespec/http-server-js`.
+- [#6006](https://github.com/microsoft/typespec/pull/6006) Implement Swagger UI support when generating Express server model.
+
+
 ## 0.58.0-alpha.9
 
 ### Features

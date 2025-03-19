@@ -2,6 +2,6 @@
 
 /**
  * Package containing the data models for Json.
- * Projection.
+ * Encoded names.
  */
 package serialization.encodedname.json.property;
