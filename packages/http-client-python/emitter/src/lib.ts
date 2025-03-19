@@ -1,7 +1,12 @@
-import { SdkContext, SdkServiceOperation } from "@azure-tools/typespec-client-generator-core";
+import {
+  SdkContext,
+  SdkEmitterOptions,
+  SdkEmitterOptionsSchema,
+  SdkServiceOperation,
+} from "@azure-tools/typespec-client-generator-core";
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
-export interface PythonEmitterOptions {
+export interface PythonEmitterOptions extends SdkEmitterOptions {
   "package-version"?: string;
   "package-name"?: string;
   "output-dir"?: string;
@@ -49,6 +54,7 @@ const EmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
     "examples-dir": { type: "string", nullable: true, format: "absolute-path" },
     "enable-typespec-namespace": { type: "boolean", nullable: true },
     "use-pyodide": { type: "boolean", nullable: true },
+    ...SdkEmitterOptionsSchema.properties,
   },
   required: [],
 };
@@ -114,4 +120,4 @@ const libDef = {
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
-export const { reportDiagnostic, createStateSymbol, getTracer } = $lib;
+export const { reportDiagnostic, createDiagnostic } = $lib;
