@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-csharp",
-  "version": "0.58.0-alpha.10",
+  "version": "0.58.0-alpha.11",
   "author": "Microsoft Corporation",
   "description": "TypeSpec service code generator for c-sharp",
   "homepage": "https://typespec.io",
