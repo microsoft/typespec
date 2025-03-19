@@ -223,15 +223,11 @@ namespace RequestBody {
   @route("/default")
   @scenario
   @scenarioDoc("""
-    Test default encode (base64) for bytes in a json body.
-    Expected body:
-    "dGVzdA==" (base64 encode of test, in JSON string)
+    When content type is not defined and body is `bytes` the payload is a binary stream.
+    Stream should match packages/cadl-ranch-specs/assets/image.png file.
     """)
   @post
   op default(
-    @header
-    contentType: "application/application-json",
-
     @body
     value: bytes,
   ): NoContentResponse;
@@ -239,8 +235,8 @@ namespace RequestBody {
   @route("/octet-stream")
   @scenario
   @scenarioDoc("""
-    When content type is application/octet-stream and body is `bytes` the payload is a binary file.
-    File should match packages/cadl-ranch-specs/assets/image.png
+    When content type is application/octet-stream and body is `bytes` the payload is a binary stream.
+    Stream should match packages/cadl-ranch-specs/assets/image.png file.
     """)
   @post
   op octetStream(
@@ -255,7 +251,7 @@ namespace RequestBody {
   @scenario
   @scenarioDoc("""
     When content type is a custom type(image/png here) and body is `bytes` the payload is a binary file.
-    File should match packages/cadl-ranch-specs/assets/image.png
+    File should match packages/cadl-ranch-specs/assets/image.png.
     """)
   @post
   op customContentType(
@@ -306,9 +302,8 @@ namespace ResponseBody {
   @route("/default")
   @scenario
   @scenarioDoc("""
-    Test default encode (base64) for bytes in a json body.
-    Expected body:
-    "dGVzdA==" (base64 encode of test, in JSON string)
+    When content type is not defined and body is `bytes` the payload is a binary stream.
+    Stream should match packages/cadl-ranch-specs/assets/image.png file.
     """)
   op default(): {
     @header
@@ -321,8 +316,8 @@ namespace ResponseBody {
   @route("/octet-stream")
   @scenario
   @scenarioDoc("""
-    When content type is application/octet-stream and body is `bytes` the payload is a binary file.
-    File should match packages/cadl-ranch-specs/assets/image.png
+    When content type is application/octet-stream and body is `bytes` the payload is a binary stream.
+    Stream should match packages/cadl-ranch-specs/assets/image.png file.
     """)
   op octetStream(): {
     @header
