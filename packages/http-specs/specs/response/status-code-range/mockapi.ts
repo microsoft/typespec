@@ -5,8 +5,7 @@ export const Scenarios: Record<string, ScenarioMockApi> = {};
 Scenarios.Response_StatusCodeRange_errorResponseStatusCodeInRange = passOnCode(494, {
   uri: "/response/status-code-range/error-response-status-code-in-range",
   method: "get",
-  request: {
-  },
+  request: {},
   response: {
     status: 494,
     body: json({
@@ -20,8 +19,7 @@ Scenarios.Response_StatusCodeRange_errorResponseStatusCodeInRange = passOnCode(4
 Scenarios.Response_StatusCodeRange_errorResponseStatusCode404 = passOnCode(404, {
   uri: "/response/status-code-range/error-response-status-code-404",
   method: "get",
-  request: {
-  },
+  request: {},
   response: {
     status: 404,
     body: json({
