@@ -20,7 +20,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Authentication.Http.Custom
         [CadlRanchTest]
         public Task Invalid() => Test((host) =>
         {
-            var exception = Assert.ThrowsAsync<ClientResultException>(() => new CustomClient(host, new ApiKeyCredential("invalid-api-key"), null).InvalidAsync());
+            var exception = Assert.ThrowsAsync<ClientResultException>(() => new CustomClient(host, new ApiKeyCredential("invalid-key"), null).InvalidAsync());
             Assert.AreEqual(403, exception!.Status);
             return Task.CompletedTask;
         });

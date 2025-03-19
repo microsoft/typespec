@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Customization;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.SourceInput
 {
@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
 
         public const string CodeGenSerializationAttributeName = "CodeGenSerializationAttribute";
 
-        public static bool TryGetCodeGenMemberAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string name)
+        internal static bool TryGetCodeGenMemberAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string name)
         {
             name = null;
             if (attributeData.AttributeClass?.Name != CodeGenMemberAttributeName)
@@ -34,14 +34,15 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return name != null;
         }
 
-        public static bool TryGetCodeGenSerializationAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string propertyName, out string? serializationName, out string? serializationHook, out string? deserializationHook, out string? bicepSerializationHook)
+        public static bool TryGetCodeGenSerializationAttributeValue(AttributeStatement attribute, [MaybeNullWhen(false)] out string propertyName, out string? serializationName, out string? serializationHook, out string? deserializationHook, out string? bicepSerializationHook)
         {
             propertyName = null;
             serializationName = null;
             serializationHook = null;
             deserializationHook = null;
             bicepSerializationHook = null;
-            if (attributeData.AttributeClass?.Name != CodeGenSerializationAttributeName)
+            var attributeData = attribute.Data;
+            if (attributeData!.AttributeClass?.Name != CodeGenSerializationAttributeName)
             {
                 return false;
             }
@@ -79,7 +80,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return propertyName != null && (serializationName != null || serializationHook != null || deserializationHook != null || bicepSerializationHook != null);
         }
 
-        public static bool TryGetCodeGenModelAttributeValue(AttributeData attributeData, out string[]? usage, out string[]? formats)
+        internal static bool TryGetCodeGenModelAttributeValue(AttributeData attributeData, out string[]? usage, out string[]? formats)
         {
             usage = null;
             formats = null;

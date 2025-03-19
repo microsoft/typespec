@@ -10,7 +10,7 @@
    "name": "Bird",
    "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Bird",
    "usage": "Input,Output,Json",
-   "description": "This is base model for polymorphic single level inheritance with a discriminator.",
+   "doc": "This is base model for polymorphic single level inheritance with a discriminator.",
    "decorators": [],
    "discriminatorProperty": {
     "$id": "3",
@@ -63,7 +63,7 @@
      "name": "SeaGull",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.SeaGull",
      "usage": "Input,Output,Json",
-     "description": "The second level model in polymorphic single level inheritance.",
+     "doc": "The second level model in polymorphic single level inheritance.",
      "discriminatorValue": "seagull",
      "decorators": [],
      "baseModel": {
@@ -103,7 +103,7 @@
      "name": "Sparrow",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Sparrow",
      "usage": "Input,Output,Json",
-     "description": "The second level model in polymorphic single level inheritance.",
+     "doc": "The second level model in polymorphic single level inheritance.",
      "discriminatorValue": "sparrow",
      "decorators": [],
      "baseModel": {
@@ -143,7 +143,7 @@
      "name": "Goose",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Goose",
      "usage": "Input,Output,Json",
-     "description": "The second level model in polymorphic single level inheritance.",
+     "doc": "The second level model in polymorphic single level inheritance.",
      "discriminatorValue": "goose",
      "decorators": [],
      "baseModel": {
@@ -183,7 +183,7 @@
      "name": "Eagle",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Eagle",
      "usage": "Input,Output,Json",
-     "description": "The second level model in polymorphic single levels inheritance which contains references to other polymorphic instances.",
+     "doc": "The second level model in polymorphic single levels inheritance which contains references to other polymorphic instances.",
      "discriminatorValue": "eagle",
      "decorators": [],
      "baseModel": {
@@ -301,14 +301,14 @@
    "name": "Dinosaur",
    "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.Dinosaur",
    "usage": "Output,Json",
-   "description": "Define a base class in the legacy way. Discriminator property is not explicitly defined in the model.",
+   "doc": "Define a base class in the legacy way. Discriminator property is not explicitly defined in the model.",
    "decorators": [],
    "discriminatorProperty": {
     "$id": "31",
     "kind": "property",
     "name": "kind",
     "serializedName": "kind",
-    "description": "Discriminator property for Dinosaur.",
+    "doc": "Discriminator property for Dinosaur.",
     "type": {
      "$id": "32",
      "kind": "string",
@@ -355,7 +355,7 @@
      "name": "TRex",
      "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator.TRex",
      "usage": "Output,Json",
-     "description": "The second level legacy model in polymorphic single level inheritance.",
+     "doc": "The second level legacy model in polymorphic single level inheritance.",
      "discriminatorValue": "t-rex",
      "decorators": [],
      "baseModel": {
@@ -399,7 +399,7 @@
   {
    "$id": "40",
    "Name": "SingleDiscriminatorClient",
-   "Description": "Illustrates inheritance with single discriminator.",
+   "Doc": "Illustrates inheritance with single discriminator.",
    "Operations": [
     {
      "$id": "41",
@@ -472,7 +472,7 @@
        "$id": "47",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "48",
         "kind": "constant",
@@ -609,7 +609,7 @@
        "$id": "58",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "59",
         "kind": "constant",
@@ -867,7 +867,7 @@
      "$id": "79",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "80",
       "kind": "url",

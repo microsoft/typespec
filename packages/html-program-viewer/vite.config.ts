@@ -21,9 +21,9 @@ export default defineConfig({
       entry: {
         "react/index": "src/react/index.ts",
       },
+      cssFileName: "style",
       formats: ["es"],
     },
-
     rollupOptions: {
       external: externals,
     },

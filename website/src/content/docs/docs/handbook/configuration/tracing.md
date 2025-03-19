@@ -20,7 +20,7 @@ To log everything, use `--trace *`. This might produce a lot of output, but you 
 
 You can also specify the trace areas in the `tspconfig.yaml` file:
 
-```yaml
+```yaml title=tspconfig.yaml
 trace: *
 
 trace:

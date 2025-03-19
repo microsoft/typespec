@@ -20,7 +20,7 @@
      "kind": "enumvalue",
      "name": "kind1",
      "value": "kind1",
-     "description": "kind1",
+     "doc": "kind1",
      "valueType": {
       "$ref": "3"
      },
@@ -30,7 +30,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "description": "The WidgetData2_kind",
+   "doc": "The WidgetData2_kind",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -53,7 +53,7 @@
      "kind": "enumvalue",
      "name": "kind1",
      "value": "kind1",
-     "description": "kind1",
+     "doc": "kind1",
      "valueType": {
       "$ref": "6"
      },
@@ -63,7 +63,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "description": "The WidgetData1_kind",
+   "doc": "The WidgetData1_kind",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -86,7 +86,7 @@
      "kind": "enumvalue",
      "name": "kind0",
      "value": "kind0",
-     "description": "kind0",
+     "doc": "kind0",
      "valueType": {
       "$ref": "9"
      },
@@ -96,7 +96,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "description": "The WidgetData0_kind",
+   "doc": "The WidgetData0_kind",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -110,7 +110,7 @@
    "name": "SpreadRecordForNonDiscriminatedUnion3",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion3",
    "usage": "Input,Output,Json",
-   "description": "The model spread Record<WidgetData2[] | WidgetData1>",
+   "doc": "The model spread Record<WidgetData2[] | WidgetData1>",
    "decorators": [],
    "additionalProperties": {
     "$id": "12",
@@ -268,7 +268,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "29",
       "kind": "string",
@@ -297,7 +297,7 @@
    "name": "SpreadRecordForNonDiscriminatedUnion2",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion2",
    "usage": "Input,Output,Json",
-   "description": "The model spread Record<WidgetData2 | WidgetData1>",
+   "doc": "The model spread Record<WidgetData2 | WidgetData1>",
    "decorators": [],
    "additionalProperties": {
     "$id": "31",
@@ -319,7 +319,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "33",
       "kind": "string",
@@ -342,7 +342,7 @@
    "name": "SpreadRecordForNonDiscriminatedUnion",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion",
    "usage": "Input,Output,Json",
-   "description": "The model spread Record<WidgetData0 | WidgetData1>",
+   "doc": "The model spread Record<WidgetData0 | WidgetData1>",
    "decorators": [],
    "additionalProperties": {
     "$id": "35",
@@ -411,7 +411,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "42",
       "kind": "string",
@@ -437,7 +437,7 @@
    "name": "SpreadRecordForDiscriminatedUnion",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForDiscriminatedUnion",
    "usage": "Input,Output,Json",
-   "description": "The model spread Record<WidgetData>",
+   "doc": "The model spread Record<WidgetData>",
    "decorators": [],
    "additionalProperties": {
     "$id": "44",
@@ -459,7 +459,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "46",
       "kind": "string",
@@ -482,7 +482,7 @@
    "name": "SpreadRecordForUnion",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForUnion",
    "usage": "Input,Output,Json",
-   "description": "The model spread Record<string | float32>",
+   "doc": "The model spread Record<string | float32>",
    "decorators": [],
    "additionalProperties": {
     "$id": "48",
@@ -512,7 +512,7 @@
      "kind": "property",
      "name": "flag",
      "serializedName": "flag",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "52",
       "kind": "boolean",
@@ -535,7 +535,7 @@
    "name": "MultipleSpreadRecord",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpreadRecord",
    "usage": "Input,Output,Json",
-   "description": "The model spread Record<string> and Record<float32>",
+   "doc": "The model spread Record<string> and Record<float32>",
    "decorators": [],
    "additionalProperties": {
     "$id": "54",
@@ -565,7 +565,7 @@
      "kind": "property",
      "name": "flag",
      "serializedName": "flag",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "58",
       "kind": "boolean",
@@ -588,7 +588,7 @@
    "name": "DifferentSpreadModelArrayDerived",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived",
    "usage": "Input,Output,Json",
-   "description": "The model extends from a model that spread Record<ModelForRecord[]> with the different known property type",
+   "doc": "The model extends from a model that spread Record<ModelForRecord[]> with the different known property type",
    "decorators": [],
    "baseModel": {
     "$id": "60",
@@ -596,7 +596,7 @@
     "name": "DifferentSpreadModelArrayRecord",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord",
     "usage": "Input,Output,Json",
-    "description": "The model spread Record<ModelForRecord[]> with the different known property type",
+    "doc": "The model spread Record<ModelForRecord[]> with the different known property type",
     "decorators": [],
     "additionalProperties": {
      "$id": "61",
@@ -608,7 +608,7 @@
       "name": "ModelForRecord",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ModelForRecord",
       "usage": "Input,Output,Json",
-      "description": "model for record",
+      "doc": "model for record",
       "decorators": [],
       "properties": [
        {
@@ -616,7 +616,7 @@
         "kind": "property",
         "name": "state",
         "serializedName": "state",
-        "description": "The state property",
+        "doc": "The state property",
         "type": {
          "$id": "64",
          "kind": "string",
@@ -664,7 +664,7 @@
      "kind": "property",
      "name": "derivedProp",
      "serializedName": "derivedProp",
-     "description": "The index property",
+     "doc": "The index property",
      "type": {
       "$id": "68",
       "kind": "array",
@@ -696,7 +696,7 @@
    "name": "DifferentSpreadModelDerived",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelDerived",
    "usage": "Input,Output,Json",
-   "description": "The model extends from a model that spread Record<ModelForRecord> with the different known property type",
+   "doc": "The model extends from a model that spread Record<ModelForRecord> with the different known property type",
    "decorators": [],
    "baseModel": {
     "$id": "70",
@@ -704,7 +704,7 @@
     "name": "DifferentSpreadModelRecord",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelRecord",
     "usage": "Input,Output,Json",
-    "description": "The model spread Record<ModelForRecord> with the different known property type",
+    "doc": "The model spread Record<ModelForRecord> with the different known property type",
     "decorators": [],
     "additionalProperties": {
      "$ref": "62"
@@ -737,7 +737,7 @@
      "kind": "property",
      "name": "derivedProp",
      "serializedName": "derivedProp",
-     "description": "The index property",
+     "doc": "The index property",
      "type": {
       "$ref": "62"
      },
@@ -759,7 +759,7 @@
    "name": "DifferentSpreadFloatDerived",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatDerived",
    "usage": "Input,Output,Json",
-   "description": "The model extends from a model that spread Record<float32> with the different known property type",
+   "doc": "The model extends from a model that spread Record<float32> with the different known property type",
    "decorators": [],
    "baseModel": {
     "$id": "75",
@@ -767,7 +767,7 @@
     "name": "DifferentSpreadFloatRecord",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatRecord",
     "usage": "Input,Output,Json",
-    "description": "The model spread Record<float32> with the different known property type",
+    "doc": "The model spread Record<float32> with the different known property type",
     "decorators": [],
     "additionalProperties": {
      "$id": "76",
@@ -782,7 +782,7 @@
       "kind": "property",
       "name": "name",
       "serializedName": "name",
-      "description": "The id property",
+      "doc": "The id property",
       "type": {
        "$id": "78",
        "kind": "string",
@@ -805,7 +805,7 @@
      "kind": "property",
      "name": "derivedProp",
      "serializedName": "derivedProp",
-     "description": "The index property",
+     "doc": "The index property",
      "type": {
       "$id": "80",
       "kind": "float32",
@@ -831,7 +831,7 @@
    "name": "DifferentSpreadStringDerived",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringDerived",
    "usage": "Input,Output,Json",
-   "description": "The model extends from a model that spread Record<string> with the different known property type",
+   "doc": "The model extends from a model that spread Record<string> with the different known property type",
    "decorators": [],
    "baseModel": {
     "$id": "82",
@@ -839,7 +839,7 @@
     "name": "DifferentSpreadStringRecord",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringRecord",
     "usage": "Input,Output,Json",
-    "description": "The model spread Record<string> with the different known property type",
+    "doc": "The model spread Record<string> with the different known property type",
     "decorators": [],
     "additionalProperties": {
      "$id": "83",
@@ -854,7 +854,7 @@
       "kind": "property",
       "name": "id",
       "serializedName": "id",
-      "description": "The name property",
+      "doc": "The name property",
       "type": {
        "$id": "85",
        "kind": "float32",
@@ -877,7 +877,7 @@
      "kind": "property",
      "name": "derivedProp",
      "serializedName": "derivedProp",
-     "description": "The index property",
+     "doc": "The index property",
      "type": {
       "$id": "87",
       "kind": "string",
@@ -945,7 +945,7 @@
    "name": "IsModelArrayAdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArrayAdditionalProperties",
    "usage": "Input,Output,Json",
-   "description": "The model is from Record<ModelForRecord[]> type.",
+   "doc": "The model is from Record<ModelForRecord[]> type.",
    "decorators": [],
    "additionalProperties": {
     "$id": "93",
@@ -988,7 +988,7 @@
    "name": "ExtendsModelArrayAdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties",
    "usage": "Input,Output,Json",
-   "description": "The model extends from Record<ModelForRecord[]> type.",
+   "doc": "The model extends from Record<ModelForRecord[]> type.",
    "decorators": [],
    "additionalProperties": {
     "$id": "97",
@@ -1031,7 +1031,7 @@
    "name": "SpreadModelRecord",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelRecord",
    "usage": "Input,Output,Json",
-   "description": "The model spread Record<ModelForRecord> with the same known property type",
+   "doc": "The model spread Record<ModelForRecord> with the same known property type",
    "decorators": [],
    "additionalProperties": {
     "$ref": "62"
@@ -1060,7 +1060,7 @@
    "name": "IsModelAdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelAdditionalProperties",
    "usage": "Input,Output,Json",
-   "description": "The model is from Record<ModelForRecord> type.",
+   "doc": "The model is from Record<ModelForRecord> type.",
    "decorators": [],
    "additionalProperties": {
     "$ref": "62"
@@ -1089,7 +1089,7 @@
    "name": "ExtendsModelAdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelAdditionalProperties",
    "usage": "Input,Output,Json",
-   "description": "The model extends from Record<ModelForRecord> type.",
+   "doc": "The model extends from Record<ModelForRecord> type.",
    "decorators": [],
    "additionalProperties": {
     "$ref": "62"
@@ -1118,7 +1118,7 @@
    "name": "SpreadFloatRecord",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloatRecord",
    "usage": "Input,Output,Json",
-   "description": "The model spread Record<float32> with the same known property type",
+   "doc": "The model spread Record<float32> with the same known property type",
    "decorators": [],
    "additionalProperties": {
     "$id": "107",
@@ -1133,7 +1133,7 @@
      "kind": "property",
      "name": "id",
      "serializedName": "id",
-     "description": "The id property",
+     "doc": "The id property",
      "type": {
       "$id": "109",
       "kind": "float32",
@@ -1156,7 +1156,7 @@
    "name": "IsFloatAdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloatAdditionalProperties",
    "usage": "Input,Output,Json",
-   "description": "The model is from Record<float32> type.",
+   "doc": "The model is from Record<float32> type.",
    "decorators": [],
    "additionalProperties": {
     "$id": "111",
@@ -1171,7 +1171,7 @@
      "kind": "property",
      "name": "id",
      "serializedName": "id",
-     "description": "The id property",
+     "doc": "The id property",
      "type": {
       "$id": "113",
       "kind": "float32",
@@ -1194,7 +1194,7 @@
    "name": "ExtendsFloatAdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloatAdditionalProperties",
    "usage": "Input,Output,Json",
-   "description": "The model extends from Record<float32> type.",
+   "doc": "The model extends from Record<float32> type.",
    "decorators": [],
    "additionalProperties": {
     "$id": "115",
@@ -1209,7 +1209,7 @@
      "kind": "property",
      "name": "id",
      "serializedName": "id",
-     "description": "The id property",
+     "doc": "The id property",
      "type": {
       "$id": "117",
       "kind": "float32",
@@ -1232,7 +1232,7 @@
    "name": "SpreadStringRecord",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadStringRecord",
    "usage": "Input,Output,Json",
-   "description": "The model spread Record<string> with the same known property type",
+   "doc": "The model spread Record<string> with the same known property type",
    "decorators": [],
    "additionalProperties": {
     "$id": "119",
@@ -1247,7 +1247,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "121",
       "kind": "string",
@@ -1270,7 +1270,7 @@
    "name": "IsStringAdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsStringAdditionalProperties",
    "usage": "Input,Output,Json",
-   "description": "The model is from Record<string> type.",
+   "doc": "The model is from Record<string> type.",
    "decorators": [],
    "additionalProperties": {
     "$id": "123",
@@ -1285,7 +1285,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "125",
       "kind": "string",
@@ -1308,7 +1308,7 @@
    "name": "ExtendsStringAdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties",
    "usage": "Input,Output,Json",
-   "description": "The model extends from Record<string> type.",
+   "doc": "The model extends from Record<string> type.",
    "decorators": [],
    "additionalProperties": {
     "$id": "127",
@@ -1323,7 +1323,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "129",
       "kind": "string",
@@ -1346,7 +1346,7 @@
    "name": "IsUnknownAdditionalPropertiesDiscriminated",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated",
    "usage": "Input,Output,Json",
-   "description": "The model is Record<unknown> with a discriminator.",
+   "doc": "The model is Record<unknown> with a discriminator.",
    "decorators": [],
    "additionalProperties": {
     "$id": "131",
@@ -1360,7 +1360,7 @@
     "kind": "property",
     "name": "kind",
     "serializedName": "kind",
-    "description": "The discriminator",
+    "doc": "The discriminator",
     "type": {
      "$id": "133",
      "kind": "string",
@@ -1381,7 +1381,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "135",
       "kind": "string",
@@ -1408,7 +1408,7 @@
      "name": "IsUnknownAdditionalPropertiesDiscriminatedDerived",
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived",
      "usage": "Input,Output,Json",
-     "description": "The derived discriminated type",
+     "doc": "The derived discriminated type",
      "discriminatorValue": "derived",
      "decorators": [],
      "baseModel": {
@@ -1445,7 +1445,7 @@
        "kind": "property",
        "name": "index",
        "serializedName": "index",
-       "description": "The index property",
+       "doc": "The index property",
        "type": {
         "$id": "142",
         "kind": "int32",
@@ -1465,7 +1465,7 @@
        "kind": "property",
        "name": "age",
        "serializedName": "age",
-       "description": "The age property",
+       "doc": "The age property",
        "type": {
         "$id": "144",
         "kind": "float32",
@@ -1493,7 +1493,7 @@
    "name": "IsUnknownAdditionalPropertiesDerived",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived",
    "usage": "Input,Output,Json",
-   "description": "The model extends from a type that is Record<unknown> type",
+   "doc": "The model extends from a type that is Record<unknown> type",
    "decorators": [],
    "baseModel": {
     "$id": "146",
@@ -1501,7 +1501,7 @@
     "name": "IsUnknownAdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalProperties",
     "usage": "Input,Output,Json",
-    "description": "The model is from Record<unknown> type.",
+    "doc": "The model is from Record<unknown> type.",
     "decorators": [],
     "additionalProperties": {
      "$id": "147",
@@ -1516,7 +1516,7 @@
       "kind": "property",
       "name": "name",
       "serializedName": "name",
-      "description": "The name property",
+      "doc": "The name property",
       "type": {
        "$id": "149",
        "kind": "string",
@@ -1539,7 +1539,7 @@
      "kind": "property",
      "name": "index",
      "serializedName": "index",
-     "description": "The index property",
+     "doc": "The index property",
      "type": {
       "$id": "151",
       "kind": "int32",
@@ -1559,7 +1559,7 @@
      "kind": "property",
      "name": "age",
      "serializedName": "age",
-     "description": "The age property",
+     "doc": "The age property",
      "type": {
       "$id": "153",
       "kind": "float32",
@@ -1585,7 +1585,7 @@
    "name": "ExtendsUnknownAdditionalPropertiesDiscriminated",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated",
    "usage": "Input,Output,Json",
-   "description": "The model extends from Record<unknown> with a discriminator.",
+   "doc": "The model extends from Record<unknown> with a discriminator.",
    "decorators": [],
    "additionalProperties": {
     "$id": "155",
@@ -1599,7 +1599,7 @@
     "kind": "property",
     "name": "kind",
     "serializedName": "kind",
-    "description": "The discriminator",
+    "doc": "The discriminator",
     "type": {
      "$id": "157",
      "kind": "string",
@@ -1620,7 +1620,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "description": "The name property",
+     "doc": "The name property",
      "type": {
       "$id": "159",
       "kind": "string",
@@ -1647,7 +1647,7 @@
      "name": "ExtendsUnknownAdditionalPropertiesDiscriminatedDerived",
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived",
      "usage": "Input,Output,Json",
-     "description": "The derived discriminated type",
+     "doc": "The derived discriminated type",
      "discriminatorValue": "derived",
      "decorators": [],
      "baseModel": {
@@ -1684,7 +1684,7 @@
        "kind": "property",
        "name": "index",
        "serializedName": "index",
-       "description": "The index property",
+       "doc": "The index property",
        "type": {
         "$id": "166",
         "kind": "int32",
@@ -1704,7 +1704,7 @@
        "kind": "property",
        "name": "age",
        "serializedName": "age",
-       "description": "The age property",
+       "doc": "The age property",
        "type": {
         "$id": "168",
         "kind": "float32",
@@ -1732,7 +1732,7 @@
    "name": "ExtendsUnknownAdditionalPropertiesDerived",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived",
    "usage": "Input,Output,Json",
-   "description": "The model extends from a type that extends from Record<unknown>.",
+   "doc": "The model extends from a type that extends from Record<unknown>.",
    "decorators": [],
    "baseModel": {
     "$id": "170",
@@ -1740,7 +1740,7 @@
     "name": "ExtendsUnknownAdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalProperties",
     "usage": "Input,Output,Json",
-    "description": "The model extends from Record<unknown> type.",
+    "doc": "The model extends from Record<unknown> type.",
     "decorators": [],
     "additionalProperties": {
      "$id": "171",
@@ -1755,7 +1755,7 @@
       "kind": "property",
       "name": "name",
       "serializedName": "name",
-      "description": "The name property",
+      "doc": "The name property",
       "type": {
        "$id": "173",
        "kind": "string",
@@ -1778,7 +1778,7 @@
      "kind": "property",
      "name": "index",
      "serializedName": "index",
-     "description": "The index property",
+     "doc": "The index property",
      "type": {
       "$id": "175",
       "kind": "int32",
@@ -1798,7 +1798,7 @@
      "kind": "property",
      "name": "age",
      "serializedName": "age",
-     "description": "The age property",
+     "doc": "The age property",
      "type": {
       "$id": "177",
       "kind": "float32",
@@ -1823,7 +1823,7 @@
   {
    "$id": "178",
    "Name": "AdditionalPropertiesClient",
-   "Description": "Tests for additional properties of models",
+   "Doc": "Tests for additional properties of models",
    "Operations": [],
    "Protocol": {
     "$id": "179"
@@ -1833,7 +1833,7 @@
      "$id": "180",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "181",
       "kind": "url",
@@ -1871,7 +1871,7 @@
      "$id": "185",
      "Name": "get",
      "ResourceName": "ExtendsUnknown",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1933,14 +1933,14 @@
      "$id": "190",
      "Name": "put",
      "ResourceName": "ExtendsUnknown",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "191",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "192",
         "kind": "constant",
@@ -1968,7 +1968,7 @@
        "$id": "194",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "170"
        },
@@ -2017,7 +2017,7 @@
      "$id": "197",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "198",
       "kind": "url",
@@ -2055,7 +2055,7 @@
      "$id": "202",
      "Name": "get",
      "ResourceName": "ExtendsUnknownDerived",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2117,14 +2117,14 @@
      "$id": "207",
      "Name": "put",
      "ResourceName": "ExtendsUnknownDerived",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "208",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "209",
         "kind": "constant",
@@ -2152,7 +2152,7 @@
        "$id": "211",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "169"
        },
@@ -2201,7 +2201,7 @@
      "$id": "214",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "215",
       "kind": "url",
@@ -2239,7 +2239,7 @@
      "$id": "219",
      "Name": "get",
      "ResourceName": "ExtendsUnknownDiscriminated",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2301,14 +2301,14 @@
      "$id": "224",
      "Name": "put",
      "ResourceName": "ExtendsUnknownDiscriminated",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "225",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "226",
         "kind": "constant",
@@ -2336,7 +2336,7 @@
        "$id": "228",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "154"
        },
@@ -2385,7 +2385,7 @@
      "$id": "231",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "232",
       "kind": "url",
@@ -2423,7 +2423,7 @@
      "$id": "236",
      "Name": "get",
      "ResourceName": "IsUnknown",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2485,14 +2485,14 @@
      "$id": "241",
      "Name": "put",
      "ResourceName": "IsUnknown",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "242",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "243",
         "kind": "constant",
@@ -2520,7 +2520,7 @@
        "$id": "245",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "146"
        },
@@ -2569,7 +2569,7 @@
      "$id": "248",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "249",
       "kind": "url",
@@ -2607,7 +2607,7 @@
      "$id": "253",
      "Name": "get",
      "ResourceName": "IsUnknownDerived",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2669,14 +2669,14 @@
      "$id": "258",
      "Name": "put",
      "ResourceName": "IsUnknownDerived",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "259",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "260",
         "kind": "constant",
@@ -2704,7 +2704,7 @@
        "$id": "262",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "145"
        },
@@ -2753,7 +2753,7 @@
      "$id": "265",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "266",
       "kind": "url",
@@ -2791,7 +2791,7 @@
      "$id": "270",
      "Name": "get",
      "ResourceName": "IsUnknownDiscriminated",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2853,14 +2853,14 @@
      "$id": "275",
      "Name": "put",
      "ResourceName": "IsUnknownDiscriminated",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "276",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "277",
         "kind": "constant",
@@ -2888,7 +2888,7 @@
        "$id": "279",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "130"
        },
@@ -2937,7 +2937,7 @@
      "$id": "282",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "283",
       "kind": "url",
@@ -2975,7 +2975,7 @@
      "$id": "287",
      "Name": "get",
      "ResourceName": "ExtendsString",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3037,14 +3037,14 @@
      "$id": "292",
      "Name": "put",
      "ResourceName": "ExtendsString",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "293",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "294",
         "kind": "constant",
@@ -3072,7 +3072,7 @@
        "$id": "296",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "126"
        },
@@ -3121,7 +3121,7 @@
      "$id": "299",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "300",
       "kind": "url",
@@ -3159,7 +3159,7 @@
      "$id": "304",
      "Name": "get",
      "ResourceName": "IsString",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3221,14 +3221,14 @@
      "$id": "309",
      "Name": "put",
      "ResourceName": "IsString",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "310",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "311",
         "kind": "constant",
@@ -3256,7 +3256,7 @@
        "$id": "313",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "122"
        },
@@ -3305,7 +3305,7 @@
      "$id": "316",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "317",
       "kind": "url",
@@ -3343,7 +3343,7 @@
      "$id": "321",
      "Name": "get",
      "ResourceName": "SpreadString",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3405,14 +3405,14 @@
      "$id": "326",
      "Name": "put",
      "ResourceName": "SpreadString",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "327",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "328",
         "kind": "constant",
@@ -3440,7 +3440,7 @@
        "$id": "330",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "118"
        },
@@ -3489,7 +3489,7 @@
      "$id": "333",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "334",
       "kind": "url",
@@ -3527,7 +3527,7 @@
      "$id": "338",
      "Name": "get",
      "ResourceName": "ExtendsFloat",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3589,14 +3589,14 @@
      "$id": "343",
      "Name": "put",
      "ResourceName": "ExtendsFloat",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "344",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "345",
         "kind": "constant",
@@ -3624,7 +3624,7 @@
        "$id": "347",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "114"
        },
@@ -3673,7 +3673,7 @@
      "$id": "350",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "351",
       "kind": "url",
@@ -3711,7 +3711,7 @@
      "$id": "355",
      "Name": "get",
      "ResourceName": "IsFloat",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3773,14 +3773,14 @@
      "$id": "360",
      "Name": "put",
      "ResourceName": "IsFloat",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "361",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "362",
         "kind": "constant",
@@ -3808,7 +3808,7 @@
        "$id": "364",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "110"
        },
@@ -3857,7 +3857,7 @@
      "$id": "367",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "368",
       "kind": "url",
@@ -3895,7 +3895,7 @@
      "$id": "372",
      "Name": "get",
      "ResourceName": "SpreadFloat",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3957,14 +3957,14 @@
      "$id": "377",
      "Name": "put",
      "ResourceName": "SpreadFloat",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "378",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "379",
         "kind": "constant",
@@ -3992,7 +3992,7 @@
        "$id": "381",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "106"
        },
@@ -4041,7 +4041,7 @@
      "$id": "384",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "385",
       "kind": "url",
@@ -4079,7 +4079,7 @@
      "$id": "389",
      "Name": "get",
      "ResourceName": "ExtendsModel",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4141,14 +4141,14 @@
      "$id": "394",
      "Name": "put",
      "ResourceName": "ExtendsModel",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "395",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "396",
         "kind": "constant",
@@ -4176,7 +4176,7 @@
        "$id": "398",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "104"
        },
@@ -4225,7 +4225,7 @@
      "$id": "401",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "402",
       "kind": "url",
@@ -4263,7 +4263,7 @@
      "$id": "406",
      "Name": "get",
      "ResourceName": "IsModel",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4325,14 +4325,14 @@
      "$id": "411",
      "Name": "put",
      "ResourceName": "IsModel",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "412",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "413",
         "kind": "constant",
@@ -4360,7 +4360,7 @@
        "$id": "415",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "102"
        },
@@ -4409,7 +4409,7 @@
      "$id": "418",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "419",
       "kind": "url",
@@ -4447,7 +4447,7 @@
      "$id": "423",
      "Name": "get",
      "ResourceName": "SpreadModel",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4509,14 +4509,14 @@
      "$id": "428",
      "Name": "put",
      "ResourceName": "SpreadModel",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "429",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "430",
         "kind": "constant",
@@ -4544,7 +4544,7 @@
        "$id": "432",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "100"
        },
@@ -4593,7 +4593,7 @@
      "$id": "435",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "436",
       "kind": "url",
@@ -4631,7 +4631,7 @@
      "$id": "440",
      "Name": "get",
      "ResourceName": "ExtendsModelArray",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4693,14 +4693,14 @@
      "$id": "445",
      "Name": "put",
      "ResourceName": "ExtendsModelArray",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "446",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "447",
         "kind": "constant",
@@ -4728,7 +4728,7 @@
        "$id": "449",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "96"
        },
@@ -4777,7 +4777,7 @@
      "$id": "452",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "453",
       "kind": "url",
@@ -4815,7 +4815,7 @@
      "$id": "457",
      "Name": "get",
      "ResourceName": "IsModelArray",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4877,14 +4877,14 @@
      "$id": "462",
      "Name": "put",
      "ResourceName": "IsModelArray",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "463",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "464",
         "kind": "constant",
@@ -4912,7 +4912,7 @@
        "$id": "466",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "92"
        },
@@ -4961,7 +4961,7 @@
      "$id": "469",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "470",
       "kind": "url",
@@ -4999,7 +4999,7 @@
      "$id": "474",
      "Name": "get",
      "ResourceName": "SpreadModelArray",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5061,14 +5061,14 @@
      "$id": "479",
      "Name": "put",
      "ResourceName": "SpreadModelArray",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "480",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "481",
         "kind": "constant",
@@ -5096,7 +5096,7 @@
        "$id": "483",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "88"
        },
@@ -5145,7 +5145,7 @@
      "$id": "486",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "487",
       "kind": "url",
@@ -5183,7 +5183,7 @@
      "$id": "491",
      "Name": "get",
      "ResourceName": "SpreadDifferentString",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5245,14 +5245,14 @@
      "$id": "496",
      "Name": "put",
      "ResourceName": "SpreadDifferentString",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "497",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "498",
         "kind": "constant",
@@ -5280,7 +5280,7 @@
        "$id": "500",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "82"
        },
@@ -5329,7 +5329,7 @@
      "$id": "503",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "504",
       "kind": "url",
@@ -5367,7 +5367,7 @@
      "$id": "508",
      "Name": "get",
      "ResourceName": "SpreadDifferentFloat",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5429,14 +5429,14 @@
      "$id": "513",
      "Name": "put",
      "ResourceName": "SpreadDifferentFloat",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "514",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "515",
         "kind": "constant",
@@ -5464,7 +5464,7 @@
        "$id": "517",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "75"
        },
@@ -5513,7 +5513,7 @@
      "$id": "520",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "521",
       "kind": "url",
@@ -5551,7 +5551,7 @@
      "$id": "525",
      "Name": "get",
      "ResourceName": "SpreadDifferentModel",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5613,14 +5613,14 @@
      "$id": "530",
      "Name": "put",
      "ResourceName": "SpreadDifferentModel",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "531",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "532",
         "kind": "constant",
@@ -5648,7 +5648,7 @@
        "$id": "534",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "70"
        },
@@ -5697,7 +5697,7 @@
      "$id": "537",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "538",
       "kind": "url",
@@ -5735,7 +5735,7 @@
      "$id": "542",
      "Name": "get",
      "ResourceName": "SpreadDifferentModelArray",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5797,14 +5797,14 @@
      "$id": "547",
      "Name": "put",
      "ResourceName": "SpreadDifferentModelArray",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "548",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "549",
         "kind": "constant",
@@ -5832,7 +5832,7 @@
        "$id": "551",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "60"
        },
@@ -5881,7 +5881,7 @@
      "$id": "554",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "555",
       "kind": "url",
@@ -5919,7 +5919,7 @@
      "$id": "559",
      "Name": "get",
      "ResourceName": "ExtendsDifferentSpreadString",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5981,14 +5981,14 @@
      "$id": "564",
      "Name": "put",
      "ResourceName": "ExtendsDifferentSpreadString",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "565",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "566",
         "kind": "constant",
@@ -6016,7 +6016,7 @@
        "$id": "568",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "81"
        },
@@ -6065,7 +6065,7 @@
      "$id": "571",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "572",
       "kind": "url",
@@ -6103,7 +6103,7 @@
      "$id": "576",
      "Name": "get",
      "ResourceName": "ExtendsDifferentSpreadFloat",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6165,14 +6165,14 @@
      "$id": "581",
      "Name": "put",
      "ResourceName": "ExtendsDifferentSpreadFloat",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "582",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "583",
         "kind": "constant",
@@ -6200,7 +6200,7 @@
        "$id": "585",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "74"
        },
@@ -6249,7 +6249,7 @@
      "$id": "588",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "589",
       "kind": "url",
@@ -6287,7 +6287,7 @@
      "$id": "593",
      "Name": "get",
      "ResourceName": "ExtendsDifferentSpreadModel",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6349,14 +6349,14 @@
      "$id": "598",
      "Name": "put",
      "ResourceName": "ExtendsDifferentSpreadModel",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "599",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "600",
         "kind": "constant",
@@ -6384,7 +6384,7 @@
        "$id": "602",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "69"
        },
@@ -6433,7 +6433,7 @@
      "$id": "605",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "606",
       "kind": "url",
@@ -6471,7 +6471,7 @@
      "$id": "610",
      "Name": "get",
      "ResourceName": "ExtendsDifferentSpreadModelArray",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6533,14 +6533,14 @@
      "$id": "615",
      "Name": "put",
      "ResourceName": "ExtendsDifferentSpreadModelArray",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "616",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "617",
         "kind": "constant",
@@ -6568,7 +6568,7 @@
        "$id": "619",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "59"
        },
@@ -6617,7 +6617,7 @@
      "$id": "622",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "623",
       "kind": "url",
@@ -6655,7 +6655,7 @@
      "$id": "627",
      "Name": "get",
      "ResourceName": "MultipleSpread",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6717,14 +6717,14 @@
      "$id": "632",
      "Name": "put",
      "ResourceName": "MultipleSpread",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "633",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "634",
         "kind": "constant",
@@ -6752,7 +6752,7 @@
        "$id": "636",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "53"
        },
@@ -6801,7 +6801,7 @@
      "$id": "639",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "640",
       "kind": "url",
@@ -6839,7 +6839,7 @@
      "$id": "644",
      "Name": "get",
      "ResourceName": "SpreadRecordUnion",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6901,14 +6901,14 @@
      "$id": "649",
      "Name": "put",
      "ResourceName": "SpreadRecordUnion",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "650",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "651",
         "kind": "constant",
@@ -6936,7 +6936,7 @@
        "$id": "653",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "47"
        },
@@ -6985,7 +6985,7 @@
      "$id": "656",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "657",
       "kind": "url",
@@ -7023,7 +7023,7 @@
      "$id": "661",
      "Name": "get",
      "ResourceName": "SpreadRecordDiscriminatedUnion",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -7085,14 +7085,14 @@
      "$id": "666",
      "Name": "put",
      "ResourceName": "SpreadRecordDiscriminatedUnion",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "667",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "668",
         "kind": "constant",
@@ -7120,7 +7120,7 @@
        "$id": "670",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "43"
        },
@@ -7169,7 +7169,7 @@
      "$id": "673",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "674",
       "kind": "url",
@@ -7207,7 +7207,7 @@
      "$id": "678",
      "Name": "get",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -7269,14 +7269,14 @@
      "$id": "683",
      "Name": "put",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "684",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "685",
         "kind": "constant",
@@ -7304,7 +7304,7 @@
        "$id": "687",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "34"
        },
@@ -7353,7 +7353,7 @@
      "$id": "690",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "691",
       "kind": "url",
@@ -7391,7 +7391,7 @@
      "$id": "695",
      "Name": "get",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion2",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -7453,14 +7453,14 @@
      "$id": "700",
      "Name": "put",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion2",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "701",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "702",
         "kind": "constant",
@@ -7488,7 +7488,7 @@
        "$id": "704",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "30"
        },
@@ -7537,7 +7537,7 @@
      "$id": "707",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "708",
       "kind": "url",
@@ -7575,7 +7575,7 @@
      "$id": "712",
      "Name": "get",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion3",
-     "Description": "Get call",
+     "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -7637,14 +7637,14 @@
      "$id": "717",
      "Name": "put",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion3",
-     "Description": "Put operation",
+     "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "718",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "719",
         "kind": "constant",
@@ -7672,7 +7672,7 @@
        "$id": "721",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "body",
+       "Doc": "body",
        "Type": {
         "$ref": "11"
        },
@@ -7721,7 +7721,7 @@
      "$id": "724",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "725",
       "kind": "url",

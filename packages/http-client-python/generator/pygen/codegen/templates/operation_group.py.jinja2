@@ -31,10 +31,10 @@ class {{ operation_group.class_name }}: {{ operation_group.pylint_disable() }}
 {% endif %}
     def __init__(self, *args, **kwargs){{ return_none_type_annotation }}:
         input_args = list(args)
-        self._client = input_args.pop(0) if input_args else kwargs.pop("client")
-        self._config = input_args.pop(0) if input_args else kwargs.pop("config")
-        self._serialize = input_args.pop(0) if input_args else kwargs.pop("serializer")
-        self._deserialize = input_args.pop(0) if input_args else kwargs.pop("deserializer")
+        self._client: {{ 'Async' if async_mode else ''}}PipelineClient = input_args.pop(0) if input_args else kwargs.pop("client")
+        self._config: {{ operation_group.client.name }}Configuration = input_args.pop(0) if input_args else kwargs.pop("config")
+        self._serialize: Serializer = input_args.pop(0) if input_args else kwargs.pop("serializer")
+        self._deserialize: Deserializer = input_args.pop(0) if input_args else kwargs.pop("deserializer")
         {% if code_model.options["multiapi"] %}
         self._api_version = input_args.pop(0) if input_args else kwargs.pop("api_version")
         {% endif %}

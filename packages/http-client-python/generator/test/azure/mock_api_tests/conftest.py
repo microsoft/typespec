@@ -8,14 +8,17 @@ import subprocess
 import signal
 import pytest
 import re
-from typing import Literal
+from typing import Literal, List
 from pathlib import Path
+
+FILE_FOLDER = Path(__file__).parent
 
 
 def start_server_process():
-    path = Path(os.path.dirname(__file__)) / Path("../../../../node_modules/@azure-tools/cadl-ranch-specs")
-    os.chdir(path.resolve())
-    cmd = "cadl-ranch serve ./http  --coverageFile ./cadl-ranch-coverage-python-standard.json"
+    azure_http_path = Path(os.path.dirname(__file__)) / Path("../../../../node_modules/@azure-tools/azure-http-specs")
+    http_path = Path(os.path.dirname(__file__)) / Path("../../../../node_modules/@typespec/http-specs")
+    os.chdir(azure_http_path.resolve())
+    cmd = f"tsp-spector serve ./specs  {(http_path / 'specs').resolve()}"
     if os.name == "nt":
         return subprocess.Popen(cmd, shell=True)
     return subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
@@ -30,7 +33,7 @@ def terminate_server_process(process):
 
 @pytest.fixture(scope="session", autouse=True)
 def testserver():
-    """Start cadl ranch mock api tests"""
+    """Start spector ranch mock api tests"""
     server = start_server_process()
     yield
     terminate_server_process(server)
@@ -148,3 +151,57 @@ def authentication_policy():
     from azure.core.pipeline.policies import SansIOHTTPPolicy
 
     return SansIOHTTPPolicy()
+
+
+SPECIAL_WORDS = [
+    "and",
+    "as",
+    "assert",
+    "async",
+    "await",
+    "break",
+    "class",
+    "constructor",
+    "continue",
+    "def",
+    "del",
+    "elif",
+    "else",
+    "except",
+    "exec",
+    "finally",
+    "for",
+    "from",
+    "global",
+    "if",
+    "import",
+    "in",
+    "is",
+    "lambda",
+    "not",
+    "or",
+    "pass",
+    "raise",
+    "return",
+    "try",
+    "while",
+    "with",
+    "yield",
+]
+
+
+@pytest.fixture
+def special_words() -> List[str]:
+    return SPECIAL_WORDS
+
+
+@pytest.fixture
+def png_data() -> bytes:
+    with open(str(FILE_FOLDER / "data/image.png"), "rb") as file_in:
+        return file_in.read()
+
+
+@pytest.fixture
+def jpg_data() -> bytes:
+    with open(str(FILE_FOLDER / "data/image.jpg"), "rb") as file_in:
+        return file_in.read()

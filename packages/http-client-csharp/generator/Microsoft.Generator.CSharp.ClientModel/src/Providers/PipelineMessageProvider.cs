@@ -34,9 +34,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override MethodBodyStatement ApplyRequestOptions(HttpRequestOptionsApi options)
             => Original.Invoke(nameof(PipelineMessage.Apply), options).Terminate();
 
-        public override MethodBodyStatement[] ExtractResponse()
-            => [Return(Original.Invoke(nameof(PipelineMessage.ExtractResponse)))];
-
         public override HttpMessageApi FromExpression(ValueExpression original)
             => new PipelineMessageProvider(original);
 

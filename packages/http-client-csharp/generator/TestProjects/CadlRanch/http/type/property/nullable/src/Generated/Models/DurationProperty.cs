@@ -8,8 +8,18 @@ namespace _Type.Property.Nullable.Models
 {
     public partial class DurationProperty
     {
-        public string RequiredProperty => throw null;
+        public DurationProperty(string requiredProperty, TimeSpan? nullableProperty) => throw null;
 
-        public TimeSpan? NullableProperty => throw null;
+        public string RequiredProperty
+        {
+            get => throw null;
+            set => throw null;
+        }
+
+        public TimeSpan? NullableProperty
+        {
+            get => throw null;
+            set => throw null;
+        }
     }
 }

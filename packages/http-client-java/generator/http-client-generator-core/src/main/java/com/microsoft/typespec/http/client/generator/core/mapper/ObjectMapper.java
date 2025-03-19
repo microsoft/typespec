@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -45,27 +46,38 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
         }
 
         String classPackage;
+        String[] packageSuffixes;
         String className = compositeType.getLanguage().getJava().getName();
         if (settings.isCustomType(compositeType.getLanguage().getJava().getName())) {
-            classPackage = settings.getPackage(settings.getCustomTypesSubpackage());
+            packageSuffixes = new String[] { settings.getCustomTypesSubpackage() };
         } else if (settings.isFluent() && isInnerModel(compositeType)) {
             className += "Inner";
-            classPackage = settings.getPackage(settings.getFluentModelsSubpackage());
+            packageSuffixes = new String[] { settings.getFluentModelsSubpackage() };
         } else if (settings.isFluent() && compositeType.isFlattenedSchema()) {
-            // put class of flattened type to implementation package
-            classPackage = settings.getPackage(settings.getFluentModelsSubpackage());
+            // put class of flattened type to fluent package
+            packageSuffixes = new String[] { settings.getFluentModelsSubpackage() };
         } else if (settings.isDataPlaneClient() && isInternalModel(compositeType)) {
             // internal type is not exposed to user
-            classPackage = settings.getPackage(settings.getImplementationSubpackage(), settings.getModelsSubpackage());
+            packageSuffixes = new String[] { settings.getImplementationSubpackage(), settings.getModelsSubpackage() };
         } else if (isPageModel(compositeType)) {
             // put class of Page<> type to implementation package
             // for DPG from TypeSpec, these are not generated to class
 
             // this would not affect mgmt from Swagger, as the "usage" from m4 does not have this information.
 
-            classPackage = settings.getPackage(settings.getImplementationSubpackage(), settings.getModelsSubpackage());
+            packageSuffixes = new String[] { settings.getImplementationSubpackage(), settings.getModelsSubpackage() };
         } else {
-            classPackage = settings.getPackage(settings.getModelsSubpackage());
+            packageSuffixes = new String[] { settings.getModelsSubpackage() };
+        }
+        /*
+         * For models with language.java.namespace, it would be used as the base package name to append suffixes.
+         * Otherwise, the packageName in JavaSetting is the base package name.
+         */
+        if (!CoreUtils.isNullOrEmpty(compositeType.getLanguage().getJava().getNamespace())) {
+            classPackage
+                = settings.getPackageName(compositeType.getLanguage().getJava().getNamespace(), packageSuffixes);
+        } else {
+            classPackage = settings.getPackage(packageSuffixes);
         }
 
         return new ClassType.Builder().packageName(classPackage)
@@ -82,7 +94,11 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
      * @return The predefined type.
      */
     protected ClassType mapPredefinedModel(ObjectSchema compositeType) {
-        return SchemaUtil.mapExternalModel(compositeType);
+        if (JavaSettings.getInstance().isBranded()) {
+            return SchemaUtil.mapExternalModel(compositeType);
+        } else {
+            return null;
+        }
     }
 
     /**

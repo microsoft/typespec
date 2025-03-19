@@ -1,5 +1,43 @@
 # Change Log - @typespec/compiler
 
+## 0.64.0
+
+### Bug Fixes
+
+- [#5295](https://github.com/microsoft/typespec/pull/5295) Fix incorrectly returning a positive `BigInt` for a negative `Numeric`.
+- [#5353](https://github.com/microsoft/typespec/pull/5353) Meta property are auto-completed, current only supported '::type', '::parameters', '::returnType'
+- [#5180](https://github.com/microsoft/typespec/pull/5180) Fixed serialization of object examples on unions
+- [#5525](https://github.com/microsoft/typespec/pull/5525) Enum-driven visibility decorators and projections now interact correctly.
+
+Projections now project EnumValue values to preserve consistency with projected Enum/EnumMember types using a best-effort
+strategy.
+
+### Features
+
+- [#5415](https://github.com/microsoft/typespec/pull/5415) Added support for emitter selections for init template.
+- [#5316](https://github.com/microsoft/typespec/pull/5316) Compiler trace will be sent to IDE as trace log through language server
+- [#5594](https://github.com/microsoft/typespec/pull/5594) Support Emitters section in Init Template when creating TypeSpec project in vscode
+- [#5294](https://github.com/microsoft/typespec/pull/5294) Add capacities in TypeSpec Language Server to support "Scaffolding new TypeSpec project" in IDE
+
+
+## 0.63.0
+
+### Bug Fixes
+
+- [#5252](https://github.com/microsoft/typespec/pull/5252) Added RegEx validation for @pattern and will throw warning for invalid RegEx string
+
+### Features
+
+- [#4937](https://github.com/microsoft/typespec/pull/4937) Add mutateSubgraphWithNamespace as a separate API
+- [#4837](https://github.com/microsoft/typespec/pull/4837) Allow trailing delimiter in array values, tuple, decorator declaration, scalar initializer, etc.
+- [#5149](https://github.com/microsoft/typespec/pull/5149) Experimental: Improve Realm, Mutator, and Typekit implementations.
+
+This change strongly binds a Realm and Typekit together, and changes mutators so that new types are cloned within the
+mutator's realm. The default Typekit now creates a default typekit realm for the current program, and a Typekit can be
+easily created to work in a specific Program or Realm as needed.
+- [#4825](https://github.com/microsoft/typespec/pull/4825) Adds support for enum-driven visibility in the compiler core.
+
+
 ## 0.62.0
 
 ### Bug Fixes

@@ -11,7 +11,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal static class JsonElementSnippets
+    public static class JsonElementSnippets
     {
         private const string GetRequiredStringMethodName = "GetRequiredString";
 

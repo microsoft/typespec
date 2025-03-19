@@ -29,7 +29,8 @@ namespace Microsoft.Generator.CSharp.Input
             string? crossLanguageDefinitionId = null;
             string? accessibility = null;
             string? deprecated = null;
-            string? description = null;
+            string? summary = null;
+            string? doc = null;
             InputModelTypeUsage usage = InputModelTypeUsage.None;
             string? usageString = null;
             bool isFixed = false;
@@ -43,7 +44,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("access", ref accessibility)
                     || reader.TryReadString("deprecation", ref deprecated)
-                    || reader.TryReadString("description", ref description)
+                    || reader.TryReadString("summary", ref summary)
+                    || reader.TryReadString("doc", ref doc)
                     || reader.TryReadString("usage", ref usageString)
                     || reader.TryReadBoolean("isFixed", ref isFixed)
                     || reader.TryReadWithConverter("valueType", options, ref valueType)
@@ -57,10 +59,9 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             name = name ?? throw new JsonException("Enum must have name");
-            if (description == null)
+            if (summary is null && doc is null)
             {
-                description = "";
-                Console.Error.WriteLine($"[Warn]: Enum '{name}' must have a description");
+                Console.Error.WriteLine($"[Warn]: Enum '{name}' must have either a summary or doc");
             }
 
             if (usageString != null)
@@ -78,7 +79,7 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("The ValueType of an EnumType must be a primitive type.");
             }
 
-            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, description!, usage, inputValueType, values, !isFixed)
+            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, summary, doc, usage, inputValueType, values, !isFixed)
             {
                 Decorators = decorators ?? []
             };

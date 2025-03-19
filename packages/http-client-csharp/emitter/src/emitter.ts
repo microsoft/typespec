@@ -7,19 +7,25 @@ import {
   getDirectoryPath,
   joinPaths,
   logDiagnostics,
+  NoTarget,
   Program,
   resolvePath,
 } from "@typespec/compiler";
 
-import { spawn, SpawnOptions } from "child_process";
 import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import { configurationFileName, tspOutputFileName } from "./constants.js";
+import {
+  configurationFileName,
+  minSupportedDotNetSdkVersion,
+  tspOutputFileName,
+} from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
+import { reportDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
+import { execAsync } from "./lib/utils.js";
 import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
@@ -150,25 +156,38 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(existingProjectOption)}${constructCommandArg(debugFlag)}`;
         Logger.getInstance().info(command);
 
-        const result = await execAsync(
-          "dotnet",
-          [
-            "--roll-forward",
-            "Major",
-            generatorPath,
-            outputFolder,
-            "-p",
-            options["plugin-name"],
-            newProjectOption,
-            existingProjectOption,
-            debugFlag,
-          ],
-          { stdio: "inherit" },
-        );
-        if (result.exitCode !== 0) {
-          if (result.stderr) Logger.getInstance().error(result.stderr);
-          if (result.stdout) Logger.getInstance().verbose(result.stdout);
-          throw new Error(`Failed to generate SDK. Exit code: ${result.exitCode}`);
+        try {
+          const result = await execAsync(
+            "dotnet",
+            [
+              "--roll-forward",
+              "Major",
+              generatorPath,
+              outputFolder,
+              "-p",
+              options["plugin-name"],
+              newProjectOption,
+              existingProjectOption,
+              debugFlag,
+            ],
+            { stdio: "inherit" },
+          );
+          if (result.exitCode !== 0) {
+            const isValid = await validateDotNetSdk(
+              sdkContext.program,
+              minSupportedDotNetSdkVersion,
+            );
+            // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+            if (isValid) {
+              if (result.stderr) Logger.getInstance().error(result.stderr);
+              if (result.stdout) Logger.getInstance().verbose(result.stdout);
+              throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
+            }
+          }
+        } catch (error: any) {
+          const isValid = await validateDotNetSdk(sdkContext.program, minSupportedDotNetSdkVersion);
+          // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+          if (isValid) throw new Error(error);
         }
         if (!options["save-inputs"]) {
           // delete
@@ -180,43 +199,70 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   }
 }
 
-function constructCommandArg(arg: string): string {
-  return arg !== "" ? ` ${arg}` : "";
+/** check the dotnet sdk installation.
+ * Report diagnostic if dotnet sdk is not installed or its version does not meet prerequisite
+ * @param program The typespec compiler program
+ * @param minVersionRequisite The minimum required major version
+ */
+export async function validateDotNetSdk(
+  program: Program,
+  minMajorVersion: number,
+): Promise<boolean> {
+  try {
+    const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
+    return validateDotNetSdkVersion(program, result.stdout, minMajorVersion);
+  } catch (error: any) {
+    if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
+      reportDiagnostic(program, {
+        code: "invalid-dotnet-sdk-dependency",
+        messageId: "missing",
+        format: {
+          dotnetMajorVersion: `${minMajorVersion}`,
+          downloadUrl: "https://dotnet.microsoft.com/",
+        },
+        target: NoTarget,
+      });
+    }
+    return false;
+  }
 }
 
-async function execAsync(
-  command: string,
-  args: string[] = [],
-  options: SpawnOptions = {},
-): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
-  const child = spawn(command, args, options);
+function validateDotNetSdkVersion(
+  program: Program,
+  version: string,
+  minMajorVersion: number,
+): boolean {
+  if (version) {
+    const dotIndex = version.indexOf(".");
+    const firstPart = dotIndex === -1 ? version : version.substring(0, dotIndex);
+    const major = Number(firstPart);
 
-  return new Promise((resolve, reject) => {
-    child.on("error", (error) => {
-      reject(error);
-    });
-    const stdio: Buffer[] = [];
-    const stdout: Buffer[] = [];
-    const stderr: Buffer[] = [];
-    child.stdout?.on("data", (data) => {
-      stdout.push(data);
-      stdio.push(data);
-    });
-    child.stderr?.on("data", (data) => {
-      stderr.push(data);
-      stdio.push(data);
-    });
-
-    child.on("exit", (exitCode) => {
-      resolve({
-        exitCode: exitCode ?? -1,
-        stdio: Buffer.concat(stdio).toString(),
-        stdout: Buffer.concat(stdout).toString(),
-        stderr: Buffer.concat(stderr).toString(),
-        proc: child,
+    if (isNaN(major)) {
+      Logger.getInstance().error("Invalid .NET SDK version.");
+      return false;
+    }
+    if (major < minMajorVersion) {
+      reportDiagnostic(program, {
+        code: "invalid-dotnet-sdk-dependency",
+        messageId: "invalidVersion",
+        format: {
+          installedVersion: version,
+          dotnetMajorVersion: `${minMajorVersion}`,
+          downloadUrl: "https://dotnet.microsoft.com/",
+        },
+        target: NoTarget,
       });
-    });
-  });
+      return false;
+    }
+    return true;
+  } else {
+    Logger.getInstance().error("Cannot get the installed .NET SDK version.");
+    return false;
+  }
+}
+
+function constructCommandArg(arg: string): string {
+  return arg !== "" ? ` ${arg}` : "";
 }
 
 function transformJSONProperties(this: any, key: string, value: any): any {

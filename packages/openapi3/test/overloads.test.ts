@@ -1,9 +1,9 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { OpenAPI3Document } from "../src/types.js";
-import { openApiFor } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: overloads", () => {
+worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
   describe("overloads use same endpoint", () => {
     let res: OpenAPI3Document;
     beforeEach(async () => {

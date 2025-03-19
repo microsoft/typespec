@@ -23,6 +23,12 @@ function createServerTests(url: string, value: unknown) {
       response: {
         status: 204,
       },
+      handler: (req) => {
+        req.expect.coercedBodyEquals(value);
+        return {
+          status: 204,
+        };
+      },
       kind: "MockApiDefinition",
     }),
   };

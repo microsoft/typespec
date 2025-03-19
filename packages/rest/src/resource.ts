@@ -117,14 +117,17 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
       // to deal with multiple copies of core being used.
       ...keyProperty.decorators.filter((d) => d.decorator.name !== $visibility.name),
       {
-        decorator: $path,
-        args: [],
-      },
-      {
         decorator: $resourceTypeForKeyParam,
         args: [{ node: target.node, value: resourceType, jsValue: resourceType }],
       },
     ];
+
+    if (!keyProperty.decorators.some((d) => d.decorator.name === $path.name)) {
+      decorators.push({
+        decorator: $path,
+        args: [],
+      });
+    }
 
     // Clone the key property and ensure that an optional key property doesn't
     // become an optional path parameter

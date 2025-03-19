@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Model.Inheritance.SingleDiscriminator.Models;
 
@@ -22,56 +23,56 @@ namespace _Type.Model.Inheritance.SingleDiscriminator
 
         public virtual Task<ClientResult> GetModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Bird> GetModel() => throw null;
+        public virtual ClientResult<Bird> GetModel(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Bird>> GetModelAsync() => throw null;
+        public virtual Task<ClientResult<Bird>> GetModelAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutModel(Bird input) => throw null;
+        public virtual ClientResult PutModel(Bird input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutModelAsync(Bird input) => throw null;
+        public virtual Task<ClientResult> PutModelAsync(Bird input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetRecursiveModel(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> GetRecursiveModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Bird> GetRecursiveModel() => throw null;
+        public virtual ClientResult<Bird> GetRecursiveModel(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Bird>> GetRecursiveModelAsync() => throw null;
+        public virtual Task<ClientResult<Bird>> GetRecursiveModelAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutRecursiveModel(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutRecursiveModel(Bird input) => throw null;
+        public virtual ClientResult PutRecursiveModel(Bird input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutRecursiveModelAsync(Bird input) => throw null;
+        public virtual Task<ClientResult> PutRecursiveModelAsync(Bird input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetMissingDiscriminator(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> GetMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Bird> GetMissingDiscriminator() => throw null;
+        public virtual ClientResult<Bird> GetMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Bird>> GetMissingDiscriminatorAsync() => throw null;
+        public virtual Task<ClientResult<Bird>> GetMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetWrongDiscriminator(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> GetWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Bird> GetWrongDiscriminator() => throw null;
+        public virtual ClientResult<Bird> GetWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Bird>> GetWrongDiscriminatorAsync() => throw null;
+        public virtual Task<ClientResult<Bird>> GetWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetLegacyModel(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> GetLegacyModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Dinosaur> GetLegacyModel() => throw null;
+        public virtual ClientResult<Dinosaur> GetLegacyModel(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Dinosaur>> GetLegacyModelAsync() => throw null;
+        public virtual Task<ClientResult<Dinosaur>> GetLegacyModelAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

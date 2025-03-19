@@ -38,7 +38,8 @@ namespace Microsoft.Generator.CSharp.Input
 
             string? name = null;
             string? resourceName = null;
-            string? description = null;
+            string? summary = null;
+            string? doc = null;
             string? deprecated = null;
             string? accessibility = null;
             IReadOnlyList<InputParameter>? parameters = null;
@@ -61,7 +62,8 @@ namespace Microsoft.Generator.CSharp.Input
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputOperation.Name), ref name)
                     || reader.TryReadString(nameof(InputOperation.ResourceName), ref resourceName)
-                    || reader.TryReadString(nameof(InputOperation.Description), ref description)
+                    || reader.TryReadString("Summary", ref summary)
+                    || reader.TryReadString("Doc", ref doc)
                     || reader.TryReadString(nameof(InputOperation.Deprecated), ref deprecated)
                     || reader.TryReadString(nameof(InputOperation.Accessibility), ref accessibility)
                     || reader.TryReadWithConverter(nameof(InputOperation.Parameters), options, ref parameters)
@@ -88,7 +90,8 @@ namespace Microsoft.Generator.CSharp.Input
 
             operation.Name = name ?? throw new JsonException("InputOperation must have name");
             operation.ResourceName = resourceName;
-            operation.Description = description ?? name; // default to name to avoid a case that we do not have description (and leads to no xml doc at all)
+            operation.Summary = summary;
+            operation.Doc = doc;
             operation.Deprecated = deprecated;
             operation.Accessibility = accessibility;
             operation.Parameters = parameters ?? Array.Empty<InputParameter>();

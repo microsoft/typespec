@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Tests.Common;
 using Moq;
@@ -19,14 +21,29 @@ namespace Microsoft.Generator.CSharp.Tests
         public const string TestHelpersFolder = "TestHelpers";
 
         public async static Task<Mock<CodeModelPlugin>> LoadMockPluginAsync(
-            Func<InputType, CSharpType>? createCSharpTypeCore = null,
+            Func<InputType, CSharpType?>? createCSharpTypeCore = null,
+            Func<InputModelType, ModelProvider?>? createModelCore = null,
+            Func<InputEnumType, TypeProvider?, EnumProvider?>? createEnumCore = null,
             Func<OutputLibrary>? createOutputLibrary = null,
             string? configuration = null,
             InputModelType[]? inputModelTypes = null,
             InputEnumType[]? inputEnumTypes = null,
-            Func<Task<Compilation>>? compilation = null)
+            Func<Task<Compilation>>? compilation = null,
+            IEnumerable<MetadataReference>? additionalMetadataReferences = null,
+            IEnumerable<string>? sharedSourceDirectories = null,
+            IEnumerable<string>? typesToKeep = null)
         {
-            var mockPlugin = LoadMockPlugin(createCSharpTypeCore, createOutputLibrary, configuration, inputModelTypes, inputEnumTypes);
+            var mockPlugin = LoadMockPlugin(
+                createCSharpTypeCore,
+                createModelCore,
+                createEnumCore,
+                createOutputLibrary,
+                configuration,
+                inputModelTypes,
+                inputEnumTypes,
+                additionalMetadataReferences,
+                sharedSourceDirectories,
+                typesToKeep);
 
             var compilationResult = compilation == null ? null : await compilation();
 
@@ -37,11 +54,16 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         public static Mock<CodeModelPlugin> LoadMockPlugin(
-            Func<InputType, CSharpType>? createCSharpTypeCore = null,
+            Func<InputType, CSharpType?>? createCSharpTypeCore = null,
+            Func<InputModelType, ModelProvider?>? createModelCore = null,
+            Func<InputEnumType, TypeProvider?, EnumProvider?>? createEnumCore = null,
             Func<OutputLibrary>? createOutputLibrary = null,
             string? configuration = null,
             InputModelType[]? inputModelTypes = null,
-            InputEnumType[]? inputEnumTypes = null)
+            InputEnumType[]? inputEnumTypes = null,
+            IEnumerable<MetadataReference>? additionalMetadataReferences = null,
+            IEnumerable<string>? sharedSourceDirectories = null,
+            IEnumerable<string>? typesToKeep = null)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
@@ -51,7 +73,17 @@ namespace Microsoft.Generator.CSharp.Tests
 
             if (createCSharpTypeCore != null)
             {
-                mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) => createCSharpTypeCore.Invoke(inputType));
+                mockTypeFactory.Protected().Setup<CSharpType?>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) => createCSharpTypeCore.Invoke(inputType));
+            }
+
+            if (createModelCore != null)
+            {
+                mockTypeFactory.Protected().Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>()).Returns((InputModelType inputModel) => createModelCore.Invoke(inputModel));
+            }
+
+            if (createEnumCore != null)
+            {
+                mockTypeFactory.Protected().Setup<TypeProvider?>("CreateEnumCore", ItExpr.IsAny<InputEnumType>(), ItExpr.IsAny<TypeProvider?>()).Returns((InputEnumType inputEnum, TypeProvider? type) => createEnumCore.Invoke(inputEnum, type));
             }
 
             if (createOutputLibrary != null)
@@ -71,6 +103,30 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
             mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+
+            if (additionalMetadataReferences != null)
+            {
+                foreach (var reference in additionalMetadataReferences)
+                {
+                    mockPlugin.Object.AddMetadataReference(reference);
+                }
+            }
+
+            if (sharedSourceDirectories != null)
+            {
+                foreach (var directory in sharedSourceDirectories)
+                {
+                    mockPlugin.Object.AddSharedSourceDirectory(directory);
+                }
+            }
+
+            if (typesToKeep != null)
+            {
+                foreach (var type in typesToKeep)
+                {
+                    mockPlugin.Object.AddTypeToKeep(type);
+                }
+            }
 
             CodeModelPlugin.Instance = mockPlugin.Object;
 

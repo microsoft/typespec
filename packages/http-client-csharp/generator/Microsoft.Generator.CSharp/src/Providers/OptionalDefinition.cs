@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _tValue = _genericChangeTrackingDictionary.Arguments[1];
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }

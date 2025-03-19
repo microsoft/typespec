@@ -19,7 +19,7 @@ public class AndroidMethodGroupClient extends MethodGroupClient {
             classBaseName != null
                 ? classBaseName
                 : (className.endsWith("Impl") ? className.substring(0, className.length() - 4) : className),
-            null);
+            null, null);
     }
 
     @Override

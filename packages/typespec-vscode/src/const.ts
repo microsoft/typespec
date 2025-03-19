@@ -1,3 +1,2 @@
-export const enum SettingName {
-  TspServerPath = "typespec.tsp-server.path",
-}
+export const StartFileName = "main.tsp";
+export const TspConfigFileName = "tspconfig.yaml";

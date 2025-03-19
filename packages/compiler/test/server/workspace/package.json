@@ -9,10 +9,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "fake-emitter-no-schema": "0.1.2"
+    "fake-emitter-no-schema": "0.1.2",
+    "fake-linter-no-schema": "0.1.2"
   },
   "dependencies": {
     "fake-emitter": "0.0.2",
+    "fake-linter": "0.0.2",
     "fake-yaml": "0.0.1",
     "not-exist": "0.0.1"
   }

@@ -387,6 +387,160 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
+    it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist in arrays", async () => {
+      const diagnostics = await runner.diagnose(`        
+        @test
+        @added(Versions.v2)
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        @test
+        model Test {
+          @typeChangedFrom(Versions.v2, Original[])
+          prop: Updated[];
+        }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        severity: "error",
+        message:
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
+      });
+    });
+
+    it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist in records", async () => {
+      const diagnostics = await runner.diagnose(`        
+        @test
+        @added(Versions.v2)
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        @test
+        model Test {
+          @typeChangedFrom(Versions.v2, Record<Original>)
+          prop: Record<Updated>;
+        }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        severity: "error",
+        message:
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
+      });
+    });
+
+    it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist in unions", async () => {
+      const diagnostics = await runner.diagnose(`        
+        @test
+        @added(Versions.v2)
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        @test
+        model Test {
+          @typeChangedFrom(Versions.v2, Original | string)
+          prop: Updated;
+        }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        severity: "error",
+        message:
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
+      });
+    });
+
+    it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist in named unions", async () => {
+      const diagnostics = await runner.diagnose(`        
+        @test
+        @added(Versions.v2)
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        @test
+        union InvalidUnion {
+          string,
+          Updated,
+        }
+
+        @test
+        model Test {
+          @typeChangedFrom(Versions.v2, InvalidUnion)
+          prop: string;
+        }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        severity: "error",
+        message:
+          "'TestService.Updated' is referencing versioned type 'TestService.Updated' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist in tuples", async () => {
+      const diagnostics = await runner.diagnose(`        
+        @test
+        @added(Versions.v2)
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        @test
+        model Test {
+          @typeChangedFrom(Versions.v2, [Original, string])
+          prop: [Updated, string];
+        }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        severity: "error",
+        message:
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
+      });
+    });
+
+    it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist in template", async () => {
+      const diagnostics = await runner.diagnose(`        
+        @test
+        @added(Versions.v2)
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        model Template<T> {
+          prop: T;
+        }
+
+        @test
+        model Test {
+          @typeChangedFrom(Versions.v2, Template<Original>)
+          prop: Template<Updated>;
+        }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        severity: "error",
+        message:
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
+      });
+    });
+
     it("succeed if version are compatible in model", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)

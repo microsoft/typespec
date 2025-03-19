@@ -8,16 +8,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.OutputTypes
 {
     internal class ScmKnownParametersTests
     {
-        [Test]
-        public void TestTokenAuth()
-        {
-            MockHelpers.LoadMockPlugin(keyCredentialType: () => typeof(int));
-
-            var result = ClientModelPlugin.Instance.TypeFactory.KeyCredentialType;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(new CSharpType(typeof(int)), result);
-        }
-
         [TestCase]
         public void TestMatchConditionsParameter()
         {

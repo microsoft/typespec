@@ -7,7 +7,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "Multipart",
 })
-namespace Cadl.Multipart;
+namespace TspTest.Multipart;
 
 union ImageType {
   string,

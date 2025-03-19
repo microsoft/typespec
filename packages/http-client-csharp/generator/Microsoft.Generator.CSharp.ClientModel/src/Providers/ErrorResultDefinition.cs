@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private bool IsClientResult => ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType == typeof(ClientResult<>);
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal;
         }

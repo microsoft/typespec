@@ -7,7 +7,7 @@ using Encode.Datetime;
 using Encode.Datetime.Models;
 using NUnit.Framework;
 
-namespace TestProjects.CadlRanch.Tests.Http.Encode.DateTime
+namespace TestProjects.CadlRanch.Tests.Http.Encode.Datetime
 {
     public class DateTimeTests : CadlRanchTestBase
     {

@@ -150,7 +150,10 @@ namespace Microsoft.Generator.CSharp
         /// <summary> Gets the namespace for the models. </summary>
         public string ModelNamespace { get; }
 
-        internal string OutputDirectory { get; }
+        /// <summary>
+        /// Gets the root output directory for the generated library.
+        /// </summary>
+        public string OutputDirectory { get; }
 
         internal static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.RemoveOrInternalize;
 

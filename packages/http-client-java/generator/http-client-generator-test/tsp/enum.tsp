@@ -9,7 +9,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "EnumService",
 })
-namespace Cadl.EnumService;
+namespace TspTest.EnumService;
 
 #suppress "@azure-tools/typespec-azure-core/use-extensible-enum" "For testing"
 enum Color {
@@ -80,7 +80,7 @@ model Operation {
 }
 
 @client({
-  service: Cadl.EnumService,
+  service: TspTest.EnumService,
   name: "EnumServiceClient",
 })
 @route("/enum")

@@ -21,7 +21,7 @@ export interface InputOperation {
   ResourceName?: string;
   Summary?: string;
   Deprecated?: string;
-  Description?: string;
+  Doc?: string;
   Accessibility?: string;
   Parameters: InputParameter[];
   Responses: OperationResponse[];

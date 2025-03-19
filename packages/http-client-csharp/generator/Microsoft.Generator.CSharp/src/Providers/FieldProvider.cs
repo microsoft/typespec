@@ -49,7 +49,8 @@ namespace Microsoft.Generator.CSharp.Providers
             string name,
             TypeProvider enclosingType,
             FormattableString? description = null,
-            ValueExpression? initializationValue = null)
+            ValueExpression? initializationValue = null,
+            PropertyWireInformation? wireInfo = null)
         {
             Modifiers = modifiers;
             Type = type;
@@ -58,6 +59,7 @@ namespace Microsoft.Generator.CSharp.Providers
             InitializationValue = initializationValue;
             XmlDocs = Description is not null ? new XmlDocProvider() { Summary = new XmlDocSummaryStatement([Description]) } : null;
             EnclosingType = enclosingType;
+            WireInfo = wireInfo;
 
             InitializeParameter();
         }
@@ -66,7 +68,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private void InitializeParameter()
         {
             _parameter = new(() => new ParameterProvider(
-                Name.ToVariableName(), Description ?? FormattableStringHelpers.Empty, Type, field: this));
+                Name.ToVariableName(), Description ?? FormattableStringHelpers.Empty, Type, field: this, wireInfo: WireInfo));
         }
 
         private MemberExpression? _asMember;

@@ -13,7 +13,7 @@ using Azure.ClientGenerator.Core;
   title: "Response",
 })
 @versioned(ApiVersions)
-namespace Cadl.Response;
+namespace TspTest.Response;
 
 enum ApiVersions {
   @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
@@ -78,34 +78,34 @@ model OperationDetails2 {
   error?: Azure.Core.Foundations.Error;
 
   @lroResult
+  @clientName("longRunningResult", "java")
+  @encodedName("application/json", "lro_result")
   lroResult?: Resource;
 }
 
 @pagedResult
 model StringsList {
   @items
+  @clientName("items", "java")
+  @encodedName("application/json", "items_value")
   value: string[];
 
-  @global.Azure.Core.nextLink
-  nextLink?: string;
+  @nextLink
+  @clientName("nextLink", "java")
+  @encodedName("application/json", "next_link")
+  next?: string;
 }
 
 @pagedResult
 model Int32sList {
   @items
   value: int32[];
-
-  @global.Azure.Core.nextLink
-  nextLink?: string;
 }
 
 @pagedResult
 model DateTimesList {
   @items
   value: utcDateTime[];
-
-  @global.Azure.Core.nextLink
-  nextLink?: string;
 }
 
 op CustomLongRunningOperation<
@@ -122,7 +122,7 @@ op CustomLongRunningOperation<
 
 @Azure.ClientGenerator.Core.client({
   name: "ResponseClient",
-  service: Cadl.Response,
+  service: TspTest.Response,
 })
 @doc("Response")
 @route("/response")

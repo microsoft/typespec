@@ -9,11 +9,10 @@ import {
   SchemaType,
 } from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
-import { CrossLanguageDefinition } from "./client.js";
 import { LongRunningMetadata } from "./long-running-metadata.js";
 
 /** represents a single callable endpoint with a discrete set of inputs, and any number of output possibilities (responses or exceptions)  */
-export interface Operation extends Aspect, CrossLanguageDefinition {
+export interface Operation extends Aspect {
   /**
    * Original Operation ID if present.
    * This can be used to identify the original id of an operation before it is styled.

@@ -4,10 +4,16 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
   --header-height: 50px;
   --sl-color-text-accent: var(--colorBrandForeground1);
+  --sl-color-gray-2: var(--colorNeutralForeground1);
   --sl-color-gray-5: var(--colorNeutralStroke1);
+}
+
+:root[data-theme="dark"] {
   --sl-color-bg-inline-code: var(--ec-frm-edBg);
 }
 
@@ -30,7 +36,7 @@ img {
 
 a {
   color: var(--colorBrandForeground1);
-  text-decoration: var(--ifm-link-decoration);
+  text-decoration: none;
   transition: color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
 }
 

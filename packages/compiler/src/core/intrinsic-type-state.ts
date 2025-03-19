@@ -1,13 +1,10 @@
 // Contains all intrinsic data setter or getter
 // Anything that the TypeSpec check might should be here.
 
+import { createStateSymbol } from "../lib/utils.js";
 import type { Model, Type, Union } from "./index.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
-
-function createStateSymbol(name: string) {
-  return Symbol.for(`TypeSpec.${name}`);
-}
 
 const stateKeys = {
   minValues: createStateSymbol("minValues"),

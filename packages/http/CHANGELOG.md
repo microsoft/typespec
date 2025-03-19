@@ -1,5 +1,19 @@
 # Change Log - @typespec/http
 
+## 0.64.0
+
+### Features
+
+- [#5153](https://github.com/microsoft/typespec/pull/5153) Adds getStreamMetadata JS API to simplify getting stream metadata from operation parameters and responses.
+
+
+## 0.63.0
+
+### Bug Fixes
+
+- [#5016](https://github.com/microsoft/typespec/pull/5016) Uri template attributes were not extracted when parameter was explicitly mark with `@path` or `@query` as well
+
+
 ## 0.62.0
 
 ### Bug Fixes

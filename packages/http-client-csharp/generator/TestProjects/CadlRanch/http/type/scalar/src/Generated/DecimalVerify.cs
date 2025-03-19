@@ -5,6 +5,7 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace _Type.Scalar
@@ -19,16 +20,16 @@ namespace _Type.Scalar
 
         public virtual Task<ClientResult> PrepareVerifyAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IList<decimal>> PrepareVerify() => throw null;
+        public virtual ClientResult<IList<decimal>> PrepareVerify(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<IList<decimal>>> PrepareVerifyAsync() => throw null;
+        public virtual Task<ClientResult<IList<decimal>>> PrepareVerifyAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Verify(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> VerifyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Verify(decimal body) => throw null;
+        public virtual ClientResult Verify(decimal body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> VerifyAsync(decimal body) => throw null;
+        public virtual Task<ClientResult> VerifyAsync(decimal body, CancellationToken cancellationToken = default) => throw null;
     }
 }

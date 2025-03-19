@@ -44,6 +44,8 @@ configuration:
                 - hasLabel:
                     label: emitter:client:python
                 - hasLabel:
+                    label: emitter:graphql
+                - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
                     label: emitter:protobuf
@@ -57,6 +59,8 @@ configuration:
                     label: emitter:service:js
                 - hasLabel:
                     label: emitter:service:java
+                - hasLabel:
+                    label: spector
                 - hasLabel:
                     label: eng
                 - hasLabel:
@@ -100,6 +104,8 @@ configuration:
               - labelAdded:
                   label: emitter:client:python
               - labelAdded:
+                  label: emitter:graphql
+              - labelAdded:
                   label: emitter:json-schema
               - labelAdded:
                   label: emitter:protobuf
@@ -113,6 +119,8 @@ configuration:
                   label: emitter:service:js
               - labelAdded:
                   label: emitter:service:java
+              - labelAdded:
+                  label: spector
               - labelAdded:
                   label: eng
               - labelAdded:
@@ -157,6 +165,8 @@ configuration:
               - labelRemoved:
                   label: emitter:client:python
               - labelRemoved:
+                  label: emitter:graphql
+              - labelRemoved:
                   label: emitter:json-schema
               - labelRemoved:
                   label: emitter:protobuf
@@ -170,6 +180,8 @@ configuration:
                   label: emitter:service:js
               - labelRemoved:
                   label: emitter:service:java
+              - labelRemoved:
+                  label: spector
               - labelRemoved:
                   label: eng
               - labelRemoved:
@@ -205,6 +217,8 @@ configuration:
                 - hasLabel:
                     label: emitter:client:python
                 - hasLabel:
+                    label: emitter:graphql
+                - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
                     label: emitter:protobuf
@@ -218,6 +232,8 @@ configuration:
                     label: emitter:service:js
                 - hasLabel:
                     label: emitter:service:java
+                - hasLabel:
+                    label: spector
                 - hasLabel:
                     label: eng
                 - hasLabel:

@@ -9,7 +9,7 @@
    "kind": "model",
    "name": "InvalidAuth",
    "crossLanguageDefinitionId": "Authentication.OAuth2.InvalidAuth",
-   "usage": "Output,Error,Json",
+   "usage": "Error,Json,Exception",
    "decorators": [],
    "properties": [
     {
@@ -38,13 +38,13 @@
   {
    "$id": "5",
    "Name": "OAuth2Client",
-   "Description": "Illustrates clients generated with OAuth2 authentication.",
+   "Doc": "Illustrates clients generated with OAuth2 authentication.",
    "Operations": [
     {
      "$id": "6",
      "Name": "valid",
      "ResourceName": "OAuth2",
-     "Description": "Check whether client is authenticated",
+     "Doc": "Check whether client is authenticated",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -72,7 +72,7 @@
      "$id": "8",
      "Name": "invalid",
      "ResourceName": "OAuth2",
-     "Description": "Check whether client is authenticated. Will return an invalid bearer error.",
+     "Doc": "Check whether client is authenticated. Will return an invalid bearer error.",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -133,7 +133,7 @@
      "$id": "14",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "15",
       "kind": "url",

@@ -9,27 +9,31 @@ import { logger } from "../logger.js";
 export interface UploadScenarioManifestConfig {
   scenariosPaths: string[];
   storageAccountName: string;
-  setName: string;
+  setNames: string[];
+  containerName: string;
 }
 
 export async function uploadScenarioManifest({
   scenariosPaths,
   storageAccountName,
-  setName,
+  setNames,
+  containerName,
 }: UploadScenarioManifestConfig) {
   const manifests = [];
-  for (const scenariosPath of scenariosPaths) {
-    const path = resolve(process.cwd(), scenariosPath);
+  for (let idx = 0; idx < scenariosPaths.length; idx++) {
+    const path = resolve(process.cwd(), scenariosPaths[idx]);
     logger.info(`Computing scenario manifest for ${path}`);
-    const [manifest, diagnostics] = await computeScenarioManifest(path, setName);
+    const [manifest, diagnostics] = await computeScenarioManifest(path, setNames[idx]);
     if (manifest === undefined || diagnostics.length > 0) {
       process.exit(-1);
     }
     manifests.push(manifest);
   }
-
   await writeFile("manifest.json", JSON.stringify(manifests, null, 2));
-  const client = new SpecCoverageClient(storageAccountName, new AzureCliCredential());
+  const client = new SpecCoverageClient(storageAccountName, {
+    credential: new AzureCliCredential(),
+    containerName,
+  });
   await client.createIfNotExists();
   await client.manifest.upload(manifests);
 

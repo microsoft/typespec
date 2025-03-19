@@ -1,11 +1,11 @@
 import type { IntrinsicScalarName, Scalar } from "@typespec/compiler";
 import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
-import type { OpenAPI3Schema } from "./types.js";
+import type { OpenAPI3Schema, OpenAPISchema3_1 } from "./types.js";
 
 export function getSchemaForStdScalars(
   scalar: Scalar & { name: IntrinsicScalarName },
   options: ResolvedOpenAPI3EmitterOptions,
-): OpenAPI3Schema {
+): OpenAPI3Schema & OpenAPISchema3_1 {
   switch (scalar.name) {
     case "bytes":
       return { type: "string", format: "byte" };

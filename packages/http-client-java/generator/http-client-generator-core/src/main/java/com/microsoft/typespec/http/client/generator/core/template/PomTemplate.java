@@ -216,9 +216,9 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
         pluginsBlock.block("plugin", pluginBlock -> {
             pluginBlock.tag("groupId", "org.apache.maven.plugins");
             pluginBlock.tag("artifactId", "maven-compiler-plugin");
-            pluginBlock.tag("version", "3.10.1");
+            pluginBlock.tag("version", "3.13.0");
             pluginBlock.block("configuration", configurationBlock -> {
-                configurationBlock.tag("release", "11");
+                configurationBlock.tag("release", JavaSettings.getInstance().isBranded() ? "11" : "17");
             });
         });
 
@@ -226,7 +226,7 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
         pluginsBlock.block("plugin", pluginBlock -> {
             pluginBlock.tag("groupId", "org.apache.maven.plugins");
             pluginBlock.tag("artifactId", "maven-source-plugin");
-            pluginBlock.tag("version", "3.3.0");
+            pluginBlock.tag("version", "3.3.1");
             pluginBlock.block("executions", executionsBlock -> {
                 executionsBlock.block("execution", executionBlock -> {
                     executionBlock.tag("id", "attach-sources");

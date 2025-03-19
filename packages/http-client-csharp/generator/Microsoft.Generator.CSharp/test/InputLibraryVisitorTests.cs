@@ -22,7 +22,9 @@ namespace Microsoft.Generator.CSharp.Tests
         [SetUp]
         public void Setup()
         {
-            _mockPlugin = MockHelpers.LoadMockPlugin();
+            _mockPlugin = MockHelpers.LoadMockPlugin(
+                createModelCore: inputModelType => new ModelProvider(inputModelType),
+                createEnumCore: (inputEnumType, _) => EnumProvider.Create(inputEnumType));
             _mockVisitor = new Mock<LibraryVisitor> { CallBase = true };
             _mockInputLibrary = new Mock<InputLibrary>();
             _mockPlugin.Setup(p => p.InputLibrary).Returns(_mockInputLibrary.Object);
@@ -55,9 +57,22 @@ namespace Microsoft.Generator.CSharp.Tests
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
-            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
-
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputEnum, ItExpr.Is<EnumProvider>(m => m.Name == EnumProvider.Create(inputEnum, null).Name));
+        }
+
+        [Test]
+        public void PreVisitsModel()
+        {
+            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
+            var inputEnum = InputFactory.Enum("enum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.Input, values: [InputFactory.EnumMember.Int32("value", 1)]);
+            var inputModelProperty = InputFactory.Property("prop1", inputEnum, true, true);
+            var inputModel = InputFactory.Model("foo", "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
+
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
+
+            _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
+
+            _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
         }
 
         [Test]

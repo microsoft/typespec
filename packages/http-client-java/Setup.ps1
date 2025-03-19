@@ -1,4 +1,4 @@
 # re-build http-client-java
-npm install 
+npm ci 
 npm run clean && npm run build
 npm pack

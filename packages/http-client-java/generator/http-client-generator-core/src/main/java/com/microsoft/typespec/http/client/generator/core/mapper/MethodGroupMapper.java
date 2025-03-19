@@ -17,6 +17,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Servi
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -164,6 +165,8 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
                 .filter(p -> Objects.equals("serviceVersion", p.getName()))
                 .collect(Collectors.toList()));
         }
+
+        builder.crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(methodGroup));
 
         return builder.build();
     }

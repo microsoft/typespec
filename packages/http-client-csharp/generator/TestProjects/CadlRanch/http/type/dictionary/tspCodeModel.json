@@ -10,7 +10,7 @@
    "name": "InnerModel",
    "crossLanguageDefinitionId": "Type.Dictionary.InnerModel",
    "usage": "Input,Output,Json",
-   "description": "Dictionary inner model",
+   "doc": "Dictionary inner model",
    "decorators": [],
    "properties": [
     {
@@ -18,7 +18,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Required string property",
+     "doc": "Required string property",
      "type": {
       "$id": "4",
       "kind": "string",
@@ -67,7 +67,7 @@
   {
    "$id": "8",
    "Name": "DictionaryClient",
-   "Description": "Illustrates various of dictionaries.",
+   "Doc": "Illustrates various of dictionaries.",
    "Operations": [],
    "Protocol": {
     "$id": "9"
@@ -77,7 +77,7 @@
      "$id": "10",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "11",
       "kind": "url",
@@ -110,7 +110,7 @@
   {
    "$id": "14",
    "Name": "Int32Value",
-   "Description": "Dictionary of int32 values",
+   "Doc": "Dictionary of int32 values",
    "Operations": [
     {
      "$id": "15",
@@ -199,7 +199,7 @@
        "$id": "24",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "25",
         "kind": "constant",
@@ -291,7 +291,7 @@
      "$id": "33",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "34",
       "kind": "url",
@@ -324,7 +324,7 @@
   {
    "$id": "37",
    "Name": "Int64Value",
-   "Description": "Dictionary of int64 values",
+   "Doc": "Dictionary of int64 values",
    "Operations": [
     {
      "$id": "38",
@@ -413,7 +413,7 @@
        "$id": "47",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "48",
         "kind": "constant",
@@ -505,7 +505,7 @@
      "$id": "56",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "57",
       "kind": "url",
@@ -538,7 +538,7 @@
   {
    "$id": "60",
    "Name": "BooleanValue",
-   "Description": "Dictionary of boolean values",
+   "Doc": "Dictionary of boolean values",
    "Operations": [
     {
      "$id": "61",
@@ -627,7 +627,7 @@
        "$id": "70",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "71",
         "kind": "constant",
@@ -719,7 +719,7 @@
      "$id": "79",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "80",
       "kind": "url",
@@ -752,7 +752,7 @@
   {
    "$id": "83",
    "Name": "StringValue",
-   "Description": "Dictionary of string values",
+   "Doc": "Dictionary of string values",
    "Operations": [
     {
      "$id": "84",
@@ -841,7 +841,7 @@
        "$id": "93",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "94",
         "kind": "constant",
@@ -933,7 +933,7 @@
      "$id": "102",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "103",
       "kind": "url",
@@ -966,7 +966,7 @@
   {
    "$id": "106",
    "Name": "Float32Value",
-   "Description": "Dictionary of float values",
+   "Doc": "Dictionary of float values",
    "Operations": [
     {
      "$id": "107",
@@ -1055,7 +1055,7 @@
        "$id": "116",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "117",
         "kind": "constant",
@@ -1147,7 +1147,7 @@
      "$id": "125",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "126",
       "kind": "url",
@@ -1180,7 +1180,7 @@
   {
    "$id": "129",
    "Name": "DatetimeValue",
-   "Description": "Dictionary of datetime values",
+   "Doc": "Dictionary of datetime values",
    "Operations": [
     {
      "$id": "130",
@@ -1277,7 +1277,7 @@
        "$id": "140",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "141",
         "kind": "constant",
@@ -1377,7 +1377,7 @@
      "$id": "150",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "151",
       "kind": "url",
@@ -1410,7 +1410,7 @@
   {
    "$id": "154",
    "Name": "DurationValue",
-   "Description": "Dictionary of duration values",
+   "Doc": "Dictionary of duration values",
    "Operations": [
     {
      "$id": "155",
@@ -1507,7 +1507,7 @@
        "$id": "165",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "166",
         "kind": "constant",
@@ -1607,7 +1607,7 @@
      "$id": "175",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "176",
       "kind": "url",
@@ -1640,7 +1640,7 @@
   {
    "$id": "179",
    "Name": "UnknownValue",
-   "Description": "Dictionary of unknown values",
+   "Doc": "Dictionary of unknown values",
    "Operations": [
     {
      "$id": "180",
@@ -1729,7 +1729,7 @@
        "$id": "189",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "190",
         "kind": "constant",
@@ -1821,7 +1821,7 @@
      "$id": "198",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "199",
       "kind": "url",
@@ -1854,7 +1854,7 @@
   {
    "$id": "202",
    "Name": "ModelValue",
-   "Description": "Dictionary of model values",
+   "Doc": "Dictionary of model values",
    "Operations": [
     {
      "$id": "203",
@@ -1939,7 +1939,7 @@
        "$id": "211",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "212",
         "kind": "constant",
@@ -2027,7 +2027,7 @@
      "$id": "219",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "220",
       "kind": "url",
@@ -2060,7 +2060,7 @@
   {
    "$id": "223",
    "Name": "RecursiveModelValue",
-   "Description": "Dictionary of model values",
+   "Doc": "Dictionary of model values",
    "Operations": [
     {
      "$id": "224",
@@ -2145,7 +2145,7 @@
        "$id": "232",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "233",
         "kind": "constant",
@@ -2233,7 +2233,7 @@
      "$id": "240",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "241",
       "kind": "url",
@@ -2266,7 +2266,7 @@
   {
    "$id": "244",
    "Name": "NullableFloatValue",
-   "Description": "Dictionary of nullable float values",
+   "Doc": "Dictionary of nullable float values",
    "Operations": [
     {
      "$id": "245",
@@ -2359,7 +2359,7 @@
        "$id": "255",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "256",
         "kind": "constant",
@@ -2447,7 +2447,7 @@
      "$id": "263",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "264",
       "kind": "url",

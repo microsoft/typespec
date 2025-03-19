@@ -8,7 +8,7 @@
   {
    "$id": "2",
    "Name": "SingleClient",
-   "Description": "Illustrates server with a single path parameter @server",
+   "Doc": "Illustrates server with a single path parameter @server",
    "Operations": [
     {
      "$id": "3",
@@ -46,7 +46,7 @@
      "$id": "6",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "7",
       "kind": "url",

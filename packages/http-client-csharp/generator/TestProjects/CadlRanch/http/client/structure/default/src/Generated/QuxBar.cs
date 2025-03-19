@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Client.Structure.Service.Default
@@ -18,8 +19,8 @@ namespace Client.Structure.Service.Default
 
         public virtual Task<ClientResult> NineAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Nine() => throw null;
+        public virtual ClientResult Nine(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> NineAsync() => throw null;
+        public virtual Task<ClientResult> NineAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -1,7 +1,6 @@
 ---
 id: 01-setup-basic-syntax
 title: Getting Started with TypeSpec For REST APIs
-pagination_next: getting-started/getting-started-rest/02-operations-responses # Explicitly needed as its also being the category page https://github.com/facebook/docusaurus/issues/6183
 ---
 
 import { FileTree } from "@astrojs/starlight/components";
@@ -70,7 +69,7 @@ You can also alternatively use the `Try it` feature with the code samples to qui
 
 Let's begin by adding the following import and using statements to the `main.tsp` file:
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using TypeSpec.Http;
@@ -91,7 +90,7 @@ A REST service in TypeSpec is defined using the [`@service`](../../standard-libr
 
 Let's start by defining a simple REST service for a Pet Store:
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using TypeSpec.Http;
@@ -120,7 +119,7 @@ In this example:
 
 Let's create a namespace for our Pet Store service:
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using TypeSpec.Http;
@@ -151,7 +150,7 @@ In TypeSpec, a [model](../../language-basics/models.md) is a fundamental buildin
 
 Let's define a simple model for a `Pet`:
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using TypeSpec.Http;
@@ -192,7 +191,7 @@ In this example:
 
 We can add [validation](../../language-basics/values#validation) annotations to our model properties to enforce certain constraints:
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using TypeSpec.Http;

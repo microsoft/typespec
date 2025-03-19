@@ -11,7 +11,8 @@ import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler
 
 interface InputTypeBase {
   kind: string;
-  description?: string;
+  summary?: string;
+  doc?: string;
   deprecation?: string;
   decorators?: DecoratorInfo[];
 }

@@ -11,21 +11,24 @@ namespace Microsoft.Generator.CSharp.Input
         /// <summary>Creates an instance of <see cref="OperationResponseHeader"/>.</summary>
         /// <param name="name">The name of the header.</param>
         /// <param name="nameInResponse">The name of the header in the operation response.</param>
-        /// <param name="description">The description of the header.</param>
+        /// <param name="summary">The summary of the header.</param>
+        /// <param name="doc">The doc string of the header.</param>
         /// <param name="type">The input type.</param>
-        public OperationResponseHeader(string name, string nameInResponse, string description, InputType type)
+        public OperationResponseHeader(string name, string nameInResponse, string? summary, string? doc, InputType type)
         {
             Name = name;
             NameInResponse = nameInResponse;
-            Description = description;
+            Summary = summary;
+            Doc = doc;
             Type = type;
         }
 
-        public OperationResponseHeader() : this(string.Empty, string.Empty, string.Empty, InputPrimitiveType.String) { }
+        public OperationResponseHeader() : this(string.Empty, string.Empty, string.Empty, string.Empty, InputPrimitiveType.String) { }
 
         public string Name { get; }
         public string NameInResponse { get; }
-        public string Description { get; }
+        public string? Summary { get; }
+        public string? Doc { get; }
         public InputType Type { get; }
     }
 }

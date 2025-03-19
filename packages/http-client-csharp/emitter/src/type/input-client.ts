@@ -8,7 +8,8 @@ import { Protocols } from "./protocols.js";
 
 export interface InputClient {
   Name: string;
-  Description?: string;
+  Summary?: string;
+  Doc?: string;
   Operations: InputOperation[];
   Protocol?: Protocols;
   Parent?: string;

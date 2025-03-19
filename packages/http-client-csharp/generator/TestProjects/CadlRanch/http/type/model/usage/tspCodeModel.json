@@ -10,7 +10,7 @@
    "name": "InputRecord",
    "crossLanguageDefinitionId": "Type.Model.Usage.InputRecord",
    "usage": "Input,Json",
-   "description": "Record used in operation parameters",
+   "doc": "Record used in operation parameters",
    "decorators": [],
    "properties": [
     {
@@ -40,7 +40,7 @@
    "name": "OutputRecord",
    "crossLanguageDefinitionId": "Type.Model.Usage.OutputRecord",
    "usage": "Output,Json",
-   "description": "Record used in operation return type",
+   "doc": "Record used in operation return type",
    "decorators": [],
    "properties": [
     {
@@ -70,7 +70,7 @@
    "name": "InputOutputRecord",
    "crossLanguageDefinitionId": "Type.Model.Usage.InputOutputRecord",
    "usage": "Input,Output,Json",
-   "description": "Record used both as operation parameter and return type",
+   "doc": "Record used both as operation parameter and return type",
    "decorators": [],
    "properties": [
     {
@@ -99,7 +99,7 @@
   {
    "$id": "11",
    "Name": "UsageClient",
-   "Description": "Illustrates usage of Record in different places(Operation parameters, return type or both).",
+   "Doc": "Illustrates usage of Record in different places(Operation parameters, return type or both).",
    "Operations": [
     {
      "$id": "12",
@@ -111,7 +111,7 @@
        "$id": "13",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "14",
         "kind": "constant",
@@ -248,7 +248,7 @@
        "$id": "24",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "25",
         "kind": "constant",
@@ -356,7 +356,7 @@
      "$id": "33",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "34",
       "kind": "url",

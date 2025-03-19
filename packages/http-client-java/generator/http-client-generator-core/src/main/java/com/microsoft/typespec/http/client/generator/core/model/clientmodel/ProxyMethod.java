@@ -7,6 +7,7 @@ import com.azure.core.http.ContentType;
 import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.HttpExceptionType;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import java.util.List;
@@ -382,15 +383,33 @@ public class ProxyMethod {
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
         Annotation.HTTP_REQUEST_INFORMATION.addImportsTo(imports);
         Annotation.UNEXPECTED_RESPONSE_EXCEPTION_INFORMATION.addImportsTo(imports);
+        ClassType.HTTP_RESPONSE_EXCEPTION.addImportsTo(imports, false);
         if (includeImplementationImports) {
             if (getUnexpectedResponseExceptionType() != null) {
                 Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);
                 getUnexpectedResponseExceptionType().addImportsTo(imports, includeImplementationImports);
+
+                if (!settings.isBranded()) {
+                    ClientModel errorModel
+                        = ClientModelUtil.getErrorModelFromException(getUnexpectedResponseExceptionType());
+                    if (errorModel != null) {
+                        errorModel.addImportsTo(imports, settings);
+                    }
+                }
             }
             if (getUnexpectedResponseExceptionTypes() != null) {
                 Annotation.UNEXPECTED_RESPONSE_EXCEPTION_TYPE.addImportsTo(imports);
                 getUnexpectedResponseExceptionTypes().keySet()
                     .forEach(e -> e.addImportsTo(imports, includeImplementationImports));
+
+                if (!settings.isBranded()) {
+                    for (ClassType exceptionType : getUnexpectedResponseExceptionTypes().keySet()) {
+                        ClientModel errorModel = ClientModelUtil.getErrorModelFromException(exceptionType);
+                        if (errorModel != null) {
+                            errorModel.addImportsTo(imports, settings);
+                        }
+                    }
+                }
             }
             if (isResumable()) {
                 imports.add("com.azure.core.annotation.ResumeOperation");

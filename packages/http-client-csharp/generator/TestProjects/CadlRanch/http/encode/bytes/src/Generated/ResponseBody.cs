@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Encode.Bytes
@@ -19,40 +20,40 @@ namespace Encode.Bytes
 
         public virtual Task<ClientResult> DefaultAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BinaryData> Default() => throw null;
+        public virtual ClientResult<BinaryData> Default(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<BinaryData>> DefaultAsync() => throw null;
+        public virtual Task<ClientResult<BinaryData>> DefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult OctetStream(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> OctetStreamAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BinaryData> OctetStream() => throw null;
+        public virtual ClientResult<BinaryData> OctetStream(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<BinaryData>> OctetStreamAsync() => throw null;
+        public virtual Task<ClientResult<BinaryData>> OctetStreamAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult CustomContentType(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> CustomContentTypeAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BinaryData> CustomContentType() => throw null;
+        public virtual ClientResult<BinaryData> CustomContentType(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<BinaryData>> CustomContentTypeAsync() => throw null;
+        public virtual Task<ClientResult<BinaryData>> CustomContentTypeAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Base64(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> Base64Async(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BinaryData> Base64() => throw null;
+        public virtual ClientResult<BinaryData> Base64(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<BinaryData>> Base64Async() => throw null;
+        public virtual Task<ClientResult<BinaryData>> Base64Async(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Base64url(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> Base64urlAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BinaryData> Base64url() => throw null;
+        public virtual ClientResult<BinaryData> Base64url(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<BinaryData>> Base64urlAsync() => throw null;
+        public virtual Task<ClientResult<BinaryData>> Base64urlAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

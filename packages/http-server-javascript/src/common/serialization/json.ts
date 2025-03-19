@@ -23,6 +23,7 @@ import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { UnimplementedError } from "../../util/error.js";
 import { indent } from "../../util/iter.js";
 import { emitTypeReference, escapeUnsafeChars } from "../reference.js";
+import { getJsScalar } from "../scalar.js";
 import { SerializableType, SerializationContext, requireSerialization } from "./index.js";
 
 /**
@@ -46,13 +47,20 @@ export function requiresJsonSerialization(ctx: JsContext, type: Type): boolean {
 
   switch (type.kind) {
     case "Model": {
+      if (isArrayModelType(ctx.program, type)) {
+        const argumentType = type.indexer.value;
+        requiresSerialization = requiresJsonSerialization(ctx, argumentType);
+        break;
+      }
+
       requiresSerialization = [...type.properties.values()].some((property) =>
         propertyRequiresJsonSerialization(ctx, property),
       );
       break;
     }
     case "Scalar": {
-      requiresSerialization = getEncode(ctx.program, type) !== undefined;
+      const scalar = getJsScalar(ctx.program, type, type);
+      requiresSerialization = scalar === "Uint8Array" || getEncode(ctx.program, type) !== undefined;
       break;
     }
     case "Union": {
@@ -104,11 +112,11 @@ export function* emitJsonSerialization(
   module: Module,
   typeName: string,
 ): Iterable<string> {
-  yield `toJsonObject(input: ${typeName}): object {`;
+  yield `toJsonObject(input: ${typeName}): any {`;
   yield* indent(emitToJson(ctx, type, module));
   yield `},`;
 
-  yield `fromJsonObject(input: object): ${typeName} {`;
+  yield `fromJsonObject(input: any): ${typeName} {`;
   yield* indent(emitFromJson(ctx, type, module));
   yield `},`;
 }
@@ -176,7 +184,7 @@ function transposeExpressionToJson(
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, argumentType)) {
-          return `${expr}.map((item) => ${transposeExpressionToJson(ctx, argumentType, "item", module)})`;
+          return `${expr}?.map((item) => ${transposeExpressionToJson(ctx, argumentType, "item", module)})`;
         } else {
           return expr;
         }
@@ -203,7 +211,16 @@ function transposeExpressionToJson(
       }
     }
     case "Scalar":
-      return expr;
+      const scalar = getJsScalar(ctx.program, type, type);
+
+      switch (scalar) {
+        case "Uint8Array":
+          // Coerce to Buffer if we aren't given a buffer. This avoids having to do unholy things to
+          // convert through an intermediate and use globalThis.btoa. v8 does not support Uint8Array.toBase64
+          return `((${expr} instanceof Buffer) ? ${expr} : Buffer.from(${expr})).toString('base64')`;
+        default:
+          return expr;
+      }
     case "Union":
       if (!requiresJsonSerialization(ctx, type)) {
         return expr;
@@ -336,7 +353,7 @@ function transposeExpressionFromJson(
         const argumentType = type.indexer.value;
 
         if (requiresJsonSerialization(ctx, argumentType)) {
-          return `${expr}.map((item) => ${transposeExpressionFromJson(ctx, argumentType, "item", module)})`;
+          return `${expr}?.map((item: any) => ${transposeExpressionFromJson(ctx, argumentType, "item", module)})`;
         } else {
           return expr;
         }
@@ -363,7 +380,14 @@ function transposeExpressionFromJson(
       }
     }
     case "Scalar":
-      return expr;
+      const scalar = getJsScalar(ctx.program, type, type);
+
+      switch (scalar) {
+        case "Uint8Array":
+          return `Buffer.from(${expr}, 'base64')`;
+        default:
+          return expr;
+      }
     case "Union":
       if (!requiresJsonSerialization(ctx, type)) {
         return expr;

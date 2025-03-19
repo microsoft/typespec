@@ -20,6 +20,6 @@ namespace Microsoft.Generator.CSharp.Tests
             _declarationModifiers = declarationModifiers;
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers ?? base.GetDeclarationModifiers();
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => _declarationModifiers ?? base.BuildDeclarationModifiers();
     }
 }

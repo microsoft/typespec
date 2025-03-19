@@ -104,3 +104,64 @@ it("warns for invalid identifiers", async () => {
     },
   ]);
 });
+
+it("warns for invalid interpolation", async () => {
+  const [_, diagnostics] = await runner.compileAndDiagnose(
+    getStandardService(`
+      /** A simple test model*/
+      model Foo {
+        /** string literal */
+        stringProp?: string;
+        /** boolean literal */
+        stringTemplateProp?: "\${Foo.stringProp} is a bad interpolation";
+      }
+    `),
+  );
+
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http-server-csharp/invalid-interpolation",
+      message:
+        "StringTemplate types should only reference literal-valued constants, enum members, or literal-valued model properties.  The interpolated value will not contain one or more referenced elements in generated code.",
+    },
+  ]);
+});
+
+it("warns for anonymous models", async () => {
+  const [_, diagnostics] = await runner.compileAndDiagnose(
+    getStandardService(`
+      /** A simple test model*/
+      model Foo {
+        /** Numeric literal */
+        intProp: [8, 10];
+        
+        /** A complex property */
+        modelProp: {
+          bar: string;
+        };
+        
+        anotherModelProp: {
+          baz: string;
+        };
+        
+        yetAnother: Foo.modelProp;
+        
+      }
+
+      @route("/foo") op foo(): void;
+      `),
+  );
+
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http-server-csharp/anonymous-model",
+      message:
+        "Inline models use generated names in emitted code. Consider defining each model with an explicit name.  This model will be named 'Model0' in emitted code",
+    },
+    {
+      code: "@typespec/http-server-csharp/anonymous-model",
+      message:
+        "Inline models use generated names in emitted code. Consider defining each model with an explicit name.  This model will be named 'Model1' in emitted code",
+    },
+  ]);
+});

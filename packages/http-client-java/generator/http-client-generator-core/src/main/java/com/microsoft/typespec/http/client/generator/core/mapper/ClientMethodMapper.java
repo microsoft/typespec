@@ -167,7 +167,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         ClientMethod.Builder builder = getClientMethodBuilder()
             .clientReference((operation.getOperationGroup() == null
                 || operation.getOperationGroup().getLanguage().getJava().getName().isEmpty()) ? "this" : "this.client")
-            .setCrossLanguageDefinitionId(operation.getCrossLanguageDefinitionId());
+            .setCrossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(operation));
 
         // merge summary and description
         String summary = operation.getSummary();
@@ -296,17 +296,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 // in this case, it is not original parameter from any other parameters
                 for (Parameter parameter : request.getParameters()
                     .stream()
-                    .filter(p -> p.isFlattened() && p.getProtocol() != null && p.getProtocol().getHttp() != null)   // flattened
-                                                                                                                    // proxy
-                                                                                                                    // parameter
-                    .filter(p -> !originalParameters.contains(p))                                                   // but
-                                                                                                                    // not
-                                                                                                                    // original
-                                                                                                                    // parameter
-                                                                                                                    // from
-                                                                                                                    // any
-                                                                                                                    // other
-                                                                                                                    // parameters
+                    // flattened proxy parameter
+                    .filter(p -> p.isFlattened() && p.getProtocol() != null && p.getProtocol().getHttp() != null)
+                    // but not original parameter from any other parameters
+                    .filter(p -> !originalParameters.contains(p))
                     .collect(Collectors.toList())) {
                     ClientMethodParameter outParameter = Mappers.getClientParameterMapper().map(parameter);
                     methodTransformationDetails.add(new MethodTransformationDetail(outParameter, new ArrayList<>()));
@@ -616,7 +609,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 .ifPresentOrElse(itemProperty -> {
                     IType listType = itemProperty.getWireType();
                     IType elementType = ((ListType) listType).getElementType();
-                    if (isProtocolMethod) {
+                    // unbranded would use the model, instead of BinaryData, as return type
+                    if (isProtocolMethod && settings.isBranded()) {
                         returnTypeHolder.asyncRestResponseReturnType = createProtocolPagedRestResponseReturnType();
                         returnTypeHolder.asyncReturnType = createProtocolPagedAsyncReturnType();
                         returnTypeHolder.syncReturnType = createProtocolPagedSyncReturnType();
@@ -790,7 +784,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .groupedParameterRequired(false)
             .methodVisibility(methodVisibility);
 
-        if (settings.isGenerateAsyncMethods()) {
+        if (settings.getSyncMethods() != SyncMethodsGeneration.NONE) {
             methods.add(builder.build());
         }
 
@@ -814,7 +808,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .groupedParameterRequired(false)
             .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false));
 
-        if (settings.isGenerateAsyncMethods()) {
+        if (settings.getSyncMethods() != SyncMethodsGeneration.NONE) {
+            // generate the overload, if "sync-methods != NONE"
+
             methods.add(builder.build());
 
             // overload for versioning

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
@@ -52,13 +53,13 @@ namespace Microsoft.Generator.CSharp.Statements
 
             if (Parameters.Count > 0)
             {
-                writer.Append($" <paramref name=\"{Parameters[0].Name}\"/>");
+                writer.Append($" <paramref name=\"{Parameters[0].AsExpression().Declaration}\"/>");
                 for (int i = 1; i < Parameters.Count - 1; i++)
                 {
-                    writer.Append($", <paramref name=\"{Parameters[i].Name}\"/>");
+                    writer.Append($", <paramref name=\"{Parameters[i].AsExpression().Declaration}\"/>");
                 }
                 if (Parameters.Count > 1)
-                    writer.Append($" or <paramref name=\"{Parameters[Parameters.Count - 1].Name}\"/>");
+                    writer.Append($" or <paramref name=\"{Parameters[Parameters.Count - 1].AsExpression().Declaration}\"/>");
             }
 
             writer.WriteLine($" {_reason} </exception>");

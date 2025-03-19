@@ -5,7 +5,7 @@ using TypeSpec.Http;
 @service({
   title: "SpecialChars",
 })
-namespace Cadl.SpecialChars;
+namespace TspTest.SpecialChars;
 
 model Resource {
   @doc("id")

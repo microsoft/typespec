@@ -393,6 +393,7 @@ public class ClientMethod {
 
         imports.add("java.util.Objects");
         imports.add("java.util.stream.Collectors");
+        ClassType.BINARY_DATA.addImportsTo(imports, includeImplementationImports);
         ClassType.RESPONSE.addImportsTo(imports, includeImplementationImports);
         ClassType.SIMPLE_RESPONSE.addImportsTo(imports, includeImplementationImports);
 

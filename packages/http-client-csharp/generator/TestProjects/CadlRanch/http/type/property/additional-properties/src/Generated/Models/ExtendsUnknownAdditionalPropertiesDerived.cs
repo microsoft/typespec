@@ -9,9 +9,9 @@ namespace _Type.Property.AdditionalProperties.Models
 {
     public partial class ExtendsUnknownAdditionalPropertiesDerived : ExtendsUnknownAdditionalProperties
     {
-        public ExtendsUnknownAdditionalPropertiesDerived(int index, string name) : base(name) => throw null;
+        public ExtendsUnknownAdditionalPropertiesDerived(string name, int index) : base(name) => throw null;
 
-        internal ExtendsUnknownAdditionalPropertiesDerived(int index, float? age, string name, IDictionary<string, BinaryData> additionalProperties) : base(name, additionalProperties) => throw null;
+        internal ExtendsUnknownAdditionalPropertiesDerived(string name, IDictionary<string, BinaryData> additionalProperties, int index, float? age) : base(name, additionalProperties) => throw null;
 
         public int Index
         {

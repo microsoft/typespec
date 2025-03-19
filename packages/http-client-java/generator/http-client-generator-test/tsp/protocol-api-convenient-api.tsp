@@ -14,7 +14,7 @@ using Azure.ClientGenerator.Core;
   title: "ProtocolAndConvenient",
 })
 @versioned(ApiVersions)
-namespace Cadl.ProtocolAndConvenient;
+namespace TspTest.ProtocolAndConvenient;
 
 enum ApiVersions {
   @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)

@@ -12,9 +12,12 @@ $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
 Invoke "npm run build:generator"
 Invoke "npm run build:emitter"
 
-$testDir = Join-Path $repoRoot 'test' 
-
 $generatorTestDir = Join-Path $repoRoot 'generator/http-client-generator-test'
+Set-Location $generatorTestDir
+./Generate.ps1
+Set-Location $PSScriptRoot
+
+$generatorTestDir = Join-Path $repoRoot 'generator/http-client-generator-clientcore-test'
 Set-Location $generatorTestDir
 ./Generate.ps1
 Set-Location $PSScriptRoot

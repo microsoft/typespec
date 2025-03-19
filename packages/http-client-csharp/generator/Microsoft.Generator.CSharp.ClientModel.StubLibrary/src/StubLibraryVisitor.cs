@@ -39,11 +39,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
                 return null;
             }
 
-            /* remove constructors for ClientOptions */
-            if (type.Implements.Any(i => i.Equals(typeof(ClientPipelineOptions))))
-            {
-                type.Update(constructors: []);
-            }
             return type;
         }
 
@@ -71,7 +66,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.StubLibrary
 
         protected override FieldProvider? Visit(FieldProvider field)
         {
-            return field.Modifiers.HasFlag(FieldModifiers.Public) ? field : null;
+            // For ClientOptions, keep the non-public field as this currently represents the latest service version for a client.
+            return (field.Modifiers.HasFlag(FieldModifiers.Public) || field.EnclosingType.Implements.Any(i => i.Equals(typeof(ClientPipelineOptions))))
+                ? field
+                : null;
         }
 
         protected override MethodProvider? Visit(MethodProvider method)

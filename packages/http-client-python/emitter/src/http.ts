@@ -204,7 +204,7 @@ function emitHttpOperation(
     apiVersions: [],
     wantTracing: true,
     exposeStreamKeyword: true,
-    crossLanguageDefinitionId: method?.crossLanguageDefintionId,
+    crossLanguageDefinitionId: method?.crossLanguageDefinitionId,
     samples: arrayToRecord(method?.operation.examples),
     internal: method.access === "internal",
   };
@@ -379,7 +379,7 @@ function emitHttpResponse(
     headers: response.headers.map((x) => emitHttpResponseHeader(context, x)),
     statusCodes:
       typeof statusCodes === "object"
-        ? [(statusCodes as HttpStatusCodeRange).start]
+        ? [[(statusCodes as HttpStatusCodeRange).start, (statusCodes as HttpStatusCodeRange).end]]
         : statusCodes === "*"
           ? ["default"]
           : [statusCodes],

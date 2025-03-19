@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Authentication.ApiKey
@@ -23,16 +24,16 @@ namespace Authentication.ApiKey
 
         public virtual Task<ClientResult> ValidAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Valid() => throw null;
+        public virtual ClientResult Valid(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ValidAsync() => throw null;
+        public virtual Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Invalid(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> InvalidAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Invalid() => throw null;
+        public virtual ClientResult Invalid(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> InvalidAsync() => throw null;
+        public virtual Task<ClientResult> InvalidAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

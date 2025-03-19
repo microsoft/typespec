@@ -488,5 +488,63 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             var test = writer.ToString(false);
             Assert.AreEqual(expectedResult, test);
         }
+
+        [Test]
+        public void TestFlatten()
+        {
+            var ifTrueStatement = new IfStatement(True) { Return(True) };
+            var ifFalseStatement = new IfStatement(False) { Return(False) };
+            var ifElseStatement = new IfElseStatement(True, new SingleLineCommentStatement("$hello"), new SingleLineCommentStatement("$world"));
+            MethodBodyStatement methodBodyStatements = new List<MethodBodyStatement>
+            {
+                ifTrueStatement,
+                ifElseStatement,
+                ifFalseStatement
+            };
+
+            var flattened = methodBodyStatements.Flatten().ToList();
+            Assert.AreEqual(3, flattened.Count);
+            Assert.AreEqual(ifTrueStatement, flattened[0]);
+            Assert.AreEqual(ifElseStatement, flattened[1]);
+            Assert.AreEqual(ifFalseStatement, flattened[2]);
+
+            // Test flattening a single statement
+            var singleStatementFlattened = ifTrueStatement.Flatten().ToList();
+            Assert.AreEqual(1, singleStatementFlattened.Count);
+
+            // flatten the body
+            var body = ifTrueStatement.Body.Flatten().ToList();
+            Assert.AreEqual(1, body.Count);
+            Assert.AreEqual(ifTrueStatement.Body.ToDisplayString(), body[0].ToDisplayString());
+        }
+
+        [Test]
+        public void TestFlatten_CorrectNestedOrder()
+        {
+            var statement1 = new IfStatement(True) { Return(True) };
+            var statement2 = new IfStatement(False) { Return(False) };
+            var nestedStatement1 = new IfStatement(False) { Return(Literal("Foo")) };
+            var nestedStatement2 = new IfStatement(True) { Return(Literal("Bar")) };
+            var methodBodyStatements = new MethodBodyStatements(
+            [
+                statement1,
+                new MethodBodyStatements(
+                [
+                    nestedStatement1,
+                    nestedStatement2
+                ]),
+                statement2
+            ]);
+
+            var result = methodBodyStatements.Flatten();
+            var expectedOrder = new List<MethodBodyStatement>
+            {
+                statement1,
+                nestedStatement1,
+                nestedStatement2,
+                statement2
+            };
+            Assert.AreEqual(expectedOrder, result);
+        }
     }
 }

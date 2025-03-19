@@ -17,6 +17,16 @@ import { Icon } from "@astrojs/starlight/components";
     background-color: var(--colorNeutralBackground3Hover);
   }
 
+  .theme-picker > input {
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .theme-picker:focus-within {
+    outline: auto;
+  }
+
   .theme-option {
     display: flex;
     padding: 2px;
@@ -43,21 +53,22 @@ import { Icon } from "@astrojs/starlight/components";
 
 <script>
   import { getTheme, setTheme } from "../utils/theme";
+  const themePickers = document.querySelectorAll(".theme-picker") as NodeListOf<HTMLDivElement>;
   const handleToggleClick = () => {
     const current = getTheme();
     const next = current === "dark" ? "light" : "dark";
     setTheme(next);
   };
 
-  const themePickers = document.querySelectorAll(".theme-picker");
-  themePickers.forEach((x) => x.addEventListener("click", handleToggleClick));
+  themePickers.forEach((x) => x.addEventListener("change", handleToggleClick));
 </script>
 
-<div class="theme-picker" aria-label="Toggle Light/Dark theme" tabindex="0">
+<label class="theme-picker">
+  <input type="checkbox" aria-label="Toggle Light/Dark theme" />
   <div title="Light mode" class="theme-option light">
     <Icon name="sun" />
   </div>
   <div title="Dark mode" class="theme-option dark">
     <Icon name="moon" />
   </div>
-</div>
+</label>

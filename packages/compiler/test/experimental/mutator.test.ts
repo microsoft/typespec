@@ -1,3 +1,4 @@
+import { strictEqual } from "assert";
 import { beforeEach, expect, it } from "vitest";
 import {
   mutateSubgraph,
@@ -6,7 +7,7 @@ import {
   MutatorFlow,
   MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
-import { Model, Namespace } from "../../src/index.js";
+import { Model, ModelProperty, Namespace } from "../../src/index.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper } from "../../src/testing/test-utils.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
@@ -39,6 +40,7 @@ it("works", async () => {
   const mutated = mutateSubgraph(runner.program, [mutator], Foo);
 
   const mutatedModel = mutated.type as Model;
+  expect(mutated.realm?.hasType(mutatedModel)).toBeTruthy();
   expect(mutatedModel.properties.get("x")).toBeUndefined();
   expect(mutatedModel.properties.get("y")).toBeDefined();
   // checking if the original model is not mutated
@@ -65,7 +67,7 @@ it("recurses the model", async () => {
     name: "test",
     Model: {
       filter: () => {
-        return MutatorFlow.MutateAndRecurse;
+        return MutatorFlow.MutateAndRecur;
       },
       mutate: (clone) => {
         visited.push(clone.name);
@@ -133,7 +135,7 @@ it("do not recurse the model", async () => {
     name: "test",
     Model: {
       filter: () => {
-        return MutatorFlow.DoNotRecurse;
+        return MutatorFlow.DoNotRecur;
       },
       mutate: (clone) => {
         visited.push(clone.name);
@@ -143,4 +145,46 @@ it("do not recurse the model", async () => {
   mutateSubgraph(runner.program, [mutator], Foo);
 
   expect(visited).toStrictEqual(["Foo"]);
+});
+
+it("can mutate literals", async () => {
+  const { a, b, c } = (await runner.compile(`
+    model Foo {
+      @test a: "example";
+      @test b: 42;
+      @test c: false;
+    }
+  `)) as { a: ModelProperty; b: ModelProperty; c: ModelProperty };
+
+  const mutator: Mutator = {
+    name: "test",
+    String: (str, clone) => {
+      clone.value = str.value + "!";
+    },
+    Number: (num, clone) => {
+      clone.value = num.value + 1;
+    },
+    Boolean: (bool, clone) => {
+      clone.value = !bool.value;
+    },
+  };
+
+  strictEqual(a.type.kind, "String");
+  strictEqual(b.type.kind, "Number");
+  strictEqual(c.type.kind, "Boolean");
+
+  const mutatedA = mutateSubgraph(runner.program, [mutator], a.type).type;
+
+  strictEqual(mutatedA.kind, "String");
+  strictEqual(mutatedA.value, "example!");
+
+  const mutatedB = mutateSubgraph(runner.program, [mutator], b.type).type;
+
+  strictEqual(mutatedB.kind, "Number");
+  strictEqual(mutatedB.value, 43);
+
+  const mutatedC = mutateSubgraph(runner.program, [mutator], c.type).type;
+
+  strictEqual(mutatedC.kind, "Boolean");
+  strictEqual(mutatedC.value, true);
 });

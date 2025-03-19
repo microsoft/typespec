@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
             MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null), clients: () => [inputClient]);
             var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
-            var restClient = client.RestClient;
+            var restClient = client!.RestClient;
             Assert.IsNotNull(restClient);
             var createMethod = restClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateMultipartOperationRequest");
             Assert.IsNotNull(createMethod);

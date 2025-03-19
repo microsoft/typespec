@@ -51,6 +51,11 @@ export interface ScaffoldingConfig {
    * Custom parameters provided in the tempalates.
    */
   parameters: Record<string, any>;
+
+  /**
+   * Selected emitters the tempalates.
+   */
+  emitters: Record<string, any>;
 }
 
 export function normalizeLibrary(library: InitTemplateLibrary): InitTemplateLibrarySpec {
@@ -73,6 +78,7 @@ export function makeScaffoldingConfig(
     folderName: config.folderName ?? "",
     parameters: config.parameters ?? {},
     includeGitignore: config.includeGitignore ?? true,
+    emitters: config.emitters ?? {},
     ...config,
   };
 }
@@ -113,8 +119,13 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
   }
 
   for (const library of config.libraries) {
-    peerDependencies[library.name] = await getLibraryVersion(library);
-    devDependencies[library.name] = await getLibraryVersion(library);
+    peerDependencies[library.name] = await getPackageVersion(library);
+    devDependencies[library.name] = await getPackageVersion(library);
+  }
+
+  for (const key of Object.keys(config.emitters)) {
+    peerDependencies[key] = await getPackageVersion(config.emitters[key]);
+    devDependencies[key] = await getPackageVersion(config.emitters[key]);
   }
 
   const packageJson: PackageJson = {
@@ -154,7 +165,20 @@ async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration(TypeSpecConfigFilename, config.template.files ?? [])) {
     return;
   }
-  const content = config.template.config ? stringify(config.template.config) : placeholderConfig;
+
+  let content: string = placeholderConfig;
+  if (config.template.config !== undefined && Object.keys(config.template.config).length > 0) {
+    content = stringify(config.template.config);
+  } else if (Object.keys(config.emitters).length > 0) {
+    const emitters = Object.keys(config.emitters);
+    const options = Object.fromEntries(
+      Object.entries(config.emitters).map(([key, emitter]) => [key, emitter.options]),
+    );
+    content = stringify({
+      emit: emitters,
+      options: Object.keys(options).length > 0 ? options : undefined,
+    });
+  }
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 
@@ -165,7 +189,7 @@ async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
   const dependencies: Record<string, string> = {};
 
   for (const library of config.libraries) {
-    dependencies[library.name] = await getLibraryVersion(library);
+    dependencies[library.name] = await getPackageVersion(library);
   }
 
   const lines = [...config.libraries.map((x) => `import "${x.name}";`), ""];
@@ -220,7 +244,7 @@ async function writeFile(
   return host.writeFile(joinPaths(config.directory, file.destination), content);
 }
 
-async function getLibraryVersion(library: InitTemplateLibrarySpec): Promise<string> {
+async function getPackageVersion(packageInfo: { version?: string }): Promise<string> {
   // TODO: Resolve 'latest' version from npm, issue #1919
-  return library.version ?? "latest";
+  return packageInfo.version ?? "latest";
 }

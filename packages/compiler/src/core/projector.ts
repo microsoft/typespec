@@ -109,7 +109,28 @@ export function createProjector(
     type: Type | Value | IndeterminateEntity,
   ): Type | Value | IndeterminateEntity {
     if (isValue(type)) {
-      return type;
+      if (type.valueKind === "EnumValue") {
+        // This is a hack. We project the enum itself, so we need to project enum values in order to prevent incoherence
+        // between projections that reference enum values and the enum/members themselves. If we project the enummember
+        // in the value and it results in something other than an enum member, we will give up and just return the value
+        // as is. Otherwise we'll return the projected member.
+
+        const projectedType = projectType(type.type);
+        const projectedMember = projectType(type.value);
+
+        if (projectedMember.kind === "EnumMember") {
+          return {
+            entityKind: "Value",
+            valueKind: "EnumValue",
+            type: projectedType,
+            value: projectedMember,
+          };
+        } else {
+          return type;
+        }
+      } else {
+        return type;
+      }
     }
     if (type.entityKind === "Indeterminate") {
       return { entityKind: "Indeterminate", type: projectType(type.type) as any };
@@ -571,8 +592,8 @@ export function createProjector(
       const args: DecoratorArgument[] = [];
       for (const arg of dec.args) {
         const jsValue =
-          typeof arg.jsValue === "object" && arg.jsValue !== null && "kind" in arg.jsValue
-            ? projectType(arg.jsValue as any)
+          typeof arg.jsValue === "object" && arg.jsValue !== null && "entityKind" in arg.jsValue
+            ? projectType(arg.jsValue as Type | Value)
             : arg.jsValue;
         args.push({ ...arg, value: projectType(arg.value), jsValue });
       }

@@ -57,6 +57,9 @@ try {
 
     Invoke-LoggedCommand "npm run build" -GroupOutput
 
+    Write-Host "run lint check for pygen"
+    Invoke-LoggedCommand "npm run lint:py" -GroupOutput
+
     # pack the emitter
     Invoke-LoggedCommand "npm pack"
     Copy-Item "typespec-http-client-python-$emitterVersion.tgz" -Destination "$outputPath/packages"

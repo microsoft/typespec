@@ -35,7 +35,8 @@ namespace Microsoft.Generator.CSharp.Input
             resolver.AddReference(id, client);
 
             string? name = null;
-            string? description = null;
+            string? summary = null;
+            string? doc = null;
             IReadOnlyList<InputOperation>? operations = null;
             IReadOnlyList<InputParameter>? parameters = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
@@ -44,7 +45,8 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputClient.Name), ref name)
-                    || reader.TryReadString(nameof(InputClient.Description), ref description)
+                    || reader.TryReadString("Summary", ref summary)
+                    || reader.TryReadString("Doc", ref doc)
                     || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
                     || reader.TryReadWithConverter(nameof(InputClient.Parameters), options, ref parameters)
                     || reader.TryReadString(nameof(InputClient.Parent), ref parent)
@@ -57,7 +59,8 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             client.Name = name ?? throw new JsonException("InputClient must have name");
-            client.Description = description ?? string.Empty;
+            client.Summary = summary;
+            client.Doc = doc;
             client.Operations = operations ?? Array.Empty<InputOperation>();
             client.Parameters = parameters ?? Array.Empty<InputParameter>();
             client.Parent = parent;

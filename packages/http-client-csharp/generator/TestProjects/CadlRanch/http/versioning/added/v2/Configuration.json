@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Versioning.Added.V2",
+  "library-name": "Versioning.Added.V2",
+  "use-model-reader-writer": true
+}

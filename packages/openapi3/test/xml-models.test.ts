@@ -1,217 +1,199 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { createOpenAPITestRunner, emitOpenApiWithDiagnostics, oapiForModel } from "./test-host.js";
+import { createOpenAPITestRunner } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe("@name", () => {
-  it("set xml.name for schema", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
+worksFor(["3.0.0", "3.1.0"], ({ emitOpenApiWithDiagnostics, oapiForModel }) => {
+  describe("@name", () => {
+    it("set xml.name for schema", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `
         @name("xmlBook")
         model Book {        
           content: string;
         };`,
-    );
+      );
 
-    expect(res.schemas.Book).toMatchInlineSnapshot(
-      `
-      {
-        "properties": {
-          "content": {
-            "type": "string",
+      deepStrictEqual(res.schemas.Book, {
+        properties: {
+          content: {
+            type: "string",
           },
         },
-        "required": [
-          "content",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "xmlBook",
+        required: ["content"],
+        type: "object",
+        xml: {
+          name: "xmlBook",
         },
-      }
-    `,
-    );
-  });
+      });
+    });
 
-  it("set the element value for array property via @name", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
+    it("set the element value for array property via @name", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `
         @name("xmlBook")
         model Book {        
           tags: string[];
         };`,
-    );
+      );
 
-    expect(res.schemas.Book).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "tags": {
-            "items": {
-              "type": "string",
-              "xml": {
-                "name": "string",
+      deepStrictEqual(res.schemas.Book, {
+        properties: {
+          tags: {
+            items: {
+              type: "string",
+              xml: {
+                name: "string",
               },
             },
-            "type": "array",
-            "xml": {
-              "wrapped": true,
+            type: "array",
+            xml: {
+              wrapped: true,
             },
           },
         },
-        "required": [
-          "tags",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "xmlBook",
+        required: ["tags"],
+        type: "object",
+        xml: {
+          name: "xmlBook",
         },
-      }
-    `);
-  });
+      });
+    });
 
-  it.each([
-    ["string", "string", "string"],
-    ["array", "string[]", "array"],
-    ["number", "numeric", "number"],
-    ["enum", `"a" | "b"`, "string"],
-  ])(`%s => %s`, async (_, type, output) => {
-    const res = await oapiForModel(
-      "Book",
-      `model Book {
+    it.each([
+      ["string", "string", "string"],
+      ["array", "string[]", "array"],
+      ["number", "numeric", "number"],
+      ["enum", `"a" | "b"`, "string"],
+    ])(`%s => %s`, async (_, type, output) => {
+      const res = await oapiForModel(
+        "Book",
+        `model Book {
           @name("xmlcontent")
           content: ${type};
         };`,
-    );
-    expect(res.schemas.Book).toMatchObject({
-      properties: {
-        content: { type: `${output}`, xml: { name: "xmlcontent" } },
-      },
-      required: ["content"],
+      );
+      expect(res.schemas.Book).toMatchObject({
+        properties: {
+          content: { type: `${output}`, xml: { name: "xmlcontent" } },
+        },
+        required: ["content"],
+      });
     });
-  });
 
-  it.each([
-    ["object", "unknown"],
-    ["Union", `string | numeric`],
-  ])(`%s => %s`, async (_, type) => {
-    const res = await oapiForModel(
-      "Book",
-      `model Book {
+    it.each([
+      ["object", "unknown"],
+      ["Union", `string | numeric`],
+    ])(`%s => %s`, async (_, type) => {
+      const res = await oapiForModel(
+        "Book",
+        `model Book {
           @name("xmlcontent")
           content: ${type};
         };`,
-    );
-    expect(res.schemas.Book).toMatchObject({
-      properties: {
-        content: { xml: { name: "xmlcontent" } },
-      },
-      required: ["content"],
+      );
+      expect(res.schemas.Book).toMatchObject({
+        properties: {
+          content: { xml: { name: "xmlcontent" } },
+        },
+        required: ["content"],
+      });
     });
-  });
 
-  it("set the value on scalar via @name", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
+    it("set the value on scalar via @name", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `
         @name("xmlBook")
         scalar Book extends string;`,
-    );
+      );
 
-    expect(res.schemas.Book).toMatchInlineSnapshot(`
-      {
-        "type": "string",
-        "xml": {
-          "name": "xmlBook",
+      deepStrictEqual(res.schemas.Book, {
+        type: "string",
+        xml: {
+          name: "xmlBook",
         },
-      }
-    `);
-  });
+      });
+    });
 
-  it("compare with the json name", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `        
+    it("compare with the json name", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `        
         model Book {
           @name("xmlContent")
           @encodedName("application/json", "jsonContent")    
           content: string;
         };`,
-    );
+      );
 
-    expect(res.schemas.Book).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "jsonContent": {
-            "type": "string",
-            "xml": {
-              "name": "xmlContent",
+      deepStrictEqual(res.schemas.Book, {
+        properties: {
+          jsonContent: {
+            type: "string",
+            xml: {
+              name: "xmlContent",
             },
           },
         },
-        "required": [
-          "jsonContent",
-        ],
-        "type": "object",
-      }
-    `);
-  });
+        required: ["jsonContent"],
+        type: "object",
+      });
+    });
 
-  it("set the json name and no xml name", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
+    it("set the json name and no xml name", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `
         model Book {
           @encodedName("application/json", "jsonContent")    
           content: string;
         };`,
-    );
+      );
 
-    expect(res.schemas.Book).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "jsonContent": {
-            "type": "string",
+      deepStrictEqual(res.schemas.Book, {
+        properties: {
+          jsonContent: {
+            type: "string",
           },
         },
-        "required": [
-          "jsonContent",
-        ],
-        "type": "object",
-      }
-    `);
-  });
-});
-
-describe("@attribute", () => {
-  it.each([
-    ["numeric", "numeric"],
-    ["string", "string"],
-    ["unknown", "unknown"],
-    ["Union", `string | numeric`],
-    ["enum", `"a" | "b"`],
-  ])(`%s => %s`, async (_, type) => {
-    const res = await oapiForModel(
-      "Book",
-      `model Book {
-          @attribute
-          id: ${type};
-        };`,
-    );
-    expect(res.schemas.Book).toMatchObject({
-      properties: {
-        id: { xml: { attribute: true } },
-      },
+        required: ["jsonContent"],
+        type: "object",
+      });
     });
   });
 
-  describe("warning and change the type to be type: string if attribute is object/objects", () => {
+  describe("@attribute", () => {
     it.each([
-      ["one", "Tag"],
-      ["ones", "Tag[]"],
+      ["numeric", "numeric"],
+      ["string", "string"],
+      ["unknown", "unknown"],
+      ["Union", `string | numeric`],
+      ["enum", `"a" | "b"`],
     ])(`%s => %s`, async (_, type) => {
-      const [res, diagnostics] = await emitOpenApiWithDiagnostics(`
+      const res = await oapiForModel(
+        "Book",
+        `model Book {
+          @attribute
+          id: ${type};
+        };`,
+      );
+      expect(res.schemas.Book).toMatchObject({
+        properties: {
+          id: { xml: { attribute: true } },
+        },
+      });
+    });
+
+    describe("warning and change the type to be type: string if attribute is object/objects", () => {
+      it.each([
+        ["one", "Tag"],
+        ["ones", "Tag[]"],
+      ])(`%s => %s`, async (_, type) => {
+        const [res, diagnostics] = await emitOpenApiWithDiagnostics(`
         model Tag {
           name: string;
         }
@@ -221,106 +203,98 @@ describe("@attribute", () => {
         }
       `);
 
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/openapi3/xml-attribute-invalid-property-type",
-        message: `XML \`@attribute\` can only be primitive types in the OpenAPI 3 emitter, Property 'tags' type will be changed to type: string.`,
-      });
-      deepStrictEqual(
-        res.components?.schemas?.Pet,
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi3/xml-attribute-invalid-property-type",
+          message: `XML \`@attribute\` can only be primitive types in the OpenAPI 3 emitter, Property 'tags' type will be changed to type: string.`,
+        });
+        deepStrictEqual(
+          res.components?.schemas?.Pet,
 
-        {
-          properties: {
-            tags: {
-              type: "string",
-              xml: {
-                attribute: true,
+          {
+            properties: {
+              tags: {
+                type: "string",
+                xml: {
+                  attribute: true,
+                },
               },
             },
+            required: ["tags"],
+            type: "object",
           },
-          required: ["tags"],
-          type: "object",
-        },
-      );
+        );
+      });
     });
   });
-});
 
-describe("@unwrapped", () => {
-  it("warning if unwrapped not array", async () => {
-    const runner = await createOpenAPITestRunner();
-    const diagnostics = await runner.diagnose(
-      `model Book {
+  describe("@unwrapped", () => {
+    it("warning if unwrapped not array", async () => {
+      const runner = await createOpenAPITestRunner();
+      const diagnostics = await runner.diagnose(
+        `model Book {
           @unwrapped
           id: string;
        };`,
-    );
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/openapi3/xml-unwrapped-invalid-property-type",
-      message: `XML \`@unwrapped\` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property 'id' will be ignored.`,
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi3/xml-unwrapped-invalid-property-type",
+        message: `XML \`@unwrapped\` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property 'id' will be ignored.`,
+      });
     });
   });
-});
 
-describe("@ns", () => {
-  it("provide the namespace and prefix", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
+  describe("@ns", () => {
+    it("provide the namespace and prefix", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `
         @ns("https://example.com/ns1", "ns1")
         model Book {
           id: string;
         };`,
-    );
-    expect(res.schemas.Book).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "id": {
-            "type": "string",
+      );
+      deepStrictEqual(res.schemas.Book, {
+        properties: {
+          id: {
+            type: "string",
           },
         },
-        "required": [
-          "id",
-        ],
-        "type": "object",
-        "xml": {
-          "namespace": "https://example.com/ns1",
-          "prefix": "ns1",
+        required: ["id"],
+        type: "object",
+        xml: {
+          namespace: "https://example.com/ns1",
+          prefix: "ns1",
         },
-      }
-    `);
-  });
+      });
+    });
 
-  it("provide the namespace and prefix using string", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `model Book {
+    it("provide the namespace and prefix using string", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `model Book {
           @ns("https://example.com/ns1", "ns1")
           id: string;
         };`,
-    );
-    expect(res.schemas.Book).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "id": {
-            "type": "string",
-            "xml": {
-              "namespace": "https://example.com/ns1",
-              "prefix": "ns1",
+      );
+      deepStrictEqual(res.schemas.Book, {
+        properties: {
+          id: {
+            type: "string",
+            xml: {
+              namespace: "https://example.com/ns1",
+              prefix: "ns1",
             },
           },
         },
-        "required": [
-          "id",
-        ],
-        "type": "object",
-      }
-    `);
-  });
+        required: ["id"],
+        type: "object",
+      });
+    });
 
-  it("provide the namespace and prefix using enum on model", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
+    it("provide the namespace and prefix using enum on model", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `
         @nsDeclarations
         enum Namespaces {
           smp:"http://example.com/schema",
@@ -330,30 +304,26 @@ describe("@ns", () => {
         model Book {
           id: string;
         };`,
-    );
-    expect(res.schemas.Book).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "id": {
-            "type": "string",
+      );
+      deepStrictEqual(res.schemas.Book, {
+        properties: {
+          id: {
+            type: "string",
           },
         },
-        "required": [
-          "id",
-        ],
-        "type": "object",
-        "xml": {
-          "namespace": "http://example.com/schema",
-          "prefix": "smp",
+        required: ["id"],
+        type: "object",
+        xml: {
+          namespace: "http://example.com/schema",
+          prefix: "smp",
         },
-      }
-    `);
-  });
+      });
+    });
 
-  it("provide the namespace and prefix using enum on model and properties", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
+    it("provide the namespace and prefix using enum on model and properties", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `
         @nsDeclarations
         enum Namespaces {
           smp:"http://example.com/schema",
@@ -368,128 +338,114 @@ describe("@ns", () => {
           @ns(Namespaces.ns2)
           author: string;
         };`,
-    );
-    expect(res.schemas.Book).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "author": {
-            "type": "string",
-            "xml": {
-              "namespace": "http://example.com/ns2",
-              "prefix": "ns2",
+      );
+      deepStrictEqual(res.schemas.Book, {
+        properties: {
+          author: {
+            type: "string",
+            xml: {
+              namespace: "http://example.com/ns2",
+              prefix: "ns2",
             },
           },
-          "id": {
-            "type": "string",
+          id: {
+            type: "string",
           },
-          "title": {
-            "type": "string",
-            "xml": {
-              "namespace": "http://example.com/schema",
-              "prefix": "smp",
+          title: {
+            type: "string",
+            xml: {
+              namespace: "http://example.com/schema",
+              prefix: "smp",
             },
           },
         },
-        "required": [
-          "id",
-          "title",
-          "author",
-        ],
-        "type": "object",
-        "xml": {
-          "namespace": "http://example.com/schema",
-          "prefix": "smp",
+        required: ["id", "title", "author"],
+        type: "object",
+        xml: {
+          namespace: "http://example.com/schema",
+          prefix: "smp",
         },
-      }
-    `);
+      });
+    });
   });
-});
-describe("Array of primitive types", () => {
-  it("unwrapped tags array in the xmlBook model.", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
+  describe("Array of primitive types", () => {
+    it("unwrapped tags array in the xmlBook model.", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `
       @name("xmlBook")
       model Book {
         @unwrapped 
         tags: string[];
       };`,
-    );
+      );
 
-    expect(res.schemas.Book).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "tags": {
-            "items": {
-              "type": "string",
-              "xml": {
-                "name": "tags",
+      deepStrictEqual(res.schemas.Book, {
+        properties: {
+          tags: {
+            items: {
+              type: "string",
+              xml: {
+                name: "tags",
               },
             },
-            "type": "array",
+            type: "array",
           },
         },
-        "required": [
-          "tags",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "xmlBook",
+        required: ["tags"],
+        type: "object",
+        xml: {
+          name: "xmlBook",
         },
-      }
-    `);
-  });
+      });
+    });
 
-  it("wrapped tags array in the xmlBook model.", async () => {
-    const res = await oapiForModel(
-      "Book",
-      `
+    it("wrapped tags array in the xmlBook model.", async () => {
+      const res = await oapiForModel(
+        "Book",
+        `
       @name("xmlBook")
       model Book {
         @name("ItemsTags")
         tags: string[];
       };`,
-    );
+      );
 
-    expect(res.schemas.Book).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "tags": {
-            "items": {
-              "type": "string",
-              "xml": {
-                "name": "string",
+      deepStrictEqual(res.schemas.Book, {
+        properties: {
+          tags: {
+            items: {
+              type: "string",
+              xml: {
+                name: "string",
               },
             },
-            "type": "array",
-            "xml": {
-              "name": "ItemsTags",
-              "wrapped": true,
+            type: "array",
+            xml: {
+              name: "ItemsTags",
+              wrapped: true,
             },
           },
         },
-        "required": [
-          "tags",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "xmlBook",
+        required: ["tags"],
+        type: "object",
+        xml: {
+          name: "xmlBook",
         },
-      }
-    `);
-  });
+      });
+    });
 
-  describe("scalar, @xml.unwrapped=true, and rename xml name.", () => {
-    it.each([
-      ["string", "string"],
-      ["numeric", "number"],
-      ["integer", "integer"],
-      ["float", "number"],
-      ["boolean", "boolean"],
-    ])(`%s => %s`, async (target, type) => {
-      const res = await oapiForModel(
-        "Book",
-        `@name("ItemsName")
+    describe("scalar, @xml.unwrapped=true, and rename xml name.", () => {
+      it.each([
+        ["string", "string"],
+        ["numeric", "number"],
+        ["integer", "integer"],
+        ["float", "number"],
+        ["boolean", "boolean"],
+      ])(`%s => %s`, async (target, type) => {
+        const res = await oapiForModel(
+          "Book",
+          `@name("ItemsName")
         scalar tag extends ${target};
 
         @name("xmlBook")
@@ -497,44 +453,44 @@ describe("Array of primitive types", () => {
           @unwrapped
           tags: tag[]
         };`,
-      );
-      expect(res.schemas.tag).toMatchObject({
-        type: `${type}`,
-        xml: {
-          name: "ItemsName",
-        },
-      });
+        );
+        expect(res.schemas.tag).toMatchObject({
+          type: `${type}`,
+          xml: {
+            name: "ItemsName",
+          },
+        });
 
-      expect(res.schemas.Book).toMatchObject({
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            items: {
-              type: `${type}`,
-              xml: { name: "tags" },
+        expect(res.schemas.Book).toMatchObject({
+          type: "object",
+          properties: {
+            tags: {
+              type: "array",
+              items: {
+                type: `${type}`,
+                xml: { name: "tags" },
+              },
             },
           },
-        },
-        required: ["tags"],
-        xml: {
-          name: "xmlBook",
-        },
+          required: ["tags"],
+          xml: {
+            name: "xmlBook",
+          },
+        });
       });
     });
-  });
 
-  describe("scalar, @xml.unwrapped=false, and rename xml name.", () => {
-    it.each([
-      ["string", "string"],
-      ["numeric", "number"],
-      ["integer", "integer"],
-      ["float", "number"],
-      ["boolean", "boolean"],
-    ])(`%s => %s`, async (target, type) => {
-      const res = await oapiForModel(
-        "Book",
-        `@name("ItemsName")
+    describe("scalar, @xml.unwrapped=false, and rename xml name.", () => {
+      it.each([
+        ["string", "string"],
+        ["numeric", "number"],
+        ["integer", "integer"],
+        ["float", "number"],
+        ["boolean", "boolean"],
+      ])(`%s => %s`, async (target, type) => {
+        const res = await oapiForModel(
+          "Book",
+          `@name("ItemsName")
         scalar tag extends ${target};
 
         @name("xmlBook")
@@ -542,45 +498,45 @@ describe("Array of primitive types", () => {
           @name("ItemsTags")
           tags: tag[]
         };`,
-      );
-      expect(res.schemas.tag).toMatchObject({
-        type: `${type}`,
-        xml: {
-          name: "ItemsName",
-        },
-      });
+        );
+        expect(res.schemas.tag).toMatchObject({
+          type: `${type}`,
+          xml: {
+            name: "ItemsName",
+          },
+        });
 
-      expect(res.schemas.Book).toMatchObject({
-        type: "object",
-        properties: {
-          tags: {
-            type: "array",
-            xml: {
-              name: "ItemsTags",
-              wrapped: true,
-            },
-            items: {
-              type: `${type}`,
+        expect(res.schemas.Book).toMatchObject({
+          type: "object",
+          properties: {
+            tags: {
+              type: "array",
               xml: {
-                name: "ItemsName",
+                name: "ItemsTags",
+                wrapped: true,
+              },
+              items: {
+                type: `${type}`,
+                xml: {
+                  name: "ItemsName",
+                },
               },
             },
           },
-        },
-        required: ["tags"],
-        xml: {
-          name: "xmlBook",
-        },
+          required: ["tags"],
+          xml: {
+            name: "xmlBook",
+          },
+        });
       });
     });
   });
-});
 
-describe("Complex array types", () => {
-  it("unwrapped the tags object array in the XmlPet model.", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
+  describe("Complex array types", () => {
+    it("unwrapped the tags object array in the XmlPet model.", async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
         @name("XmlPet")
         model Pet {
           @unwrapped
@@ -591,56 +547,48 @@ describe("Complex array types", () => {
         model Tag {
           name: string;
         }`,
-    );
+      );
 
-    expect(res.schemas.Tag).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "name": {
-            "type": "string",
+      deepStrictEqual(res.schemas.Tag, {
+        properties: {
+          name: {
+            type: "string",
           },
         },
-        "required": [
-          "name",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "XmlTag",
+        required: ["name"],
+        type: "object",
+        xml: {
+          name: "XmlTag",
         },
-      }
-    `);
-    expect(res.schemas.Pet).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "tags": {
-            "items": {
-              "allOf": [
+      });
+      deepStrictEqual(res.schemas.Pet, {
+        properties: {
+          tags: {
+            items: {
+              allOf: [
                 {
-                  "$ref": "#/components/schemas/Tag",
+                  $ref: "#/components/schemas/Tag",
                 },
               ],
-              "xml": {
-                "name": "tags",
+              xml: {
+                name: "tags",
               },
             },
-            "type": "array",
+            type: "array",
           },
         },
-        "required": [
-          "tags",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "XmlPet",
+        required: ["tags"],
+        type: "object",
+        xml: {
+          name: "XmlPet",
         },
-      }
-    `);
-  });
+      });
+    });
 
-  it("wrapped the tags object array in the XmlPet model.", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
+    it("wrapped the tags object array in the XmlPet model.", async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
         @name("XmlPet")
         model Pet {
           @name("ItemsTags")    
@@ -651,61 +599,53 @@ describe("Complex array types", () => {
         model Tag {
           name: string;
         }`,
-    );
+      );
 
-    expect(res.schemas.Tag).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "name": {
-            "type": "string",
+      deepStrictEqual(res.schemas.Tag, {
+        properties: {
+          name: {
+            type: "string",
           },
         },
-        "required": [
-          "name",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "XmlTag",
+        required: ["name"],
+        type: "object",
+        xml: {
+          name: "XmlTag",
         },
-      }
-    `);
+      });
 
-    expect(res.schemas.Pet).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "tags": {
-            "items": {
-              "allOf": [
+      deepStrictEqual(res.schemas.Pet, {
+        properties: {
+          tags: {
+            items: {
+              allOf: [
                 {
-                  "$ref": "#/components/schemas/Tag",
+                  $ref: "#/components/schemas/Tag",
                 },
               ],
-              "xml": {
-                "name": "XmlTag",
+              xml: {
+                name: "XmlTag",
               },
             },
-            "type": "array",
-            "xml": {
-              "name": "ItemsTags",
-              "wrapped": true,
+            type: "array",
+            xml: {
+              name: "ItemsTags",
+              wrapped: true,
             },
           },
         },
-        "required": [
-          "tags",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "XmlPet",
+        required: ["tags"],
+        type: "object",
+        xml: {
+          name: "XmlPet",
         },
-      }
-    `);
-  });
+      });
+    });
 
-  it("unwrapped and renamed Tags object array in xmlPet Model.", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
+    it("unwrapped and renamed Tags object array in xmlPet Model.", async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
         @name("XmlPet")
         model Pet {
           @name("ItemsTags")
@@ -717,55 +657,47 @@ describe("Complex array types", () => {
         model Tag {
           name: string;
         }`,
-    );
-    expect(res.schemas.Tag).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "name": {
-            "type": "string",
+      );
+      deepStrictEqual(res.schemas.Tag, {
+        properties: {
+          name: {
+            type: "string",
           },
         },
-        "required": [
-          "name",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "XmlTag",
+        required: ["name"],
+        type: "object",
+        xml: {
+          name: "XmlTag",
         },
-      }
-    `);
-    expect(res.schemas.Pet).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "tags": {
-            "items": {
-              "allOf": [
+      });
+      deepStrictEqual(res.schemas.Pet, {
+        properties: {
+          tags: {
+            items: {
+              allOf: [
                 {
-                  "$ref": "#/components/schemas/Tag",
+                  $ref: "#/components/schemas/Tag",
                 },
               ],
-              "xml": {
-                "name": "ItemsTags",
+              xml: {
+                name: "ItemsTags",
               },
             },
-            "type": "array",
+            type: "array",
           },
         },
-        "required": [
-          "tags",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "XmlPet",
+        required: ["tags"],
+        type: "object",
+        xml: {
+          name: "XmlPet",
         },
-      }
-    `);
-  });
+      });
+    });
 
-  it("rename all names in array model.", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
+    it("rename all names in array model.", async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
         @name("XmlPet")
         model Pet {
           @name("ItemsTags")
@@ -776,472 +708,464 @@ describe("Complex array types", () => {
         model Tag {
           name: string;
         }`,
-    );
+      );
 
-    expect(res.schemas.Tag).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "name": {
-            "type": "string",
+      deepStrictEqual(res.schemas.Tag, {
+        properties: {
+          name: {
+            type: "string",
           },
         },
-        "required": [
-          "name",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "XmlTag",
+        required: ["name"],
+        type: "object",
+        xml: {
+          name: "XmlTag",
         },
-      }
-    `);
-    expect(res.schemas.Pet).toMatchInlineSnapshot(`
-      {
-        "properties": {
-          "tags": {
-            "items": {
-              "allOf": [
+      });
+      deepStrictEqual(res.schemas.Pet, {
+        properties: {
+          tags: {
+            items: {
+              allOf: [
                 {
-                  "$ref": "#/components/schemas/Tag",
+                  $ref: "#/components/schemas/Tag",
                 },
               ],
-              "xml": {
-                "name": "XmlTag",
+              xml: {
+                name: "XmlTag",
               },
             },
-            "type": "array",
-            "xml": {
-              "name": "ItemsTags",
-              "wrapped": true,
+            type: "array",
+            xml: {
+              name: "ItemsTags",
+              wrapped: true,
             },
           },
         },
-        "required": [
-          "tags",
-        ],
-        "type": "object",
-        "xml": {
-          "name": "XmlPet",
+        required: ["tags"],
+        type: "object",
+        xml: {
+          name: "XmlPet",
         },
-      }
-    `);
+      });
+    });
   });
-});
 
-describe("set xml name in items if that object is used in an xml payload.", () => {
-  const testCases: [string, string, string, any][] = [
-    [
-      "@name model, is arrays: true",
-      "model Book { author: Author[]; }",
-      `@name("xmlAuthor") model Author { id:string; }`,
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              type: "array",
-              items: {
+  describe("set xml name in items if that object is used in an xml payload.", () => {
+    const testCases: [string, string, string, any][] = [
+      [
+        "@name model, is arrays: true",
+        "model Book { author: Author[]; }",
+        `@name("xmlAuthor") model Author { id:string; }`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                type: "array",
+                items: {
+                  allOf: [{ $ref: "#/components/schemas/Author" }],
+                  xml: { name: "xmlAuthor" },
+                },
+                xml: {
+                  wrapped: true,
+                },
+              },
+            },
+            required: ["author"],
+          },
+          Author: {
+            type: "object",
+            properties: {
+              id: {
+                type: "string",
+              },
+            },
+            xml: {
+              name: "xmlAuthor",
+            },
+            required: ["id"],
+          },
+        },
+      ],
+      [
+        "@name model property, is arrays: true",
+        "model Book { author: Author[]; }",
+        `model Author { @name("xmlId") id:string; }`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                type: "array",
+                items: {
+                  allOf: [{ $ref: "#/components/schemas/Author" }],
+                  xml: { name: "Author" },
+                },
+                xml: {
+                  wrapped: true,
+                },
+              },
+            },
+            required: ["author"],
+          },
+          Author: {
+            type: "object",
+            properties: {
+              id: {
+                type: "string",
+                xml: {
+                  name: "xmlId",
+                },
+              },
+            },
+            required: ["id"],
+          },
+        },
+      ],
+      [
+        "@attribute, is arrays: true",
+        "model Book { author: Author[]; }",
+        `model Author { @attribute id:string; }`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                type: "array",
+                items: {
+                  allOf: [{ $ref: "#/components/schemas/Author" }],
+                  xml: { name: "Author" },
+                },
+                xml: {
+                  wrapped: true,
+                },
+              },
+            },
+            required: ["author"],
+          },
+          Author: {
+            type: "object",
+            properties: {
+              id: {
+                type: "string",
+                xml: {
+                  attribute: true,
+                },
+              },
+            },
+            required: ["id"],
+          },
+        },
+      ],
+      [
+        "@attribute deeply, is arrays: true",
+        "model Book { author: Author[]; }",
+        `model Author { card: Card[]; } model Card { @attribute id:string;}`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                type: "array",
+                items: {
+                  allOf: [{ $ref: "#/components/schemas/Author" }],
+                  xml: { name: "Author" },
+                },
+                xml: {
+                  wrapped: true,
+                },
+              },
+            },
+            required: ["author"],
+          },
+          Author: {
+            type: "object",
+            properties: {
+              card: {
+                type: "array",
+                items: {
+                  allOf: [{ $ref: "#/components/schemas/Card" }],
+                  xml: { name: "Card" },
+                },
+                xml: {
+                  wrapped: true,
+                },
+              },
+            },
+            required: ["card"],
+          },
+          Card: {
+            properties: {
+              id: {
+                type: "string",
+                xml: {
+                  attribute: true,
+                },
+              },
+            },
+            required: ["id"],
+            type: "object",
+          },
+        },
+      ],
+      [
+        "circular reference child, is arrays: true",
+        "model Book { author: Author[]; }",
+        `model Author { @attribute id: string; card: Card[]; } model Card { author:Author[];}`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                type: "array",
+                items: {
+                  allOf: [{ $ref: "#/components/schemas/Author" }],
+                  xml: { name: "Author" },
+                },
+                xml: {
+                  wrapped: true,
+                },
+              },
+            },
+            required: ["author"],
+          },
+          Author: {
+            type: "object",
+            properties: {
+              card: {
+                type: "array",
+                items: {
+                  allOf: [{ $ref: "#/components/schemas/Card" }],
+                  xml: { name: "Card" },
+                },
+                xml: {
+                  wrapped: true,
+                },
+              },
+              id: {
+                type: "string",
+                xml: {
+                  attribute: true,
+                },
+              },
+            },
+            required: ["id", "card"],
+          },
+          Card: {
+            properties: {
+              author: {
+                items: {
+                  $ref: "#/components/schemas/Author",
+                },
+                type: "array",
+              },
+            },
+            required: ["author"],
+            type: "object",
+          },
+        },
+      ],
+      [
+        "circular reference root, is arrays: true",
+        "model Book { author: Author[]; }",
+        `model Author {  @attribute  id: string;  book?: Book[]; }`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                type: "array",
+                items: {
+                  allOf: [{ $ref: "#/components/schemas/Author" }],
+                  xml: { name: "Author" },
+                },
+                xml: {
+                  wrapped: true,
+                },
+              },
+            },
+            required: ["author"],
+          },
+          Author: {
+            type: "object",
+            properties: {
+              book: {
+                type: "array",
+                items: {
+                  allOf: [{ $ref: "#/components/schemas/Book" }],
+                  xml: { name: "Book" },
+                },
+                xml: {
+                  wrapped: true,
+                },
+              },
+              id: {
+                type: "string",
+                xml: {
+                  attribute: true,
+                },
+              },
+            },
+            required: ["id"],
+          },
+        },
+      ],
+      [
+        "@name model, is arrays: false",
+        "model Book { author: Author; }",
+        `@name("XmlAuthor") model Author { name: string; }`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
                 allOf: [{ $ref: "#/components/schemas/Author" }],
-                xml: { name: "xmlAuthor" },
-              },
-              xml: {
-                wrapped: true,
+                xml: { name: "author" },
               },
             },
+            required: ["author"],
           },
-          required: ["author"],
-        },
-        Author: {
-          type: "object",
-          properties: {
-            id: {
-              type: "string",
+          Author: {
+            type: "object",
+            properties: {
+              name: {
+                type: "string",
+              },
             },
+            xml: {
+              name: "XmlAuthor",
+            },
+            required: ["name"],
           },
-          xml: {
-            name: "xmlAuthor",
-          },
-          required: ["id"],
         },
-      },
-    ],
-    [
-      "@name model property, is arrays: true",
-      "model Book { author: Author[]; }",
-      `model Author { @name("xmlId") id:string; }`,
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              type: "array",
-              items: {
+      ],
+      [
+        "@name model property, is arrays: false",
+        "model Book { author: Author; }",
+        `model Author { @name("xmlId") name: string; }`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
                 allOf: [{ $ref: "#/components/schemas/Author" }],
-                xml: { name: "Author" },
-              },
-              xml: {
-                wrapped: true,
+                xml: { name: "author" },
               },
             },
+            required: ["author"],
           },
-          required: ["author"],
-        },
-        Author: {
-          type: "object",
-          properties: {
-            id: {
-              type: "string",
-              xml: {
-                name: "xmlId",
+          Author: {
+            type: "object",
+            properties: {
+              name: {
+                type: "string",
+                xml: {
+                  name: "xmlId",
+                },
               },
             },
+            required: ["name"],
           },
-          required: ["id"],
         },
-      },
-    ],
-    [
-      "@attribute, is arrays: true",
-      "model Book { author: Author[]; }",
-      `model Author { @attribute id:string; }`,
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              type: "array",
-              items: {
+      ],
+      [
+        "@attribute, is arrays: false",
+        "model Book { author: Author; }",
+        "model Author { @attribute name: string; }",
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
                 allOf: [{ $ref: "#/components/schemas/Author" }],
-                xml: { name: "Author" },
-              },
-              xml: {
-                wrapped: true,
+                xml: { name: "author" },
               },
             },
+            required: ["author"],
           },
-          required: ["author"],
-        },
-        Author: {
-          type: "object",
-          properties: {
-            id: {
-              type: "string",
-              xml: {
-                attribute: true,
+          Author: {
+            type: "object",
+            properties: {
+              name: {
+                type: "string",
+                xml: {
+                  attribute: true,
+                },
               },
             },
+            required: ["name"],
           },
-          required: ["id"],
         },
-      },
-    ],
-    [
-      "@attribute deeply, is arrays: true",
-      "model Book { author: Author[]; }",
-      `model Author { card: Card[]; } model Card { @attribute id:string;}`,
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              type: "array",
-              items: {
+      ],
+      [
+        "circular reference root, is arrays: false",
+        "model Book { author: Author; }",
+        `model Author {  @attribute  id: string;  book?: Book; }`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
                 allOf: [{ $ref: "#/components/schemas/Author" }],
-                xml: { name: "Author" },
-              },
-              xml: {
-                wrapped: true,
+                xml: { name: "author" },
               },
             },
+            required: ["author"],
           },
-          required: ["author"],
-        },
-        Author: {
-          type: "object",
-          properties: {
-            card: {
-              type: "array",
-              items: {
-                allOf: [{ $ref: "#/components/schemas/Card" }],
-                xml: { name: "Card" },
+          Author: {
+            type: "object",
+            properties: {
+              id: {
+                type: "string",
+                xml: { attribute: true },
               },
-              xml: {
-                wrapped: true,
-              },
-            },
-          },
-          required: ["card"],
-        },
-        Card: {
-          properties: {
-            id: {
-              type: "string",
-              xml: {
-                attribute: true,
-              },
-            },
-          },
-          required: ["id"],
-          type: "object",
-        },
-      },
-    ],
-    [
-      "circular reference child, is arrays: true",
-      "model Book { author: Author[]; }",
-      `model Author { @attribute id: string; card: Card[]; } model Card { author:Author[];}`,
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              type: "array",
-              items: {
-                allOf: [{ $ref: "#/components/schemas/Author" }],
-                xml: { name: "Author" },
-              },
-              xml: {
-                wrapped: true,
-              },
-            },
-          },
-          required: ["author"],
-        },
-        Author: {
-          type: "object",
-          properties: {
-            card: {
-              type: "array",
-              items: {
-                allOf: [{ $ref: "#/components/schemas/Card" }],
-                xml: { name: "Card" },
-              },
-              xml: {
-                wrapped: true,
-              },
-            },
-            id: {
-              type: "string",
-              xml: {
-                attribute: true,
-              },
-            },
-          },
-          required: ["id", "card"],
-        },
-        Card: {
-          properties: {
-            author: {
-              items: {
-                $ref: "#/components/schemas/Author",
-              },
-              type: "array",
-            },
-          },
-          required: ["author"],
-          type: "object",
-        },
-      },
-    ],
-    [
-      "circular reference root, is arrays: true",
-      "model Book { author: Author[]; }",
-      `model Author {  @attribute  id: string;  book?: Book[]; }`,
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              type: "array",
-              items: {
-                allOf: [{ $ref: "#/components/schemas/Author" }],
-                xml: { name: "Author" },
-              },
-              xml: {
-                wrapped: true,
-              },
-            },
-          },
-          required: ["author"],
-        },
-        Author: {
-          type: "object",
-          properties: {
-            book: {
-              type: "array",
-              items: {
+              book: {
                 allOf: [{ $ref: "#/components/schemas/Book" }],
-                xml: { name: "Book" },
-              },
-              xml: {
-                wrapped: true,
+                xml: { name: "book" },
               },
             },
-            id: {
-              type: "string",
-              xml: {
-                attribute: true,
+            required: ["id"],
+          },
+        },
+      ],
+      [
+        "scalar, is arrays: false",
+        "model Book { author: Author; }",
+        `@name("XmlAuthor") scalar Author extends string;`,
+        {
+          Book: {
+            type: "object",
+            properties: {
+              author: {
+                allOf: [{ $ref: "#/components/schemas/Author" }],
+                xml: { name: "author" },
               },
             },
+            required: ["author"],
           },
-          required: ["id"],
-        },
-      },
-    ],
-    [
-      "@name model, is arrays: false",
-      "model Book { author: Author; }",
-      `@name("XmlAuthor") model Author { name: string; }`,
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              allOf: [{ $ref: "#/components/schemas/Author" }],
-              xml: { name: "author" },
-            },
+          Author: {
+            type: "string",
+            xml: { name: "XmlAuthor" },
           },
-          required: ["author"],
         },
-        Author: {
-          type: "object",
-          properties: {
-            name: {
-              type: "string",
-            },
-          },
-          xml: {
-            name: "XmlAuthor",
-          },
-          required: ["name"],
-        },
-      },
-    ],
-    [
-      "@name model property, is arrays: false",
-      "model Book { author: Author; }",
-      `model Author { @name("xmlId") name: string; }`,
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              allOf: [{ $ref: "#/components/schemas/Author" }],
-              xml: { name: "author" },
-            },
-          },
-          required: ["author"],
-        },
-        Author: {
-          type: "object",
-          properties: {
-            name: {
-              type: "string",
-              xml: {
-                name: "xmlId",
-              },
-            },
-          },
-          required: ["name"],
-        },
-      },
-    ],
-    [
-      "@attribute, is arrays: false",
-      "model Book { author: Author; }",
-      "model Author { @attribute name: string; }",
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              allOf: [{ $ref: "#/components/schemas/Author" }],
-              xml: { name: "author" },
-            },
-          },
-          required: ["author"],
-        },
-        Author: {
-          type: "object",
-          properties: {
-            name: {
-              type: "string",
-              xml: {
-                attribute: true,
-              },
-            },
-          },
-          required: ["name"],
-        },
-      },
-    ],
-    [
-      "circular reference root, is arrays: false",
-      "model Book { author: Author; }",
-      `model Author {  @attribute  id: string;  book?: Book; }`,
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              allOf: [{ $ref: "#/components/schemas/Author" }],
-              xml: { name: "author" },
-            },
-          },
-          required: ["author"],
-        },
-        Author: {
-          type: "object",
-          properties: {
-            id: {
-              type: "string",
-              xml: { attribute: true },
-            },
-            book: {
-              allOf: [{ $ref: "#/components/schemas/Book" }],
-              xml: { name: "book" },
-            },
-          },
-          required: ["id"],
-        },
-      },
-    ],
-    [
-      "scalar, is arrays: false",
-      "model Book { author: Author; }",
-      `@name("XmlAuthor") scalar Author extends string;`,
-      {
-        Book: {
-          type: "object",
-          properties: {
-            author: {
-              allOf: [{ $ref: "#/components/schemas/Author" }],
-              xml: { name: "author" },
-            },
-          },
-          required: ["author"],
-        },
-        Author: {
-          type: "string",
-          xml: { name: "XmlAuthor" },
-        },
-      },
-    ],
-  ];
-  it.each(testCases)("%s", async (_, mainModel, refModel, expected) => {
-    const res = await oapiForModel(
-      "Book",
-      `${mainModel}
+      ],
+    ];
+    it.each(testCases)("%s", async (_, mainModel, refModel, expected) => {
+      const res = await oapiForModel(
+        "Book",
+        `${mainModel}
        ${refModel}`,
-    );
+      );
 
-    deepStrictEqual(res?.schemas, expected);
+      deepStrictEqual(res?.schemas, expected);
+    });
   });
-});
 
-it("test.", async () => {
-  const res = await oapiForModel(
-    "Author",
-    `
+  it("test.", async () => {
+    const res = await oapiForModel(
+      "Author",
+      `
       model Book {
         author: Author[];
       }
@@ -1249,19 +1173,18 @@ it("test.", async () => {
       model Author {
       book?: Book[];
     }`,
-  );
+    );
 
-  expect(res.schemas.Author).toMatchInlineSnapshot(`
-    {
-      "properties": {
-        "book": {
-          "items": {
-            "$ref": "#/components/schemas/Book",
+    deepStrictEqual(res.schemas.Author, {
+      properties: {
+        book: {
+          items: {
+            $ref: "#/components/schemas/Book",
           },
-          "type": "array",
+          type: "array",
         },
       },
-      "type": "object",
-    }
-  `);
+      type: "object",
+    });
+  });
 });

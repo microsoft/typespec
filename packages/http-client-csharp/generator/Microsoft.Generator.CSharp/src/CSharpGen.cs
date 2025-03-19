@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp
             var generatedTestOutputPath = CodeModelPlugin.Instance.Configuration.TestGeneratedDirectory;
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
-            await CodeModelPlugin.Instance.InitializeSourceInputModelAsync();
+            CodeModelPlugin.Instance.SourceInputModel = new SourceInputModel(await workspace.GetCompilationAsync());
 
             var output = CodeModelPlugin.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
@@ -80,8 +80,7 @@ namespace Microsoft.Generator.CSharp
             // Write project scaffolding files
             if (CodeModelPlugin.Instance.IsNewProject)
             {
-                var scaffolding = new NewProjectScaffolding();
-                await scaffolding.Execute();
+                await CodeModelPlugin.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
         }
 

@@ -44,7 +44,7 @@ export const Links = {
   typespecAzure: "https://azure.github.io/typespec-azure",
 
   // Microsoft links
-  privacy: "https://go.microsoft.com/fwlink/?LinkId=521839",
+  privacy: "https://go.microsoft.com/fwlink?LinkId=521839",
   termsOfUse: "https://www.microsoft.com/legal/terms-of-use",
   trademark: "https://www.microsoft.com/legal/intellectualproperty/trademarks",
 };

@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         {
             writer.AppendRaw("$\"");
             var argumentCount = 0;
-            foreach ((var span, bool isLiteral) in StringExtensions.GetPathParts(Format))
+            foreach ((var span, bool isLiteral) in StringExtensions.GetFormattableStringFormatParts(Format))
             {
                 if (isLiteral)
                 {
@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         private static void Validate(string format, IReadOnlyList<ValueExpression> args)
         {
             var count = 0;
-            foreach (var (_, isLiteral) in StringExtensions.GetPathParts(format))
+            foreach (var (_, isLiteral) in StringExtensions.GetFormattableStringFormatParts(format))
             {
                 if (!isLiteral)
                     count++;

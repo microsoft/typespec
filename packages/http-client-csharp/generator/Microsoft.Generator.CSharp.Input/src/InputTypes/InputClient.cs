@@ -11,19 +11,21 @@ namespace Microsoft.Generator.CSharp.Input
         private readonly string? _key;
         private IReadOnlyDictionary<string, InputClientExample>? _examples;
 
-        public InputClient(string name, string description, IReadOnlyList<InputOperation> operations, IReadOnlyList<InputParameter> parameters, string? parent)
+        public InputClient(string name, string? summary, string? doc, IReadOnlyList<InputOperation> operations, IReadOnlyList<InputParameter> parameters, string? parent)
         {
             Name = name;
-            Description = description;
+            Summary = summary;
+            Doc = doc;
             Operations = operations;
             Parameters = parameters;
             Parent = parent;
         }
 
-        public InputClient() : this(string.Empty, string.Empty, Array.Empty<InputOperation>(), Array.Empty<InputParameter>(), null) { }
+        public InputClient() : this(string.Empty, string.Empty, string.Empty, Array.Empty<InputOperation>(), Array.Empty<InputParameter>(), null) { }
 
         public string Name { get; internal set; }
-        public string Description { get; internal set; }
+        public string? Summary { get; internal set; }
+        public string? Doc { get; internal set; }
         public IReadOnlyList<InputOperation> Operations { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public string? Parent { get; internal set; }

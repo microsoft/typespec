@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using Client.Structure.Service.Models;
 
@@ -24,9 +25,9 @@ namespace Client.Structure.Service
 
         public virtual Task<ClientResult> FiveAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Five() => throw null;
+        public virtual ClientResult Five(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FiveAsync() => throw null;
+        public virtual Task<ClientResult> FiveAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Group5 GetGroup5Client() => throw null;
     }

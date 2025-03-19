@@ -19,7 +19,7 @@ namespace UnbrandedTypeSpec
                 throw await ClientResultException.CreateAsync(message.Response).ConfigureAwait(false);
             }
 
-            PipelineResponse response = message.BufferResponse ? message.Response : ExtractResponseContent(message);
+            PipelineResponse response = message.BufferResponse ? message.Response : message.ExtractResponse();
             return response;
         }
 
@@ -32,7 +32,7 @@ namespace UnbrandedTypeSpec
                 throw new ClientResultException(message.Response);
             }
 
-            PipelineResponse response = message.BufferResponse ? message.Response : ExtractResponseContent(message);
+            PipelineResponse response = message.BufferResponse ? message.Response : message.ExtractResponse();
             return response;
         }
 
@@ -62,11 +62,6 @@ namespace UnbrandedTypeSpec
                 default:
                     return new ErrorResult<bool>(response, new ClientResultException(response));
             }
-        }
-
-        private static PipelineResponse ExtractResponseContent(PipelineMessage message)
-        {
-            return message.ExtractResponse();
         }
     }
 }

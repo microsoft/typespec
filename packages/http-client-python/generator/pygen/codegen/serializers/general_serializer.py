@@ -5,25 +5,20 @@
 # --------------------------------------------------------------------------
 import json
 from typing import Any, List
-from jinja2 import Environment
 from .import_serializer import FileImportSerializer, TypingSection
 from ..models.imports import MsrestImportType, FileImport
 from ..models import (
     ImportType,
-    CodeModel,
     TokenCredentialType,
     Client,
 )
+from ..models.utils import NamespaceType
 from .client_serializer import ClientSerializer, ConfigSerializer
 from .base_serializer import BaseSerializer
 
 
 class GeneralSerializer(BaseSerializer):
     """General serializer for SDK root level files"""
-
-    def __init__(self, code_model: CodeModel, env: Environment, async_mode: bool):
-        super().__init__(code_model, env)
-        self.async_mode = async_mode
 
     def serialize_setup_file(self) -> str:
         template = self.env.get_template("packaging_templates/setup.py.jinja2")
@@ -65,6 +60,7 @@ class GeneralSerializer(BaseSerializer):
             code_model=self.code_model,
             clients=clients,
             async_mode=self.async_mode,
+            serialize_namespace=self.serialize_namespace,
         )
 
     def serialize_service_client_file(self, clients: List[Client]) -> str:
@@ -72,7 +68,13 @@ class GeneralSerializer(BaseSerializer):
 
         imports = FileImport(self.code_model)
         for client in clients:
-            imports.merge(client.imports(self.async_mode))
+            imports.merge(
+                client.imports(
+                    self.async_mode,
+                    serialize_namespace=self.serialize_namespace,
+                    serialize_namespace_type=NamespaceType.CLIENT,
+                )
+            )
 
         return template.render(
             code_model=self.code_model,
@@ -80,14 +82,16 @@ class GeneralSerializer(BaseSerializer):
             async_mode=self.async_mode,
             get_serializer=ClientSerializer,
             imports=FileImportSerializer(imports),
+            serialize_namespace=self.serialize_namespace,
         )
 
-    def serialize_vendor_file(self, clients: List[Client]) -> str:
+    def serialize_vendor_file(self) -> str:
         template = self.env.get_template("vendor.py.jinja2")
+        clients = self.code_model.get_clients(self.client_namespace)
 
         # configure imports
         file_import = FileImport(self.code_model)
-        if self.code_model.need_mixin_abc:
+        if self.code_model.need_vendored_mixin(self.client_namespace):
             file_import.add_submodule_import(
                 "abc",
                 "ABC",
@@ -100,7 +104,7 @@ class GeneralSerializer(BaseSerializer):
                 TypingSection.TYPING,
             )
             file_import.add_msrest_import(
-                relative_path=".." if self.async_mode else ".",
+                serialize_namespace=self.serialize_namespace,
                 msrest_import_type=MsrestImportType.SerializerDeserializer,
                 typing_section=TypingSection.TYPING,
             )
@@ -111,14 +115,14 @@ class GeneralSerializer(BaseSerializer):
                         f"{client.name}Configuration",
                         ImportType.LOCAL,
                     )
-        if self.code_model.has_etag:
+        if self.code_model.need_vendored_etag(self.client_namespace):
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
             file_import.add_submodule_import(
                 "",
                 "MatchConditions",
                 ImportType.SDKCORE,
             )
-        if self.code_model.has_form_data and self.code_model.options["models_mode"] == "dpg" and not self.async_mode:
+        if self.code_model.need_vendored_form_data(self.async_mode, self.client_namespace):
             file_import.add_submodule_import("typing", "IO", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Tuple", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
@@ -146,19 +150,27 @@ class GeneralSerializer(BaseSerializer):
             ),
             async_mode=self.async_mode,
             clients=clients,
+            client_namespace=self.client_namespace,
         )
 
     def serialize_config_file(self, clients: List[Client]) -> str:
         template = self.env.get_template("config_container.py.jinja2")
         imports = FileImport(self.code_model)
         for client in self.code_model.clients:
-            imports.merge(client.config.imports(self.async_mode))
+            imports.merge(
+                client.config.imports(
+                    self.async_mode,
+                    serialize_namespace=self.serialize_namespace,
+                    serialize_namespace_type=NamespaceType.CLIENT,
+                )
+            )
         return template.render(
             code_model=self.code_model,
             async_mode=self.async_mode,
             imports=FileImportSerializer(imports),
             get_serializer=ConfigSerializer,
             clients=clients,
+            serialize_namespace=self.serialize_namespace,
         )
 
     def serialize_version_file(self) -> str:
@@ -181,7 +193,7 @@ class GeneralSerializer(BaseSerializer):
 
     def serialize_cross_language_definition_file(self) -> str:
         cross_langauge_def_dict = {
-            f"{self.code_model.namespace}.models.{model.name}": model.cross_language_definition_id
+            f"{model.client_namespace}.models.{model.name}": model.cross_language_definition_id
             for model in self.code_model.public_model_types
         }
         cross_langauge_def_dict.update(

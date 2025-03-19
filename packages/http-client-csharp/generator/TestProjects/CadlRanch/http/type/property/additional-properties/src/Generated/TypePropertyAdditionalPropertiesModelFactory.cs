@@ -27,21 +27,21 @@ namespace _Type.Property.AdditionalProperties.Models
 
         public static MultipleSpreadRecord MultipleSpreadRecord(bool flag = default, IDictionary<string, string> additionalProperties = default, IDictionary<string, float> additionalSingleProperties = default) => throw null;
 
-        public static DifferentSpreadModelArrayDerived DifferentSpreadModelArrayDerived(IEnumerable<ModelForRecord> derivedProp = default, string knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default) => throw null;
+        public static DifferentSpreadModelArrayDerived DifferentSpreadModelArrayDerived(string knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default, IEnumerable<ModelForRecord> derivedProp = default) => throw null;
 
         public static ModelForRecord ModelForRecord(string state = default) => throw null;
 
         public static DifferentSpreadModelArrayRecord DifferentSpreadModelArrayRecord(string knownProp = default, IDictionary<string, IList<BinaryData>> additionalProperties = default) => throw null;
 
-        public static DifferentSpreadModelDerived DifferentSpreadModelDerived(ModelForRecord derivedProp = default, string knownProp = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
+        public static DifferentSpreadModelDerived DifferentSpreadModelDerived(string knownProp = default, IDictionary<string, BinaryData> additionalProperties = default, ModelForRecord derivedProp = default) => throw null;
 
         public static DifferentSpreadModelRecord DifferentSpreadModelRecord(string knownProp = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static DifferentSpreadFloatDerived DifferentSpreadFloatDerived(float derivedProp = default, string name = default, IDictionary<string, float> additionalProperties = default) => throw null;
+        public static DifferentSpreadFloatDerived DifferentSpreadFloatDerived(string name = default, IDictionary<string, float> additionalProperties = default, float derivedProp = default) => throw null;
 
         public static DifferentSpreadFloatRecord DifferentSpreadFloatRecord(string name = default, IDictionary<string, float> additionalProperties = default) => throw null;
 
-        public static DifferentSpreadStringDerived DifferentSpreadStringDerived(string derivedProp = default, float id = default, IDictionary<string, string> additionalProperties = default) => throw null;
+        public static DifferentSpreadStringDerived DifferentSpreadStringDerived(float id = default, IDictionary<string, string> additionalProperties = default, string derivedProp = default) => throw null;
 
         public static DifferentSpreadStringRecord DifferentSpreadStringRecord(float id = default, IDictionary<string, string> additionalProperties = default) => throw null;
 
@@ -71,17 +71,17 @@ namespace _Type.Property.AdditionalProperties.Models
 
         public static IsUnknownAdditionalPropertiesDiscriminated IsUnknownAdditionalPropertiesDiscriminated(string name = default, string kind = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static IsUnknownAdditionalPropertiesDiscriminatedDerived IsUnknownAdditionalPropertiesDiscriminatedDerived(int index = default, float? age = default, string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
+        public static IsUnknownAdditionalPropertiesDiscriminatedDerived IsUnknownAdditionalPropertiesDiscriminatedDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
-        public static IsUnknownAdditionalPropertiesDerived IsUnknownAdditionalPropertiesDerived(int index = default, float? age = default, string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
+        public static IsUnknownAdditionalPropertiesDerived IsUnknownAdditionalPropertiesDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
         public static IsUnknownAdditionalProperties IsUnknownAdditionalProperties(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
         public static ExtendsUnknownAdditionalPropertiesDiscriminated ExtendsUnknownAdditionalPropertiesDiscriminated(string name = default, string kind = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
 
-        public static ExtendsUnknownAdditionalPropertiesDiscriminatedDerived ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(int index = default, float? age = default, string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
+        public static ExtendsUnknownAdditionalPropertiesDiscriminatedDerived ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
-        public static ExtendsUnknownAdditionalPropertiesDerived ExtendsUnknownAdditionalPropertiesDerived(int index = default, float? age = default, string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
+        public static ExtendsUnknownAdditionalPropertiesDerived ExtendsUnknownAdditionalPropertiesDerived(string name = default, IDictionary<string, BinaryData> additionalProperties = default, int index = default, float? age = default) => throw null;
 
         public static ExtendsUnknownAdditionalProperties ExtendsUnknownAdditionalProperties(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
     }

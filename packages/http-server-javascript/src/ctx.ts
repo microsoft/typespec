@@ -117,6 +117,8 @@ export interface JsContext {
    * A map of all types that require serialization code to the formats they require.
    */
   serializations: OnceQueue<SerializableType>;
+
+  gensym: (name: string) => string;
 }
 
 /**
@@ -383,4 +385,17 @@ function getCommonPrefix(a: string[], b: string[]): string[] {
   }
 
   return prefix;
+}
+
+const SYM_TAB = new WeakMap<Program, { idx: number }>();
+
+export function gensym(ctx: JsContext, name: string): string {
+  let symTab = SYM_TAB.get(ctx.program);
+
+  if (symTab === undefined) {
+    symTab = { idx: 0 };
+    SYM_TAB.set(ctx.program, symTab);
+  }
+
+  return `__${name}_${symTab.idx++}`;
 }

@@ -11,6 +11,8 @@ const argv = parseArgs({
   args: process.argv.slice(2),
   options: {
     pythonPath: { type: "string" },
+    folderName: { type: "string" },
+    command: { type: "string" },
   },
 });
 

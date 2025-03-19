@@ -18,7 +18,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
             MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null), clients: () => [inputClient]);
             var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.AreEqual(2, client.Methods.Count);
+            Assert.IsNotNull(client);
+            Assert.AreEqual(2, client!.Methods.Count);
             Assert.IsTrue(client.Methods[0].Signature.Parameters.Any(p => p.Name == "options" && p.Type.Equals(typeof(RequestOptions))));
         }
 
@@ -29,7 +30,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
             MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null), clients: () => [inputClient]);
             var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
-            Assert.AreEqual(2, client.Methods.Count);
+            Assert.IsNotNull(client);
+            Assert.AreEqual(2, client!.Methods.Count);
             Assert.IsTrue(client.Methods[0].Signature.Parameters.Any(p => p.Name == "contentType" && p.Type.Equals(typeof(string))));
         }
     }

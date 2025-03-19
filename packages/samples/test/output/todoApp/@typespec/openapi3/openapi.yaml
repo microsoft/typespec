@@ -1,0 +1,632 @@
+openapi: 3.0.0
+info:
+  title: Todo App
+  version: 0.0.0
+tags: []
+paths:
+  /items:
+    get:
+      operationId: TodoItems_list
+      parameters:
+        - $ref: '#/components/parameters/TodoItems.PaginationControls.limit'
+        - $ref: '#/components/parameters/TodoItems.PaginationControls.offset'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItems.TodoPage'
+        4XX:
+          description: Something is wrong with you.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard4XXResponse'
+        5XX:
+          description: Something is wrong with me.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard5XXResponse'
+    post:
+      operationId: TodoItems_createJson_TodoItems_createForm
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItem'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItems.InvalidTodoItem'
+        4XX:
+          description: Something is wrong with you.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard4XXResponse'
+        5XX:
+          description: Something is wrong with me.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard5XXResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item:
+                  $ref: '#/components/schemas/TodoItemCreate'
+                attachments:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TodoAttachment'
+              required:
+                - item
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ToDoItemMultipartRequest'
+            encoding:
+              item:
+                contentType: application/json
+              attachments:
+                contentType: '*/*'
+  /items/{id}:
+    get:
+      operationId: TodoItems_get
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            readOnly: true
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItem'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItems.NotFoundErrorResponse'
+    patch:
+      operationId: TodoItems_update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            readOnly: true
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItem'
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/TodoItems.TodoItemPatch'
+    delete:
+      operationId: TodoItems_delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            readOnly: true
+      responses:
+        '204':
+          description: There is no content to send for this request, but the headers may be useful.
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItems.NotFoundErrorResponse'
+        4XX:
+          description: Something is wrong with you.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard4XXResponse'
+        5XX:
+          description: Something is wrong with me.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard5XXResponse'
+  /items/{itemId}/attachments:
+    get:
+      operationId: Attachments_list
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            readOnly: true
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TodoAttachment'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItems.NotFoundErrorResponse'
+        4XX:
+          description: Something is wrong with you.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard4XXResponse'
+        5XX:
+          description: Something is wrong with me.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard5XXResponse'
+    post:
+      operationId: Attachments_createJsonAttachment_Attachments_createFileAttachment
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            readOnly: true
+      responses:
+        '204':
+          description: There is no content to send for this request, but the headers may be useful.
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItems.NotFoundErrorResponse'
+        4XX:
+          description: Something is wrong with you.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard4XXResponse'
+        5XX:
+          description: Something is wrong with me.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard5XXResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoAttachment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileAttachmentMultipartRequest'
+            encoding:
+              contents:
+                contentType: '*/*'
+  /users:
+    post:
+      operationId: Users_create
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users.UserCreatedResponse'
+        '409':
+          description: The user already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users.UserExistsResponse'
+        '422':
+          description: The user is invalid (e.g. forgot to enter email address)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users.InvalidUserResponse'
+        4XX:
+          description: Something is wrong with you.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard4XXResponse'
+        5XX:
+          description: Something is wrong with me.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Standard5XXResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      security:
+        - {}
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+components:
+  parameters:
+    TodoItems.PaginationControls.limit:
+      name: limit
+      in: query
+      required: false
+      description: The limit to the number of items
+      schema:
+        type: integer
+        format: int32
+        default: 50
+      explode: false
+    TodoItems.PaginationControls.offset:
+      name: offset
+      in: query
+      required: false
+      description: The offset to start paginating at
+      schema:
+        type: integer
+        format: int32
+        default: 0
+      explode: false
+  schemas:
+    ApiError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: A machine readable error code
+        message:
+          type: string
+          description: A human readable message
+          x-ms-primary-error-message: true
+    FileAttachmentMultipartRequest:
+      type: object
+      properties:
+        contents:
+          type: string
+          format: binary
+      required:
+        - contents
+    Standard4XXResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApiError'
+      description: Something is wrong with you.
+    Standard5XXResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApiError'
+      description: Something is wrong with me.
+    ToDoItemMultipartRequest:
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/TodoItemCreate'
+        attachments:
+          type: array
+          items:
+            type: string
+            format: binary
+      required:
+        - item
+    TodoAttachment:
+      type: object
+      required:
+        - filename
+        - mediaType
+        - contents
+      properties:
+        filename:
+          type: string
+          maxLength: 255
+          description: The file name of the attachment
+        mediaType:
+          type: string
+          description: The media type of the attachment
+        contents:
+          type: string
+          format: byte
+          description: The contents of the file
+    TodoItem:
+      type: object
+      required:
+        - id
+        - title
+        - createdBy
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The item's unique id
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+          description: The item's title
+        createdBy:
+          type: integer
+          format: int64
+          description: User that created the todo
+          readOnly: true
+        assignedTo:
+          type: integer
+          format: int64
+          description: User that the todo is assigned to
+          readOnly: true
+        description:
+          type: string
+          description: A longer description of the todo item in markdown format
+        status:
+          type: string
+          enum:
+            - NotStarted
+            - InProgress
+            - Completed
+          description: The status of the todo item
+        createdAt:
+          type: string
+          format: date-time
+          description: When the todo item was created.
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the todo item was last updated
+          readOnly: true
+        completedAt:
+          type: string
+          format: date-time
+          description: When the todo item was marked as completed
+          readOnly: true
+        labels:
+          $ref: '#/components/schemas/TodoLabels'
+    TodoItemCreate:
+      type: object
+      required:
+        - title
+        - status
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          description: The item's title
+        assignedTo:
+          type: integer
+          format: int64
+          description: User that the todo is assigned to
+          readOnly: true
+        description:
+          type: string
+          description: A longer description of the todo item in markdown format
+        status:
+          type: string
+          enum:
+            - NotStarted
+            - InProgress
+            - Completed
+          description: The status of the todo item
+        labels:
+          $ref: '#/components/schemas/TodoLabels'
+        _dummy:
+          type: string
+    TodoItems.InvalidTodoItem:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApiError'
+    TodoItems.NotFoundErrorResponse:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          enum:
+            - not-found
+    TodoItems.TodoItemPatch:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          description: The item's title
+        assignedTo:
+          type: integer
+          format: int64
+          description: User that the todo is assigned to
+          readOnly: true
+          nullable: true
+        description:
+          type: string
+          description: A longer description of the todo item in markdown format
+          nullable: true
+        status:
+          type: string
+          enum:
+            - NotStarted
+            - InProgress
+            - Completed
+          description: The status of the todo item
+    TodoItems.TodoPage:
+      type: object
+      required:
+        - items
+        - pageSize
+        - totalSize
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TodoItem'
+          description: The items in the page
+        pageSize:
+          type: integer
+          format: int32
+          description: The number of items returned in this page
+        totalSize:
+          type: integer
+          format: int32
+          description: The total number of items
+        limit:
+          type: integer
+          format: int32
+          description: The limit to the number of items
+          default: 50
+        offset:
+          type: integer
+          format: int32
+          description: The offset to start paginating at
+          default: 0
+        prevLink:
+          type: string
+          format: uri
+          description: A link to the previous page, if it exists
+        nextLink:
+          type: string
+          format: uri
+          description: A link to the next page, if it exists
+    TodoLabelRecord:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+          pattern: ^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$
+    TodoLabels:
+      anyOf:
+        - type: string
+        - type: array
+          items:
+            type: string
+        - $ref: '#/components/schemas/TodoLabelRecord'
+        - type: array
+          items:
+            $ref: '#/components/schemas/TodoLabelRecord'
+    User:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: The user's username
+        email:
+          type: string
+          description: The user's email address
+        password:
+          type: string
+          description: |-
+            The user's password, provided when creating a user
+            but is otherwise not visible (and hashed by the backend)
+    Users.InvalidUserResponse:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          enum:
+            - invalid-user
+      allOf:
+        - $ref: '#/components/schemas/ApiError'
+      description: The user is invalid (e.g. forgot to enter email address)
+    Users.UserCreatedResponse:
+      type: object
+      required:
+        - id
+        - username
+        - email
+        - token
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: An autogenerated unique id for the user
+          readOnly: true
+        username:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: The user's username
+        email:
+          type: string
+          description: The user's email address
+        token:
+          type: string
+          description: The token to use to construct the validate email address url
+    Users.UserExistsResponse:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          enum:
+            - user-exists
+      allOf:
+        - $ref: '#/components/schemas/ApiError'
+      description: The user already exists
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKeyAuth:
+      type: apiKey
+      in: cookie
+      name: session-id

@@ -860,14 +860,28 @@ function isDeclaration(type: Type): type is TypeSpecDeclaration | Namespace {
  * could consider.
  */
 function createInterner() {
+  type PlainObject = Record<string, any>;
+
   const emptyObject = {};
-  const knownObjects: Set<Record<string, any>> = new Set();
+  const knownKeys = new Map<string, Set<PlainObject>>();
 
   return {
-    intern<T extends Record<string, any>>(object: T): T {
-      const keyLen = Object.keys(object).length;
+    intern<T extends PlainObject>(object: T): T {
+      const keys = Object.keys(object);
+      const keyLen = keys.length;
       if (keyLen === 0) return emptyObject as any;
 
+      // Find an object set with minimum size by object keys
+      let knownObjects = new Set<PlainObject>();
+      let minSize = Infinity;
+      for (const objs of keys.map((key) => knownKeys.get(key))) {
+        if (objs && objs.size < minSize) {
+          knownObjects = objs;
+          minSize = objs.size;
+        }
+      }
+
+      // Now find a known object from the found smallest object set
       for (const ko of knownObjects) {
         const entries = Object.entries(ko);
         if (entries.length !== keyLen) continue;
@@ -885,7 +899,16 @@ function createInterner() {
         }
       }
 
-      knownObjects.add(object);
+      // If the object is not known, add all keys as known
+      for (const key of keys) {
+        const ko = knownKeys.get(key);
+        if (ko) {
+          ko.add(object);
+        } else {
+          knownKeys.set(key, new Set([object]));
+        }
+      }
+
       return object;
     },
   };

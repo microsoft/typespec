@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var helloAgainMethod = clientProviderMethods.FirstOrDefault(m
                 => m.Signature.Name == "HelloAgain" && m.Signature.Parameters.Count > 0 && m.Signature.Parameters[0].Name == "p1");
             Assert.IsNotNull(helloAgainMethod);
-            Assert.AreEqual(1, helloAgainMethod!.Signature.Parameters.Count);
+            Assert.AreEqual(2, helloAgainMethod!.Signature.Parameters.Count);
 
             // The custom code view should contain the method
             var customCodeView = clientProvider.CustomCodeView;
@@ -187,7 +187,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual("HelloAgain", customMethods[0].Signature.Name);
 
             var customMethodParams = customMethods[0].Signature.Parameters;
-            Assert.AreEqual(1, customMethodParams.Count);
+            Assert.AreEqual(2, customMethodParams.Count);
             Assert.AreEqual("p1", customMethodParams[0].Name);
             Assert.AreEqual("MyStruct", customMethodParams[0].Type.Name);
             Assert.AreEqual(isStructCustomized ? "Sample.TestClient" : string.Empty, customMethodParams[0].Type.Namespace);

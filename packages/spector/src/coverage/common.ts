@@ -6,5 +6,6 @@ export async function getScenarioMetadata(scenariosPath: string): Promise<Scenar
   return {
     commit: getCommit(scenariosPath),
     version: pkg?.version ?? "?",
+    packageName: pkg?.name ?? "@typespec/http-specs",
   };
 }

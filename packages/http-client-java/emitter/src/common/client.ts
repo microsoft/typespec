@@ -2,7 +2,7 @@
 import { Aspect, Metadata, OperationGroup, Parameter, Security } from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
 
-export interface Client extends Aspect, CrossLanguageDefinition {
+export interface Client extends Aspect {
   /** All operations  */
   operationGroups: Array<OperationGroup>;
 
@@ -11,6 +11,11 @@ export interface Client extends Aspect, CrossLanguageDefinition {
   security: Security;
 
   serviceVersion?: ServiceVersion; // apiVersions is in
+
+  parent?: Client;
+  subClients: Array<Client>;
+  buildMethodPublic: boolean;
+  parentAccessorPublic: boolean;
 }
 
 export class Client extends Aspect implements Client {
@@ -19,6 +24,9 @@ export class Client extends Aspect implements Client {
 
     this.operationGroups = [];
     this.security = new Security(false);
+    this.subClients = [];
+    this.buildMethodPublic = true;
+    this.parentAccessorPublic = false;
 
     this.applyTo(this, objectInitializer);
   }
@@ -29,6 +37,16 @@ export class Client extends Aspect implements Client {
 
   addGlobalParameters(parameters: Parameter[]) {
     this.globals.push(...parameters);
+  }
+
+  addSubClient(subClient: Client) {
+    subClient.parent = this;
+    subClient.buildMethodPublic = false;
+    subClient.parentAccessorPublic = true;
+    this.subClients.push(subClient);
+
+    // at present, sub client must have same namespace of its parent client
+    subClient.language.java!.namespace = this.language.java!.namespace;
   }
 }
 
@@ -47,10 +65,6 @@ export class ServiceVersion extends Metadata {
       initializer,
     );
   }
-}
-
-export interface CrossLanguageDefinition {
-  crossLanguageDefinitionId?: string;
 }
 
 export interface EncodedSchema {

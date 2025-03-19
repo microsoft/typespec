@@ -195,7 +195,12 @@ const NumericPrototype = {
     return equals(this[InternalDataSym], Numeric(num.toString())[InternalDataSym]) ? num : null;
   },
   asBigInt: function (this: Numeric) {
-    return this.isInteger ? this[InternalDataSym].n : null;
+    if (!this.isInteger) {
+      return null;
+    }
+
+    const { s, n } = this[InternalDataSym];
+    return BigInt(s) * n;
   },
   equals: function (this: Numeric, other: Numeric) {
     return equals(this[InternalDataSym], other[InternalDataSym]);

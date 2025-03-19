@@ -16,7 +16,7 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 
         public static Goose Goose(int wingspan = default) => throw null;
 
-        public static Eagle Eagle(IEnumerable<Bird> friends = default, IDictionary<string, Bird> hate = default, Bird partner = default, int wingspan = default) => throw null;
+        public static Eagle Eagle(int wingspan = default, IEnumerable<Bird> friends = default, IDictionary<string, Bird> hate = default, Bird partner = default) => throw null;
 
         public static Dinosaur Dinosaur(string kind = default, int size = default) => throw null;
 

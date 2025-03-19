@@ -7,7 +7,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "PartialUpdate",
 })
-namespace Cadl.PartialUpdate;
+namespace TspTest.PartialUpdate;
 
 model PartialUpdateModel {
   boolean: boolean;
@@ -24,7 +24,7 @@ model PartialUpdateModel {
 }
 
 @client({
-  service: Cadl.PartialUpdate,
+  service: TspTest.PartialUpdate,
   name: "PartialUpdateClient",
 })
 @route("/partialupdate")

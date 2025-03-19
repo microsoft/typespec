@@ -13,7 +13,7 @@ using Azure.Core.Traits;
   title: "Versioning",
 })
 @versioned(ApiVersions)
-namespace Cadl.Versioning;
+namespace TspTest.Versioning;
 
 enum ApiVersions {
   @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)

@@ -95,4 +95,4 @@ Mario is a Senior Product Manager at Microsoft, focusing on API development with
 Samuel is a Director of Product Management at LSEG, focusing on API design and integration.
 
 **Olivier Davant**  
-Olivier is a Project Manager at LSEG, overseeing the implementation of the Python and TypeScript SDKs.
+Olivier is a Product Manager at LSEG, overseeing the implementation of the Python and TypeScript SDKs.

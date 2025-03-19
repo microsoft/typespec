@@ -8,7 +8,7 @@ import {
 import { getOperationVerb } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
 import { resolveRequestVisibility } from "./metadata.js";
-import { resolveHttpPayload } from "./payload.js";
+import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -65,7 +65,7 @@ function getOperationParametersForVerb(
 
   const parameters: HttpOperationParameter[] = [];
   const { body: resolvedBody, metadata } = diagnostics.pipe(
-    resolveHttpPayload(program, operation.parameters, visibility, "request", {
+    resolveHttpPayload(program, operation.parameters, visibility, HttpPayloadDisposition.Request, {
       implicitParameter: (
         param: ModelProperty,
       ): QueryParameterOptions | PathParameterOptions | undefined => {

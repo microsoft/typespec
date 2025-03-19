@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Definitions
 
             // The definitions should not have the custom method
             var definitionMethods = definition!.Methods;
-            Assert.AreEqual(4, definitionMethods.Count);
+            Assert.AreEqual(3, definitionMethods.Count);
             Assert.IsFalse(definitionMethods.Any(m => m.Signature.Name == "ProcessMessageAsync"));
 
             // The custom code view should contain the method

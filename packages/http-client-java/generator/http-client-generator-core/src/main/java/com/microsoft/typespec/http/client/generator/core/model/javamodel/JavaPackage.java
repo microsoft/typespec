@@ -39,6 +39,7 @@ import com.microsoft.typespec.http.client.generator.core.template.SwaggerReadmeT
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -299,6 +300,9 @@ public class JavaPackage {
         } catch (PossibleCredentialException e) {
             // skip this test file
             logger.warn("Skip unit test for model '{}', caused by key '{}'", model.getName(), e.getKeyName());
+        } catch (ConstantStringTooLongException e) {
+            // skip this test file
+            logger.warn("Skip unit test for model '{}', JSON string is too long.", model.getName());
         }
     }
 

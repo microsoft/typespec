@@ -30,6 +30,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Servi
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
+import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -222,7 +223,7 @@ public class ProtocolExampleWriter {
                 if (parameter.getClientType() == ClassType.REQUEST_OPTIONS) {
                     params.set(i, "requestOptions");
                 } else if (parameter.getClientType() == ClassType.CONTEXT) {
-                    params.set(i, "Context.NONE");
+                    params.set(i, TemplateUtil.getContextNone());
                 }
             }
             String methodCall = String.format("%s.%s(%s)", clientVarName, method.getName(), String.join(", ", params));

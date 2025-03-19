@@ -151,7 +151,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void DerviedCtorHasSardAsLastParam()
+        public void DerivedCtorHasAdditionalBinaryDataPropertiesParam()
         {
             MockHelpers.LoadMockPlugin();
             var catModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(_catModel);
@@ -159,7 +159,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(2, catModel!.Constructors.Count);
             var serializationCtor = catModel.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             Assert.IsNotNull(serializationCtor);
-            Assert.AreEqual("additionalBinaryDataProperties", serializationCtor!.Signature.Parameters.Last().Name);
+            Assert.IsTrue(serializationCtor!.Signature.Parameters.Any(p => p.Name == "additionalBinaryDataProperties"));
         }
 
         [Test]

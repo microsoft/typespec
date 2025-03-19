@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.ValueTypes.Models;
 
@@ -19,16 +20,16 @@ namespace _Type.Property.ValueTypes
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<UnknownStringProperty> Get() => throw null;
+        public virtual ClientResult<UnknownStringProperty> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<UnknownStringProperty>> GetAsync() => throw null;
+        public virtual Task<ClientResult<UnknownStringProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(UnknownStringProperty body) => throw null;
+        public virtual ClientResult Put(UnknownStringProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(UnknownStringProperty body) => throw null;
+        public virtual Task<ClientResult> PutAsync(UnknownStringProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

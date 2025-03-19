@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -205,19 +204,6 @@ public class Transformer {
                                         .add(request.getSignatureParameters().indexOf(parameter) + 1, contentLength);
                                 }
                             }
-                        }
-                        // convert contentType to header param
-                        Optional<Parameter> contentType = request.getParameters()
-                            .stream()
-                            .filter(p -> (p.getProtocol() == null || p.getProtocol().getHttp() == null)
-                                && "contentType".equals(p.getLanguage().getDefault().getName()))
-                            .findFirst();
-                        if (contentType.isPresent()) {
-                            Protocols protocols = new Protocols();
-                            protocols.setHttp(new Protocol());
-                            protocols.getHttp().setIn(RequestParameterLocation.HEADER);
-                            contentType.get().setProtocol(protocols);
-                            contentType.get().getLanguage().getDefault().setSerializedName("Content-Type");
                         }
                     }
                     renameOdataParameterNames(request);

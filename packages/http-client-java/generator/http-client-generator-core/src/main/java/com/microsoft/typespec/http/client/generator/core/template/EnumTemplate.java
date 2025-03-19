@@ -41,7 +41,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
             if (settings.isBranded()) {
                 writeBrandedExpandableEnum(enumType, javaFile, settings);
             } else {
-                writeExpandableStringEnumInterface(enumType, javaFile, settings);
+                writeExpandableEnumInterface(enumType, javaFile, settings);
             }
         } else {
             writeEnum(enumType, javaFile, settings);
@@ -59,184 +59,8 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         if (enumType.getElementType() == ClassType.STRING) {
             writeExpandableStringEnum(enumType, javaFile, settings);
         } else {
-            Set<String> imports = new HashSet<>();
-            imports.add("java.util.Collection");
-            imports.add("java.lang.IllegalArgumentException");
-            imports.add("java.util.Map");
-            imports.add("java.util.concurrent.ConcurrentHashMap");
-            imports.add("java.util.ArrayList");
-            imports.add("java.util.Objects");
-            imports.add(ClassType.EXPANDABLE_ENUM.getFullName());
-            if (!settings.isStreamStyleSerialization()) {
-                imports.add("com.fasterxml.jackson.annotation.JsonCreator");
-            }
-
-            addGeneratedImport(imports);
-
-            javaFile.declareImport(imports);
-            javaFile.javadocComment(comment -> comment.description(enumType.getDescription()));
-
-            String enumName = enumType.getName();
-            IType elementType = enumType.getElementType();
-            String typeName = elementType.getClientType().asNullable().toString();
-            String pascalTypeName = CodeNamer.toPascalCase(typeName);
-            String declaration = enumName + " implements ExpandableEnum<" + pascalTypeName + ">";
-            javaFile.publicFinalClass(declaration, classBlock -> {
-                classBlock.privateStaticFinalVariable(
-                    String.format("Map<%1$s, %2$s> VALUES = new ConcurrentHashMap<>()", pascalTypeName, enumName));
-
-                for (ClientEnumValue enumValue : enumType.getValues()) {
-                    String value = enumValue.getValue();
-                    classBlock.javadocComment(CoreUtils.isNullOrEmpty(enumValue.getDescription())
-                        ? "Static value " + value + " for " + enumName + "."
-                        : enumValue.getDescription());
-                    addGeneratedAnnotation(classBlock);
-                    classBlock.publicStaticFinalVariable(String.format("%1$s %2$s = fromValue(%3$s)", enumName,
-                        enumValue.getName(), elementType.defaultValueExpression(value)));
-                }
-
-                classBlock.variable(pascalTypeName + " value", JavaVisibility.Private, JavaModifier.Final);
-                classBlock.privateConstructor(enumName + "(" + pascalTypeName + " value)", ctor -> {
-                    ctor.line("this.value = value;");
-                });
-
-                // fromValue(typeName)
-                classBlock.javadocComment(comment -> {
-                    comment.description("Creates or finds a " + enumName);
-                    comment.param("value", "a value to look for");
-                    comment.methodReturns("the corresponding " + enumName);
-                });
-
-                addGeneratedAnnotation(classBlock);
-                if (!settings.isStreamStyleSerialization()) {
-                    classBlock.annotation("JsonCreator");
-                }
-
-                classBlock.publicStaticMethod(String.format("%1$s fromValue(%2$s value)", enumName, pascalTypeName),
-                    function -> {
-                        function.line("Objects.requireNonNull(value, \"'value' cannot be null.\");");
-                        function.line(enumName + " member = VALUES.get(value);");
-                        function.ifBlock("member != null", ifAction -> ifAction.line("return member;"));
-                        function.methodReturn("VALUES.computeIfAbsent(value, key -> new " + enumName + "(key))");
-                    });
-
-                // values
-                classBlock.javadocComment(comment -> {
-                    comment.description("Gets known " + enumName + " values.");
-                    comment.methodReturns("Known " + enumName + " values.");
-                });
-                addGeneratedAnnotation(classBlock);
-                classBlock.publicStaticMethod(String.format("Collection<%s> values()", enumName),
-                    function -> function.methodReturn("new ArrayList<>(VALUES.values())"));
-
-                // getValue
-                classBlock.javadocComment(comment -> {
-                    comment.description("Gets the value of the " + enumName + " instance.");
-                    comment.methodReturns("the value of the " + enumName + " instance.");
-                });
-
-                addGeneratedAnnotation(classBlock);
-                classBlock.annotation("Override");
-                classBlock.publicMethod(pascalTypeName + " getValue()",
-                    function -> function.methodReturn("this.value"));
-
-                // toString
-                addGeneratedAnnotation(classBlock);
-                classBlock.annotation("Override");
-                classBlock.method(JavaVisibility.Public, null, "String toString()",
-                    function -> function.methodReturn("Objects.toString(this.value)"));
-
-                // equals
-                addGeneratedAnnotation(classBlock);
-                classBlock.annotation("Override");
-                classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)",
-                    function -> function.methodReturn("Objects.equals(this.value, obj)"));
-
-                // hashcode
-                addGeneratedAnnotation(classBlock);
-                classBlock.annotation("Override");
-                classBlock.method(JavaVisibility.Public, null, "int hashCode()",
-                    function -> function.methodReturn("Objects.hashCode(this.value)"));
-            });
+            writeExpandableEnumInterface(enumType, javaFile, settings);
         }
-    }
-
-    private void writeExpandableStringEnumInterface(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
-        Set<String> imports = new HashSet<>();
-        imports.add("java.util.Collection");
-        imports.add("java.util.concurrent.ConcurrentHashMap");
-        imports.add("java.util.Map");
-        imports.add(getStringEnumImport());
-        if (!settings.isStreamStyleSerialization()) {
-            imports.add("com.fasterxml.jackson.annotation.JsonCreator");
-        }
-
-        addGeneratedImport(imports);
-
-        javaFile.declareImport(imports);
-        javaFile.javadocComment(comment -> comment.description(enumType.getDescription()));
-
-        String enumName = enumType.getName();
-        IType elementType = enumType.getElementType();
-        String typeName = elementType.getClientType().toString();
-        String pascalTypeName = CodeNamer.toPascalCase(typeName);
-        String declaration = enumName + " implements ExpandableEnum<" + pascalTypeName + ">";
-
-        javaFile.publicFinalClass(declaration, classBlock -> {
-            classBlock.privateStaticFinalVariable("Map<String, " + enumName + "> VALUES = new ConcurrentHashMap<>()");
-
-            for (ClientEnumValue enumValue : enumType.getValues()) {
-                String value = enumValue.getValue();
-                classBlock.javadocComment(CoreUtils.isNullOrEmpty(enumValue.getDescription())
-                    ? "Static value " + value + " for " + enumName + "."
-                    : enumValue.getDescription());
-                addGeneratedAnnotation(classBlock);
-                classBlock.publicStaticFinalVariable(String.format("%1$s %2$s = from%3$s(%4$s)", enumName,
-                    enumValue.getName(), pascalTypeName, elementType.defaultValueExpression(value)));
-            }
-
-            classBlock.variable("String name", JavaVisibility.Private, JavaModifier.Final);
-            classBlock.privateConstructor(enumName + "(String name)", ctor -> {
-                ctor.line("this.name = name;");
-            });
-
-            // fromString(typeName)
-            classBlock.javadocComment(comment -> {
-                comment.description("Creates or finds a " + enumName);
-                comment.param("name", "a name to look for");
-                comment.methodReturns("the corresponding " + enumName);
-            });
-
-            addGeneratedAnnotation(classBlock);
-            if (!settings.isStreamStyleSerialization()) {
-                classBlock.annotation("JsonCreator");
-            }
-
-            classBlock.publicStaticMethod(String.format("%1$s from%2$s(%3$s name)", enumName, pascalTypeName, typeName),
-                function -> {
-                    function.ifBlock("name == null", ifAction -> ifAction.methodReturn("null"));
-                    function.line(enumName + " value = VALUES.get(name);");
-                    function.ifBlock("value != null", ifAction -> {
-                        ifAction.line("return value;");
-                    });
-                    function.methodReturn("VALUES.computeIfAbsent(name, key -> new " + enumName + "(key))");
-                });
-
-            // getValue
-            classBlock.javadocComment(comment -> {
-                comment.description("Gets the value of the " + enumName + " instance.");
-                comment.methodReturns("the value of the " + enumName + " instance.");
-            });
-
-            addGeneratedAnnotation(classBlock);
-            classBlock.annotation("Override");
-            classBlock.publicMethod(pascalTypeName + " getValue()", function -> function.methodReturn("this.name"));
-
-            addGeneratedAnnotation(classBlock);
-            classBlock.annotation("Override");
-            classBlock.method(JavaVisibility.Public, null, "String toString()",
-                function -> function.methodReturn("name"));
-        });
     }
 
     private void writeExpandableStringEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
@@ -381,6 +205,110 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
             }
             enumBlock.publicMethod(typeName + " " + enumType.getToMethodName() + "()",
                 function -> function.methodReturn("this.value"));
+        });
+    }
+
+    private void writeExpandableEnumInterface(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
+        Set<String> imports = new HashSet<>();
+        imports.add("java.util.Collection");
+        imports.add("java.lang.IllegalArgumentException");
+        imports.add("java.util.Map");
+        imports.add("java.util.concurrent.ConcurrentHashMap");
+        imports.add("java.util.ArrayList");
+        imports.add("java.util.Objects");
+        imports.add(ClassType.EXPANDABLE_ENUM.getFullName());
+        imports.add("java.util.function.Function");
+        if (!settings.isStreamStyleSerialization()) {
+            imports.add("com.fasterxml.jackson.annotation.JsonCreator");
+        }
+
+        addGeneratedImport(imports);
+
+        javaFile.declareImport(imports);
+        javaFile.javadocComment(comment -> comment.description(enumType.getDescription()));
+
+        String enumName = enumType.getName();
+        IType elementType = enumType.getElementType();
+        String typeName = elementType.getClientType().asNullable().toString();
+        String pascalTypeName = CodeNamer.toPascalCase(typeName);
+        String declaration = enumName + " implements ExpandableEnum<" + pascalTypeName + ">";
+        javaFile.publicFinalClass(declaration, classBlock -> {
+            classBlock.privateStaticFinalVariable(
+                String.format("Map<%1$s, %2$s> VALUES = new ConcurrentHashMap<>()", pascalTypeName, enumName));
+            classBlock.privateStaticFinalVariable(
+                String.format("Function<%1$s, %2$s> NEW_INSTANCE = %2$s::new", pascalTypeName, enumName));
+
+            for (ClientEnumValue enumValue : enumType.getValues()) {
+                String value = enumValue.getValue();
+                classBlock.javadocComment(CoreUtils.isNullOrEmpty(enumValue.getDescription())
+                    ? "Static value " + value + " for " + enumName + "."
+                    : enumValue.getDescription());
+                addGeneratedAnnotation(classBlock);
+                classBlock.publicStaticFinalVariable(String.format("%1$s %2$s = fromValue(%3$s)", enumName,
+                    enumValue.getName(), elementType.defaultValueExpression(value)));
+            }
+
+            classBlock.variable(pascalTypeName + " value", JavaVisibility.Private, JavaModifier.Final);
+            classBlock.privateConstructor(enumName + "(" + pascalTypeName + " value)", ctor -> {
+                ctor.line("this.value = value;");
+            });
+
+            // fromValue(typeName)
+            classBlock.javadocComment(comment -> {
+                comment.description("Creates or finds a " + enumName);
+                comment.param("value", "a value to look for");
+                comment.methodReturns("the corresponding " + enumName);
+                comment.methodThrows("IllegalArgumentException", "if value is null");
+            });
+
+            addGeneratedAnnotation(classBlock);
+            if (!settings.isStreamStyleSerialization()) {
+                classBlock.annotation("JsonCreator");
+            }
+
+            classBlock.publicStaticMethod(String.format("%1$s fromValue(%2$s value)", enumName, pascalTypeName),
+                function -> {
+                    function.ifBlock("value == null",
+                        ifBlock -> ifBlock.line("throw new IllegalArgumentException(\"'value' cannot be null.\");"));
+                    function.methodReturn("VALUES.computeIfAbsent(value, NEW_INSTANCE)");
+                });
+
+            // values
+            classBlock.javadocComment(comment -> {
+                comment.description("Gets known " + enumName + " values.");
+                comment.methodReturns("Known " + enumName + " values.");
+            });
+            addGeneratedAnnotation(classBlock);
+            classBlock.publicStaticMethod(String.format("Collection<%s> values()", enumName),
+                function -> function.methodReturn("new ArrayList<>(VALUES.values())"));
+
+            // getValue
+            classBlock.javadocComment(comment -> {
+                comment.description("Gets the value of the " + enumName + " instance.");
+                comment.methodReturns("the value of the " + enumName + " instance.");
+            });
+
+            addGeneratedAnnotation(classBlock);
+            classBlock.annotation("Override");
+            classBlock.publicMethod(pascalTypeName + " getValue()", function -> function.methodReturn("this.value"));
+
+            // toString
+            addGeneratedAnnotation(classBlock);
+            classBlock.annotation("Override");
+            classBlock.method(JavaVisibility.Public, null, "String toString()",
+                function -> function.methodReturn("Objects.toString(this.value)"));
+
+            // equals
+            addGeneratedAnnotation(classBlock);
+            classBlock.annotation("Override");
+            classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)",
+                function -> function.methodReturn("this == obj"));
+
+            // hashcode
+            addGeneratedAnnotation(classBlock);
+            classBlock.annotation("Override");
+            classBlock.method(JavaVisibility.Public, null, "int hashCode()",
+                function -> function.methodReturn("Objects.hashCode(this.value)"));
         });
     }
 

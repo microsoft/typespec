@@ -294,7 +294,7 @@ public class Javagen extends NewPlugin {
             // Test
             if (settings.isDataPlaneClient() && settings.isGenerateTests()) {
                 if (!client.getSyncClients().isEmpty()
-                    && client.getSyncClients().iterator().next().getClientBuilder() != null) {
+                    && client.getSyncClients().stream().anyMatch(c -> c.getClientBuilder() != null)) {
                     List<ServiceClient> serviceClients = client.getServiceClients();
                     if (CoreUtils.isNullOrEmpty(serviceClients)) {
                         serviceClients = Collections.singletonList(client.getServiceClient());

@@ -59,6 +59,37 @@ describe("emitting models", () => {
     assert(schemas["TemplateFoo.json"]);
   });
 
+  it("inlines templates instantiated with union literals", async () => {
+    const schemas = await emitSchema(`
+      model Foo {
+        prop: Template<Bar | string | { y?: string }>
+      }
+
+      model Bar {
+        prop: string
+      }
+
+      model Template<T> {
+        x: T
+      }
+    `);
+
+    const expectedBarRef = { $ref: "Bar.json" };
+    const expectedStringSchema = { type: "string" };
+    const expectedExpressionSchema = { type: "object", properties: { y: { type: "string" } } };
+
+    assert.deepStrictEqual(schemas["Foo.json"].properties.prop, {
+      type: "object",
+      required: ["x"],
+      properties: {
+        x: {
+          anyOf: [expectedBarRef, expectedStringSchema, expectedExpressionSchema],
+        },
+      },
+    });
+    assert(schemas["Bar.json"]);
+  });
+
   it("works with minProperties and maxProperties", async () => {
     const { "Foo.json": Foo } = await emitSchema(`
       @minProperties(1)

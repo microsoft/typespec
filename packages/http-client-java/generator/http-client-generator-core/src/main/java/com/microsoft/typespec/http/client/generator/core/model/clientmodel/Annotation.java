@@ -60,7 +60,7 @@ public class Annotation {
         = new Annotation(CLIENTCORE_PACKAGE, "HttpRequestInformation");
     public static final Annotation UNEXPECTED_RESPONSE_EXCEPTION_INFORMATION
         = new Annotation(CLIENTCORE_PACKAGE, "UnexpectedResponseExceptionDetail");
-    public static final Annotation TYPE_CONDITIONS = new Annotation(CLIENTCORE_PACKAGE, "TypeConditions");
+    public static final Annotation TYPE_CONDITIONS = new Annotation("io.clientcore.core.annotation", "TypeConditions");
 
     private final String fullName;
     private final String packageName;

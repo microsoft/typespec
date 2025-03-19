@@ -18,12 +18,11 @@ namespace TestProjects.CadlRanch.Tests
         public Uri Host { get; }
         public string Port { get; }
 
-        public TestServerBase(string baseDirectory, string processArguments)
+        public TestServerBase(string processPath, string processArguments)
         {
             var portPhrase = "Started server on port ";
-            var startup = Path.Combine(baseDirectory, "dist", "cli", "cli.js");
 
-            var processStartInfo = new ProcessStartInfo("node", $"{startup} {processArguments}")
+            var processStartInfo = new ProcessStartInfo("node", $"{processPath} {processArguments}")
             {
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
@@ -41,7 +40,7 @@ namespace TestProjects.CadlRanch.Tests
                 var s = _process.StandardOutput.ReadLine();
                 var indexOfPort = s?.IndexOf(portPhrase);
                 if (indexOfPort > 0)
-                {
+                {   
                     Port = s!.Substring(indexOfPort.Value + portPhrase.Length).Trim();
                     Host = new Uri($"http://localhost:{Port}");
                     Client = new HttpClient

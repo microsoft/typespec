@@ -11,6 +11,7 @@ export interface UploadCoverageReportConfig {
   generatorVersion: string;
   generatorCommit?: string;
   generatorMode: string;
+  containerName: string;
 }
 
 export async function uploadCoverageReport({
@@ -20,11 +21,16 @@ export async function uploadCoverageReport({
   generatorVersion,
   generatorCommit: geenratorCommit,
   generatorMode,
+  containerName,
 }: UploadCoverageReportConfig) {
   const content = await readFile(coverageFile);
   const coverage: CoverageReport = JSON.parse(content.toString());
 
-  const client = new SpecCoverageClient(storageAccountName, new AzureCliCredential());
+  const client = new SpecCoverageClient(storageAccountName, {
+    credential: new AzureCliCredential(),
+    containerName,
+  });
+  await client.createIfNotExists();
   const generatorMetadata: GeneratorMetadata = {
     name: generatorName,
     version: generatorVersion,

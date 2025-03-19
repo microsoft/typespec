@@ -22,26 +22,28 @@ The TypeSpec equivalent of OpenAPI data types are the TypeSpec primitive types o
 
 The following table shows how common OpenAPI types map to TypeSpec types:
 
-| OpenAPI `type`/`format`           | TypeSpec type    | Notes                                                                     |
-| --------------------------------- | ---------------- | ------------------------------------------------------------------------- |
-| `type: integer, format: int32`    | `int32`          |                                                                           |
-| `type: integer, format: int64`    | `int64`          |                                                                           |
-| `type: number, format: float`     | `float32`        |                                                                           |
-| `type: number, format: double`    | `float64`        |                                                                           |
-| `type: string`                    | `string`         |                                                                           |
-| `type: string, format: byte`      | `bytes`          | for content-type == 'application/json' or 'text/plain'                    |
-| `type: string, format: binary`    | `bytes`          | for "binary" content types, e.g. 'application/octet-stream', 'image/jpeg' |
-| `type: boolean`                   | `boolean`        |                                                                           |
-| `type: string, format: date`      | `plainDate`      |                                                                           |
-| `type: string, format: date-time` | `utcDateTime`    | RFC 3339 date in coordinated universal time (UTC)                         |
-| `type: string, format: date-time` | `offsetDateTime` | RFC 3339 date with offset                                                 |
-| `type: string, format: password`  | `@secret string` |                                                                           |
+| `type:`   | `format:`   | TypeSpec type    | Notes                                                                     |
+| --------- | ----------- | ---------------- | ------------------------------------------------------------------------- |
+| `integer` | `int32`     | `int32`          |                                                                           |
+| `integer` | `int64`     | `int64`          |                                                                           |
+| `number`  | `float`     | `float32`        |                                                                           |
+| `number`  | `double`    | `float64`        |                                                                           |
+| `string`  |             | `string`         |                                                                           |
+| `string`  | `byte`      | `bytes`          | for content-type == 'application/json' or 'text/plain'                    |
+| `string`  | `binary`    | `bytes`          | for "binary" content types, e.g. 'application/octet-stream', 'image/jpeg' |
+| `string`  | `date`      | `plainDate`      |                                                                           |
+| `string`  | `date-time` | `utcDateTime`    | RFC 3339 date in coordinated universal time (UTC)                         |
+| `string`  | `date-time` | `offsetDateTime` | RFC 3339 date with offset                                                 |
+| `string`  | `password`  | `@secret string` |                                                                           |
+| `boolean` |             | `boolean`        |                                                                           |
 
 You can also define a property with no type specified using the TypeSpec `unknown` type.
 
 ```typespec
-  @doc("This property has no `type` defined.")
+model Example {
+  /** This property has no `type` defined. */
   noType?: unknown;
+}
 ```
 
 OpenAPI allows any string as a format, and there is a [registry of common formats][Format Registry].
@@ -49,13 +51,14 @@ TypeSpec supports some of these directly.
 
 [Format Registry]: https://spec.openapis.org/registry/format
 
-| OpenAPI `type`/`format`         | TypeSpec type | Notes |
-| ------------------------------- | ------------- | ----- |
-| `type: number, format: decimal` | `decimal`     |       |
-| `type: integer, format: int8`   | `int8`        |       |
-| `type: integer, format: int16`  | `int16`       |       |
-| `type: integer, format: uint8`  | `uint8`       |       |
-| `type: string, format: uri`     | `url`         |       |
+| `type:`   | `format:`    | TypeSpec type | Notes |
+| --------- | ------------ | ------------- | ----- |
+| `number`  | `decimal`    | `decimal`     |       |
+| `number`  | `double-int` | `safeint`     |       |
+| `integer` | `int8`       | `int8`        |       |
+| `integer` | `int16`      | `int16`       |       |
+| `integer` | `uint8`      | `uint8`       |       |
+| `string`  | `uri`        | `url`         |       |
 
 For formats that are not supported directly, you can use the built-in `@format` decorator to specify
 the format explicitly.
@@ -105,7 +108,9 @@ enum Color {
 Another is to use the union operation to define the enum values inline, e.g.:
 
 ```typespec
-size?: "small" | "medium" | "large" | "x-large";
+model Example {
+  size?: "small" | "medium" | "large" | "x-large";
+}
 ```
 
 ### default
@@ -113,13 +118,15 @@ size?: "small" | "medium" | "large" | "x-large";
 A model property that specifies a default value using "=" will produce a `default` field in the schema for this property.
 
 ```typespec
+model Example {
   answer?: int32 = 42;
   color?: string = "purple";
+}
 ```
 
 produces
 
-```yaml
+```yaml title=openapi.yaml
 answer:
   type: integer
   format: int32
@@ -224,7 +231,7 @@ The fields in an OpenAPI operation object are specified with the following TypeS
 | `requestBody`             | parameter with `@body` decorator           | see [Request Body Object](#request-body-object-oas3)                         |
 | `responses`               | `op` return type(s)                        | see [Responses Object](#responses-object)                                    |
 | `callbacks`               |                                            | Not currently supported.                                                     |
-| `deprecated`              | `@deprecated` decorator                    |                                                                              |
+| `deprecated`              | `#deprecated` directive                    |                                                                              |
 | `security`                |                                            | see [Security Schemes Object](#securityDefinitions--securitySchemes-Object). |
 | `servers`                 | `@server` decorator                        | Can be specified multiple times.                                             |
 
@@ -273,6 +280,8 @@ Doc comments may be spread across multiple lines and may contain markdown format
 op health(): string;
 ```
 
+[See documentation doc for more information](../language-basics/documentation.md).
+
 ### operationId
 
 You can specify the operationId for an operation using the `@operationId` decorator.
@@ -293,14 +302,14 @@ In OpenAPI, a parameter object [[v2][v2-parameter], [v3][v3-parameter]] describe
 
 The following fields of a parameter object are common to both OpenAPI v2 and v3:
 
-<!-- prettier-ignore-start -->
-| OpenAPI `parameter` field | TypeSpec construct   | Notes                                 |
-| ------------------------- | -------------------- | ------------------------------------- |
-| `name`                    | parameter name       |                                       |
-| `in`                      | decorator            | `@query`, `@path`, `@header`, `@body` |
-| `description`             | `@doc` decorator     |                                       |
+| OpenAPI `parameter` field | TypeSpec construct           | Notes                                                                                                                        |
+| ------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `name`                    | parameter name               |                                                                                                                              |
+| `in`                      | decorator                    | `@query`, `@path`, `@header`, `@body`                                                                                        |
+| `description`             | `/** */` or `@doc` decorator |                                                                                                                              |
 | `required`                | from parameter "optionality" | a "?" following the parameter name indicates it is optional (`required: false`), otherwise it is required (`required: true`) |
-| `allowEmptyValue`         |                      | Not currently supported.              |
+| `allowEmptyValue`         |                              | Not supported, this field is `NOT RECOMMENDED` in OpenAPI.                                                                   |
+
 <!-- prettier-ignore-end -->
 
 ### OpenAPI v2
@@ -310,7 +319,7 @@ The following fields of a parameter object are specific to OpenAPI v2:
 | OpenAPI v2 `parameter` field | TypeSpec construct                          | Notes                         |
 | ---------------------------- | ------------------------------------------- | ----------------------------- |
 | `type`                       | parameter type                              | see [Data Types](#data-types) |
-| `collectionFormat`           | `format` parameter on `@query` or `@header` |                               |
+| `collectionFormat`           | uri template in `@route` or `expode, style` |                               |
 
 #### Collection Formats
 
@@ -318,11 +327,11 @@ In OpenAPI v2, the `collectionFormat` field of a query or header parameter objec
 You can use the `format` field of the `@query` or `@header` decorator to specify the collection format.
 
 ```typespec
-  @get read(
-    @path id: string,
-    @query({format: "csv"}) csv?: string[], // has collectionFormat: "csv"
-    @query({format: "multi"}) multi?: string[], // has collectionFormat: "multi"
-  ): Widget | Error;
+op read(
+  @query csv?: string[], // equivalent to collectionFormat: csv
+  @query(#{ explode: false }) csvExplicit?: string[], // equivalent to collectionFormat: csv
+  @query(#{ explode: true }) multi?: string[], // equivalent to collectionFormat: csv
+): Widget | Error;
 ```
 
 ### OpenAPI v3
@@ -334,7 +343,7 @@ The following fields of a parameter object are specific to OpenAPI v3:
 | `style`                      | `format` parameter on `@query` or `@header` |                                     |
 | `explode`                    | `format` parameter on `@query` or `@header` |                                     |
 | `schema`                     | parameter schema                            | see [Schema Object](#schema-object) |
-| `deprecated`                 |                                             | Not currently supported.            |
+| `deprecated`                 | `#deprecated` directive.                    |                                     |
 | `example`                    |                                             | Not currently supported.            |
 | `examples`                   |                                             | Not currently supported.            |
 | `content`                    |                                             | Not currently supported.            |
@@ -456,7 +465,7 @@ The fields in an OpenAPI response object are specified with the following TypeSp
 
 ```typespec
 @get op read(@path id: string): {
-  @doc("the widget")
+  /** the widget */
   @body
   widget: Widget;
 
@@ -498,7 +507,8 @@ The spread operation is useful if you want one or more properties to be present 
 
 ```typespec
 model Legs {
-  @doc("number of legs") legs: int32;
+  /** number of legs */
+  legs: int32;
 }
 
 model Dog {
@@ -527,7 +537,7 @@ You can generate a schema with `additionalProperties` with the TypeSpec `Record`
 
 is produced as
 
-```yaml
+```yaml title=openapi.yaml
 bar:
   type: object
   additionalProperties: {}
@@ -543,7 +553,7 @@ model Bar extends Record<unknown> {
 
 produces
 
-```yaml
+```yaml title=openapi.yaml
 Bar:
   type: object
   properties:
@@ -560,7 +570,7 @@ To define a schema with `additionalProperties` that has a specific type, use the
 
 results in
 
-```yaml
+```yaml title=openapi.yaml
 bar:
   type: object
   additionalProperties:
@@ -571,7 +581,7 @@ bar:
 
 TypeSpec also supports single inheritance of models with the `extends` keyword. This construct can be used to produce an `allOf` with a single element (the parent schema) in OpenAPI. For example:
 
-```typespec
+```typespec title=main.tsp
 model Pet {
   name: string;
 }
@@ -610,52 +620,52 @@ model Dog extends Pet {
 
 generates:
 
-```typespec
-    Cat:
-      type: object
-      properties:
-        kind:
-          type: string
-          enum:
-            - cat
-        meow:
-          type: integer
-          format: int32
-      required:
-        - kind
-      allOf:
-        - $ref: '#/components/schemas/Pet'
-    Dog:
-      type: object
-      properties:
-        kind:
-          type: string
-          enum:
-            - dog
-        bark:
-          type: string
-      required:
-        - kind
-      allOf:
-        - $ref: '#/components/schemas/Pet'
-    Pet:
-      type: object
-      properties:
-        kind:
-          type: string
-          description: Discriminator property for Pet.
-        name:
-          type: string
-        weight:
-          type: number
-          format: float
-      discriminator:
-        propertyName: kind
-        mapping:
-          cat: '#/components/schemas/Cat'
-          dog: '#/components/schemas/Dog'
-      required:
-        - name
+```yaml title=openapi.yaml
+Cat:
+  type: object
+  properties:
+    kind:
+      type: string
+      enum:
+        - cat
+    meow:
+      type: integer
+      format: int32
+  required:
+    - kind
+  allOf:
+    - $ref: "#/components/schemas/Pet"
+Dog:
+  type: object
+  properties:
+    kind:
+      type: string
+      enum:
+        - dog
+    bark:
+      type: string
+  required:
+    - kind
+  allOf:
+    - $ref: "#/components/schemas/Pet"
+Pet:
+  type: object
+  properties:
+    kind:
+      type: string
+      description: Discriminator property for Pet.
+    name:
+      type: string
+    weight:
+      type: number
+      format: float
+  discriminator:
+    propertyName: kind
+    mapping:
+      cat: "#/components/schemas/Cat"
+      dog: "#/components/schemas/Dog"
+  required:
+    - name
 ```
 
 ### Polymorphism using anyOf and oneOf (OAS3)
@@ -680,7 +690,7 @@ model Dog {
 
 generates a Pet schema with `anyOf`.
 
-```yml
+```yaml title=openapi.yaml
 Pet:
   anyOf:
     - $ref: "#/components/schemas/Cat"
@@ -703,7 +713,7 @@ union Pet {
 
 produces:
 
-```yml
+```yaml title=openapi.yaml
 Pet:
   oneOf:
     - $ref: "#/components/schemas/Cat"
@@ -732,7 +742,7 @@ model Dog {
 
 results in the following schema for Pet:
 
-```yml
+```yaml title=openapi.yaml
 Pet:
   oneOf:
     - $ref: "#/components/schemas/Cat"
@@ -773,18 +783,18 @@ In OpenAPI, the `info` object [[v2][v2-info], [v3][v3-info]] contains metadata a
 
 In TypeSpec this information is specified with [decorators on the namespace][typespec-service-metadata].
 
-| OpenAPI `info` field | TypeSpec decorator     | Notes                       |
-| -------------------- | ---------------------- | --------------------------- |
-| `title`              | `@service({title: }`   | TypeSpec built-in decorator |
-| `version`            | `@service({version: }` | TypeSpec built-in decorator |
-| `description`        | `@doc`                 | TypeSpec built-in decorator |
-| `license`            | `@info`                |                             |
-| `contact`            | `@info`                |                             |
+| OpenAPI `info` field | TypeSpec decorator   | Notes                       |
+| -------------------- | -------------------- | --------------------------- |
+| `title`              | `@service({title: }` | TypeSpec built-in decorator |
+| `description`        | `@doc`               | TypeSpec built-in decorator |
+| `version`            | `@info`              |                             |
+| `license`            | `@info`              |                             |
+| `contact`            | `@info`              |                             |
 
 [typespec-service-metadata]: https://typespec.io/docs/libraries/http/#service-definition-and-metadata
 
 ```typespec
-@doc("The Contoso Widget Service provides access to the Contoso Widget API.")
+/** The Contoso Widget Service provides access to the Contoso Widget API. */
 @service({
   title: "Widget Service",
 })
@@ -828,4 +838,24 @@ For example:
 namespace Pets {
   @extension("x-streaming-operation", true) op read(...PetId): Pet | Error;
 }
+```
+
+OpenAPI decorators that map directly to an object in the openapi document also allow to provide extension.
+
+`@tagMetadata`
+
+```tsp
+@tagMetadata("my-tag", #{
+  description: "My tag",
+  `x-custom`: "custom value",
+})
+```
+
+- `@info`
+
+```tsp
+@info(#{
+  version: 1.1.0,
+  `x-custom`: "custom value",
+})
 ```

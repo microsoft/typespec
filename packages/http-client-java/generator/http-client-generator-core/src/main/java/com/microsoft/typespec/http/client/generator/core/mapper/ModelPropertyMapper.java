@@ -203,7 +203,9 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
 
         if (property.getSchema() instanceof ConstantSchema) {
             Object objValue = ((ConstantSchema) property.getSchema()).getValue().getValue();
-            builder.constant(true);
+            // typically "optional-constant-as-enum=true" for DPG/MGMT
+            // but it could be "false" in vanilla, in which case, the property can be set to null
+            builder.constant(property.isRequired());
             builder.defaultValue(
                 objValue == null ? null : propertyClientType.defaultValueExpression(String.valueOf(objValue)));
         }

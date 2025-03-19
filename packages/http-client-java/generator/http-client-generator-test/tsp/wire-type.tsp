@@ -8,7 +8,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "WireType",
 })
-namespace Cadl.WireType;
+namespace TspTest.WireType;
 
 model SuperClassMismatch {
   @encode(DateTimeKnownEncoding.rfc7231, string)

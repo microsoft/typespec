@@ -259,7 +259,7 @@ describe("packages", () => {
           resolveModule(host, "test-lib/named", { baseDir: "/ws/proj" }),
         ).rejects.toThrowError(
           new ResolveModuleError(
-            "MODULE_NOT_FOUND",
+            "INVALID_MODULE",
             `Could not resolve import "test-lib/named"  using exports defined in file:///ws/proj/node_modules/test-lib.`,
           ),
         );
@@ -364,7 +364,7 @@ describe("packages", () => {
               }),
             ).rejects.toThrowError(
               new ResolveModuleError(
-                "MODULE_NOT_FOUND",
+                "INVALID_MODULE",
                 `Could not resolve import "test-lib/named"  using exports defined in file:///ws/proj/node_modules/test-lib.`,
               ),
             );
