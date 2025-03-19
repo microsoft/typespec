@@ -5,4 +5,4 @@ packages:
   - "@typespec/spector"
 ---
 
-Add new `--filter` option to `server-test` command 
+Add new `--filter` option to `knock` command 

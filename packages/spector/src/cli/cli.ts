@@ -167,7 +167,7 @@ async function main() {
       },
     )
     .command(
-      "server-test <scenariosPaths..>",
+      "knock <scenariosPaths..>",
       "Executes the test cases against the service",
       (cmd) => {
         return cmd
