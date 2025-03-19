@@ -229,6 +229,9 @@ namespace RequestBody {
     """)
   @post
   op default(
+    @header
+    contentType: "application/application-json",
+
     @body
     value: bytes,
   ): NoContentResponse;
@@ -272,6 +275,9 @@ namespace RequestBody {
     """)
   @post
   op base64(
+    @header
+    contentType: "application/application-json",
+
     @body
     @encode(BytesKnownEncoding.base64)
     value: bytes,
@@ -286,6 +292,9 @@ namespace RequestBody {
     """)
   @post
   op base64url(
+    @header
+    contentType: "application/application-json",
+
     @body
     @encode(BytesKnownEncoding.base64url)
     value: bytes,
@@ -302,6 +311,9 @@ namespace ResponseBody {
     "dGVzdA==" (base64 encode of test, in JSON string)
     """)
   op default(): {
+    @header
+    contentType: "application/application-json";
+
     @body
     value: bytes;
   };
@@ -342,6 +354,9 @@ namespace ResponseBody {
     "dGVzdA==" (base64 encode of test, in JSON string)
     """)
   op base64(): {
+    @header
+    contentType: "application/application-json";
+
     @body
     @encode(BytesKnownEncoding.base64)
     value: bytes;
@@ -354,5 +369,11 @@ namespace ResponseBody {
     Expected body:
     "dGVzdA" (base64url encode of test, in JSON string)
     """)
-  op base64url(): base64urlBytes;
+  op base64url(): {
+    @header
+    contentType: "application/application-json";
+
+    @body
+    value: base64urlBytes;
+  };
 }
