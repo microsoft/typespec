@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
     {
         public StatementTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [Test]

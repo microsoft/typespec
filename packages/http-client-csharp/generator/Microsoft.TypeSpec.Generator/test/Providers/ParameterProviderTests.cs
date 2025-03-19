@@ -36,29 +36,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void NotSameInstance()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
 
             var param = InputFactory.Parameter("name", InputPrimitiveType.String, kind: InputOperationParameterKind.Spread);
-            var paramProvider1 = CodeModelPlugin.Instance.TypeFactory.CreateParameter(param);
-            var paramProvider2 = CodeModelPlugin.Instance.TypeFactory.CreateParameter(param);
+            var paramProvider1 = CodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
+            var paramProvider2 = CodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
             Assert.IsFalse(ReferenceEquals(paramProvider1, paramProvider2));
         }
 
         [TestCaseSource(nameof(ValueInputTypes))]
         public void ValueTypeHasNoValidation(InputType paramType)
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", paramType, isRequired: true);
-            var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
             Assert.AreEqual(ParameterValidationType.None, parameter.Validation);
         }
 
         [Test]
         public void ValidateArrayHandling()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
-            var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
             Assert.IsTrue(parameter.Type.Equals(typeof(IList<string>)));
             Assert.IsTrue(parameter.ToPublicInputParameter().Type.Equals(typeof(IEnumerable<string>)));
         }
@@ -97,9 +97,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void ToPublicInputParameterCopiesProperties()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
-            var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
             var publicParameter = parameter.ToPublicInputParameter();
 
             Assert.AreEqual(parameter, publicParameter);
@@ -123,9 +123,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void WithRefCopiesProperties()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
             var inputType = InputFactory.Parameter("testParam", InputPrimitiveType.Int32, isRequired: true);
-            var parameter = CodeModelPlugin.Instance.TypeFactory.CreateParameter(inputType);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputType);
             var refParemeter = parameter.WithRef();
 
             Assert.AreEqual(parameter, refParemeter);

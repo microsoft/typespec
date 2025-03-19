@@ -6,7 +6,9 @@ package azure.resourcemanager.commonproperties;
 
 import azure.resourcemanager.commonproperties.fluent.CommonPropertiesClient;
 import azure.resourcemanager.commonproperties.implementation.CommonPropertiesClientBuilder;
+import azure.resourcemanager.commonproperties.implementation.ErrorsImpl;
 import azure.resourcemanager.commonproperties.implementation.ManagedIdentitiesImpl;
+import azure.resourcemanager.commonproperties.models.Errors;
 import azure.resourcemanager.commonproperties.models.ManagedIdentities;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.HttpClient;
@@ -42,6 +44,8 @@ import java.util.stream.Collectors;
  */
 public final class CommonPropertiesManager {
     private ManagedIdentities managedIdentities;
+
+    private Errors errors;
 
     private final CommonPropertiesClient clientObject;
 
@@ -268,6 +272,18 @@ public final class CommonPropertiesManager {
             this.managedIdentities = new ManagedIdentitiesImpl(clientObject.getManagedIdentities(), this);
         }
         return managedIdentities;
+    }
+
+    /**
+     * Gets the resource collection API of Errors. It manages ConfidentialResource.
+     * 
+     * @return Resource collection API of Errors.
+     */
+    public Errors errors() {
+        if (this.errors == null) {
+            this.errors = new ErrorsImpl(clientObject.getErrors(), this);
+        }
+        return errors;
     }
 
     /**

@@ -24,13 +24,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ErrorResultDefinition()
         {
-            _responseField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType, "_response", this);
-            _exceptionField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, "_exception", this);
+            _responseField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, "_response", this);
+            _exceptionField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, "_exception", this);
             _response = new VariableExpression(_responseField.Type, _responseField.Declaration);
             _exception = new VariableExpression(_exceptionField.Type, _exceptionField.Declaration);
         }
 
-        private bool IsClientResult => ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType == typeof(ClientResult<>);
+        private bool IsClientResult => ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType == typeof(ClientResult<>);
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
@@ -48,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType[] BuildImplements()
         {
-            return [new CSharpType(ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, _t)];
+            return [new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, _t)];
         }
 
         protected override FieldProvider[] BuildFields()
@@ -63,8 +63,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ConstructorProvider BuildCtor()
         {
-            var response = new ParameterProvider("response", FormattableStringHelpers.Empty, ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType);
-            var exception = new ParameterProvider("exception", FormattableStringHelpers.Empty, ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType);
+            var response = new ParameterProvider("response", FormattableStringHelpers.Empty, ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType);
+            var exception = new ParameterProvider("exception", FormattableStringHelpers.Empty, ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType);
             var baseInitializer = IsClientResult
                 ? new ConstructorInitializer(true, new List<ValueExpression> { Default, response })
                 : new ConstructorInitializer(true, new List<ValueExpression>());
@@ -99,7 +99,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 "GetRawResponse",
                 FormattableStringHelpers.Empty,
                 MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
-                ScmCodeModelPlugin.Instance.TypeFactory.HttpResponseApi.HttpResponseType,
+                ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType,
                 null,
                 []
             );

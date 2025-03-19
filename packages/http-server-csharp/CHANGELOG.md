@@ -1,5 +1,26 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.11
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Features
+
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6267](https://github.com/microsoft/typespec/pull/6267) Fix the generation of long and multiline comments.
+- [#6443](https://github.com/microsoft/typespec/pull/6443) Fix handling of record types
+- [#6411](https://github.com/microsoft/typespec/pull/6411) Add support for new `dryRun` emitter option
+
+
 ## 0.58.0-alpha.10
 
 ### Bug Fixes

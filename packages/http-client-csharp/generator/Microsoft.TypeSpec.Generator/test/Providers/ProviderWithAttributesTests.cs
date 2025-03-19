@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
     {
         public ProviderWithAttributesTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         private class ProviderWithAttribute : TypeProvider
@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void ValidateAttributes()
         {
             var provider = new ProviderWithAttribute();
-            var writer = CodeModelPlugin.Instance.GetWriter(provider);
+            var writer = CodeModelGenerator.Instance.GetWriter(provider);
             var content = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content.Content);
         }
