@@ -1308,7 +1308,7 @@ export class CodeModelBuilder {
     param: SdkHttpOperationParameterType,
     clientContext: ClientContext,
   ) {
-    if (clientContext.apiVersions && this.isApiVersionParameter(param)) {
+    if (clientContext.apiVersions && this.isApiVersionParameter(param) && param.kind !== "cookie") {
       // pre-condition for "isApiVersion": the client supports ApiVersions
       if (this.isArm()) {
         // Currently we assume ARM tsp only have one client and one api-version.
