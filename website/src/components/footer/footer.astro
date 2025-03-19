@@ -1,5 +1,6 @@
 ---
 import { Links } from "@site/src/constants";
+import { Icon } from "@astrojs/starlight/components";
 import ThemePicker from "@typespec/astro-utils/components/theme-picker.astro";
 import Link from "@typespec/astro-utils/components/link.astro";
 import MicrosoftLogo from "./microsoft-logo.astro";
@@ -100,6 +101,14 @@ const { class: className } = Astro.props;
     background-color: var(--colorBrandForeground1);
     border-radius: 50%;
   }
+
+  .icon {
+    color: var(--colorNeutralForeground1); /* Set icon color to black */
+  }
+
+  .icon:hover {
+    color: var(--colorNeutralForeground2); /* Set icon hover color to white */
+  }
 </style>
 <footer class:list={["footer", className]} data-theme="dark">
   <div class="top">
@@ -107,12 +116,18 @@ const { class: className } = Astro.props;
       <div class="main-title">TypeSpec</div>
       <div class="main-description">Follow us for latest updates, contributions, and more.</div>
       <div>
-        <a
+        <Link
+          class="item icon link"
           href="https://github.com/microsoft/typespec"
           target="_blank"
-          rel="noopener noreferrer"
-          class="header-github-link"
-          aria-label="Github repository"></a>
+          rel="noopener noreferrer"><Icon name="github" label="github" /></Link
+        >
+        <Link
+          class="item icon link"
+          href="https://aka.ms/typespec/discord"
+          target="_blank"
+          rel="noopener noreferrer"><Icon name="discord" label="discord" /></Link
+        >
       </div>
     </div>
     <div class="top-separator"></div>

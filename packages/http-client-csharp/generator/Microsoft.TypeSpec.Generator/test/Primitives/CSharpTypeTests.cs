@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
     {
         public CSharpTypeTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [TestCase(typeof(int))]
@@ -351,7 +351,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             CSharpType[] arguments = [typeof(int)];
             var cSharpType = new CSharpType(listType, arguments: arguments);
             var actual = cSharpType.PropertyInitializationType;
-            var expected = CodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(arguments);
+            var expected = CodeModelGenerator.Instance.TypeFactory.ListInitializationType.MakeGenericType(arguments);
 
             Assert.AreEqual(expected, actual);
         }
@@ -363,7 +363,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             CSharpType[] arguments = [typeof(string), typeof(int)];
             var cSharpType = new CSharpType(dictionaryType, arguments: arguments);
             var actual = cSharpType.PropertyInitializationType;
-            var expected = CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(arguments);
+            var expected = CodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(arguments);
 
             Assert.AreEqual(expected, actual);
         }

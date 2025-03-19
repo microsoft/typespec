@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [SetUp]
         public void SetUp()
         {
-            MockHelpers.LoadMockPlugin(
+            MockHelpers.LoadMockGenerator(
                     auth: () => new(new InputApiKeyAuth("mock", null), null),
                     clients: () => [_animalClient, _dogClient, _catClient, _huskyClient, _hawkClient]);
         }

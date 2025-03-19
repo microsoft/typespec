@@ -28,11 +28,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             _inputClient = inputClient;
             _clientProvider = clientProvider;
-            var inputEnumType = ScmCodeModelPlugin.Instance.InputLibrary.InputNamespace.Enums
+            var inputEnumType = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
                     .FirstOrDefault(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum));
             if (inputEnumType != null)
             {
-                _serviceVersionEnum = new(() => ScmCodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnumType, this));
+                _serviceVersionEnum = new(() => ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnumType, this));
                 _versionProperty = new(
                     null,
                     MethodSignatureModifiers.Internal,
@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType[] BuildImplements()
         {
-            return [ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType];
+            return [ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType];
         }
 
         protected override FieldProvider[] BuildFields()
@@ -132,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         description = $"{parameterDescription}";
                     }
 
-                    var type = ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type)?.PropertyInitializationType;
+                    var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(p.Type)?.PropertyInitializationType;
                     if (type != null)
                     {
                         properties.Add(new(
