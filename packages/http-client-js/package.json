@@ -82,6 +82,8 @@
     "uri-template": "^2.0.0",
     "vitest": "^3.0.7",
     "yargs": "~17.7.2",
-    "change-case": "~5.4.4"
+    "change-case": "~5.4.4",
+    "@microsoft/api-extractor": "~7.36.0",
+    "lodash": "~4.17.21"
   }
 }

@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
+import { Extractor, ExtractorConfig } from "@microsoft/api-extractor";
 import { execa } from "execa";
 import pkg from "fs-extra";
 import { copyFile, mkdir, rm } from "fs/promises";
 import { globby } from "globby";
 import inquirer from "inquirer";
+import lodash from "lodash";
 import ora from "ora";
 import pLimit from "p-limit";
-import { basename, dirname, join, resolve } from "path";
+import { basename, dirname, join, join as joinPath, resolve } from "path";
 import pc from "picocolors";
+import { createProgram } from "typescript";
 import { fileURLToPath } from "url";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
@@ -125,6 +128,8 @@ async function runCommand(command, args, options = {}) {
 }
 
 // Process a single file.
+let total = 0,
+  succeeded = 0;
 async function processFile(file, options) {
   const { fullPath, relativePath } = file;
   const { build, interactive } = options;
@@ -182,8 +187,49 @@ async function processFile(file, options) {
     if (spinner) {
       spinner.succeed(`Finished processing: ${relativePath}`);
     }
+    // prepare the index file
+    const tsconfig = {
+      compilerOptions: {
+        declaration: true,
+        emitDeclarationOnly: true,
+        declarationMap: true,
+        removeComments: true,
+        declarationDir: joinPath(outputDir, "types"),
+        rootDir: outputDir,
+      },
+    };
+    const program = createProgram({
+      options: tsconfig.compilerOptions,
+      rootNames: [joinPath(outputDir, "src/index.ts")],
+    });
+
+    // side effect: loads source files into memory
+    // nothing will be emitted if this is omitted
+    program.getSourceFiles();
+
+    const { diagnostics } = program.emit();
+
+    if (diagnostics.length) {
+      console.log(`Compiler diagnostics for ${outputPath()}`);
+      diagnostics.forEach((diagnostic) => console.log(diagnostic.messageText));
+    }
+    const result = Extractor.invoke(extractorConfig(outputDir, tsconfig), {
+      localBuild: true,
+      messageCallback: (message) => {
+        console.log(message.formatMessageWithLocation(outputDir));
+        message.handled = true;
+      },
+    });
+    total++;
+    if (result.succeeded) {
+      succeeded++;
+    }
+
+    console.log("api view result", result.succeeded, outputDir);
+
     return { status: "succeeded", relativePath };
   } catch (error) {
+    console.log("error", error);
     if (spinner) {
       spinner.fail(`Failed processing: ${relativePath}`);
     }
@@ -222,6 +268,73 @@ async function processFile(file, options) {
   }
 }
 
+function extractorConfig(outputPath, tsconfig) {
+  const projectFolder = outputPath;
+  const mainEntryPointFilePath = joinPath(
+    __dirname,
+    "../..",
+    projectFolder,
+    "types",
+    "src/index.d.ts",
+  );
+  const untrimmedFilePath = joinPath(__dirname, "../..", projectFolder, "src/index.d.ts");
+  const packageJsonFullPath = joinPath(__dirname, "../..", projectFolder, "package.json");
+
+  const baseConfigObject = {
+    apiReport: {
+      enabled: false,
+    },
+    docModel: {
+      enabled: true,
+    },
+    dtsRollup: {
+      enabled: true,
+      untrimmedFilePath,
+    },
+    compiler: {
+      overrideTsconfig: tsconfig,
+    },
+    mainEntryPointFilePath: mainEntryPointFilePath,
+    messages: {
+      compilerMessageReporting: {
+        default: {
+          logLevel: "none",
+        },
+      },
+      extractorMessageReporting: {
+        "ae-missing-release-tag": { logLevel: "none" },
+        "ae-unresolved-link": { logLevel: "none" },
+      },
+      tsdocMessageReporting: {
+        default: {
+          logLevel: "none",
+        },
+      },
+    },
+    newlineKind: "lf",
+    projectFolder: joinPath(__dirname, "../..", projectFolder),
+  };
+
+  // Defaults are merged in api-extractor when the config file is read from disk with
+  // `ExtractorConfig.loadFile`. This is derived from that method.
+  // https://github.com/microsoft/rushstack/blob/1a92f17fa537b55529adbec80203bd99afd8cd24/apps/api-extractor/src/api/ExtractorConfig.ts#L624-L627
+  const configObject = lodash.merge(
+    lodash.cloneDeep(ExtractorConfig._defaultConfig),
+    baseConfigObject,
+  );
+  ExtractorConfig.jsonSchema.validateObject(configObject, "api extractor config object");
+
+  console.log("packageJsonFullPath", packageJsonFullPath);
+  console.log("mainEntryPointFilePath", mainEntryPointFilePath);
+  const config = {
+    configObject: configObject,
+    packageJsonFullPath: packageJsonFullPath,
+    configObjectFullPath: null,
+  };
+
+  return ExtractorConfig.prepare(config);
+}
+
 // Process all files.
 async function processFiles(files, options) {
   const { interactive } = options;
@@ -238,6 +351,7 @@ async function processFiles(files, options) {
         } else {
           failed.push({ relativePath: result.relativePath, errorDetails: result.errorDetails });
         }
+        console.log("total", total, "success", succeeded);
       } catch (err) {
         break;
       }
