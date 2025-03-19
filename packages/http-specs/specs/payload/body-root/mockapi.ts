@@ -17,6 +17,7 @@ Scenarios.Payload_BodyRoot_InputOnly = passOnSuccess({
     },
   },
   response: { status: 204 },
+  kind: "MockApiDefinition",
 });
 
 // Input and output scenario
@@ -43,6 +44,7 @@ Scenarios.Payload_BodyRoot_InputAndOutput = passOnSuccess({
       "x-client-id": "123",
     },
   },
+  kind: "MockApiDefinition",
 });
 
 // Output only scenario
@@ -60,6 +62,7 @@ Scenarios.Payload_BodyRoot_OutputOnly = passOnSuccess({
       "x-client-id": "123",
     },
   },
+  kind: "MockApiDefinition",
 });
 
 // Optional query scenario
@@ -78,4 +81,5 @@ Scenarios.Payload_BodyRoot_OptionalParam = passOnSuccess({
     status: 200,
     body: ["cat", "dog"],
   },
+  kind: "MockApiDefinition",
 });
