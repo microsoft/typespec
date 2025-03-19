@@ -306,9 +306,6 @@ namespace ResponseBody {
     Stream should match packages/cadl-ranch-specs/assets/image.png file.
     """)
   op default(): {
-    @header
-    contentType: "application/json";
-
     @body
     value: bytes;
   };
