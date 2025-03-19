@@ -329,7 +329,7 @@ export class CodeModelBuilder {
     const hostParameters: Parameter[] = [];
     let parameter;
     sdkPathParameters.forEach((arg) => {
-      if (arg.isApiVersionParam) {
+      if (this.isApiVersionParameter(arg)) {
         parameter = this.createApiVersionParameter(arg.name, ParameterLocation.Uri);
       } else {
         const schema = this.processSchema(arg.type, arg.name);
@@ -1308,7 +1308,7 @@ export class CodeModelBuilder {
     param: SdkHttpOperationParameterType,
     clientContext: ClientContext,
   ) {
-    if (clientContext.apiVersions && param.isApiVersionParam && param.kind !== "cookie") {
+    if (clientContext.apiVersions && this.isApiVersionParameter(param)) {
       // pre-condition for "isApiVersion": the client supports ApiVersions
       if (this.isArm()) {
         // Currently we assume ARM tsp only have one client and one api-version.
@@ -3126,6 +3126,14 @@ export class CodeModelBuilder {
           },
         },
       },
+    );
+  }
+
+  private isApiVersionParameter(param: SdkHttpOperationParameterType): boolean {
+    return (
+      param.correspondingMethodParams &&
+      param.correspondingMethodParams.length === 1 &&
+      param.correspondingMethodParams[0].kind === "apiVersion"
     );
   }
 
