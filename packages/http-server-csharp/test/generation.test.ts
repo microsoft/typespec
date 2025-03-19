@@ -1440,6 +1440,39 @@ it("Does overwrite mock files with overWrite option", async () => {
   ]);
 });
 
+it("reads default location for OpenAPI from config", async () => {
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "all",
+    "use-swaggerui": true,
+  });
+  runner.fs.set(
+    resolveVirtualPath("tspconfig.yaml"),
+    `
+emit:
+  - "@typespec/openapi3"
+options:
+  "@typespec/openapi3":
+    emitter-output-dir: "{project-root}/generated"
+    output-file: "openapi.yaml"
+
+`,
+  );
+  await compileAndValidateMultiple(runner, multipartSpec, [
+    [
+      "Program.cs",
+      [
+        "builder.Services.AddSwaggerGen();",
+        "app.UseSwagger();",
+        "app.UseSwaggerUI( c=> {",
+        `c.DocumentTitle = "TypeSpec Generated OpenAPI Viewer";`,
+        `c.SwaggerEndpoint("/openapi.yaml", "TypeSpec Generated OpenAPI Docs");`,
+        `c.RoutePrefix = "swagger";`,
+        `var externalFilePath = "../../generated/openapi.yaml"; // Full path to the file outside the project`,
+      ],
+    ],
+  ]);
+});
+
 it("Handles spread parameters", async () => {
   await compileAndValidateMultiple(
     await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),

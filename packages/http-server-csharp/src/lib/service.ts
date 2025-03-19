@@ -1237,11 +1237,20 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   if (!doNotEmit) {
     await ensureCleanDirectory(context.program, options.emitterOutputDir);
 
+    function normalizeSlashes(path: string) {
+      return path.replaceAll("\\", "/");
+    }
+
     async function getOpenApiPath(): Promise<string> {
       if (options["openapi-path"]) return options["openapi-path"];
       const openApiSettings = await getOpenApiConfig(context.program);
       if (openApiSettings.outputDir) {
-        return path.join(openApiSettings.outputDir, openApiSettings.fileName || "openapi.yaml");
+        const projectDir = resolvePath(context.program.projectRoot, options.emitterOutputDir);
+        const openApiPath = resolvePath(
+          openApiSettings.outputDir,
+          openApiSettings.fileName || "openapi.yaml",
+        );
+        return normalizeSlashes(path.relative(projectDir, openApiPath));
       }
       return "";
     }
