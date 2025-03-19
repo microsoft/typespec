@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-specs"
 ---
 
-Add test case payload body-root
+Add test cases for bodyRoot nested with other parameters
