@@ -11,6 +11,7 @@ import encode.bytes.models.DefaultBytesProperty;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
 
@@ -60,7 +61,6 @@ public class EncodeBytesTests {
 
     @Test
     public void testRequestBody() {
-        requestClient.defaultMethod(BinaryData.fromBytes(PNG));
         requestClient.octetStream(BinaryData.fromBytes(PNG));
         requestClient.customContentType(BinaryData.fromBytes(PNG));
         requestClient.base64(DATA);
@@ -69,9 +69,6 @@ public class EncodeBytesTests {
 
     @Test
     public void testResponseBody() {
-        BinaryData png = responseClient.defaultMethod();
-        Assertions.assertArrayEquals(PNG, png.toBytes());
-
         BinaryData binary = responseClient.octetStream();
         Assertions.assertArrayEquals(PNG, binary.toBytes());
 
@@ -84,5 +81,14 @@ public class EncodeBytesTests {
         // TODO: bug in tcgc that encode be "base64" instead of "base64url"
 //        bytes = responseClient.base64url();
 //        Assertions.assertArrayEquals(DATA, bytes);
+    }
+
+    @Disabled("require new http-specs lib")
+    @Test
+    public void testBodyDefault() {
+        requestClient.defaultMethod(BinaryData.fromBytes(PNG));
+
+        BinaryData png = responseClient.defaultMethod();
+        Assertions.assertArrayEquals(PNG, png.toBytes());
     }
 }
