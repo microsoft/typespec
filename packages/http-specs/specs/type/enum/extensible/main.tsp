@@ -41,7 +41,7 @@ interface String {
   @route("/known-value")
   getKnownValue(): {
     @header
-    contentType: "application/application-json";
+    contentType: "application/json";
 
     @body body: DaysOfWeekExtensibleEnum;
   };
@@ -52,7 +52,7 @@ interface String {
   @route("/unknown-value")
   getUnknownValue(): {
     @header
-    contentType: "application/application-json";
+    contentType: "application/json";
 
     @body body: DaysOfWeekExtensibleEnum;
   };
@@ -63,7 +63,7 @@ interface String {
   @route("/known-value")
   putKnownValue(
     @header
-    contentType: "application/application-json",
+    contentType: "application/json",
 
     @body body: DaysOfWeekExtensibleEnum,
   ): void;
@@ -74,7 +74,7 @@ interface String {
   @route("/unknown-value")
   putUnknownValue(
     @header
-    contentType: "application/application-json",
+    contentType: "application/json",
 
     @body body: DaysOfWeekExtensibleEnum,
   ): void;

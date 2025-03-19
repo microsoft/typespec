@@ -57,7 +57,7 @@ enum Versions {
   Versions.v2,
   {
     @header
-    contentType: "application/application-json",
+    contentType: "application/json",
 
     @body
     body: int32,
@@ -65,7 +65,7 @@ enum Versions {
 )
 op test(@body body: string): {
   @header
-  contentType: "application/application-json";
+  contentType: "application/json";
 
   @body
   body: string;

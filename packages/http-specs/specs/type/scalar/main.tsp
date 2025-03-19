@@ -16,7 +16,7 @@ interface String {
   @doc("get string value")
   get(): {
     @header
-    contentType: "application/application-json";
+    contentType: "application/json";
 
     @body
     body: string;
@@ -29,7 +29,7 @@ interface String {
   @doc("put string value")
   put(
     @header
-    contentType: "application/application-json",
+    contentType: "application/json",
 
     @body @doc("_") body: string,
   ): void;
@@ -44,7 +44,7 @@ interface Boolean {
   @doc("get boolean value")
   get(): {
     @header
-    contentType: "application/application-json";
+    contentType: "application/json";
 
     @body
     body: boolean;
@@ -57,7 +57,7 @@ interface Boolean {
   @doc("put boolean value")
   put(
     @header
-    contentType: "application/application-json",
+    contentType: "application/json",
 
     @body @doc("_") body: boolean,
   ): void;
@@ -72,7 +72,7 @@ interface Unknown {
   @doc("get unknown value")
   get(): {
     @header
-    contentType: "application/application-json";
+    contentType: "application/json";
 
     @body
     body: unknown;
@@ -85,7 +85,7 @@ interface Unknown {
   @doc("put unknown value")
   put(
     @header
-    contentType: "application/application-json",
+    contentType: "application/json",
 
     @body @doc("_") body: unknown,
   ): void;
@@ -104,7 +104,7 @@ interface ScalarTypesOperations<T, TDoc extends valueof string> {
   @route("/response_body")
   responseBody(): {
     @header
-    contentType: "application/application-json";
+    contentType: "application/json";
 
     @body
     body: T;
@@ -121,7 +121,7 @@ interface ScalarTypesOperations<T, TDoc extends valueof string> {
   @route("/resquest_body")
   requestBody(
     @header
-    contentType: "application/application-json",
+    contentType: "application/json",
 
     @body body: T,
   ): void;

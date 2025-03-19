@@ -272,7 +272,7 @@ namespace RequestBody {
   @post
   op base64(
     @header
-    contentType: "application/application-json",
+    contentType: "application/json",
 
     @body
     @encode(BytesKnownEncoding.base64)
@@ -289,7 +289,7 @@ namespace RequestBody {
   @post
   op base64url(
     @header
-    contentType: "application/application-json",
+    contentType: "application/json",
 
     @body
     @encode(BytesKnownEncoding.base64url)
@@ -307,7 +307,7 @@ namespace ResponseBody {
     """)
   op default(): {
     @header
-    contentType: "application/application-json";
+    contentType: "application/json";
 
     @body
     value: bytes;
@@ -350,7 +350,7 @@ namespace ResponseBody {
     """)
   op base64(): {
     @header
-    contentType: "application/application-json";
+    contentType: "application/json";
 
     @body
     @encode(BytesKnownEncoding.base64)
@@ -366,7 +366,7 @@ namespace ResponseBody {
     """)
   op base64url(): {
     @header
-    contentType: "application/application-json";
+    contentType: "application/json";
 
     @body
     body: base64urlBytes;
