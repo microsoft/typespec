@@ -100,7 +100,7 @@ public final class BooleanOperationAsyncClient {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toString());
+            .map(protocolMethodData -> protocolMethodData.toObject(Boolean.class));
     }
 
     /**
@@ -120,6 +120,6 @@ public final class BooleanOperationAsyncClient {
     public Mono<Void> put(boolean body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono);
+        return putWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

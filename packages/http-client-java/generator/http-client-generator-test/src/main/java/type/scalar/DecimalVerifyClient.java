@@ -121,7 +121,7 @@ public final class DecimalVerifyClient {
     public void verify(BigDecimal body) {
         // Generated convenience method for verifyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        verifyWithResponse(BinaryData.fromString(body), requestOptions).getValue();
+        verifyWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
     }
 
     @Generated

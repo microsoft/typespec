@@ -86,7 +86,7 @@ public final class Decimal128TypesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> requestBody(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("text/plain") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Put("/type/scalar/decimal128/resquest_body")
@@ -96,7 +96,7 @@ public final class Decimal128TypesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> requestBodySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("text/plain") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Get("/type/scalar/decimal128/request_parameter")
@@ -137,7 +137,7 @@ public final class Decimal128TypesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> responseBodyWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.responseBody(this.client.getEndpoint(), accept, requestOptions, context));
     }
@@ -161,7 +161,7 @@ public final class Decimal128TypesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> responseBodyWithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return service.responseBodySync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 
@@ -185,7 +185,7 @@ public final class Decimal128TypesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> requestBodyWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         return FluxUtil.withContext(
             context -> service.requestBody(this.client.getEndpoint(), contentType, body, requestOptions, context));
     }
@@ -210,7 +210,7 @@ public final class Decimal128TypesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requestBodyWithResponse(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         return service.requestBodySync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
 

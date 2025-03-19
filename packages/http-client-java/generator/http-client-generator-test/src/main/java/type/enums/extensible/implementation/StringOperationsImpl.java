@@ -102,7 +102,7 @@ public final class StringOperationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> putKnownValue(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("text/plain") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Put("/type/enum/extensible/string/known-value")
@@ -112,7 +112,7 @@ public final class StringOperationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> putKnownValueSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("text/plain") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Put("/type/enum/extensible/string/unknown-value")
@@ -122,7 +122,7 @@ public final class StringOperationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> putUnknownValue(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("text/plain") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Put("/type/enum/extensible/string/unknown-value")
@@ -132,7 +132,7 @@ public final class StringOperationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> putUnknownValueSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("text/plain") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
     }
 
@@ -155,7 +155,7 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getKnownValueWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.getKnownValue(this.client.getEndpoint(), accept, requestOptions, context));
     }
@@ -179,7 +179,7 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getKnownValueWithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return service.getKnownValueSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 
@@ -202,7 +202,7 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getUnknownValueWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return FluxUtil.withContext(
             context -> service.getUnknownValue(this.client.getEndpoint(), accept, requestOptions, context));
     }
@@ -226,7 +226,7 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getUnknownValueWithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return service.getUnknownValueSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 
@@ -250,7 +250,7 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> putKnownValueWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         return FluxUtil.withContext(
             context -> service.putKnownValue(this.client.getEndpoint(), contentType, body, requestOptions, context));
     }
@@ -275,7 +275,7 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putKnownValueWithResponse(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         return service.putKnownValueSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
 
@@ -299,7 +299,7 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> putUnknownValueWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         return FluxUtil.withContext(
             context -> service.putUnknownValue(this.client.getEndpoint(), contentType, body, requestOptions, context));
     }
@@ -324,7 +324,7 @@ public final class StringOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putUnknownValueWithResponse(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         return service.putUnknownValueSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
 }

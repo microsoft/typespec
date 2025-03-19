@@ -560,7 +560,7 @@ public final class EnumServiceClient {
     public ColorModel getColorModel() {
         // Generated convenience method for getColorModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getColorModelWithResponse(requestOptions).getValue().toString();
+        return ColorModel.fromString(getColorModelWithResponse(requestOptions).getValue().toObject(String.class));
     }
 
     /**

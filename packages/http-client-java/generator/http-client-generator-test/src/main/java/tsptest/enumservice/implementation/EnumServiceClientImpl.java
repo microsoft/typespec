@@ -490,7 +490,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getColorModelWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.getColorModel(this.getEndpoint(), accept, requestOptions, context));
     }
@@ -514,7 +514,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getColorModelWithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return service.getColorModelSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 

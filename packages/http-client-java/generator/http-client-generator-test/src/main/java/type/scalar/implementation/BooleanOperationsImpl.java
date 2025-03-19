@@ -84,7 +84,7 @@ public final class BooleanOperationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> put(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("text/plain") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Put("/type/scalar/boolean")
@@ -93,8 +93,8 @@ public final class BooleanOperationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> putSync(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("text/plain") BinaryData body, RequestOptions requestOptions, Context context);
+        Response<Void> putSync(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -116,7 +116,7 @@ public final class BooleanOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return FluxUtil.withContext(context -> service.get(this.client.getEndpoint(), accept, requestOptions, context));
     }
 
@@ -139,7 +139,7 @@ public final class BooleanOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getWithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return service.getSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 
@@ -163,7 +163,7 @@ public final class BooleanOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> putWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         return FluxUtil
             .withContext(context -> service.put(this.client.getEndpoint(), contentType, body, requestOptions, context));
     }
@@ -188,7 +188,7 @@ public final class BooleanOperationsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         return service.putSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
 }

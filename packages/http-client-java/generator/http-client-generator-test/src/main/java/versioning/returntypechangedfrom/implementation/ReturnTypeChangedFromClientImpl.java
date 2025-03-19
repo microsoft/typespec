@@ -216,7 +216,7 @@ public final class ReturnTypeChangedFromClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> testWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "text/plain";
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return FluxUtil.withContext(context -> service.test(this.getEndpoint(), this.getVersion(), contentType, accept,
             body, requestOptions, context));
     }
@@ -250,7 +250,7 @@ public final class ReturnTypeChangedFromClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> testWithResponse(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "text/plain";
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return service.testSync(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestOptions,
             Context.NONE);
     }

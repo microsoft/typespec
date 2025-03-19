@@ -570,7 +570,7 @@ public final class EnumServiceAsyncClient {
         // Generated convenience method for getColorModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getColorModelWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toString());
+            .map(protocolMethodData -> ColorModel.fromString(protocolMethodData.toObject(String.class)));
     }
 
     /**

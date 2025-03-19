@@ -97,7 +97,7 @@ public final class StringOperationClient {
     public String get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toString();
+        return getWithResponse(requestOptions).getValue().toObject(String.class);
     }
 
     /**
@@ -116,6 +116,6 @@ public final class StringOperationClient {
     public void put(String body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromString(body), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
     }
 }

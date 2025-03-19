@@ -97,7 +97,7 @@ public final class BooleanOperationClient {
     public boolean get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toString();
+        return getWithResponse(requestOptions).getValue().toObject(Boolean.class);
     }
 
     /**
@@ -116,6 +116,6 @@ public final class BooleanOperationClient {
     public void put(boolean body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromString(body), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
     }
 }

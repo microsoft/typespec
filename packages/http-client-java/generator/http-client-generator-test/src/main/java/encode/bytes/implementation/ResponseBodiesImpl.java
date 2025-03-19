@@ -295,7 +295,7 @@ public final class ResponseBodiesImpl {
      * 
      * <pre>
      * {@code
-     * BinaryData
+     * byte[]
      * }
      * </pre>
      * 
@@ -304,11 +304,11 @@ public final class ResponseBodiesImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return represent a byte array along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> base64WithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/octet-stream";
+        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.base64(this.client.getEndpoint(), accept, requestOptions, context));
     }
@@ -319,7 +319,7 @@ public final class ResponseBodiesImpl {
      * 
      * <pre>
      * {@code
-     * BinaryData
+     * byte[]
      * }
      * </pre>
      * 
@@ -328,11 +328,11 @@ public final class ResponseBodiesImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return represent a byte array along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> base64WithResponse(RequestOptions requestOptions) {
-        final String accept = "application/octet-stream";
+        final String accept = "application/json";
         return service.base64Sync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 
@@ -342,7 +342,7 @@ public final class ResponseBodiesImpl {
      * 
      * <pre>
      * {@code
-     * Base64Url
+     * byte[]
      * }
      * </pre>
      * 
@@ -355,7 +355,7 @@ public final class ResponseBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> base64urlWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.base64url(this.client.getEndpoint(), accept, requestOptions, context));
     }
@@ -366,7 +366,7 @@ public final class ResponseBodiesImpl {
      * 
      * <pre>
      * {@code
-     * Base64Url
+     * byte[]
      * }
      * </pre>
      * 
@@ -379,7 +379,7 @@ public final class ResponseBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> base64urlWithResponse(RequestOptions requestOptions) {
-        final String accept = "text/plain";
+        final String accept = "application/json";
         return service.base64urlSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 }

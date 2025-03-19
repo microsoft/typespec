@@ -84,7 +84,7 @@ public final class DecimalVerifiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> verify(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("text/plain") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Post("/type/scalar/decimal/verify")
@@ -94,7 +94,7 @@ public final class DecimalVerifiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> verifySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("text/plain") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
     }
 
@@ -169,7 +169,7 @@ public final class DecimalVerifiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> verifyWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         return FluxUtil.withContext(
             context -> service.verify(this.client.getEndpoint(), contentType, body, requestOptions, context));
     }
@@ -194,7 +194,7 @@ public final class DecimalVerifiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> verifyWithResponse(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         return service.verifySync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
 }

@@ -112,7 +112,7 @@ public final class ResponseBodyAsyncClient {
      * 
      * <pre>
      * {@code
-     * BinaryData
+     * byte[]
      * }
      * </pre>
      * 
@@ -121,7 +121,7 @@ public final class ResponseBodyAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return represent a byte array along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -135,7 +135,7 @@ public final class ResponseBodyAsyncClient {
      * 
      * <pre>
      * {@code
-     * Base64Url
+     * byte[]
      * }
      * </pre>
      * 
@@ -214,14 +214,15 @@ public final class ResponseBodyAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * @return represent a byte array on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> base64() {
+    public Mono<byte[]> base64() {
         // Generated convenience method for base64WithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return base64WithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return base64WithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(byte[].class));
     }
 
     /**
@@ -240,6 +241,6 @@ public final class ResponseBodyAsyncClient {
         // Generated convenience method for base64urlWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return base64urlWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toString());
+            .map(protocolMethodData -> protocolMethodData.toObject(byte[].class));
     }
 }

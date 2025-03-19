@@ -110,7 +110,7 @@ public final class ResponseBodyClient {
      * 
      * <pre>
      * {@code
-     * BinaryData
+     * byte[]
      * }
      * </pre>
      * 
@@ -119,7 +119,7 @@ public final class ResponseBodyClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return represent a byte array along with {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -133,7 +133,7 @@ public final class ResponseBodyClient {
      * 
      * <pre>
      * {@code
-     * Base64Url
+     * byte[]
      * }
      * </pre>
      * 
@@ -212,14 +212,14 @@ public final class ResponseBodyClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return represent a byte array.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData base64() {
+    public byte[] base64() {
         // Generated convenience method for base64WithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return base64WithResponse(requestOptions).getValue();
+        return base64WithResponse(requestOptions).getValue().toObject(byte[].class);
     }
 
     /**
@@ -237,6 +237,6 @@ public final class ResponseBodyClient {
     public byte[] base64url() {
         // Generated convenience method for base64urlWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return base64urlWithResponse(requestOptions).getValue().toString();
+        return base64urlWithResponse(requestOptions).getValue().toObject(byte[].class);
     }
 }

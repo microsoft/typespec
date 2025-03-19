@@ -119,7 +119,7 @@ public final class DecimalTypeAsyncClient {
         // Generated convenience method for responseBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return responseBodyWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toString());
+            .map(protocolMethodData -> protocolMethodData.toObject(BigDecimal.class));
     }
 
     /**
@@ -139,7 +139,7 @@ public final class DecimalTypeAsyncClient {
     public Mono<Void> requestBody(BigDecimal body) {
         // Generated convenience method for requestBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return requestBodyWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono);
+        return requestBodyWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
