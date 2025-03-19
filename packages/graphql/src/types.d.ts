@@ -16,3 +16,7 @@ export interface GraphQLSchemaRecord {
   /** The diagnostics created for this schema */
   readonly diagnostics: readonly Diagnostic[];
 }
+
+declare const tags: unique symbol;
+
+type Tagged<BaseType, Tag extends PropertyKey> = BaseType & { [tags]: { [K in Tag]: void } };
