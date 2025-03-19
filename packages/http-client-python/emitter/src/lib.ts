@@ -7,24 +7,70 @@ import {
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export interface PythonEmitterOptions extends SdkEmitterOptions {
+  /**
+   * The version of the package.
+   */
   "package-version"?: string;
+  /**
+   * The name of the package.
+   */
   "package-name"?: string;
+  /**
+   * The output directory.
+   */
   "output-dir"?: string;
+  /**
+   * Whether to generate packaging files. Packaging files refer to the setup.py,
+   */
   "generate-packaging-files"?: boolean;
+  /**
+   * If you are using a custom packaging files directory, you can specify it here. We won't generate with the default packaging files we have.
+   */
   "packaging-files-dir"?: string;
+  /**
+   * If you are using a custom packaging files directory, and have additional configuration parameters you want to pass in during generation, you can specify it here.
+   */
   "packaging-files-config"?: object;
+  /**
+   * The name of the package to be used in pretty-printing. Will be the name of the package in README and pprinting of setup.py
+   */
   "package-pprint-name"?: string;
+  /**
+   * Whether to return responses from HEAD requests as boolean. Defaults to `true`
+   */
   "head-as-boolean"?: boolean;
+  /**
+   * What kind of models to generate. If you pass in `none`, we won't generate models. `dpg` models are the default models we generate.
+   */
   "models-mode"?: string;
+  /**
+   * Whether to include distributed tracing in the generated code. Defaults to `true`.
+   */
   tracing?: boolean;
+  /**
+   * The name of the company. This will be reflected in your license files and documentation
+   */
   "company-name"?: string;
+  /**
+   * Whether to generate test files, for basic testing of your generated sdks. Defaults to `false`.
+   */
   "generate-test"?: boolean;
+  /**
+   * Run the emitter in debug mode.
+   */
   debug?: boolean;
   flavor?: "azure";
+  /**
+   * The directory where examples are stored.
+   */
   "examples-dir"?: string;
-  // If true, package namespace will respect the typespec namespace. Otherwise,
-  // package namespace is always aligned with package name.
+  /**
+   * Whether the generated package namespace will respec the typespec namespace. Defaults to `true`, which is the suggested value. Use `false` to continue with legacy handling of namespace following `package-name`
+   */
   "enable-typespec-namespace"?: boolean;
+  /**
+   * Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.
+   */
   "use-pyodide"?: boolean;
 }
 
