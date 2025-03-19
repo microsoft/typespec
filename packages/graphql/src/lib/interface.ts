@@ -9,9 +9,9 @@ import {
   walkPropertiesInherited,
 } from "@typespec/compiler";
 
+import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import { GraphQLKeys, NAMESPACE, reportDiagnostic } from "../lib.js";
 import type { Tagged } from "../types.d.ts";
-import { useStateMap, useStateSet } from "./state-map.js";
 
 // This will set the namespace for decorators implemented in this file
 export const namespace = NAMESPACE;
