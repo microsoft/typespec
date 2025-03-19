@@ -94,6 +94,12 @@ const EmitterOptionsSchema: JSONSchemaType<GraphQLEmitterOptions> = {
 export const libDef = {
   name: "@typespec/graphql",
   diagnostics: {
+    "graphql-operation-kind-duplicate": {
+      severity: "error",
+      messages: {
+        default: paramMessage`GraphQL Operation Kind already applied to \`${"entityName"}\`.`,
+      },
+    },
     "operation-field-conflict": {
       severity: "error",
       messages: {
@@ -135,6 +141,10 @@ export const libDef = {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,
   },
   state: {
+    operationKind: {
+      description:
+        "State for the graphql operation kind decorators (@query, @mutation, @subscription)",
+    },
     operationFields: { description: "State for the @operationFields decorator." },
     compose: { description: "State for the @compose decorator." },
     interface: { description: "State for the @Interface decorator." },
