@@ -168,7 +168,12 @@ interface NumberTypesVerifyOperations<
     """)
   @post
   @route("/verify")
-  verify(@body body: T): void;
+  verify(
+    @header
+    contentType: "application/json",
+
+    @body body: T,
+  ): void;
 }
 
 @doc("Decimal type verification")
