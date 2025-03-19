@@ -154,7 +154,7 @@ async function processFile(file, options) {
       "compile",
       fullPath,
       "--emit",
-      "@typespec/http-client-js",
+      resolve(import.meta.dirname, "../.."),
       "--config",
       tspConfig,
       "--output-dir",

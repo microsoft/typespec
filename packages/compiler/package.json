@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.66.0",
+  "version": "0.67.1",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -38,6 +38,9 @@
       "types": "./dist/module-resolver/module-resolver.d.ts",
       "default": "./dist/src/module-resolver/module-resolver.js"
     },
+    "./ast": {
+      "import": "./dist/src/ast/index.js"
+    },
     "./emitter-framework": {
       "types": "./dist/src/emitter-framework/index.d.ts",
       "default": "./dist/src/emitter-framework/index.js"
@@ -49,6 +52,10 @@
     "./experimental/typekit": {
       "types": "./dist/src/experimental/typekit/index.d.ts",
       "default": "./dist/src/experimental/typekit/index.js"
+    },
+    "./internals": {
+      "types": "./dist/src/internals/index.d.ts",
+      "import": "./dist/src/internals/index.js"
     }
   },
   "browser": {

@@ -180,6 +180,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Keyword cannot be used as identifier.",
+      future: paramMessage`${"name"} is a reserved keyword`,
     },
   },
   "invalid-directive-location": {
@@ -391,7 +392,8 @@ const diagnostics = {
     messages: {
       default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
       model: paramMessage`${"name"} refers to a model type, but is being used as a value here. Use #{} to create an object value.`,
-      tuple: paramMessage`${"name"} refers to a tuple type, but is being used as a value here. Use #[] to create an array value.`,
+      modelExpression: `Is a model expression type, but is being used as a value here. Use #{} to create an object value.`,
+      tuple: `Is a tuple type, but is being used as a value here. Use #[] to create an array value.`,
       templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
     },
   },

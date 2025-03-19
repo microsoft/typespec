@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [SetUp]
         public void SetUp()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [Test]

@@ -82,8 +82,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 
         private static ModelFactoryProvider SetupModelFactory()
         {
-            MockHelpers.LoadMockPlugin(inputModelTypes: [_baseModel, _catModel, _dogModel, _birdModel]);
-            var outputLibrary = CodeModelPlugin.Instance.OutputLibrary;
+            MockHelpers.LoadMockGenerator(inputModelTypes: [_baseModel, _catModel, _dogModel, _birdModel]);
+            var outputLibrary = CodeModelGenerator.Instance.OutputLibrary;
             var modelFactory = outputLibrary.TypeProviders.OfType<ModelFactoryProvider>().FirstOrDefault();
             Assert.IsNotNull(modelFactory);
             return modelFactory!;

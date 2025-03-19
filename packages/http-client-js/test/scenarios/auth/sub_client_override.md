@@ -7,9 +7,7 @@ The sub client sets NoAuth to override the auth scheme of the parent
 The spec contains a client with BasicAuth and a sub client with no auth
 
 ```tsp
-@service({
-  title: "Test Service",
-})
+@service(#{ title: "Test Service" })
 @useAuth(BasicAuth)
 namespace Test;
 

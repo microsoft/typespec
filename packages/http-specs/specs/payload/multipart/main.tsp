@@ -106,6 +106,7 @@ namespace FormData {
   @route("/mixed-parts")
   op basic(
     @header contentType: "multipart/form-data",
+    #suppress "deprecated" "For testing to migrate for 1.0-rc"
     @body body: MultiPartRequest,
   ): NoContentResponse;
 
@@ -166,6 +167,7 @@ namespace FormData {
   @route("/complex-parts")
   op fileArrayAndBasic(
     @header contentType: "multipart/form-data",
+    #suppress "deprecated" "For testing to migrate for 1.0-rc"
     @body body: ComplexPartsRequest,
   ): NoContentResponse;
 
@@ -202,6 +204,7 @@ namespace FormData {
   @route("/json-part")
   op jsonPart(
     @header contentType: "multipart/form-data",
+    #suppress "deprecated" "For testing to migrate for 1.0-rc"
     @body body: JsonPartRequest,
   ): NoContentResponse;
 
@@ -241,6 +244,7 @@ namespace FormData {
   @route("/binary-array-parts")
   op binaryArrayParts(
     @header contentType: "multipart/form-data",
+    #suppress "deprecated" "For testing to migrate for 1.0-rc"
     @body body: BinaryArrayPartsRequest,
   ): NoContentResponse;
 
@@ -275,6 +279,7 @@ namespace FormData {
   @route("/multi-binary-parts")
   op multiBinaryParts(
     @header contentType: "multipart/form-data",
+    #suppress "deprecated" "For testing to migrate for 1.0-rc"
     @body body: MultiBinaryPartsRequest,
   ): NoContentResponse;
 
@@ -304,9 +309,11 @@ namespace FormData {
   @route("/check-filename-and-content-type")
   op checkFileNameAndContentType(
     @header contentType: "multipart/form-data",
+    #suppress "deprecated" "For testing to migrate for 1.0-rc"
     @body body: MultiPartRequest,
   ): NoContentResponse;
 
+  #suppress "deprecated" "For testing to migrate for 1.0-rc"
   @scenario
   @scenarioDoc("""
     Expect request (

@@ -1,4 +1,5 @@
 import {
+  InitializedByFlags,
   SdkHeaderParameter,
   SdkHttpParameter,
   SdkMethod,
@@ -7,9 +8,11 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceOperation,
+  SdkServiceResponseHeader,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName } from "@typespec/compiler";
+import { marked, Token } from "marked";
 import { PythonSdkContext } from "./lib.js";
 import { getSimpleTypeResult, getType } from "./types.js";
 
@@ -149,6 +152,7 @@ type ParamBase = {
   inOverload: boolean;
   isApiVersion: boolean;
   type: Record<string, any>;
+  isContinuationToken: boolean;
 };
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
@@ -159,15 +163,46 @@ export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
   // if type is added in the first version of the client, we do not need to add the versioning info
   if (
     type.apiVersions[0] ===
-    context.sdkPackage.clients.find((c) => c.initialization.access === "public")?.apiVersions[0]
+    context.sdkPackage.clients.find(
+      (c) => c.clientInitialization.initializedBy | InitializedByFlags.Individually,
+    )?.apiVersions[0]
   )
     return undefined;
   return type.apiVersions[0];
 }
 
+export function isContinuationToken<TServiceOperation extends SdkServiceOperation>(
+  parameter: SdkParameter | SdkHttpParameter | SdkServiceResponseHeader,
+  method?: SdkServiceMethod<TServiceOperation>,
+  input: boolean = true,
+): boolean {
+  const parameterSegments =
+    method && method.kind === "paging"
+      ? method.pagingMetadata.continuationTokenParameterSegments
+      : undefined;
+  const responseSegments =
+    method && method.kind === "paging"
+      ? method.pagingMetadata.continuationTokenResponseSegments
+      : undefined;
+  if (!parameterSegments || !responseSegments) return false;
+  if (input) {
+    return Boolean(
+      parameterSegments &&
+        parameterSegments.length > 0 &&
+        (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body") &&
+        parameterSegments.at(-1) === parameter.correspondingMethodParams.at(-1),
+    );
+  }
+
+  return Boolean(
+    responseSegments && responseSegments.length > 0 && responseSegments.at(-1) === parameter,
+  );
+}
+
 export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   parameter: SdkParameter | SdkHttpParameter,
+  method?: SdkServiceMethod<TServiceOperation>,
 ): ParamBase {
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
@@ -186,6 +221,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     clientName: camelToSnakeCase(parameter.name),
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
+    isContinuationToken: isContinuationToken(parameter, method),
     type,
   };
 }
@@ -231,4 +267,85 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   return clientNamespace === ""
     ? rootNamespace
     : removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+}
+
+function parseToken(token: Token): string {
+  let parsed = "";
+  switch (token.type) {
+    case "heading":
+      parsed += `${"=".repeat(token.text.length)}\n${token.text}\n${"=".repeat(
+        token.text.length,
+      )}\n\n`;
+      break;
+    case "paragraph":
+      parsed += `${token.text}\n\n`;
+      break;
+    case "strong":
+      parsed += `**${token.text}**`;
+      break;
+    case "em":
+      parsed += `*${token.text}*`;
+      break;
+    case "codespan":
+      parsed += `\`\`${token.text}\`\``;
+      break;
+    case "code":
+      let codeBlockStyle = token.codeBlockStyle;
+      if (codeBlockStyle === undefined) {
+        codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
+      }
+      parsed += `\n\n.. code-block:: ${codeBlockStyle ?? ""}\n\n   ${token.text.split("\n").join("\n   ")}`;
+      break;
+    case "link":
+      if (token.href !== undefined) {
+        parsed += `\`${token.text} <${token.href}>\`_`;
+        break;
+      }
+      parsed += `${token.text}`;
+      break;
+    case "list":
+      if (!token.ordered) {
+        parsed += `\n\n${token.items.map((item: any) => `* ${item.text}`).join("\n")}`;
+        break;
+      }
+      parsed += `\n\n${token.items.map((item: any, index: number) => `${index + 1}. ${item.text}`).join("\n")}`;
+      break;
+    default:
+      parsed += token.raw;
+  }
+  return parsed;
+}
+
+export function md2Rst(text?: string): string | undefined {
+  try {
+    if (!text || text === "") return text;
+    const tokens = marked.lexer(text);
+    let rst = "";
+
+    tokens.forEach((token: Token) => {
+      if (token.type === "heading") {
+        // Heading tokens are block level, so we should check if there are additional tokens inside
+        const parsedHeadingText = md2Rst(token.text);
+        rst += `${"=".repeat(
+          parsedHeadingText!.length,
+        )}\n${parsedHeadingText}\n${"=".repeat(parsedHeadingText!.length)}\n\n`;
+      } else if ("tokens" in token && token.tokens !== undefined && token.tokens.length > 0) {
+        token.tokens.forEach((element: any) => {
+          rst += parseToken(element);
+        });
+      } else {
+        rst += parseToken(token);
+      }
+    });
+
+    // Trim trailing whitespace or tabs
+    return rst.replace(/[ \t]+$/, "");
+  } catch (e) {
+    if (e instanceof RangeError) {
+      // The error is thrown by the tokenizer when the markdown is too long
+      // We can ignore it and return the original text
+      return text;
+    }
+  }
+  return text;
 }

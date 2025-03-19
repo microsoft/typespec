@@ -8,7 +8,7 @@ try {
 
 import yargs from "yargs";
 import { installTypeSpecDependencies } from "../../install/install.js";
-import { typespecVersion } from "../../utils/misc.js";
+import { typespecVersion } from "../../manifest.js";
 import { getTypeSpecEngine } from "../engine.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { formatAction } from "./actions/format.js";
@@ -112,7 +112,12 @@ async function main() {
           })
           .option("no-emit", {
             type: "boolean",
-            describe: "Run emitters but do not emit any output.",
+            describe: "Do not run any emitters.",
+          })
+          .option("dry-run", {
+            type: "boolean",
+            describe:
+              "Run emitters but do not emit any output. (Only run emitters supporting this feature)",
           })
           .option("ignore-deprecated", {
             type: "boolean",

@@ -80,9 +80,10 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
     };
     program.reportDiagnostics(sdkContext.diagnostics);
 
-    const root = createModel(sdkContext);
+    let root = createModel(sdkContext);
 
     if (root) {
+      root = options["update-code-model"](root);
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {
@@ -124,8 +125,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         const result = await execCSharpGenerator(sdkContext, {
           generatorPath: generatorPath,
           outputFolder: outputFolder,
-          pluginName: options["plugin-name"],
-          newProject: options["new-project"] ?? !checkFile(csProjFile),
+          generatorName: options["generator-name"],
+          newProject: options["new-project"] || !checkFile(csProjFile),
           debug: options.debug ?? false,
         });
         if (result.exitCode !== 0) {

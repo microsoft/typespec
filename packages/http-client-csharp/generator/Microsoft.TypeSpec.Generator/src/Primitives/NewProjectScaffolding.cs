@@ -15,11 +15,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public async Task<bool> Execute()
         {
             //clean up old sln and csproj files
-            foreach (var file in Directory.GetFiles(CodeModelPlugin.Instance.Configuration.OutputDirectory, "*.csproj", SearchOption.AllDirectories))
+            foreach (var file in Directory.GetFiles(CodeModelGenerator.Instance.Configuration.OutputDirectory, "*.csproj", SearchOption.AllDirectories))
             {
                 File.Delete(file);
             }
-            foreach (var file in Directory.GetFiles(CodeModelPlugin.Instance.Configuration.OutputDirectory, "*.sln", SearchOption.TopDirectoryOnly))
+            foreach (var file in Directory.GetFiles(CodeModelGenerator.Instance.Configuration.OutputDirectory, "*.sln", SearchOption.TopDirectoryOnly))
             {
                 File.Delete(file);
             }
@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private async Task WriteProjectFiles()
         {
             await File.WriteAllBytesAsync(
-                Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.PackageName}.csproj"),
+                Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{CodeModelGenerator.Instance.Configuration.PackageName}.csproj"),
                 Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSourceProjectFileContent())));
         }
 
@@ -46,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         private async Task WriteSolutionFiles()
         {
             await File.WriteAllBytesAsync(
-                Path.Combine(CodeModelPlugin.Instance.Configuration.OutputDirectory, $"{CodeModelPlugin.Instance.Configuration.PackageName}.sln"),
+                Path.Combine(CodeModelGenerator.Instance.Configuration.OutputDirectory, $"{CodeModelGenerator.Instance.Configuration.PackageName}.sln"),
                 Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSolutionFileContent())));
         }
 
@@ -54,10 +54,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             var builder = new CSharpProjectWriter()
             {
-                Description = $"This is the {CodeModelPlugin.Instance.Configuration.PackageName} client library for developing .NET applications with rich experience.",
-                AssemblyTitle = $"SDK Code Generation {CodeModelPlugin.Instance.Configuration.PackageName}",
+                Description = $"This is the {CodeModelGenerator.Instance.Configuration.PackageName} client library for developing .NET applications with rich experience.",
+                AssemblyTitle = $"SDK Code Generation {CodeModelGenerator.Instance.Configuration.PackageName}",
                 Version = "1.0.0-beta.1",
-                PackageTags = CodeModelPlugin.Instance.Configuration.PackageName,
+                PackageTags = CodeModelGenerator.Instance.Configuration.PackageName,
                 TargetFramework = "netstandard2.0",
                 LangVersion = "latest",
                 GenerateDocumentationFile = true,
@@ -130,7 +130,7 @@ EndProject
 	EndGlobalSection
 EndGlobal
 ";
-            return string.Format(slnContent, CodeModelPlugin.Instance.Configuration.PackageName);
+            return string.Format(slnContent, CodeModelGenerator.Instance.Configuration.PackageName);
         }
     }
 }

@@ -1,6 +1,6 @@
 import { MultiKeyMap } from "../utils/misc.js";
 import { Checker, walkPropertiesInherited } from "./checker.js";
-import { compilerAssert, reportDeprecated } from "./diagnostics.js";
+import { compilerAssert } from "./diagnostics.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import {
   getMaxItems,
@@ -246,35 +246,6 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>,
   ): [Related, readonly TypeRelationError[]] {
-    // BACKCOMPAT: Allow certain type to be accepted as values
-    if (
-      "kind" in source &&
-      "entityKind" in target &&
-      source.kind === "TemplateParameter" &&
-      source.constraint?.type &&
-      source.constraint.valueType === undefined &&
-      target.entityKind === "MixedParameterConstraint" &&
-      target.valueType
-    ) {
-      const [assignable] = isTypeAssignableToInternal(
-        source.constraint.type,
-        target.valueType,
-        diagnosticTarget,
-        relationCache,
-      );
-      if (assignable) {
-        const constraint = getEntityName(source.constraint);
-        reportDeprecated(
-          program,
-          `Template constrainted to '${constraint}' will not be assignable to '${getEntityName(
-            target,
-          )}' in the future. Update the constraint to be 'valueof ${constraint}'`,
-          diagnosticTarget,
-        );
-        return [Related.true, []];
-      }
-    }
-
     if ("kind" in source && source.kind === "TemplateParameter") {
       source = source.constraint ?? checker.anyType;
     }

@@ -37,5 +37,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         public static ScopedApi<BinaryData> FromString(ValueExpression data)
             => Static<BinaryData>().Invoke(nameof(BinaryData.FromString), data).As<BinaryData>();
+
+        public static ScopedApi<BinaryData> Empty
+            => Static<BinaryData>().Property(nameof(BinaryData.Empty)).As<BinaryData>();
     }
 }

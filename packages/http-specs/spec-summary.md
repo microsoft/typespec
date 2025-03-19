@@ -894,12 +894,6 @@ This test is testing sending a pipes collection format array query parameters
 
 This test is testing sending a ssv collection format array query parameters
 
-### Parameters_CollectionFormat_Query_tsv
-
-- Endpoint: `get /parameters/collection-format/query/tsv`
-
-This test is testing sending a tsv collection format array query parameters
-
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
@@ -5339,42 +5333,6 @@ Expected input body:
 {
   "knownProp": [{ "state": "ok" }, { "state": "ok" }],
   "prop": [{ "state": "ok" }, { "state": "ok" }]
-}
-```
-
-### Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_get
-
-- Endpoint: `get /type/property/additionalProperties/spreadRecordDiscriminatedUnion`
-
-Expected response body:
-
-```json
-{
-  "name": "abc",
-  "prop1": { "kind": "kind0", "fooProp": "abc" },
-  "prop2": {
-    "kind": "kind1",
-    "start": "2021-01-01T00:00:00Z",
-    "end": "2021-01-02T00:00:00Z"
-  }
-}
-```
-
-### Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_put
-
-- Endpoint: `put /type/property/additionalProperties/spreadRecordDiscriminatedUnion`
-
-Expected input body:
-
-```json
-{
-  "name": "abc",
-  "prop1": { "kind": "kind0", "fooProp": "abc" },
-  "prop2": {
-    "kind": "kind1",
-    "start": "2021-01-01T00:00:00Z",
-    "end": "2021-01-02T00:00:00Z"
-  }
 }
 ```
 

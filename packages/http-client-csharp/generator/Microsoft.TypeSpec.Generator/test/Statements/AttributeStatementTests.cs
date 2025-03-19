@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
     {
         public AttributeStatementTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [Test]

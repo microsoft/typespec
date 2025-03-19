@@ -48,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator
                 return 1;
             }
 
-            (CodeModelPlugin.Instance.Emitter as IDisposable)?.Dispose();
+            (CodeModelGenerator.Instance.Emitter as IDisposable)?.Dispose();
 
             return 0;
         }

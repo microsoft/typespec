@@ -483,30 +483,6 @@ describe("http: routes", () => {
       strictEqual(getRoutePath(runner.program, get1)?.shared, true);
       strictEqual(getRoutePath(runner.program, get2)?.shared, false);
     });
-
-    it("legacy `shared: true parameter` still works", async () => {
-      const runner = await createHttpTestRunner();
-      const { get1, get2 } = (await runner.compile(`
-        @route("/test")
-        namespace Foo {
-          #suppress "deprecated"
-          @test
-          @route("/get1", { shared: true })
-          op get1(): string;
-        }
-
-        @route("/test")
-        namespace Foo {
-          #suppress "deprecated"
-          @test
-          @route("/get2", { shared: false })
-          op get2(): string;
-        }
-      `)) as { get1: Operation; get2: Operation };
-
-      strictEqual(getRoutePath(runner.program, get1)?.shared, true);
-      strictEqual(getRoutePath(runner.program, get2)?.shared, false);
-    });
   });
 });
 

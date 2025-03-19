@@ -214,20 +214,6 @@ export type IntrinsicScalarName =
   | "boolean"
   | "url";
 
-/**
- * Valid keys when looking up meta members for a particular type.
- * Array is a special case because it doesn't have a unique type, but does
- * carry unique meta-members.
- */
-export type MetaMemberKey = Type["kind"] | "Array";
-
-/**
- * A table to ease lookup of meta member interfaces during identifier resolution.
- * Only `type` exists today, but `value` will be added in the future.
- */
-export interface MetaMembersTable {
-  type: Partial<Record<MetaMemberKey, Sym>>;
-}
 export type NeverIndexer = {
   readonly key: NeverType;
   readonly value: undefined;
@@ -1068,6 +1054,7 @@ export interface BaseNode extends TextRange {
   /**
    * Could be undefined but making this optional creates a lot of noise. In practice,
    * you will likely only access symbol in cases where you know the node has a symbol.
+   * @internal
    */
   readonly symbol: Sym;
   /** Unique id across the process used to look up NodeLinks */
@@ -1797,6 +1784,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
   readonly esmExports: any;
 
   /* Any namespaces declared by decorators. */
+  /** @internal */
   readonly namespaceSymbols: Sym[];
 }
 
@@ -2018,12 +2006,6 @@ export interface DeprecatedDirective extends DirectiveBase {
   message: string;
 }
 
-export interface Dirent {
-  isFile(): boolean;
-  name: string;
-  isDirectory(): boolean;
-}
-
 export interface RmOptions {
   /**
    * If `true`, perform a recursive directory removal. In
@@ -2034,17 +2016,12 @@ export interface RmOptions {
   recursive?: boolean;
 }
 
-export interface CompilerHost {
+export interface SystemHost {
   /** read a file at the given url. */
   readUrl(url: string): Promise<SourceFile>;
 
   /** read a utf-8 or utf-8 with bom encoded file */
   readFile(path: string): Promise<SourceFile>;
-
-  /**
-   * Optional cache to reuse the results of parsing and binding across programs.
-   */
-  parseCache?: WeakMap<SourceFile, TypeSpecScriptNode>;
 
   /**
    * Write the file.
@@ -2072,6 +2049,19 @@ export interface CompilerHost {
    */
   mkdirp(path: string): Promise<string | undefined>;
 
+  // get info about a path
+  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
+
+  // get the real path of a possibly symlinked path
+  realpath(path: string): Promise<string>;
+}
+
+export interface CompilerHost extends SystemHost {
+  /**
+   * Optional cache to reuse the results of parsing and binding across programs.
+   */
+  parseCache?: WeakMap<SourceFile, TypeSpecScriptNode>;
+
   // get the directory TypeSpec is executing from
   getExecutionRoot(): string;
 
@@ -2081,13 +2071,7 @@ export interface CompilerHost {
   // get a promise for the ESM module shape of a JS module
   getJsImport(path: string): Promise<Record<string, any>>;
 
-  // get info about a path
-  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
-
   getSourceFileKind(path: string): SourceFileKind | undefined;
-
-  // get the real path of a possibly symlinked path
-  realpath(path: string): Promise<string>;
 
   // convert a file URL to a path in a file system
   fileURLToPath(url: string): string;
@@ -2239,6 +2223,11 @@ export interface StateDef {
   readonly description?: string;
 }
 
+export interface TypeSpecLibraryCapabilities {
+  /** Only applicable for emitters. Specify that this emitter will respect the dryRun flag and run, report diagnostic but not write any output.  */
+  readonly dryRun?: boolean;
+}
+
 export interface TypeSpecLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
@@ -2248,6 +2237,10 @@ export interface TypeSpecLibraryDef<
    * Library name. MUST match package.json name.
    */
   readonly name: string;
+
+  /** Optional registration of capabilities the library/emitter provides */
+  readonly capabilities?: TypeSpecLibraryCapabilities;
+
   /**
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
    */
@@ -2288,24 +2281,7 @@ export interface DecoratorImplementations {
   };
 }
 
-export interface PackageFlags {
-  /**
-   * Decorator arg marshalling algorithm. Specify how TypeSpec values are marshalled to decorator arguments.
-   * - `new` - New recommended behavior
-   *  - string value -> `string`
-   *  - numeric value -> `number` if the constraint can be represented as a JS number, Numeric otherwise(e.g. for types int64, decimal128, numeric, etc.)
-   *  - boolean value -> `boolean`
-   *  - null value -> `null`
-   *
-   * - `legacy` - DEPRECATED -  Behavior before version 0.56.0.
-   *  - string value -> `string`
-   *  - numeric value -> `number`
-   *  - boolean value -> `boolean`
-   *  - null value -> `NullType`
-   * @default new
-   */
-  readonly decoratorArgMarshalling?: "legacy" | "new";
-}
+export interface PackageFlags {}
 
 export interface LinterDefinition {
   rules: LinterRuleDefinition<string, DiagnosticMessages>[];

@@ -116,7 +116,7 @@ import { OrSchema } from "./common/schemas/relationship.js";
 import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
 import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./external-schemas.js";
-import { EmitterOptions, LIB_NAME, createDiagnostic, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
 import {
   CONTENT_TYPE_KEY,
@@ -130,6 +130,7 @@ import {
   operationIsMultipart,
   operationIsMultipleContentTypes,
 } from "./operation-utils.js";
+import { DevOptions, EmitterOptions, LIB_NAME } from "./options.js";
 import {
   BYTES_KNOWN_ENCODING,
   DATETIME_KNOWN_ENCODING,
@@ -155,6 +156,49 @@ import {
 } from "./utils.js";
 const { isEqual } = pkg;
 
+export interface EmitterOptionsDev {
+  flavor?: string;
+
+  // service
+  namespace?: string;
+  "service-name"?: string;
+  "service-versions"?: string[]; // consider to remove
+
+  // sample and test
+  "generate-samples"?: boolean;
+  "generate-tests"?: boolean;
+
+  // customization
+  "partial-update"?: boolean;
+  "models-subpackage"?: string;
+  "custom-types"?: string;
+  "custom-types-subpackage"?: string;
+  "customization-class"?: string;
+  polling?: any;
+
+  // configure
+  "skip-special-headers"?: string[];
+  "enable-subclient"?: boolean;
+
+  // not recommended to set
+  "group-etag-headers"?: boolean;
+  "enable-sync-stack"?: boolean;
+  "stream-style-serialization"?: boolean;
+  "use-object-for-unknown"?: boolean;
+
+  // versioning
+  "api-version"?: string;
+  "advanced-versioning"?: boolean;
+  "service-version-exclude-preview"?: boolean;
+
+  // dev options
+  "dev-options"?: DevOptions;
+
+  // internal use for codegen
+  "output-dir": string;
+  arm?: boolean;
+}
+
 type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
 
 const AZURE_CORE_FOUNDATIONS_ERROR_ID = "Azure.Core.Foundations.Error";
@@ -166,7 +210,7 @@ export class CodeModelBuilder {
   private baseJavaNamespace!: string;
   private legacyJavaNamespace!: boolean; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
   private sdkContext!: SdkContext;
-  private options: EmitterOptions;
+  private options: EmitterOptionsDev;
   private codeModel: CodeModel;
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
@@ -174,13 +218,12 @@ export class CodeModelBuilder {
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
     this.processSchemaImpl(type, name),
   );
-  readonly typeUnionRefCache = new Map<Type, Union | null | undefined>(); // Union means it ref a Union type, null means it does not ref any Union, undefined means type visited but not completed
 
   // current apiVersion name to generate code
   private apiVersion: string | undefined;
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
-    this.options = context.options;
+    this.options = context.options as EmitterOptionsDev;
     this.program = program1;
     this.emitterContext = context;
 
@@ -1080,7 +1123,10 @@ export class CodeModelBuilder {
               ) {
                 continuationTokenParameter = param;
                 break;
-              } else if (param.language.default.serializedName === parameter.serializedName) {
+              } else if (
+                parameter.kind === "query" &&
+                param.language.default.serializedName === parameter.serializedName
+              ) {
                 continuationTokenParameter = param;
                 break;
               }
@@ -1441,7 +1487,8 @@ export class CodeModelBuilder {
 
     // group ETag header parameters, if exists
     if (this.options["group-etag-headers"]) {
-      // TODO: unsure what happens, if the etag headers is already processed by override
+      // the etag headers would be re-grouped, if they are already processed by override
+      // this may not be the expected behavior
       this.processEtagHeaderParameters(op, httpOperation);
     }
   }
@@ -1688,32 +1735,42 @@ export class CodeModelBuilder {
       }
 
       if (groupToRequestConditions || groupToMatchConditions) {
-        op.convenienceApi.requests = [];
-        const request = new Request({
-          protocol: op.requests![0].protocol,
-        });
+        // method be called, only if "op.convenienceApi"
+        let request = op.convenienceApi?.requests?.[0];
+        let requestParameters: Parameter[];
+        let requestSignatureParameters: Parameter[];
+        if (request) {
+          requestParameters = request.parameters!;
+          requestSignatureParameters = request.signatureParameters!;
+        } else {
+          op.convenienceApi!.requests = [];
+          request = new Request({
+            protocol: op.requests![0].protocol,
+          });
+          op.convenienceApi!.requests.push(request);
+
+          requestParameters = op.parameters!;
+          requestSignatureParameters = op.signatureParameters!;
+        }
         request.parameters = [];
         request.signatureParameters = [];
-        op.convenienceApi.requests.push(request);
 
-        for (const parameter of op.parameters) {
+        for (const parameter of requestParameters) {
           // copy all parameters to request
-          const clonedParameter = cloneOperationParameter(parameter);
-          request.parameters.push(clonedParameter);
+          request.parameters.push(parameter);
 
           // copy signatureParameters, but exclude etag headers (as they won't be in method signature)
           if (
-            op.signatureParameters.includes(parameter) &&
+            requestSignatureParameters.includes(parameter) &&
             !(
               parameter.language.default.serializedName &&
               etagHeaders.includes(parameter.language.default.serializedName)
             )
           ) {
-            request.signatureParameters.push(clonedParameter);
+            request.signatureParameters.push(parameter);
           }
         }
 
-        const namespace = getNamespace(httpOperation.__raw.operation); // TODO: SdkHttpOperation does not have namespace
         const schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
         const schemaDescription = groupToRequestConditions
           ? "Specifies HTTP options for conditional requests based on modification time."
@@ -1724,7 +1781,7 @@ export class CodeModelBuilder {
           new GroupSchema(schemaName, schemaDescription, {
             language: {
               default: {
-                namespace: namespace,
+                namespace: this.namespace,
               },
               java: {
                 namespace: "com.azure.core.http",
@@ -1758,6 +1815,20 @@ export class CodeModelBuilder {
             parameter.language.default.serializedName &&
             etagHeaders.includes(parameter.language.default.serializedName)
           ) {
+            if (parameter.groupedBy) {
+              // remove etag header from its original groupBy schema
+              if (
+                parameter.groupedBy.schema instanceof GroupSchema &&
+                parameter.groupedBy.schema.properties
+              ) {
+                parameter.groupedBy.schema.properties =
+                  parameter.groupedBy.schema.properties.filter(
+                    (p) => p.serializedName !== parameter.language.default.serializedName,
+                  );
+              }
+            }
+
+            // add it to RequestConditions or MatchConditions
             parameter.groupedBy = requestConditionsParameter;
 
             requestConditionsSchema.add(

@@ -1,9 +1,9 @@
 {
   "name": "@typespec/http-client-csharp",
-  "version": "0.1.9",
+  "version": "1.0.0",
   "author": "Microsoft Corporation",
   "description": "The typespec library that can be used to generate C# models from a TypeSpec REST protocol binding",
-  "homepage": "https://github.com/Microsoft/typespec",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/Microsoft/typespec/blob/main/packages/http-client-csharp/readme.md",
   "license": "MIT",
   "repository": {
@@ -63,7 +63,7 @@
     "@types/node": "~22.7.5",
     "@typespec/compiler": "0.66.0",
     "@typespec/http": "0.66.0",
-    "@typespec/http-specs": "0.1.0-alpha.11",
+    "@typespec/http-specs": "0.1.0-alpha.12",
     "@typespec/json-schema": "0.66.0",
     "@typespec/library-linter": "0.66.0",
     "@typespec/openapi": "0.66.0",

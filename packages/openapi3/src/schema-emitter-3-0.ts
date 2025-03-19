@@ -1,4 +1,12 @@
 import {
+  AssetEmitter,
+  createAssetEmitter,
+  EmitterOutput,
+  ObjectBuilder,
+  Placeholder,
+  TypeEmitter,
+} from "@typespec/asset-emitter";
+import {
   compilerAssert,
   Enum,
   getDiscriminatedUnion,
@@ -14,14 +22,6 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import {
-  AssetEmitter,
-  createAssetEmitter,
-  EmitterOutput,
-  ObjectBuilder,
-  Placeholder,
-  TypeEmitter,
-} from "@typespec/compiler/emitter-framework";
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
@@ -262,8 +262,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     if (!isMerge && nullable) {
       schema.nullable = true;
     }
-
-    this.applyDiscriminator(union, schema);
 
     return this.applyConstraints(union, schema);
   }
