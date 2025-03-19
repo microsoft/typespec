@@ -3,7 +3,6 @@ import "@azure-tools/typespec-azure-core";
 import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
-using Azure.Core;
 using Azure.ClientGenerator.Core;
 
 @service(#{ title: "EnumService" })
@@ -85,11 +84,15 @@ model Operation {
 interface EnumOp {
   @get
   @route("/color")
-  getColor(): Color;
+  getColor(): {
+    @header contentType: "application/json";
+    @body body: Color;
+  };
 
   @get
   @route("/colormodel")
   getColorModel(): {
+    @header contentType: "application/json";
     @body body: ColorModel;
   };
 
