@@ -145,7 +145,7 @@ function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
     clientDefaultValue: parameter.clientDefaultValue,
     location: parameter.kind,
   };
-  if (parameter.isApiVersionParam) {
+  if (parameter.kind === "apiVersion") {
     return [
       {
         ...base,
