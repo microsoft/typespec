@@ -22,13 +22,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
                 InputFactory.EnumMember.Int32("Blue", 3)
             };
             var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                inputEnums: () => [inputEnum],
                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            Assert.IsNull(plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t.IsEnum));
+            Assert.IsNull(mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t.IsEnum));
 
-            var serializationProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is FixedEnumSerializationProvider);
+            var serializationProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is FixedEnumSerializationProvider);
             Assert.IsNotNull(serializationProvider);
             Assert.AreEqual(0, serializationProvider!.Fields.Count);
 
@@ -48,11 +48,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
                 InputFactory.EnumMember.Int32("Blue", 3)
             };
             var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                inputEnums: () => [inputEnum],
                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var enumProvider = plugin.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t.IsEnum);
+            var enumProvider = mockGenerator.Object.OutputLibrary.TypeProviders.FirstOrDefault(t => t.IsEnum);
             Assert.IsNotNull(enumProvider);
 
             var serializationProvider = enumProvider!.SerializationProviders.FirstOrDefault();

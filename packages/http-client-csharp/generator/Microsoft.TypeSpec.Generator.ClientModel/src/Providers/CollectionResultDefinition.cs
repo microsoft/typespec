@@ -79,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _isAsync = isAsync;
 
             var response = _operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
-            var responseModel = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
+            var responseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
             // TODO Nested models are not supported yet https://github.com/Azure/typespec-azure/issues/2287
 
             var nextPagePropertyName = _paging.NextLink != null
@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .FirstOrDefault(p => p.WireInfo?.SerializedName == itemsPropertyName)?.Name;
             if (itemsModelPropertyName == null)
             {
-                ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     "missing-items-property",
                     $"Missing items property: {itemsPropertyName}",
                     _operation.CrossLanguageDefinitionId);
@@ -303,7 +303,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     Declare(
                         "result",
-                        ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
+                        ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
                             _clientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
                                 message.ToApi<HttpMessageApi>(),
                                 _optionsField!.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
@@ -342,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     Declare(
                         "result",
-                        ScmCodeModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
+                        ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
                             _clientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
                                 message.ToApi<HttpMessageApi>(),
                                 _optionsField!.AsValueExpression.ToApi<HttpRequestOptionsApi>(),

@@ -63,7 +63,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 ? () => new InputAuth(apiKeyAuth, oauth2Auth)
                 : null;
 
-            MockHelpers.LoadMockPlugin(
+            MockHelpers.LoadMockGenerator(
                 clients: clients,
                 clientPipelineApi: TestClientPipelineApi.Instance,
                 auth: auth);
@@ -567,10 +567,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void ValidateQueryParamDiff()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
 
             //protocol and convenience methods should have a different type for enum query parameters
-            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
             Assert.IsNotNull(clientProvider);
             var methods = clientProvider!.Methods;
             //4 methods, sync / async + protocol / convenience
@@ -585,10 +585,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCase(false)]
         public void ValidateQueryParamWriterDiff(bool isAsync)
         {
-            MockHelpers.LoadMockPlugin(
+            MockHelpers.LoadMockGenerator(
                 createClientCore: (client) => new ValidateQueryParamDiffClientProvider(client, isAsync));
 
-            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
             Assert.IsNotNull(clientProvider);
 
             TypeProviderWriter writer = new(clientProvider!);
@@ -600,11 +600,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void ValidateConstructorsWhenUnsupportedAuth()
         {
-            MockHelpers.LoadMockPlugin(
+            MockHelpers.LoadMockGenerator(
                 createClientCore: (client) => new UnsupportedAuthClientProvider(client),
                 auth: () => new InputAuth(null, null));
 
-            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(InputFactory.Client(TestClientName));
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(InputFactory.Client(TestClientName));
             Assert.IsNotNull(clientProvider);
 
             TypeProviderWriter writer = new(clientProvider!);
@@ -615,7 +615,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void ValidateMethodSignatureUsesIEnumerable()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
 
             var inputClient = InputFactory.Client(
                 TestClientName,
@@ -631,7 +631,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                                     InputPrimitiveType.String))
                         ])
                 ]);
-            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(clientProvider);
             var convenienceMethod = clientProvider!.Methods.FirstOrDefault(
                 m => m.Signature.Name == "Foo" &&
@@ -716,7 +716,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
             var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
 
-            MockHelpers.LoadMockPlugin(
+            MockHelpers.LoadMockGenerator(
                 apiVersions: () => apiVersions,
                 inputEnums: () => [inputEnum]);
             var client = InputFactory.Client(TestClientName,
@@ -754,7 +754,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             List<string> apiVersions = ["value1", "value2"];
             var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
             var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
-            MockHelpers.LoadMockPlugin(
+            MockHelpers.LoadMockGenerator(
                 apiVersions: () => apiVersions,
                 inputEnums: () => [inputEnum]);
 
@@ -787,29 +787,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCase]
         public void ClientProviderIsAddedToLibrary()
         {
-            var plugin = MockHelpers.LoadMockPlugin(
+            var mockGenerator = MockHelpers.LoadMockGenerator(
                 clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "test")]);
 
-            Assert.AreEqual(1, plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Count());
+            Assert.AreEqual(1, mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Count());
         }
 
         [TestCase]
         public void NullClientProviderIsNotAddedToLibrary()
         {
-            var plugin = MockHelpers.LoadMockPlugin(
+            var mockGenerator = MockHelpers.LoadMockGenerator(
                 clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "test")],
                 createClientCore: (client) => null);
 
-            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>());
+            Assert.IsEmpty(mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>());
         }
 
         [TestCase]
         public void ClientProviderSummaryIsPopulated()
         {
-            var plugin = MockHelpers.LoadMockPlugin(
+            var mockGenerator = MockHelpers.LoadMockGenerator(
                 clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "client description")]);
 
-            var client = plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
+            var client = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().SingleOrDefault();
             Assert.IsNotNull(client);
 
             Assert.AreEqual("/// <summary> client description. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());

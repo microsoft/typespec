@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
         public void ProcessMessageIsOverridden()
         {
             CreateTestClient();
-            var clientPipelineExtensions = ScmCodeModelPlugin.Instance.OutputLibrary.TypeProviders.
+            var clientPipelineExtensions = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.
                 FirstOrDefault(x => x.Name == "ClientPipelineExtensions");
             Assert.NotNull(clientPipelineExtensions);
             var method = clientPipelineExtensions!.Methods.FirstOrDefault(m => m.Signature.Name == "ProcessMessage");
@@ -53,8 +53,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
         private static ClientProvider CreateTestClient()
         {
             var client = InputFactory.Client("TestClient", operations: [InputFactory.Operation("foo")]);
-            MockHelpers.LoadMockPlugin(clientPipelineApi: TestClientPipelineApi.Instance);
-            var clientProvider = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(client);
+            MockHelpers.LoadMockGenerator(clientPipelineApi: TestClientPipelineApi.Instance);
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
             Assert.IsNotNull(clientProvider);
             return clientProvider!;
         }

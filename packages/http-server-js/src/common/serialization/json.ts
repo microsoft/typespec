@@ -3,10 +3,12 @@
 
 import {
   BooleanLiteral,
+  DiagnosticTarget,
   IntrinsicType,
   ModelProperty,
   NoTarget,
   NumericLiteral,
+  Scalar,
   StringLiteral,
   Type,
   compilerAssert,
@@ -17,12 +19,15 @@ import {
 } from "@typespec/compiler";
 import { getHeaderFieldOptions, getPathParamOptions, getQueryParamOptions } from "@typespec/http";
 import { JsContext, Module } from "../../ctx.js";
-import { parseCase } from "../../util/case.js";
+import { reportDiagnostic } from "../../lib.js";
+import { access, parseCase } from "../../util/case.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { UnimplementedError } from "../../util/error.js";
 import { indent } from "../../util/iter.js";
+import { keywordSafe } from "../../util/keywords.js";
+import { getFullyQualifiedTypeName } from "../../util/name.js";
 import { emitTypeReference, escapeUnsafeChars } from "../reference.js";
-import { getJsScalar } from "../scalar.js";
+import { Encoder, JS_SCALAR_UNKNOWN, JsScalar, getJsScalar } from "../scalar.js";
 import { SerializableType, SerializationContext, requireSerialization } from "./index.js";
 
 /**
@@ -30,7 +35,12 @@ import { SerializableType, SerializationContext, requireSerialization } from "./
  */
 const _REQUIRES_JSON_SERIALIZATION = new WeakMap<SerializableType | ModelProperty, boolean>();
 
-export function requiresJsonSerialization(ctx: JsContext, type: Type): boolean {
+export function requiresJsonSerialization(
+  ctx: JsContext,
+  module: Module,
+  type: Type,
+  diagnosticTarget: DiagnosticTarget | typeof NoTarget = NoTarget,
+): boolean {
   if (!isSerializable(type)) return false;
 
   if (_REQUIRES_JSON_SERIALIZATION.has(type)) {
@@ -48,28 +58,31 @@ export function requiresJsonSerialization(ctx: JsContext, type: Type): boolean {
     case "Model": {
       if (isArrayModelType(ctx.program, type)) {
         const argumentType = type.indexer.value;
-        requiresSerialization = requiresJsonSerialization(ctx, argumentType);
+        requiresSerialization = requiresJsonSerialization(ctx, module, argumentType);
         break;
       }
 
       requiresSerialization = [...type.properties.values()].some((property) =>
-        propertyRequiresJsonSerialization(ctx, property),
+        propertyRequiresJsonSerialization(ctx, module, property),
       );
       break;
     }
     case "Scalar": {
-      const scalar = getJsScalar(ctx.program, type, type);
-      requiresSerialization = scalar === "Uint8Array" || getEncode(ctx.program, type) !== undefined;
+      const scalar = getJsScalar(ctx, module, type, diagnosticTarget);
+      requiresSerialization =
+        !scalar.isJsonCompatible ||
+        getEncode(ctx.program, type) !== undefined ||
+        scalar.getDefaultMimeEncoding("application/json") !== undefined;
       break;
     }
     case "Union": {
       requiresSerialization = [...type.variants.values()].some((variant) =>
-        requiresJsonSerialization(ctx, variant),
+        requiresJsonSerialization(ctx, module, variant),
       );
       break;
     }
     case "ModelProperty":
-      requiresSerialization = requiresJsonSerialization(ctx, type.type);
+      requiresSerialization = requiresJsonSerialization(ctx, module, type.type);
       break;
   }
 
@@ -78,12 +91,17 @@ export function requiresJsonSerialization(ctx: JsContext, type: Type): boolean {
   return requiresSerialization;
 }
 
-function propertyRequiresJsonSerialization(ctx: JsContext, property: ModelProperty): boolean {
+function propertyRequiresJsonSerialization(
+  ctx: JsContext,
+  module: Module,
+  property: ModelProperty,
+): boolean {
   return !!(
     isHttpMetadata(ctx, property) ||
     getEncode(ctx.program, property) ||
     resolveEncodedName(ctx.program, property, "application/json") !== property.name ||
-    (isSerializable(property.type) && requiresJsonSerialization(ctx, property.type))
+    (isSerializable(property.type) &&
+      requiresJsonSerialization(ctx, module, property.type, property))
   );
 }
 
@@ -132,12 +150,40 @@ function* emitToJson(
         const encodedName =
           resolveEncodedName(ctx.program, property, "application/json") ?? property.name;
 
-        const expr = transposeExpressionToJson(
-          ctx,
-          property.type,
-          `input.${property.name}`,
-          module,
-        );
+        const propertyName = keywordSafe(parseCase(property.name).camelCase);
+
+        let expr: string = access("input", propertyName);
+
+        const encoding = getEncode(ctx.program, property);
+
+        if (property.type.kind === "Scalar" && encoding) {
+          const scalar = getJsScalar(ctx, module, property.type, property.type);
+          const scalarEncoder = scalar.getEncoding(encoding.encoding ?? "default", encoding.type);
+
+          if (scalarEncoder) {
+            expr = transposeExpressionToJson(
+              ctx,
+              // Assertion: scalarEncoder.target.scalar is defined because we resolved an encoder.
+              scalarEncoder.target.scalar as Scalar,
+              scalarEncoder.encode(expr),
+              module,
+            );
+          } else {
+            reportDiagnostic(ctx.program, {
+              code: "unknown-encoding",
+              target: NoTarget,
+              format: {
+                encoding: encoding.encoding ?? "<default>",
+                type: getFullyQualifiedTypeName(property.type),
+                target: getFullyQualifiedTypeName(encoding.type),
+              },
+            });
+
+            // We treat this as unknown from here on out. The encoding was not deciphered.
+          }
+        } else {
+          expr = transposeExpressionToJson(ctx, property.type, expr, module);
+        }
 
         yield `  ${encodedName}: ${expr},`;
       }
@@ -151,12 +197,12 @@ function* emitToJson(
       return;
     }
     case "Union": {
-      const codeTree = differentiateUnion(ctx, type);
+      const codeTree = differentiateUnion(ctx, module, type);
 
       yield* writeCodeTree(ctx, codeTree, {
         subject: "input",
         referenceModelProperty(p) {
-          return "input." + parseCase(p.name).camelCase;
+          return access("input", parseCase(p.name).camelCase);
         },
         renderResult(type) {
           return [`return ${transposeExpressionToJson(ctx, type, "input", module)};`];
@@ -179,15 +225,15 @@ function transposeExpressionToJson(
       if (isArrayModelType(ctx.program, type)) {
         const argumentType = type.indexer.value;
 
-        if (requiresJsonSerialization(ctx, argumentType)) {
-          return `${expr}?.map((item) => ${transposeExpressionToJson(ctx, argumentType, "item", module)})`;
+        if (requiresJsonSerialization(ctx, module, argumentType)) {
+          return `(${expr})?.map((item) => ${transposeExpressionToJson(ctx, argumentType, "item", module)})`;
         } else {
           return expr;
         }
       } else if (isRecordModelType(ctx.program, type)) {
         const argumentType = type.indexer.value;
 
-        if (requiresJsonSerialization(ctx, argumentType)) {
+        if (requiresJsonSerialization(ctx, module, argumentType)) {
           return `Object.fromEntries(Object.entries(${expr}).map(([key, value]) => [String(key), ${transposeExpressionToJson(
             ctx,
             argumentType,
@@ -197,7 +243,7 @@ function transposeExpressionToJson(
         } else {
           return expr;
         }
-      } else if (!requiresJsonSerialization(ctx, type)) {
+      } else if (!requiresJsonSerialization(ctx, module, type)) {
         return expr;
       } else {
         requireSerialization(ctx, type, "application/json");
@@ -207,18 +253,20 @@ function transposeExpressionToJson(
       }
     }
     case "Scalar":
-      const scalar = getJsScalar(ctx.program, type, type);
+      const scalar = getJsScalar(ctx, module, type, NoTarget);
 
-      switch (scalar) {
-        case "Uint8Array":
-          // Coerce to Buffer if we aren't given a buffer. This avoids having to do unholy things to
-          // convert through an intermediate and use globalThis.btoa. v8 does not support Uint8Array.toBase64
-          return `((${expr} instanceof Buffer) ? ${expr} : Buffer.from(${expr})).toString('base64')`;
-        default:
-          return expr;
+      const encoder: Encoder = getScalarEncoder(ctx, type, scalar);
+
+      const encoded = encoder.encode(expr);
+
+      if (encoder.target.isJsonCompatible || !encoder.target.scalar) {
+        return encoded;
+      } else {
+        // Assertion: encoder.target.scalar is a scalar because "unknown" is JSON compatible.
+        return transposeExpressionToJson(ctx, encoder.target.scalar as Scalar, encoded, module);
       }
     case "Union":
-      if (!requiresJsonSerialization(ctx, type)) {
+      if (!requiresJsonSerialization(ctx, module, type)) {
         return expr;
       } else {
         requireSerialization(ctx, type, "application/json");
@@ -269,6 +317,48 @@ function transposeExpressionToJson(
   }
 }
 
+function getScalarEncoder(ctx: SerializationContext, type: Scalar, scalar: JsScalar) {
+  const encoding = getEncode(ctx.program, type);
+
+  let encoder: Encoder;
+
+  if (encoding) {
+    const encodingName = encoding.encoding ?? "default";
+    const scalarEncoder = scalar.getEncoding(encodingName, encoding.type);
+
+    // TODO - we should detect this before realizing models and use a transform to represent
+    // the defective scalar as the encoding target type.
+    // See: https://github.com/microsoft/typespec/issues/6376
+    if (!scalarEncoder) {
+      reportDiagnostic(ctx.program, {
+        code: "unknown-encoding",
+        target: NoTarget,
+        format: {
+          encoding: encoding.encoding ?? "<default>",
+          type: getFullyQualifiedTypeName(type),
+          target: getFullyQualifiedTypeName(encoding.type),
+        },
+      });
+
+      encoder = {
+        target: JS_SCALAR_UNKNOWN,
+        encode: (expr) => expr,
+        decode: (expr) => expr,
+      };
+    } else {
+      encoder = scalarEncoder;
+    }
+  } else {
+    // No encoding specified, use the default content type encoding for json
+    encoder = scalar.getDefaultMimeEncoding("application/json") ?? {
+      target: JS_SCALAR_UNKNOWN,
+      encode: (expr) => expr,
+      decode: (expr) => expr,
+    };
+  }
+  return encoder;
+}
+
 function literalToExpr(type: StringLiteral | BooleanLiteral | NumericLiteral): string {
   switch (type.kind) {
     case "String":
@@ -292,14 +382,42 @@ function* emitFromJson(
         const encodedName =
           resolveEncodedName(ctx.program, property, "application/json") ?? property.name;
 
-        const expr = transposeExpressionFromJson(
-          ctx,
-          property.type,
-          `input["${encodedName}"]`,
-          module,
-        );
+        let expr = access("input", encodedName);
 
-        yield `  ${property.name}: ${expr},`;
+        const encoding = getEncode(ctx.program, property);
+
+        if (property.type.kind === "Scalar" && encoding) {
+          const scalar = getJsScalar(ctx, module, property.type, property.type);
+          const scalarEncoder = scalar.getEncoding(encoding.encoding ?? "default", encoding.type);
+
+          if (scalarEncoder) {
+            expr = transposeExpressionFromJson(
+              ctx,
+              // Assertion: scalarEncoder.target.scalar is defined because we resolved an encoder.
+              scalarEncoder.target.scalar as Scalar,
+              scalarEncoder.decode(expr),
+              module,
+            );
+          } else {
+            reportDiagnostic(ctx.program, {
+              code: "unknown-encoding",
+              target: NoTarget,
+              format: {
+                encoding: encoding.encoding ?? "<default>",
+                type: getFullyQualifiedTypeName(property.type),
+                target: getFullyQualifiedTypeName(encoding.type),
+              },
+            });
+
+            // We treat this as unknown from here on out. The encoding was not deciphered.
+          }
+        } else {
+          expr = transposeExpressionFromJson(ctx, property.type, expr, module);
+        }
+
+        const propertyName = keywordSafe(parseCase(property.name).camelCase);
+
+        yield `  ${propertyName}: ${expr},`;
       }
 
       yield "};";
@@ -311,13 +429,13 @@ function* emitFromJson(
       return;
     }
     case "Union": {
-      const codeTree = differentiateUnion(ctx, type);
+      const codeTree = differentiateUnion(ctx, module, type);
 
       yield* writeCodeTree(ctx, codeTree, {
         subject: "input",
         referenceModelProperty(p) {
           const jsonName = resolveEncodedName(ctx.program, p, "application/json") ?? p.name;
-          return "input[" + JSON.stringify(jsonName) + "]";
+          return access("input", jsonName);
         },
         renderResult(type) {
           return [`return ${transposeExpressionFromJson(ctx, type, "input", module)};`];
@@ -340,15 +458,15 @@ function transposeExpressionFromJson(
       if (isArrayModelType(ctx.program, type)) {
         const argumentType = type.indexer.value;
 
-        if (requiresJsonSerialization(ctx, argumentType)) {
-          return `${expr}?.map((item: any) => ${transposeExpressionFromJson(ctx, argumentType, "item", module)})`;
+        if (requiresJsonSerialization(ctx, module, argumentType)) {
+          return `(${expr})?.map((item: any) => ${transposeExpressionFromJson(ctx, argumentType, "item", module)})`;
         } else {
           return expr;
         }
       } else if (isRecordModelType(ctx.program, type)) {
         const argumentType = type.indexer.value;
 
-        if (requiresJsonSerialization(ctx, argumentType)) {
+        if (requiresJsonSerialization(ctx, module, argumentType)) {
           return `Object.fromEntries(Object.entries(${expr}).map(([key, value]) => [key, ${transposeExpressionFromJson(
             ctx,
             argumentType,
@@ -358,7 +476,7 @@ function transposeExpressionFromJson(
         } else {
           return expr;
         }
-      } else if (!requiresJsonSerialization(ctx, type)) {
+      } else if (!requiresJsonSerialization(ctx, module, type)) {
         return `${expr} as ${emitTypeReference(ctx, type, NoTarget, module)}`;
       } else {
         requireSerialization(ctx, type, "application/json");
@@ -368,16 +486,20 @@ function transposeExpressionFromJson(
       }
     }
     case "Scalar":
-      const scalar = getJsScalar(ctx.program, type, type);
+      const scalar = getJsScalar(ctx, module, type, type);
 
-      switch (scalar) {
-        case "Uint8Array":
-          return `Buffer.from(${expr}, 'base64')`;
-        default:
-          return expr;
+      const encoder = getScalarEncoder(ctx, type, scalar);
+
+      const decoded = encoder.decode(expr);
+
+      if (encoder.target.isJsonCompatible || !encoder.target.scalar) {
+        return decoded;
+      } else {
+        // Assertion: encoder.target.scalar is a scalar because "unknown" is JSON compatible.
+        return transposeExpressionFromJson(ctx, encoder.target.scalar as Scalar, decoded, module);
       }
     case "Union":
-      if (!requiresJsonSerialization(ctx, type)) {
+      if (!requiresJsonSerialization(ctx, module, type)) {
         return expr;
       } else {
         requireSerialization(ctx, type, "application/json");

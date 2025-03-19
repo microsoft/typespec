@@ -29,19 +29,6 @@ if (!last.data.version) {
 import Link from "@typespec/astro-utils/components/link.astro";
 ---
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const els = document.querySelectorAll(".new-version-banner") as any as HTMLElement[];
-    const today = new Date();
-    els.forEach((el) => {
-      const releaseDate = new Date(el.dataset.releasedate!);
-      if (today.getTime() - releaseDate.getTime() > 7 * 86400000 /* 7 days */) {
-        els.forEach((x) => x.classList.add("hide"));
-      }
-    });
-  });
-</script>
-
 <style>
   .new-version-banner {
     border: 1px solid var(--colorBrandBackground);

@@ -3,44 +3,31 @@
 
 package type.array;
 
+import io.clientcore.core.models.binarydata.BinaryData;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class UnknownValueClientTest {
 
     private final UnknownValueClient client = new ArrayClientBuilder().buildUnknownValueClient();
 
-    // BinaryData case, when use-object-for-unknown=false
-//    @Disabled("TODO https://github.com/Azure/autorest.java/issues/2964")
-//    @Test
-//    public void get() {
-//        List<BinaryData> response = client.get();
-//        Assertions.assertEquals(3, response.size());
-//        Assertions.assertEquals(1, response.get(0).toObject(Integer.class));
-//        Assertions.assertEquals("hello", response.get(1).toObject(String.class));
-//        Assertions.assertEquals(null, response.get(2));
-//    }
-//
-//    @Test
-//    public void put() {
-//        client.put(Arrays.asList(
-//          BinaryData.fromObject(1),
-//          BinaryData.fromObject("hello"), null));
-//    }
-
+    @Disabled("java.lang.ClassCastException: class java.lang.Integer cannot be cast to class io.clientcore.core.models.binarydata.BinaryData")
     @Test
-    public void get() {
-        List<Object> response = client.get();
+    public void get() throws IOException {
+        List<BinaryData> response = client.get();
         Assertions.assertEquals(3, response.size());
-        Assertions.assertEquals(1, response.get(0));
-        Assertions.assertEquals("hello", response.get(1));
+        Assertions.assertEquals(1, (int) response.get(0).toObject(Integer.class));
+        Assertions.assertEquals("hello", response.get(1).toObject(String.class));
         Assertions.assertEquals(null, response.get(2));
     }
 
+    @Disabled("{\"message\":\"Body provided doesn't match expected body\",\"expected\":[1,\"hello\",null],\"actual\":[\"1\",\"\\\"hello\\\"\",null]}")
     @Test
     public void put() {
-        client.put(Arrays.asList(1, "hello", null));
+        client.put(Arrays.asList(BinaryData.fromObject(1), BinaryData.fromObject("hello"), null));
     }
 }

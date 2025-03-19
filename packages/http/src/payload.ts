@@ -1,8 +1,10 @@
 import {
   DiagnosticResult,
+  LiteralType,
   Model,
   ModelProperty,
   Program,
+  StringTemplate,
   Tuple,
   Type,
   createDiagnosticCollector,
@@ -68,6 +70,14 @@ export function resolveHttpPayload(
   const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, disposition));
 
   if (body) {
+    if (body.contentTypes.some((x) => x.startsWith("multipart/")) && body.bodyKind === "single") {
+      diagnostics.add({
+        severity: "warning",
+        code: "deprecated",
+        message: `Deprecated: Implicit multipart is deprecated, use @multipartBody instead with HttpPart`,
+        target: body.property ?? type,
+      });
+    }
     if (
       body.contentTypes.includes("multipart/form-data") &&
       body.bodyKind === "single" &&
@@ -520,6 +530,15 @@ function getDefaultContentTypeForKind(type: Type): string {
   return type.kind === "Scalar" ? "text/plain" : "application/json";
 }
 
+function isLiteralType(type: Type): type is LiteralType | StringTemplate {
+  return (
+    type.kind === "String" ||
+    type.kind === "Number" ||
+    type.kind === "Boolean" ||
+    type.kind === "StringTemplate"
+  );
+}
+
 function resolveContentTypesForBody(
   program: Program,
   contentTypeProperty: HttpProperty | undefined,
@@ -536,6 +555,23 @@ function resolveContentTypesForBody(
         contentTypes: diagnostics.pipe(getContentTypes(contentTypeProperty.property)),
         contentTypeProperty: contentTypeProperty.property,
       };
+    }
+
+    if (isLiteralType(type)) {
+      switch (type.kind) {
+        case "StringTemplate":
+        case "String":
+          type = program.checker.getStdType("string");
+          break;
+        case "Boolean":
+          type = program.checker.getStdType("boolean");
+          break;
+        case "Number":
+          type = program.checker.getStdType("numeric");
+          break;
+        default:
+          void (type satisfies never);
+      }
     }
 
     let encoded;

@@ -15,11 +15,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
     public class ModelFactoryProviderTests
     {
         private static readonly InputModelType[] ModelList = GetTestModels();
-        private CodeModelPlugin _instance;
+        private CodeModelGenerator _instance;
 
         public ModelFactoryProviderTests()
         {
-            _instance = MockHelpers.LoadMockPlugin(inputModelTypes: ModelList).Object;
+            _instance = MockHelpers.LoadMockGenerator(inputModelTypes: ModelList).Object;
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public void ListParamShape()
         {
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
-            var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
+            var models = ModelList.Select(CodeModelGenerator.Instance.TypeFactory.CreateModel);
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
@@ -56,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public void DictionaryParamShape()
         {
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
-            var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
+            var models = ModelList.Select(CodeModelGenerator.Instance.TypeFactory.CreateModel);
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
@@ -79,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public void DiscriminatorEnumParamShape()
         {
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
-            var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
+            var models = ModelList.Select(CodeModelGenerator.Instance.TypeFactory.CreateModel);
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
@@ -101,7 +101,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public void AdditionalPropertiesParamShape()
         {
             var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
-            var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
+            var models = ModelList.Select(CodeModelGenerator.Instance.TypeFactory.CreateModel);
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
