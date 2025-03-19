@@ -15,7 +15,6 @@ import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 import server.path.multiple.MultipleClient;
 import server.path.multiple.MultipleClientBuilder;
-import server.path.multiple.models.Versions;
 
 class MultipleClientTestBase extends TestProxyTestBase {
     protected MultipleClient multipleClient;
@@ -24,7 +23,6 @@ class MultipleClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         MultipleClientBuilder multipleClientbuilder
             = new MultipleClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .apiVersion(Configuration.getGlobalConfiguration().get("APIVERSION", Versions.V1_0))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

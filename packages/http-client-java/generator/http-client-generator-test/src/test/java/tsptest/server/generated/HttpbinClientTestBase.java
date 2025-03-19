@@ -15,7 +15,6 @@ import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 import tsptest.server.HttpbinClient;
 import tsptest.server.HttpbinClientBuilder;
-import tsptest.server.contoso.models.APIVersions;
 import tsptest.server.contoso.sub.ContosoClient;
 import tsptest.server.contoso.sub.ContosoClientBuilder;
 
@@ -39,7 +38,6 @@ class HttpbinClientTestBase extends TestProxyTestBase {
 
         ContosoClientBuilder contosoClientbuilder
             = new ContosoClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .apiVersion(Configuration.getGlobalConfiguration().get("APIVERSION", APIVersions.V1))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

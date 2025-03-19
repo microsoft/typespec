@@ -26,7 +26,6 @@ class ResiliencyServiceDrivenClientTestBase extends TestProxyTestBase {
                 .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
                 .serviceDeploymentVersion(
                     Configuration.getGlobalConfiguration().get("SERVICEDEPLOYMENTVERSION", "servicedeploymentversion"))
-                .apiVersion(Configuration.getGlobalConfiguration().get("APIVERSION", "v2"))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

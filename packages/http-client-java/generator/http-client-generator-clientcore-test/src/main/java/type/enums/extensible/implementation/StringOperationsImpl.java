@@ -68,7 +68,7 @@ public final class StringOperationsImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> putKnownValueSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions);
 
         @HttpRequestInformation(
@@ -77,7 +77,7 @@ public final class StringOperationsImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> putUnknownValueSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions);
     }
 
