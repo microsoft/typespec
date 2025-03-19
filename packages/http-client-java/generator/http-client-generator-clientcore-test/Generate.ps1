@@ -34,10 +34,6 @@ $generateScript = {
   } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
     # override namespace for reserved keyword "enum"
     $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.fixed"""
-  } elseif ($tspFile -match "type[\\/]array" -or $tspFile -match "type[\\/]dictionary") {
-    # TODO https://github.com/Azure/autorest.java/issues/2964
-    # also serve as a test for "use-object-for-unknown" emitter option
-    $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
