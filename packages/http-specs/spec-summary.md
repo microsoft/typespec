@@ -1114,6 +1114,66 @@ spreadCompositeRequestWithoutBody(name: string, testHeader: string)
 Expected path parameter: name="foo"
 Expected header parameter: testHeader="bar"
 
+### Payload_BodyRoot_InputOnly
+
+- Endpoints: `post /input-only/alice`
+
+Expected input body:
+
+```json
+{
+    "age": 30,
+    "gender": "female",
+}
+```
+
+### Payload_BodyRoot_InputAndOutput
+
+- Endpoints: `post /input-and-output/alice`
+
+Expected input body:
+
+```json
+{
+    "age": 30,
+    "gender": "female",
+}
+```
+
+Expected response body:
+
+```json
+{
+    "name": "alice",
+    "age": 30,
+    "gender": "female",
+}
+```
+
+### Payload_BodyRoot_OutputOnly
+
+- Endpoints: `get /output-only/alice`
+
+Expected response body:
+
+```json
+{
+    "name": "alice",
+    "age": 30,
+    "gender": "female",
+}
+```
+
+### Payload_BodyRoot_OptionalParam
+
+- Endpoints: `get /optional-param`
+
+Expected response body:
+
+```json
+["cat", "dog"]
+```
+
 ### Payload_ContentNegotiation_DifferentBody
 
 - Endpoints:
