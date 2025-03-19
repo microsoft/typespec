@@ -4,11 +4,10 @@
 package streaming.jsonl;
 
 import com.azure.core.util.BinaryData;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public final class JsonlTests {
 
@@ -16,7 +15,9 @@ public final class JsonlTests {
 
     @Test
     public void testJsonl() {
-        String jsonlStream = List.of("{\"desc\": \"one\"}", "{\"desc\": \"two\"}", "{\"desc\": \"three\"}").stream().collect(Collectors.joining("\n"));
+        String jsonlStream = List.of("{\"desc\": \"one\"}", "{\"desc\": \"two\"}", "{\"desc\": \"three\"}")
+            .stream()
+            .collect(Collectors.joining("\n"));
         client.send(BinaryData.fromString(jsonlStream));
 
         BinaryData data = client.receive();
