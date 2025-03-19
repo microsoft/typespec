@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@typespec/http-specs": "0.1.0-alpha.12",
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.7",
-    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.1.12.tgz",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.8",
+    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.1.13.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {

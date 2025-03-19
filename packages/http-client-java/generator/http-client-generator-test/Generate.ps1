@@ -119,7 +119,10 @@ $generateScript = {
   }
 }
 
+# hack to allow additionalProperties in this test
+(Get-Content -Path "../../emitter/src/options.ts") -replace "additionalProperties: false,", "additionalProperties: true," | Set-Content -Path "../../emitter/src/options.ts"
 ./Setup.ps1
+(Get-Content -Path "../../emitter/src/options.ts") -replace "additionalProperties: true,", "additionalProperties: false," | Set-Content -Path "../../emitter/src/options.ts"
 
 New-Item -Path ./existingcode/src/main/java/tsptest -ItemType Directory -Force | Out-Null
 
