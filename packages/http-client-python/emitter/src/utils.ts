@@ -205,7 +205,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   method?: SdkServiceMethod<TServiceOperation>,
 ): ParamBase {
   let type = getType(context, parameter.type);
-  if (parameter.isApiVersionParam) {
+  if (parameter.kind === "apiVersion") {
     if (parameter.clientDefaultValue) {
       type = getSimpleTypeResult({
         type: "constant",
@@ -220,7 +220,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     addedOn: getAddedOn(context, parameter),
     clientName: camelToSnakeCase(parameter.name),
     inOverload: false,
-    isApiVersion: parameter.isApiVersionParam,
+    isApiVersion: parameter.kind === "apiVersion",
     isContinuationToken: isContinuationToken(parameter, method),
     type,
   };
