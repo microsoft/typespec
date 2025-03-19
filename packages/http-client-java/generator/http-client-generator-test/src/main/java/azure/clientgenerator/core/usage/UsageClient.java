@@ -155,6 +155,38 @@ public final class UsageClient {
     }
 
     /**
+     * Serialize the 'OrphanModel' as request body.
+     * 
+     * Expected body parameter:
+     * ```json
+     * {
+     * "name": "name",
+     * "desc": "desc"
+     * }
+     * ```.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> orphanModelSerializableWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.orphanModelSerializableWithResponse(body, requestOptions);
+    }
+
+    /**
      * Expected body parameter:
      * ```json
      * {
