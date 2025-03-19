@@ -60,7 +60,7 @@ enum Versions {
     contentType: "application/application-json",
 
     @body
-    value: int32,
+    body: int32,
   }
 )
 op test(@body body: string): {
@@ -68,5 +68,5 @@ op test(@body body: string): {
   contentType: "application/application-json";
 
   @body
-  value: string;
+  body: string;
 };

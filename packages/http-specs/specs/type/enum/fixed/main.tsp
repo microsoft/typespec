@@ -45,7 +45,7 @@ interface String {
     contentType: "application/application-json";
 
     @body
-    value: DaysOfWeekEnum;
+    body: DaysOfWeekEnum;
   };
 
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"

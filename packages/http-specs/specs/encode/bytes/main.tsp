@@ -374,6 +374,6 @@ namespace ResponseBody {
     contentType: "application/application-json";
 
     @body
-    value: base64urlBytes;
+    body: base64urlBytes;
   };
 }

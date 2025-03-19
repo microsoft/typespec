@@ -19,7 +19,7 @@ interface String {
     contentType: "application/application-json";
 
     @body
-    value: string;
+    body: string;
   };
 
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
@@ -47,7 +47,7 @@ interface Boolean {
     contentType: "application/application-json";
 
     @body
-    value: boolean;
+    body: boolean;
   };
 
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
@@ -75,7 +75,7 @@ interface Unknown {
     contentType: "application/application-json";
 
     @body
-    value: unknown;
+    body: unknown;
   };
 
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
@@ -107,7 +107,7 @@ interface ScalarTypesOperations<T, TDoc extends valueof string> {
     contentType: "application/application-json";
 
     @body
-    value: T;
+    body: T;
   };
 
   @scenario
@@ -133,7 +133,7 @@ interface ScalarTypesOperations<T, TDoc extends valueof string> {
     """)
   @get
   @route("/request_parameter")
-  requestParameter(@query value: T): void;
+  requestParameter(@query body: T): void;
 }
 
 @doc("Decimal type")
