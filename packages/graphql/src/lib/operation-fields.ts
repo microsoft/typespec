@@ -10,8 +10,8 @@ import {
 
 // import { createTypeRelationChecker } from "../../../compiler/dist/src/core/type-relation-checker.js";
 
+import { useStateMap } from "@typespec/compiler/utils";
 import { GraphQLKeys, NAMESPACE, reportDiagnostic } from "../lib.js";
-import { useStateMap } from "./state-map.js";
 import { operationsEqual } from "./utils.js";
 
 // This will set the namespace for decorators implemented in this file
