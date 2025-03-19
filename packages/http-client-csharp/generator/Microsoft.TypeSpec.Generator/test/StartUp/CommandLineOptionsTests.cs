@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
         private static IEnumerable<TestCaseData> TestParseCommandLineOptionsArgsTestData()
         {
             // happy path scenarios
-            yield return new TestCaseData(new string[] { "../inputDir", "-p CodeModelPlugin" }, false);
+            yield return new TestCaseData(new string[] { "../inputDir", "-g CodeModelGenerator" }, false);
         }
 
         // Validates parsing different command line options

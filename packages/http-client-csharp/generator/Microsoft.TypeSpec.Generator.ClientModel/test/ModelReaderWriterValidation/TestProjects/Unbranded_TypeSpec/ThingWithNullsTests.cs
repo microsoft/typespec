@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
 
         protected override void CompareModels(Thing model, Thing model2, string format)
         {
-            Assert.AreEqual(model.Name, model2.Name);
+            Assert.AreEqual(model.Rename, model2.Rename);
             Assert.AreEqual(model.RequiredUnion.ToString(), model2.RequiredUnion.ToString());
             Assert.AreEqual(model.RequiredLiteralString, model2.RequiredLiteralString);
             Assert.AreEqual(model.RequiredLiteralInt, model2.RequiredLiteralInt);
@@ -48,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
         {
             var parsedWireJson = JsonDocument.Parse(WirePayload).RootElement;
             Assert.IsNotNull(parsedWireJson);
-            Assert.AreEqual(parsedWireJson.GetProperty("name").GetString(), model.Name);
+            Assert.AreEqual(parsedWireJson.GetProperty("name").GetString(), model.Rename);
             Assert.AreEqual("\"mockUnion\"", model.RequiredUnion.ToString());
             Assert.AreEqual(parsedWireJson.GetProperty("requiredBadDescription").GetString(), model.RequiredBadDescription);
             Assert.AreEqual(JsonValueKind.Null, parsedWireJson.GetProperty("requiredNullableList").ValueKind);

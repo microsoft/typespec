@@ -1,6 +1,6 @@
 {
   "name": "@typespec/json-schema",
-  "version": "0.66.0",
+  "version": "0.67.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec",
   "homepage": "https://github.com/microsoft/typespec",
@@ -72,6 +72,7 @@
     "vitest": "^3.0.7"
   },
   "dependencies": {
+    "@typespec/asset-emitter": "workspace:^",
     "yaml": "~2.7.0"
   }
 }

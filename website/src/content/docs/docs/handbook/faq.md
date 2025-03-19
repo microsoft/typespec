@@ -3,11 +3,16 @@ id: faq
 title: FAQ
 ---
 
-## I'm getting the error `Cannot find package 'x' imported from 'y'`, but I'm not using this package. Why?
+#### I'm getting the error `Cannot find package 'x' imported from 'y'`, but I'm not using this package. Why?
 
-This issue typically arises when package 'y' has a `peerDependency` on package 'x', and package 'x' hasn't been installed. This can occur if you're using a version of npm that's older than version 7, as these older versions don't automatically install peerDependencies. You would need to install them manually.
+This issue typically arises when package 'y' has a `peerDependency` on package 'x', and package 'x' isn't installed. This can occur if you're using a package manger that doesn't auto install implicit peer dependencies. It is the case for
 
-### How can I fix this?
+- `npm` (before version 7)
+- `yarn`
 
-- You can update npm using the command `npm install -g npm`.
-- If you're unable to update npm, you can add the dependencies to your project dependency. This should resolve the issue. Use the command `npm install x`.
+##### How can I fix this?
+
+| Package Manager | Action                                                            |
+| --------------- | ----------------------------------------------------------------- |
+| `npm`           | Upgrade npm `npm install -g npm`                                  |
+| `yarn`          | Add `x` intermediate dependency to your package.json dependencies |

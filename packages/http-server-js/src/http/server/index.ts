@@ -12,7 +12,6 @@ import {
 } from "@typespec/http";
 import { createOrGetModuleForNamespace } from "../../common/namespace.js";
 import { emitTypeReference, isValueLiteralType } from "../../common/reference.js";
-import { parseTemplateForScalar } from "../../common/scalar.js";
 import {
   SerializableType,
   isSerializationRequired,
@@ -33,6 +32,7 @@ import { emitMultipart, emitMultipartLegacy } from "./multipart.js";
 
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as httpHelpers } from "../../../generated-defs/helpers/http.js";
+import { getJsScalar } from "../../common/scalar.js";
 import { requiresJsonSerialization } from "../../common/serialization/json.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
@@ -127,7 +127,7 @@ function* emitRawServerOperation(
 
   const queryParams: Extract<HttpOperationParameter, { type: "query" }>[] = [];
 
-  const parsedParams = new Set<ModelProperty>();
+  const parsedParams = new Map<ModelProperty, HttpOperationParameter>();
 
   for (const parameter of operation.parameters.parameters) {
     const resolvedParameter =
@@ -140,11 +140,11 @@ function* emitRawServerOperation(
         throw new UnimplementedError("cookie parameters");
       case "query":
         queryParams.push(parameter);
-        parsedParams.add(resolvedParameter);
+        parsedParams.set(resolvedParameter, parameter);
         break;
       case "path":
         // Already handled above.
-        parsedParams.add(resolvedParameter);
+        parsedParams.set(resolvedParameter, parameter);
         break;
       default:
         throw new Error(
@@ -228,7 +228,7 @@ function* emitRawServerOperation(
 
         let value: string;
 
-        if (requiresJsonSerialization(ctx, body.type)) {
+        if (requiresJsonSerialization(ctx, module, body.type)) {
           value = `${bodyTypeName}.fromJsonObject(JSON.parse(body))`;
         } else {
           value = `JSON.parse(body)`;
@@ -283,13 +283,17 @@ function* emitRawServerOperation(
     } else {
       const resolvedParameter = param.type.kind === "ModelProperty" ? param.type : param;
 
-      paramBaseExpression =
-        resolvedParameter.type.kind === "Scalar" && parsedParams.has(resolvedParameter)
-          ? parseTemplateForScalar(ctx, resolvedParameter.type).replace(
-              "{}",
-              paramNameCase.camelCase,
-            )
-          : paramNameCase.camelCase;
+      const httpOperationParam = parsedParams.get(resolvedParameter);
+
+      if (resolvedParameter.type.kind === "Scalar" && httpOperationParam) {
+        const jsScalar = getJsScalar(ctx, module, resolvedParameter.type, resolvedParameter);
+
+        const encoder = jsScalar.http[httpOperationParam.type];
+
+        paramBaseExpression = encoder.decode(paramNameCase.camelCase);
+      } else {
+        paramBaseExpression = paramNameCase.camelCase;
+      }
     }
 
     if (param.optional) {
@@ -360,7 +364,7 @@ function* emitResultProcessing(
     // Single target type
     yield* emitResultProcessingForType(ctx, names, t, module);
   } else {
-    const codeTree = differentiateUnion(ctx, t);
+    const codeTree = differentiateUnion(ctx, module, t);
 
     yield* writeCodeTree(ctx, codeTree, {
       subject: names.result,
@@ -452,7 +456,12 @@ function* emitResultProcessingForType(
 
   if (body) {
     const bodyCase = parseCase(body.name);
-    const serializationRequired = isSerializationRequired(ctx, body.type, "application/json");
+    const serializationRequired = isSerializationRequired(
+      ctx,
+      module,
+      body.type,
+      "application/json",
+    );
     requireSerialization(ctx, body.type, "application/json");
 
     yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
@@ -469,7 +478,12 @@ function* emitResultProcessingForType(
     if (allMetadataIsRemoved) {
       yield `${names.ctx}.response.end();`;
     } else {
-      const serializationRequired = isSerializationRequired(ctx, target, "application/json");
+      const serializationRequired = isSerializationRequired(
+        ctx,
+        module,
+        target,
+        "application/json",
+      );
       requireSerialization(ctx, target, "application/json");
 
       yield `${names.ctx}.response.setHeader("content-type", "application/json");`;

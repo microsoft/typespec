@@ -29,10 +29,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         {
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
 
-            MockHelpers.LoadMockPlugin(
+            MockHelpers.LoadMockGenerator(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
 
-            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             var methodCollection = new ScmMethodProviderCollection(inputOperation, client!);
             Assert.IsNotNull(methodCollection);
@@ -71,10 +71,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         {
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
 
-            MockHelpers.LoadMockPlugin(
+            MockHelpers.LoadMockGenerator(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
 
-            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             var methodCollection = new ScmMethodProviderCollection(inputOperation, client!);
             Assert.IsNotNull(methodCollection);

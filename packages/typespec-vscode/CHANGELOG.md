@@ -1,5 +1,24 @@
 # Change Log - typespec-vscode
 
+## 0.67.0
+
+### Features
+
+- [#6178](https://github.com/microsoft/typespec/pull/6178) Update references to JS emitter
+- [#5972](https://github.com/microsoft/typespec/pull/5972) Select multiple emitters to generate multiple codes at one time
+- [#6295](https://github.com/microsoft/typespec/pull/6295) Improve the "Create TypeSpec Project" user experience
+- [#6015](https://github.com/microsoft/typespec/pull/6015) add openapi3 preview
+- [#6123](https://github.com/microsoft/typespec/pull/6123) Support telemetry
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6144](https://github.com/microsoft/typespec/pull/6144) Add missing node to list of suggestion when tsp server cannot start
+
+
 ## 0.66.0
 
 ### Features

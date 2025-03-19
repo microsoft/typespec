@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         [OneTimeSetUp]
         public void Setup()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
 
         }
 
