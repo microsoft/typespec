@@ -214,6 +214,24 @@ public final class ResiliencyServiceDrivenClientBuilder implements HttpTrait<Res
     }
 
     /*
+     * Pass in either 'v1' or 'v2'. This represents the API version of a service.
+     */
+    @Generated
+    private String apiVersion;
+
+    /**
+     * Sets Pass in either 'v1' or 'v2'. This represents the API version of a service.
+     * 
+     * @param apiVersion the apiVersion value.
+     * @return the ResiliencyServiceDrivenClientBuilder.
+     */
+    @Generated
+    public ResiliencyServiceDrivenClientBuilder apiVersion(String apiVersion) {
+        this.apiVersion = apiVersion;
+        return this;
+    }
+
+    /*
      * Service version
      */
     @Generated
@@ -258,11 +276,12 @@ public final class ResiliencyServiceDrivenClientBuilder implements HttpTrait<Res
     private ResiliencyServiceDrivenClientImpl buildInnerClient() {
         this.validateClient();
         HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
+        String localApiVersion = (apiVersion != null) ? apiVersion : "v2";
         ServiceDrivenServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : ServiceDrivenServiceVersion.getLatest();
         ResiliencyServiceDrivenClientImpl client
             = new ResiliencyServiceDrivenClientImpl(localPipeline, JacksonAdapter.createDefaultSerializerAdapter(),
-                this.endpoint, this.serviceDeploymentVersion, localServiceVersion);
+                this.endpoint, this.serviceDeploymentVersion, localApiVersion, localServiceVersion);
         return client;
     }
 

@@ -148,7 +148,7 @@ public final class ExtensibleAsyncClient {
         // Generated convenience method for getKnownValueWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getKnownValueWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> DaysOfWeekExtensibleEnum.fromString(protocolMethodData.toObject(String.class)));
+            .map(protocolMethodData -> protocolMethodData.toString());
     }
 
     /**
@@ -167,7 +167,7 @@ public final class ExtensibleAsyncClient {
         // Generated convenience method for getUnknownValueWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getUnknownValueWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> DaysOfWeekExtensibleEnum.fromString(protocolMethodData.toObject(String.class)));
+            .map(protocolMethodData -> protocolMethodData.toString());
     }
 
     /**
@@ -187,8 +187,7 @@ public final class ExtensibleAsyncClient {
     public Mono<Void> putKnownValue(DaysOfWeekExtensibleEnum body) {
         // Generated convenience method for putKnownValueWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putKnownValueWithResponse(BinaryData.fromObject(body == null ? null : body.toString()), requestOptions)
-            .flatMap(FluxUtil::toMono);
+        return putKnownValueWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -208,7 +207,6 @@ public final class ExtensibleAsyncClient {
     public Mono<Void> putUnknownValue(DaysOfWeekExtensibleEnum body) {
         // Generated convenience method for putUnknownValueWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putUnknownValueWithResponse(BinaryData.fromObject(body == null ? null : body.toString()), requestOptions)
-            .flatMap(FluxUtil::toMono);
+        return putUnknownValueWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

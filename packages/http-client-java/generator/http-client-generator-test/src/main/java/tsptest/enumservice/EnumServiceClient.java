@@ -560,7 +560,7 @@ public final class EnumServiceClient {
     public ColorModel getColorModel() {
         // Generated convenience method for getColorModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return ColorModel.fromString(getColorModelWithResponse(requestOptions).getValue().toObject(String.class));
+        return getColorModelWithResponse(requestOptions).getValue().toString();
     }
 
     /**
@@ -669,7 +669,7 @@ public final class EnumServiceClient {
         }
         return setStringEnumArrayWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -691,7 +691,7 @@ public final class EnumServiceClient {
         RequestOptions requestOptions = new RequestOptions();
         return setStringEnumArrayWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -721,7 +721,7 @@ public final class EnumServiceClient {
         }
         return setIntEnumArrayWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -743,7 +743,7 @@ public final class EnumServiceClient {
         RequestOptions requestOptions = new RequestOptions();
         return setIntEnumArrayWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -771,7 +771,7 @@ public final class EnumServiceClient {
                     .collect(Collectors.joining(",")),
                 false);
         }
-        return setStringArrayWithResponse(stringArray, requestOptions).getValue().toObject(String.class);
+        return setStringArrayWithResponse(stringArray, requestOptions).getValue().toString();
     }
 
     /**
@@ -791,7 +791,7 @@ public final class EnumServiceClient {
     public String setStringArray(List<String> stringArray) {
         // Generated convenience method for setStringArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setStringArrayWithResponse(stringArray, requestOptions).getValue().toObject(String.class);
+        return setStringArrayWithResponse(stringArray, requestOptions).getValue().toString();
     }
 
     /**
@@ -817,7 +817,7 @@ public final class EnumServiceClient {
                 JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(intArrayOpt, CollectionFormat.CSV),
                 false);
         }
-        return setIntArrayWithResponse(intArray, requestOptions).getValue().toObject(String.class);
+        return setIntArrayWithResponse(intArray, requestOptions).getValue().toString();
     }
 
     /**
@@ -837,7 +837,7 @@ public final class EnumServiceClient {
     public String setIntArray(List<Integer> intArray) {
         // Generated convenience method for setIntArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setIntArrayWithResponse(intArray, requestOptions).getValue().toObject(String.class);
+        return setIntArrayWithResponse(intArray, requestOptions).getValue().toString();
     }
 
     /**
@@ -867,7 +867,7 @@ public final class EnumServiceClient {
         }
         return setStringEnumMultiWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -889,7 +889,7 @@ public final class EnumServiceClient {
         RequestOptions requestOptions = new RequestOptions();
         return setStringEnumMultiWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -919,7 +919,7 @@ public final class EnumServiceClient {
         }
         return setIntEnumMultiWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -941,7 +941,7 @@ public final class EnumServiceClient {
         RequestOptions requestOptions = new RequestOptions();
         return setIntEnumMultiWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -969,7 +969,7 @@ public final class EnumServiceClient {
                 }
             }
         }
-        return setStringMultiWithResponse(stringArray, requestOptions).getValue().toObject(String.class);
+        return setStringMultiWithResponse(stringArray, requestOptions).getValue().toString();
     }
 
     /**
@@ -989,7 +989,7 @@ public final class EnumServiceClient {
     public String setStringMulti(List<String> stringArray) {
         // Generated convenience method for setStringMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setStringMultiWithResponse(stringArray, requestOptions).getValue().toObject(String.class);
+        return setStringMultiWithResponse(stringArray, requestOptions).getValue().toString();
     }
 
     /**
@@ -1015,7 +1015,7 @@ public final class EnumServiceClient {
                 requestOptions.addQueryParam("intArrayOpt", String.valueOf(paramItemValue), false);
             }
         }
-        return setIntMultiWithResponse(intArray, requestOptions).getValue().toObject(String.class);
+        return setIntMultiWithResponse(intArray, requestOptions).getValue().toString();
     }
 
     /**
@@ -1035,7 +1035,7 @@ public final class EnumServiceClient {
     public String setIntMulti(List<Integer> intArray) {
         // Generated convenience method for setIntMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setIntMultiWithResponse(intArray, requestOptions).getValue().toObject(String.class);
+        return setIntMultiWithResponse(intArray, requestOptions).getValue().toString();
     }
 
     /**
@@ -1064,7 +1064,7 @@ public final class EnumServiceClient {
         }
         return setStringEnumArrayHeaderWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -1086,6 +1086,6 @@ public final class EnumServiceClient {
         RequestOptions requestOptions = new RequestOptions();
         return setStringEnumArrayHeaderWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 }

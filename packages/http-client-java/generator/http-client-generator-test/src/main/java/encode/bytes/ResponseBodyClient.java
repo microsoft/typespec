@@ -14,7 +14,6 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
-import com.azure.core.util.Base64Url;
 import com.azure.core.util.BinaryData;
 import encode.bytes.implementation.ResponseBodiesImpl;
 
@@ -42,7 +41,7 @@ public final class ResponseBodyClient {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -51,7 +50,7 @@ public final class ResponseBodyClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return represent a byte array along with {@link Response}.
+     * @return the response body along with {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -111,7 +110,7 @@ public final class ResponseBodyClient {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -120,7 +119,7 @@ public final class ResponseBodyClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return represent a byte array along with {@link Response}.
+     * @return the response body along with {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -159,14 +158,14 @@ public final class ResponseBodyClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return represent a byte array.
+     * @return the response.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public byte[] defaultMethod() {
+    public BinaryData defaultMethod() {
         // Generated convenience method for defaultMethodWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return defaultMethodWithResponse(requestOptions).getValue().toObject(byte[].class);
+        return defaultMethodWithResponse(requestOptions).getValue();
     }
 
     /**
@@ -213,14 +212,14 @@ public final class ResponseBodyClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return represent a byte array.
+     * @return the response.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public byte[] base64() {
+    public BinaryData base64() {
         // Generated convenience method for base64WithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return base64WithResponse(requestOptions).getValue().toObject(byte[].class);
+        return base64WithResponse(requestOptions).getValue();
     }
 
     /**
@@ -238,6 +237,6 @@ public final class ResponseBodyClient {
     public byte[] base64url() {
         // Generated convenience method for base64urlWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return base64urlWithResponse(requestOptions).getValue().toObject(Base64Url.class).decodedBytes();
+        return base64urlWithResponse(requestOptions).getValue().toString();
     }
 }

@@ -125,7 +125,7 @@ public final class Decimal128VerifyAsyncClient {
     public Mono<Void> verify(BigDecimal body) {
         // Generated convenience method for verifyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return verifyWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
+        return verifyWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     @Generated

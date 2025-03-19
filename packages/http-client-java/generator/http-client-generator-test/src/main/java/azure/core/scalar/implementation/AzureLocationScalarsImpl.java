@@ -96,7 +96,7 @@ public final class AzureLocationScalarsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> put(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("text/plain") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Put("/azure/core/scalar/azureLocation")
@@ -106,7 +106,7 @@ public final class AzureLocationScalarsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> putSync(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
+            @BodyParam("text/plain") BinaryData body, RequestOptions requestOptions, Context context);
 
         @Post("/azure/core/scalar/azureLocation")
         @ExpectedResponses({ 200 })
@@ -184,7 +184,7 @@ public final class AzureLocationScalarsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         return FluxUtil.withContext(context -> service.get(this.client.getEndpoint(), accept, requestOptions, context));
     }
 
@@ -207,7 +207,7 @@ public final class AzureLocationScalarsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         return service.getSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 
@@ -231,7 +231,7 @@ public final class AzureLocationScalarsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> putWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "application/json";
+        final String contentType = "text/plain";
         return FluxUtil
             .withContext(context -> service.put(this.client.getEndpoint(), contentType, body, requestOptions, context));
     }
@@ -256,7 +256,7 @@ public final class AzureLocationScalarsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "application/json";
+        final String contentType = "text/plain";
         return service.putSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
 

@@ -14,7 +14,6 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
-import com.azure.core.util.Base64Url;
 import com.azure.core.util.BinaryData;
 import encode.bytes.implementation.RequestBodiesImpl;
 
@@ -42,7 +41,7 @@ public final class RequestBodyClient {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -114,7 +113,7 @@ public final class RequestBodyClient {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -138,7 +137,7 @@ public final class RequestBodyClient {
      * 
      * <pre>
      * {@code
-     * Base64Url
+     * BinaryData
      * }
      * </pre>
      * 
@@ -169,10 +168,10 @@ public final class RequestBodyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(byte[] value) {
+    public void defaultMethod(BinaryData value) {
         // Generated convenience method for defaultMethodWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        defaultMethodWithResponse(BinaryData.fromObject(value), requestOptions).getValue();
+        defaultMethodWithResponse(value, requestOptions).getValue();
     }
 
     /**
@@ -226,10 +225,10 @@ public final class RequestBodyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void base64(byte[] value) {
+    public void base64(BinaryData value) {
         // Generated convenience method for base64WithResponse
         RequestOptions requestOptions = new RequestOptions();
-        base64WithResponse(BinaryData.fromObject(value), requestOptions).getValue();
+        base64WithResponse(value, requestOptions).getValue();
     }
 
     /**
@@ -245,9 +244,9 @@ public final class RequestBodyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void base64url(byte[] value) {
+    public void base64url(BinaryData value) {
         // Generated convenience method for base64urlWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        base64urlWithResponse(BinaryData.fromObject(Base64Url.encode(value)), requestOptions).getValue();
+        base64urlWithResponse(value, requestOptions).getValue();
     }
 }

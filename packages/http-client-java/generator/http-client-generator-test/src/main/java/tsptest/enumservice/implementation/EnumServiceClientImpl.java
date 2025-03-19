@@ -490,7 +490,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getColorModelWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         return FluxUtil
             .withContext(context -> service.getColorModel(this.getEndpoint(), accept, requestOptions, context));
     }
@@ -514,7 +514,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getColorModelWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         return service.getColorModelSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 
@@ -847,7 +847,7 @@ public final class EnumServiceClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> setStringEnumArrayWithResponseAsync(List<String> colorArray,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         String colorArrayConverted = colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(","));
@@ -883,7 +883,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> setStringEnumArrayWithResponse(List<String> colorArray, RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         String colorArrayConverted = colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(","));
@@ -920,7 +920,7 @@ public final class EnumServiceClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> setIntEnumArrayWithResponseAsync(List<String> priorityArray,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         String priorityArrayConverted = priorityArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(","));
@@ -956,7 +956,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> setIntEnumArrayWithResponse(List<String> priorityArray, RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         String priorityArrayConverted = priorityArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(","));
@@ -993,7 +993,7 @@ public final class EnumServiceClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> setStringArrayWithResponseAsync(List<String> stringArray,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         String stringArrayConverted = stringArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(","));
@@ -1029,7 +1029,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> setStringArrayWithResponse(List<String> stringArray, RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         String stringArrayConverted = stringArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(","));
@@ -1066,7 +1066,7 @@ public final class EnumServiceClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> setIntArrayWithResponseAsync(List<Integer> intArray,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         String intArrayConverted
             = JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(intArray, CollectionFormat.CSV);
         return FluxUtil.withContext(
@@ -1101,7 +1101,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> setIntArrayWithResponse(List<Integer> intArray, RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         String intArrayConverted
             = JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(intArray, CollectionFormat.CSV);
         return service.setIntArraySync(this.getEndpoint(), intArrayConverted, accept, requestOptions, Context.NONE);
@@ -1136,7 +1136,7 @@ public final class EnumServiceClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> setStringEnumMultiWithResponseAsync(List<String> colorArray,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         List<String> colorArrayConverted
             = colorArray.stream().map(item -> Objects.toString(item, "")).collect(Collectors.toList());
         return FluxUtil.withContext(context -> service.setStringEnumMulti(this.getEndpoint(), colorArrayConverted,
@@ -1171,7 +1171,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> setStringEnumMultiWithResponse(List<String> colorArray, RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         List<String> colorArrayConverted
             = colorArray.stream().map(item -> Objects.toString(item, "")).collect(Collectors.toList());
         return service.setStringEnumMultiSync(this.getEndpoint(), colorArrayConverted, accept, requestOptions,
@@ -1207,7 +1207,7 @@ public final class EnumServiceClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> setIntEnumMultiWithResponseAsync(List<String> priorityArray,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         List<String> priorityArrayConverted
             = priorityArray.stream().map(item -> Objects.toString(item, "")).collect(Collectors.toList());
         return FluxUtil.withContext(context -> service.setIntEnumMulti(this.getEndpoint(), priorityArrayConverted,
@@ -1242,7 +1242,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> setIntEnumMultiWithResponse(List<String> priorityArray, RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         List<String> priorityArrayConverted
             = priorityArray.stream().map(item -> Objects.toString(item, "")).collect(Collectors.toList());
         return service.setIntEnumMultiSync(this.getEndpoint(), priorityArrayConverted, accept, requestOptions,
@@ -1278,7 +1278,7 @@ public final class EnumServiceClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> setStringMultiWithResponseAsync(List<String> stringArray,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         List<String> stringArrayConverted
             = stringArray.stream().map(item -> Objects.toString(item, "")).collect(Collectors.toList());
         return FluxUtil.withContext(context -> service.setStringMulti(this.getEndpoint(), stringArrayConverted, accept,
@@ -1313,7 +1313,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> setStringMultiWithResponse(List<String> stringArray, RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         List<String> stringArrayConverted
             = stringArray.stream().map(item -> Objects.toString(item, "")).collect(Collectors.toList());
         return service.setStringMultiSync(this.getEndpoint(), stringArrayConverted, accept, requestOptions,
@@ -1349,7 +1349,7 @@ public final class EnumServiceClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> setIntMultiWithResponseAsync(List<Integer> intArray,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         List<String> intArrayConverted
             = intArray.stream().map(item -> Objects.toString(item, "")).collect(Collectors.toList());
         return FluxUtil.withContext(
@@ -1384,7 +1384,7 @@ public final class EnumServiceClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> setIntMultiWithResponse(List<Integer> intArray, RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         List<String> intArrayConverted
             = intArray.stream().map(item -> Objects.toString(item, "")).collect(Collectors.toList());
         return service.setIntMultiSync(this.getEndpoint(), intArrayConverted, accept, requestOptions, Context.NONE);
@@ -1418,7 +1418,7 @@ public final class EnumServiceClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> setStringEnumArrayHeaderWithResponseAsync(List<String> colorArray,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         String colorArrayConverted = colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(","));
@@ -1454,7 +1454,7 @@ public final class EnumServiceClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> setStringEnumArrayHeaderWithResponse(List<String> colorArray,
         RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         String colorArrayConverted = colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(","));

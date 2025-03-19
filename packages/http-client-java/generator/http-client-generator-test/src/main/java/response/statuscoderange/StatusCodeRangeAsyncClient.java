@@ -99,7 +99,7 @@ public final class StatusCodeRangeAsyncClient {
         // Generated convenience method for errorResponseStatusCodeInRangeWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return errorResponseStatusCodeInRangeWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Integer.class));
+            .map(protocolMethodData -> protocolMethodData.toString());
     }
 
     /**
@@ -118,6 +118,6 @@ public final class StatusCodeRangeAsyncClient {
         // Generated convenience method for errorResponseStatusCode404WithResponse
         RequestOptions requestOptions = new RequestOptions();
         return errorResponseStatusCode404WithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Integer.class));
+            .map(protocolMethodData -> protocolMethodData.toString());
     }
 }

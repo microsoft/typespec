@@ -180,7 +180,7 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> errorResponseStatusCodeInRangeWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         return FluxUtil.withContext(
             context -> service.errorResponseStatusCodeInRange(this.getEndpoint(), accept, requestOptions, context));
     }
@@ -204,7 +204,7 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> errorResponseStatusCodeInRangeWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         return service.errorResponseStatusCodeInRangeSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 
@@ -227,7 +227,7 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> errorResponseStatusCode404WithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         return FluxUtil.withContext(
             context -> service.errorResponseStatusCode404(this.getEndpoint(), accept, requestOptions, context));
     }
@@ -251,7 +251,7 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> errorResponseStatusCode404WithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
+        final String accept = "text/plain";
         return service.errorResponseStatusCode404Sync(this.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 }

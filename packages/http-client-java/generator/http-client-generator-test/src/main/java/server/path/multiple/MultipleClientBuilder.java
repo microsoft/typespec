@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import server.path.multiple.implementation.MultipleClientImpl;
+import server.path.multiple.models.Versions;
 
 /**
  * A builder for creating a new instance of the MultipleClient type.
@@ -190,6 +191,24 @@ public final class MultipleClientBuilder implements HttpTrait<MultipleClientBuil
     }
 
     /*
+     * Pass in v1.0 for API version.
+     */
+    @Generated
+    private Versions apiVersion;
+
+    /**
+     * Sets Pass in v1.0 for API version.
+     * 
+     * @param apiVersion the apiVersion value.
+     * @return the MultipleClientBuilder.
+     */
+    @Generated
+    public MultipleClientBuilder apiVersion(Versions apiVersion) {
+        this.apiVersion = apiVersion;
+        return this;
+    }
+
+    /*
      * Service version
      */
     @Generated
@@ -234,10 +253,11 @@ public final class MultipleClientBuilder implements HttpTrait<MultipleClientBuil
     private MultipleClientImpl buildInnerClient() {
         this.validateClient();
         HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
+        Versions localApiVersion = (apiVersion != null) ? apiVersion : Versions.V1_0;
         MultipleServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : MultipleServiceVersion.getLatest();
         MultipleClientImpl client = new MultipleClientImpl(localPipeline,
-            JacksonAdapter.createDefaultSerializerAdapter(), this.endpoint, localServiceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), this.endpoint, localApiVersion, localServiceVersion);
         return client;
     }
 

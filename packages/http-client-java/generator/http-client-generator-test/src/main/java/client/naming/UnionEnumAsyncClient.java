@@ -104,8 +104,7 @@ public final class UnionEnumAsyncClient {
     public Mono<Void> unionEnumName(ClientExtensibleEnum body) {
         // Generated convenience method for unionEnumNameWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return unionEnumNameWithResponse(BinaryData.fromObject(body == null ? null : body.toString()), requestOptions)
-            .flatMap(FluxUtil::toMono);
+        return unionEnumNameWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -125,7 +124,6 @@ public final class UnionEnumAsyncClient {
     public Mono<Void> unionEnumMemberName(ExtensibleEnum body) {
         // Generated convenience method for unionEnumMemberNameWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return unionEnumMemberNameWithResponse(BinaryData.fromObject(body == null ? null : body.toString()),
-            requestOptions).flatMap(FluxUtil::toMono);
+        return unionEnumMemberNameWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

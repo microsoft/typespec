@@ -101,8 +101,7 @@ public final class UnionEnumClient {
     public void unionEnumName(ClientExtensibleEnum body) {
         // Generated convenience method for unionEnumNameWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        unionEnumNameWithResponse(BinaryData.fromObject(body == null ? null : body.toString()), requestOptions)
-            .getValue();
+        unionEnumNameWithResponse(BinaryData.fromString(body), requestOptions).getValue();
     }
 
     /**
@@ -121,7 +120,6 @@ public final class UnionEnumClient {
     public void unionEnumMemberName(ExtensibleEnum body) {
         // Generated convenience method for unionEnumMemberNameWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        unionEnumMemberNameWithResponse(BinaryData.fromObject(body == null ? null : body.toString()), requestOptions)
-            .getValue();
+        unionEnumMemberNameWithResponse(BinaryData.fromString(body), requestOptions).getValue();
     }
 }

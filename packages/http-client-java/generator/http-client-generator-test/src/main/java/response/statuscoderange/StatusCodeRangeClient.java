@@ -96,7 +96,7 @@ public final class StatusCodeRangeClient {
     public int errorResponseStatusCodeInRange() {
         // Generated convenience method for errorResponseStatusCodeInRangeWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return errorResponseStatusCodeInRangeWithResponse(requestOptions).getValue().toObject(Integer.class);
+        return errorResponseStatusCodeInRangeWithResponse(requestOptions).getValue().toString();
     }
 
     /**
@@ -114,6 +114,6 @@ public final class StatusCodeRangeClient {
     public int errorResponseStatusCode404() {
         // Generated convenience method for errorResponseStatusCode404WithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return errorResponseStatusCode404WithResponse(requestOptions).getValue().toObject(Integer.class);
+        return errorResponseStatusCode404WithResponse(requestOptions).getValue().toString();
     }
 }

@@ -118,7 +118,7 @@ public final class Decimal128TypeAsyncClient {
         // Generated convenience method for responseBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return responseBodyWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(BigDecimal.class));
+            .map(protocolMethodData -> protocolMethodData.toString());
     }
 
     /**
@@ -138,7 +138,7 @@ public final class Decimal128TypeAsyncClient {
     public Mono<Void> requestBody(BigDecimal body) {
         // Generated convenience method for requestBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return requestBodyWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
+        return requestBodyWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**

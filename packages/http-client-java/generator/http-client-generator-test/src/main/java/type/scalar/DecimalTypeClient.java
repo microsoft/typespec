@@ -115,7 +115,7 @@ public final class DecimalTypeClient {
     public BigDecimal responseBody() {
         // Generated convenience method for responseBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return responseBodyWithResponse(requestOptions).getValue().toObject(BigDecimal.class);
+        return responseBodyWithResponse(requestOptions).getValue().toString();
     }
 
     /**
@@ -134,7 +134,7 @@ public final class DecimalTypeClient {
     public void requestBody(BigDecimal body) {
         // Generated convenience method for requestBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        requestBodyWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+        requestBodyWithResponse(BinaryData.fromString(body), requestOptions).getValue();
     }
 
     /**

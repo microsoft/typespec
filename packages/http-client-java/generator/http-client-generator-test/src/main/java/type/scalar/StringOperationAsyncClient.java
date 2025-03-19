@@ -100,7 +100,7 @@ public final class StringOperationAsyncClient {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+            .map(protocolMethodData -> protocolMethodData.toString());
     }
 
     /**
@@ -120,6 +120,6 @@ public final class StringOperationAsyncClient {
     public Mono<Void> put(String body) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
+        return putWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 }
