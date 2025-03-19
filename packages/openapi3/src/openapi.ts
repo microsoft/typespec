@@ -1496,7 +1496,7 @@ function createOAPIEmitter(
         diagnostics.add(
           createDiagnostic({
             code: "invalid-style",
-            messageId: "path",
+            messageId: httpProperty.property.optional ? "optionalPath" : "default",
             format: { style: httpProperty.options.style, paramType: "path" },
             target: httpProperty.property,
           }),
