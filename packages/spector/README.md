@@ -24,9 +24,9 @@ tsp server stop
 ### `knock`
 
 ```bash
-tsp server-test ./path/to/specs/
-tsp server-test ./path/to/specs/ --baseUrl http://localhost:3000
-tsp server-test ./path/to/specs/ --filter "payload/multipart/**/*"
+tsp knock ./path/to/specs/
+tsp knock ./path/to/specs/ --baseUrl http://localhost:3000
+tsp knock ./path/to/specs/ --filter "payload/multipart/**/*"
 ```
 
 ### Options:
