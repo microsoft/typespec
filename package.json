@@ -8,7 +8,7 @@
     "build": "pnpm build:all && pnpm check:eng && pnpm gen-compiler-extern-signature",
     "build:all": "pnpm -r --workspace-concurrency=Infinity build",
     "check:eng": "tsc -p ./tsconfig.eng.json --noEmit",
-    "setup:min": "pnpm install && pnpm --filter \"@typespec/prettier-plugin-typespec...\" run build",
+    "setup:min": "pnpm install && pnpm --filter \"@typespec/prettier-plugin-typespec...\" --filter \"@typespec/tspd...\" run build",
     "check-version-mismatch": "syncpack list-mismatches",
     "change": "chronus",
     "clean": "pnpm -r run clean",
