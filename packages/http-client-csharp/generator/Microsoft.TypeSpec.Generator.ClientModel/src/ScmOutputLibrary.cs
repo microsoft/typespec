@@ -12,11 +12,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
     {
         private static TypeProvider[] BuildClientTypes()
         {
-            var inputClients = ScmCodeModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients;
             var clientTypes = new List<TypeProvider>();
             foreach (var inputClient in inputClients)
             {
-                var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+                var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
                 if (client == null)
                 {
                     continue;
@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     if (method is ScmMethodProvider scmMethod && scmMethod.CollectionDefinition != null)
                     {
                         clientTypes.Add(scmMethod.CollectionDefinition);
-                        ScmCodeModelPlugin.Instance.AddTypeToKeep(scmMethod.CollectionDefinition);
+                        ScmCodeModelGenerator.Instance.AddTypeToKeep(scmMethod.CollectionDefinition);
                     }
                 }
             }
@@ -72,10 +72,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         private IEnumerable<TypeProvider> GetMultipartFormDataBinaryContentDefinition()
         {
-            if (ScmCodeModelPlugin.Instance.InputLibrary.HasMultipartFormDataOperation)
+            if (ScmCodeModelGenerator.Instance.InputLibrary.HasMultipartFormDataOperation)
             {
                 var multipart = new MultiPartFormDataBinaryContentDefinition();
-                ScmCodeModelPlugin.Instance.AddTypeToKeep(multipart.Name);
+                ScmCodeModelGenerator.Instance.AddTypeToKeep(multipart.Name);
                 yield return multipart;
             }
         }

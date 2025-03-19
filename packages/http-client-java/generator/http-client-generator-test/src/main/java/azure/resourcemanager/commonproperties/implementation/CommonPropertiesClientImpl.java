@@ -5,6 +5,7 @@
 package azure.resourcemanager.commonproperties.implementation;
 
 import azure.resourcemanager.commonproperties.fluent.CommonPropertiesClient;
+import azure.resourcemanager.commonproperties.fluent.ErrorsClient;
 import azure.resourcemanager.commonproperties.fluent.ManagedIdentitiesClient;
 import com.azure.core.annotation.ServiceClient;
 import com.azure.core.http.HttpHeaderName;
@@ -138,6 +139,20 @@ public final class CommonPropertiesClientImpl implements CommonPropertiesClient 
     }
 
     /**
+     * The ErrorsClient object to access its operations.
+     */
+    private final ErrorsClient errors;
+
+    /**
+     * Gets the ErrorsClient object to access its operations.
+     * 
+     * @return the ErrorsClient object.
+     */
+    public ErrorsClient getErrors() {
+        return this.errors;
+    }
+
+    /**
      * Initializes an instance of CommonPropertiesClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -156,6 +171,7 @@ public final class CommonPropertiesClientImpl implements CommonPropertiesClient 
         this.subscriptionId = subscriptionId;
         this.apiVersion = "2023-12-01-preview";
         this.managedIdentities = new ManagedIdentitiesClientImpl(this);
+        this.errors = new ErrorsClientImpl(this);
     }
 
     /**

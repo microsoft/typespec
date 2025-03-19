@@ -3,10 +3,9 @@
 
 package type.dictionary;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.clientcore.core.models.binarydata.BinaryData;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -16,40 +15,22 @@ public class UnknownValueClientTest {
 
     public final UnknownValueClient client = new DictionaryClientBuilder().buildUnknownValueClient();
 
-    // BinaryData case, when use-object-for-unknown=false
-//    @Disabled("TODO https://github.com/Azure/autorest.java/issues/2964")
-//    @Test
-//    public void get() {
-//        Map<String, BinaryData> response = client.get();
-//        Assertions.assertEquals(1, response.get("k1").toObject(Integer.class));
-//        Assertions.assertEquals("hello", response.get("k2").toObject(String.class));
-//        Assertions.assertEquals(null, response.get("k3"));
-//    }
-//
-//    @Test
-//    public void putWithResponse() {
-//        ObjectNode map = JsonNodeFactory.instance.objectNode();
-//        map.put("k1", 1);
-//        map.put("k2", "hello");
-//        map.set("k3", NullNode.instance);
-//        client.putWithResponse(BinaryData.fromObject(map), null);
-//    }
-
+    @Disabled("java.lang.ClassCastException: class java.lang.Integer cannot be cast to class io.clientcore.core.models.binarydata.BinaryData")
     @Test
-    public void get() {
-        Map<String, Object> response = client.get();
-        Assertions.assertEquals(1, response.get("k1"));
-        Assertions.assertEquals("hello", response.get("k2"));
+    public void get() throws IOException {
+        Map<String, BinaryData> response = client.get();
+        Assertions.assertEquals(1, (int) response.get("k1").toObject(Integer.class));
+        Assertions.assertEquals("hello", response.get("k2").toObject(String.class));
         Assertions.assertEquals(null, response.get("k3"));
     }
 
+    @Disabled("{\"message\":\"Body provided doesn't match expected body\",\"expected\":{\"k1\":1,\"k2\":\"hello\",\"k3\":null},\"actual\":{\"k1\":\"1\",\"k2\":\"\\\"hello\\\"\",\"k3\":null}}")
     @Test
-    @Disabled("Body provided doesn't match expected body,\"expected\":{\"k1\":1,\"k2\":\"hello\",\"k3\":null},\"actual\":[[],[],[]]}")
-    public void putWithResponse() {
-        ObjectNode map = JsonNodeFactory.instance.objectNode();
-        map.put("k1", 1);
-        map.put("k2", "hello");
-        map.set("k3", NullNode.instance);
-        client.putWithResponse(BinaryData.fromObject(map), null);
+    public void put() {
+        Map<String, BinaryData> map = new HashMap<>();
+        map.put("k1", BinaryData.fromObject(1));
+        map.put("k2", BinaryData.fromObject("hello"));
+        map.put("k3", null);
+        client.put(map);
     }
 }

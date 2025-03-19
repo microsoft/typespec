@@ -4,6 +4,9 @@ import BaseLayout from "@site/src/layouts/base-layout.astro";
 import BlogPostPreview from "./_BlogPostPreview.astro";
 
 const posts = await getCollection("blog");
+
+// Sort posts by date in descending order
+posts.sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime());
 ---
 
 <style>

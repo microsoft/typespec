@@ -48,7 +48,7 @@ public final class UnknownValuesImpl {
     public interface UnknownValuesService {
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/array/unknown", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<List<Object>> getSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+        Response<List<BinaryData>> getSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             RequestOptions requestOptions);
 
         @HttpRequestInformation(method = HttpMethod.PUT, path = "/type/array/unknown", expectedStatusCodes = { 204 })
@@ -64,7 +64,7 @@ public final class UnknownValuesImpl {
      * <pre>
      * {@code
      * [
-     *     Object (Required)
+     *     BinaryData (Required)
      * ]
      * }
      * </pre>
@@ -73,7 +73,7 @@ public final class UnknownValuesImpl {
      * @throws HttpResponseException thrown if the service returns an error.
      * @return the response.
      */
-    public Response<List<Object>> getWithResponse(RequestOptions requestOptions) {
+    public Response<List<BinaryData>> getWithResponse(RequestOptions requestOptions) {
         final String accept = "application/json";
         return service.getSync(this.client.getEndpoint(), accept, requestOptions);
     }
@@ -85,7 +85,7 @@ public final class UnknownValuesImpl {
      * <pre>
      * {@code
      * [
-     *     Object (Required)
+     *     BinaryData (Required)
      * ]
      * }
      * </pre>
