@@ -1,5 +1,104 @@
 # Change Log - @typespec/http
 
+## 0.67.0
+
+### Breaking Changes
+
+- [#6387](https://github.com/microsoft/typespec/pull/6387) Removing deprecated items
+
+- `isContentTypeHeader`
+- `setLegacyStatusCodeState`
+
+Moved to internal
+
+- `setStatusCode`
+- [#6305](https://github.com/microsoft/typespec/pull/6305) Remove deprecated items:
+
+- `format` option from `@header` and `@query` decorators. Use `explode` option instead.
+
+  ```diff
+  -@header(#{ format: "multi"})
+  -@query(#{ format: "multi"})
+  +@header(#{ explode: true })
+  +@query(#{ explode: true })
+  ```
+- `shared` option from `@route` decorator. Please use `@sharedRoute` instead.
+
+  ```diff
+  -@route("/doStuff", { shared: true })
+  +@sharedRoute
+  +@route("/doStuff")
+  ```
+
+- Javascript functions and typescript types:
+
+  - `HeaderOptions.format`
+  - `HeaderFieldOptions.format`
+  - `QueryOptions.format`
+  - `QueryParameterOptions.format`
+  - `MetadataInfo.isEmptied`
+  - `includeInterfaceRoutesInNamespace`
+  - `getAllRoutes` -> `getAllHttpServices`
+  - `OperationDetails` -> `HttpOperation`
+  - `ServiceAuthentication` -> `Authentication`
+  - `HttpOperationParameters.bodyType` -> `body.type`
+  - `HttpOperationParameters.bodyParameter` -> `body.parameter`
+  - `StatusCode` -> `HttpStatusCodesEntry`
+- [#6433](https://github.com/microsoft/typespec/pull/6433) Stop exposing APIs that were not meant for external users. Please file issue if you had legitmate use of some of those APIs.
+  - `@includeInapplicableMetadataInPayload` decorator was moved to `Private` namespace and stop exposing the accessor.
+  - Functions used in  `getHttpOperation` to resolve the finalized view of the http operation but shouldn't be used directly.
+    - `resolvePathAndParameters`
+  - `validateRouteUnique` internal api used in http library validation
+  - Moved custom route producer related APIs to experimental with `unsafe_` prefix. Those APIs are not ready for public use and **will** change in future.
+    - `DefaultRouteProducer` -> `unsafe_DefaultRouteProducer`
+    - `getRouteProducer` -> `unsafe_getRouteProducer`
+    - `setRouteProducer` -> `unsafe_setRouteProducer`
+    - `setRouteOptionsForNamespace` -> `unsafe_setRouteOptionsForNamespace`
+    - `RouteProducer` -> `unsafe_RouteProducer`
+    - `RouteProducerResult` -> `unsafe_RouteProducerResult`
+    - `RouteResolutionOptions` -> `unsafe_RouteResolutionOptions`
+    - `RouteOptions` -> `unsafe_RouteOptions`
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+- [#6357](https://github.com/microsoft/typespec/pull/6357) Changed the default content-type resolution behavior as follows:
+
+- As before, if the content-type header is _explicitly_ specified (`@header contentType: valueof string`), the explicit content type is used (this behavior has not changed).
+- If the type of an HTTP payload body has a Media Type hint (`@mediaTypeHint`), that media type is preferred as the default content-type for the request.
+- The default content-type for `TypeSpec.bytes` has been changed to `application/octet-stream` to avoid serializing the data to base64-encoded JSON.
+- The default content-type for all other scalar types has been changed to `text/plain` (previously, it was `application/json`).
+- For multipart payloads, the default content-type of the payload has been changed to `multipart/form-data` if the `@multipartBody` parameter has a Model type and `multipart/mixed` if the multipart payload has a tuple type.
+  - The content-type of individual parts in the multipart request has been changed to be the same as for HTTP payload bodies and follows the logic described above.
+
+### Deprecations
+
+- [#6464](https://github.com/microsoft/typespec/pull/6464) Deprecate implicit multipart body
+
+  ```diff lang=tsp
+  op upload(
+    @header contentType: "multipart/form-data",
+  -  @body body: {
+  +  @multipartBody body: {
+  -    name: string;
+  +    name: HttpPart<string>;
+  -    avatar: bytes;
+  +    avatar: HttpPart<bytes>;
+    }
+  ): void;
+  ```
+
+### Features
+
+- [#6345](https://github.com/microsoft/typespec/pull/6345) Update `BasicAuth` and `BearerAuth` types scheme to use standard name for scheme `Basic`, `Bearer`
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6513](https://github.com/microsoft/typespec/pull/6513) HTTP Media type resolution logic now treats literal types (String, Boolean, Numeric, and StringTemplate types) as equivalent to their given scalar types for the purposes of resolving their Media Type.
+
+
 ## 0.66.0
 
 ### Deprecations

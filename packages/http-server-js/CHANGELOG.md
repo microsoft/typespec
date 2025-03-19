@@ -1,5 +1,21 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.11
+
+### Features
+
+- [#6447](https://github.com/microsoft/typespec/pull/6447) Return data stubs from scaffolded controllers
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6411](https://github.com/microsoft/typespec/pull/6411) Add support for new `dryRun` emitter option
+
+
 ## 0.58.0-alpha.10
 
 ### Features
