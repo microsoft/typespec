@@ -1,4 +1,4 @@
-import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 // Mock API scenarios
 export const Scenarios: Record<string, ScenarioMockApi> = {};
@@ -35,11 +35,11 @@ Scenarios.Payload_BodyRoot_InputAndOutput = passOnSuccess({
   },
   response: {
     status: 200,
-    body: {
+    body: json({
       name: "alice",
       age: 30,
       gender: "female",
-    },
+    }),
     headers: {
       "x-client-id": "123",
     },
@@ -53,11 +53,11 @@ Scenarios.Payload_BodyRoot_OutputOnly = passOnSuccess({
   method: "get",
   response: {
     status: 200,
-    body: {
+    body: json({
       name: "alice",
       age: 30,
       gender: "female",
-    },
+    }),
     headers: {
       "x-client-id": "123",
     },
@@ -70,16 +70,16 @@ Scenarios.Payload_BodyRoot_OptionalParam = passOnSuccess({
   uri: "/optional-param",
   method: "get",
   request: {
-    query: {
+    query: json({
       orderby: "asc",
-    },
+    }),
     headers: {
       "x-client-id": "123",
     },
   },
   response: {
     status: 200,
-    body: ["cat", "dog"],
+    body: json(["cat", "dog"]),
   },
   kind: "MockApiDefinition",
 });
