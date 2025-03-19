@@ -1,4 +1,5 @@
 import * as ts from "@alloy-js/typescript";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import {
   DateDeserializer,
   DateRfc3339Serializer,
@@ -40,12 +41,19 @@ export function ModelSerializers(props: ModelSerializersProps) {
       ))}
       {dataTypes
         .filter((m) => m.kind === "Model" || m.kind === "Union")
-        .map((type) => (
-          <EncodingProvider defaults={{ bytes: "base64" }}>
-            <JsonTransformDeclaration type={type} target="transport" />
-            <JsonTransformDeclaration type={type} target="application" />
-          </EncodingProvider>
-        ))}
+        .map((type) => {
+          let bytesDefaultEncoding: "base64" | "none" = "base64";
+          if ($.model.is(type) && type.baseModel && $.model.isHttpFile(type.baseModel)) {
+            bytesDefaultEncoding = "none";
+          }
+
+          return (
+            <EncodingProvider defaults={{ bytes: bytesDefaultEncoding }}>
+              <JsonTransformDeclaration type={type} target="transport" />
+              <JsonTransformDeclaration type={type} target="application" />
+            </EncodingProvider>
+          );
+        })}
     </ts.SourceFile>
   );
 }

@@ -1,3 +1,4 @@
+import { AssetEmitter, EmitterOutput, StringBuilder, code } from "@typespec/asset-emitter";
 import {
   IntrinsicScalarName,
   IntrinsicType,
@@ -18,12 +19,6 @@ import {
   isUnknownType,
   isVoidType,
 } from "@typespec/compiler";
-import {
-  AssetEmitter,
-  EmitterOutput,
-  StringBuilder,
-  code,
-} from "@typespec/compiler/emitter-framework";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -171,6 +166,16 @@ export function getCSharpType(
           }),
         };
       }
+      if (isRecord(type))
+        return {
+          type: new CSharpType({
+            name: "JsonObject",
+            namespace: "System.Text.Json.Nodes",
+            isBuiltIn: false,
+            isValueType: false,
+            isClass: false,
+          }),
+        };
       let name: string = type.name;
       if (isTemplateInstance(type)) {
         name = getModelInstantiationName(program, type, name);
@@ -553,11 +558,7 @@ export function ensureCSharpIdentifier(
       location = `union ${target.name}`;
       break;
     case "UnionVariant": {
-      if (target.node !== undefined) {
-        const parent = program.checker.getTypeForNode(target.node.parent!);
-        if (parent?.kind === "Union")
-          location = `variant ${String(target.name)} in union ${parent?.name}`;
-      }
+      location = `variant ${String(target.name)} in union ${target.union.name}`;
       break;
     }
   }
@@ -711,6 +712,7 @@ export class HttpMetadata {
     switch (responseType.kind) {
       case "Model":
         if (responseType.indexer && responseType.indexer.key.name !== "string") return responseType;
+        if (isRecord(responseType)) return responseType;
         const bodyProp = new ModelInfo().filterAllProperties(
           program,
           responseType,
@@ -1284,7 +1286,10 @@ export class CSharpOperationHelpers {
           return cachedResult;
         }
         if (isRecord(tsType)) {
-          modelResult = { typeReference: code`JsonObject`, nullableType: false };
+          modelResult = {
+            typeReference: code`System.Text.Json.Nodes.JsonObject`,
+            nullableType: false,
+          };
         } else {
           modelResult = {
             typeReference: code`${this.emitter.emitTypeReference(tsType)}`,

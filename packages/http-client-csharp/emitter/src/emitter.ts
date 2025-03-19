@@ -125,7 +125,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         const result = await execCSharpGenerator(sdkContext, {
           generatorPath: generatorPath,
           outputFolder: outputFolder,
-          pluginName: options["plugin-name"],
+          generatorName: options["generator-name"],
           newProject: options["new-project"] || !checkFile(csProjFile),
           debug: options.debug ?? false,
         });

@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// </summary>
         /// <param name="inputModelProperty">The input model property.</param>
         internal PropertyWireInformation(InputModelProperty inputModelProperty)
-            : base(CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputModelProperty.Type), inputModelProperty.SerializedName)
+            : base(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputModelProperty.Type), inputModelProperty.SerializedName)
         // TODO -- this is only temporary because we do not support other type of serialization, improvement tracking https://github.com/microsoft/typespec/issues/5861
         {
             IsRequired = inputModelProperty.IsRequired;

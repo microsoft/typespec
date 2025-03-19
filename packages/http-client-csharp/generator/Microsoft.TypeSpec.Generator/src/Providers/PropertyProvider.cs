@@ -52,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal static bool TryCreate(InputModelProperty inputProperty, TypeProvider enclosingType, [NotNullWhen(true)] out PropertyProvider? property)
         {
-            var type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
             if (type == null)
             {
                 property = null;
@@ -65,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public PropertyProvider(InputModelProperty inputProperty, TypeProvider enclosingType)
         : this(
             inputProperty,
-            CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type) ?? throw new InvalidOperationException($"Could not create CSharpType for property {inputProperty.Name}"),
+            CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputProperty.Type) ?? throw new InvalidOperationException($"Could not create CSharpType for property {inputProperty.Name}"),
             enclosingType)
         {
         }
@@ -78,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             EnclosingType = enclosingType;
-            var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
+            var serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
