@@ -248,7 +248,8 @@ public class Main {
 
     private static CodeModel loadCodeModel(String filename) throws IOException {
         String file = Files.readString(Paths.get(filename));
-        return getYaml().loadAs(file, CodeModel.class);
+        CodeModel codeModel = getYaml().loadAs(file, CodeModel.class);
+        return codeModel;
     }
 
     private static Yaml getYaml() {
