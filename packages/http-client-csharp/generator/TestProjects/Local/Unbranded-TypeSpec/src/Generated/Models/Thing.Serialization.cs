@@ -33,8 +33,6 @@ namespace UnbrandedTypeSpec
             {
                 throw new FormatException($"The model {nameof(Thing)} does not support writing '{format}' format.");
             }
-            writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Name);
             writer.WritePropertyName("requiredUnion"u8);
 #if NET6_0_OR_GREATER
             writer.WriteRawValue(RequiredUnion);
@@ -112,6 +110,8 @@ namespace UnbrandedTypeSpec
             {
                 writer.WriteNull("requiredNullableList"u8);
             }
+            writer.WritePropertyName("name"u8);
+            writer.WriteStringValue(Rename);
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -150,7 +150,6 @@ namespace UnbrandedTypeSpec
             {
                 return null;
             }
-            string name = default;
             BinaryData requiredUnion = default;
             ThingRequiredLiteralString requiredLiteralString = default;
             string requiredNullableString = default;
@@ -165,14 +164,10 @@ namespace UnbrandedTypeSpec
             string requiredBadDescription = default;
             IList<int> optionalNullableList = default;
             IList<int> requiredNullableList = default;
+            string rename = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
-                if (prop.NameEquals("name"u8))
-                {
-                    name = prop.Value.GetString();
-                    continue;
-                }
                 if (prop.NameEquals("requiredUnion"u8))
                 {
                     requiredUnion = BinaryData.FromString(prop.Value.GetRawText());
@@ -288,13 +283,17 @@ namespace UnbrandedTypeSpec
                     requiredNullableList = array;
                     continue;
                 }
+                if (prop.NameEquals("name"u8))
+                {
+                    rename = prop.Value.GetString();
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
             return new Thing(
-                name,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -309,6 +308,7 @@ namespace UnbrandedTypeSpec
                 requiredBadDescription,
                 optionalNullableList ?? new ChangeTrackingList<int>(),
                 requiredNullableList,
+                rename,
                 additionalBinaryDataProperties);
         }
 

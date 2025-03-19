@@ -14,9 +14,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
     internal static class RequestContentApiSnippets
     {
         public static RequestContentApi Create(ValueExpression serializable)
-            => Static(ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType).Invoke(nameof(BinaryContent.Create), serializable).ToApi<RequestContentApi>();
+            => Static(ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType).Invoke(nameof(BinaryContent.Create), serializable).ToApi<RequestContentApi>();
 
         public static RequestContentApi Create(ValueExpression serializable, ScopedApi<ModelReaderWriterOptions> options, CSharpType? typeArgument = null)
-            => Static(ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType).Invoke(nameof(BinaryContent.Create), [serializable, options], typeArgument != null ? [typeArgument] : null, false).ToApi<RequestContentApi>();
+            => Static(ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType).Invoke(nameof(BinaryContent.Create), [serializable, options], typeArgument != null ? [typeArgument] : null, false).ToApi<RequestContentApi>();
     }
 }

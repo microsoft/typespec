@@ -112,4 +112,6 @@ class RequestBuilderParameter(Parameter):
             return f"_{self.client_name}"
         if self.implementation == "Client":
             return f"self._config.{self.client_name}"
+        if self.is_continuation_token:
+            return "_continuation_token"
         return self.client_name

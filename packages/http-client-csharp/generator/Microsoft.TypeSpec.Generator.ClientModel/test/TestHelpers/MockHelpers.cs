@@ -22,14 +22,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         private static readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
         public const string TestHelpersFolder = "TestHelpers";
 
-        public static async Task<Mock<ScmCodeModelPlugin>> LoadMockPluginAsync(
+        public static async Task<Mock<ScmCodeModelGenerator>> LoadMockGeneratorAsync(
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
             Func<Task<Compilation>>? compilation = null,
             string? configuration = null)
         {
-            var mockPlugin = LoadMockPlugin(
+            var mockGenerator = LoadMockGenerator(
                 inputEnums: inputEnums,
                 inputModels: inputModels,
                 clients: clients,
@@ -38,12 +38,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var compilationResult = compilation == null ? null : await compilation();
 
             var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult)) { CallBase = true };
-            mockPlugin.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+            mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
-            return mockPlugin;
+            return mockGenerator;
         }
 
-        public static Mock<ScmCodeModelPlugin> LoadMockPlugin(
+        public static Mock<ScmCodeModelGenerator> LoadMockGenerator(
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
@@ -103,17 +103,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockTypeFactory.Protected().Setup<ClientProvider?>("CreateClientCore", ItExpr.IsAny<InputClient>()).Returns(createClientCore);
             }
 
-            // initialize the mock singleton instance of the plugin
-            var codeModelInstance = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            var clientModelInstance = typeof(ScmCodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
+            // initialize the mock singleton instance of the generator
+            var codeModelInstance = typeof(CodeModelGenerator).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
+            var clientModelInstance = typeof(ScmCodeModelGenerator).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             // invoke the load method with the config file path
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
             object?[] parameters = [_configFilePath, configuration];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
-            var mockPluginInstance = new Mock<ScmCodeModelPlugin>(mockGeneratorContext.Object) { CallBase = true };
-            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
-            mockPluginInstance.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
+            var mockGeneratorInstance = new Mock<ScmCodeModelGenerator>(mockGeneratorContext.Object) { CallBase = true };
+            mockGeneratorInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            mockGeneratorInstance.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
             if (clientResponseApi is not null)
             {
                 mockTypeFactory.Setup(p => p.ClientResponseApi).Returns(clientResponseApi);
@@ -131,16 +131,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             if (createInputLibrary is not null)
             {
-                mockPluginInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
+                mockGeneratorInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
             }
 
             var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };
-            mockPluginInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+            mockGeneratorInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
-            codeModelInstance!.SetValue(null, mockPluginInstance.Object);
-            clientModelInstance!.SetValue(null, mockPluginInstance.Object);
-            mockPluginInstance.Object.Configure();
-            return mockPluginInstance;
+            codeModelInstance!.SetValue(null, mockGeneratorInstance.Object);
+            clientModelInstance!.SetValue(null, mockGeneratorInstance.Object);
+            mockGeneratorInstance.Object.Configure();
+            return mockGeneratorInstance;
         }
     }
 }
