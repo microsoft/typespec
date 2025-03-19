@@ -60,7 +60,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /array/a,b
             """)
             @route("array{param*}")
-            op array(param: string[]): void;
+            op arrayOp(param: string[]): void;
           `,
           runner,
         );
@@ -91,7 +91,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /record/a=1,b=2
             """)
             @route("record{param*}")
-            op record(param: Record<int32>): void;
+            op recordOp(param: Record<int32>): void;
           `,
           runner,
         );
@@ -155,7 +155,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /array/a/b
             """)
             @route("array{/param*}")
-            op array(param: string[]): void;
+            op arrayOp(param: string[]): void;
           `,
           runner,
         );
@@ -186,7 +186,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /record/a=1/b=2
             """)
             @route("record{/param*}")
-            op record(param: Record<int32>): void;
+            op recordOp(param: Record<int32>): void;
           `,
           runner,
         );
@@ -250,7 +250,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /array.a.b
             """)
             @route("array{.param*}")
-            op array(param: string[]): void;
+            op arrayOp(param: string[]): void;
           `,
           runner,
         );
@@ -281,7 +281,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /record.a=1.b=2
             """)
             @route("record{.param*}")
-            op record(param: Record<int32>): void;
+            op recordOp(param: Record<int32>): void;
           `,
           runner,
         );
@@ -345,7 +345,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /array;param=a;param=b
             """)
             @route("array{;param*}")
-            op array(param: string[]): void;
+            op arrayOp(param: string[]): void;
           `,
           runner,
         );
@@ -376,7 +376,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /record;a=1;b=2
             """)
             @route("record{;param*}")
-            op record(param: Record<int32>): void;
+            op recordOp(param: Record<int32>): void;
           `,
           runner,
         );
@@ -442,7 +442,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /array?param=a&param=b
             """)
             @route("array{?param*}")
-            op array(param: string[]): void;
+            op arrayOp(param: string[]): void;
           `,
           runner,
         );
@@ -473,7 +473,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /record?a=1&b=2
             """)
             @route("record{?param*}")
-            op record(param: Record<int32>): void;
+            op recordOp(param: Record<int32>): void;
           `,
           runner,
         );
@@ -537,7 +537,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /array?fixed=true&param=a&param=b
             """)
             @route("array?fixed=true{&param*}")
-            op array(param: string[]): void;
+            op arrayOp(param: string[]): void;
           `,
           runner,
         );
@@ -568,7 +568,7 @@ describe("Test Parameter Explode", () => {
                 Expected path: /record?fixed=true&a=1&b=2
             """)
             @route("record?fixed=true{&param*}")
-            op record(param: Record<int32>): void;
+            op recordOp(param: Record<int32>): void;
           `,
           runner,
         );
