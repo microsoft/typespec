@@ -15,36 +15,36 @@ namespace _Type._Enum.Extensible
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult GetKnownValue(string accept, RequestOptions options) => throw null;
+        public virtual ClientResult GetKnownValue(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetKnownValueAsync(string accept, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetKnownValueAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<DaysOfWeekExtensibleEnum> GetKnownValue(string accept, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<DaysOfWeekExtensibleEnum> GetKnownValue(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<DaysOfWeekExtensibleEnum>> GetKnownValueAsync(string accept, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<DaysOfWeekExtensibleEnum>> GetKnownValueAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult GetUnknownValue(string accept, RequestOptions options) => throw null;
+        public virtual ClientResult GetUnknownValue(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> GetUnknownValueAsync(string accept, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> GetUnknownValueAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<DaysOfWeekExtensibleEnum> GetUnknownValue(string accept, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<DaysOfWeekExtensibleEnum> GetUnknownValue(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(string accept, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PutKnownValue(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual ClientResult PutKnownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutKnownValueAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutKnownValue(DaysOfWeekExtensibleEnum body, string contentType, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PutKnownValue(DaysOfWeekExtensibleEnum body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutKnownValueAsync(DaysOfWeekExtensibleEnum body, string contentType, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutKnownValueAsync(DaysOfWeekExtensibleEnum body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PutUnknownValue(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual ClientResult PutUnknownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutUnknownValueAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutUnknownValue(DaysOfWeekExtensibleEnum body, string contentType, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult PutUnknownValue(DaysOfWeekExtensibleEnum body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutUnknownValueAsync(DaysOfWeekExtensibleEnum body, string contentType, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PutUnknownValueAsync(DaysOfWeekExtensibleEnum body, CancellationToken cancellationToken = default) => throw null;
     }
 }
