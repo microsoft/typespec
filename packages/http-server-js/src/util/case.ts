@@ -28,6 +28,25 @@ export function isUnspeakable(name: string): boolean {
   return true;
 }
 
+const JS_IDENTIFIER = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
+
+/**
+ * Returns an access expression for a given subject and key.
+ *
+ * If the access can be performed using dot notation, it will. Otherwise, bracket notation will be used.
+ *
+ * @param subject - the expression to access
+ * @param key - the key to access within the subject, must be an index value literal, not an expression
+ */
+export function access(subject: string, key: string | number): string {
+  subject = JS_IDENTIFIER.test(subject) ? subject : `(${subject})`;
+  if (typeof key === "string" && JS_IDENTIFIER.test(key)) {
+    return `${subject}.${key}`;
+  } else {
+    return `${subject}[${JSON.stringify(key)}]`;
+  }
+}
+
 /**
  * Destructures a name into its components.
  *
