@@ -51,6 +51,7 @@ Scenarios.Payload_BodyRoot_InputAndOutput = passOnSuccess({
 Scenarios.Payload_BodyRoot_OutputOnly = passOnSuccess({
   uri: "/output-only/alice",
   method: "get",
+  request: {},
   response: {
     status: 200,
     body: json({
@@ -70,9 +71,9 @@ Scenarios.Payload_BodyRoot_OptionalParam = passOnSuccess({
   uri: "/optional-param",
   method: "get",
   request: {
-    query: json({
+    params: {
       orderby: "asc",
-    }),
+    },
     headers: {
       "x-client-id": "123",
     },
