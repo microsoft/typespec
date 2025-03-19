@@ -1122,8 +1122,8 @@ Expected input body:
 
 ```json
 {
-    "age": 30,
-    "gender": "female",
+  "age": 30,
+  "gender": "female"
 }
 ```
 
@@ -1135,8 +1135,8 @@ Expected input body:
 
 ```json
 {
-    "age": 30,
-    "gender": "female",
+  "age": 30,
+  "gender": "female"
 }
 ```
 
@@ -1144,9 +1144,9 @@ Expected response body:
 
 ```json
 {
-    "name": "alice",
-    "age": 30,
-    "gender": "female",
+  "name": "alice",
+  "age": 30,
+  "gender": "female"
 }
 ```
 
@@ -1158,9 +1158,9 @@ Expected response body:
 
 ```json
 {
-    "name": "alice",
-    "age": 30,
-    "gender": "female",
+  "name": "alice",
+  "age": 30,
+  "gender": "female"
 }
 ```
 
