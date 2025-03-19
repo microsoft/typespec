@@ -21,7 +21,7 @@ import {
   isUnknownType,
 } from "@typespec/compiler";
 import { getJsScalar } from "../common/scalar.js";
-import { JsContext } from "../ctx.js";
+import { JsContext, Module } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
 import { isUnspeakable, parseCase } from "./case.js";
 import { UnimplementedError, UnreachableError } from "./error.js";
@@ -287,6 +287,7 @@ const PROPERTY_ID = (prop: ModelProperty) => parseCase(prop.name).camelCase;
  */
 export function differentiateUnion(
   ctx: JsContext,
+  module: Module,
   union: Union,
   renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID,
 ): CodeTree {
@@ -313,7 +314,7 @@ export function differentiateUnion(
       }
     }
 
-    return differentiateTypes(ctx, cases, renderPropertyName);
+    return differentiateTypes(ctx, module, cases, renderPropertyName);
   } else {
     const property = (variants[0].type as Model).properties.get(discriminator)!;
 
@@ -353,6 +354,7 @@ export function differentiateUnion(
  */
 export function differentiateTypes(
   ctx: JsContext,
+  module: Module,
   cases: Set<PreciseType>,
   renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID,
 ): CodeTree {
@@ -378,7 +380,7 @@ export function differentiateTypes(
   const intrinsics = (categories.Intrinsic as (VoidType | NullType)[]) ?? [];
 
   if (literals.length + scalars.length + intrinsics.length === 0) {
-    return differentiateModelTypes(ctx, select(models, cases), renderPropertyName);
+    return differentiateModelTypes(ctx, module, select(models, cases), renderPropertyName);
   } else {
     const branches: IfBranch[] = [];
 
@@ -419,7 +421,7 @@ export function differentiateTypes(
     const scalarRepresentations = new Map<string, Scalar>();
 
     for (const scalar of scalars) {
-      const jsScalar = getJsScalar(ctx.program, scalar, scalar);
+      const jsScalar = getJsScalar(ctx, module, scalar, scalar).type;
 
       if (scalarRepresentations.has(jsScalar)) {
         reportDiagnostic(ctx.program, {
@@ -503,7 +505,7 @@ export function differentiateTypes(
       branches,
       else:
         models.length > 0
-          ? differentiateModelTypes(ctx, select(models, cases), renderPropertyName)
+          ? differentiateModelTypes(ctx, module, select(models, cases), renderPropertyName)
           : undefined,
     };
   }
@@ -563,10 +565,14 @@ function getJsValue(ctx: JsContext, literal: JsLiteralType | EnumMember): Litera
  */
 type IntegerRange = [number, number];
 
-function getIntegerRange(ctx: JsContext, property: ModelProperty): IntegerRange | false {
+function getIntegerRange(
+  ctx: JsContext,
+  module: Module,
+  property: ModelProperty,
+): IntegerRange | false {
   if (
     property.type.kind === "Scalar" &&
-    getJsScalar(ctx.program, property.type, property) === "number"
+    getJsScalar(ctx, module, property.type, property).type === "number"
   ) {
     const minValue = getMinValue(ctx.program, property);
     const maxValue = getMaxValue(ctx.program, property);
@@ -594,6 +600,7 @@ function overlaps(range: IntegerRange, other: IntegerRange): boolean {
  */
 export function differentiateModelTypes(
   ctx: JsContext,
+  module: Module,
   models: Set<Model>,
   renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID,
 ): CodeTree {
@@ -656,7 +663,7 @@ export function differentiateModelTypes(
 
       // CASE - unique range
 
-      const range = getIntegerRange(ctx, prop);
+      const range = getIntegerRange(ctx, module, prop);
       if (range) {
         let ranges = propertyRanges.get(renderedPropName);
         if (!ranges) {

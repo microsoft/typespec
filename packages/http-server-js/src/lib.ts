@@ -125,6 +125,12 @@ export const $lib = createTypeSpecLibrary({
           "An OpenAPI3 document could not be generated for this service because versioned services are not yet supported by the HTTP server emitter for JavaScript.",
       },
     },
+    "unknown-encoding": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Unknown encoding '${"encoding"}' to type '${"target"}' for type '${"type"}'.`,
+      },
+    },
   },
 });
 
