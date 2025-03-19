@@ -152,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator
             Project generatedCodeProject = workspace.AddProject(GeneratedCodeProjectName, LanguageNames.CSharp);
 
             generatedCodeProject = generatedCodeProject
-                .AddMetadataReferences(_assemblyMetadataReferences.Value.Concat(CodeModelPlugin.Instance.AdditionalMetadataReferences))
+                .AddMetadataReferences(_assemblyMetadataReferences.Value.Concat(CodeModelGenerator.Instance.AdditionalMetadataReferences))
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
             return generatedCodeProject;
@@ -164,9 +164,9 @@ namespace Microsoft.TypeSpec.Generator
             var projectTask = Interlocked.Exchange(ref _cachedProject, null);
             var project = projectTask != null ? await projectTask : CreateGeneratedCodeProject();
 
-            var outputDirectory = CodeModelPlugin.Instance.Configuration.OutputDirectory;
-            var projectDirectory = CodeModelPlugin.Instance.Configuration.ProjectDirectory;
-            var generatedDirectory = CodeModelPlugin.Instance.Configuration.ProjectGeneratedDirectory;
+            var outputDirectory = CodeModelGenerator.Instance.Configuration.OutputDirectory;
+            var projectDirectory = CodeModelGenerator.Instance.Configuration.ProjectDirectory;
+            var generatedDirectory = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
 
             // add all documents except the documents from the generated directory
             if (Path.IsPathRooted(projectDirectory) && Path.IsPathRooted(outputDirectory))
@@ -180,7 +180,7 @@ namespace Microsoft.TypeSpec.Generator
                 project = AddDirectory(project, projectDirectory, skipPredicate: sourceFile => sourceFile.StartsWith(generatedDirectory));
             }
 
-            foreach (var sharedSourceFolder in CodeModelPlugin.Instance.SharedSourceDirectories)
+            foreach (var sharedSourceFolder in CodeModelGenerator.Instance.SharedSourceDirectories)
             {
                 project = AddDirectory(project, sharedSourceFolder, folders: _sharedFolders);
             }
@@ -229,9 +229,9 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         public async Task PostProcessAsync()
         {
-            var modelFactory = CodeModelPlugin.Instance.OutputLibrary.ModelFactory.Value;
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
             var postProcessor = new PostProcessor(
-                [.. CodeModelPlugin.Instance.TypeFactory.UnionTypes, .. CodeModelPlugin.Instance.TypesToKeep],
+                [.. CodeModelGenerator.Instance.TypeFactory.UnionTypes, .. CodeModelGenerator.Instance.TypesToKeep],
                 modelFactoryFullName: $"{modelFactory.Type.Namespace}.{modelFactory.Name}");
             switch (Configuration.UnreferencedTypesHandling)
             {

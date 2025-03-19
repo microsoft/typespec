@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
         public CodeWriterTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [Test]

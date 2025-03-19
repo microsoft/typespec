@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
 
         private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
-        private IReadOnlyList<LibraryVisitor> Visitors => CodeModelPlugin.Instance.Visitors;
+        private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
 
         private HashSet<string>? _unionTypes;
@@ -328,7 +328,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private string? _primaryNamespace;
-        public string PrimaryNamespace => _primaryNamespace ??= GetCleanNameSpace(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Name);
+        public string PrimaryNamespace => _primaryNamespace ??= GetCleanNameSpace(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name);
 
         public string GetCleanNameSpace(string clientNamespace)
         {
@@ -363,7 +363,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
         {
-            var badNamespaceSegments = CodeModelPlugin.Instance.InputLibrary.InputNamespace.InvalidNamespaceSegments;
+            var badNamespaceSegments = CodeModelGenerator.Instance.InputLibrary.InputNamespace.InvalidNamespaceSegments;
             for (int i = 0; i < badNamespaceSegments.Count; i++)
             {
                 if (readOnlySpan.Equals(badNamespaceSegments[i], StringComparison.Ordinal))
