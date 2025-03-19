@@ -133,7 +133,7 @@ interface ScalarTypesOperations<T, TDoc extends valueof string> {
     """)
   @get
   @route("/request_parameter")
-  requestParameter(@query body: T): void;
+  requestParameter(@query value: T): void;
 }
 
 @doc("Decimal type")
