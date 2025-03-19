@@ -1,13 +1,11 @@
-import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnCode, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-Scenarios.Response_StatusCodeRange_errorResponseStatusCodeInRange = passOnSuccess({
+Scenarios.Response_StatusCodeRange_errorResponseStatusCodeInRange = passOnCode(494, {
   uri: "/response/status-code-range/error-response-status-code-in-range",
   method: "get",
-  request: {
-    status: 494,
-  },
+  request: {},
   response: {
     status: 494,
     body: json({
@@ -18,12 +16,10 @@ Scenarios.Response_StatusCodeRange_errorResponseStatusCodeInRange = passOnSucces
   kind: "MockApiDefinition",
 });
 
-Scenarios.Response_StatusCodeRange_errorResponseStatusCode404 = passOnSuccess({
+Scenarios.Response_StatusCodeRange_errorResponseStatusCode404 = passOnCode(404, {
   uri: "/response/status-code-range/error-response-status-code-404",
   method: "get",
-  request: {
-    status: 404,
-  },
+  request: {},
   response: {
     status: 404,
     body: json({
