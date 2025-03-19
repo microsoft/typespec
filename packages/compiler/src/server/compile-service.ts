@@ -96,6 +96,15 @@ export function createCompileService({
     updated.scheduleUpdate(document);
   }
 
+  /**
+   * Compile the given document.
+   * First, the main.tsp file will be obtained for compilation.
+   * If the current document is not the main.tsp file,
+   * the current document will be recompiled and returned as part of the result.
+   * Otherwise, the compilation of main.tsp will be returned as part of the result.
+   * @param document The document to compile. tsp file that is open or not opened in workspace.
+   * @returns see {@link CompileResult} for more details.
+   */
   async function compile(
     document: TextDocument | TextDocumentIdentifier,
   ): Promise<CompileResult | undefined> {
