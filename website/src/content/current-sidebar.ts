@@ -150,6 +150,12 @@ const sidebar: SidebarItem[] = [
             false,
             [],
           ),
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-python",
+            "Python",
+            false,
+            [],
+          ),
         ],
       },
     ],
