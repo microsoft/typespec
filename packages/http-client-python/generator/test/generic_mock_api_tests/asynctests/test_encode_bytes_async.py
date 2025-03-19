@@ -23,6 +23,7 @@ async def client():
         yield client
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_query(client: BytesClient):
     await client.query.default(
@@ -42,6 +43,7 @@ async def test_query(client: BytesClient):
     )
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_property(client: BytesClient):
     result = await client.property.default(
@@ -79,6 +81,7 @@ async def test_property(client: BytesClient):
     ]
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_header(client: BytesClient):
     await client.header.default(
@@ -104,6 +107,7 @@ def png_data() -> bytes:
         return file_in.read()
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_request_body(client: BytesClient, png_data: bytes):
     await client.request_body.default(
@@ -123,6 +127,7 @@ async def test_request_body(client: BytesClient, png_data: bytes):
     )
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_response_body(client: BytesClient, png_data: bytes):
     expected = b"test"

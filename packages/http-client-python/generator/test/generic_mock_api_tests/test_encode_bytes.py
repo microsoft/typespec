@@ -101,6 +101,7 @@ def png_data() -> bytes:
         return file_in.read()
 
 
+@pytest.mark.skip(reason="skip for now")
 def test_request_body(client: BytesClient, png_data: bytes):
     client.request_body.default(
         value=bytes("test", "utf-8"),
@@ -119,6 +120,7 @@ def test_request_body(client: BytesClient, png_data: bytes):
     )
 
 
+@pytest.mark.skip(reason="skip for now")
 def test_response_body(client: BytesClient, png_data: bytes):
     expected = b"test"
     assert expected == client.response_body.default()

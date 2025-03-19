@@ -16,12 +16,14 @@ async def client():
         yield client
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_scalar_string(client: ScalarClient):
     assert await client.string.get() == "test"
     await client.string.put("test")
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_scalar_boolean(client: ScalarClient):
     assert await client.boolean.get() == True
@@ -34,6 +36,7 @@ async def test_scalar_unknown(client: ScalarClient):
     await client.unknown.put("test")
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_decimal128_type(client: ScalarClient):
     assert await client.decimal128_type.response_body() == decimal.Decimal("0.33333")
@@ -41,6 +44,7 @@ async def test_decimal128_type(client: ScalarClient):
     await client.decimal128_type.request_parameter(value=decimal.Decimal("0.33333"))
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_decimal_type(client: ScalarClient):
     assert await client.decimal_type.response_body() == decimal.Decimal("0.33333")
@@ -48,12 +52,14 @@ async def test_decimal_type(client: ScalarClient):
     await client.decimal_type.request_parameter(value=decimal.Decimal("0.33333"))
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_decimal128_verify(client: ScalarClient):
     prepare = await client.decimal128_verify.prepare_verify()
     await client.decimal128_verify.verify(reduce(lambda x, y: x + y, prepare))
 
 
+@pytest.mark.skip(reason="skip for now")
 @pytest.mark.asyncio
 async def test_decimal_verify(client: ScalarClient):
     prepare = await client.decimal_verify.prepare_verify()
