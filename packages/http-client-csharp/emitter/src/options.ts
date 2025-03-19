@@ -60,8 +60,8 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
     "generator-name": { type: "string", nullable: true },
     "emitter-extension-path": { type: "string", nullable: true },
     "update-code-model": { type: "object", nullable: true },
-    "namespace": { type: "string", nullable: true },
-    "license": {
+    namespace: { type: "string", nullable: true },
+    license: {
       type: "object",
       additionalProperties: false,
       nullable: true,
@@ -72,8 +72,8 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
         link: { type: "string", nullable: true },
         header: { type: "string", nullable: true },
         description: { type: "string", nullable: true },
-      }
-    }
+      },
+    },
   },
   required: [],
 };

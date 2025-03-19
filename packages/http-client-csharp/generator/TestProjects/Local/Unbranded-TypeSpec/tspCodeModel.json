@@ -3891,13 +3891,13 @@
        "IsErrorResponse": false,
        "ContentTypes": [
         "text/plain",
-        "application/json",
-        "application/json",
-        "application/json",
-        "application/json",
-        "application/json",
-        "application/json",
-        "application/json"
+        "text/plain",
+        "text/plain",
+        "text/plain",
+        "text/plain",
+        "text/plain",
+        "text/plain",
+        "text/plain"
        ]
       }
      ],
