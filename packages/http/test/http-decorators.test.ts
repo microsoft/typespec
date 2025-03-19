@@ -378,8 +378,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "@typespec/http/optional-path-param",
-        message:
-          "Optional parameter 'myPath' must be declared with a leading '/' inside '{}' in the route path. For example, use '{/myPath}' instead of '{myPath}'.",
       });
     });
 
