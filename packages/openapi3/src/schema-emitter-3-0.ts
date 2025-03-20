@@ -13,7 +13,6 @@ import {
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
-  IntrinsicScalarName,
   IntrinsicType,
   isNullType,
   Model,
@@ -216,15 +215,9 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
             });
           } else if (type && type.kind === "Scalar") {
             const stdType = $.scalar.getStdBase(type);
-            let outputType: JsonType | undefined = undefined;
-            if (stdType !== null) {
-              const scalarEx = {
-                ...stdType,
-                name: stdType.name as IntrinsicScalarName,
-              };
-              const stdSchema = this.getSchemaForStdScalars(scalarEx);
-              outputType = stdSchema.type;
-            }
+            const outputType: JsonType | undefined = stdType
+              ? this.getSchemaForStdScalars(stdType as any).type
+              : undefined;
             return new ObjectBuilder({
               type: outputType,
               allOf: Builders.array([schema]),
