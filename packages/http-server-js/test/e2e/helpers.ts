@@ -41,10 +41,6 @@ export function startServer(router: BasicRouter, abortSignal: AbortSignal): Prom
   });
 }
 
-export async function throwNotPartOfTest(): Promise<never> {
-  throw new Error("Not part of test");
-}
-
 /**
  * Meant to be used for the `onInternalError` handler in the router
  * in order to log any failed test assertions from within service handlers.

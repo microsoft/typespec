@@ -1,5 +1,5 @@
 import { deepStrictEqual } from "node:assert";
-import { afterEach, assert, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createSpreadRouter } from "../../../generated/parameters/spread/src/generated/http/router.js";
 import { startServer, testRouterOptions } from "../../../helpers.js";
 import { runScenario } from "../../../spector.js";
@@ -25,7 +25,6 @@ describe("Parameters.Spread", () => {
           deepStrictEqual(testHeader, "bar");
           deepStrictEqual(body, { name: "foo" });
           return { statusCode: 204 };
-          
         },
         async spreadCompositeRequestMix(ctx, name, testHeader, prop) {
           deepStrictEqual(name, "foo");
@@ -67,7 +66,14 @@ describe("Parameters.Spread", () => {
           deepStrictEqual(xMsTestHeader, "bar");
           return { statusCode: 204 };
         },
-        async spreadWithMultipleParameters(ctx, id, xMsTestHeader, requiredString, requiredIntList, options) {
+        async spreadWithMultipleParameters(
+          ctx,
+          id,
+          xMsTestHeader,
+          requiredString,
+          requiredIntList,
+          options,
+        ) {
           deepStrictEqual(id, "1");
           deepStrictEqual(xMsTestHeader, "bar");
           deepStrictEqual(requiredString, "foo");
