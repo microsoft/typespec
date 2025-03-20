@@ -544,11 +544,6 @@ export interface HttpOperationFileBody extends HttpOperationBodyBase {
   readonly contentTypeProperty: ModelProperty;
 
   /**
-   * The property that is the file, if any.
-   */
-  readonly property?: ModelProperty;
-
-  /**
    * The filename property.
    */
   readonly filename: ModelProperty;
