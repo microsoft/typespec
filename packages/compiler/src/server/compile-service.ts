@@ -100,7 +100,7 @@ export function createCompileService({
   /**
    * Compile the given document.
    * First, the main.tsp file will be obtained for compilation.
-   * If the current document is not the main.tsp file,
+   * If the current document is not the main.tsp file or not included in the compilation starting from the main file found,
    * the current document will be recompiled and returned as part of the result.
    * Otherwise, the compilation of main.tsp will be returned as part of the result.
    * @param document The document to compile. tsp file that is open or not opened in workspace.

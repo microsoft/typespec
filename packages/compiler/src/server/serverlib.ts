@@ -554,6 +554,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function reportDiagnostics({ program, document, optionsFromConfig }: CompileResult) {
+    if (!document) return undefined;
     if (isTspConfigFile(document)) return undefined;
 
     currentDiagnosticIndex.clear();
