@@ -89,6 +89,111 @@ scalar uuid extends string;
 </tr>
 </table>
 
+## Detailed Example for Converting Component Schemas
+
+This example demonstrates how to convert component schemas from OpenAPI3 to TypeSpec.
+
+### OpenAPI3
+
+```yml
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+          format: float
+```
+
+### TypeSpec
+
+```tsp
+model Product {
+  id: string;
+  name: string;
+  price: float;
+}
+```
+
+In this example, the `Product` schema from OpenAPI3 is converted into a TypeSpec model.
+
+## Detailed Example for Converting Component Parameters
+
+This example demonstrates how to convert component parameters from OpenAPI3 to TypeSpec.
+
+### OpenAPI3
+
+```yml
+components:
+  parameters:
+    ProductId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+```
+
+### TypeSpec
+
+```tsp
+model Product {
+  @path id: string;
+}
+```
+
+In this example, the `ProductId` parameter from OpenAPI3 is converted into a TypeSpec model with a `@path` decorator.
+
+## Detailed Example for Converting Path Routes to Operations
+
+This example demonstrates how to convert path routes from OpenAPI3 to TypeSpec operations.
+
+### OpenAPI3
+
+```yml
+paths:
+  /products/{id}:
+    get:
+      operationId: getProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+```
+
+### TypeSpec
+
+```tsp
+/**
+ * Successful response
+ */
+model getProduct200ApplicationJsonResponse {
+  @statusCode statusCode: 200;
+  @bodyRoot body: Product;
+}
+
+@route("/products/{id}") @get op getProduct(@path id: string): getProduct200ApplicationJsonResponse;
+```
+
+In this example, the `getProduct` path route from OpenAPI3 is converted into a TypeSpec operation with a response model.
+
 ### 2. Convert component parameters into models or fields
 
 All parameters present at `#/components/parameters` will be converted to a field in a model. If the model doesn't exist in `#/components/schemas`, then it will be created.

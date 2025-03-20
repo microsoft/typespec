@@ -876,7 +876,6 @@ export class CodeModelBuilder {
     const operationName = sdkMethod.name;
     const httpOperation = sdkMethod.operation;
     const operationId = groupName ? `${groupName}_${operationName}` : `${operationName}`;
-    const operationGroup = this.codeModel.getOperationGroup(groupName);
 
     const operationExamples = this.getOperationExample(sdkMethod);
 
@@ -1034,8 +1033,6 @@ export class CodeModelBuilder {
 
     // check for long-running operation
     this.processRouteForLongRunning(codeModelOperation, lroMetadata);
-
-    operationGroup.addOperation(codeModelOperation);
 
     return codeModelOperation;
   }

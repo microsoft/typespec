@@ -167,7 +167,7 @@ async function main() {
       },
     )
     .command(
-      "server-test <scenariosPaths..>",
+      "knock <scenariosPaths..>",
       "Executes the test cases against the service",
       (cmd) => {
         return cmd
@@ -181,23 +181,18 @@ async function main() {
             description: "Path to the server",
             type: "string",
           })
-          .option("runSingleScenario", {
-            description: "Single Scenario Case to run",
+          .option("filter", {
+            description: "Glob filter of scenario to run",
             type: "string",
           })
-          .option("runScenariosFromFile", {
-            description: "File that has the Scenarios to run",
-            type: "string",
-          })
-          .demandOption("scenariosPaths", "serverBasePath");
+          .demandOption("scenariosPaths");
       },
       async (args) => {
         for (const scenariosPath of args.scenariosPaths) {
           logger.info(`Executing server tests for scenarios at ${scenariosPath}`);
           await serverTest(scenariosPath, {
             baseUrl: args.baseUrl,
-            runSingleScenario: args.runSingleScenario,
-            runScenariosFromFile: args.runScenariosFromFile,
+            filter: args.filter,
           });
         }
       },

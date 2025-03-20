@@ -234,7 +234,9 @@ function addOperationTemplateToUriTemplate(uriTemplate: string, params: HttpOper
 }
 
 function escapeUriTemplateParamName(name: string) {
-  return name.replaceAll(":", "%3A");
+  return encodeURIComponent(name).replace(/[:-]/g, function (c) {
+    return "%" + c.charCodeAt(0).toString(16).toUpperCase();
+  });
 }
 
 export function setRouteProducer(
