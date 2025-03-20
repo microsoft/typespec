@@ -60,6 +60,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
     "generator-name": { type: "string", nullable: true },
     "emitter-extension-path": { type: "string", nullable: true },
     "update-code-model": { type: "object", nullable: true },
+    "generator-path": { type: "string", nullable: true },
   },
   required: [],
 };
@@ -83,6 +84,7 @@ export const defaultOptions = {
   "generator-name": _defaultGeneratorName,
   "emitter-extension-path": undefined,
   "update-code-model": (model: CodeModel) => model,
+  "generator-path": undefined
 };
 
 /**
