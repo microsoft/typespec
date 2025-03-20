@@ -38,8 +38,8 @@
     "@typespec/rest": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/core": "^0.6.0",
-    "@alloy-js/typescript": "^0.6.0",
+    "@alloy-js/core": "^0.7.0",
+    "@alloy-js/typescript": "^0.7.0",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^",
