@@ -4328,21 +4328,7 @@
       "continuationToken": {
        "$id": "477",
        "parameter": {
-        "$id": "478",
-        "name": "token",
-        "nameInRequest": "token",
-        "type": {
-         "$ref": "471"
-        },
-        "location": "Query",
-        "isApiVersion": false,
-        "isContentType": false,
-        "isEndpoint": false,
-        "explode": false,
-        "isRequired": false,
-        "kind": "Method",
-        "decorators": [],
-        "skipUrlEncoding": false
+        "$ref": "470"
        },
        "responseSegments": [
         "nextToken"
@@ -4356,18 +4342,18 @@
      "decorators": []
     },
     {
-     "$id": "479",
+     "$id": "478",
      "name": "ListWithContinuationTokenHeaderResponse",
      "resourceName": "UnbrandedTypeSpec",
      "doc": "List things with continuation token header response",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "480",
+       "$id": "479",
        "name": "token",
        "nameInRequest": "token",
        "type": {
-        "$id": "481",
+        "$id": "480",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4384,14 +4370,14 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "482",
+       "$id": "481",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "483",
+        "$id": "482",
         "kind": "constant",
         "valueType": {
-         "$id": "484",
+         "$id": "483",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4413,7 +4399,7 @@
      ],
      "responses": [
       {
-       "$id": "485",
+       "$id": "484",
        "statusCodes": [
         200
        ],
@@ -4422,11 +4408,11 @@
        },
        "headers": [
         {
-         "$id": "486",
+         "$id": "485",
          "name": "nextToken",
          "nameInResponse": "next-token",
          "type": {
-          "$id": "487",
+          "$id": "486",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -4445,28 +4431,14 @@
      "path": "/continuation/header",
      "bufferResponse": true,
      "paging": {
-      "$id": "488",
+      "$id": "487",
       "itemPropertySegments": [
        "things"
       ],
       "continuationToken": {
-       "$id": "489",
+       "$id": "488",
        "parameter": {
-        "$id": "490",
-        "name": "token",
-        "nameInRequest": "token",
-        "type": {
-         "$ref": "481"
-        },
-        "location": "Query",
-        "isApiVersion": false,
-        "isContentType": false,
-        "isEndpoint": false,
-        "explode": false,
-        "isRequired": false,
-        "kind": "Method",
-        "decorators": [],
-        "skipUrlEncoding": false
+        "$ref": "479"
        },
        "responseSegments": [
         "next-token"
@@ -4482,11 +4454,11 @@
    ],
    "parameters": [
     {
-     "$id": "491",
+     "$id": "489",
      "name": "unbrandedTypeSpecUrl",
      "nameInRequest": "unbrandedTypeSpecUrl",
      "type": {
-      "$id": "492",
+      "$id": "490",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4506,9 +4478,9 @@
   }
  ],
  "auth": {
-  "$id": "493",
+  "$id": "491",
   "apiKey": {
-   "$id": "494",
+   "$id": "492",
    "name": "my-api-key",
    "in": "header"
   }
