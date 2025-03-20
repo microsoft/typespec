@@ -264,7 +264,7 @@ async def test_spread_model_array(client: AdditionalPropertiesClient):
 
 @pytest.mark.skip(reason="https://github.com/microsoft/typespec/pull/6425")
 @pytest.mark.asyncio
-async def test_spread_record_discriminated_union():
+async def test_spread_record_discriminated_union(client: AdditionalPropertiesClient):
     body = {
         "name": "abc",
         "prop1": {"fooProp": "abc", "kind": "kind0"},
