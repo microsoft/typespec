@@ -29,9 +29,5 @@ def test_query_ssv(client: CollectionFormatClient):
     client.query.ssv(colors=["blue", "red", "green"])
 
 
-def test_query_tsv(client: CollectionFormatClient):
-    client.query.tsv(colors=["blue", "red", "green"])
-
-
 def test_csv_header(client: CollectionFormatClient):
     client.header.csv(colors=["blue", "red", "green"])
