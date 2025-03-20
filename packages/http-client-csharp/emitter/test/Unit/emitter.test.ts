@@ -20,6 +20,7 @@ import {
   createEmitterTestHost,
   typeSpecCompile,
 } from "./utils/test-util.js";
+import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 
 describe("$onEmit tests", () => {
   afterAll(() => {
@@ -92,6 +93,22 @@ describe("$onEmit tests", () => {
     context.options["update-code-model"] = updateCallback;
     await $onEmit(context);
     expect(updateCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it("should set additional-decorators to the sdk context", async () => {
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    const additionalDecorators = ["Decorator1", "Decorator2"];
+    context.options["sdk-context-options"] = {
+      versioning: {
+        previewStringRegex: /$/,
+      },
+      additionalDecorators: additionalDecorators,
+    };
+    await $onEmit(context);
+
+    expect(createSdkContext).toHaveBeenCalledWith(expect.anything(), expect.any(String), expect.objectContaining({
+      additionalDecorators: additionalDecorators,
+    }));
   });
 
   it("should set newProject to true if .csproj file DOES NOT exist", async () => {
