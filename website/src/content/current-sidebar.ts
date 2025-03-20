@@ -58,7 +58,6 @@ const sidebar: SidebarItem[] = [
         label: "Configuration",
         items: ["handbook/configuration/configuration", "handbook/configuration/tracing"],
       },
-      "handbook/releases",
       "handbook/faq",
     ],
   },

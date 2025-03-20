@@ -46,15 +46,15 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadString(nameof(InputClient.Name), ref name)
-                    || reader.TryReadString("Namespace", ref @namespace)
-                    || reader.TryReadString("Summary", ref summary)
-                    || reader.TryReadString("Doc", ref doc)
-                    || reader.TryReadComplexType(nameof(InputClient.Operations), options, ref operations)
-                    || reader.TryReadComplexType(nameof(InputClient.Parameters), options, ref parameters)
-                    || reader.TryReadString(nameof(InputClient.Parent), ref parent)
-                    || reader.TryReadComplexType(nameof(InputClient.Decorators), options, ref decorators)
-                    || reader.TryReadString("CrossLanguageDefinitionId", ref crossLanguageDefinitionId);
+                var isKnownProperty = reader.TryReadString("name", ref name)
+                    || reader.TryReadString("namespace", ref @namespace)
+                    || reader.TryReadString("summary", ref summary)
+                    || reader.TryReadString("doc", ref doc)
+                    || reader.TryReadComplexType("operations", options, ref operations)
+                    || reader.TryReadComplexType("parameters", options, ref parameters)
+                    || reader.TryReadString("parent", ref parent)
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId);
 
                 if (!isKnownProperty)
                 {

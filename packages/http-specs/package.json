@@ -19,7 +19,7 @@
     "validate-mock-apis": "tsp-spector validate-mock-apis ./specs",
     "check-scenario-coverage": "tsp-spector check-coverage ./specs",
     "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"npm run client\" && tsp-spector server stop",
-    "client": "tsp-spector server-test ./specs",
+    "client": "tsp-spector knock ./specs",
     "serve": "tsp-spector serve ./specs",
     "test": "echo \"Error: no test specified\""
   },
