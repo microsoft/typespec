@@ -13,28 +13,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 {
     public class ClientProviderSubClientTests
     {
-        private const string TestClientName = "TestClient";
-        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: TestClientName);
-        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient.Name);
-        private static readonly InputClient _catClient = InputFactory.Client("cat", doc: "CatClient description", parent: _animalClient.Name);
-        private static readonly InputClient _hawkClient = InputFactory.Client("hawkClient", doc: "HawkClient description", parent: _animalClient.Name);
-        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient.Name);
+        private static readonly InputClient _testClient = InputFactory.Client("TestClient");
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: _testClient);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient);
+        private static readonly InputClient _catClient = InputFactory.Client("cat", doc: "CatClient description", parent: _animalClient);
+        private static readonly InputClient _hawkClient = InputFactory.Client("hawkClient", doc: "HawkClient description", parent: _animalClient);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient);
 
         [SetUp]
         public void SetUp()
         {
             MockHelpers.LoadMockGenerator(
                     auth: () => new(new InputApiKeyAuth("mock", null), null),
-                    clients: () => [_animalClient, _dogClient, _catClient, _huskyClient, _hawkClient]);
+                    clients: () => [_testClient]);
         }
 
         // This test validates that the generated code is correct when the client has one direct subclient.
         [Test]
         public void ServiceClientWithSubClient()
         {
-            var client = InputFactory.Client(TestClientName);
             string[] expectedSubClientFactoryMethodNames = [$"Get{_animalClient.Name.ToCleanName()}Client"];
-            var clientProvider = new MockClientProvider(client, expectedSubClientFactoryMethodNames);
+            var clientProvider = new MockClientProvider(_testClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);

@@ -41,8 +41,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputOperation>? operations = null;
             IReadOnlyList<InputParameter>? parameters = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
-            string? parent = null;
             string? crossLanguageDefinitionId = null;
+            InputClient? parent = null;
+            IReadOnlyList<InputClient>? children = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -52,9 +53,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("operations", options, ref operations)
                     || reader.TryReadComplexType("parameters", options, ref parameters)
-                    || reader.TryReadString("parent", ref parent)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId);
+                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
+                    || reader.TryReadComplexType("parent", options, ref parent)
+                    || reader.TryReadComplexType("children", options, ref children);
 
                 if (!isKnownProperty)
                 {
@@ -69,30 +71,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.Doc = doc;
             client.Operations = operations ?? [];
             client.Parameters = parameters ?? [];
-            client.Parent = parent;
             client.Decorators = decorators ?? [];
-
-            var lastSegment = GetLastSegment(client.Namespace);
-            if (lastSegment == client.Name)
-            {
-                // invalid namespace segment found, add it into the list
-                var invalidNamespaceSegments = (List<string>)resolver.ResolveReference(TypeSpecSerialization.InvalidNamespaceSegmentsKey);
-                invalidNamespaceSegments.Add(client.Name);
-            }
+            client.Parent = parent;
+            client.Children = children ?? [];
 
             return client;
-        }
-
-        private static string GetLastSegment(string @namespace)
-        {
-            var span = @namespace.AsSpan();
-            var index = span.LastIndexOf('.');
-            if (index == -1)
-            {
-                return @namespace;
-            }
-
-            return span.Slice(index + 1).ToString();
         }
     }
 }

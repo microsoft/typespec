@@ -49,26 +49,66 @@
  "clients": [
   {
    "$id": "6",
+   "kind": "client",
    "name": "ReturnTypeChangedFromClient",
    "namespace": "Versioning.ReturnTypeChangedFrom",
    "doc": "Test for the `@returnTypeChangedFrom` decorator.",
-   "operations": [
+   "parameters": [
     {
      "$id": "7",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Need to be set as 'http://localhost:3000' in client.",
+     "type": {
+      "$id": "8",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    },
+    {
+     "$id": "9",
+     "name": "version",
+     "nameInRequest": "version",
+     "doc": "Need to be set as 'v1' or 'v2' in client.",
+     "type": {
+      "$ref": "2"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": false,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    }
+   ],
+   "operations": [
+    {
+     "$id": "10",
      "name": "test",
      "resourceName": "ReturnTypeChangedFrom",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "8",
+       "$id": "11",
        "name": "contentType",
        "nameInRequest": "Content-Type",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$id": "9",
+        "$id": "12",
         "kind": "constant",
         "valueType": {
-         "$id": "10",
+         "$id": "13",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -88,14 +128,14 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "11",
+       "$id": "14",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "12",
+        "$id": "15",
         "kind": "constant",
         "valueType": {
-         "$id": "13",
+         "$id": "16",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -115,11 +155,11 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "14",
+       "$id": "17",
        "name": "body",
        "nameInRequest": "body",
        "type": {
-        "$id": "15",
+        "$id": "18",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -138,12 +178,12 @@
      ],
      "responses": [
       {
-       "$id": "16",
+       "$id": "19",
        "statusCodes": [
         200
        ],
        "bodyType": {
-        "$id": "17",
+        "$id": "20",
         "kind": "int32",
         "name": "int32",
         "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -169,47 +209,11 @@
      "decorators": []
     }
    ],
-   "parameters": [
-    {
-     "$id": "18",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Need to be set as 'http://localhost:3000' in client.",
-     "type": {
-      "$id": "19",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    },
-    {
-     "$id": "20",
-     "name": "version",
-     "nameInRequest": "version",
-     "doc": "Need to be set as 'v1' or 'v2' in client.",
-     "type": {
-      "$ref": "2"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": false,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    }
+   "apiVersions": [
+    "v1"
    ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Versioning.ReturnTypeChangedFrom"
+   "crossLanguageDefinitionId": "Versioning.ReturnTypeChangedFrom",
+   "decorators": []
   }
  ]
 }

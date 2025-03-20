@@ -46,10 +46,10 @@
  "clients": [
   {
    "$id": "7",
+   "kind": "client",
    "name": "JsonClient",
    "namespace": "Serialization.EncodedName.Json",
    "doc": "Encoded names",
-   "operations": [],
    "parameters": [
     {
      "$id": "8",
@@ -82,183 +82,191 @@
      }
     }
    ],
+   "operations": [],
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Serialization.EncodedName.Json",
    "decorators": [],
-   "crossLanguageDefinitionId": "Serialization.EncodedName.Json"
-  },
-  {
-   "$id": "12",
-   "name": "Property",
-   "namespace": "Serialization.EncodedName.Json.Property",
-   "operations": [
+   "children": [
     {
-     "$id": "13",
-     "name": "send",
-     "resourceName": "Property",
-     "accessibility": "public",
+     "$id": "12",
+     "kind": "client",
+     "name": "Property",
+     "namespace": "Serialization.EncodedName.Json.Property",
      "parameters": [
       {
-       "$id": "14",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
+       "$id": "13",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
        "type": {
+        "$id": "14",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
         "$id": "15",
-        "kind": "constant",
-        "valueType": {
+        "type": {
          "$id": "16",
          "kind": "string",
          "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
+     "operations": [
       {
        "$id": "17",
-       "name": "body",
-       "nameInRequest": "body",
-       "type": {
-        "$ref": "2"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "18",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/serialization/encoded-name/json/property",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property.send",
-     "decorators": []
-    },
-    {
-     "$id": "19",
-     "name": "get",
-     "resourceName": "Property",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "20",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "21",
-        "kind": "constant",
-        "valueType": {
-         "$id": "22",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "name": "send",
+       "resourceName": "Property",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "18",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "19",
+          "kind": "constant",
+          "valueType": {
+           "$id": "20",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
+        {
+         "$id": "21",
+         "name": "body",
+         "nameInRequest": "body",
+         "type": {
+          "$ref": "2"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Method",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "22",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/serialization/encoded-name/json/property",
+       "requestMediaTypes": [
+        "application/json"
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property.send",
+       "decorators": []
+      },
       {
        "$id": "23",
-       "statusCodes": [
-        200
+       "name": "get",
+       "resourceName": "Property",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "24",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "25",
+          "kind": "constant",
+          "valueType": {
+           "$id": "26",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "bodyType": {
-        "$ref": "2"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
+       "responses": [
+        {
+         "$id": "27",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "2"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/serialization/encoded-name/json/property",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property.get",
+       "decorators": []
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/serialization/encoded-name/json/property",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property.get",
-     "decorators": []
-    }
-   ],
-   "parent": "JsonClient",
-   "parameters": [
-    {
-     "$id": "24",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "25",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "26",
-      "type": {
-       "$id": "27",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
+     "apiVersions": [],
+     "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property",
+     "decorators": [],
+     "parent": {
+      "$ref": "7"
      }
     }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property"
+   ]
   }
  ]
 }

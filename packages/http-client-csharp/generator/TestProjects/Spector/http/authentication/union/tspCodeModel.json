@@ -7,12 +7,45 @@
  "clients": [
   {
    "$id": "2",
+   "kind": "client",
    "name": "UnionClient",
    "namespace": "Authentication.Union",
    "doc": "Illustrates clients generated with ApiKey and OAuth2 authentication.",
-   "operations": [
+   "parameters": [
     {
      "$id": "3",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "4",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "5",
+      "type": {
+       "$id": "6",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "value": "http://localhost:3000"
+     }
+    }
+   ],
+   "operations": [
+    {
+     "$id": "7",
      "name": "validKey",
      "resourceName": "Union",
      "doc": "Check whether client is authenticated",
@@ -20,7 +53,7 @@
      "parameters": [],
      "responses": [
       {
-       "$id": "4",
+       "$id": "8",
        "statusCodes": [
         204
        ],
@@ -38,7 +71,7 @@
      "decorators": []
     },
     {
-     "$id": "5",
+     "$id": "9",
      "name": "validToken",
      "resourceName": "Union",
      "doc": "Check whether client is authenticated",
@@ -46,7 +79,7 @@
      "parameters": [],
      "responses": [
       {
-       "$id": "6",
+       "$id": "10",
        "statusCodes": [
         204
        ],
@@ -64,40 +97,9 @@
      "decorators": []
     }
    ],
-   "parameters": [
-    {
-     "$id": "7",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "8",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "9",
-      "type": {
-       "$id": "10",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Authentication.Union"
+   "apiVersions": [],
+   "crossLanguageDefinitionId": "Authentication.Union",
+   "decorators": []
   }
  ],
  "auth": {
