@@ -11,7 +11,6 @@ import encode.bytes.models.DefaultBytesProperty;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
 
@@ -83,7 +82,6 @@ public class EncodeBytesTests {
 //        Assertions.assertArrayEquals(DATA, bytes);
     }
 
-    @Disabled("require new http-specs lib")
     @Test
     public void testBodyDefault() {
         requestClient.defaultMethod(BinaryData.fromBytes(PNG));

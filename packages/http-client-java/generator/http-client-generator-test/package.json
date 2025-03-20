@@ -12,8 +12,8 @@
     "spector-stop": "tsp-spector server stop"
   },
   "dependencies": {
-    "@typespec/http-specs": "0.1.0-alpha.13",
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.9",
+    "@typespec/http-specs": "0.1.0-alpha.15-dev.3",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.10",
     "@typespec/http-client-java": "file:../../typespec-http-client-java-0.2.0.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
