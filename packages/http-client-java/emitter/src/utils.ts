@@ -187,5 +187,5 @@ const JAVA_KEYWORDS: Set<string> = new Set<string>([
   "try",
   "void",
   "volatile",
-  "while"
+  "while",
 ]);
