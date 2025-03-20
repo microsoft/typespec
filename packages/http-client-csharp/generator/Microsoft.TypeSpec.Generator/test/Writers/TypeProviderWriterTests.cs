@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
     {
         public TypeProviderWriterTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         // Tests that the Write method is successfully overridden.
@@ -41,7 +41,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         public void TypeProviderWriter_WriteModel()
         {
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: MockPluginSetValue(properties));
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: MockGeneratorSetValue(properties));
 
             var inputModel = InputFactory.Model("TestModel", properties: properties);
 
@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         public void TypeProviderWriter_WriteModelAsStruct()
         {
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: MockPluginSetValue(properties));
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: MockGeneratorSetValue(properties));
 
             var inputModel = InputFactory.Model("TestModel", properties: properties, modelAsStruct: true);
 
@@ -85,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             _ => throw new ArgumentException("Unsupported input type.")
         };
 
-        private Func<InputType, CSharpType> MockPluginSetValue(List<InputModelProperty> properties)
+        private Func<InputType, CSharpType> MockGeneratorSetValue(List<InputModelProperty> properties)
         {
             return (InputType inputType) =>
             {

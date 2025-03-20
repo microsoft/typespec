@@ -69,7 +69,7 @@ jobs:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          NodeVersion: $(nodeVersion)
+          NodeVersion: ${{ parameters.NodeVersion }}
           BuildArtifactName: ${{ parameters.BuildArtifactName }}
           ${{ if ne(length(parameters.TestMatrix), 0) }}:
             TestArgs: $(TestArguments)

@@ -14,7 +14,7 @@ Templates can be applied to:
 
 ```typespec
 model Page<Item> {
-  size: number;
+  size: int32;
   item: Item[];
 }
 
@@ -29,7 +29,7 @@ You can assign a default value to a template parameter using `= <value>`.
 
 ```typespec
 model Page<Item = string> {
-  size: number;
+  size: int32;
   item: Item[];
 }
 ```
@@ -59,9 +59,9 @@ alias Foo<Type extends {name: string}> = Type;
 Default values for template parameters must also adhere to the constraint:
 
 ```typespec
-alias Foo<Type extends string = "Abc">  = Type
+alias Foo<Type extends string = "Abc">  = Type;
 // Invalid
-alias Bar<Type extends string = 123>  = Type
+alias Bar<Type extends string = 123>  = Type;
                              ^ Type '123' is not assignable to type 'TypeSpec.string'
 ```
 
@@ -78,18 +78,17 @@ alias Foo<T extends string = "Abc", U> = ...;
 Template arguments can also be specified by name. This allows you to specify them out of order and omit optional arguments. This can be particularly useful when dealing with templates that have many arguments with defaults:
 
 ```typespec
-alias Test<T, U extends numeric = int32, V extends string = "example"> = ...;
+alias Test<T, U extends numeric = int32, V extends string = "example"> = {
+  t: T;
+  v: V;
+};
 
 // Specify the argument V by name to skip argument U, since U is optional and we
 // are okay with its default
 alias Example1 = Test<unknown, V = "example1">;
 
 // Even all three arguments can be specified out of order
-alias Example2 = Test<
-  V = "example2",
-  T = unknown,
-  U = uint64
->;
+alias Example2 = Test<V = "example2", T = unknown, U = uint64>;
 ```
 
 However, once a template argument is specified by name, all subsequent arguments must also be specified by name:

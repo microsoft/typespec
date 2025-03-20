@@ -12,10 +12,11 @@ import {
   createScanner,
   isKeyword,
   isPunctuation,
+  isReservedKeyword,
   isStatementKeyword,
 } from "../src/core/scanner.js";
 import { DiagnosticMatch, expectDiagnostics } from "../src/testing/expect.js";
-import { extractSquiggles } from "../src/testing/test-server-host.js";
+import { extractSquiggles } from "../src/testing/source-utils.js";
 
 type TokenEntry = [
   Token,
@@ -103,10 +104,10 @@ function verify(tokens: TokenEntry[], expecting: TokenEntry[]) {
 describe("compiler: scanner", () => {
   /** verifies that we can scan tokens and get back some output. */
   it("smoketest", () => {
-    const all = tokens('\tthis was "a" test');
+    const all = tokens('\tit was "a" test');
     verify(all, [
       [Token.Whitespace],
-      [Token.Identifier, "this", { value: "this" }],
+      [Token.Identifier, "it", { value: "it" }],
       [Token.Whitespace],
       [Token.Identifier, "was", { value: "was" }],
       [Token.Whitespace],
@@ -410,14 +411,19 @@ describe("compiler: scanner", () => {
       maxKeywordLengthFound = Math.max(maxKeywordLengthFound, name.length);
 
       assert.strictEqual(TokenDisplay[token], `'${name}'`, "token display should match");
-      assert(isKeyword(token), `${name} should be classified as a keyword`);
-      if (nonStatementKeywords.includes(token)) {
-        assert(
-          !isStatementKeyword(token),
-          `${name} should not be classified as a statement keyword`,
-        );
-      } else {
-        assert(isStatementKeyword(token), `${name} should be classified as statement keyword`);
+      assert(
+        isKeyword(token) || isReservedKeyword(token),
+        `${name} should be classified as a keyword or reserved keyword`,
+      );
+      if (!isReservedKeyword(token)) {
+        if (nonStatementKeywords.includes(token)) {
+          assert(
+            !isStatementKeyword(token),
+            `${name} should not be classified as a statement keyword`,
+          );
+        } else {
+          assert(isStatementKeyword(token), `${name} should be classified as statement keyword`);
+        }
       }
     }
 

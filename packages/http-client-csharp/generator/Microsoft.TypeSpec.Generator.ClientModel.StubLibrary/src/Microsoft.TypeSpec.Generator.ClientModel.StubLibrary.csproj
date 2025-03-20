@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>StubPlugin</PackageId>
+    <PackageId>StubGenerator</PackageId>
     <Version>1.0.0-beta.1</Version>
   </PropertyGroup>
 

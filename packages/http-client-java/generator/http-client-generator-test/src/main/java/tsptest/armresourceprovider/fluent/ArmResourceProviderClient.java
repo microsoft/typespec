@@ -80,4 +80,18 @@ public interface ArmResourceProviderClient {
      * @return the ChildExtensionResourceInterfacesClient object.
      */
     ChildExtensionResourceInterfacesClient getChildExtensionResourceInterfaces();
+
+    /**
+     * Gets the ManagedMaintenanceWindowStatusOperationsClient object to access its operations.
+     * 
+     * @return the ManagedMaintenanceWindowStatusOperationsClient object.
+     */
+    ManagedMaintenanceWindowStatusOperationsClient getManagedMaintenanceWindowStatusOperations();
+
+    /**
+     * Gets the ModelInterfaceSameNamesClient object to access its operations.
+     * 
+     * @return the ModelInterfaceSameNamesClient object.
+     */
+    ModelInterfaceSameNamesClient getModelInterfaceSameNames();
 }

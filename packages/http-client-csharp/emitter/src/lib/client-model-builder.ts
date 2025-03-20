@@ -55,12 +55,12 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   const clientModel: CodeModel = {
     // rootNamespace is really coalescing the `package-name` option and the first namespace found.
-    Name: sdkPackage.rootNamespace,
-    ApiVersions: rootApiVersions,
-    Enums: Array.from(sdkContext.__typeCache.enums.values()),
-    Models: Array.from(sdkContext.__typeCache.models.values()),
-    Clients: inputClients,
-    Auth: processServiceAuthentication(sdkContext, sdkPackage),
+    name: sdkPackage.rootNamespace,
+    apiVersions: rootApiVersions,
+    enums: Array.from(sdkContext.__typeCache.enums.values()),
+    models: Array.from(sdkContext.__typeCache.models.values()),
+    clients: inputClients,
+    auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
 
   return clientModel;
@@ -76,7 +76,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
-      parentClientNames.push(inputClient.Name);
+      parentClientNames.push(inputClient.name);
       fromSdkClients(subClients, inputClients, parentClientNames);
       parentClientNames.pop();
     }
@@ -94,11 +94,11 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     const clientName = getClientName(sdkClient, parentNames);
 
     const client: InputClient = {
-      Name: clientName,
-      Namespace: sdkClient.namespace,
-      Summary: sdkClient.summary,
-      Doc: sdkClient.doc,
-      Operations: sdkClient.methods
+      name: clientName,
+      namespace: sdkClient.namespace,
+      summary: sdkClient.summary,
+      doc: sdkClient.doc,
+      operations: sdkClient.methods
         .filter((m) => m.kind !== "clientaccessor")
         .map((m) =>
           fromSdkServiceMethod(
@@ -108,11 +108,10 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
             rootApiVersions,
           ),
         ),
-      Protocol: {},
-      Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
-      Parameters: clientParameters,
-      Decorators: sdkClient.decorators,
-      CrossLanguageDefinitionId: sdkClient.crossLanguageDefinitionId,
+      parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
+      parameters: clientParameters,
+      decorators: sdkClient.decorators,
+      crossLanguageDefinitionId: sdkClient.crossLanguageDefinitionId,
     };
 
     sdkContext.__typeCache.updateSdkClientReferences(sdkClient, client);
@@ -168,21 +167,21 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
           }
         : fromSdkType(sdkContext, parameter.type); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
-        Name: parameter.name,
-        NameInRequest: parameter.serializedName,
-        Summary: parameter.summary,
-        Doc: parameter.doc,
+        name: parameter.name,
+        nameInRequest: parameter.serializedName,
+        summary: parameter.summary,
+        doc: parameter.doc,
         // TODO: we should do the magic in generator
-        Type: parameterType,
-        Location: RequestLocation.Uri,
-        IsApiVersion: parameter.isApiVersionParam,
-        IsContentType: false,
-        IsRequired: !parameter.optional,
-        IsEndpoint: isEndpoint,
-        SkipUrlEncoding: false,
-        Explode: false,
-        Kind: InputOperationParameterKind.Client,
-        DefaultValue: getParameterDefaultValue(
+        type: parameterType,
+        location: RequestLocation.Uri,
+        isApiVersion: parameter.isApiVersionParam,
+        isContentType: false,
+        isRequired: !parameter.optional,
+        isEndpoint: isEndpoint,
+        skipUrlEncoding: false,
+        explode: false,
+        kind: InputOperationParameterKind.Client,
+        defaultValue: getParameterDefaultValue(
           sdkContext,
           parameter.clientDefaultValue,
           parameterType,

@@ -26,6 +26,7 @@ import { bifilter, indent } from "../../util/iter.js";
 import { createOnceQueue } from "../../util/once-queue.js";
 import { tryGetOpenApi3 } from "../../util/openapi3.js";
 import { writeModuleFile } from "../../write.js";
+import { mockType } from "./data-mocks.js";
 
 function spawn(command: string, args: string[], options: SpawnOptions): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -609,10 +610,7 @@ function* emitControllerOperationHandlers(
   httpOperations: Set<HttpOperation>,
   module: Module,
 ): Iterable<string> {
-  module.imports.push({
-    binder: ["NotImplementedError"],
-    from: httpHelperModule,
-  });
+  let importNotImplementedError = false;
   for (const httpOperation of httpOperations) {
     // TODO: unify construction of signature with emitOperation in common/interface.ts
     const op = httpOperation.operation;
@@ -664,9 +662,25 @@ function* emitControllerOperationHandlers(
       yield `async ${opName}(ctx: HttpContext, ${paramsDeclarationLine}): ${returnType} {`;
     }
 
-    yield "  throw new NotImplementedError();";
+    const mockReturn = mockType(op.returnType);
+
+    if (mockReturn === undefined) {
+      importNotImplementedError = true;
+      yield "  throw new NotImplementedError();";
+    } else if (mockReturn === "void") {
+      yield "  return;";
+    } else {
+      yield `  return ${mockReturn};`;
+    }
     yield "}";
     yield "";
+  }
+
+  if (importNotImplementedError) {
+    module.imports.push({
+      binder: ["NotImplementedError"],
+      from: httpHelperModule,
+    });
   }
 }
 

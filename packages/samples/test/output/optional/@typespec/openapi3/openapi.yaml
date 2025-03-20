@@ -25,7 +25,7 @@ paths:
       requestBody:
         required: false
         content:
-          application/json:
+          text/plain:
             schema:
               type: integer
               format: int64

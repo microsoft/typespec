@@ -18,14 +18,14 @@ namespace Microsoft.TypeSpec.Generator
         private static readonly string[] _filesToKeep = [ConfigurationFileName, CodeModelFileName];
 
         /// <summary>
-        /// Executes the generator task with the <see cref="CodeModelPlugin"/> instance.
+        /// Executes the generator task with the <see cref="CodeModelGenerator"/> instance.
         /// </summary>
         public async Task ExecuteAsync()
         {
             GeneratedCodeWorkspace.Initialize();
-            var outputPath = CodeModelPlugin.Instance.Configuration.OutputDirectory;
-            var generatedSourceOutputPath = CodeModelPlugin.Instance.Configuration.ProjectGeneratedDirectory;
-            var generatedTestOutputPath = CodeModelPlugin.Instance.Configuration.TestGeneratedDirectory;
+            var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
+            var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
+            var generatedTestOutputPath = CodeModelGenerator.Instance.Configuration.TestGeneratedDirectory;
 
             GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create();
 
@@ -33,35 +33,35 @@ namespace Microsoft.TypeSpec.Generator
             // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
 
             List<Task> generateAttributeTasks = new();
-            foreach (var attributeProvider in CodeModelPlugin.Instance.CustomCodeAttributeProviders)
+            foreach (var attributeProvider in CodeModelGenerator.Instance.CustomCodeAttributeProviders)
             {
                 generateAttributeTasks.Add(customCodeWorkspace.AddInMemoryFile(attributeProvider));
             }
 
             await Task.WhenAll(generateAttributeTasks);
 
-            CodeModelPlugin.Instance.SourceInputModel = new SourceInputModel(await customCodeWorkspace.GetCompilationAsync());
+            CodeModelGenerator.Instance.SourceInputModel = new SourceInputModel(await customCodeWorkspace.GetCompilationAsync());
 
             GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create();
 
-            var output = CodeModelPlugin.Instance.OutputLibrary;
+            var output = CodeModelGenerator.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
             // visit the entire library before generating files
-            foreach (var visitor in CodeModelPlugin.Instance.Visitors)
+            foreach (var visitor in CodeModelGenerator.Instance.Visitors)
             {
                 visitor.Visit(output);
             }
 
             foreach (var outputType in output.TypeProviders)
             {
-                var writer = CodeModelPlugin.Instance.GetWriter(outputType);
+                var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
 
                 foreach (var serialization in outputType.SerializationProviders)
                 {
-                    writer = CodeModelPlugin.Instance.GetWriter(serialization);
+                    writer = CodeModelGenerator.Instance.GetWriter(serialization);
                     generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
                 }
             }
@@ -69,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
 
-            if (CodeModelPlugin.Instance.Configuration.ClearOutputFolder)
+            if (CodeModelGenerator.Instance.Configuration.ClearOutputFolder)
             {
                 DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
                 DeleteDirectory(generatedTestOutputPath, _filesToKeep);
@@ -85,15 +85,15 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
                 var filename = Path.Combine(outputPath, file.Name);
-                CodeModelPlugin.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
+                CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
                 await File.WriteAllTextAsync(filename, file.Text);
             }
 
             // Write project scaffolding files
-            if (CodeModelPlugin.Instance.IsNewProject)
+            if (CodeModelGenerator.Instance.IsNewProject)
             {
-                await CodeModelPlugin.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
+                await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
         }
 

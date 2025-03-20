@@ -8,6 +8,7 @@ import {
   SdkHttpOperation,
   SdkHttpResponse,
   SdkModelPropertyType,
+  SdkPagingServiceMethod,
   SdkServiceMethod,
   SdkServiceResponseHeader,
   SdkType,
@@ -27,7 +28,11 @@ import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationLongRunning } from "../type/operation-long-running.js";
-import { ContinuationToken, NextLink, OperationPaging } from "../type/operation-paging.js";
+import {
+  InputContinuationToken,
+  InputNextLink,
+  InputOperationPaging,
+} from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
@@ -55,30 +60,30 @@ export function fromSdkServiceMethod(
   }
 
   return {
-    Name: method.name,
-    ResourceName:
+    name: method.name,
+    resourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
         .name ??
       getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
-    Deprecated: getDeprecated(sdkContext.program, method.__raw!),
-    Summary: method.summary,
-    Doc: method.doc,
-    Accessibility: method.access,
-    Parameters: fromSdkOperationParameters(sdkContext, method.operation, rootApiVersions),
-    Responses: fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
-    HttpMethod: parseHttpRequestMethod(method.operation.verb),
-    Uri: uri,
-    Path: method.operation.path,
-    ExternalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
-    RequestMediaTypes: getRequestMediaTypes(method.operation),
-    BufferResponse: true,
-    LongRunning: loadLongRunningOperation(sdkContext, method),
-    Paging: loadOperationPaging(sdkContext, method, rootApiVersions, uri),
-    GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
-    GenerateConvenienceMethod: generateConvenience,
-    CrossLanguageDefinitionId: method.crossLanguageDefinitionId,
-    Decorators: method.decorators,
-    Examples: method.operation.examples
+    deprecated: getDeprecated(sdkContext.program, method.__raw!),
+    summary: method.summary,
+    doc: method.doc,
+    accessibility: method.access,
+    parameters: fromSdkOperationParameters(sdkContext, method.operation, rootApiVersions),
+    responses: fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
+    httpMethod: parseHttpRequestMethod(method.operation.verb),
+    uri: uri,
+    path: method.operation.path,
+    externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
+    requestMediaTypes: getRequestMediaTypes(method.operation),
+    bufferResponse: true,
+    longRunning: loadLongRunningOperation(sdkContext, method),
+    paging: loadOperationPaging(sdkContext, method, rootApiVersions, uri),
+    generateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
+    generateConvenienceMethod: generateConvenience,
+    crossLanguageDefinitionId: method.crossLanguageDefinitionId,
+    decorators: method.decorators,
+    examples: method.operation.examples
       ? fromSdkHttpExamples(sdkContext, method.operation.examples)
       : undefined,
   };
@@ -99,12 +104,12 @@ export function getParameterDefaultValue(
 
   const kind = getValueType(sdkContext, clientDefaultValue);
   return {
-    Type: {
+    type: {
       kind: kind,
       name: kind,
       crossLanguageDefinitionId: `TypeSpec.${kind}`,
     },
-    Value: clientDefaultValue,
+    value: clientDefaultValue,
   };
 }
 
@@ -184,23 +189,23 @@ export function fromSdkHttpOperationParameter(
   const explode = isExplodedParameter(p);
 
   retVar = {
-    Name: p.name,
-    NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
-    Summary: p.summary,
-    Doc: p.doc,
-    Type: parameterType,
-    Location: getParameterLocation(p),
-    IsApiVersion:
+    name: p.name,
+    nameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
+    summary: p.summary,
+    doc: p.doc,
+    type: parameterType,
+    location: getParameterLocation(p),
+    isApiVersion:
       p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version", // TODO -- we should use `isApiVersionParam` instead
-    IsContentType: isContentType,
-    IsEndpoint: false,
-    Explode: explode,
-    ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
-    IsRequired: !p.optional,
-    Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
-    DefaultValue: getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
-    Decorators: p.decorators,
-    SkipUrlEncoding: p.kind === "path" ? p.allowReserved : false,
+    isContentType: isContentType,
+    isEndpoint: false,
+    explode: explode,
+    arraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
+    isRequired: !p.optional,
+    kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
+    defaultValue: getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
+    decorators: p.decorators,
+    skipUrlEncoding: p.kind === "path" ? p.allowReserved : false,
   };
 
   sdkContext.__typeCache.updateSdkPropertyReferences(p, retVar);
@@ -215,17 +220,17 @@ function loadLongRunningOperation(
     return undefined;
   }
   return {
-    FinalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
-    FinalResponse: {
+    finalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
+    finalResponse: {
       // in swagger, we allow delete to return some meaningful body content
       // for now, let assume we don't allow return type
-      StatusCodes: method.operation.verb === "delete" ? [204] : [200],
-      BodyType:
+      statusCodes: method.operation.verb === "delete" ? [204] : [200],
+      bodyType:
         method.lroMetadata.finalResponse?.envelopeResult !== undefined
           ? fromSdkModelType(sdkContext, method.lroMetadata.finalResponse.envelopeResult)
           : undefined,
     } as OperationResponse,
-    ResultPath: method.lroMetadata.finalResponse?.resultPath,
+    resultPath: method.lroMetadata.finalResponse?.resultPath,
   };
 }
 
@@ -251,12 +256,12 @@ export function fromSdkHttpOperationResponse(
 
   const range = sdkResponse.statusCodes;
   retVar = {
-    StatusCodes: toStatusCodesArray(range),
-    BodyType: sdkResponse.type ? fromSdkType(sdkContext, sdkResponse.type) : undefined,
-    Headers: fromSdkServiceResponseHeaders(sdkContext, sdkResponse.headers),
-    IsErrorResponse:
+    statusCodes: toStatusCodesArray(range),
+    bodyType: sdkResponse.type ? fromSdkType(sdkContext, sdkResponse.type) : undefined,
+    headers: fromSdkServiceResponseHeaders(sdkContext, sdkResponse.headers),
+    isErrorResponse:
       sdkResponse.type !== undefined && isErrorModel(sdkContext.program, sdkResponse.type.__raw!),
-    ContentTypes: sdkResponse.contentTypes,
+    contentTypes: sdkResponse.contentTypes,
   };
 
   sdkContext.__typeCache.updateSdkResponseReferences(sdkResponse, retVar);
@@ -270,11 +275,11 @@ function fromSdkServiceResponseHeaders(
   return headers.map(
     (h) =>
       ({
-        Name: h.__raw!.name,
-        NameInResponse: h.serializedName,
-        Summary: h.summary,
-        Doc: h.doc,
-        Type: fromSdkType(sdkContext, h.type),
+        name: h.__raw!.name,
+        nameInResponse: h.serializedName,
+        summary: h.summary,
+        doc: h.doc,
+        type: fromSdkType(sdkContext, h.type),
       }) as HttpResponseHeader,
   );
 }
@@ -327,22 +332,26 @@ function loadOperationPaging(
   method: SdkServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
   uri: string,
-): OperationPaging | undefined {
+): InputOperationPaging | undefined {
   if (method.kind !== "paging" || method.pagingMetadata === undefined) {
     return undefined;
   }
 
-  let nextLink: NextLink | undefined;
+  let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
     nextLink = {
-      ResponseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
+      responseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
         getResponseSegmentName(segment),
       ),
-      ResponseLocation: getResponseLocation(method.pagingMetadata.nextLinkSegments[0]),
+      responseLocation: getResponseLocation(
+        context,
+        method,
+        method.pagingMetadata.nextLinkSegments[0],
+      ),
     };
 
     if (method.pagingMetadata.nextLinkOperation) {
-      nextLink.Operation = fromSdkServiceMethod(
+      nextLink.operation = fromSdkServiceMethod(
         context,
         method.pagingMetadata.nextLinkOperation,
         uri,
@@ -351,7 +360,7 @@ function loadOperationPaging(
     }
   }
 
-  let continuationToken: ContinuationToken | undefined;
+  let continuationToken: InputContinuationToken | undefined;
 
   if (
     method.pagingMetadata.continuationTokenParameterSegments &&
@@ -362,15 +371,17 @@ function loadOperationPaging(
       method.pagingMetadata.continuationTokenParameterSegments.length - 1
     ] as SdkModelPropertyType;
     continuationToken = {
-      Parameter: fromSdkHttpOperationParameter(
+      parameter: fromSdkHttpOperationParameter(
         context,
         getHttpOperationParameter(method, lastParameterSegment)!,
         rootApiVersions,
       ),
-      ResponseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
+      responseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
         getResponseSegmentName(segment),
       ),
-      ResponseLocation: getResponseLocation(
+      responseLocation: getResponseLocation(
+        context,
+        method,
         method.pagingMetadata.continuationTokenResponseSegments?.[0],
       ),
     };
@@ -378,25 +389,36 @@ function loadOperationPaging(
 
   return {
     // TODO - this is hopefully temporary until TCGC provides the information directly on pagingMetadata https://github.com/Azure/typespec-azure/issues/2291
-    ItemPropertySegments: method.response.resultSegments!.map((s) => s.name),
-    NextLink: nextLink,
-    ContinuationToken: continuationToken,
+    itemPropertySegments: method.response.resultSegments!.map((s) => s.name),
+    nextLink: nextLink,
+    continuationToken: continuationToken,
   };
 }
 
 function getResponseSegmentName(segment: SdkModelPropertyType): string {
-  return segment.kind === "header" || segment.kind === "body"
+  return segment.kind === "responseheader" || segment.kind === "body"
     ? segment.serializedName
     : segment.name;
 }
 
-function getResponseLocation(p: SdkModelPropertyType): ResponseLocation {
+function getResponseLocation(
+  context: CSharpEmitterContext,
+  method: SdkPagingServiceMethod<SdkHttpOperation>,
+  p: SdkModelPropertyType,
+): ResponseLocation {
   switch (p?.kind) {
     case "responseheader":
       return ResponseLocation.Header;
     case "property":
       return ResponseLocation.Body;
     default:
+      context.logger.reportDiagnostic({
+        code: "unsupported-continuation-location",
+        format: {
+          crossLanguageDefinitionId: method.crossLanguageDefinitionId,
+        },
+        target: NoTarget,
+      });
       return ResponseLocation.None;
   }
 }
