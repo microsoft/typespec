@@ -11,16 +11,21 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
+  SdkHeaderParameter,
   SdkModelPropertyType,
   SdkModelType,
+  SdkPathParameter,
+  SdkQueryParameter,
   SdkTupleType,
   SdkType,
   SdkUnionType,
   getAccessOverride,
-  isReadOnly,
+  isReadOnly as tcgcIsReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
+import { Visibility } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
+import { InputModelPropertyKind } from "../type/input-model-property-kind.js";
 import {
   InputArrayType,
   InputDateTimeType,
@@ -159,14 +164,15 @@ export function fromSdkModelType(
 
     const propertiesDict = new Map<SdkModelPropertyType, InputModelProperty>();
     for (const property of modelType.properties) {
-      if (property.kind !== "property") {
-        continue;
-      }
       const ourProperty = fromSdkModelProperty(sdkContext, property, {
         modelName: modelTypeName,
         usage: modelType.usage,
         namespace: modelType.namespace,
       } as LiteralTypeContext);
+
+      if (!ourProperty) {
+        continue;
+      }
       propertiesDict.set(property, ourProperty);
     }
 
@@ -194,6 +200,52 @@ export function fromSdkModelType(
 
   function fromSdkModelProperty(
     sdkContext: CSharpEmitterContext,
+    property: SdkModelPropertyType,
+    literalTypeContext: LiteralTypeContext,
+  ): InputModelProperty | undefined {
+    switch (property.kind) {
+      // TO-DO: Handle other kinds of properties
+      case "property":
+        return fromSdkBodyModelProperty(sdkContext, property, literalTypeContext);
+      case "header":
+      case "query":
+      case "path":
+        return fromNonBodySdkModelProperty(sdkContext, property, literalTypeContext);
+      default:
+        return undefined;
+    }
+  }
+
+  function fromNonBodySdkModelProperty(
+    sdkContext: CSharpEmitterContext,
+    property: SdkHeaderParameter | SdkQueryParameter | SdkPathParameter,
+    literalTypeContext: LiteralTypeContext,
+  ): InputModelProperty {
+    const targetType = property.type;
+
+    const serializedName = property.serializedName;
+    literalTypeContext.propertyName = serializedName;
+
+    const modelHeaderProperty: InputModelProperty = {
+      kind: getModelPropertyKind(property),
+      name: property.name,
+      serializedName: serializedName,
+      summary: property.summary,
+      doc: property.doc,
+      type: fromSdkType(sdkContext, targetType, literalTypeContext),
+      optional: property.optional,
+      readOnly: isReadOnly(property),
+      decorators: property.decorators,
+      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+      discriminator: false,
+      flatten: false,
+    };
+
+    return modelHeaderProperty;
+  }
+
+  function fromSdkBodyModelProperty(
+    sdkContext: CSharpEmitterContext,
     property: SdkBodyModelPropertyType,
     literalTypeContext: LiteralTypeContext,
   ): InputModelProperty {
@@ -207,7 +259,7 @@ export function fromSdkModelType(
     literalTypeContext.propertyName = serializedName;
 
     const modelProperty: InputModelProperty = {
-      kind: property.kind,
+      kind: getModelPropertyKind(property),
       name: property.name,
       serializedName: serializedName,
       summary: property.summary,
@@ -456,4 +508,30 @@ function fromSdkEndpointType(): InputPrimitiveType {
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",
   };
+}
+
+function isReadOnly(prop: SdkModelPropertyType): boolean {
+  if (prop.kind === "property") {
+    return tcgcIsReadOnly(prop);
+  }
+
+  if (prop.visibility?.includes(Visibility.Read) && prop.visibility.length === 1) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function getModelPropertyKind(prop: SdkModelPropertyType): InputModelPropertyKind {
+  // TO-DO: Handle other kinds of properties
+  switch (prop.kind) {
+    case "header":
+      return InputModelPropertyKind.Header;
+    case "query":
+      return InputModelPropertyKind.Query;
+    case "path":
+      return InputModelPropertyKind.Path;
+    default:
+      return InputModelPropertyKind.Property;
+  }
 }

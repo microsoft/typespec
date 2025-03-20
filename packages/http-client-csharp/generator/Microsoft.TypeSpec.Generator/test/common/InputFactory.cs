@@ -82,7 +82,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isContentType = false,
             bool isApiVersion = false,
             bool explode = false,
-            string? delimiter = null)
+            string? delimiter = null,
+            InputModelType? sourceModel = null)
         {
             return new InputParameter(
                 name,
@@ -101,7 +102,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 false,
                 explode,
                 delimiter,
-                null);
+                null,
+                sourceModel);
         }
 
         public static InputNamespace Namespace(
@@ -150,16 +152,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isDiscriminator = false,
             string? wireName = null,
             string? summary = null,
-            string? doc = null)
+            string? serializedName = null,
+            string? doc = null,
+            InputModelPropertyKind kind = InputModelPropertyKind.Property)
         {
             return new InputModelProperty(
                 name,
+                kind,
                 summary,
                 doc ?? $"Description for {name}",
                 type,
                 isRequired,
                 isReadOnly,
                 isDiscriminator,
+                serializedName,
                 new(json: new(wireName ?? name.ToVariableName())));
         }
 
@@ -261,14 +267,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
         }
 
-        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null)
+        public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null, IReadOnlyList<InputOperationResponseHeader>? headers = null)
         {
             return new InputOperationResponse(
                 statusCodes is null ? [200] : [.. statusCodes],
                 bodytype,
-                [],
+                headers ?? [],
                 false,
                 ["application/json"]);
+        }
+
+        public static InputOperationResponseHeader OperationResponseHeader(
+            string? name = null,
+            string? nameInResponse = null,
+            string? summary = null,
+            string? doc = null,
+            InputType? type = null)
+        {
+            return new InputOperationResponseHeader(
+                name ?? string.Empty,
+                nameInResponse ?? string.Empty,
+                summary,
+                doc,
+                type ?? InputPrimitiveType.String);
         }
 
         public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null, string? crossLanguageDefinitionId = null)
