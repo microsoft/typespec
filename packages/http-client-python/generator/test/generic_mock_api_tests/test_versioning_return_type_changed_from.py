@@ -13,6 +13,6 @@ def client():
         yield client
 
 
-@pytest.mark.skip(reason="skip for now")
+
 def test(client: ReturnTypeChangedFromClient):
     assert client.test("test") == "test"

@@ -13,13 +13,13 @@ def client():
         yield client
 
 
-@pytest.mark.skip(reason="skip for now")
+
 def test_known_value(client):
     assert client.string.get_known_value() == models.DaysOfWeekExtensibleEnum.MONDAY
     client.string.put_known_value(models.DaysOfWeekExtensibleEnum.MONDAY)
 
 
-@pytest.mark.skip(reason="skip for now")
+
 def test_unknown_value(client):
     assert client.string.get_unknown_value() == "Weekend"
     client.string.put_unknown_value("Weekend")

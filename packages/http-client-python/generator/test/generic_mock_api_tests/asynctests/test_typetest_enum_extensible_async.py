@@ -14,14 +14,14 @@ async def client():
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="skip for now")
+
 async def test_known_value(client):
     assert await client.string.get_known_value() == models.DaysOfWeekExtensibleEnum.MONDAY
     await client.string.put_known_value(models.DaysOfWeekExtensibleEnum.MONDAY)
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="skip for now")
+
 async def test_unknown_value(client):
     assert await client.string.get_unknown_value() == "Weekend"
     await client.string.put_unknown_value("Weekend")

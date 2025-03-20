@@ -72,7 +72,7 @@
     "tsx": "~4.19.1"
   },
   "devDependencies": {
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.9",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.10",
     "@azure-tools/typespec-autorest": "~0.53.0",
     "@azure-tools/typespec-azure-core": "~0.53.0",
     "@azure-tools/typespec-azure-resource-manager": "~0.53.0",
@@ -83,7 +83,7 @@
     "@types/semver": "7.5.8",
     "@typespec/compiler": "~0.67.0",
     "@typespec/http": "~0.67.0",
-    "@typespec/http-specs": "0.1.0-alpha.13",
+    "@typespec/http-specs": "0.1.0-alpha.15-dev.3",
     "@typespec/openapi": "~0.67.0",
     "@typespec/rest": "~0.67.0",
     "@typespec/versioning": "~0.67.0",

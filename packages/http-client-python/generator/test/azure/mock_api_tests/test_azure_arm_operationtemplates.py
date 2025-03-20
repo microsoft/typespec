@@ -23,7 +23,7 @@ def client(credential, authentication_policy):
         yield client
 
 
-@pytest.mark.skip(reason="skip for now")
+
 def test_check_name_availability_check_global(client):
     result = client.check_name_availability.check_global(
         body=models.CheckNameAvailabilityRequest(name="checkName", type="Microsoft.Web/site")
@@ -33,7 +33,7 @@ def test_check_name_availability_check_global(client):
     assert result.message == "Hostname 'checkName' already exists. Please select a different name."
 
 
-@pytest.mark.skip(reason="skip for now")
+
 def test_check_name_availability_check_local(client):
     result = client.check_name_availability.check_local(
         location="westus",
@@ -44,13 +44,13 @@ def test_check_name_availability_check_local(client):
     assert result.message == "Hostname 'checkName' already exists. Please select a different name."
 
 
-@pytest.mark.skip(reason="skip for now")
+
 def test_operations_list(client):
     result = client.operations.list()
     assert result
 
 
-@pytest.mark.skip(reason="skip for now")
+
 def test_lro_begin_create_or_replace(client):
     result = client.lro.begin_create_or_replace(
         resource_group_name=RESOURCE_GROUP_NAME,
@@ -70,7 +70,7 @@ def test_lro_begin_create_or_replace(client):
     assert result.system_data.created_by == "AzureSDK"
 
 
-@pytest.mark.skip(reason="skip for now")
+
 def test_lro_begin_export(client):
     client.lro.begin_export(
         resource_group_name=RESOURCE_GROUP_NAME,
@@ -79,7 +79,7 @@ def test_lro_begin_export(client):
     ).result()
 
 
-@pytest.mark.skip(reason="skip for now")
+
 def test_lro_begin_delete(client):
     client.lro.begin_delete(
         resource_group_name=RESOURCE_GROUP_NAME,
