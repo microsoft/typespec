@@ -282,6 +282,7 @@ export class CodeModelBuilder {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@override"],
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
+    this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // java namespace
     if (this.options.namespace) {
@@ -295,11 +296,7 @@ export class CodeModelBuilder {
       // otherwise, the clientNamespace from SdkType will be used.
       this.baseJavaNamespace = this.getBaseJavaNamespace();
     }
-
     this.codeModel.language.java!.namespace = this.baseJavaNamespace;
-
-    // potential problem https://github.com/Azure/typespec-azure/issues/1675
-    this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // auth
     // TODO: it is not very likely, but different client could have different auth
