@@ -37,27 +37,33 @@ All the following options will yield the same string value `"one\ntwo"`.
 ```typespec
 model MultiLineContainer {
   prop1: """
-one
-two
-""")
+    one
+    two
+    """;
 
   // Lines are indented at the same level as closing """"
   prop2: """
-  one
-  two
-  """
+    one
+    two
+    """;
 
   prop3: """
-      one
-      two
-      """
+    one
+    two
+    """;
+}
+```
+
+Please note all lines in triple-quoted string lines must have the same indentation as closing triple quotes. The following code will be flagged with an error.
+
+```typespec
 
   // lines are less indented as the closing """"
   prop4: """
     one
     two
-      """
-}
+      """;
+      ^-- error triple-quote-indent All lines in triple-quoted string lines must have the same indentation as closing triple quotes.
 ```
 
 ## String template literal

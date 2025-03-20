@@ -1,5 +1,12 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.14
+
+### Bug Fixes
+
+- [#6521](https://github.com/microsoft/typespec/pull/6521) Fix response scenarios
+
+
 ## 0.1.0-alpha.13
 
 ### Breaking Changes
