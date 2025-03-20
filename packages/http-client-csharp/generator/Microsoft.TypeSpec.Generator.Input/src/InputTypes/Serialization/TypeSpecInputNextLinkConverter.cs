@@ -8,11 +8,11 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal sealed class TypeSpecNextLinkConverter : JsonConverter<InputNextLink>
+    internal sealed class TypeSpecInputNextLinkConverter : JsonConverter<InputNextLink>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public TypeSpecNextLinkConverter(TypeSpecReferenceHandler referenceHandler)
+        public TypeSpecInputNextLinkConverter(TypeSpecReferenceHandler referenceHandler)
         {
             _referenceHandler = referenceHandler;
         }
@@ -37,9 +37,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadComplexType("Operation", options, ref operation)
-                    || reader.TryReadComplexType("ResponseSegments", options, ref responseSegments)
-                    || reader.TryReadComplexType("ResponseLocation", options, ref responseLocation);
+                var isKnownProperty = reader.TryReadComplexType("operation", options, ref operation)
+                    || reader.TryReadComplexType("responseSegments", options, ref responseSegments)
+                    || reader.TryReadComplexType("responseLocation", options, ref responseLocation);
 
                 if (!isKnownProperty)
                 {
