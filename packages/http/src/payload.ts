@@ -526,25 +526,6 @@ function resolvePart(
   return diagnostics.wrap(undefined);
 }
 
-function getFilePart(
-  name: string | undefined,
-  file: HttpFileModel,
-): DiagnosticResult<HttpOperationPart | undefined> {
-  const [fileBody, diagnostics] = getFileBody(file);
-
-  return [
-    {
-      multi: false,
-      name,
-      body: fileBody,
-      filename: file.filename,
-      optional: false,
-      headers: [],
-    },
-    diagnostics,
-  ];
-}
-
 function getFileBody(file: HttpFileModel): DiagnosticResult<HttpOperationFileBody> {
   const [contentTypes, diagnostics] = getContentTypes(file.contentType);
 
