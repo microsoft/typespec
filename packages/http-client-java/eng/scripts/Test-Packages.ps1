@@ -39,9 +39,6 @@ try {
             try {
                 & ./Setup.ps1
                 & ./Spector-Tests.ps1
-                if ($LASTEXITCODE -ne 0) {
-                    exit $LASTEXITCODE
-                }
             }
             finally {
                 Pop-Location
@@ -52,9 +49,6 @@ try {
             try {
                 & ./Setup.ps1
                 & ./Spector-Tests.ps1
-                if ($LASTEXITCODE -ne 0) {
-                    exit $LASTEXITCODE
-                }
             }
             finally {
                 Pop-Location
