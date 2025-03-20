@@ -40,6 +40,9 @@ interface String {
   @get
   @route("/known-value")
   getKnownValue(): {
+    @header
+    contentType: "application/json";
+
     @body body: DaysOfWeekExtensibleEnum;
   };
 
@@ -48,6 +51,9 @@ interface String {
   @get
   @route("/unknown-value")
   getUnknownValue(): {
+    @header
+    contentType: "application/json";
+
     @body body: DaysOfWeekExtensibleEnum;
   };
 
@@ -55,11 +61,21 @@ interface String {
   @scenarioDoc("Expect to send a known value. Mock api expect to receive 'Monday'")
   @put
   @route("/known-value")
-  putKnownValue(@body body: DaysOfWeekExtensibleEnum): void;
+  putKnownValue(
+    @header
+    contentType: "application/json",
+
+    @body body: DaysOfWeekExtensibleEnum,
+  ): void;
 
   @scenario
   @scenarioDoc("Expect to handle an unknown value. Mock api expect to receive 'Weekend'")
   @put
   @route("/unknown-value")
-  putUnknownValue(@body body: DaysOfWeekExtensibleEnum): void;
+  putUnknownValue(
+    @header
+    contentType: "application/json",
+
+    @body body: DaysOfWeekExtensibleEnum,
+  ): void;
 }

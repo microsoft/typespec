@@ -4,11 +4,12 @@ import {
   CompletionList,
   CompletionParams,
   MarkupKind,
+  Range,
   TextEdit,
 } from "vscode-languageserver";
 import { getSymNode } from "../core/binder.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
-import { compilerAssert } from "../core/diagnostics.js";
+import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getFirstAncestor, positionInRange } from "../core/parser.js";
 import {
@@ -31,6 +32,7 @@ import {
   Type,
   TypeSpecScriptNode,
 } from "../core/types.js";
+
 import { PackageJson } from "../types/package-json.js";
 import { findProjectRoot, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
@@ -411,20 +413,24 @@ function addIdentifierCompletion(
   for (const [key, { sym, label, suffix }] of result) {
     let kind: CompletionItemKind;
     let deprecated = false;
-    const node = getSymNode(sym);
-    const type = sym.type ?? program.checker.getTypeForNode(node);
+    const symNode = getSymNode(sym);
+    const type = sym.type ?? program.checker.getTypeForNode(symNode);
     if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
       kind = CompletionItemKind.Function;
-    } else if (sym.flags & SymbolFlags.Namespace && node.kind !== SyntaxKind.NamespaceStatement) {
+    } else if (
+      sym.flags & SymbolFlags.Namespace &&
+      symNode.kind !== SyntaxKind.NamespaceStatement
+    ) {
       kind = CompletionItemKind.Module;
-    } else if (node?.kind === SyntaxKind.AliasStatement) {
+    } else if (symNode?.kind === SyntaxKind.AliasStatement) {
       kind = CompletionItemKind.Variable;
-      deprecated = getDeprecationDetails(program, node) !== undefined;
+      deprecated = getDeprecationDetails(program, symNode) !== undefined;
     } else {
       kind = getCompletionItemKind(program, type);
       deprecated = getDeprecationDetails(program, type) !== undefined;
     }
     const documentation = getSymbolDetails(program, sym);
+
     const item: CompletionItem = {
       label: label ?? key,
       documentation: documentation
@@ -434,8 +440,20 @@ function addIdentifierCompletion(
           }
         : undefined,
       kind,
-      insertText: printIdentifier(key) + (suffix ?? ""),
     };
+
+    if (sym.name.startsWith("$")) {
+      const targetNode = getSourceLocation(node);
+      const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
+      item.textEdit = TextEdit.replace(
+        // Specifying replacement in the current location can avoid the problem of $ duplication
+        Range.create(lineAndChar, lineAndChar),
+        printIdentifier(key) + (suffix ?? ""),
+      );
+    } else {
+      item.insertText = printIdentifier(key) + (suffix ?? "");
+    }
+
     if (deprecated) {
       // hide these deprecated items to discourage the usage
       // not using CompletionItemTag.Deprecated because the strike-through is a little confusing

@@ -65,6 +65,11 @@ const otherVideos = videoData.filter((video) => !video.featured);
   .video-box {
     padding: 10px; /* Reduced padding for spacing */
     margin: 10px; /* Consistent margin */
-    /* Remove fixed height */
+  }
+
+  @media only screen and (max-width: 728px) {
+    .video-grid {
+      grid-template-columns: 1fr; /* Single column layout for small screens */
+    }
   }
 </style>

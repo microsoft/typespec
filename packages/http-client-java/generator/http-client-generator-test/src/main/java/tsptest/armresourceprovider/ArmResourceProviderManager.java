@@ -36,11 +36,15 @@ import tsptest.armresourceprovider.implementation.ArmResourceProviderClientBuild
 import tsptest.armresourceprovider.implementation.ChildExtensionResourceInterfacesImpl;
 import tsptest.armresourceprovider.implementation.ChildResourcesInterfacesImpl;
 import tsptest.armresourceprovider.implementation.CustomTemplateResourceInterfacesImpl;
+import tsptest.armresourceprovider.implementation.ManagedMaintenanceWindowStatusOperationsImpl;
+import tsptest.armresourceprovider.implementation.ModelInterfaceSameNamesImpl;
 import tsptest.armresourceprovider.implementation.OperationsImpl;
 import tsptest.armresourceprovider.implementation.TopLevelArmResourceInterfacesImpl;
 import tsptest.armresourceprovider.models.ChildExtensionResourceInterfaces;
 import tsptest.armresourceprovider.models.ChildResourcesInterfaces;
 import tsptest.armresourceprovider.models.CustomTemplateResourceInterfaces;
+import tsptest.armresourceprovider.models.ManagedMaintenanceWindowStatusOperations;
+import tsptest.armresourceprovider.models.ModelInterfaceSameNames;
 import tsptest.armresourceprovider.models.Operations;
 import tsptest.armresourceprovider.models.TopLevelArmResourceInterfaces;
 
@@ -58,6 +62,10 @@ public final class ArmResourceProviderManager {
     private Operations operations;
 
     private ChildExtensionResourceInterfaces childExtensionResourceInterfaces;
+
+    private ManagedMaintenanceWindowStatusOperations managedMaintenanceWindowStatusOperations;
+
+    private ModelInterfaceSameNames modelInterfaceSameNames;
 
     private final ArmResourceProviderClient clientObject;
 
@@ -336,6 +344,32 @@ public final class ArmResourceProviderManager {
                 = new ChildExtensionResourceInterfacesImpl(clientObject.getChildExtensionResourceInterfaces(), this);
         }
         return childExtensionResourceInterfaces;
+    }
+
+    /**
+     * Gets the resource collection API of ManagedMaintenanceWindowStatusOperations.
+     * 
+     * @return Resource collection API of ManagedMaintenanceWindowStatusOperations.
+     */
+    public ManagedMaintenanceWindowStatusOperations managedMaintenanceWindowStatusOperations() {
+        if (this.managedMaintenanceWindowStatusOperations == null) {
+            this.managedMaintenanceWindowStatusOperations = new ManagedMaintenanceWindowStatusOperationsImpl(
+                clientObject.getManagedMaintenanceWindowStatusOperations(), this);
+        }
+        return managedMaintenanceWindowStatusOperations;
+    }
+
+    /**
+     * Gets the resource collection API of ModelInterfaceSameNames.
+     * 
+     * @return Resource collection API of ModelInterfaceSameNames.
+     */
+    public ModelInterfaceSameNames modelInterfaceSameNames() {
+        if (this.modelInterfaceSameNames == null) {
+            this.modelInterfaceSameNames
+                = new ModelInterfaceSameNamesImpl(clientObject.getModelInterfaceSameNames(), this);
+        }
+        return modelInterfaceSameNames;
     }
 
     /**
