@@ -63,7 +63,7 @@ enum Versions {
     body: int32,
   }
 )
-op test(@body body: string): {
+op test(@header contentType: "application/json", @body body: string): {
   @header
   contentType: "application/json";
 
