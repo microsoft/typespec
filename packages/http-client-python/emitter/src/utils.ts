@@ -1,4 +1,5 @@
 import {
+  InitializedByFlags,
   SdkHeaderParameter,
   SdkHttpParameter,
   SdkMethod,
@@ -7,6 +8,7 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceOperation,
+  SdkServiceResponseHeader,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName } from "@typespec/compiler";
@@ -150,6 +152,7 @@ type ParamBase = {
   inOverload: boolean;
   isApiVersion: boolean;
   type: Record<string, any>;
+  isContinuationToken: boolean;
 };
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
@@ -160,15 +163,46 @@ export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
   // if type is added in the first version of the client, we do not need to add the versioning info
   if (
     type.apiVersions[0] ===
-    context.sdkPackage.clients.find((c) => c.initialization.access === "public")?.apiVersions[0]
+    context.sdkPackage.clients.find(
+      (c) => c.clientInitialization.initializedBy | InitializedByFlags.Individually,
+    )?.apiVersions[0]
   )
     return undefined;
   return type.apiVersions[0];
 }
 
+export function isContinuationToken<TServiceOperation extends SdkServiceOperation>(
+  parameter: SdkParameter | SdkHttpParameter | SdkServiceResponseHeader,
+  method?: SdkServiceMethod<TServiceOperation>,
+  input: boolean = true,
+): boolean {
+  const parameterSegments =
+    method && method.kind === "paging"
+      ? method.pagingMetadata.continuationTokenParameterSegments
+      : undefined;
+  const responseSegments =
+    method && method.kind === "paging"
+      ? method.pagingMetadata.continuationTokenResponseSegments
+      : undefined;
+  if (!parameterSegments || !responseSegments) return false;
+  if (input) {
+    return Boolean(
+      parameterSegments &&
+        parameterSegments.length > 0 &&
+        (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body") &&
+        parameterSegments.at(-1) === parameter.correspondingMethodParams.at(-1),
+    );
+  }
+
+  return Boolean(
+    responseSegments && responseSegments.length > 0 && responseSegments.at(-1) === parameter,
+  );
+}
+
 export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   parameter: SdkParameter | SdkHttpParameter,
+  method?: SdkServiceMethod<TServiceOperation>,
 ): ParamBase {
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
@@ -187,6 +221,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     clientName: camelToSnakeCase(parameter.name),
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
+    isContinuationToken: isContinuationToken(parameter, method),
     type,
   };
 }

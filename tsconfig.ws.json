@@ -1,5 +1,6 @@
 {
   "references": [
+    { "path": "packages/asset-emitter/tsconfig.json" },
     { "path": "packages/compiler/tsconfig.json" },
     { "path": "packages/versioning/tsconfig.json" },
     { "path": "packages/http/tsconfig.json" },
@@ -7,6 +8,9 @@
     { "path": "packages/library-linter/tsconfig.json" },
     { "path": "packages/eslint-plugin-typespec/tsconfig.json" },
     { "path": "packages/openapi/tsconfig.json" },
+    { "path": "packages/sse/tsconfig.json" },
+    { "path": "packages/events/tsconfig.json" },
+    { "path": "packages/streams/tsconfig.json" },
     { "path": "packages/openapi3/tsconfig.json" },
     { "path": "packages/internal-build-utils/tsconfig.json" },
     { "path": "packages/bundle-uploader/tsconfig.json" },

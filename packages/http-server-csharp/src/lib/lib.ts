@@ -58,6 +58,9 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
 
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/http-server-csharp",
+  capabilities: {
+    dryRun: true,
+  },
   diagnostics: {
     "invalid-identifier": {
       severity: "warning",

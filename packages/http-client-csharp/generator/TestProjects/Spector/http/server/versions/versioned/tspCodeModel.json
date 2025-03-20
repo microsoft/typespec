@@ -1,11 +1,11 @@
 {
  "$id": "1",
- "Name": "Server.Versions.Versioned",
- "ApiVersions": [
+ "name": "Server.Versions.Versioned",
+ "apiVersions": [
   "2021-01-01-preview",
   "2022-12-01-preview"
  ],
- "Enums": [
+ "enums": [
   {
    "$id": "2",
    "kind": "enum",
@@ -64,8 +64,8 @@
    "decorators": []
   }
  ],
- "Models": [],
- "Clients": [
+ "models": [],
+ "clients": [
   {
    "$id": "8",
    "kind": "client",
@@ -75,222 +75,221 @@
    "parameters": [
     {
      "$id": "9",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Need to be set as 'http://localhost:3000' in client.",
-     "Type": {
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Need to be set as 'http://localhost:3000' in client.",
+     "type": {
       "$id": "10",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
     }
    ],
    "operations": [
     {
      "$id": "11",
-     "Name": "withoutApiVersion",
-     "ResourceName": "Versioned",
-     "Accessibility": "public",
-     "Parameters": [],
-     "Responses": [
+     "name": "withoutApiVersion",
+     "resourceName": "Versioned",
+     "accessibility": "public",
+     "parameters": [],
+     "responses": [
       {
        "$id": "12",
-       "StatusCodes": [
+       "statusCodes": [
         200
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
-     "Uri": "{endpoint}",
-     "Path": "/server/versions/versioned/without-api-version",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Server.Versions.Versioned.withoutApiVersion",
-     "Decorators": []
+     "httpMethod": "HEAD",
+     "uri": "{endpoint}",
+     "path": "/server/versions/versioned/without-api-version",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Server.Versions.Versioned.withoutApiVersion",
+     "decorators": []
     },
     {
      "$id": "13",
-     "Name": "withQueryApiVersion",
-     "ResourceName": "Versioned",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "withQueryApiVersion",
+     "resourceName": "Versioned",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "14",
-       "Name": "apiVersion",
-       "NameInRequest": "api-version",
-       "Type": {
+       "name": "apiVersion",
+       "nameInRequest": "api-version",
+       "type": {
         "$id": "15",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Location": "Query",
-       "IsApiVersion": true,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Client",
-       "DefaultValue": {
+       "location": "Query",
+       "isApiVersion": true,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Client",
+       "defaultValue": {
         "$id": "16",
-        "Type": {
+        "type": {
          "$id": "17",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
-        "Value": "2022-12-01-preview"
+        "value": "2022-12-01-preview"
        },
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "18",
-       "StatusCodes": [
+       "statusCodes": [
         200
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
-     "Uri": "{endpoint}",
-     "Path": "/server/versions/versioned/with-query-api-version",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Server.Versions.Versioned.withQueryApiVersion",
-     "Decorators": []
+     "httpMethod": "HEAD",
+     "uri": "{endpoint}",
+     "path": "/server/versions/versioned/with-query-api-version",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Server.Versions.Versioned.withQueryApiVersion",
+     "decorators": []
     },
     {
      "$id": "19",
-     "Name": "withPathApiVersion",
-     "ResourceName": "Versioned",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "withPathApiVersion",
+     "resourceName": "Versioned",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "20",
-       "Name": "apiVersion",
-       "NameInRequest": "apiVersion",
-       "Type": {
+       "name": "apiVersion",
+       "nameInRequest": "apiVersion",
+       "type": {
         "$id": "21",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Location": "Path",
-       "IsApiVersion": true,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Client",
-       "DefaultValue": {
+       "location": "Path",
+       "isApiVersion": true,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Client",
+       "defaultValue": {
         "$id": "22",
-        "Type": {
+        "type": {
          "$id": "23",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
-        "Value": "2022-12-01-preview"
+        "value": "2022-12-01-preview"
        },
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "24",
-       "StatusCodes": [
+       "statusCodes": [
         200
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
-     "Uri": "{endpoint}",
-     "Path": "/server/versions/versioned/with-path-api-version/{apiVersion}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Server.Versions.Versioned.withPathApiVersion",
-     "Decorators": []
+     "httpMethod": "HEAD",
+     "uri": "{endpoint}",
+     "path": "/server/versions/versioned/with-path-api-version/{apiVersion}",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Server.Versions.Versioned.withPathApiVersion",
+     "decorators": []
     },
     {
      "$id": "25",
-     "Name": "withQueryOldApiVersion",
-     "ResourceName": "Versioned",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "withQueryOldApiVersion",
+     "resourceName": "Versioned",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "26",
-       "Name": "apiVersion",
-       "NameInRequest": "api-version",
-       "Type": {
+       "name": "apiVersion",
+       "nameInRequest": "api-version",
+       "type": {
         "$id": "27",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Location": "Query",
-       "IsApiVersion": true,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Client",
-       "DefaultValue": {
+       "location": "Query",
+       "isApiVersion": true,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Client",
+       "defaultValue": {
         "$id": "28",
-        "Type": {
+        "type": {
          "$id": "29",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
         },
-        "Value": "2022-12-01-preview"
+        "value": "2022-12-01-preview"
        },
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "30",
-       "StatusCodes": [
+       "statusCodes": [
         200
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
-     "Uri": "{endpoint}",
-     "Path": "/server/versions/versioned/with-query-old-api-version",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Server.Versions.Versioned.withQueryOldApiVersion",
-     "Decorators": []
+     "httpMethod": "HEAD",
+     "uri": "{endpoint}",
+     "path": "/server/versions/versioned/with-query-old-api-version",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Server.Versions.Versioned.withQueryOldApiVersion",
+     "decorators": []
     }
    ],
    "apiVersions": [

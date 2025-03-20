@@ -214,20 +214,6 @@ export type IntrinsicScalarName =
   | "boolean"
   | "url";
 
-/**
- * Valid keys when looking up meta members for a particular type.
- * Array is a special case because it doesn't have a unique type, but does
- * carry unique meta-members.
- */
-export type MetaMemberKey = Type["kind"] | "Array";
-
-/**
- * A table to ease lookup of meta member interfaces during identifier resolution.
- * Only `type` exists today, but `value` will be added in the future.
- */
-export interface MetaMembersTable {
-  type: Partial<Record<MetaMemberKey, Sym>>;
-}
 export type NeverIndexer = {
   readonly key: NeverType;
   readonly value: undefined;
@@ -1068,6 +1054,7 @@ export interface BaseNode extends TextRange {
   /**
    * Could be undefined but making this optional creates a lot of noise. In practice,
    * you will likely only access symbol in cases where you know the node has a symbol.
+   * @internal
    */
   readonly symbol: Sym;
   /** Unique id across the process used to look up NodeLinks */
@@ -1797,6 +1784,7 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
   readonly esmExports: any;
 
   /* Any namespaces declared by decorators. */
+  /** @internal */
   readonly namespaceSymbols: Sym[];
 }
 
@@ -2018,12 +2006,6 @@ export interface DeprecatedDirective extends DirectiveBase {
   message: string;
 }
 
-export interface Dirent {
-  isFile(): boolean;
-  name: string;
-  isDirectory(): boolean;
-}
-
 export interface RmOptions {
   /**
    * If `true`, perform a recursive directory removal. In
@@ -2241,6 +2223,11 @@ export interface StateDef {
   readonly description?: string;
 }
 
+export interface TypeSpecLibraryCapabilities {
+  /** Only applicable for emitters. Specify that this emitter will respect the dryRun flag and run, report diagnostic but not write any output.  */
+  readonly dryRun?: boolean;
+}
+
 export interface TypeSpecLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
@@ -2250,6 +2237,10 @@ export interface TypeSpecLibraryDef<
    * Library name. MUST match package.json name.
    */
   readonly name: string;
+
+  /** Optional registration of capabilities the library/emitter provides */
+  readonly capabilities?: TypeSpecLibraryCapabilities;
+
   /**
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
    */

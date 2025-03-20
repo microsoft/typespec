@@ -16,6 +16,11 @@ export function SimplePartTransform(props: SimplePartTransformProps) {
   const partName = ts.ValueExpression({ jsValue: props.part.name });
   const partContentType = props.part.body.contentTypes[0] ?? "application/json";
   const partRef = getPartRef(props.itemRef, applicationName);
+  let bodyRef = ay.code`${partRef}`;
+
+  if (props.part.body.property) {
+    bodyRef = ay.code`${partRef}.${props.part.body.property.name}`;
+  }
 
   if (!partContentType.startsWith("application/json")) {
     reportDiagnostic($.program, {
@@ -27,12 +32,13 @@ export function SimplePartTransform(props: SimplePartTransformProps) {
 
   return (
     <ts.ObjectExpression>
-      <ts.ObjectProperty name="name" jsValue={partName} />,
-      <ts.ObjectProperty
-        name="body"
-        value={<JsonTransform itemRef={partRef} target="transport" type={props.part.body.type} />}
-      />
-      ,
+      <ay.List comma line>
+        <ts.ObjectProperty name="name" jsValue={partName} />
+        <ts.ObjectProperty
+          name="body"
+          value={<JsonTransform itemRef={bodyRef} target="transport" type={props.part.body.type} />}
+        />
+      </ay.List>
     </ts.ObjectExpression>
   );
 }

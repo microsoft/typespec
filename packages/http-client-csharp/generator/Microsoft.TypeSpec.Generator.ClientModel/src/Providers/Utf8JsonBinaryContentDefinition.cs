@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 enclosingType: this);
             _contentField = new FieldProvider(
                 modifiers: FieldModifiers.Private | FieldModifiers.ReadOnly,
-                type: ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType,
+                type: ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType,
                 name: "_content",
                 enclosingType: this);
             _writerProperty = new PropertyProvider(
@@ -54,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override CSharpType? GetBaseType() => ScmCodeModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType;
+        protected override CSharpType? GetBaseType() => ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
         protected override FieldProvider[] BuildFields()
         {

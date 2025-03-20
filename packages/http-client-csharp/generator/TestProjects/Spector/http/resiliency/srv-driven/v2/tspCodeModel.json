@@ -1,11 +1,11 @@
 {
  "$id": "1",
- "Name": "Resiliency.SrvDriven.V2",
- "ApiVersions": [
+ "name": "Resiliency.SrvDriven.V2",
+ "apiVersions": [
   "v1",
   "v2"
  ],
- "Enums": [
+ "enums": [
   {
    "$id": "2",
    "kind": "enum",
@@ -64,8 +64,8 @@
    "decorators": []
   }
  ],
- "Models": [],
- "Clients": [
+ "models": [],
+ "clients": [
   {
    "$id": "8",
    "kind": "client",
@@ -75,297 +75,294 @@
    "parameters": [
     {
      "$id": "9",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Need to be set as 'http://localhost:3000' in client.",
-     "Type": {
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Need to be set as 'http://localhost:3000' in client.",
+     "type": {
       "$id": "10",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
     },
     {
      "$id": "11",
-     "Name": "serviceDeploymentVersion",
-     "NameInRequest": "serviceDeploymentVersion",
-     "Doc": "Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'.",
-     "Type": {
+     "name": "serviceDeploymentVersion",
+     "nameInRequest": "serviceDeploymentVersion",
+     "doc": "Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'.",
+     "type": {
       "$id": "12",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
       "decorators": []
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": false,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": false,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
     },
     {
      "$id": "13",
-     "Name": "apiVersion",
-     "NameInRequest": "apiVersion",
-     "Doc": "Pass in either 'v1' or 'v2'. This represents the API version of a service.",
-     "Type": {
+     "name": "apiVersion",
+     "nameInRequest": "apiVersion",
+     "doc": "Pass in either 'v1' or 'v2'. This represents the API version of a service.",
+     "type": {
       "$id": "14",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
       "decorators": []
      },
-     "Location": "Uri",
-     "IsApiVersion": true,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": false,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
+     "location": "Uri",
+     "isApiVersion": true,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": false,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
       "$id": "15",
-      "Type": {
+      "type": {
        "$id": "16",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "v2"
+      "value": "v2"
      }
     }
    ],
    "operations": [
     {
      "$id": "17",
-     "Name": "addOperation",
-     "ResourceName": "ServiceDriven",
-     "Doc": "Added operation",
-     "Accessibility": "public",
-     "Parameters": [],
-     "Responses": [
+     "name": "addOperation",
+     "resourceName": "ServiceDriven",
+     "doc": "Added operation",
+     "accessibility": "public",
+     "parameters": [],
+     "responses": [
       {
        "$id": "18",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "DELETE",
-     "Uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
-     "Path": "/add-operation",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Resiliency.ServiceDriven.addOperation",
-     "Decorators": []
+     "httpMethod": "DELETE",
+     "uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
+     "path": "/add-operation",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Resiliency.ServiceDriven.addOperation",
+     "decorators": []
     },
     {
      "$id": "19",
-     "Name": "fromNone",
-     "ResourceName": "AddOptionalParam",
-     "Doc": "Test that grew up from accepting no parameters to an optional input parameter",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "fromNone",
+     "resourceName": "AddOptionalParam",
+     "doc": "Test that grew up from accepting no parameters to an optional input parameter",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "20",
-       "Name": "new-parameter",
-       "NameInRequest": "new-parameter",
-       "Doc": "I'm a new input optional parameter",
-       "Type": {
+       "name": "new-parameter",
+       "nameInRequest": "new-parameter",
+       "doc": "I'm a new input optional parameter",
+       "type": {
         "$id": "21",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": false,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Query",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "22",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
-     "Uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
-     "Path": "/add-optional-param/from-none",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Resiliency.ServiceDriven.AddOptionalParam.fromNone",
-     "Decorators": []
+     "httpMethod": "HEAD",
+     "uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
+     "path": "/add-optional-param/from-none",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Resiliency.ServiceDriven.AddOptionalParam.fromNone",
+     "decorators": []
     },
     {
      "$id": "23",
-     "Name": "fromOneRequired",
-     "ResourceName": "AddOptionalParam",
-     "Doc": "Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter.",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "fromOneRequired",
+     "resourceName": "AddOptionalParam",
+     "doc": "Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter.",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "24",
-       "Name": "parameter",
-       "NameInRequest": "parameter",
-       "Doc": "I am a required parameter",
-       "Type": {
+       "name": "parameter",
+       "nameInRequest": "parameter",
+       "doc": "I am a required parameter",
+       "type": {
         "$id": "25",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Query",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
        "$id": "26",
-       "Name": "new-parameter",
-       "NameInRequest": "new-parameter",
-       "Doc": "I'm a new input optional parameter",
-       "Type": {
+       "name": "new-parameter",
+       "nameInRequest": "new-parameter",
+       "doc": "I'm a new input optional parameter",
+       "type": {
         "$id": "27",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": false,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Query",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "28",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
-     "Path": "/add-optional-param/from-one-required",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Resiliency.ServiceDriven.AddOptionalParam.fromOneRequired",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
+     "path": "/add-optional-param/from-one-required",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Resiliency.ServiceDriven.AddOptionalParam.fromOneRequired",
+     "decorators": []
     },
     {
      "$id": "29",
-     "Name": "fromOneOptional",
-     "ResourceName": "AddOptionalParam",
-     "Doc": "Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters.",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "fromOneOptional",
+     "resourceName": "AddOptionalParam",
+     "doc": "Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters.",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "30",
-       "Name": "parameter",
-       "NameInRequest": "parameter",
-       "Doc": "I am an optional parameter",
-       "Type": {
+       "name": "parameter",
+       "nameInRequest": "parameter",
+       "doc": "I am an optional parameter",
+       "type": {
         "$id": "31",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": false,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Query",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
        "$id": "32",
-       "Name": "new-parameter",
-       "NameInRequest": "new-parameter",
-       "Doc": "I'm a new input optional parameter",
-       "Type": {
+       "name": "new-parameter",
+       "nameInRequest": "new-parameter",
+       "doc": "I'm a new input optional parameter",
+       "type": {
         "$id": "33",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": false,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Query",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": false,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "34",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
-     "Path": "/add-optional-param/from-one-optional",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Resiliency.ServiceDriven.AddOptionalParam.fromOneOptional",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
+     "path": "/add-optional-param/from-one-optional",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Resiliency.ServiceDriven.AddOptionalParam.fromOneOptional",
+     "decorators": []
     }
    ],
    "apiVersions": [

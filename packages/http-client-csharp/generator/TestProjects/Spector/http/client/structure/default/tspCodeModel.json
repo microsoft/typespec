@@ -1,8 +1,8 @@
 {
  "$id": "1",
- "Name": "Client.Structure.Service.Default",
- "ApiVersions": [],
- "Enums": [
+ "name": "Client.Structure.Service.Default",
+ "apiVersions": [],
+ "enums": [
   {
    "$id": "2",
    "kind": "enum",
@@ -109,8 +109,8 @@
    "decorators": []
   }
  ],
- "Models": [],
- "Clients": [
+ "models": [],
+ "clients": [
   {
    "$id": "14",
    "kind": "client",
@@ -120,94 +120,92 @@
    "parameters": [
     {
      "$id": "15",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Need to be set as 'http://localhost:3000' in client.",
-     "Type": {
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Need to be set as 'http://localhost:3000' in client.",
+     "type": {
       "$id": "16",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
     },
     {
      "$id": "17",
-     "Name": "client",
-     "NameInRequest": "client",
-     "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
-     "Type": {
+     "name": "client",
+     "nameInRequest": "client",
+     "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
+     "type": {
       "$ref": "2"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": false,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": false,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
     }
    ],
    "operations": [
     {
      "$id": "18",
-     "Name": "one",
-     "ResourceName": "Service",
-     "Accessibility": "public",
-     "Parameters": [],
-     "Responses": [
+     "name": "one",
+     "resourceName": "Service",
+     "accessibility": "public",
+     "parameters": [],
+     "responses": [
       {
        "$id": "19",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{endpoint}/client/structure/{client}",
-     "Path": "/one",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Client.Structure.Service.one",
-     "Decorators": []
+     "httpMethod": "POST",
+     "uri": "{endpoint}/client/structure/{client}",
+     "path": "/one",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Client.Structure.Service.one",
+     "decorators": []
     },
     {
      "$id": "20",
-     "Name": "two",
-     "ResourceName": "Service",
-     "Accessibility": "public",
-     "Parameters": [],
-     "Responses": [
+     "name": "two",
+     "resourceName": "Service",
+     "accessibility": "public",
+     "parameters": [],
+     "responses": [
       {
        "$id": "21",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{endpoint}/client/structure/{client}",
-     "Path": "/two",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Client.Structure.Service.two",
-     "Decorators": []
+     "httpMethod": "POST",
+     "uri": "{endpoint}/client/structure/{client}",
+     "path": "/two",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Client.Structure.Service.two",
+     "decorators": []
     }
    ],
    "apiVersions": [],
@@ -222,42 +220,40 @@
      "parameters": [
       {
        "$id": "23",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Doc": "Need to be set as 'http://localhost:3000' in client.",
-       "Type": {
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Need to be set as 'http://localhost:3000' in client.",
+       "type": {
         "$id": "24",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
       },
       {
        "$id": "25",
-       "Name": "client",
-       "NameInRequest": "client",
-       "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
-       "Type": {
+       "name": "client",
+       "nameInRequest": "client",
+       "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
+       "type": {
         "$ref": "2"
        },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": false,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": false,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
       }
      ],
      "operations": [],
@@ -276,69 +272,67 @@
        "parameters": [
         {
          "$id": "27",
-         "Name": "endpoint",
-         "NameInRequest": "endpoint",
-         "Doc": "Need to be set as 'http://localhost:3000' in client.",
-         "Type": {
+         "name": "endpoint",
+         "nameInRequest": "endpoint",
+         "doc": "Need to be set as 'http://localhost:3000' in client.",
+         "type": {
           "$id": "28",
           "kind": "url",
           "name": "url",
           "crossLanguageDefinitionId": "TypeSpec.url"
          },
-         "Location": "Uri",
-         "IsApiVersion": false,
-         "IsResourceParameter": false,
-         "IsContentType": false,
-         "IsRequired": true,
-         "IsEndpoint": true,
-         "SkipUrlEncoding": false,
-         "Explode": false,
-         "Kind": "Client"
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": true,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client"
         },
         {
          "$id": "29",
-         "Name": "client",
-         "NameInRequest": "client",
-         "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
-         "Type": {
+         "name": "client",
+         "nameInRequest": "client",
+         "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
+         "type": {
           "$ref": "2"
          },
-         "Location": "Uri",
-         "IsApiVersion": false,
-         "IsResourceParameter": false,
-         "IsContentType": false,
-         "IsRequired": true,
-         "IsEndpoint": false,
-         "SkipUrlEncoding": false,
-         "Explode": false,
-         "Kind": "Client"
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": false,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client"
         }
        ],
        "operations": [
         {
          "$id": "30",
-         "Name": "seven",
-         "ResourceName": "Foo",
-         "Accessibility": "public",
-         "Parameters": [],
-         "Responses": [
+         "name": "seven",
+         "resourceName": "Foo",
+         "accessibility": "public",
+         "parameters": [],
+         "responses": [
           {
            "$id": "31",
-           "StatusCodes": [
+           "statusCodes": [
             204
            ],
-           "Headers": [],
-           "IsErrorResponse": false
+           "headers": [],
+           "isErrorResponse": false
           }
          ],
-         "HttpMethod": "POST",
-         "Uri": "{endpoint}/client/structure/{client}",
-         "Path": "/seven",
-         "BufferResponse": true,
-         "GenerateProtocolMethod": true,
-         "GenerateConvenienceMethod": true,
-         "CrossLanguageDefinitionId": "Client.Structure.Service.Baz.Foo.seven",
-         "Decorators": []
+         "httpMethod": "POST",
+         "uri": "{endpoint}/client/structure/{client}",
+         "path": "/seven",
+         "bufferResponse": true,
+         "generateProtocolMethod": true,
+         "generateConvenienceMethod": true,
+         "crossLanguageDefinitionId": "Client.Structure.Service.Baz.Foo.seven",
+         "decorators": []
         }
        ],
        "crossLanguageDefinitionId": "Client.Structure.Service.Baz.Foo",
@@ -357,69 +351,67 @@
      "parameters": [
       {
        "$id": "33",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Doc": "Need to be set as 'http://localhost:3000' in client.",
-       "Type": {
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Need to be set as 'http://localhost:3000' in client.",
+       "type": {
         "$id": "34",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
       },
       {
        "$id": "35",
-       "Name": "client",
-       "NameInRequest": "client",
-       "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
-       "Type": {
+       "name": "client",
+       "nameInRequest": "client",
+       "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
+       "type": {
         "$ref": "2"
        },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": false,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": false,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
       }
      ],
      "operations": [
       {
        "$id": "36",
-       "Name": "eight",
-       "ResourceName": "Qux",
-       "Accessibility": "public",
-       "Parameters": [],
-       "Responses": [
+       "name": "eight",
+       "resourceName": "Qux",
+       "accessibility": "public",
+       "parameters": [],
+       "responses": [
         {
          "$id": "37",
-         "StatusCodes": [
+         "statusCodes": [
           204
          ],
-         "Headers": [],
-         "IsErrorResponse": false
+         "headers": [],
+         "isErrorResponse": false
         }
        ],
-       "HttpMethod": "POST",
-       "Uri": "{endpoint}/client/structure/{client}",
-       "Path": "/eight",
-       "BufferResponse": true,
-       "GenerateProtocolMethod": true,
-       "GenerateConvenienceMethod": true,
-       "CrossLanguageDefinitionId": "Client.Structure.Service.Qux.eight",
-       "Decorators": []
+       "httpMethod": "POST",
+       "uri": "{endpoint}/client/structure/{client}",
+       "path": "/eight",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Client.Structure.Service.Qux.eight",
+       "decorators": []
       }
      ],
      "apiVersions": [],
@@ -437,69 +429,67 @@
        "parameters": [
         {
          "$id": "39",
-         "Name": "endpoint",
-         "NameInRequest": "endpoint",
-         "Doc": "Need to be set as 'http://localhost:3000' in client.",
-         "Type": {
+         "name": "endpoint",
+         "nameInRequest": "endpoint",
+         "doc": "Need to be set as 'http://localhost:3000' in client.",
+         "type": {
           "$id": "40",
           "kind": "url",
           "name": "url",
           "crossLanguageDefinitionId": "TypeSpec.url"
          },
-         "Location": "Uri",
-         "IsApiVersion": false,
-         "IsResourceParameter": false,
-         "IsContentType": false,
-         "IsRequired": true,
-         "IsEndpoint": true,
-         "SkipUrlEncoding": false,
-         "Explode": false,
-         "Kind": "Client"
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": true,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client"
         },
         {
          "$id": "41",
-         "Name": "client",
-         "NameInRequest": "client",
-         "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
-         "Type": {
+         "name": "client",
+         "nameInRequest": "client",
+         "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
+         "type": {
           "$ref": "2"
          },
-         "Location": "Uri",
-         "IsApiVersion": false,
-         "IsResourceParameter": false,
-         "IsContentType": false,
-         "IsRequired": true,
-         "IsEndpoint": false,
-         "SkipUrlEncoding": false,
-         "Explode": false,
-         "Kind": "Client"
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": false,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client"
         }
        ],
        "operations": [
         {
          "$id": "42",
-         "Name": "nine",
-         "ResourceName": "Bar",
-         "Accessibility": "public",
-         "Parameters": [],
-         "Responses": [
+         "name": "nine",
+         "resourceName": "Bar",
+         "accessibility": "public",
+         "parameters": [],
+         "responses": [
           {
            "$id": "43",
-           "StatusCodes": [
+           "statusCodes": [
             204
            ],
-           "Headers": [],
-           "IsErrorResponse": false
+           "headers": [],
+           "isErrorResponse": false
           }
          ],
-         "HttpMethod": "POST",
-         "Uri": "{endpoint}/client/structure/{client}",
-         "Path": "/nine",
-         "BufferResponse": true,
-         "GenerateProtocolMethod": true,
-         "GenerateConvenienceMethod": true,
-         "CrossLanguageDefinitionId": "Client.Structure.Service.Qux.Bar.nine",
-         "Decorators": []
+         "httpMethod": "POST",
+         "uri": "{endpoint}/client/structure/{client}",
+         "path": "/nine",
+         "bufferResponse": true,
+         "generateProtocolMethod": true,
+         "generateConvenienceMethod": true,
+         "crossLanguageDefinitionId": "Client.Structure.Service.Qux.Bar.nine",
+         "decorators": []
         }
        ],
        "crossLanguageDefinitionId": "Client.Structure.Service.Qux.Bar",
@@ -518,94 +508,92 @@
      "parameters": [
       {
        "$id": "45",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Doc": "Need to be set as 'http://localhost:3000' in client.",
-       "Type": {
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Need to be set as 'http://localhost:3000' in client.",
+       "type": {
         "$id": "46",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
       },
       {
        "$id": "47",
-       "Name": "client",
-       "NameInRequest": "client",
-       "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
-       "Type": {
+       "name": "client",
+       "nameInRequest": "client",
+       "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
+       "type": {
         "$ref": "2"
        },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": false,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": false,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
       }
      ],
      "operations": [
       {
        "$id": "48",
-       "Name": "three",
-       "ResourceName": "Foo",
-       "Accessibility": "public",
-       "Parameters": [],
-       "Responses": [
+       "name": "three",
+       "resourceName": "Foo",
+       "accessibility": "public",
+       "parameters": [],
+       "responses": [
         {
          "$id": "49",
-         "StatusCodes": [
+         "statusCodes": [
           204
          ],
-         "Headers": [],
-         "IsErrorResponse": false
+         "headers": [],
+         "isErrorResponse": false
         }
        ],
-       "HttpMethod": "POST",
-       "Uri": "{endpoint}/client/structure/{client}",
-       "Path": "/three",
-       "BufferResponse": true,
-       "GenerateProtocolMethod": true,
-       "GenerateConvenienceMethod": true,
-       "CrossLanguageDefinitionId": "Client.Structure.Service.Foo.three",
-       "Decorators": []
+       "httpMethod": "POST",
+       "uri": "{endpoint}/client/structure/{client}",
+       "path": "/three",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Client.Structure.Service.Foo.three",
+       "decorators": []
       },
       {
        "$id": "50",
-       "Name": "four",
-       "ResourceName": "Foo",
-       "Accessibility": "public",
-       "Parameters": [],
-       "Responses": [
+       "name": "four",
+       "resourceName": "Foo",
+       "accessibility": "public",
+       "parameters": [],
+       "responses": [
         {
          "$id": "51",
-         "StatusCodes": [
+         "statusCodes": [
           204
          ],
-         "Headers": [],
-         "IsErrorResponse": false
+         "headers": [],
+         "isErrorResponse": false
         }
        ],
-       "HttpMethod": "POST",
-       "Uri": "{endpoint}/client/structure/{client}",
-       "Path": "/four",
-       "BufferResponse": true,
-       "GenerateProtocolMethod": true,
-       "GenerateConvenienceMethod": true,
-       "CrossLanguageDefinitionId": "Client.Structure.Service.Foo.four",
-       "Decorators": []
+       "httpMethod": "POST",
+       "uri": "{endpoint}/client/structure/{client}",
+       "path": "/four",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Client.Structure.Service.Foo.four",
+       "decorators": []
       }
      ],
      "apiVersions": [],
@@ -623,94 +611,92 @@
      "parameters": [
       {
        "$id": "53",
-       "Name": "endpoint",
-       "NameInRequest": "endpoint",
-       "Doc": "Need to be set as 'http://localhost:3000' in client.",
-       "Type": {
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Need to be set as 'http://localhost:3000' in client.",
+       "type": {
         "$id": "54",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
        },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": true,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
       },
       {
        "$id": "55",
-       "Name": "client",
-       "NameInRequest": "client",
-       "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
-       "Type": {
+       "name": "client",
+       "nameInRequest": "client",
+       "doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
+       "type": {
         "$ref": "2"
        },
-       "Location": "Uri",
-       "IsApiVersion": false,
-       "IsResourceParameter": false,
-       "IsContentType": false,
-       "IsRequired": true,
-       "IsEndpoint": false,
-       "SkipUrlEncoding": false,
-       "Explode": false,
-       "Kind": "Client"
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": false,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
       }
      ],
      "operations": [
       {
        "$id": "56",
-       "Name": "five",
-       "ResourceName": "Bar",
-       "Accessibility": "public",
-       "Parameters": [],
-       "Responses": [
+       "name": "five",
+       "resourceName": "Bar",
+       "accessibility": "public",
+       "parameters": [],
+       "responses": [
         {
          "$id": "57",
-         "StatusCodes": [
+         "statusCodes": [
           204
          ],
-         "Headers": [],
-         "IsErrorResponse": false
+         "headers": [],
+         "isErrorResponse": false
         }
        ],
-       "HttpMethod": "POST",
-       "Uri": "{endpoint}/client/structure/{client}",
-       "Path": "/five",
-       "BufferResponse": true,
-       "GenerateProtocolMethod": true,
-       "GenerateConvenienceMethod": true,
-       "CrossLanguageDefinitionId": "Client.Structure.Service.Bar.five",
-       "Decorators": []
+       "httpMethod": "POST",
+       "uri": "{endpoint}/client/structure/{client}",
+       "path": "/five",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Client.Structure.Service.Bar.five",
+       "decorators": []
       },
       {
        "$id": "58",
-       "Name": "six",
-       "ResourceName": "Bar",
-       "Accessibility": "public",
-       "Parameters": [],
-       "Responses": [
+       "name": "six",
+       "resourceName": "Bar",
+       "accessibility": "public",
+       "parameters": [],
+       "responses": [
         {
          "$id": "59",
-         "StatusCodes": [
+         "statusCodes": [
           204
          ],
-         "Headers": [],
-         "IsErrorResponse": false
+         "headers": [],
+         "isErrorResponse": false
         }
        ],
-       "HttpMethod": "POST",
-       "Uri": "{endpoint}/client/structure/{client}",
-       "Path": "/six",
-       "BufferResponse": true,
-       "GenerateProtocolMethod": true,
-       "GenerateConvenienceMethod": true,
-       "CrossLanguageDefinitionId": "Client.Structure.Service.Bar.six",
-       "Decorators": []
+       "httpMethod": "POST",
+       "uri": "{endpoint}/client/structure/{client}",
+       "path": "/six",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Client.Structure.Service.Bar.six",
+       "decorators": []
       }
      ],
      "apiVersions": [],

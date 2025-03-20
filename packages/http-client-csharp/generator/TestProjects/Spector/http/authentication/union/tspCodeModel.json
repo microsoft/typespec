@@ -1,10 +1,10 @@
 {
  "$id": "1",
- "Name": "Authentication.Union",
- "ApiVersions": [],
- "Enums": [],
- "Models": [],
- "Clients": [
+ "name": "Authentication.Union",
+ "apiVersions": [],
+ "enums": [],
+ "models": [],
+ "clients": [
   {
    "$id": "2",
    "kind": "client",
@@ -14,88 +14,87 @@
    "parameters": [
     {
      "$id": "3",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
       "$id": "4",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
       "$id": "5",
-      "Type": {
+      "type": {
        "$id": "6",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
    "operations": [
     {
      "$id": "7",
-     "Name": "validKey",
-     "ResourceName": "Union",
-     "Doc": "Check whether client is authenticated",
-     "Accessibility": "public",
-     "Parameters": [],
-     "Responses": [
+     "name": "validKey",
+     "resourceName": "Union",
+     "doc": "Check whether client is authenticated",
+     "accessibility": "public",
+     "parameters": [],
+     "responses": [
       {
        "$id": "8",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/authentication/union/validkey",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Authentication.Union.validKey",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/authentication/union/validkey",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Authentication.Union.validKey",
+     "decorators": []
     },
     {
      "$id": "9",
-     "Name": "validToken",
-     "ResourceName": "Union",
-     "Doc": "Check whether client is authenticated",
-     "Accessibility": "public",
-     "Parameters": [],
-     "Responses": [
+     "name": "validToken",
+     "resourceName": "Union",
+     "doc": "Check whether client is authenticated",
+     "accessibility": "public",
+     "parameters": [],
+     "responses": [
       {
        "$id": "10",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/authentication/union/validtoken",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Authentication.Union.validToken",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/authentication/union/validtoken",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Authentication.Union.validToken",
+     "decorators": []
     }
    ],
    "apiVersions": [],
@@ -103,16 +102,16 @@
    "decorators": []
   }
  ],
- "Auth": {
+ "auth": {
   "$id": "11",
-  "ApiKey": {
+  "apiKey": {
    "$id": "12",
-   "Name": "x-ms-api-key",
-   "In": "header"
+   "name": "x-ms-api-key",
+   "in": "header"
   },
-  "OAuth2": {
+  "oAuth2": {
    "$id": "13",
-   "Scopes": [
+   "scopes": [
     "https://security.microsoft.com/.default"
    ]
   }

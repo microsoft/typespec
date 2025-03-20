@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.ClientModel;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
@@ -13,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
     {
         private static TypeProvider[] BuildClientTypes()
         {
-            var inputClients = ScmCodeModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients;
             var clients = new List<TypeProvider>();
             foreach (var inputClient in inputClients)
             {
@@ -25,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         private static void BuildClient(InputClient inputClient, IList<TypeProvider> clients)
         {
-            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             if (client == null)
             {
                 return;
@@ -43,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 if (method is ScmMethodProvider scmMethod && scmMethod.CollectionDefinition != null)
                 {
                     clients.Add(scmMethod.CollectionDefinition);
-                    ScmCodeModelPlugin.Instance.AddTypeToKeep(scmMethod.CollectionDefinition);
+                    ScmCodeModelGenerator.Instance.AddTypeToKeep(scmMethod.CollectionDefinition);
                 }
             }
 
@@ -83,10 +82,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         private IEnumerable<TypeProvider> GetMultipartFormDataBinaryContentDefinition()
         {
-            if (ScmCodeModelPlugin.Instance.InputLibrary.HasMultipartFormDataOperation)
+            if (ScmCodeModelGenerator.Instance.InputLibrary.HasMultipartFormDataOperation)
             {
                 var multipart = new MultiPartFormDataBinaryContentDefinition();
-                ScmCodeModelPlugin.Instance.AddTypeToKeep(multipart.Name);
+                ScmCodeModelGenerator.Instance.AddTypeToKeep(multipart.Name);
                 yield return multipart;
             }
         }

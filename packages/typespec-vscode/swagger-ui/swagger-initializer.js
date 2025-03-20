@@ -8,7 +8,7 @@ window.onload = function () {
     switch (message.command) {
       case "load":
         window.ui = SwaggerUIBundle({
-          spec: message.param,
+          url: message.param,
           deepLinking: true, // keep expanded tag or operation after reloading
           dom_id: "#swagger-ui",
           presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],

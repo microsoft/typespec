@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             // compare the RequiredModel
             var m1RequiredModel = model.RequiredModel;
             var m2RequiredModel = model2.RequiredModel;
-            Assert.AreEqual(m1RequiredModel.Name, m2RequiredModel.Name);
+            Assert.AreEqual(m1RequiredModel.Rename, m2RequiredModel.Rename);
             Assert.AreEqual(m1RequiredModel.RequiredUnion.ToString(), m2RequiredModel.RequiredUnion.ToString());
             Assert.AreEqual(m1RequiredModel.RequiredBadDescription, m2RequiredModel.RequiredBadDescription);
             Assert.AreEqual(m1RequiredModel.RequiredNullableList, m2RequiredModel.RequiredNullableList);
@@ -134,7 +134,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.AreEqual(new StringExtensibleEnum("EnumValue1"), model.RequiredDictionary["key1"]);
             Assert.AreEqual(new StringExtensibleEnum("EnumValue2"), model.RequiredDictionary["key2"]);
             var requiredModel = model.RequiredModel;
-            Assert.AreEqual("Example Thing", requiredModel.Name);
+            Assert.AreEqual("Example Thing", requiredModel.Rename);
             Assert.AreEqual("\"mockUnion\"", requiredModel.RequiredUnion.ToString());
             Assert.AreEqual("This is a description with potentially problematic characters like < or >.", requiredModel.RequiredBadDescription);
             Assert.AreEqual(3, requiredModel.RequiredNullableList.Count);

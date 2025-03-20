@@ -23,10 +23,10 @@ import {
   resolvePath,
   Scalar,
   StringLiteral,
-  SyntaxKind,
   Type,
   Union,
 } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import {
   map,
   matchType,
@@ -66,7 +66,7 @@ export function createProtobufEmitter(
     // Convert the program to a set of proto files.
     const files = tspToProto(program, options);
 
-    if (!program.compilerOptions.noEmit && !options?.noEmit && !program.hasError()) {
+    if (!program.compilerOptions.dryRun && !options?.noEmit && !program.hasError()) {
       for (const file of files) {
         // If the file has a package, emit it to a path that is shaped like the package name. Otherwise emit to
         // main.proto

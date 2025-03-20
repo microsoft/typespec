@@ -1,0 +1,75 @@
+---
+import Video from "@site/src/components/Video.astro";
+import { videoData } from "@site/src/components/video-data.ts";
+import BaseLayout from "@site/src/layouts/base-layout.astro";
+
+const featuredVideo = videoData.find((video) => video.featured);
+const otherVideos = videoData.filter((video) => !video.featured);
+---
+
+<BaseLayout>
+  <div class="content">
+    <section class="intro">
+      <p>Learn more about TypeSpec and how it can help you design and build APIs at scale.</p>
+    </section>
+    <section class="list">
+      <div class="featured-video">
+        {
+          featuredVideo && (
+            <section>
+              <h2>Featured Video</h2>
+              <Video url={featuredVideo.url} />
+            </section>
+          )
+        }
+      </div>
+      <div class="video-grid">
+        {
+          otherVideos.map((video) => (
+            <div class="video-box">
+              <Video url={video.url} />
+            </div>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .content {
+    background-color: var(--colorNeutralBackground3);
+    min-height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  .intro {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+  }
+  .list {
+    max-width: 90%;
+    margin: auto;
+  }
+  .featured-video {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 10px;
+  }
+  .video-box {
+    padding: 10px; /* Reduced padding for spacing */
+    margin: 10px; /* Consistent margin */
+  }
+
+  @media only screen and (max-width: 728px) {
+    .video-grid {
+      grid-template-columns: 1fr; /* Single column layout for small screens */
+    }
+  }
+</style>

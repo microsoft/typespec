@@ -2,6 +2,9 @@ import { HttpMethod, ServiceRequestFile } from "@typespec/spec-api";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import FormData from "form-data";
 
+// Don't throw for errors as some scenarios are expected to return 4xx and 5xx errors
+axios.defaults.validateStatus = () => true;
+
 export interface ServiceRequest {
   endPoint: string;
   options?: {

@@ -78,7 +78,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool isRequired = false,
             InputOperationParameterKind kind = InputOperationParameterKind.Method,
             bool isEndpoint = false,
-            bool isResourceParameter = false,
             bool isContentType = false,
             bool isApiVersion = false,
             bool explode = false,
@@ -95,7 +94,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 kind,
                 isRequired,
                 isApiVersion,
-                isResourceParameter,
                 isContentType,
                 isEndpoint,
                 false,
@@ -251,6 +249,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 [itemPropertyName],
                 new InputNextLink(null, [nextLinkName], nextLinkLocation),
                 null);
+        }
+
+        public static InputOperationPaging ContinuationTokenOperationPaging(InputParameter parameter, string itemPropertyName, string continuationTokenName, InputResponseLocation continuationTokenLocation)
+        {
+            return new InputOperationPaging(
+                [itemPropertyName],
+                null,
+                continuationToken: new InputContinuationToken(parameter, [continuationTokenName], continuationTokenLocation));
         }
 
         public static InputOperationResponse OperationResponse(IEnumerable<int>? statusCodes = null, InputType? bodytype = null)

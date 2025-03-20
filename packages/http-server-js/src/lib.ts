@@ -28,6 +28,9 @@ const EmitterOptionsSchema: JSONSchemaType<JsEmitterOptions> = {
 
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/http-server-js",
+  capabilities: {
+    dryRun: true,
+  },
   requireImports: [],
   emitter: {
     options: EmitterOptionsSchema,
@@ -120,6 +123,12 @@ export const $lib = createTypeSpecLibrary({
           "@typespec/openapi3 is installed, but the OpenAPI 3 document could not be generated.",
         versioned:
           "An OpenAPI3 document could not be generated for this service because versioned services are not yet supported by the HTTP server emitter for JavaScript.",
+      },
+    },
+    "unknown-encoding": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Unknown encoding '${"encoding"}' to type '${"target"}' for type '${"type"}'.`,
       },
     },
   },

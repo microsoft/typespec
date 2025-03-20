@@ -1,4 +1,18 @@
 import {
+  ArrayBuilder,
+  type Context,
+  Declaration,
+  type EmitEntity,
+  type EmittedSourceFile,
+  type EmitterOutput,
+  ObjectBuilder,
+  Placeholder,
+  type Scope,
+  type SourceFile,
+  type SourceFileScope,
+  TypeEmitter,
+} from "@typespec/asset-emitter";
+import {
   type BooleanLiteral,
   type DiagnosticTarget,
   type Enum,
@@ -39,20 +53,6 @@ import {
   joinPaths,
   serializeValueAsJson,
 } from "@typespec/compiler";
-import {
-  ArrayBuilder,
-  type Context,
-  Declaration,
-  type EmitEntity,
-  type EmittedSourceFile,
-  type EmitterOutput,
-  ObjectBuilder,
-  Placeholder,
-  type Scope,
-  type SourceFile,
-  type SourceFileScope,
-  TypeEmitter,
-} from "@typespec/compiler/emitter-framework";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { stringify } from "yaml";
 import {
@@ -668,7 +668,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
   }
   async writeOutput(sourceFiles: SourceFile<Record<string, any>>[]): Promise<void> {
-    if (this.emitter.getOptions().noEmit) {
+    if (this.emitter.getProgram().compilerOptions.dryRun) {
       return;
     }
     this.#reportDuplicateIds();

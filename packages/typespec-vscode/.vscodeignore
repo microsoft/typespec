@@ -20,3 +20,4 @@ dist/test/
 !icons/
 !snippets.json
 !swagger-ui/
+!templates/
