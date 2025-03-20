@@ -1467,7 +1467,7 @@ options:
         `c.DocumentTitle = "TypeSpec Generated OpenAPI Viewer";`,
         `c.SwaggerEndpoint("/openapi.yaml", "TypeSpec Generated OpenAPI Docs");`,
         `c.RoutePrefix = "swagger";`,
-        `var externalFilePath = "../../generated/openapi.yaml"; // Full path to the file outside the project`,
+        `var externalFilePath = "../generated/openapi.yaml"; // Full path to the file outside the project`,
       ],
     ],
   ]);
