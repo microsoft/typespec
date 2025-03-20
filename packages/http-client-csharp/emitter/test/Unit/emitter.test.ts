@@ -5,6 +5,7 @@ vi.mock("../../src/lib/utils.js", () => ({
   execAsync: vi.fn(),
 }));
 
+import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
@@ -20,7 +21,6 @@ import {
   createEmitterTestHost,
   typeSpecCompile,
 } from "./utils/test-util.js";
-import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 
 describe("$onEmit tests", () => {
   afterAll(() => {
@@ -95,7 +95,7 @@ describe("$onEmit tests", () => {
     expect(updateCallback).toHaveBeenCalledTimes(1);
   });
 
-  it("should set additional-decorators to the sdk context", async () => {
+  it("should apply sdk-context-options", async () => {
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
     const additionalDecorators = ["Decorator1", "Decorator2"];
     context.options["sdk-context-options"] = {
@@ -106,9 +106,13 @@ describe("$onEmit tests", () => {
     };
     await $onEmit(context);
 
-    expect(createSdkContext).toHaveBeenCalledWith(expect.anything(), expect.any(String), expect.objectContaining({
-      additionalDecorators: additionalDecorators,
-    }));
+    expect(createSdkContext).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.any(String),
+      expect.objectContaining({
+        additionalDecorators: additionalDecorators,
+      }),
+    );
   });
 
   it("should set newProject to true if .csproj file DOES NOT exist", async () => {
