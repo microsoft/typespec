@@ -1245,7 +1245,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       if (options["openapi-path"]) return options["openapi-path"];
       const openApiSettings = await getOpenApiConfig(context.program);
       if (openApiSettings.outputDir) {
-        const projectDir = resolvePath(context.program.projectRoot, options.emitterOutputDir);
+        const projectDir = resolvePath(context.program.projectRoot, options.emitterOutputDir, "..");
         const openApiPath = resolvePath(
           openApiSettings.outputDir,
           openApiSettings.fileName || "openapi.yaml",
@@ -1256,12 +1256,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     if (options["emit-mocks"] !== "none") {
-      getScaffoldingHelpers(
-        emitter,
-        options["use-swaggerui"] || false,
-        await getOpenApiPath(),
-        true,
-      );
+      const openApiPath = await getOpenApiPath();
+      const UseSwaggerUI = openApiPath !== "" && options["use-swaggerui"] === true;
+      getScaffoldingHelpers(emitter, UseSwaggerUI, openApiPath, true);
     }
     if (options["emit-mocks"] === "all") {
       const httpPort = options["http-port"] || (await getFreePort(5000, 5999));

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { resolvePath } from "@typespec/compiler";
 import { spawn } from "cross-spawn";
+import path from "path";
 import pc from "picocolors";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
@@ -69,7 +70,9 @@ async function main() {
         console.log(pc.bold(`using http port ${httpPort} and https port ${httpsPort}`));
         const generatedTargetDir = resolvePath(process.cwd(), projectDir, "generated");
         const generatedOpenApiDir = resolvePath(process.cwd(), projectDir, "openapi");
-        const openApiPath = resolvePath(generatedOpenApiDir, "openapi.yaml");
+        const openApiPath = path
+          .relative(projectDir, resolvePath(generatedOpenApiDir, "openapi.yaml"))
+          .replaceAll("\\", "/");
         const compileArgs: string[] = [
           "tsp",
           "compile",
