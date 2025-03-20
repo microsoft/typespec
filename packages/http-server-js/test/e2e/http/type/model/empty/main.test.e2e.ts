@@ -1,5 +1,5 @@
 import { deepStrictEqual } from "node:assert";
-import { afterEach, assert, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createEmptyRouter } from "../../../../generated/type/model/empty/src/generated/http/router.js";
 import { startServer, testRouterOptions } from "../../../../helpers.js";
 import { runScenario } from "../../../../spector.js";
@@ -17,7 +17,7 @@ describe("Type.Model.Empty", () => {
     const router = createEmptyRouter(
       {
         async getEmpty(ctx) {
-          return {body: {}};
+          return { body: {} };
         },
         async postRoundTripEmpty(ctx, body) {
           return { body };
@@ -25,7 +25,7 @@ describe("Type.Model.Empty", () => {
         async putEmpty(ctx, input) {
           deepStrictEqual(input, {});
         },
-      },      
+      },
       testRouterOptions,
     );
     const baseUrl = await startServer(router, serverAbortController.signal);
