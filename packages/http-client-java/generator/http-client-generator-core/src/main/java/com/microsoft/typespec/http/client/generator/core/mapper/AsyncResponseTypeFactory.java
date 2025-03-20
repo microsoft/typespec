@@ -24,87 +24,71 @@ final class AsyncResponseTypeFactory {
      * Create a response type client model (representing an async method return value).
      *
      * @param operation the operation.
-     * @param responseBodyType the type of the response body.
+     * @param bodyType the type of the response body.
      * @param isProtocolMethod whether the client method to be simplified for resilience to API changes.
      * @param settings the JavaSettings.
      * @param ignoreTypedHeaders Ignores typed headers when creating the return type, if this is set to true.
      * @return the response type client model.
      */
-    static IType create(Operation operation, IType responseBodyType, boolean isProtocolMethod, JavaSettings settings,
+    static IType create(Operation operation, IType bodyType, boolean isProtocolMethod, JavaSettings settings,
         boolean ignoreTypedHeaders) {
 
         if (isProtocolMethod) {
-            if (responseBodyType.equals(PrimitiveType.VOID)) {
-                return singleValueAsyncReturnType(GenericType.Response(ClassType.VOID));
+            if (bodyType.equals(PrimitiveType.VOID)) {
+                return mono(GenericType.Response(ClassType.VOID));
             }
-            return singleValueAsyncReturnType(GenericType.Response(responseBodyType));
+            return mono(GenericType.Response(bodyType));
         }
 
         if (settings.isFluent()) {
             if (isLongRunningOperation(operation) && isNotPagingOperation(operation)) {
-                // LRO in fluent uses Flux<ByteBuffer> for PollerFactory in 'com.azure:azure-core-management'
-                return binaryContentAsyncReturnType();
+                // LRO in fluent uses Flux<ByteBuffer> for com.azure.core.management.polling.PollerFactory
+                return mono(GenericType.Response(GenericType.FLUX_BYTE_BUFFER));
             }
         }
 
         if (SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
-            final boolean genericResponsesDisallowed = !settings.isGenericResponseTypes();
-            if (genericResponsesDisallowed) {
-                final ClassType clientResponseClassType = ClientMapper.getClientResponseClassType(operation,
+            final boolean useNamedResponseType = !settings.isGenericResponseTypes();
+            if (useNamedResponseType) {
+                final ClassType namedResponseType = ClientMapper.getClientResponseClassType(operation,
                     ClientModels.getInstance().getModels(), settings);
-                return clientResponseAsyncReturnType(clientResponseClassType);
+                return mono(namedResponseType);
             }
-            // produce generic response type.
-            //
-            final boolean typedHeadersAllowed = !ignoreTypedHeaders && !settings.isDisableTypedHeadersMethods();
-            if (typedHeadersAllowed) {
-                // If the response body type is InputStream it needs to be converted to Flux<ByteBuffer> so
-                // that it is a valid return type for async method.
-                final IType bodyType
-                    = (responseBodyType == ClassType.INPUT_STREAM) ? GenericType.FLUX_BYTE_BUFFER : responseBodyType;
-                final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
-                final IType headersType = Mappers.getSchemaMapper().map(headersSchema);
-                return singleValueAsyncReturnType(GenericType.RestResponse(headersType, bodyType));
+
+            final boolean typedHeadersDisallowed = ignoreTypedHeaders || settings.isDisableTypedHeadersMethods();
+            if (typedHeadersDisallowed) {
+                return isByteStream(bodyType) ? mono(ClassType.STREAM_RESPONSE) : mono(GenericType.Response(bodyType));
             }
-            return isByteStream(responseBodyType)
-                ? streamContentAsyncReturnType()
-                : singleValueAsyncReturnType(GenericType.Response(responseBodyType));
+
+            final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
+            final IType headersType = Mappers.getSchemaMapper().map(headersSchema);
+            // If the responseBodyType is InputStream it needs to be converted to Flux<ByteBuffer> so
+            // that it is a valid return type for async method.
+            final IType bType = (bodyType == ClassType.INPUT_STREAM) ? GenericType.FLUX_BYTE_BUFFER : bodyType;
+            return mono(GenericType.RestResponse(headersType, bType));
         }
 
-        if (responseBodyType.equals(ClassType.INPUT_STREAM)) {
-            return streamContentAsyncReturnType();
+        if (bodyType.equals(ClassType.INPUT_STREAM)) {
+            return mono(ClassType.STREAM_RESPONSE);
         }
 
-        if (responseBodyType.equals(ClassType.BINARY_DATA)) {
-            final boolean streamAllowed
+        if (bodyType.equals(ClassType.BINARY_DATA)) {
+            final boolean useInputStream
                 = settings.isInputStreamForBinary() && !settings.isDataPlaneClient() && !settings.isSyncStackEnabled();
-            if (streamAllowed) {
-                return streamContentAsyncReturnType();
+            if (useInputStream) {
+                return mono(ClassType.STREAM_RESPONSE);
             }
         }
 
-        if (responseBodyType.equals(PrimitiveType.VOID)) {
-            return singleValueAsyncReturnType(GenericType.Response(ClassType.VOID));
+        if (bodyType.equals(PrimitiveType.VOID)) {
+            return mono(GenericType.Response(ClassType.VOID));
         }
 
-        return singleValueAsyncReturnType(GenericType.Response(responseBodyType));
+        return mono(GenericType.Response(bodyType));
     }
 
-    private static IType singleValueAsyncReturnType(IType singleValueType) {
-        return GenericType.Mono(singleValueType);
-    }
-
-    private static IType clientResponseAsyncReturnType(ClassType clientResponseClassType) {
-        return GenericType.Mono(clientResponseClassType);
-    }
-
-    private static IType streamContentAsyncReturnType() {
-        return GenericType.Mono(ClassType.STREAM_RESPONSE);
-    }
-
-    private static IType binaryContentAsyncReturnType() {
-        // raw response for LRO
-        return GenericType.Mono(GenericType.Response(GenericType.FLUX_BYTE_BUFFER));
+    private static IType mono(IType type) {
+        return GenericType.Mono(type);
     }
 
     private static boolean isLongRunningOperation(Operation operation) {

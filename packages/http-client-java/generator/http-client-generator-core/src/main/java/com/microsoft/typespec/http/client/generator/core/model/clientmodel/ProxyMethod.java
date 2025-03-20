@@ -3,14 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import static com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil.toImmutableList;
-import static com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil.toImmutableMapOfList;
-import static com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil.toImmutableSet;
-
 import com.azure.core.http.ContentType;
 import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.HttpExceptionType;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
@@ -749,11 +746,12 @@ public class ProxyMethod {
          */
         public ProxyMethod build() {
             return new ProxyMethod(requestContentType, returnType, httpMethod, baseUrl, urlPath,
-                toImmutableList(responseExpectedStatusCodes), unexpectedResponseExceptionType,
-                toImmutableMapOfList(unexpectedResponseExceptionTypes), name, toImmutableList(parameters),
-                toImmutableList(allParameters), description, returnValueWireType, responseBodyType, rawResponseBodyType,
-                isResumable, toImmutableSet(responseContentTypes), operationId, examples,
-                toImmutableList(specialHeaders), isSync, baseName, customHeaderIgnored);
+                CollectionUtil.toImmutableList(responseExpectedStatusCodes), unexpectedResponseExceptionType,
+                CollectionUtil.toImmutableMapOfList(unexpectedResponseExceptionTypes), name,
+                CollectionUtil.toImmutableList(parameters), CollectionUtil.toImmutableList(allParameters), description,
+                returnValueWireType, responseBodyType, rawResponseBodyType, isResumable,
+                CollectionUtil.toImmutableSet(responseContentTypes), operationId, examples,
+                CollectionUtil.toImmutableList(specialHeaders), isSync, baseName, customHeaderIgnored);
         }
     }
 }

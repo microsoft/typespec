@@ -61,17 +61,17 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         final Map<Request, List<ProxyMethod>> result = new LinkedHashMap<>();
 
         final String operationName = operation.getLanguage().getJava().getName();
-        final ProxyMethod.Builder baseBuilder
+        final ProxyMethod.Builder builder
             = new ProxyMethod.Builder().description(operation.getDescription()).name(operationName).isResumable(false);
-        baseBuilder.operationId(getOperationId(operation, settings));
+        builder.operationId(getOperationId(operation, settings));
 
         final List<Integer> expectedStatusCodes = getExpectedResponseStatusCodes(operation);
-        baseBuilder.responseExpectedStatusCodes(expectedStatusCodes);
-        buildExpectedResponseFields(operation, settings, baseBuilder);
-        buildUnexpectedResponseExceptionFields(baseBuilder, operation, expectedStatusCodes, settings);
-        baseBuilder.responseContentTypes(getResponseContentTypes(operation));
+        builder.responseExpectedStatusCodes(expectedStatusCodes);
+        buildExpectedResponseFields(operation, settings, builder);
+        buildUnexpectedResponseExceptionFields(builder, operation, expectedStatusCodes, settings);
+        builder.responseContentTypes(getResponseContentTypes(operation));
 
-        final ProxyMethod baseMethod = baseBuilder.build();
+        final ProxyMethod builderSource = builder.build();
         final ProxyMethodParameterProcessor parameterProcessor = new ProxyMethodParameterProcessor(operation, settings);
         final UniqueProxyMethodNameGenerator methodNameGenerator
             = new UniqueProxyMethodNameGenerator(operationName, logger);
@@ -80,22 +80,8 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                 result.put(request, parsed.get(request));
                 continue;
             }
-
-            final ProxyMethod.Builder builder = baseMethod.newBuilder();
-            builder.baseURL(request.getProtocol().getHttp().getUri());
-            builder.urlPath(request.getProtocol().getHttp().getPath());
-            builder.httpMethod(HttpMethod.valueOf(request.getProtocol().getHttp().getMethod().toUpperCase()));
-            final String contentType = getRequestContentType(request);
-            builder.requestContentType(contentType);
-
-            final ProxyMethodParameterProcessor.Result r = parameterProcessor.process(request, contentType);
-            builder.parameters(r.parameters);
-            builder.allParameters(r.allParameters);
-            builder.specialHeaders(r.specialHeaderParameterNames);
-            builder.name(methodNameGenerator.getUniqueName(r.parameters.stream(), contentType));
-            builder.examples(getExamples(operation, baseMethod.getOperationId()));
-
-            final List<ProxyMethod> proxyMethods = createProxyMethods(builder, operation, operationName, settings);
+            final List<ProxyMethod> proxyMethods = createProxyMethods(builderSource, operation, operationName, request,
+                parameterProcessor, methodNameGenerator, settings);
             result.put(request, proxyMethods);
             parsed.put(request, proxyMethods);
         }
@@ -158,10 +144,10 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         final IType bodyTypeMapped;
         if (isDataPlaneClient && settings.isBranded()) {
             builder.rawResponseBodyType(bodyType);
-            // branded (azure flavor) uses BinaryData as return type not the model.
+            // branded (azure) Data Plane Generator uses BinaryData as return type not the model.
             bodyTypeMapped = SchemaUtil.tryMapToBinaryData(bodyType, operation);
         } else {
-            // unbranded uses the actual model as return type.
+            // unbranded, Management Plane, vanilla Generator uses the actual model as return type.
             bodyTypeMapped = bodyType;
         }
         builder.responseBodyType(bodyTypeMapped);
@@ -201,7 +187,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         List<Integer> expectedStatusCodes, JavaSettings settings) {
         final SwaggerExceptionDefinitions exceptionDefinitions
             = SwaggerExceptionDefinitions.create(this, operation, settings);
-        final ClassType settingsDefaultExceptionType = ExceptionSettings.getDefaultHttpExceptionType(settings);
+        final ClassType settingsDefaultExceptionType = ExceptionSettingUtil.getDefaultHttpExceptionType(settings);
 
         // Use the settings defined default exception type over the Swagger defined default exception type.
         final ClassType defaultErrorType = (settingsDefaultExceptionType == null)
@@ -218,7 +204,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         // overrides it.
         final Map<Integer, ClassType> mergedExceptionTypeMapping
             = new TreeMap<>(exceptionDefinitions.getExceptionTypeMapping());
-        mergedExceptionTypeMapping.putAll(ExceptionSettings.getHttpStatusToExceptionTypeMapping(settings));
+        mergedExceptionTypeMapping.putAll(ExceptionSettingUtil.getHttpStatusToExceptionTypeMapping(settings));
 
         // remove expected status codes
         expectedStatusCodes.forEach(mergedExceptionTypeMapping::remove);
@@ -288,17 +274,35 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     /**
      * Create proxy methods for a request in an operation.
      *
-     * @param builder the builder to build the base proxy method (the base proxy method will be used to build other
-     * proxy method variants).
+     * @param builderSource the proxy method to use as the source to create a builder for the base proxy method (all
+     * other
+     * proxy method variants may derive from the base method).
      * @param operation the parent operation of the request.
      * @param operationName the operation name.
+     * @param request the request to create the proxy methods for.
+     * @param parameterProcessor the processor create the proxy method parameters by inspecting the request.
+     * @param methodNameGenerator the generator to create unique method names for the proxy methods.
      * @param settings the settings.
      * @return the list of all proxy methods.
      */
-    private static List<ProxyMethod> createProxyMethods(ProxyMethod.Builder builder, Operation operation,
-        String operationName, JavaSettings settings) {
+    private static List<ProxyMethod> createProxyMethods(ProxyMethod builderSource, Operation operation,
+        String operationName, Request request, ProxyMethodParameterProcessor parameterProcessor,
+        UniqueProxyMethodNameGenerator methodNameGenerator, JavaSettings settings) {
         final List<ProxyMethod> methods = new ArrayList<>();
 
+        final String contentType = getRequestContentType(request);
+        final ProxyMethodParameterProcessor.Result r = parameterProcessor.process(request, contentType);
+
+        final ProxyMethod.Builder builder = builderSource.newBuilder();
+        builder.requestContentType(contentType);
+        builder.baseURL(request.getProtocol().getHttp().getUri());
+        builder.urlPath(request.getProtocol().getHttp().getPath());
+        builder.httpMethod(HttpMethod.valueOf(request.getProtocol().getHttp().getMethod().toUpperCase()));
+        builder.parameters(r.parameters);
+        builder.allParameters(r.allParameters);
+        builder.specialHeaders(r.specialHeaderParameterNames);
+        builder.name(methodNameGenerator.getUniqueName(r.parameters.stream(), contentType));
+        builder.examples(getExamples(operation, builderSource.getOperationId()));
         // The base async proxy method.
         //
         final ProxyMethod proxyMethod = builder.build();

@@ -63,7 +63,8 @@ final class ProxyMethodParameterProcessor {
             final ProxyMethodParameter proxyMethodParameter = toProxyMethodParameter(parameter, isJsonPatch);
             allParameters.add(proxyMethodParameter);
             if (settings.isDataPlaneClient()) {
-                // LLC will put required path, body, query, header parameters to method signature.
+                // The protocol APIs (by Data Plane Generator) will put required path, body, query, header parameters
+                // to method signature.
                 if (parameter.isRequired()
                     || proxyMethodParameter.isConstant()
                     || proxyMethodParameter.isFromClient()

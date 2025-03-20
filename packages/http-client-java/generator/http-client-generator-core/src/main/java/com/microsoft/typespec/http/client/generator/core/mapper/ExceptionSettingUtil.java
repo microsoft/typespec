@@ -12,8 +12,8 @@ import java.util.Map;
 /**
  * Utility class for reading exception settings from {@link JavaSettings}.
  */
-final class ExceptionSettings {
-    private ExceptionSettings() {
+final class ExceptionSettingUtil {
+    private ExceptionSettingUtil() {
     }
 
     /**

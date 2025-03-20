@@ -1116,7 +1116,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
      * @param ignoreCustomHeaders Whether the custom header type is ignored.
      * @return The synchronous {@code withResponse} type.
      */
-    protected IType createSyncReturnWithResponseType(IType syncReturnType, Operation operation,
+    protected final IType createSyncReturnWithResponseType(IType syncReturnType, Operation operation,
         boolean isProtocolMethod, JavaSettings settings, boolean ignoreCustomHeaders) {
         boolean responseContainsHeaders = SchemaUtil.responseContainsHeaderSchemas(operation, settings);
 

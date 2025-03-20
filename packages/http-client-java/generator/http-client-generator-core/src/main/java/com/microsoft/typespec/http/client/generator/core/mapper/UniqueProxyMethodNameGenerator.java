@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 
 /**
  * A type to deduplicate proxy method names when their request has same parameters. For example, one request takes
- * "application/json" and another takes "text/plain", which both are String type.
+ * "application/json" and another takes "text/plain", which both are String type i.e., API with multiple content-types.
  */
 public final class UniqueProxyMethodNameGenerator {
     private static final Set<ProxyMethodParameter> EXCEPT;
