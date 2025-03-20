@@ -74,11 +74,15 @@ try {
         }
     }
     if ($GenerationChecks) {
-        Set-StrictMode -Version 1
-        # Generate code for Spector tests
-        Write-Host "Generating test projects ..."
-        & "$packageRoot/eng/scripts/Generate.ps1"
-        Write-Host "Code generation is completed."
+        try {
+            # Generate code for Spector tests
+            Write-Host "Generating test projects ..."
+            & "$packageRoot/eng/scripts/Generate.ps1"
+            Write-Host "Code generation is completed."
+        }
+        catch {
+            Write-Error "Code generation failed: $_"
+        }
 
         # Check difference between code in branch, and code just generated
         try {
