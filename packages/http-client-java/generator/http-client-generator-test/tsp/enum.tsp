@@ -131,7 +131,7 @@ interface EnumOp {
 
     @query
     priorityArrayOpt?: Priority[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/stringarray")
@@ -141,7 +141,7 @@ interface EnumOp {
 
     @query
     stringArrayOpt?: string[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/intarray")
@@ -151,7 +151,7 @@ interface EnumOp {
 
     @query
     intArrayOpt?: int32[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/stringenummulti")
@@ -161,7 +161,7 @@ interface EnumOp {
 
     @query(#{ explode: true })
     colorArrayOpt?: ColorModel[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/intenummulti")
@@ -171,7 +171,7 @@ interface EnumOp {
 
     @query(#{ explode: true })
     priorityArrayOpt?: Priority[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/stringmulti")
@@ -181,7 +181,7 @@ interface EnumOp {
 
     @query(#{ explode: true })
     stringArrayOpt?: string[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/intmulti")
@@ -191,7 +191,7 @@ interface EnumOp {
 
     @query(#{ explode: true })
     intArrayOpt?: int32[],
-  ): string;
+  ): void;
 
   @post
   @route("operation/stringenumarrayheader")
@@ -201,5 +201,5 @@ interface EnumOp {
 
     @header
     colorArrayOpt?: ColorModel[],
-  ): string;
+  ): void;
 }
