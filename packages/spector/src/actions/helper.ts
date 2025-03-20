@@ -39,20 +39,28 @@ export interface ServiceRequest {
 
 function resolveUrl(request: ServiceRequest) {
   let endpoint = request.url;
+
   if (request.params) {
     for (const key in request.params) {
       endpoint = request.url.replace(`:${key}`, request.params[key]!.toString());
     }
   }
+  endpoint = endpoint.replaceAll("[:]", ":");
+
   if (request.query) {
     console.log("request.query", request.query);
     const query = new URLSearchParams();
     for (const [key, value] of Object.entries(request.query)) {
-      query.append(key, value as any);
+      if (Array.isArray(value)) {
+        for (const v of value) {
+          query.append(key, v);
+        }
+      } else {
+        query.append(key, value as any);
+      }
     }
     endpoint = `${endpoint}?${query.toString()}`;
   }
-  // endpoint = request.url.replace(/\[:\]/g, ":");
   return endpoint;
 }
 

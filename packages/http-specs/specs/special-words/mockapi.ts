@@ -134,7 +134,7 @@ function createParametersTests(uri: string, data: any, paramName: string) {
     uri,
     method: "get",
     request: {
-      params: data,
+      query: data,
     },
     response: {
       status: 204,

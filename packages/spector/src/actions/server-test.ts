@@ -69,8 +69,8 @@ class ServerTestsGenerator {
 
   async #validateBody(response: Response, body: MockResponseBody) {
     if (Buffer.isBuffer(body.rawContent)) {
-      const responseData = await response.arrayBuffer();
-      if (responseData !== body.rawContent) {
+      const responseData = Buffer.from(await response.arrayBuffer());
+      if (!deepEqual(responseData, body.rawContent)) {
         throw new ValidationError(`Raw body mismatch`, body.rawContent, responseData);
       }
     } else {

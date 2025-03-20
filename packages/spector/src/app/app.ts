@@ -1,4 +1,5 @@
 import { MockApiDefinition, MockRequest, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
+import { MockBody } from "@typespec/spec-api/dist/types.js";
 import { ScenariosMetadata } from "@typespec/spec-coverage-sdk";
 import { Response, Router } from "express";
 import { getScenarioMetadata } from "../coverage/common.js";
@@ -99,26 +100,31 @@ function isObject(value: any): boolean {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function validateBody(req: MockRequest, body: MockBody) {
+  if (Buffer.isBuffer(body.rawContent)) {
+    req.expect.rawBodyEquals(body.rawContent);
+  } else {
+    switch (body.contentType) {
+      case "application/json":
+        req.expect.bodyEquals(JSON.parse(body.rawContent as any));
+        break;
+      case "application/xml":
+        req.expect.xmlBodyEquals(
+          (body.rawContent as any).replace(`<?xml version='1.0' encoding='UTF-8'?>`, ""),
+        );
+        break;
+      default:
+        req.expect.rawBodyEquals(body.rawContent);
+    }
+  }
+}
+
 function createHandler(apiDefinition: MockApiDefinition) {
   return (req: MockRequest) => {
     const body = apiDefinition.request?.body;
     // Validate body if present in the request
     if (body) {
-      if (body.contentType === "application/xml") {
-        req.expect.xmlBodyEquals(
-          (body.rawContent as any).replace(`<?xml version='1.0' encoding='UTF-8'?>`, ""),
-        );
-      } else {
-        const json = JSON.parse(body.rawContent as any);
-        req.expect.deepEqual(req.body, json);
-        // if (isObject(body)) {
-        //   Object.entries(body).forEach(([key, value]) => {
-        //     req.expect.deepEqual(req.body[key], value);
-        //   });
-        // } else {
-        //   req.expect.coercedBodyEquals(body);
-        // }
-      }
+      validateBody(req, body);
     }
 
     // Validate headers if present in the request

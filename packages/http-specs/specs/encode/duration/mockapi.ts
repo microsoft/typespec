@@ -75,7 +75,7 @@ function createQueryServerTests(
     uri,
     method: "get",
     request: {
-      params: paramData,
+      query: paramData,
     },
     response: {
       status: 204,

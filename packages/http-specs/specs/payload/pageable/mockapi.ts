@@ -77,7 +77,7 @@ function createTests(reqInfo: "query" | "header", resInfo: "body" | "header") {
     {
       uri: uri,
       method: "get",
-      request: { headers: { foo: "foo" }, params: { bar: "bar" } },
+      request: { headers: { foo: "foo" }, query: { bar: "bar" } },
       response: resInfo === "header" ? FirstResponseTokenInHeader : FirstResponseTokenInBody,
       handler: createHandler(),
       kind: "MockApiDefinition",
@@ -100,12 +100,14 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
     request: {},
     response: {
       status: 200,
-      body: json({
-        pets: FirstPage,
-        next: "/payload/pageable/server-driven-pagination/link/nextPage",
-      }),
+      // TODO: need better way to handle baseUrl
+      // body: json({
+      //   pets: FirstPage,
+      //   next: "/payload/pageable/server-driven-pagination/link/nextPage",
+      // }),
     },
     handler: (req: MockRequest) => {
+      console.log("req.baseUrl", req.baseUrl);
       return {
         status: 200,
         body: json({
