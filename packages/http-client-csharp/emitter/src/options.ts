@@ -22,6 +22,7 @@ export interface CSharpEmitterOptions extends SdkEmitterOptions {
   "generator-name"?: string;
   "emitter-extension-path"?: string;
   "update-code-model"?: (model: CodeModel) => CodeModel;
+  "generator-path"?: string;
 }
 
 /**
