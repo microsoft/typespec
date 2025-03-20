@@ -29,7 +29,7 @@ function checkFile(
   fileName: string | undefined = undefined,
   mustCheckContentType: boolean = true,
 ) {
-  // cadl-ranch depends on multer, which sets the mimetype to "text/plain" if this part has no content-type header
+  // server depends on multer, which sets the mimetype to "text/plain" if this part has no content-type header
   if (mustCheckContentType || file.mimetype !== "text/plain") {
     req.expect.deepEqual(file.mimetype, contentType);
   }
