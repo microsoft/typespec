@@ -181,10 +181,9 @@ export interface EmitterOptionsDev {
   "enable-subclient"?: boolean;
 
   // not recommended to set
-  "group-etag-headers"?: boolean;
-  "enable-sync-stack"?: boolean;
-  "stream-style-serialization"?: boolean;
-  "use-object-for-unknown"?: boolean;
+  // "enable-sync-stack"?: boolean;
+  // "stream-style-serialization"?: boolean;
+  // "use-object-for-unknown"?: boolean;
 
   // versioning
   "api-version"?: string;
@@ -195,6 +194,7 @@ export interface EmitterOptionsDev {
   "dev-options"?: DevOptions;
 
   // internal use for codegen
+  "group-etag-headers"?: boolean;
   "output-dir": string;
   arm?: boolean;
 }
