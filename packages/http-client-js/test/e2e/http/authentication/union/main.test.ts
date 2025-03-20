@@ -13,7 +13,7 @@ describe("Authentication.Union", () => {
     // Assert successful request
   });
 
-  it.skip("should authenticate using the valid OAuth token", async () => {
+  it("should authenticate using the valid OAuth token", async () => {
     const client = new UnionClient(
       {
         getToken: async () => ({

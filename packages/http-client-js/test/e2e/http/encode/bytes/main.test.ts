@@ -125,8 +125,14 @@ describe("Encode.Bytes", () => {
       },
     });
 
-    it.skip("should test default encode (base64) for bytes in JSON body", async () => {
-      await client.default_(encodedTestString);
+    it("should test default encode (base64) for bytes in JSON body", async () => {
+      await client.default_(testUint8Array, {
+        requestOptions: {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      } as any);
       // Assert successful request
     });
 
@@ -143,12 +149,24 @@ describe("Encode.Bytes", () => {
     });
 
     it.skip("should test base64 encode for bytes body", async () => {
-      await client.base64(testUint8Array);
+      await client.base64(testUint8Array, {
+        requestOptions: {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      } as any);
       // Assert successful request
     });
 
-    it.skip("should test base64url encode for bytes body", async () => {
-      await client.base64url(testUint8Array);
+    it("should test base64url encode for bytes body", async () => {
+      await client.base64url(testUint8Array, {
+        requestOptions: {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      } as any);
       // Assert successful request
     });
   });

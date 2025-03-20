@@ -19,7 +19,7 @@ describe("Versioning.Removed", () => {
         enumProp: EnumV2.EnumMemberV2,
         unionProp: "bar",
       };
-      const response = await client.v2(body as any, "");
+      const response = await client.v2(body, "");
       expect(response).toEqual(body); // Mock API expected value
     });
   });
@@ -40,7 +40,7 @@ describe("Versioning.Removed", () => {
       expect(response).toEqual(body); // Mock API expected value
     });
 
-    it.skip("should handle ModelV3 for v2preview", async () => {
+    it("should handle ModelV3 for v2preview", async () => {
       const client = new RemovedClient("http://localhost:3000", Versions.V2preview, {
         allowInsecureConnection: true,
         retryOptions: {

@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import {
   ExplodeClient as ContinuationExplodeClient,
   StandardClient as ContinuationStandardClient,
@@ -280,5 +280,166 @@ describe("Routes", () => {
         });
       });
     });
+  });
+
+  describe("Rest Cases", () => {
+    let client = new RoutesClient({
+      allowInsecureConnection: true,
+      endpoint: "http://localhost:3000"
+    });;
+
+
+    it("Routes_InInterface", async () => {
+      await client.inInterfaceClient.fixed();
+    });
+
+    it("Routes_fixed", async () => {
+      await client.fixed();
+    });
+
+    it("Routes_PathParameters_templateOnly", async () => {
+      await client.pathParametersClient.templateOnly("a");
+    });
+
+    it("Routes_PathParameters_explicit", async () => {
+      await client.pathParametersClient.explicit("a");
+    });
+    it("Routes_PathParameters_annotationOnly", async () => {
+      await client.pathParametersClient.annotationOnly("a");
+    });
+    it("Routes_PathParameters_ReservedExpansion_template", async () => {
+      await client.pathParametersClient.reservedExpansionClient.template("foo/bar baz");
+    });
+    it("Routes_PathParameters_ReservedExpansion_annotation", async () => {
+      await client.pathParametersClient.reservedExpansionClient.annotation("foo/bar baz");
+    });
+    it("Routes_PathParameters_SimpleExpansion_Standard_primitive", async () => {
+      await client.pathParametersClient.simpleExpansionClient.standardClient.primitive("a");
+    });
+    it("Routes_PathParameters_SimpleExpansion_Standard_array", async () => {
+      await client.pathParametersClient.simpleExpansionClient.standardClient.array(["a", "b"]);
+    });
+    it("Routes_PathParameters_SimpleExpansion_Standard_record", async () => {
+      await client.pathParametersClient.simpleExpansionClient.standardClient.record({ a: 1, b: 2 });
+    });
+    it("Routes_PathParameters_PathExpansion_Standard_primitive", async () => {
+      await client.pathParametersClient.pathExpansionClient.standardClient.primitive("a");
+    });
+
+    it("Routes_PathParameters_PathExpansion_Standard_array", async () => {
+      await client.pathParametersClient.pathExpansionClient.standardClient.array(["a", "b"]);
+    });
+
+    it("Routes_PathParameters_PathExpansion_Standard_record", async () => {
+      await client.pathParametersClient.pathExpansionClient.standardClient.record({ a: 1, b: 2 });
+    });
+    it("Routes_PathParameters_LabelExpansion_Standard_primitive", async () => {
+      await client.pathParametersClient.labelExpansionClient.standardClient.primitive("a");
+    });
+
+    it("Routes_PathParameters_LabelExpansion_Standard_array", async () => {
+      await client.pathParametersClient.labelExpansionClient.standardClient.array(["a", "b"]);
+    });
+    it("Routes_PathParameters_LabelExpansion_Standard_record", async () => {
+      await client.pathParametersClient.labelExpansionClient.standardClient.record({ a: 1, b: 2 });
+    });
+    it("Routes_PathParameters_SimpleExpansion_Explode_primitive", async () => {
+      await client.pathParametersClient.simpleExpansionClient.explodeClient.primitive("a");
+    });
+    it("Routes_PathParameters_SimpleExpansion_Explode_array", async () => {
+      await client.pathParametersClient.simpleExpansionClient.explodeClient.array(["a", "b"]);
+    });
+    it("Routes_PathParameters_SimpleExpansion_Explode_record", async () => {
+      await client.pathParametersClient.simpleExpansionClient.explodeClient.record({ a: 1, b: 2 });
+    });
+    it("Routes_PathParameters_PathExpansion_Explode_primitive", async () => {
+      await client.pathParametersClient.pathExpansionClient.explodeClient.primitive("a");
+    });
+    it("Routes_PathParameters_PathExpansion_Explode_array", async () => {
+      await client.pathParametersClient.pathExpansionClient.explodeClient.array(["a", "b"]);
+    });
+    it("Routes_PathParameters_PathExpansion_Explode_record", async () => {
+      await client.pathParametersClient.pathExpansionClient.explodeClient.record({ a: 1, b: 2 });
+    });
+    it("Routes_PathParameters_LabelExpansion_Explode_primitive", async () => {
+      await client.pathParametersClient.labelExpansionClient.explodeClient.primitive("a");
+    });
+    it("Routes_PathParameters_LabelExpansion_Explode_array", async () => {
+      await client.pathParametersClient.labelExpansionClient.explodeClient.array(["a", "b"]);
+    });
+    it("Routes_PathParameters_LabelExpansion_Explode_record", async () => {
+      await client.pathParametersClient.labelExpansionClient.explodeClient.record({ a: 1, b: 2 });
+    });
+    it("Routes_PathParameters_MatrixExpansion_Standard_primitive", async () => {
+      await client.pathParametersClient.matrixExpansionClient.standardClient.primitive("a");
+    });
+    it("Routes_PathParameters_MatrixExpansion_Standard_array", async () => {
+      await client.pathParametersClient.matrixExpansionClient.standardClient.array(["a", "b"]);
+    });
+    it("Routes_PathParameters_MatrixExpansion_Standard_record", async () => {
+      await client.pathParametersClient.matrixExpansionClient.standardClient.record({ a: 1, b: 2 });
+    });
+    it("Routes_PathParameters_MatrixExpansion_Explode_primitive", async () => {
+      await client.pathParametersClient.matrixExpansionClient.explodeClient.primitive("a");
+    });
+    it("Routes_PathParameters_MatrixExpansion_Explode_array", async () => {
+      await client.pathParametersClient.matrixExpansionClient.explodeClient.array(["a", "b"]);
+    });
+    it("Routes_PathParameters_MatrixExpansion_Explode_record", async () => {
+      await client.pathParametersClient.matrixExpansionClient.explodeClient.record({ a: 1, b: 2 });
+    });
+
+    it("Routes_QueryParameters_templateOnly", async () => {
+      await client.queryParametersClient.templateOnly("a");
+    });
+    it("Routes_QueryParameters_explicit", async () => {
+      await client.queryParametersClient.explicit("a");
+    });
+    it("Routes_QueryParameters_annotationOnly", async () => {
+      await client.queryParametersClient.annotationOnly("a");
+    });
+    it("Routes_QueryParameters_QueryExpansion_Standard_primitive", async () => {
+      await client.queryParametersClient.queryExpansionClient.standardClient.primitive("a");
+    });
+    it("Routes_QueryParameters_QueryExpansion_Standard_array", async () => {
+      await client.queryParametersClient.queryExpansionClient.standardClient.array(["a", "b"]);
+    });
+    it("Routes_QueryParameters_QueryExpansion_Standard_record", async () => {
+      await client.queryParametersClient.queryExpansionClient.standardClient.record({ a: 1, b: 2 });
+    });
+    it("Routes_QueryParameters_QueryExpansion_Explode_primitive", async () => {
+      await client.queryParametersClient.queryExpansionClient.explodeClient.primitive("a");
+    });
+    it("Routes_QueryParameters_QueryExpansion_Explode_array", async () => {
+      await client.queryParametersClient.queryExpansionClient.explodeClient.array(["a", "b"]);
+    });
+    it("Routes_QueryParameters_QueryExpansion_Explode_record", async () => {
+      await client.queryParametersClient.queryExpansionClient.explodeClient.record({ a: 1, b: 2 });
+    });
+    it("Routes_QueryParameters_QueryContinuation_Standard_primitive", async () => {
+      await client.queryParametersClient.queryContinuationClient.standardClient.primitive("a");
+    });
+    it("Routes_QueryParameters_QueryContinuation_Standard_array", async () => {
+      await client.queryParametersClient.queryContinuationClient.standardClient.array(["a", "b"]);
+    });
+    it("Routes_QueryParameters_QueryContinuation_Standard_record", async () => {
+      await client.queryParametersClient.queryContinuationClient.standardClient.record({
+        a: 1,
+        b: 2
+      });
+    });
+    it("Routes_QueryParameters_QueryContinuation_Explode_primitive", async () => {
+      await client.queryParametersClient.queryContinuationClient.explodeClient.primitive("a");
+    });
+    it("Routes_QueryParameters_QueryContinuation_Explode_array", async () => {
+      await client.queryParametersClient.queryContinuationClient.explodeClient.array(["a", "b"]);
+    });
+    it("Routes_QueryParameters_QueryContinuation_Explode_record", async () => {
+      await client.queryParametersClient.queryContinuationClient.explodeClient.record({
+        a: 1,
+        b: 2
+      });
+    });
+
   });
 });

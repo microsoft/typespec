@@ -12,7 +12,7 @@ describe("Authentication.OAuth2", () => {
     { allowInsecureConnection: true },
   );
 
-  it.skip("should validate the client is authenticated", async () => {
+  it("should validate the client is authenticated", async () => {
     const response = await client.valid();
     expect(response).toBe(undefined); // No content response
   });
@@ -30,7 +30,8 @@ describe("Authentication.OAuth2", () => {
       );
       await client.invalid();
     } catch (error: any) {
-      expect(error.statusCode).toBe(403);
+      // console.log(error, error.body);
+      expect(error.status).toBe("403");
       expect(error.error).toMatchObject({
         message: "Expected Bearer x but got Bearer y",
         expected: "Bearer x",

@@ -14,7 +14,7 @@ describe("Authentication.ApiKey", () => {
     expect(response).toBeUndefined(); // NoContentResponse is expected
   });
 
-  it.skip("should return error for an invalid API key", async () => {
+  it("should return error for an invalid API key", async () => {
     const invalidClient = new ApiKeyClient(
       {
         key: "invalid-key",
@@ -26,12 +26,9 @@ describe("Authentication.ApiKey", () => {
       await invalidClient.invalid();
       throw new Error("Expected an error for invalid API key");
     } catch (error: any) {
-      expect(error.statusCode).toBe(403);
+      expect(error.status).toBe("403");
       expect(error.body).toEqual({
-        error: {
-          code: "InvalidApiKey",
-          message: "API key is invalid",
-        },
+        error: "invalid-api-key",
       });
     }
   });
