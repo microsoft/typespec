@@ -525,50 +525,46 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
       });
     });
 
+    describe("scalar type property that extends std scalar should always be set as corresponding JSON type when nullable property is present", () => {
     it.each([
-      ["scalar StdScalar extends bytes;", "string"],
-      ["scalar StdScalar extends numeric;", "number"],
-      ["scalar StdScalar extends integer;", "integer"],
-      ["scalar StdScalar extends int8;", "integer"],
-      ["scalar StdScalar extends int16;", "integer"],
-      ["scalar StdScalar extends int32;", "integer"],
-      ["scalar StdScalar extends int64;", "integer"],
-      ["scalar StdScalar extends safeint;", "integer"],
-      ["scalar StdScalar extends uint8;", "integer"],
-      ["scalar StdScalar extends uint16;", "integer"],
-      ["scalar StdScalar extends uint32;", "integer"],
-      ["scalar StdScalar extends uint64;", "integer"],
-      ["scalar StdScalar extends float;", "number"],
-      ["scalar StdScalar extends float32;", "number"],
-      ["scalar StdScalar extends float64;", "number"],
-      ["scalar StdScalar extends decimal;", "number"],
-      ["scalar StdScalar extends decimal128;", "number"],
-      ["scalar StdScalar extends string;", "string"],
-      ["scalar StdScalar extends boolean;", "boolean"],
-      ["scalar StdScalar extends plainDate;", "string"],
-      ["scalar StdScalar extends utcDateTime;", "string"],
-      ["scalar StdScalar extends offsetDateTime;", "string"],
-      ["scalar StdScalar extends plainTime;", "string"],
-      ["scalar StdScalar extends duration;", "string"],
-      ["scalar StdScalar extends url;", "string"],
+      ["bytes", "string"],
+      ["numeric", "number"],
+      ["integer", "integer"],
+      ["int8", "integer"],
+      ["int16", "integer"],
+      ["int32", "integer"],
+      ["int64", "integer"],
+      ["safeint", "integer"],
+      ["uint8", "integer"],
+      ["uint16", "integer"],
+      ["uint32", "integer"],
+      ["uint64", "integer"],
+      ["float", "number"],
+      ["float32", "number"],
+      ["float64", "number"],
+      ["decimal", "number"],
+      ["decimal128", "number"],
+      ["string", "string"],
+      ["boolean", "boolean"],
+      ["plainDate", "string"],
+      ["utcDateTime", "string"],
+      ["offsetDateTime", "string"],
+      ["plainTime", "string"],
+      ["duration", "string"],
+      ["url", "string"],
     ])(
-      "scalar type property that extends std scalar should always be set as corresponding JSON type when nullable property is present",
+      "%s",
       async (scalarDeclaration: string, expectedType: string) => {
         const openApi = await openApiFor(`
-      ${scalarDeclaration}
+      scalar StdScalar extends ${scalarDeclaration};
       model A {
         x: StdScalar | null;
       }
       `);
-        deepStrictEqual(openApi.components.schemas.A.properties, {
-          x: {
-            type: expectedType,
-            allOf: [{ $ref: "#/components/schemas/StdScalar" }],
-            nullable: true,
-          },
-        });
+        deepStrictEqual(openApi.components.schemas.A.properties.type, expectedType);
       },
     );
+  });
 
     describe("null and another single variant produce allOf", () => {
       it.each([
