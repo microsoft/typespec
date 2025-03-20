@@ -66,7 +66,7 @@ function TransformToTransportDeclaration(props: TransformToTransportDeclarationP
   const namePolicy = ts.useTSNamePolicy();
   const name = namePolicy.getName(`${props.operation.name}_payload_to_transport`, "function");
 
-  if (requestPayload.bodyKind === "multipart" || requestPayload.bodyKind === "file") {
+  if (requestPayload.bodyKind === "multipart") {
     return null;
   }
 
