@@ -3130,13 +3130,7 @@ export class CodeModelBuilder {
   }
 
   private isApiVersionParameter(param: SdkHttpOperationParameterType): boolean {
-    // TODO: tcgc bug
     return param.isApiVersionParam;
-    // return (
-    //   param.correspondingMethodParams &&
-    //   param.correspondingMethodParams.length === 1 &&
-    //   param.correspondingMethodParams[0].kind === "apiVersion"
-    // );
   }
 
   private _apiVersionParameter?: Parameter;
