@@ -24,11 +24,10 @@ import {
   HttpProperty,
   resolvePayloadProperties,
 } from "./http-property.js";
-import { createDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import { HttpFileModel, getHttpFileModel, getHttpPart } from "./private.decorators.js";
 import {
-  HttpOperationBody,
   HttpOperationFileBody,
   HttpOperationMultipartBody,
   HttpOperationPart,
@@ -118,6 +117,17 @@ function resolveBody(
     if (!contentTypeProperty) {
       // If no content-type property was specified, then this is a _literal_ file.
       return diagnostics.join(getFileBody(file));
+    } else {
+      const contentTypes =
+        contentTypeProperty && diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+
+      reportDiagnostic(program, {
+        code: "http-file-structured",
+        format: {
+          contentTypes: contentTypes!.join(", "),
+        },
+        target: contentTypeProperty.property,
+      });
     }
   }
 
@@ -220,7 +230,7 @@ function resolveExplicitBodyProperty(
   disposition: HttpPayloadDisposition,
 ): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  let resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined;
+  let resolvedBody: HttpPayloadBody | undefined;
   const duplicateTracker = new DuplicateTracker<string, Type>();
 
   for (const item of metadata) {
@@ -236,18 +246,34 @@ function resolveExplicitBodyProperty(
           const valid = diagnostics.pipe(validateBodyProperty(program, item.property, disposition));
           containsMetadataAnnotations = !valid;
         }
-        if (resolvedBody === undefined) {
-          resolvedBody = {
-            bodyKind: "single",
-            ...diagnostics.pipe(
-              resolveContentTypesForBody(program, contentTypeProperty, item.property.type),
-            ),
-            type: item.property.type,
-            isExplicit: item.kind === "body",
-            containsMetadataAnnotations,
-            property: item.property,
-          };
+
+        const file = getHttpFileModel(program, item.property.type);
+
+        const isFile = file !== undefined && !contentTypeProperty;
+
+        if (file && contentTypeProperty) {
+          const contentTypes = diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+          reportDiagnostic(program, {
+            code: "http-file-structured",
+            format: {
+              contentTypes: contentTypes!.join(", "),
+            },
+            target: contentTypeProperty.property,
+          });
         }
+
+        resolvedBody ??= isFile
+          ? diagnostics.pipe(getFileBody(file))
+          : {
+              bodyKind: "single",
+              ...diagnostics.pipe(
+                resolveContentTypesForBody(program, contentTypeProperty, item.property.type),
+              ),
+              type: item.property.type,
+              isExplicit: item.kind === "body",
+              containsMetadataAnnotations,
+              property: item.property,
+            };
         break;
       case "multipartBody":
         resolvedBody = diagnostics.pipe(
@@ -463,10 +489,6 @@ function resolvePart(
   const diagnostics = createDiagnosticCollector();
   const part = getHttpPart(program, type);
   if (part) {
-    const file = getHttpFileModel(program, part.type);
-    if (file !== undefined) {
-      return getFilePart(part.options.name, file);
-    }
     let { body, metadata } = diagnostics.pipe(
       resolveHttpPayload(program, part.type, visibility, HttpPayloadDisposition.Multipart),
     );
@@ -495,6 +517,7 @@ function resolvePart(
       body,
       optional: false,
       headers: metadata.filter((x): x is HeaderProperty => x.kind === "header"),
+      filename: body.bodyKind === "file" ? body.filename : undefined,
     });
   }
 

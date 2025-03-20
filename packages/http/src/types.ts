@@ -461,6 +461,11 @@ export interface HttpOperationBodyBase {
   readonly contentTypes: string[];
   /** Property used to set the content type if exists */
   readonly contentTypeProperty?: ModelProperty;
+
+  /**
+   * The payload property that defined this body, if any.
+   */
+  readonly property?: ModelProperty;
 }
 
 export interface HttpBody {
@@ -471,11 +476,6 @@ export interface HttpBody {
 
   /** If the body contains metadata annotations to ignore. For example `@header`. */
   readonly containsMetadataAnnotations: boolean;
-
-  /**
-   * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
-   */
-  readonly property?: ModelProperty;
 }
 
 export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
@@ -552,6 +552,9 @@ export interface HttpOperationFileBody extends HttpOperationBodyBase {
    * The `contents` property.
    */
   readonly contents: ModelProperty & { type: Scalar & { name: "bytes" | "string" } };
+
+  /** Never set on `HttpOperationFileBody`. */
+  readonly property?: undefined;
 }
 
 export interface HttpStatusCodeRange {

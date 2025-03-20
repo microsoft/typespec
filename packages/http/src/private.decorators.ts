@@ -5,7 +5,9 @@ import {
   Namespace,
   Program,
   Type,
+  getEffectiveModelType,
   getProperty,
+  getTypeName,
 } from "@typespec/compiler";
 import {
   HttpFileDecorator,
@@ -13,7 +15,7 @@ import {
   HttpPartOptions,
   PlainDataDecorator,
 } from "../generated-defs/TypeSpec.Http.Private.js";
-import { HttpStateKeys } from "./lib.js";
+import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { HttpOperationFileBody } from "./types.js";
 
 export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
@@ -45,6 +47,21 @@ export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity
 };
 
 export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: Model) => {
+  if (target.properties.get("contents")?.type.kind !== "Scalar") {
+    const diagnosticTarget = target.templateMapper!.args[0];
+
+    const typeName =
+      diagnosticTarget.entityKind === "Type"
+        ? getTypeName(diagnosticTarget, { printable: true })
+        : "<value>";
+
+    reportDiagnostic(context.program, {
+      code: "http-file-contents-not-scalar",
+      format: { type: typeName },
+      target: diagnosticTarget,
+    });
+  }
+
   context.program.stateSet(HttpStateKeys.file).add(target);
 };
 
@@ -81,7 +98,11 @@ export interface HttpFileModel {
 }
 
 export function getHttpFileModel(program: Program, type: Type): HttpFileModel | undefined {
-  if (type.kind !== "Model" || !isOrExtendsHttpFile(program, type)) {
+  if (type.kind !== "Model") return undefined;
+
+  const effectiveType = getEffectiveModelType(program, type);
+
+  if (!isOrExtendsHttpFile(program, effectiveType)) {
     return undefined;
   }
 
