@@ -1120,16 +1120,16 @@ Expected header parameter: testHeader="bar"
 
 Test case for using @bodyRoot with a header and a path parameter for input and output request.
 
-Try to generate method as typespec defines.
+Should generate codes as typespec defines.
 Should not generate separated path/header parameters.
-Should generate an method like below:
+Should generate an operation like below:
 
 ```
 inputAndOutput(option: RoundTripModel): RoundTripModel;
 ```
 
 Please note the parameter name is devired from the model name and it may vary by language.
-Please also note some languages may split models into multiple parameters.
+Please also note some languages may split models into input and output models.
 
 Expected request path:
 /input-and-output/alice
@@ -1165,9 +1165,9 @@ Expected response header:
 
 Test case for using @bodyRoot with a header and a path parameter for input only request.
 
-Should generate method as typespec defines.
+Should generate codes as typespec defines.
 Should not generate separated path/header parameters.
-Should generate an method like below:
+Should generate an operation like below:
 
 ```
 inputOnly(option: InputRequest);
@@ -1196,9 +1196,9 @@ Expected request header:
 
 Test case for using @bodyRoot with optional parameters.
 
-Should generate method as typespec defines.
+Should generate codes as typespec defines.
 Should not generate separated path/header/query parameters.
-Should generate an method like below:
+Should generate an operation like below:
 
 ```
 optionalParam(option: OptionalParamRequest): string[];
@@ -1227,9 +1227,9 @@ Expected response body:
 
 Test case for using @bodyRoot with a header and a path parameter for output only response.
 
-Should generate method as typespec defines.
+Should generate codes as typespec defines.
 Should not generate separated path/header parameters.
-Should generate an method like below:
+Should generate an operation like below:
 
 ```
 outputOnly(name: string): OutputResponse;
