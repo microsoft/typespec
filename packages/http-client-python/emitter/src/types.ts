@@ -153,6 +153,7 @@ function emitCredential(credential: SdkCredentialType): Record<string, any> {
       policy: {
         type: "BearerTokenCredentialPolicy",
         credentialScopes: [],
+        flows: scheme.flows,
       },
     };
     for (const flow of scheme.flows) {
