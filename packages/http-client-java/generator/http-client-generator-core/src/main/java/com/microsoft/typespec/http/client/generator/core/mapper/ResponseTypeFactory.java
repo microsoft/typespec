@@ -14,24 +14,24 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Primi
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 
 /**
- * A factory to create the response type client model representing async method's return value.
+ * A factory to create the response type client model representing method's return value.
  */
-final class AsyncResponseTypeFactory {
-    private AsyncResponseTypeFactory() {
+final class ResponseTypeFactory {
+    private ResponseTypeFactory() {
     }
 
     /**
-     * Create a response type client model (representing an async method return value).
+     * Create a response type client model representing async method return value.
      *
      * @param operation the operation.
      * @param bodyType the type of the response body.
      * @param isProtocolMethod whether the client method to be simplified for resilience to API changes.
      * @param settings the JavaSettings.
      * @param ignoreTypedHeaders Ignores typed headers when creating the return type, if this is set to true.
-     * @return the response type client model.
+     * @return the async response type client model.
      */
-    static IType create(Operation operation, IType bodyType, boolean isProtocolMethod, JavaSettings settings,
-        boolean ignoreTypedHeaders) {
+    static IType createAsyncResponse(Operation operation, IType bodyType, boolean isProtocolMethod,
+        JavaSettings settings, boolean ignoreTypedHeaders) {
 
         if (isProtocolMethod) {
             if (bodyType.equals(PrimitiveType.VOID)) {
@@ -87,6 +87,41 @@ final class AsyncResponseTypeFactory {
         return mono(GenericType.Response(bodyType));
     }
 
+    /**
+     * Create a response type client model representing 'WithResponse' sync method return value.
+     *
+     * @param operation the operation.
+     * @param syncReturnType the return type.
+     * @param isProtocolMethod whether the client method to be simplified for resilience to API changes.
+     * @param settings the JavaSettings.
+     * @param ignoreTypedHeaders Ignores typed headers when creating the return type, if this is set to true.
+     * @return the async response type client model.
+     */
+    static IType createSyncResponse(Operation operation, IType syncReturnType, boolean isProtocolMethod,
+        JavaSettings settings, boolean ignoreTypedHeaders) {
+
+        if (isProtocolMethod) {
+            return GenericType.Response(syncReturnType);
+        }
+
+        if (SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
+            final boolean useNamedResponseType = !settings.isGenericResponseTypes();
+            if (useNamedResponseType) {
+                return ClientMapper.getClientResponseClassType(operation, ClientModels.getInstance().getModels(),
+                    settings);
+            }
+            final boolean typedHeadersDisallowed = ignoreTypedHeaders || settings.isDisableTypedHeadersMethods();
+            if (typedHeadersDisallowed) {
+                return GenericType.Response(syncReturnType);
+            }
+            final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
+            final IType headersType = Mappers.getSchemaMapper().map(headersSchema);
+            return GenericType.RestResponse(headersType, syncReturnType);
+        }
+
+        return GenericType.Response(syncReturnType);
+    }
+
     private static IType mono(IType type) {
         return GenericType.Mono(type);
     }
@@ -97,7 +132,7 @@ final class AsyncResponseTypeFactory {
 
     private static boolean isNotPagingOperation(Operation operation) {
         return operation.getExtensions().getXmsPageable() == null
-            || !(operation.getExtensions().getXmsPageable().getNextOperation() == operation);
+            || operation.getExtensions().getXmsPageable().getNextOperation() != operation;
     }
 
     private static boolean isByteStream(IType type) {

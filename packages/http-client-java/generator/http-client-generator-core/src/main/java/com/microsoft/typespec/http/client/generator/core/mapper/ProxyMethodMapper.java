@@ -157,7 +157,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         builder.returnValueWireType(wireValueType);
 
         final IType methodReturnType
-            = AsyncResponseTypeFactory.create(operation, bodyTypeMapped, isDataPlaneClient, settings, false);
+            = ResponseTypeFactory.createAsyncResponse(operation, bodyTypeMapped, isDataPlaneClient, settings, false);
         builder.returnType(methodReturnType);
     }
 
@@ -356,8 +356,8 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             && ((GenericType) asyncRestResponseReturnType).getTypeArguments()[0] instanceof GenericType
             && ((GenericType) ((GenericType) asyncRestResponseReturnType).getTypeArguments()[0]).getName()
                 .equals("ResponseBase")) {
-            final IType asyncResponseWithNoHeaders = AsyncResponseTypeFactory.create(operation, responseBodyType,
-                settings.isDataPlaneClient(), settings, true);
+            final IType asyncResponseWithNoHeaders = ResponseTypeFactory.createAsyncResponse(operation,
+                responseBodyType, settings.isDataPlaneClient(), settings, true);
             builder.returnType(asyncResponseWithNoHeaders);
             builder.name(operationName + "NoCustomHeaders");
             builder.customHeaderIgnored(true);
