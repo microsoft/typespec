@@ -104,7 +104,7 @@ export const $lib = createTypeSpecLibrary({
     "invalid-java-namespace": {
       severity: "warning",
       messages: {
-        default: paramMessage`Namespace '${"namespace"}' contains reserved keywords, use '${"processedNamespace"}' instead.`,
+        default: paramMessage`Namespace '${"namespace"}' contains reserved Java keywords, replaced it with '${"processedNamespace"}'.`,
       },
     },
   },
