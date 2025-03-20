@@ -1,9 +1,4 @@
-import {
-  createSdkContext,
-  SdkContext,
-  SdkHttpOperation,
-  SdkServiceOperation,
-} from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
@@ -18,23 +13,7 @@ import { runPython3 } from "./run-python3.js";
 import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
 import { md2Rst, removeUnderscoresFromNamespace } from "./utils.js";
 
-export function getModelsMode(context: SdkContext): "dpg" | "none" {
-  const specifiedModelsMode = context.emitContext.options["models-mode"];
-  if (specifiedModelsMode) {
-    const modelModes = ["dpg", "none"];
-    if (modelModes.includes(specifiedModelsMode)) {
-      return specifiedModelsMode;
-    }
-    reportDiagnostic(context.program, {
-      code: "invalid-models-mode",
-      target: NoTarget,
-      format: { inValidValue: specifiedModelsMode },
-    });
-  }
-  return "dpg";
-}
-
-function addDefaultOptions(sdkContext: SdkContext) {
+function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
     "package-version": "1.0.0b1",
     "generate-packaging-files": true,
@@ -45,18 +24,11 @@ function addDefaultOptions(sdkContext: SdkContext) {
     ...sdkContext.emitContext.options,
   };
   const options = sdkContext.emitContext.options;
-  options["models-mode"] = getModelsMode(sdkContext);
-  if (options["generate-packaging-files"]) {
-    options["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
-  }
+  options["models-mode"] = sdkContext.emitContext.options["models-mode"] ?? "dpg";
   if (!options["package-name"]) {
     options["package-name"] = removeUnderscoresFromNamespace(
       (sdkContext.sdkPackage.rootNamespace ?? "").toLowerCase(),
     ).replace(/\./g, "-");
-  }
-  if (options.flavor !== "azure") {
-    // if they pass in a flavor other than azure, we want to ignore the value
-    options.flavor = undefined;
   }
   if (!options.flavor && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
     options.flavor = "azure";
@@ -66,10 +38,10 @@ function addDefaultOptions(sdkContext: SdkContext) {
   }
 }
 
-async function createPythonSdkContext<TServiceOperation extends SdkServiceOperation>(
+async function createPythonSdkContext(
   context: EmitContext<PythonEmitterOptions>,
-): Promise<PythonSdkContext<TServiceOperation>> {
-  const sdkContext = await createSdkContext<PythonEmitterOptions, TServiceOperation>(
+): Promise<PythonSdkContext> {
+  const sdkContext = await createSdkContext<PythonEmitterOptions>(
     context,
     "@azure-tools/typespec-python",
   );
@@ -146,7 +118,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   cleanAllCache();
 
   const program = context.program;
-  const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context);
+  const sdkContext = await createPythonSdkContext(context);
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
   addDefaultOptions(sdkContext);
@@ -184,6 +156,9 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
 
   for (const [key, value] of Object.entries(resolvedOptions)) {
     commandArgs[key] = value;
+  }
+  if (resolvedOptions["generate-packaging-files"]) {
+    commandArgs["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
   }
   if (sdkContext.arm === true) {
     commandArgs["azure-arm"] = "true";
