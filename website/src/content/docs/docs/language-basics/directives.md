@@ -80,6 +80,13 @@ model Post {
 }
 ```
 
+```tsp
+#suppress "@typespec/http/no-service-found" "standard library route"
+namespace Lib {
+  @route("/test") op get(): string;
+}
+```
+
 ### Api
 
 There is currently no exposed api to resolve suppresssions

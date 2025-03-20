@@ -70,7 +70,7 @@ export function emitTypeReference(
   switch (type.kind) {
     case "Scalar":
       // Get the scalar and return it directly, as it is a primitive.
-      return getJsScalar(ctx.program, type, position);
+      return getJsScalar(ctx, module, type, position).type;
     case "Model": {
       // First handle arrays.
       if (isArrayModelType(ctx.program, type)) {
