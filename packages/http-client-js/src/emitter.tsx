@@ -33,7 +33,9 @@ export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
           <ay.SourceDirectory path="models">
             <ts.BarrelFile export="models" />
             <Models />
-            <ModelSerializers />
+            <ay.SourceDirectory path="internal">
+              <ModelSerializers />
+            </ay.SourceDirectory>
           </ay.SourceDirectory>
           <ay.SourceDirectory path="api">
             <OperationsDirectory />
