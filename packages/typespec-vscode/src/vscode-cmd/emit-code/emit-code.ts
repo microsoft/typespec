@@ -60,7 +60,7 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
     ignoreFocusOut: true,
   });
   if (!codeType) {
-    logger.info("No emitter Type selected. Emitting Cancelled.");
+    logger.info("No emitter type selected. Emitting Cancelled.");
     return undefined;
   }
 
@@ -104,7 +104,7 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
   emitterSelector.items = all;
   emitterSelector.title = `Emit from TypeSpec`;
   emitterSelector.canSelectMany = false;
-  emitterSelector.placeholder = `Select a Language for${codeType.emitterKind !== EmitterKind.Unknown ? " " + codeType.emitterKind : ""} code Emitting`;
+  emitterSelector.placeholder = `Select a language for${codeType.emitterKind !== EmitterKind.Unknown ? " " + codeType.emitterKind : ""} code emitting`;
   emitterSelector.ignoreFocusOut = true;
   emitterSelector.onDidTriggerItemButton(async (e) => {
     if (e.button.tooltip === "More details") {
@@ -148,7 +148,7 @@ async function doEmit(
 ): Promise<ResultCode> {
   if (!mainTspFile || !(await isFile(mainTspFile))) {
     logger.error(
-      "Invalid typespec project. There is no main tsp file in the project. Emitting Cancelled.",
+      "Invalid TypeSpec project. There is no main tsp file in the project. Emitting Cancelled.",
       [],
       { showOutput: false, showPopup: true },
     );
@@ -526,7 +526,7 @@ export async function emitCode(
   } else {
     const tspStartFile = await getEntrypointTspFile(uri.fsPath);
     if (!tspStartFile) {
-      logger.info(`No entrypoint file (${StartFileName}). Invalid typespec project.`, [], {
+      logger.info(`No entrypoint file (${StartFileName}). Invalid TypeSpec project.`, [], {
         showOutput: true,
         showPopup: true,
       });
@@ -683,7 +683,7 @@ export async function emitCode(
           }
         } else if (selectedItem === selectMultipleQuickPick) {
           const selectedItems = await vscode.window.showQuickPick(existingEmitterQuickPickItems, {
-            title: "Generate from TypeSpec",
+            title: "Emit from TypeSpec",
             canPickMany: true,
             placeHolder: "Select emitters",
             ignoreFocusOut: true,

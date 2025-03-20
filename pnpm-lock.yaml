@@ -1967,6 +1967,9 @@ importers:
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0
+      micromatch:
+        specifier: ^4.0.8
+        version: 4.0.8
       morgan:
         specifier: ^1.10.0
         version: 1.10.0
@@ -2001,6 +2004,9 @@ importers:
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.0
+      '@types/micromatch':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/morgan':
         specifier: ^1.9.4
         version: 1.9.9
