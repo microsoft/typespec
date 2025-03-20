@@ -103,7 +103,7 @@ def png_data() -> bytes:
 
 def test_request_body(client: BytesClient, png_data: bytes):
     client.request_body.default(
-        value=bytes("test", "utf-8"),
+        value=png_data,
     )
     client.request_body.octet_stream(
         value=png_data,
@@ -121,8 +121,9 @@ def test_request_body(client: BytesClient, png_data: bytes):
 
 def test_response_body(client: BytesClient, png_data: bytes):
     expected = b"test"
-    assert expected == client.response_body.default()
+    assert b"".join(client.response_body.default()) == png_data
     assert expected == client.response_body.base64()
-    assert expected == client.response_body.base64_url()
     assert b"".join(client.response_body.octet_stream()) == png_data
     assert b"".join(client.response_body.custom_content_type()) == png_data
+    # will reopen after TCGC release a fix version for https://github.com/Azure/typespec-azure/pull/2411
+    # assert expected == client.response_body.base64_url()
