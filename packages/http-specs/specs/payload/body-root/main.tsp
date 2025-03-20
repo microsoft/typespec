@@ -21,6 +21,15 @@ model InputRequest {
 @scenarioDoc("""
   Test case for using @bodyRoot with a header and a path parameter for input only request.
   
+  Should generate method as typespec defines.
+  Should not generate separated path/header parameters.
+  Should generate an method like below:
+  ```
+  inputOnly(option: InputRequest);
+  ```
+  Please note the parameter name is devired from the model name and it may vary by language. 
+  
+  
   Expected request path:
   /input-only/alice
   
@@ -50,6 +59,15 @@ model RoundTripModel {
 @scenario
 @scenarioDoc("""
   Test case for using @bodyRoot with a header and a path parameter for input and output request.
+  
+  Try to generate method as typespec defines.
+  Should not generate separated path/header parameters.
+  Should generate an method like below:
+  ```
+  inputAndOutput(option: RoundTripModel): RoundTripModel;
+  ```
+  Please note the parameter name is devired from the model name and it may vary by language. 
+  Please also note some languages may split models into multiple parameters.
   
   Expected request path:
   /input-and-output/alice
@@ -97,6 +115,15 @@ model OutputResponse {
 @scenarioDoc("""
   Test case for using @bodyRoot with a header and a path parameter for output only response.
   
+  Should generate method as typespec defines.
+  Should not generate separated path/header parameters.
+  Should generate an method like below:
+  ```
+  outputOnly(name: string): OutputResponse;
+  ```
+  Please note the parameter name is devired from the model name and it may vary by language. 
+  
+  
   Expected request path:
   /output-only/alice
   
@@ -128,6 +155,14 @@ model OptionalParamRequest {
 @scenarioDoc("""
   Test case for using @bodyRoot with optional parameters.
   
+  Should generate method as typespec defines.
+  Should not generate separated path/header/query parameters.
+  Should generate an method like below:
+  ```
+  optionalParam(option: OptionalParamRequest): string[];
+  ```
+  Please note the parameter name is devired from the model name and it may vary by language. 
+  
   Expected request path:
   /optional-query/alice
   
@@ -145,4 +180,4 @@ model OptionalParamRequest {
   """)
 @get
 @route("/optional-param")
-op optionalQuery(@bodyRoot option: OptionalParamRequest): string[];
+op optionalParam(@bodyRoot option: OptionalParamRequest): string[];

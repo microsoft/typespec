@@ -4,7 +4,7 @@ import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
 // Input only scenario
-Scenarios.Payload_BodyRoot_InputOnly = passOnSuccess({
+Scenarios.Payload_BodyRoot_inputOnly = passOnSuccess({
   uri: "/input-only/alice",
   method: "post",
   request: {
@@ -21,7 +21,7 @@ Scenarios.Payload_BodyRoot_InputOnly = passOnSuccess({
 });
 
 // Input and output scenario
-Scenarios.Payload_BodyRoot_InputAndOutput = passOnSuccess({
+Scenarios.Payload_BodyRoot_inputAndOutput = passOnSuccess({
   uri: "/input-and-output/alice",
   method: "post",
   request: {
@@ -48,7 +48,7 @@ Scenarios.Payload_BodyRoot_InputAndOutput = passOnSuccess({
 });
 
 // Output only scenario
-Scenarios.Payload_BodyRoot_OutputOnly = passOnSuccess({
+Scenarios.Payload_BodyRoot_outputOnly = passOnSuccess({
   uri: "/output-only/alice",
   method: "get",
   request: {},
@@ -67,7 +67,7 @@ Scenarios.Payload_BodyRoot_OutputOnly = passOnSuccess({
 });
 
 // Optional query scenario
-Scenarios.Payload_BodyRoot_OptionalParam = passOnSuccess({
+Scenarios.Payload_BodyRoot_optionalParam = passOnSuccess({
   uri: "/optional-param",
   method: "get",
   request: {

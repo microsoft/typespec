@@ -1114,11 +1114,27 @@ spreadCompositeRequestWithoutBody(name: string, testHeader: string)
 Expected path parameter: name="foo"
 Expected header parameter: testHeader="bar"
 
-### Payload_BodyRoot_InputOnly
+### Payload_BodyRoot_inputAndOutput
 
-- Endpoints: `post /input-only/alice`
+- Endpoint: `post /body-root/input-and-output`
 
-Expected input body:
+Test case for using @bodyRoot with a header and a path parameter for input and output request.
+
+Try to generate method as typespec defines.
+Should not generate separated path/header parameters.
+Should generate an method like below:
+
+```
+inputAndOutput(option: RoundTripModel): RoundTripModel;
+```
+
+Please note the parameter name is devired from the model name and it may vary by language.
+Please also note some languages may split models into multiple parameters.
+
+Expected request path:
+/input-and-output/alice
+
+Expected request body:
 
 ```json
 {
@@ -1127,18 +1143,8 @@ Expected input body:
 }
 ```
 
-### Payload_BodyRoot_InputAndOutput
-
-- Endpoints: `post /input-and-output/alice`
-
-Expected input body:
-
-```json
-{
-  "age": 30,
-  "gender": "female"
-}
-```
+Expected request header:
+`x-client-id: 123`
 
 Expected response body:
 
@@ -1150,29 +1156,102 @@ Expected response body:
 }
 ```
 
-### Payload_BodyRoot_OutputOnly
+Expected response header:
+`x-client-id: 123`
 
-- Endpoints: `get /output-only/alice`
+### Payload_BodyRoot_inputOnly
 
-Expected response body:
+- Endpoint: `post /body-root/input-only`
+
+Test case for using @bodyRoot with a header and a path parameter for input only request.
+
+Should generate method as typespec defines.
+Should not generate separated path/header parameters.
+Should generate an method like below:
+
+```
+inputOnly(option: InputRequest);
+```
+
+Please note the parameter name is devired from the model name and it may vary by language.
+
+Expected request path:
+/input-only/alice
+
+Expected request body:
 
 ```json
 {
-  "name": "alice",
   "age": 30,
   "gender": "female"
 }
 ```
 
-### Payload_BodyRoot_OptionalParam
+Expected request header:
+`x-client-id: 123`
 
-- Endpoints: `get /optional-param`
+### Payload_BodyRoot_optionalParam
+
+- Endpoint: `get /body-root/optional-param`
+
+Test case for using @bodyRoot with optional parameters.
+
+Should generate method as typespec defines.
+Should not generate separated path/header/query parameters.
+Should generate an method like below:
+
+```
+optionalParam(option: OptionalParamRequest): string[];
+```
+
+Please note the parameter name is devired from the model name and it may vary by language.
+
+Expected request path:
+/optional-query/alice
+
+Expected request query:
+`orderby=asc`
+
+Expected request header:
+`x-client-id: 123`
 
 Expected response body:
 
 ```json
 ["cat", "dog"]
 ```
+
+### Payload_BodyRoot_outputOnly
+
+- Endpoint: `get /body-root/output-only`
+
+Test case for using @bodyRoot with a header and a path parameter for output only response.
+
+Should generate method as typespec defines.
+Should not generate separated path/header parameters.
+Should generate an method like below:
+
+```
+outputOnly(name: string): OutputResponse;
+```
+
+Please note the parameter name is devired from the model name and it may vary by language.
+
+Expected request path:
+/output-only/alice
+
+Expected response body:
+
+```json
+{
+  "name": "alice",
+  "age": 30,
+  "gender": "female"
+}
+```
+
+Expected response header:
+`x-client-id: 123`
 
 ### Payload_ContentNegotiation_DifferentBody
 
