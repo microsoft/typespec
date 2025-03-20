@@ -17,7 +17,7 @@ extends:
         parameters:
           BuildPrereleaseVersion: true
           UseTypeSpecNext: false
-          Publish: "public"
+          Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
           PublishDependsOnTest: true
           PackagePath: /packages/http-client-java
           EmitterPackageJsonPath: packages/http-client-java/emitter/package.json
@@ -30,4 +30,3 @@ extends:
           LanguageShortName: "java"
           HasNugetPackages: false
           CadlRanchName: "@typespec/http-client-java"
-          EnableCadlRanchReport: false

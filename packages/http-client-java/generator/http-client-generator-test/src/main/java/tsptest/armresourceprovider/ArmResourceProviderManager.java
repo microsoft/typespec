@@ -22,11 +22,13 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.core.util.Configuration;
+import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import tsptest.armresourceprovider.fluent.ArmResourceProviderClient;
@@ -34,11 +36,15 @@ import tsptest.armresourceprovider.implementation.ArmResourceProviderClientBuild
 import tsptest.armresourceprovider.implementation.ChildExtensionResourceInterfacesImpl;
 import tsptest.armresourceprovider.implementation.ChildResourcesInterfacesImpl;
 import tsptest.armresourceprovider.implementation.CustomTemplateResourceInterfacesImpl;
+import tsptest.armresourceprovider.implementation.ManagedMaintenanceWindowStatusOperationsImpl;
+import tsptest.armresourceprovider.implementation.ModelInterfaceSameNamesImpl;
 import tsptest.armresourceprovider.implementation.OperationsImpl;
 import tsptest.armresourceprovider.implementation.TopLevelArmResourceInterfacesImpl;
 import tsptest.armresourceprovider.models.ChildExtensionResourceInterfaces;
 import tsptest.armresourceprovider.models.ChildResourcesInterfaces;
 import tsptest.armresourceprovider.models.CustomTemplateResourceInterfaces;
+import tsptest.armresourceprovider.models.ManagedMaintenanceWindowStatusOperations;
+import tsptest.armresourceprovider.models.ModelInterfaceSameNames;
 import tsptest.armresourceprovider.models.Operations;
 import tsptest.armresourceprovider.models.TopLevelArmResourceInterfaces;
 
@@ -56,6 +62,10 @@ public final class ArmResourceProviderManager {
     private Operations operations;
 
     private ChildExtensionResourceInterfaces childExtensionResourceInterfaces;
+
+    private ManagedMaintenanceWindowStatusOperations managedMaintenanceWindowStatusOperations;
+
+    private ModelInterfaceSameNames modelInterfaceSameNames;
 
     private final ArmResourceProviderClient clientObject;
 
@@ -109,6 +119,9 @@ public final class ArmResourceProviderManager {
      */
     public static final class Configurable {
         private static final ClientLogger LOGGER = new ClientLogger(Configurable.class);
+        private static final String SDK_VERSION = "version";
+        private static final Map<String, String> PROPERTIES
+            = CoreUtils.getProperties("azure-resourcemanager-armresourceprovider-generated.properties");
 
         private HttpClient httpClient;
         private HttpLogOptions httpLogOptions;
@@ -216,12 +229,14 @@ public final class ArmResourceProviderManager {
             Objects.requireNonNull(credential, "'credential' cannot be null.");
             Objects.requireNonNull(profile, "'profile' cannot be null.");
 
+            String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, "UnknownVersion");
+
             StringBuilder userAgentBuilder = new StringBuilder();
             userAgentBuilder.append("azsdk-java")
                 .append("-")
                 .append("tsptest.armresourceprovider")
                 .append("/")
-                .append("1.0.0-beta.1");
+                .append(clientVersion);
             if (!Configuration.getGlobalConfiguration().get("AZURE_TELEMETRY_DISABLED", false)) {
                 userAgentBuilder.append(" (")
                     .append(Configuration.getGlobalConfiguration().get("java.version"))
@@ -329,6 +344,32 @@ public final class ArmResourceProviderManager {
                 = new ChildExtensionResourceInterfacesImpl(clientObject.getChildExtensionResourceInterfaces(), this);
         }
         return childExtensionResourceInterfaces;
+    }
+
+    /**
+     * Gets the resource collection API of ManagedMaintenanceWindowStatusOperations.
+     * 
+     * @return Resource collection API of ManagedMaintenanceWindowStatusOperations.
+     */
+    public ManagedMaintenanceWindowStatusOperations managedMaintenanceWindowStatusOperations() {
+        if (this.managedMaintenanceWindowStatusOperations == null) {
+            this.managedMaintenanceWindowStatusOperations = new ManagedMaintenanceWindowStatusOperationsImpl(
+                clientObject.getManagedMaintenanceWindowStatusOperations(), this);
+        }
+        return managedMaintenanceWindowStatusOperations;
+    }
+
+    /**
+     * Gets the resource collection API of ModelInterfaceSameNames.
+     * 
+     * @return Resource collection API of ModelInterfaceSameNames.
+     */
+    public ModelInterfaceSameNames modelInterfaceSameNames() {
+        if (this.modelInterfaceSameNames == null) {
+            this.modelInterfaceSameNames
+                = new ModelInterfaceSameNamesImpl(clientObject.getModelInterfaceSameNames(), this);
+        }
+        return modelInterfaceSameNames;
     }
 
     /**

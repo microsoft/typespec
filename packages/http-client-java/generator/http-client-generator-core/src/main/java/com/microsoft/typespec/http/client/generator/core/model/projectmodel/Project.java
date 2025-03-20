@@ -56,15 +56,14 @@ public class Project {
     public enum Dependency {
         // azure
         AZURE_CLIENT_SDK_PARENT("com.azure", "azure-client-sdk-parent", "1.7.0"),
-        AZURE_CORE("com.azure", "azure-core", "1.54.1"),
-        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.15.6"),
-        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.7"),
-        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.4"),
-        AZURE_IDENTITY("com.azure", "azure-identity", "1.14.2"),
-        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.56"),
+        AZURE_CORE("com.azure", "azure-core", "1.55.2"),
+        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.16.2"),
+        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.10"),
+        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.7"),
+        AZURE_IDENTITY("com.azure", "azure-identity", "1.15.3"),
+        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.59"),
 
-        CLIENTCORE("io.clientcore", "core", "1.0.0-beta.1"),
-        CLIENTCORE_JSON("io.clientcore", "core-json", "1.0.0-beta.1");
+        CLIENTCORE("io.clientcore", "core", "1.0.0-beta.5");
 
         private final String groupId;
         private final String artifactId;

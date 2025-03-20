@@ -16,7 +16,7 @@ configuration:
           - isPullRequest
           - isOpen
           - isNotLabeledWith:
-              label: no-recent-activity
+              label: stale
           - noActivitySince:
               days: 30
         actions:
@@ -35,7 +35,7 @@ configuration:
           - isPullRequest
           - isOpen
           - hasLabel:
-              label: no-recent-activity
+              label: stale
           - noActivitySince:
               days: 30
         actions:

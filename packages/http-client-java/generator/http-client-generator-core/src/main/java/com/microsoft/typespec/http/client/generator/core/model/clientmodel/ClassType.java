@@ -54,7 +54,6 @@ import com.azure.core.util.logging.LogLevel;
 import com.azure.core.util.polling.PollOperationDetails;
 import com.azure.core.util.serializer.JsonSerializer;
 import com.azure.core.util.serializer.SerializerAdapter;
-import com.azure.core.util.serializer.TypeReference;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -110,22 +109,24 @@ public class ClassType implements IType {
                 new ClassDetails(HttpPipeline.class, "io.clientcore.core.http.pipeline.HttpPipeline"));
             put(HttpPipelineBuilder.class,
                 new ClassDetails(HttpPipelineBuilder.class, "io.clientcore.core.http.pipeline.HttpPipelineBuilder"));
-            put(Context.class, new ClassDetails(Context.class, "io.clientcore.core.util.Context"));
+            put(Context.class, new ClassDetails(Context.class, "io.clientcore.core.utils.Context"));
             put(HttpClient.class, new ClassDetails(HttpClient.class, "io.clientcore.core.http.client.HttpClient"));
             put(HttpLogOptions.class,
-                new ClassDetails(HttpLogOptions.class, "io.clientcore.core.http.models.HttpLogOptions"));
+                new ClassDetails(HttpLogOptions.class, "io.clientcore.core.http.pipeline.HttpInstrumentationOptions"));
             put(HttpPipelinePolicy.class,
                 new ClassDetails(HttpPipelinePolicy.class, "io.clientcore.core.http.pipeline.HttpPipelinePolicy"));
+            put(KeyCredential.class,
+                new ClassDetails(KeyCredential.class, "io.clientcore.core.credentials.KeyCredential"));
             put(KeyCredentialPolicy.class,
                 new ClassDetails(KeyCredentialPolicy.class, "io.clientcore.core.http.pipeline.KeyCredentialPolicy"));
             put(RetryPolicy.class,
                 new ClassDetails(RetryPolicy.class, "io.clientcore.core.http.pipeline.HttpRetryPolicy"));
             put(RedirectPolicy.class,
                 new ClassDetails(RedirectPolicy.class, "io.clientcore.core.http.pipeline.HttpRedirectPolicy"));
-            put(HttpLoggingPolicy.class,
-                new ClassDetails(HttpLoggingPolicy.class, "io.clientcore.core.http.pipeline.HttpLoggingPolicy"));
+            put(HttpLoggingPolicy.class, new ClassDetails(HttpLoggingPolicy.class,
+                "io.clientcore.core.http.pipeline.HttpInstrumentationPolicy"));
             put(Configuration.class,
-                new ClassDetails(Configuration.class, "io.clientcore.core.util.configuration.Configuration"));
+                new ClassDetails(Configuration.class, "io.clientcore.core.utils.configuration.Configuration"));
             put(HttpHeaders.class, new ClassDetails(HttpHeaders.class, "io.clientcore.core.models.Headers"));
             put(HttpHeaderName.class,
                 new ClassDetails(HttpHeaderName.class, "io.clientcore.core.http.models.HttpHeaderName"));
@@ -134,28 +135,36 @@ public class ClassType implements IType {
                 new ClassDetails(HttpResponse.class, "io.clientcore.core.http.models.HttpResponse"));
             put(RequestOptions.class,
                 new ClassDetails(RequestOptions.class, "io.clientcore.core.http.models.RequestOptions"));
-            put(BinaryData.class, new ClassDetails(BinaryData.class, "io.clientcore.core.util.binarydata.BinaryData"));
+            put(BinaryData.class,
+                new ClassDetails(BinaryData.class, "io.clientcore.core.models.binarydata.BinaryData"));
             put(RetryOptions.class,
-                new ClassDetails(RetryOptions.class, "io.clientcore.core.http.models.HttpRetryOptions"));
+                new ClassDetails(RetryOptions.class, "io.clientcore.core.http.pipeline.HttpRetryOptions"));
             put(ProxyOptions.class,
                 new ClassDetails(ProxyOptions.class, "io.clientcore.core.http.models.ProxyOptions"));
             put(Response.class, new ClassDetails(Response.class, "io.clientcore.core.http.models.Response"));
             put(SimpleResponse.class, new ClassDetails(SimpleResponse.class, "io.clientcore.core.http.SimpleResponse"));
             put(ExpandableStringEnum.class,
-                new ClassDetails(ExpandableStringEnum.class, "io.clientcore.core.util.ExpandableEnum"));
-            put(ExpandableEnum.class, new ClassDetails(ExpandableEnum.class, "io.clientcore.core.util.ExpandableEnum"));
+                new ClassDetails(ExpandableStringEnum.class, "io.clientcore.core.utils.ExpandableEnum"));
+            put(ExpandableEnum.class,
+                new ClassDetails(ExpandableEnum.class, "io.clientcore.core.utils.ExpandableEnum"));
             put(HttpResponseException.class, new ClassDetails(HttpResponseException.class,
-                "io.clientcore.core.http.exception.HttpResponseException"));
-            put(HttpTrait.class, new ClassDetails(HttpTrait.class, "io.clientcore.core.models.traits.HttpTrait"));
+                "io.clientcore.core.http.exceptions.HttpResponseException"));
+            put(HttpTrait.class, new ClassDetails(HttpTrait.class, "io.clientcore.core.traits.HttpTrait"));
             put(ConfigurationTrait.class,
-                new ClassDetails(ConfigurationTrait.class, "io.clientcore.core.models.traits.ConfigurationTrait"));
-            put(EndpointTrait.class,
-                new ClassDetails(EndpointTrait.class, "io.clientcore.core.models.traits.EndpointTrait"));
+                new ClassDetails(ConfigurationTrait.class, "io.clientcore.core.traits.ConfigurationTrait"));
+            put(EndpointTrait.class, new ClassDetails(EndpointTrait.class, "io.clientcore.core.traits.EndpointTrait"));
             put(KeyCredentialTrait.class,
-                new ClassDetails(KeyCredentialTrait.class, "io.clientcore.core.models.traits.KeyCredentialTrait"));
-            put(TypeReference.class, new ClassDetails(TypeReference.class, "io.clientcore.core.models.TypeReference"));
-            put(ClientLogger.class, new ClassDetails(ClientLogger.class, "io.clientcore.core.util.ClientLogger"));
-            put(LogLevel.class, new ClassDetails(LogLevel.class, "io.clientcore.core.util.ClientLogger.LogLevel"));
+                new ClassDetails(KeyCredentialTrait.class, "io.clientcore.core.traits.KeyCredentialTrait"));
+            put(ClientLogger.class,
+                new ClassDetails(ClientLogger.class, "io.clientcore.core.instrumentation.logging.ClientLogger"));
+            put(LogLevel.class,
+                new ClassDetails(LogLevel.class, "io.clientcore.core.instrumentation.logging.ClientLogger.LogLevel"));
+            put(com.azure.core.util.ServiceVersion.class, new ClassDetails(com.azure.core.util.ServiceVersion.class,
+                "io.clientcore.core.http.models.ServiceVersion"));
+            put(com.azure.core.util.DateTimeRfc1123.class, new ClassDetails(com.azure.core.util.DateTimeRfc1123.class,
+                "io.clientcore.core.utils.DateTimeRfc1123"));
+            put(com.azure.core.util.Base64Url.class,
+                new ClassDetails(com.azure.core.util.Base64Url.class, "io.clientcore.core.utils.Base64Uri"));
         }
     };
 
@@ -194,7 +203,7 @@ public class ClassType implements IType {
     public static final ClassType HTTP_TRAIT = getClassTypeBuilder(HttpTrait.class).build();
     public static final ClassType CONFIGURATION_TRAIT = getClassTypeBuilder(ConfigurationTrait.class).build();
     public static final ClassType PROXY_TRAIT
-        = new ClassType.Builder(false).packageName("io.clientcore.core.models.traits").name("ProxyTrait").build();
+        = new ClassType.Builder(false).packageName("io.clientcore.core.traits").name("ProxyTrait").build();
     public static final ClassType POLL_OPERATION_DETAILS = getClassTypeBuilder(PollOperationDetails.class).build();
     public static final ClassType JSON_SERIALIZABLE = getClassTypeBuilder(JsonSerializable.class).build();
     public static final ClassType JSON_WRITER = getClassTypeBuilder(JsonWriter.class).build();
@@ -287,14 +296,14 @@ public class ClassType implements IType {
     public static final ClassType BASE_64_URL = getClassTypeBuilder(Base64Url.class)
         .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
         .jsonToken("JsonToken.STRING")
-        .jsonDeserializationMethod("getNullable(nonNullReader -> new Base64Url(nonNullReader.getString()))")
+        .jsonDeserializationMethod("getNullable(nonNullReader -> new "
+            + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "(nonNullReader.getString()))")
         .serializationMethodBase("writeString")
-        .xmlElementDeserializationMethod("getNullableElement(Base64Url::new)")
-        .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, Base64Url::new)")
+        .xmlElementDeserializationMethod(
+            "getNullableElement(" + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "::new)")
+        .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, "
+            + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "::new)")
         .build();
-
-    public static final ClassType ANDROID_BASE_64_URL
-        = new ClassType.Builder(false).packageName("com.azure.android.core.util").name("Base64Url").build();
 
     public static final ClassType LOCAL_DATE = new Builder(false).knownClass(java.time.LocalDate.class)
         .defaultValueExpressionConverter(
@@ -306,9 +315,6 @@ public class ClassType implements IType {
         .xmlElementDeserializationMethod("getNullableElement(LocalDate::parse)")
         .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, LocalDate::parse)")
         .build();
-
-    public static final ClassType ANDROID_LOCAL_DATE
-        = new ClassType.Builder(false).packageName("org.threeten.bp").name("LocalDate").build();
 
     public static final ClassType DATE_TIME = new Builder(false).knownClass(OffsetDateTime.class)
         .defaultValueExpressionConverter(
@@ -342,9 +348,6 @@ public class ClassType implements IType {
         .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, Duration::parse)")
         .build();
 
-    public static final ClassType ANDROID_DURATION
-        = new ClassType.Builder(false).packageName("org.threeten.bp").name("Duration").build();
-
     public static final ClassType DATE_TIME_RFC_1123 = getClassTypeBuilder(DateTimeRfc1123.class)
         .defaultValueExpressionConverter(
             defaultValueExpression -> "new DateTimeRfc1123(\"" + defaultValueExpression + "\")")
@@ -355,9 +358,6 @@ public class ClassType implements IType {
         .xmlElementDeserializationMethod("getNullableElement(DateTimeRfc1123::new)")
         .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, DateTimeRfc1123::new)")
         .build();
-
-    public static final ClassType ANDROID_DATE_TIME_RFC_1123
-        = new ClassType.Builder(false).packageName("com.azure.android.core.util").name("DateTimeRfc1123").build();
 
     public static final ClassType BIG_DECIMAL = new Builder(false).knownClass(BigDecimal.class)
         .defaultValueExpressionConverter(defaultValueExpression -> "new BigDecimal(\"" + defaultValueExpression + "\")")
@@ -384,11 +384,6 @@ public class ClassType implements IType {
     public static final ClassType TOKEN_CREDENTIAL
         = new ClassType.Builder(false).knownClass(TokenCredential.class).build();
 
-    public static final ClassType ANDROID_HTTP_RESPONSE_EXCEPTION
-        = new ClassType.Builder(false).packageName("com.azure.android.core.http.exception")
-            .name("HttpResponseException")
-            .build();
-
     public static final ClassType UNIX_TIME_DATE_TIME = new ClassType.Builder(false)
         .defaultValueExpressionConverter(
             defaultValueExpression -> "OffsetDateTime.parse(\"" + defaultValueExpression + "\")")
@@ -401,9 +396,6 @@ public class ClassType implements IType {
         .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, OffsetDateTime::parse)")
         .build();
 
-    public static final ClassType ANDROID_DATE_TIME
-        = new ClassType.Builder(false).packageName("org.threeten.bp").name("OffsetDateTime").build();
-
     public static final ClassType UNIX_TIME_LONG = new ClassType.Builder(false).prototypeAsLong().build();
 
     public static final ClassType DURATION_LONG = new ClassType.Builder(false).prototypeAsLong().build();
@@ -412,22 +404,11 @@ public class ClassType implements IType {
 
     public static final ClassType HTTP_PIPELINE = getClassTypeBuilder(HttpPipeline.class).build();
 
-    public static final ClassType ANDROID_HTTP_PIPELINE
-        = new ClassType.Builder(false).packageName("com.azure.android.core.http").name("HttpPipeline").build();
-
     public static final ClassType REST_PROXY = getClassTypeBuilder(RestProxy.class).build();
-
-    public static final ClassType ANDROID_REST_PROXY
-        = new ClassType.Builder(false).packageName("com.azure.android.core.rest").name("RestProxy").build();
 
     public static final ClassType SERIALIZER_ADAPTER
         = new ClassType.Builder(false).knownClass(SerializerAdapter.class).build();
     public static final ClassType JSON_SERIALIZER = getClassTypeBuilder(JsonSerializer.class).build();
-
-    public static final ClassType ANDROID_JACKSON_SERDER
-        = new ClassType.Builder(false).packageName("com.azure.android.core.serde.jackson")
-            .name("JacksonSerder")
-            .build();
 
     public static final ClassType FUNCTION = new ClassType.Builder(false).knownClass(Function.class).build();
 
@@ -456,34 +437,25 @@ public class ClassType implements IType {
                 + TemplateUtil.getContextNone())
         .build();
 
-    public static final ClassType ANDROID_CONTEXT
-        = new ClassType.Builder(false).packageName("com.azure.android.core.util").name("Context").build();
-
     public static final ClassType CLIENT_LOGGER = ClassType.getClassTypeBuilder(ClientLogger.class).build();
     public static final ClassType LOG_LEVEL = ClassType.getClassTypeBuilder(LogLevel.class).build();
+
+    public static final ClassType AZURE_CLOUD
+        = new ClassType.Builder(false).packageName("com.azure.core.models").name("AzureCloud").build();
 
     public static final ClassType AZURE_ENVIRONMENT
         = new ClassType.Builder(false).packageName("com.azure.core.management").name("AzureEnvironment").build();
 
     public static final ClassType HTTP_CLIENT = getClassTypeBuilder(HttpClient.class).build();
 
-    public static final ClassType ANDROID_HTTP_CLIENT
-        = new ClassType.Builder(false).packageName("com.azure.android.core.http").name("HttpClient").build();
-
     public static final ClassType HTTP_PIPELINE_POLICY = getClassTypeBuilder(HttpPipelinePolicy.class).build();
 
-    public static final ClassType ANDROID_HTTP_PIPELINE_POLICY
-        = new ClassType.Builder(false).packageName("com.azure.android.core.http").name("HttpPipelinePolicy").build();
-
     public static final ClassType HTTP_LOG_OPTIONS = getClassTypeBuilder(HttpLogOptions.class).build();
-
-    public static final ClassType ANDROID_HTTP_LOG_OPTIONS
-        = new ClassType.Builder(false).packageName("com.azure.android.core.http.policy").name("HttpLogOptions").build();
 
     public static final ClassType CONFIGURATION = getClassTypeBuilder(Configuration.class).build();
 
     public static final ClassType SERVICE_VERSION
-        = new ClassType.Builder(false).knownClass(ServiceVersion.class).build();
+        = getClassTypeBuilder(com.azure.core.util.ServiceVersion.class).build();
 
     public static final ClassType AZURE_KEY_CREDENTIAL
         = new ClassType.Builder(false).knownClass(AzureKeyCredential.class).build();
@@ -497,12 +469,9 @@ public class ClassType implements IType {
     public static final ClassType RETRY_OPTIONS = getClassTypeBuilder(RetryOptions.class).build();
 
     public static final ClassType REDIRECT_OPTIONS
-        = new ClassType.Builder(false).packageName("io.clientcore.core.http.models")
+        = new ClassType.Builder(false).packageName("io.clientcore.core.http.pipeline")
             .name("HttpRedirectOptions")
             .build();
-
-    public static final ClassType ANDROID_RETRY_POLICY
-        = new ClassType.Builder(false).packageName("com.azure.android.core.http.policy").name("RetryPolicy").build();
 
     public static final ClassType JSON_PATCH_DOCUMENT
         = new ClassType.Builder(false).knownClass(JsonPatchDocument.class).jsonToken("JsonToken.START_OBJECT").build();
@@ -706,7 +675,7 @@ public class ClassType implements IType {
     }
 
     public String convertToClientType(String expression) {
-        if (this == ClassType.DATE_TIME_RFC_1123 || this == ClassType.ANDROID_DATE_TIME_RFC_1123) {
+        if (this == ClassType.DATE_TIME_RFC_1123) {
             expression = expression + ".getDateTime()";
         } else if (this == ClassType.UNIX_TIME_LONG) {
             expression = "OffsetDateTime.ofInstant(Instant.ofEpochSecond(" + expression + "), ZoneOffset.UTC)";
@@ -724,12 +693,12 @@ public class ClassType implements IType {
     }
 
     public String convertFromClientType(String expression) {
-        if (this == ClassType.DATE_TIME_RFC_1123 || this == ClassType.ANDROID_DATE_TIME_RFC_1123) {
+        if (this == ClassType.DATE_TIME_RFC_1123) {
             expression = "new DateTimeRfc1123(" + expression + ")";
         } else if (this == ClassType.UNIX_TIME_LONG) {
             expression = expression + ".toEpochSecond()";
         } else if (this == ClassType.BASE_64_URL) {
-            expression = "Base64Url.encode(" + expression + ")";
+            expression = ClassType.BASE_64_URL.getName() + ".encode(" + expression + ")";
         } else if (this == ClassType.URL) {
             expression = expression + ".toString()";
         } else if (this == ClassType.DURATION_LONG) {

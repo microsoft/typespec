@@ -12,7 +12,7 @@ if not sys.version_info >= (3, 8, 0):
 
 try:
     import pip
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     raise Exception("Your Python installation doesn't have pip available")
 
 

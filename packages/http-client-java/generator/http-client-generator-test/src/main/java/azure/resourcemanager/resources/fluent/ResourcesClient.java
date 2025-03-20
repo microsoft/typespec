@@ -66,4 +66,18 @@ public interface ResourcesClient {
      * @return the SingletonsClient object.
      */
     SingletonsClient getSingletons();
+
+    /**
+     * Gets the ExtensionsResourcesClient object to access its operations.
+     * 
+     * @return the ExtensionsResourcesClient object.
+     */
+    ExtensionsResourcesClient getExtensionsResources();
+
+    /**
+     * Gets the LocationResourcesClient object to access its operations.
+     * 
+     * @return the LocationResourcesClient object.
+     */
+    LocationResourcesClient getLocationResources();
 }

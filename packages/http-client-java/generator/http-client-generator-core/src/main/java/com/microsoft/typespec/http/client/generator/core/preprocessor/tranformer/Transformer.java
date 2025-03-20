@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer;
 
+import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AndSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BinarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
@@ -52,7 +53,6 @@ public class Transformer {
             == JavaSettings.ClientFlattenAnnotationTarget.NONE) {
             markFlattenedSchemas(codeModel);
         }
-        transformOperationGroups(codeModel.getOperationGroups(), codeModel);
         if (codeModel.getGlobalParameters() != null) {
             for (Parameter parameter : codeModel.getGlobalParameters()) {
                 if (parameter.getLanguage().getJava() == null) {
@@ -61,8 +61,10 @@ public class Transformer {
             }
         }
         // multi-clients for TypeSpec
-        if (codeModel.getClients() != null) {
+        if (!CoreUtils.isNullOrEmpty(codeModel.getClients())) {
             transformClients(codeModel.getClients());
+        } else {
+            transformOperationGroups(codeModel.getOperationGroups(), codeModel);
         }
         return codeModel;
     }
@@ -77,9 +79,13 @@ public class Transformer {
                 group.getUsage().add(SchemaContext.OPTIONS_GROUP);
             });
         }
-        schemas.getObjects().addAll(schemas.getGroups());
-        schemas.setGroups(new ArrayList<>());
 
+        for (ObjectSchema groupSchema : schemas.getGroups()) {
+            renameType(groupSchema);
+            for (Property property : groupSchema.getProperties()) {
+                renameVariable(property);
+            }
+        }
         for (ObjectSchema objectSchema : schemas.getObjects()) {
             renameType(objectSchema);
             for (Property property : objectSchema.getProperties()) {
@@ -112,6 +118,9 @@ public class Transformer {
                 }
             }
         }
+
+        schemas.getObjects().addAll(schemas.getGroups());
+        schemas.setGroups(new ArrayList<>());
     }
 
     private void transformClients(List<Client> clients) {
@@ -123,26 +132,7 @@ public class Transformer {
             }
 
             if (client.getOperationGroups() != null) {
-                for (OperationGroup operationGroup : client.getOperationGroups()) {
-                    List<Operation> pagingOperations = new ArrayList<>();
-
-                    operationGroup.setCodeModel(client);
-                    renameMethodGroup(operationGroup);
-                    for (Operation operation : operationGroup.getOperations()) {
-                        operation.setOperationGroup(operationGroup);
-
-                        if (operation.getExtensions() != null && operation.getExtensions().getXmsPageable() != null) {
-                            pagingOperations.add(operation);
-                        }
-                    }
-
-                    // paging
-                    for (Operation operation : pagingOperations) {
-                        if (nonNullNextLink(operation)) {
-                            addPagingNextOperation(client, operation.getOperationGroup(), operation);
-                        }
-                    }
-                }
+                transformOperationGroups(client.getOperationGroups(), client);
             }
 
             if (client.getGlobalParameters() != null) {
@@ -155,7 +145,7 @@ public class Transformer {
         }
     }
 
-    private void transformOperationGroups(List<OperationGroup> operationGroups, CodeModel codeModel) {
+    private void transformOperationGroups(List<OperationGroup> operationGroups, Client codeModel) {
         List<Operation> pagingOperations = new ArrayList<>();
         for (OperationGroup operationGroup : operationGroups) {
             operationGroup.setCodeModel(codeModel);
@@ -208,6 +198,13 @@ public class Transformer {
                     }
                     renameOdataParameterNames(request);
                     deduplicateParameterNames(request);
+                }
+
+                if (operation.getConvenienceApi() != null
+                    && !CoreUtils.isNullOrEmpty(operation.getConvenienceApi().getRequests())) {
+                    for (Request request : operation.getConvenienceApi().getRequests()) {
+                        renameOdataParameterNames(request);
+                    }
                 }
 
                 if (operation.getExtensions() != null && operation.getExtensions().getXmsPageable() != null) {

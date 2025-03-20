@@ -1,5 +1,82 @@
 # Change Log - @typespec/openapi3
 
+## 0.67.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Deprecations
+
+- [#6305](https://github.com/microsoft/typespec/pull/6305) Related changes based on `http` library deprecation removal.
+
+### Features
+
+- [#6268](https://github.com/microsoft/typespec/pull/6268) `@typespec/versioning` is now an optional dependency.
+- [#6286](https://github.com/microsoft/typespec/pull/6286) Remove support for `@discriminator` on union
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6289](https://github.com/microsoft/typespec/pull/6289) Fix `utcDateTime` and `offsetDateTime` not using format `http-date` in header by default as the default http encoding defines
+- [#6411](https://github.com/microsoft/typespec/pull/6411) Add support for new `dryRun` emitter option
+- [#6473](https://github.com/microsoft/typespec/pull/6473) Adds support for `@encode` to specify array encodings for `@query` parameters
+
+
+## 0.66.0
+
+### Breaking Changes
+
+- [#6182](https://github.com/microsoft/typespec/pull/6182) Using `{service-name}` in `tspconfig.yaml` will always interpolate the current service name. `{service-name-if-multiple}` can be used to get the previous behavior
+
+### Features
+
+- [#6059](https://github.com/microsoft/typespec/pull/6059) Add support for new `@discriminated` unions
+- [#5994](https://github.com/microsoft/typespec/pull/5994) Adds `seal-object-schemas` emitter option to automatically set additionalProperties/unevaluatedProperties to `{ not: {} }` wherever possible
+- [#5961](https://github.com/microsoft/typespec/pull/5961) Updates JsonSchema and Open API 3.1 emitters to use unevaluatedProperties instead of additionalProperties, and updates Open API 3 emitters to match JsonSchema behavior of treating `Record<never>` as setting `additionalProperties: { not: {} }`
+- [#6130](https://github.com/microsoft/typespec/pull/6130) updates openapi3 to respect `@headers` `explode` option and use value syntax
+- [#6157](https://github.com/microsoft/typespec/pull/6157) Shared operations operationId can now be set if they all share the same value provided by `@operationId`
+- [#6006](https://github.com/microsoft/typespec/pull/6006) Expose core library types in API surface.
+
+### Bug Fixes
+
+- [#5901](https://github.com/microsoft/typespec/pull/5901) Fix: `@typespec/openapi3/invalid-component-fixed-field-key` show on incorrect target
+
+
+## 0.65.0
+
+### Bug Fixes
+
+- [#5893](https://github.com/microsoft/typespec/pull/5893) Updates tsp-openapi3 to support $ref in requestBodies
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5831](https://github.com/microsoft/typespec/pull/5831) Updates tsp-openapi3 operation response generation to inline expressions and pare down fields with default values. Also adds support for Open API headers and responses $refs.
+- [#4931](https://github.com/microsoft/typespec/pull/4931) Migrate versioning implementation to use mutator approach.
+
+
+## 0.64.0
+
+### Bug Fixes
+
+- [234eaeb](https://github.com/microsoft/typespec/commit/234eaeb223b85689f73ac3971e09f26c985f6c87) Allow void to be the response body type when other fields are present in the model. Previously, using `void` as a response body type would fail compilation if the model contained other fields (like `statusCode`).
+- [#5456](https://github.com/microsoft/typespec/pull/5456) Fix: OpenAPI YAML converts strings to boolean
+
+### Features
+
+- [#5372](https://github.com/microsoft/typespec/pull/5372) Adds support for @typespec/json-schema decorators with Open API 3.0 and 3.1 emitters.
+- [#5372](https://github.com/microsoft/typespec/pull/5372) Adds support for emitting Open API 3.1 models using the `openapi-versions` emitter configuration option.
+Open API 3.0 is emitted by default.
+
+
 ## 0.63.0
 
 ### Bug Fixes

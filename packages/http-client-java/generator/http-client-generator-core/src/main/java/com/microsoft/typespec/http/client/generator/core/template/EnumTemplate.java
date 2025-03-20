@@ -12,12 +12,12 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaContext;
-import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaEnum;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,7 +55,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
      * @param javaFile javaFile to write into
      * @param settings {@link JavaSettings} instance
      */
-    protected void writeBrandedExpandableEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
+    private void writeBrandedExpandableEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
         if (enumType.getElementType() == ClassType.STRING) {
             writeExpandableStringEnum(enumType, javaFile, settings);
         } else {
@@ -66,7 +66,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
     private void writeExpandableStringEnum(EnumType enumType, JavaFile javaFile, JavaSettings settings) {
         Set<String> imports = new HashSet<>();
         imports.add("java.util.Collection");
-        imports.add(getStringEnumImport());
+        imports.add(ClassType.EXPANDABLE_STRING_ENUM.getFullName());
         if (!settings.isStreamStyleSerialization()) {
             imports.add("com.fasterxml.jackson.annotation.JsonCreator");
         }
@@ -220,6 +220,12 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         imports.add("java.util.function.Function");
         if (!settings.isStreamStyleSerialization()) {
             imports.add("com.fasterxml.jackson.annotation.JsonCreator");
+        } else {
+            imports.add(ClassType.JSON_READER.getFullName());
+            imports.add(ClassType.JSON_WRITER.getFullName());
+            imports.add(ClassType.JSON_SERIALIZABLE.getFullName());
+            imports.add(ClassType.JSON_TOKEN.getFullName());
+            imports.add(IOException.class.getName());
         }
 
         addGeneratedImport(imports);
@@ -231,7 +237,13 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         IType elementType = enumType.getElementType();
         String typeName = elementType.getClientType().asNullable().toString();
         String pascalTypeName = CodeNamer.toPascalCase(typeName);
-        String declaration = enumName + " implements ExpandableEnum<" + pascalTypeName + ">";
+        String declaration;
+        if (settings.isStreamStyleSerialization()) {
+            declaration = String.format("%1$s implements ExpandableEnum<%2$s>, JsonSerializable<%1$s>", enumName,
+                pascalTypeName);
+        } else {
+            declaration = String.format("%1$s implements ExpandableEnum<%2$s>", enumName, pascalTypeName);
+        }
         javaFile.publicFinalClass(declaration, classBlock -> {
             classBlock.privateStaticFinalVariable(
                 String.format("Map<%1$s, %2$s> VALUES = new ConcurrentHashMap<>()", pascalTypeName, enumName));
@@ -287,10 +299,42 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                 comment.description("Gets the value of the " + enumName + " instance.");
                 comment.methodReturns("the value of the " + enumName + " instance.");
             });
-
             addGeneratedAnnotation(classBlock);
             classBlock.annotation("Override");
             classBlock.publicMethod(pascalTypeName + " getValue()", function -> function.methodReturn("this.value"));
+
+            if (settings.isStreamStyleSerialization()) {
+                // toJson
+                classBlock.javadocComment(JavaJavadocComment::inheritDoc);
+                addGeneratedAnnotation(classBlock);
+                classBlock.annotation("Override");
+                classBlock.publicMethod("JsonWriter toJson(JsonWriter jsonWriter) throws IOException", methodBlock -> {
+                    methodBlock.methodReturn(enumType.getElementType()
+                        .jsonSerializationMethodCall("jsonWriter", null, enumType.getToMethodName() + "()", false));
+                });
+
+                // fromJson
+                classBlock.javadocComment(javadocComment -> {
+                    javadocComment.description("Reads an instance of " + enumName + " from the JsonReader.");
+                    javadocComment.param("jsonReader", "The JsonReader being read.");
+                    javadocComment.methodReturns("An instance of " + enumName + " if the JsonReader was pointing to an "
+                        + "instance of it, or null if the JsonReader was pointing to JSON null.");
+                    javadocComment.methodThrows("IOException",
+                        "If an error occurs while reading the " + enumName + ".");
+                    javadocComment.methodThrows("IllegalStateException", "If unexpected JSON token is found.");
+                });
+                addGeneratedAnnotation(classBlock);
+                classBlock.publicStaticMethod(enumName + " fromJson(JsonReader jsonReader) throws IOException",
+                    methodBlock -> {
+                        methodBlock.line("JsonToken nextToken = jsonReader.nextToken();");
+                        methodBlock.ifBlock("nextToken == JsonToken.NULL",
+                            ifAction -> methodBlock.methodReturn("null"));
+                        methodBlock.ifBlock("nextToken != " + elementType.jsonToken(), ifAction -> ifAction.line(
+                            "throw new IllegalStateException(String.format(\"Unexpected JSON token for %s deserialization: %s\", "
+                                + elementType.jsonToken() + ", nextToken));"));
+                        methodBlock.methodReturn(enumType.jsonDeserializationMethod("jsonReader"));
+                    });
+            }
 
             // toString
             addGeneratedAnnotation(classBlock);
@@ -299,6 +343,8 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                 function -> function.methodReturn("Objects.toString(this.value)"));
 
             // equals
+            // checkstyle needs both equals() and hashcode() override, so even if its implementation is identical to
+            // Object's equals(), we still need it
             addGeneratedAnnotation(classBlock);
             classBlock.annotation("Override");
             classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)",
@@ -312,17 +358,13 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         });
     }
 
-    protected String getStringEnumImport() {
-        return ClassType.EXPANDABLE_STRING_ENUM.getFullName();
-    }
-
     /**
      * Creates the if check used by the JsonCreator method used in the Enum type.
      *
      * @param enumType The enum type.
      * @return The JsonCreator if check.
      */
-    protected String createEnumJsonCreatorIfCheck(EnumType enumType) {
+    private String createEnumJsonCreatorIfCheck(EnumType enumType) {
         IType enumElementType = enumType.getElementType();
         String toJsonMethodName = enumType.getToMethodName();
 
@@ -340,7 +382,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         }
     }
 
-    protected void addGeneratedImport(Set<String> imports) {
+    private void addGeneratedImport(Set<String> imports) {
         if (JavaSettings.getInstance().isDataPlaneClient()) {
             if (JavaSettings.getInstance().isBranded()) {
                 Annotation.GENERATED.addImportsTo(imports);
@@ -350,22 +392,12 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         }
     }
 
-    protected void addGeneratedAnnotation(JavaContext classBlock) {
+    private void addGeneratedAnnotation(JavaContext classBlock) {
         if (JavaSettings.getInstance().isDataPlaneClient()) {
             if (JavaSettings.getInstance().isBranded()) {
                 classBlock.annotation(Annotation.GENERATED.getName());
             } else {
                 classBlock.annotation(Annotation.METADATA.getName() + "(generated = true)");
-            }
-        }
-    }
-
-    protected void addGeneratedAnnotation(JavaEnum enumBlock) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
-            if (JavaSettings.getInstance().isBranded()) {
-                enumBlock.annotation(Annotation.GENERATED.getName());
-            } else {
-                enumBlock.annotation(Annotation.METADATA.getName() + "(generated = true)");
             }
         }
     }

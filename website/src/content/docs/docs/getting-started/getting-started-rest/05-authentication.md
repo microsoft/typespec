@@ -4,26 +4,24 @@ title: Authentication
 
 ## Introduction
 
-In this section, we'll focus on adding [authentication](../../libraries/http/authentication) to your REST API. We'll introduce the `@useAuth` decorator, show how to enforce authentication on specific operations, and provide an example using Bearer authentication.
+In this section, we'll focus on adding [authentication](../../../libraries/http/authentication/) to your REST API. We'll introduce the `@useAuth` decorator, show how to enforce authentication on specific operations, and provide an example using Bearer authentication.
 
 ## Introduction to the `@useAuth` Decorator
 
-The [@useAuth](../../libraries/http/reference/decorators#@TypeSpec.Http.useAuth) decorator is used to enforce authentication on specific operations in your REST API. This decorator allows you to specify the authentication mechanism that should be used for the operation. The TypeSpec HTTP library provides support for several authentication models, including `BearerAuth` for Bearer authentication.
+The [@useAuth](../../../libraries/http/reference/decorators/#@TypeSpec.Http.useAuth) decorator is used to enforce authentication on specific operations in your REST API. This decorator allows you to specify the authentication mechanism that should be used for the operation. The TypeSpec HTTP library provides support for several authentication models, including `BearerAuth` for Bearer authentication.
 
 Bearer authentication uses tokens for access control. The server generates a token upon login, and the client includes it in the Authorization header for protected resource requests. The server validates the token to grant access to the resource.
 
 ### Example: Enforcing Authentication on Specific Operations
 
-Let's update our existing operations to enforce authentication using the `@useAuth` decorator. We'll add authentication to the operations that modify pet data: creating, updating, and deleting pets. We'll also add a new error model for unauthorized access.
+Let's update our existing operations by enforcing authentication using the `@useAuth` decorator.We'll add authentication to the operations that modify pet data, such as creating, updating, and deleting pets. We'll also add a new error model for unauthorized access.
 
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;
 

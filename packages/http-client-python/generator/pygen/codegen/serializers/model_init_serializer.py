@@ -3,19 +3,24 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+from typing import List
 from jinja2 import Environment
-from ..models import CodeModel
+from ..models import CodeModel, ModelType, EnumType
 
 
 class ModelInitSerializer:
-    def __init__(self, code_model: CodeModel, env: Environment) -> None:
+    def __init__(
+        self, code_model: CodeModel, env: Environment, *, models: List[ModelType], enums: List[EnumType]
+    ) -> None:
         self.code_model = code_model
         self.env = env
+        self.models = models
+        self.enums = enums
 
     def serialize(self) -> str:
-        schemas = [s.name for s in self.code_model.public_model_types]
+        schemas = [s.name for s in self.code_model.get_public_model_types(self.models)]
         schemas.sort()
-        enums = [e.name for e in self.code_model.enums if not e.internal] if self.code_model.enums else None
+        enums = [e.name for e in self.enums if not e.internal] if self.enums else None
 
         if enums:
             enums.sort()

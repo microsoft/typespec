@@ -59,7 +59,8 @@ public final class MultiContentTypesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadWithOverloadWithResponse(String contentType, BinaryData data,
         RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadWithOverload' is multiple content-type
+        // Operation 'uploadWithOverload' can be invoked with multiple content-type. It is difficult to form a correct
+        // method signature for convenience API, and hence the convenience API is not generated.
         return this.serviceClient.uploadWithOverloadWithResponse(contentType, data, requestOptions);
     }
 }

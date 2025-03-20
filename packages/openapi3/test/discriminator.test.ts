@@ -1,11 +1,12 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
-import { describe, it } from "vitest";
-import { checkFor, openApiFor } from "./test-host.js";
+import { it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: polymorphic model inheritance with discriminator", () => {
+worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor }) => {
   it("discriminator can be simple literals", async () => {
     const openApi = await openApiFor(`
+      #suppress "deprecated" "For testing"
       @discriminator("kind")
       model Pet { kind: string }
       model Cat extends Pet {
@@ -40,6 +41,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
   it("discriminator can be a union", async () => {
     const openApi = await openApiFor(`
       union PetKind {cat: "cat-kind", dog: "dog-kind" }
+      #suppress "deprecated" "For testing"
       @discriminator("kind")
       model Pet { kind: PetKind }
       model Cat extends Pet {
@@ -71,6 +73,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
 
   it("defines discriminated unions with non-empty base type", async () => {
     const openApi = await openApiFor(`
+      #suppress "deprecated" "For testing"
       @discriminator("kind")
       model Pet {
         name: string;
@@ -118,6 +121,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
 
   it("defines discriminated unions with more than one level of inheritance", async () => {
     const openApi = await openApiFor(`
+      #suppress "deprecated" "For testing"
       @discriminator("kind")
       model Pet {
         name: string;
@@ -172,6 +176,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
 
   it("defines nested discriminated unions", async () => {
     const openApi = await openApiFor(`
+      #suppress "deprecated" "For testing"
       @discriminator("kind")
       model Pet {
         name: string;
@@ -181,6 +186,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
         kind: "cat";
         meow: int32;
       }
+      #suppress "deprecated" "For testing"
       @discriminator("breed")
       model Dog extends Pet {
         kind: "dog";
@@ -254,6 +260,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
 
   it("issues diagnostics for errors in a discriminated union", async () => {
     const diagnostics = await checkFor(`
+      #suppress "deprecated" "For testing"
       @discriminator("kind")
       model Pet {
         name: string;
@@ -306,6 +313,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
 
   it("issues diagnostics for duplicate discriminator values", async () => {
     const diagnostics = await checkFor(`
+      #suppress "deprecated" "For testing"
       @discriminator("kind")
       model Pet {
       }
@@ -347,6 +355,7 @@ describe("openapi3: polymorphic model inheritance with discriminator", () => {
 
   it("discriminator always needs to be marked as required", async () => {
     const openApi = await openApiFor(`
+     #suppress "deprecated" "For testing"
      @discriminator("kind")
      model Animal {
       id: string;

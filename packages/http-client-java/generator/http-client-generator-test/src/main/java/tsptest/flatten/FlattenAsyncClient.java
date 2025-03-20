@@ -53,6 +53,13 @@ public final class FlattenAsyncClient {
 
     /**
      * The send operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maxPageSize parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
      * 
      * <pre>
@@ -135,6 +142,7 @@ public final class FlattenAsyncClient {
      *     dataLong: Long (Optional)
      *     requiredUser (Required): (recursive schema, see requiredUser above)
      *     data_float: Double (Optional)
+     *     long: Long (Optional)
      *     title: String (Required)
      *     description: String (Optional)
      *     status: String(NotStarted/InProgress/Completed) (Required)
@@ -225,8 +233,8 @@ public final class FlattenAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     Mono<Response<Void>> uploadFileWithResponse(String name, BinaryData uploadFileRequest,
         RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'uploadFile' is
-        // 'multipart/form-data'
+        // Operation 'uploadFile' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
         return this.serviceClient.uploadFileWithResponseAsync(name, uploadFileRequest, requestOptions);
     }
 
@@ -244,8 +252,8 @@ public final class FlattenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Mono<Response<Void>> uploadTodoWithResponse(BinaryData uploadTodoRequest, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'uploadTodo' is
-        // 'multipart/form-data'
+        // Operation 'uploadTodo' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
         return this.serviceClient.uploadTodoWithResponseAsync(uploadTodoRequest, requestOptions);
     }
 
@@ -256,6 +264,7 @@ public final class FlattenAsyncClient {
      * @param endpoint The endpoint parameter.
      * @param input The input parameter.
      * @param requiredInt The requiredInt parameter.
+     * @param maxPageSize The maxPageSize parameter.
      * @param user The user parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -267,11 +276,14 @@ public final class FlattenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> send(String id, String endpoint, String input, int requiredInt, User user) {
+    public Mono<Void> send(String id, String endpoint, String input, int requiredInt, Integer maxPageSize, User user) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
         SendRequest sendRequestObj = new SendRequest(endpoint, input, requiredInt).setUser(user);
         BinaryData sendRequest = BinaryData.fromObject(sendRequestObj);
+        if (maxPageSize != null) {
+            requestOptions.addQueryParam("maxpagesize", String.valueOf(maxPageSize), false);
+        }
         return sendWithResponse(id, sendRequest, requestOptions).flatMap(FluxUtil::toMono);
     }
 
@@ -347,6 +359,7 @@ public final class FlattenAsyncClient {
                 .setDataIntOptional(options.getDataIntOptional())
                 .setDataLong(options.getDataLong())
                 .setDataFloat(options.getDataFloat())
+                .setLongProperty(options.getLongParameter())
                 .setDescription(options.getDescription())
                 .setDummy(options.getDummy());
         BinaryData sendLongRequest = BinaryData.fromObject(sendLongRequestObj);

@@ -7,11 +7,9 @@
 {{ op_tools.serialize(operation_group_imports()) }}
 {{ keywords.patch_imports() }}
 __all__ = [
-    {% for client in clients %}
-        {% for operation_group in client.operation_groups %}
+      {% for operation_group in operation_groups %}
     '{{ operation_group.class_name }}',
-        {% endfor %}
-    {% endfor %}
+      {% endfor %}
 ]
 {{ keywords.extend_all }}
 _patch_sdk()

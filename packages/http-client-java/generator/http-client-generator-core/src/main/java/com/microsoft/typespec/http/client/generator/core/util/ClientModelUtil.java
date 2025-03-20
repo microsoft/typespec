@@ -26,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import java.net.URI;
@@ -113,7 +114,8 @@ public class ClientModelUtil {
             }
         }
 
-        final int count = serviceClient.getMethodGroupClients().size() + asyncClients.size();
+        final int count
+            = serviceClient.getMethodGroupClients().size() + Math.max(asyncClients.size(), syncClients.size());
         for (MethodGroupClient methodGroupClient : serviceClient.getMethodGroupClients()) {
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
@@ -330,9 +332,21 @@ public class ClientModelUtil {
         return clientDefaultValueOrConstantValue;
     }
 
+    public static List<OperationGroup> getAllOperationGroups(CodeModel codeModel) {
+        List<OperationGroup> allOperationGroups;
+        if (!CoreUtils.isNullOrEmpty(codeModel.getClients())) {
+            allOperationGroups = codeModel.getClients()
+                .stream()
+                .flatMap(client -> client.getOperationGroups().stream())
+                .collect(Collectors.toList());
+        } else {
+            allOperationGroups = codeModel.getOperationGroups();
+        }
+        return allOperationGroups;
+    }
+
     private static String getFirstApiVersionFromOperation(CodeModel codeModel) {
-        return codeModel.getOperationGroups()
-            .stream()
+        return getAllOperationGroups(codeModel).stream()
             .flatMap(og -> og.getOperations().stream())
             .filter(o -> o.getApiVersions() != null)
             .flatMap(o -> o.getApiVersions().stream())
@@ -880,6 +894,39 @@ public class ClientModelUtil {
     }
 
     /**
+     * If stream-style serialization is being generated, some additional setters may need to be added to
+     * support read-only properties that aren't included in the constructor.
+     * Jackson handles this by reflectively setting the value in the parent model, but stream-style
+     * serialization doesn't perform reflective cracking like Jackson Databind does, so it needs a way
+     * to access the readonly property (aka one without a public setter method).
+     * The package-private setter is added when the property isn't included in the constructor and is
+     * defined by this model, except for JSON merge patch models as those use the access helper pattern
+     * to enable subtypes to set the property.
+     *
+     * @param model the model to generate package-private setter for
+     * @param property the field property to generate package-private setter for, either defined by the model,
+     * or the shadow one from parent
+     * @param settings JavaSettings instance
+     * @param streamStyle whether stream-style-serialization is enabled
+     * @return whether the model needs package-private setter for this field property
+     */
+    public static boolean needsPackagePrivateSetter(ClientModel model, ClientModelProperty property,
+        JavaSettings settings, boolean streamStyle) {
+        boolean hasDerivedTypes = !CoreUtils.isNullOrEmpty(model.getDerivedModels());
+        boolean notIncludedInConstructor = !includePropertyInConstructor(property, settings);
+        boolean definedByModel = modelDefinesProperty(model, property);
+        boolean modelIsJsonMergePatch = isJsonMergePatchModel(model, settings);
+        boolean hasPackagePrivateSetter = hasDerivedTypes
+            && notIncludedInConstructor
+            && definedByModel
+            && streamStyle
+            && !property.isPolymorphicDiscriminator()
+            && !modelIsJsonMergePatch
+            && !property.isConstant();
+        return hasPackagePrivateSetter;
+    }
+
+    /**
      * The model is immutable output if and only if the immutable output model setting is enabled and
      * the usage of the model include output and does not include input.
      *
@@ -901,6 +948,24 @@ public class ClientModelUtil {
             errorBodyClassName = errorBodyClassName.substring(0, errorBodyClassName.length() - "Exception".length());
         }
         return ClientModels.getInstance().getModel(errorBodyClassName);
+    }
+
+    /**
+     * Gets a ModelPropertySegment represents the model and property.
+     *
+     * @param modelType the type of the model
+     * @param propertySerializedName the serialized name of the property
+     * @return the ModelPropertySegment represents the model and property
+     */
+    public static ModelPropertySegment getModelPropertySegment(IType modelType, String propertySerializedName) {
+        ClientModel responseBodyModel = ClientModelUtil.getClientModel(modelType.toString());
+        ClientModelProperty property = Stream
+            .concat(responseBodyModel.getProperties().stream(),
+                ClientModelUtil.getParentProperties(responseBodyModel).stream())
+            .filter(p -> p.getSerializedName().equals(propertySerializedName))
+            .findAny()
+            .orElse(null);
+        return property == null ? null : new ModelPropertySegment(responseBodyModel, property);
     }
 
     private static boolean hasNoUsage(ClientModel model) {

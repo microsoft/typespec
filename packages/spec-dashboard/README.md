@@ -1,4 +1,4 @@
-# Spec Dashboard
+# Spector Dashboard
 
 ## Dev
 

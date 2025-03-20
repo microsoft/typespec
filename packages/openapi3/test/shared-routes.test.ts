@@ -1,13 +1,13 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
-import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
+import { it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: shared routes", () => {
+worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
   it("emits warning for routes containing query parameters", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           id: string;
@@ -36,7 +36,7 @@ describe("openapi3: shared routes", () => {
   it("model shared routes that differ by query params as a union of optional params", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           id: string;
@@ -100,7 +100,7 @@ describe("openapi3: shared routes", () => {
   it("model shared routes that differ by query param values as an enum", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           id: string;
@@ -146,7 +146,7 @@ describe("openapi3: shared routes", () => {
   it("model shared routes with shared parameters in different locations", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           id: string;
@@ -201,7 +201,7 @@ describe("openapi3: shared routes", () => {
   it("model shared routes with different response types", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
           id: string;
@@ -225,7 +225,7 @@ describe("openapi3: shared routes", () => {
     deepStrictEqual(responses, {
       "200": {
         content: {
-          "application/json": {
+          "text/plain": {
             schema: {
               anyOf: [
                 {
@@ -247,7 +247,7 @@ describe("openapi3: shared routes", () => {
   it("model shared routes with different request bodies", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         @sharedRoute
         @route("/1")
@@ -271,7 +271,7 @@ describe("openapi3: shared routes", () => {
     deepStrictEqual(results.paths["/1"].post.requestBody, {
       required: true,
       content: {
-        "application/json": {
+        "text/plain": {
           schema: {
             anyOf: [
               {
@@ -290,7 +290,7 @@ describe("openapi3: shared routes", () => {
     deepStrictEqual(results.paths["/2"].post.requestBody, {
       required: true,
       content: {
-        "application/json": {
+        "text/plain": {
           schema: {
             anyOf: [
               {
@@ -310,7 +310,7 @@ describe("openapi3: shared routes", () => {
   it("model shared routes with different response bodies", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
 
         model A {
@@ -363,7 +363,7 @@ describe("openapi3: shared routes", () => {
   it("model shared routes with different implicit request bodies", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model A {
           name: string;
@@ -420,7 +420,7 @@ describe("openapi3: shared routes", () => {
   it("model shared routes with different request and response body types", async () => {
     const results = await openApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
 
         @error
@@ -445,7 +445,7 @@ describe("openapi3: shared routes", () => {
     deepStrictEqual(requestBody, {
       required: true,
       content: {
-        "application/json": {
+        "text/plain": {
           schema: {
             anyOf: [
               {
@@ -464,7 +464,7 @@ describe("openapi3: shared routes", () => {
     deepStrictEqual(responses, {
       "200": {
         content: {
-          "application/json": {
+          "text/plain": {
             schema: {
               anyOf: [
                 {
@@ -504,25 +504,25 @@ describe("openapi3: shared routes", () => {
   it("should warn if shared routes differ by `@parameterVisibility`", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
-      @service({title: "My Service"})
+      @service(#{title: "My Service"})
       namespace Foo {
         model Resource {
-          @visibility("read")
+          @visibility(Lifecycle.Read)
           @key
           id: string;
 
-          @visibility("create", "update")
+          @visibility(Lifecycle.Create, Lifecycle.Update)
           name: string;
         }
 
         @sharedRoute
         @route("/foo")
-        @parameterVisibility("read")
+        @parameterVisibility(Lifecycle.Read)
         op op1Foo(...Resource): Resource[];
 
         @sharedRoute
         @route("/foo")
-        @parameterVisibility("create")
+        @parameterVisibility(Lifecycle.Create)
         op op2Foo(...Resource): Resource[];
       }
       `,

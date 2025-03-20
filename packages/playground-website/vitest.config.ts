@@ -6,6 +6,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       exclude: [...configDefaults.exclude, "dist-dev/**/*"],
+      testTimeout: 10_000,
     },
   }),
 );

@@ -4,7 +4,7 @@
 
 using System;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     internal static partial class StringFixedEnumExtensions
     {

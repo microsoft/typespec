@@ -87,8 +87,7 @@ class BaseType(BaseModel, ABC):  # pylint: disable=too-many-public-methods
             attrs_list.append("'text': True")
         return ", ".join(attrs_list)
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         """The tag recognized by 'msrest' as a serialization/deserialization.
 
         'str', 'int', 'float', 'bool' or
@@ -103,7 +102,7 @@ class BaseType(BaseModel, ABC):  # pylint: disable=too-many-public-methods
 
     @property
     def msrest_deserialization_key(self) -> str:
-        return self.serialization_type
+        return self.serialization_type()
 
     @property
     def client_default_value(self) -> Any:

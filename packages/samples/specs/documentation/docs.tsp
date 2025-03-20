@@ -2,9 +2,7 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Documentation sample",
-})
+@service(#{ title: "Documentation sample" })
 namespace DocSample;
 
 @route("/foo")

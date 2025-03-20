@@ -5,9 +5,13 @@
 package azure.resourcemanager.operationtemplates;
 
 import azure.resourcemanager.operationtemplates.fluent.OperationTemplatesClient;
+import azure.resourcemanager.operationtemplates.implementation.CheckNameAvailabilitiesImpl;
 import azure.resourcemanager.operationtemplates.implementation.LroesImpl;
 import azure.resourcemanager.operationtemplates.implementation.OperationTemplatesClientBuilder;
+import azure.resourcemanager.operationtemplates.implementation.OperationsImpl;
+import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilities;
 import azure.resourcemanager.operationtemplates.models.Lroes;
+import azure.resourcemanager.operationtemplates.models.Operations;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.HttpPipeline;
@@ -26,11 +30,13 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.core.util.Configuration;
+import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -39,6 +45,10 @@ import java.util.stream.Collectors;
  * Arm Resource Provider management API.
  */
 public final class OperationTemplatesManager {
+    private Operations operations;
+
+    private CheckNameAvailabilities checkNameAvailabilities;
+
     private Lroes lroes;
 
     private final OperationTemplatesClient clientObject;
@@ -93,6 +103,9 @@ public final class OperationTemplatesManager {
      */
     public static final class Configurable {
         private static final ClientLogger LOGGER = new ClientLogger(Configurable.class);
+        private static final String SDK_VERSION = "version";
+        private static final Map<String, String> PROPERTIES
+            = CoreUtils.getProperties("azure-resourcemanager-operationtemplates-generated.properties");
 
         private HttpClient httpClient;
         private HttpLogOptions httpLogOptions;
@@ -200,12 +213,14 @@ public final class OperationTemplatesManager {
             Objects.requireNonNull(credential, "'credential' cannot be null.");
             Objects.requireNonNull(profile, "'profile' cannot be null.");
 
+            String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, "UnknownVersion");
+
             StringBuilder userAgentBuilder = new StringBuilder();
             userAgentBuilder.append("azsdk-java")
                 .append("-")
                 .append("azure.resourcemanager.operationtemplates")
                 .append("/")
-                .append("1.0.0-beta.1");
+                .append(clientVersion);
             if (!Configuration.getGlobalConfiguration().get("AZURE_TELEMETRY_DISABLED", false)) {
                 userAgentBuilder.append(" (")
                     .append(Configuration.getGlobalConfiguration().get("java.version"))
@@ -249,6 +264,31 @@ public final class OperationTemplatesManager {
                 .build();
             return new OperationTemplatesManager(httpPipeline, profile, defaultPollInterval);
         }
+    }
+
+    /**
+     * Gets the resource collection API of Operations.
+     * 
+     * @return Resource collection API of Operations.
+     */
+    public Operations operations() {
+        if (this.operations == null) {
+            this.operations = new OperationsImpl(clientObject.getOperations(), this);
+        }
+        return operations;
+    }
+
+    /**
+     * Gets the resource collection API of CheckNameAvailabilities.
+     * 
+     * @return Resource collection API of CheckNameAvailabilities.
+     */
+    public CheckNameAvailabilities checkNameAvailabilities() {
+        if (this.checkNameAvailabilities == null) {
+            this.checkNameAvailabilities
+                = new CheckNameAvailabilitiesImpl(clientObject.getCheckNameAvailabilities(), this);
+        }
+        return checkNameAvailabilities;
     }
 
     /**

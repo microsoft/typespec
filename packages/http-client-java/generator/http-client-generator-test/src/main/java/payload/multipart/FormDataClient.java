@@ -59,8 +59,8 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> basicWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'basic' is
-        // 'multipart/form-data'
+        // Operation 'basic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
         return this.serviceClient.basicWithResponse(body, requestOptions);
     }
 
@@ -78,8 +78,8 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> fileArrayAndBasicWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation
-        // 'fileArrayAndBasic' is 'multipart/form-data'
+        // Operation 'fileArrayAndBasic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
+        // not generated.
         return this.serviceClient.fileArrayAndBasicWithResponse(body, requestOptions);
     }
 
@@ -97,8 +97,8 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> jsonPartWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'jsonPart' is
-        // 'multipart/form-data'
+        // Operation 'jsonPart' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
         return this.serviceClient.jsonPartWithResponse(body, requestOptions);
     }
 
@@ -116,8 +116,8 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> binaryArrayPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation
-        // 'binaryArrayParts' is 'multipart/form-data'
+        // Operation 'binaryArrayParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
+        // not generated.
         return this.serviceClient.binaryArrayPartsWithResponse(body, requestOptions);
     }
 
@@ -135,8 +135,8 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> multiBinaryPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation
-        // 'multiBinaryParts' is 'multipart/form-data'
+        // Operation 'multiBinaryParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
+        // not generated.
         return this.serviceClient.multiBinaryPartsWithResponse(body, requestOptions);
     }
 
@@ -154,8 +154,8 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> checkFileNameAndContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation
-        // 'checkFileNameAndContentType' is 'multipart/form-data'
+        // Operation 'checkFileNameAndContentType' is of content-type 'multipart/form-data'. Protocol API is not usable
+        // and hence not generated.
         return this.serviceClient.checkFileNameAndContentTypeWithResponse(body, requestOptions);
     }
 
@@ -173,8 +173,8 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> anonymousModelWithResponse(BinaryData anonymousModelRequest, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'anonymousModel'
-        // is 'multipart/form-data'
+        // Operation 'anonymousModel' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
         return this.serviceClient.anonymousModelWithResponse(anonymousModelRequest, requestOptions);
     }
 

@@ -8,6 +8,8 @@
 # This script is used to execute apiview generation within a tox environment. Depending on which package is being executed against,
 # a failure may be suppressed.
 
+import os
+import sys
 from subprocess import check_call, CalledProcessError
 import logging
 from util import run_check
@@ -37,4 +39,7 @@ def _single_dir_apiview(mod):
 
 
 if __name__ == "__main__":
+    if os.name == "nt":
+        logging.info("Skip running ApiView on Windows for now to reduce time cost in CI")
+        sys.exit(0)
     run_check("apiview", _single_dir_apiview, "APIView")

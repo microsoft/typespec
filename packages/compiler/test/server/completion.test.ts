@@ -6,11 +6,8 @@ import {
   CompletionList,
   MarkupKind,
 } from "vscode-languageserver/node.js";
-import {
-  createTestServerHost,
-  extractCursor,
-  extractSquiggles,
-} from "../../src/testing/test-server-host.js";
+import { extractCursor, extractSquiggles } from "../../src/testing/source-utils.js";
+import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 // cspell:ignore 𐌰𐌲𐌰𐌲𐌰𐌲
 
@@ -479,6 +476,97 @@ describe("identifiers", () => {
     ]);
   });
 
+  it("completes meta property '::type' on model property", async () => {
+    const completions = await complete(
+      `
+      model A{
+        name: string;
+      }
+
+      model B{
+          a: A;
+      }
+
+      model C {
+          ...B.a::┆;
+      }
+      `,
+    );
+
+    check(completions, [
+      {
+        label: "type",
+        insertText: "type",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nB.a: A\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes meta property '::parameters' and '::returnType' on operation", async () => {
+    const completions = await complete(
+      `
+      op base(one: string): void;    
+      @@doc(base::par┆, "Override");
+      `,
+    );
+
+    check(completions, [
+      {
+        label: "parameters",
+        insertText: "parameters",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop base(one: string): void\n```",
+        },
+      },
+      {
+        label: "returnType",
+        insertText: "returnType",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop base(one: string): void\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes meta property '::parameters' and '::returnType' using alias on operation", async () => {
+    const completions = await complete(
+      `
+      op a(@doc("base doc") one: string): void;
+      op b is a;
+      @@doc(b::par┆, "override for b");
+      `,
+    );
+
+    check(completions, [
+      {
+        label: "parameters",
+        insertText: "parameters",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop b(one: string): void\n```",
+        },
+      },
+      {
+        label: "returnType",
+        insertText: "returnType",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop b(one: string): void\n```",
+        },
+      },
+    ]);
+  });
+
   it("completes partial identifiers", async () => {
     const completions = await complete(
       `
@@ -655,6 +743,118 @@ describe("identifiers", () => {
           documentation: {
             kind: MarkupKind.Markdown,
             value: "(union variant)\n```typespec\nFruit.banana: Banana\n```",
+          },
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      },
+    );
+  });
+
+  it("completes union variants(models) of template parameters", async () => {
+    const completions = await complete(
+      `
+      model Options {
+        a: string;
+        b: Nested;
+      }
+      model Nested {
+        c:Foo2;
+      }
+      model Foo1 {
+        foo1: string;
+      }
+      model Foo2 {
+        foo2: string;
+      }
+
+      model Test<T extends valueof string | Foo1 | Options> {}
+
+      alias A = Test<#{┆}>;
+      `,
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "foo1",
+          insertText: "foo1",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nFoo1.foo1: string\n```",
+          },
+        },
+        {
+          label: "a",
+          insertText: "a",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nOptions.a: string\n```",
+          },
+        },
+        {
+          label: "b",
+          insertText: "b",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nOptions.b: Nested\n```",
+          },
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      },
+    );
+  });
+
+  it("completes specific type in union variants(models) of template parameters", async () => {
+    const completions = await complete(
+      `
+      model Options {
+        a: string;
+        b: Nested;
+      }
+      model Nested {
+        c:Foo2;
+        d:string;
+      }
+      model Foo1 {
+        foo1: string;
+      }
+      model Foo2 {
+        foo2: string;
+      }
+
+      model Test<T extends valueof string | Foo1 | Options> {}
+
+      alias A = Test<#{a:"",b:#{┆}}>;
+      `,
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "c",
+          insertText: "c",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nNested.c: Foo2\n```",
+          },
+        },
+        {
+          label: "d",
+          insertText: "d",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nNested.d: string\n```",
           },
         },
       ],

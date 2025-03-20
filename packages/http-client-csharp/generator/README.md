@@ -1,6 +1,6 @@
-# Microsoft Generator CSharp
+# Microsoft TypeSpec Generator
 
-The **Microsoft Generator CSharp** tool generates client libraries for accessing RESTful web services.
+The **Microsoft TypeSpec Generator** tool generates client libraries for accessing RESTful web services.
 
 ## Table of Contents
 

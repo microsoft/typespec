@@ -43,6 +43,7 @@ class _ClientConfigBase(Generic[ParameterListType], BaseModel):
         self.parameters = parameters
         self.url: str = self.yaml_data["url"]  # the base endpoint of the client. Can be parameterized or not
         self.legacy_filename: str = self.yaml_data.get("legacyFilename", "client")
+        self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
 
     @property
     def description(self) -> str:
@@ -161,14 +162,6 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         return retval
 
     @property
-    def url_pylint_disable(self) -> str:
-        # if the url is too long
-        retval = ""
-        if len(self.url) > 85:
-            retval = add_to_pylint_disable(retval, "line-too-long")
-        return retval
-
-    @property
     def filename(self) -> str:
         """Name of the file for the client"""
         if self.code_model.options["version_tolerant"] or self.code_model.options["low_level_client"]:
@@ -188,7 +181,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         except StopIteration as exc:
             raise KeyError(f"No operation with id {operation_id} found.") from exc
 
-    def _imports_shared(self, async_mode: bool) -> FileImport:
+    def _imports_shared(self, async_mode: bool, **kwargs) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
         if self.code_model.options["azure_arm"]:
@@ -206,8 +199,8 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             file_import.merge(
                 gp.imports(
                     async_mode,
-                    relative_path=".." if async_mode else ".",
-                    operation=True,
+                    is_operation_file=True,
+                    **kwargs,
                 )
             )
         file_import.add_submodule_import(
@@ -215,8 +208,9 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             f"{self.name}Configuration",
             ImportType.LOCAL,
         )
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import.add_msrest_import(
-            relative_path=".." if async_mode else ".",
+            serialize_namespace=serialize_namespace,
             msrest_import_type=MsrestImportType.SerializerDeserializer,
             typing_section=TypingSection.REGULAR,
         )
@@ -277,8 +271,8 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         """Whether there is non-abstract operation in any operation group."""
         return any(og.has_non_abstract_operations for og in self.operation_groups)
 
-    def imports(self, async_mode: bool) -> FileImport:
-        file_import = self._imports_shared(async_mode)
+    def imports(self, async_mode: bool, **kwargs) -> FileImport:
+        file_import = self._imports_shared(async_mode, **kwargs)
         if async_mode:
             file_import.add_submodule_import("typing", "Awaitable", ImportType.STDLIB)
             file_import.add_submodule_import(
@@ -300,9 +294,13 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             ImportType.SDKCORE,
             TypingSection.CONDITIONAL,
         )
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         for og in self.operation_groups:
             file_import.add_submodule_import(
-                f".{self.code_model.operations_folder_name}",
+                self.code_model.get_relative_import_path(
+                    serialize_namespace,
+                    self.code_model.get_imported_namespace_for_operation(og.client_namespace, async_mode),
+                ),
                 og.class_name,
                 ImportType.LOCAL,
             )
@@ -317,8 +315,8 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         file_import.add_submodule_import("copy", "deepcopy", ImportType.STDLIB)
         return file_import
 
-    def imports_for_multiapi(self, async_mode: bool) -> FileImport:
-        file_import = self._imports_shared(async_mode)
+    def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
+        file_import = self._imports_shared(async_mode, **kwargs)
         file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB, TypingSection.CONDITIONAL)
         try:
             mixin_operation = next(og for og in self.operation_groups if og.is_mixin)
@@ -377,7 +375,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
     def name(self) -> str:
         return f"{super().name}Configuration"
 
-    def _imports_shared(self, async_mode: bool) -> FileImport:
+    def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import(
             "pipeline" if self.code_model.is_azure_flavor else "runtime",
@@ -386,7 +384,12 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
         )
         file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
         if self.code_model.options["package_version"]:
-            file_import.add_submodule_import(".._version" if async_mode else "._version", "VERSION", ImportType.LOCAL)
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_version"),
+                "VERSION",
+                ImportType.LOCAL,
+            )
         if self.code_model.options["azure_arm"]:
             policy = "AsyncARMChallengeAuthenticationPolicy" if async_mode else "ARMChallengeAuthenticationPolicy"
             file_import.add_submodule_import("azure.mgmt.core.policies", "ARMHttpLoggingPolicy", ImportType.SDKCORE)
@@ -394,22 +397,21 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
 
         return file_import
 
-    def imports(self, async_mode: bool) -> FileImport:
-        file_import = self._imports_shared(async_mode)
+    def imports(self, async_mode: bool, **kwargs) -> FileImport:
+        file_import = self._imports_shared(async_mode, **kwargs)
         for gp in self.parameters:
             if gp.method_location == ParameterMethodLocation.KWARG and gp not in self.parameters.kwargs_to_pop:
                 continue
             file_import.merge(
                 gp.imports(
                     async_mode=async_mode,
-                    relative_path=".." if async_mode else ".",
-                    operation=True,
+                    **kwargs,
                 )
             )
         return file_import
 
-    def imports_for_multiapi(self, async_mode: bool) -> FileImport:
-        file_import = self._imports_shared(async_mode)
+    def imports_for_multiapi(self, async_mode: bool, **kwargs: Any) -> FileImport:
+        file_import = self._imports_shared(async_mode, **kwargs)
         for gp in self.parameters:
             if (
                 gp.method_location == ParameterMethodLocation.KWARG
@@ -420,8 +422,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
             file_import.merge(
                 gp.imports_for_multiapi(
                     async_mode=async_mode,
-                    relative_path=".." if async_mode else ".",
-                    operation=True,
+                    **kwargs,
                 )
             )
         return file_import

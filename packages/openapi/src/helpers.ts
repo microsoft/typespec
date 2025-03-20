@@ -2,9 +2,10 @@ import {
   Diagnostic,
   DiagnosticTarget,
   getFriendlyName,
+  getLifecycleVisibilityEnum,
   getProperty,
   getTypeName,
-  getVisibility,
+  getVisibilityForClass,
   isGlobalNamespace,
   isService,
   isTemplateInstance,
@@ -156,19 +157,19 @@ export function resolveOperationId(program: Program, operation: Operation) {
 }
 
 /**
- * Determines if a property is read-only, which is defined as being
- * decorated `@visibility("read")`.
+ * Determines if a property is read-only, which is defined as having the
+ * only the `Lifecycle.Read` modifier.
  *
- * If there is more than 1 `@visibility` argument, then the property is not
- * read-only. For example, `@visibility("read", "update")` does not
- * designate a read-only property.
+ * If there is more than one Lifecycle visibility modifier active on the property,
+ * then the property is not read-only. For example, `@visibility(Lifecycle.Read, Lifecycle.Update)`
+ * does not designate a read-only property.
  */
 export function isReadonlyProperty(program: Program, property: ModelProperty) {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  const visibility = getVisibility(program, property);
+  const Lifecycle = getLifecycleVisibilityEnum(program);
+  const visibility = getVisibilityForClass(program, property, getLifecycleVisibilityEnum(program));
   // note: multiple visibilities that include read are not handled using
   // readonly: true, but using separate schemas.
-  return visibility?.length === 1 && visibility[0] === "read";
+  return visibility.size === 1 && visibility.has(Lifecycle.members.get("Read")!);
 }
 
 /**

@@ -53,9 +53,7 @@ using TypeSpec.Http;
 using TypeSpec.Rest;
 
 /** This is a pet store service. */
-@service({
-  title: "Pet Store Service",
-})
+@service(#{ title: "Pet Store Service" })
 @server("https://example.com", "The service endpoint")
 namespace PetStore;
 

@@ -37,10 +37,10 @@ public final class OperationDetails2 implements JsonSerializable<OperationDetail
     private ResponseError error;
 
     /*
-     * The lroResult property.
+     * The lro_result property.
      */
     @Generated
-    private Resource lroResult;
+    private Resource longRunningResult;
 
     /**
      * Creates an instance of OperationDetails2 class.
@@ -85,13 +85,13 @@ public final class OperationDetails2 implements JsonSerializable<OperationDetail
     }
 
     /**
-     * Get the lroResult property: The lroResult property.
+     * Get the longRunningResult property: The lro_result property.
      * 
-     * @return the lroResult value.
+     * @return the longRunningResult value.
      */
     @Generated
-    public Resource getLroResult() {
-        return this.lroResult;
+    public Resource getLongRunningResult() {
+        return this.longRunningResult;
     }
 
     /**
@@ -104,7 +104,7 @@ public final class OperationDetails2 implements JsonSerializable<OperationDetail
         jsonWriter.writeStringField("id", this.id);
         jsonWriter.writeStringField("status", this.status == null ? null : this.status.toString());
         jsonWriter.writeJsonField("error", this.error);
-        jsonWriter.writeJsonField("lroResult", this.lroResult);
+        jsonWriter.writeJsonField("lro_result", this.longRunningResult);
         return jsonWriter.writeEndObject();
     }
 
@@ -123,7 +123,7 @@ public final class OperationDetails2 implements JsonSerializable<OperationDetail
             String id = null;
             OperationState status = null;
             ResponseError error = null;
-            Resource lroResult = null;
+            Resource longRunningResult = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
@@ -134,15 +134,15 @@ public final class OperationDetails2 implements JsonSerializable<OperationDetail
                     status = OperationState.fromString(reader.getString());
                 } else if ("error".equals(fieldName)) {
                     error = ResponseError.fromJson(reader);
-                } else if ("lroResult".equals(fieldName)) {
-                    lroResult = Resource.fromJson(reader);
+                } else if ("lro_result".equals(fieldName)) {
+                    longRunningResult = Resource.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }
             }
             OperationDetails2 deserializedOperationDetails2 = new OperationDetails2(id, status);
             deserializedOperationDetails2.error = error;
-            deserializedOperationDetails2.lroResult = lroResult;
+            deserializedOperationDetails2.longRunningResult = longRunningResult;
 
             return deserializedOperationDetails2;
         });

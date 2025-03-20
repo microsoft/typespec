@@ -19,9 +19,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;
 
@@ -76,9 +74,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;
 
@@ -195,7 +191,7 @@ model InternalServerError {
 
 In this example:
 
-- The `CommonParameters` model is reused across multiple operations using the [spread operator](../../language-basics/models#spread) `(...)`, which tells the TypeSpec compiler to expand the model definition inline.
+- The `CommonParameters` model is reused across multiple operations using the [spread operator](../../../language-basics/models/#spread) `(...)`, which tells the TypeSpec compiler to expand the model definition inline.
 - This approach ensures that the common parameters are consistently applied to all relevant operations, making the API more maintainable and reducing redundancy.
 
 ### Example: OpenAPI Specification for Common Parameters

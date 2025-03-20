@@ -1,6 +1,6 @@
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.RequestOptions;
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -127,7 +127,7 @@ public final class MultipartFormDataHelper {
             String contentType,
             String filename) {
         if (file != null) {
-            if (contentType != null && !contentType.isEmpty()) {
+            if (contentType == null || contentType.isEmpty()) {
                 contentType = APPLICATION_OCTET_STREAM;
             }
             writeFileField(fieldName, file, contentType, filename);
@@ -153,7 +153,7 @@ public final class MultipartFormDataHelper {
             for (int i = 0; i < files.size(); ++i) {
                 BinaryData file = files.get(i);
                 String contentType = contentTypes.get(i);
-                if (contentType != null && !contentType.isEmpty()) {
+                if (contentType == null || contentType.isEmpty()) {
                     contentType = APPLICATION_OCTET_STREAM;
                 }
                 String filename = filenames.get(i);

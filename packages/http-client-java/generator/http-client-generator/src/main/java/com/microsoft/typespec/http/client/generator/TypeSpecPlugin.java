@@ -294,6 +294,7 @@ public class TypeSpecPlugin extends Javagen {
             SETTINGS_MAP.put("license-header", "SMALL_TYPESPEC");
 
             SETTINGS_MAP.put("sync-methods", "sync-only");
+            SETTINGS_MAP.put("enable-page-size", false);
             SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", false);
             SETTINGS_MAP.put("generate-samples", false);
             SETTINGS_MAP.put("generate-tests", false);

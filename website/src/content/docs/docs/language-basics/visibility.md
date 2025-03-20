@@ -7,6 +7,11 @@ title: Visibility
 properties of the model are "visible." Visibility is a very powerful feature that allows you to define different "views"
 of a model within different operations or contexts.
 
+**Note** ⚠️: Enum-based visibility as described in this document _replaces_ visibility strings that you may have used
+in the past. The system is backwards-compatible with visibility strings, but you should use enum-based visibility for
+new specifications. String-based visibility (e.g. `@visibility("create")`) may be deprecated and removed in future
+versions of TypeSpec.
+
 ## Basic concepts
 
 - Visibility applies to _model properties_ only. It is used to determine when an emitter should include or exclude a
@@ -19,7 +24,7 @@ of a model within different operations or contexts.
 ## Lifecycle visibility
 
 TypeSpec provides a built-in visibility called "resource lifecycle visibility." This visibility allows you to declare
-whether properties are visible when a creating, updating, or reading a resource from an API endpoint. For example:
+whether properties are visible when passing a resource to or reading a resource from an API endpoint. For example:
 
 ```typespec
 model Example {
@@ -43,8 +48,8 @@ model Example {
   /**
    * The description of this resource.
    *
-   * By default, properties are visible in all three lifecycle phases, so this
-   * property can be set when the resource is created, updated, and read.
+   * By default, properties are visible in all lifecycle phases, so this property
+   * is present in all lifecycle phases.
    */
   description: string;
 }
@@ -166,6 +171,22 @@ Notice:
 - The TypeSpec model is only defined _once_, and any changes in the output schemas are derived from the lifecycle
   visibility of the properties in the model.
 
+### Lifecycle modifiers
+
+The following visibility modifiers are available in the `Lifecycle` visibility class:
+
+- `Create`: The property is visible when the resource is created. This visibility is checked, for example, when a property
+  is a parameter in an HTTP `POST` operation.
+- `Read`: The property is visible when the resource is read. This visibility is checked, for example, when a property is
+  returned in an HTTP `GET` operation.
+- `Update`: The property is visible when the resource is updated. This visibility is checked, for example, when a property
+  is a parameter in an HTTP `PATCH` or `PUT` operation.
+- `Delete`: The property is visible when a resource is deleted. This visibility is checked, for example, when a property
+  is a parameter in an HTTP `DELETE` operation.
+- `Query`: The property is visible when a resource is passed as a parameter in a query. This visibility is checked, for
+  example, when a property is a parameter in an HTTP `GET` operation (**this should not be confused with an HTTP query
+  parameter defined using `@query`**).
+
 ### Lifecycle visibility transforms
 
 You can explicitly compute the shape of a model within a _specific_ lifecycle phase by using the four built-in
@@ -179,6 +200,10 @@ templates for lifecycle transforms:
   phase, with the types of the properties set to `CreateOrUpdate<T>`, recursively.
 - `CreateOrUpdate<T>`: creates a copy of `T` with only the properties that have _either_ the `Create` or `Update`
   visibility modifiers enabled, recursively.
+- `Delete<T>`: creates a copy of `T` with only the properties that have the `Lifecycle.Delete` modifier enabled,
+  recursively.
+- `Query<T>`: creates a copy of `T` with only the properties that have the `Lifecycle.Query` modifier enabled,
+  recursively.
 
 For example:
 

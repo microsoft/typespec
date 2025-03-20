@@ -13,30 +13,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Immutable
 public final class UserAssignedIdentity {
     /*
-     * The principal ID of the assigned identity.
-     */
-    @JsonProperty(value = "principalId", access = JsonProperty.Access.WRITE_ONLY)
-    private String principalId;
-
-    /*
      * The client ID of the assigned identity.
      */
     @JsonProperty(value = "clientId", access = JsonProperty.Access.WRITE_ONLY)
     private String clientId;
 
+    /*
+     * The principal ID of the assigned identity.
+     */
+    @JsonProperty(value = "principalId", access = JsonProperty.Access.WRITE_ONLY)
+    private String principalId;
+
     /**
      * Creates an instance of UserAssignedIdentity class.
      */
     public UserAssignedIdentity() {
-    }
-
-    /**
-     * Get the principalId property: The principal ID of the assigned identity.
-     * 
-     * @return the principalId value.
-     */
-    public String principalId() {
-        return this.principalId;
     }
 
     /**
@@ -46,6 +37,15 @@ public final class UserAssignedIdentity {
      */
     public String clientId() {
         return this.clientId;
+    }
+
+    /**
+     * Get the principalId property: The principal ID of the assigned identity.
+     * 
+     * @return the principalId value.
+     */
+    public String principalId() {
+        return this.principalId;
     }
 
     /**

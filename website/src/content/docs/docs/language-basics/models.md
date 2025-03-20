@@ -23,7 +23,7 @@ A Record model is a structure that consists of named fields, referred to as prop
 ```typespec
 model Dog {
   name: string;
-  age: number;
+  age: uint8;
 }
 ```
 
@@ -39,11 +39,12 @@ model Dog {
 
 #### Default values
 
-[Optional properties](#optional-properties) can be assigned a default value using the `=` operator.
+Properties can be assigned a default value using the `=` operator.
 
 ```typespec
 model Dog {
   address?: string = "wild";
+  age: uint8 = 0;
 }
 ```
 
@@ -56,7 +57,7 @@ Example:
 ```tsp
 model Pet {
   name: string;
-  age: int32;
+  age: uint8;
 }
 
 model HasHome {
@@ -216,7 +217,7 @@ Refer to [templates](./templates.md) for more details on templates.
 
 ```typespec
 model Page<Item> {
-  size: number;
+  size: int32;
   item: Item[];
 }
 

@@ -114,7 +114,7 @@ interface ResourceCreateOrReplace<Resource extends {}, Error> {
  */
 @friendlyName("{name}Update", Resource)
 model ResourceCreateOrUpdateModel<Resource extends {}>
-  is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<Resource, "read">>>;
+  is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<Resource, Lifecycle.Read>>>;
 
 /**
  * Resource create or update operation template.
@@ -144,8 +144,8 @@ interface ResourceCreateOrUpdate<Resource extends {}, Error> {
  * @template Resource The resource model to create.
  */
 @friendlyName("{name}Create", Resource)
-@withVisibility("create")
-model ResourceCreateModel<Resource extends {}> is DefaultKeyVisibility<Resource, "read">;
+@withVisibility(Lifecycle.Create)
+model ResourceCreateModel<Resource extends {}> is DefaultKeyVisibility<Resource, Lifecycle.Read>;
 
 /**
  * Resource create operation template.
@@ -224,18 +224,17 @@ interface ResourceDelete<Resource extends {}, Error> {
 /**
  * Structure for a paging response using `value` and `nextLink` to represent pagination.
  *
- * This only provides the model structure and not actual pagination support. See
- * https://github.com/microsoft/typespec/issues/705 for general paging support.
- *
  * @template Resource The resource type of the collection.
  */
 @doc("Paged response of {name} items", Resource)
 @friendlyName("{name}CollectionWithNextLink", Resource)
 model CollectionWithNextLink<Resource extends {}> {
   @doc("The items on this page")
+  @pageItems
   value: Resource[];
 
   @doc("The link to the next page of items")
+  @nextLink
   nextLink?: ResourceLocation<Resource>;
 }
 

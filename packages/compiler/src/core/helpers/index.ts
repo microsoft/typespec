@@ -1,13 +1,26 @@
-export { DiscriminatedUnion, getDiscriminatedUnion } from "./discriminator-utils.js";
-export { getLocationContext } from "./location-context.js";
-export * from "./operation-utils.js";
-export * from "./path-interpolation.js";
-export * from "./projected-names-utils.js";
-
 export {
-  explainStringTemplateNotSerializable,
-  stringTemplateToString,
-} from "./string-template-utils.js";
+  DiscriminatedUnion,
+  DiscriminatedUnionLegacy,
+  getDiscriminatedUnion,
+  getDiscriminatedUnionFromInheritance,
+} from "./discriminator-utils.js";
+export { getLocationContext } from "./location-context.js";
+export { listOperationsIn, type ListOperationOptions } from "./operation-utils.js";
+export { interpolatePath } from "./path-interpolation.js";
+
+export { explainStringTemplateNotSerializable } from "./string-template-utils.js";
 export { printIdentifier as formatIdentifier, printIdentifier } from "./syntax-utils.js";
-export * from "./type-name-utils.js";
-export * from "./usage-resolver.js";
+export {
+  TypeNameOptions,
+  getEntityName,
+  getNamespaceFullName,
+  getTypeName,
+  isStdNamespace,
+} from "./type-name-utils.js";
+export {
+  UsageFlags,
+  resolveUsages,
+  type OperationContainer,
+  type TrackableType,
+  type UsageTracker,
+} from "./usage-resolver.js";

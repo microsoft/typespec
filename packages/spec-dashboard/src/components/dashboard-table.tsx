@@ -1,13 +1,9 @@
 import { css } from "@emotion/react";
-import { Popover, PopoverSurface, PopoverTrigger } from "@fluentui/react-components";
+import { Popover, PopoverSurface, PopoverTrigger, tokens } from "@fluentui/react-components";
 import { CodeBlock16Filled, Print16Filled } from "@fluentui/react-icons";
-import {
-  ResolvedCoverageReport,
-  ScenarioData,
-  ScenarioManifest,
-} from "@typespec/spec-coverage-sdk";
+import { ScenarioData, ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent, useCallback, useMemo, useState } from "react";
-import { CoverageSummary, GeneratorNames } from "../apis.js";
+import { CoverageSummary, GeneratorCoverageSuiteReport } from "../apis.js";
 import { Colors } from "../constants.js";
 import { GeneratorInformation } from "./generator-information.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";
@@ -57,7 +53,7 @@ function buildTreeRows(
 }
 
 export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverageSummary }) => {
-  const languages: GeneratorNames[] = Object.keys(coverageSummary.generatorReports) as any;
+  const languages: string[] = Object.keys(coverageSummary.generatorReports) as any;
   const tree = useMemo(() => createTree(coverageSummary.manifest), [coverageSummary.manifest]);
 
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -91,7 +87,7 @@ export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverag
 
 export interface DashboardRowProps {
   row: TreeTableRow;
-  languages: GeneratorNames[];
+  languages: string[];
   coverageSummary: CoverageSummary;
 }
 
@@ -125,7 +121,7 @@ const DashboardRow: FunctionComponent<DashboardRowProps> = ({
 
 interface ScenarioGroupStatusBoxProps {
   coverageSummary: CoverageSummary;
-  lang: GeneratorNames;
+  lang: string;
   group: string;
 }
 const ScenarioGroupStatusBox: FunctionComponent<ScenarioGroupStatusBoxProps> = ({
@@ -140,7 +136,7 @@ const ScenarioGroupStatusBox: FunctionComponent<ScenarioGroupStatusBoxProps> = (
 
 function getCompletedRatio(
   scenarios: ScenarioData[],
-  report: ResolvedCoverageReport,
+  report: GeneratorCoverageSuiteReport,
   scope: string = "",
 ) {
   const filtered = scenarios.filter((x) => x.name.startsWith(scope));
@@ -160,7 +156,7 @@ interface DashboardHeaderRowProps {
 }
 
 const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ coverageSummary }) => {
-  const data: [string, number, ResolvedCoverageReport | undefined][] = Object.entries(
+  const data: [string, number, GeneratorCoverageSuiteReport | undefined][] = Object.entries(
     coverageSummary.generatorReports,
   ).map(([language, report]) => {
     if (report === undefined) {
@@ -183,7 +179,7 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ covera
 const TableStyles = css({
   borderCollapse: "collapse",
   "& tr:nth-of-type(2n)": {
-    backgroundColor: Colors.bgSubtle,
+    backgroundColor: tokens.colorNeutralBackground3,
   },
   "& td, & th": {
     border: `1px solid ${Colors.borderDefault}`,
@@ -191,7 +187,7 @@ const TableStyles = css({
   },
   "& th": {
     padding: "6px 13px",
-    backgroundColor: Colors.bgSubtle,
+    backgroundColor: tokens.colorNeutralBackground1,
   },
 });
 
@@ -202,7 +198,7 @@ const ScenarioStatusCellStyles = css({
 
 export interface GeneratorHeaderCellProps {
   status: number;
-  report: ResolvedCoverageReport | undefined;
+  report: GeneratorCoverageSuiteReport | undefined;
   language: string;
 }
 

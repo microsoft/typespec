@@ -7,7 +7,7 @@ export interface ElDimensions {
 
 const defaultDimensions: ElDimensions = { width: 0, height: 0 };
 
-export function useElDimensions(ref: RefObject<HTMLDivElement>) {
+export function useElDimensions(ref: RefObject<HTMLDivElement | null>) {
   const [dimensions, setDimensions] = useState<ElDimensions>(defaultDimensions);
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {

@@ -53,13 +53,13 @@ We understand that change can be challenging, and we appreciate your patience an
 An experimental migration tool has been introduced to take care of many of the manual migration steps. Just execute following command in your TypeSpec folder.
 
 ```bash
-    npx @typespec/migrate
+npx @typespec/migrate
 ```
 
 If you would like execute from a different folder or don't have a `package.json` that indicates compiler package versions, please see command line options:
 
 ```bash
-     npx @typespec/migrate --help
+npx @typespec/migrate --help
 ```
 
 The migration tool will perform following steps:

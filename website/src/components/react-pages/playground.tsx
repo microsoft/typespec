@@ -1,7 +1,6 @@
-import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
-import { useTheme } from "@typespec/astro-utils/utils/theme-react";
 import "@typespec/playground/styles.css";
 import { useEffect, useState, type ReactNode } from "react";
+import { FluentLayout } from "../fluent/fluent-layout";
 import { loadImportMap, type VersionData } from "../playground-component/import-map";
 
 export const AsyncPlayground = ({
@@ -28,14 +27,5 @@ export const AsyncPlayground = ({
     <FluentLayout style={{ height: "100%" }}>
       {mod ? <mod.WebsitePlayground versionData={mod.versionData} /> : fallback}
     </FluentLayout>
-  );
-};
-
-const FluentLayout = ({ children, style }) => {
-  const theme = useTheme();
-  return (
-    <FluentProvider style={style} theme={theme === "dark" ? webDarkTheme : webLightTheme}>
-      {children}
-    </FluentProvider>
   );
 };

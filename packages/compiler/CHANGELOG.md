@@ -1,5 +1,488 @@
 # Change Log - @typespec/compiler
 
+## 0.67.0
+
+### Breaking Changes
+
+- [#6231](https://github.com/microsoft/typespec/pull/6231) Remove deprecated items:
+  - `@deprecated` decorator, use `#deprecated` directive instead
+
+    ```diff lang=tsp
+    - @deprecated("Message")
+    + #deprecated "Message"
+    ```
+
+  - `@service` `versions` support. Either migrate to `@OpenAPI.info` or the versioning library
+  
+    ```diff lang=tsp
+    - @service({version: "1.0"})
+    + @service
+    + @OpenAPI.info(#{version: "1.0"})
+    ```
+
+  - Removed `@knownValues`. Use a union with a string variant instead
+    
+    ```diff lang=tsp
+    - enum MyKnownValues {a, b}
+    - @knownValues(MyKnownValues)
+    - scalar Custom extends string;
+    + union Custom {
+    +   "a", "b", string
+    + };
+    ```
+
+  - Removed `@projectedName` Migrate to `@encodedName` instead.
+
+    ```diff lang=tsp
+    - @projectedName("json", "nbf")
+    + @encodedName("application/json", "nbf")
+    notBefore: int32;
+    ```
+
+  - CLI configuration value `output-path`, use `output-dir` instead.
+
+  - Support for `cadlMain` in `package.json`. Migrate to `exports["."].tsp` instead.
+    
+    ```diff lang=json
+    - "cadlMain": "lib/main.tsp",
+    + "exports": {
+    +   ".": {
+    +     "tsp": "lib/main.tsp"
+    +   }
+    + }
+    ```
+    
+  - Compiling `.cadl` files, use `.tsp` instead.
+
+  - `decoratorArgMarshalling` flag in `$flags` was removed and support for the `legacy` decorator arg marshalling.
+
+  - Using `@format` on bytes. `@format` can only be used on string where it defines a known pattern for the string.
+
+  - Javascript functions and typescript types:
+    - `stringTemplateToString`
+    - `CadlLanguageConfiguration`
+    - `CadlPrettierPlugin`
+    - `NodePackage` -> `PackageJson`
+    - `CadlValue` -> `TypeSpecValue`
+    - `createCadlLibrary` -> `createTypeSpecLibrary`
+    - `setCadlNamespace` -> `setTypeSpecNamespace`
+    - `CadlLibrary` -> `TypeSpecLibrary`
+    - `SyntaxKind.CadlScript` -> `SyntaxKind.TypeSpecScript`
+    - `isCadlValueTypeOf` -> `isTypeSpecValueTypeOf`
+    - `cadlTypeToJson` -> `typespecTypeToJson`
+    - `checkFormatCadl` -> `checkFormatTypeSpec`
+    - `cadlVersion` -> `typespecVersion`
+    - `CadlManifest` -> `TypeSpecManifest`
+    - `validateDecoratorTargetIntrinsic` -> Use `extern dec` to define the signature of decorators instead
+    - `validateDecoratorParamType` -> Use `extern dec` to define the signature of decorators instead
+    - `createDecoratorDefinition` -> Use `extern dec` to define the signature of decorators instead
+    - `CompilerOptions#emitters` -> Use `emit` and `options` field instead.
+    - `Type#templateArguments` -> Use `templateMapper` instead.
+    - `ModelProperty#default` -> Use `defaultValue` instead.
+    - `Union#options` -> Use `variants` instead.
+    - `linter` in `createTypeSpecLibrary` -> Use `export const $linter = defineLinter({ ... })` instead.
+    - Accessor for removed `@knownValues` decorator
+      - `getKnownValues`
+    - Accessor for removed `@projectedName` decorator
+      - `getProjectedNames`
+      - `getProjectedName` 
+      - `hasProjectedName`
+- [#6323](https://github.com/microsoft/typespec/pull/6323) Move AST related APIS to `@typespec/compiler/ast` package. This is to mark a clear separation for the AST types and APIs which are considered for advanced usage and might change at any time.
+  - All `*Node` types
+  - `exprIsBareIdentifier`
+  - `getFirstAncestor`
+  - `getIdentifierContext`
+  - `getNodeAtPosition`
+  - `getNodeAtPositionDetail`
+  - `hasParseError`
+  - `isImportStatement`
+  - `parse`
+  - `parseStandaloneTypeReference`
+  - `positionInRange`
+  - `visitChildren`
+- [#6323](https://github.com/microsoft/typespec/pull/6323) Stop exposing APIs that were not meant for external users. Please file issue if you had legitmate use of some of those APIs.
+- `Checker`: The check itself should be used very carefully and its wouldn't be covered under the compatibility guarantees. There is some apis that were explicitly marked as internal while other remained until we provide a better way to do the same thing:
+  - `getGlobalNamespaceType();` -> `program.getGlobalNamespaceType();`
+  - `resolveTypeReference();` -> `program.resolveTypeReference();`
+  - `checkProgram();` This isn't meant to be used by external users.
+  - `getLiteralType()` This isn't meant to be used by external users.
+  - `resolveRelatedSymbols()` This isn't meant to be used by external users.
+  - `resolveCompletions()` This isn't meant to be used by external users.
+
+- `Program`: Exposed functions on the program are safe to use but a few have been updated to be internal:
+  - `mainFile` -> Use `projectRoot` instead.
+  - `literalTypes` This isn't meant to be used by external users.
+  - `checker`: This is still exposed but to be used carefully, see above.
+  - `loadTypeSpecScript`: This isn't meant to be used by external users.
+  - `onValidate`: This isn't meant to be used by external users.
+  - `reportDuplicateSymbols`: This isn't meant to be used by external users.
+
+- `logVerboseTestOutput` Internal test util, not meant for external users
+- `validateDecoratorTarget` -> migrate to `extern dec` declaration
+- `validateDecoratorParamCount`: Same as above
+- `altDirectorySeparator`: Internal path utils
+- `directorySeparator`: Internal path utils
+- `isIntrinsicType`: Internal check
+- `getFullyQualifiedSymbolName` Symbols are an internal aspect of the compiler
+- Scanner related APIs:
+  - `createScanner`
+  - `isComment`
+  - `isKeyword`
+  - `isModifier`
+  - `isPunctuation`
+  - `isStatementKeyword`
+  - `isTrivia`
+  - `skipContinuousIdentifier`
+  - `skipTrivia`
+  - `skipTriviaBackward`
+  - `skipWhiteSpace`
+  - `Token`
+  - `TokenFlags`
+  - `type`DocToken,
+  - `type`Scanner,
+  - `type`StringTemplateToken,
+- Types
+  - `Sym` Symbols are an internal aspect of the compiler 
+  - `SymbolLinks` Symbols are an internal aspect of the compiler 
+  - `SymbolTable` Symbols are an internal aspect of the compiler 
+  - `SymbolFlags` Symbols are an internal aspect of the compiler 
+  - `MutableSymbolTable` Symbols are an internal aspect of the compiler 
+  - `ResolutionResult` Internal type used in non exposed resolver 
+  - `NodeLinks` Internal type used in non exposed resolver 
+  - `ResolutionResultFlags` Internal type used in non exposed resolver 
+  - `MetaMemberKey` Unused type
+  - `MetaMembersTable` Unused type
+  - `Dirent` Unused type
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+- [#6410](https://github.com/microsoft/typespec/pull/6410) Remove a legacy behavior of resolving package names which wasn't inline with node ESM module resolution.
+
+  For example if you were running tsp compile within your node_modules folder(on a test package) and referencing your emitter by name you might need to change this
+  ```diff lang=bash 
+  -tsp compile . --emit my-emitter
+  +tsp compile . ../../  # path to your emitter root instead
+  ```
+- [#6286](https://github.com/microsoft/typespec/pull/6286) Removed deprecated use of `@discriminator` on union. Migrate to `@discriminated`
+
+  ```diff lang="tsp"
+  -@discriminator("type")
+  +@discriminated(#{envelope: "none", discriminatorPropertyName: "type"})
+  union Pet;
+  ```
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove projection. Projection was an experiemental syntax that was too flawed to be included in 1.0 in that current state.
+- [#6388](https://github.com/microsoft/typespec/pull/6388) Remove deprecated type to value conversion. Since the introductions of object values(`#{}`) and array values(`#[]`) using model expressions or tuple where values were expected has been deprecated. It is now an error with a codefix.
+
+  ```diff lang="tsp"
+  -@service({title: "My service"})
+  +@service(#{title: "My service"})
+  ```
+- [#6416](https://github.com/microsoft/typespec/pull/6416) Adding new keywords for future use:
+  - `statemachine`
+  - `macro`
+  - `package`
+  - `metadata`
+  - `env`
+  - `arg`
+  - `declare`
+  - `array`
+  - `struct`
+  - `record`
+  - `module`
+  - `mod`
+  - `pub`
+  - `sub`
+  - `typeref`
+  - `trait`
+  - `this`
+  - `self`
+  - `super`
+  - `keyof`
+  - `with`
+  - `implements`
+  - `impl`
+  - `satisfies`
+  - `flag`
+  - `auto`
+  - `partial`
+  - `private`
+  - `public`
+  - `protected`
+  - `internal`
+  - `sealed`
+  - `local`
+  - `async`
+- [#6258](https://github.com/microsoft/typespec/pull/6258) Removed deprecated legacy visibility APIs and converted all warnings for using string-based visibility modifiers to errors.
+
+The removed APIs include:
+
+- `getVisibility`: use `getVisibilityForClass` instead.
+- `getParameterVisibility`: use `getParameterVisibilityFilter` instead.
+- `getReturnTypeVisibility`: use `getReturnTypeVisibilityFilter` instead.
+
+Furthermore, the legacy signature of `isVisible` that accepts an array of strings has been removed. Please use the new signature that accepts `EnumMember` instead.
+
+The changed decorators include:
+
+- `@visibility`
+- `@parameterVisibility`
+- `@returnTypeVisibility`
+- `@withVisibility`
+- `@withDefaultKeyVisibility`
+
+The `TypeSpec.DefaultKeyVisibility` template also no longer accepts a string as a visibility modifier argument.
+
+Attempting to pass a string to any of the above decorators or templates will now result in a type-checking error. Please use the `Lifecycle` visibility modifiers instead.
+
+If you develop a third-party library and you use any custom visibility modifiers, you will need to instead define a visibility class enum. See: [Visibility | TypeSpec](https://typespec.io/docs/language-basics/visibility/).
+
+**Migration steps**:
+
+String-based visibilities can be replaced as follows:
+
+- `"create"`, `"read"`, `"update"`, `"delete"`, and `"query"` can be replaced with `Lifecycle.Create`, `Lifecycle.Read`, `Lifecycle.Update`, `Lifecycle.Delete`, and `Lifecycle.Query` respectively.
+- `@visibility("none")` can be replaced with `@invisible(Lifecycle)`.
+
+For example:
+
+```tsp
+@visibility("create", "read")
+example: string;
+```
+
+can be replaced with:
+
+```tsp
+@visibility(Lifecycle.Create, Lifecycle.Read)
+example: string;
+```
+
+```tsp
+@visibility("none")
+example: string;
+```
+
+can be replaced with:
+
+```tsp
+@invisible(Lifecycle)
+example: string;
+```
+
+Additionally, `@parameterVisibility` with no arguments has been made an error. Previously, some specifications used it to disable effective PATCH optionality, but that behavior was an unintended side effect. For example:
+
+```tsp
+@parameterVisibility
+@patch
+op example(@bodyRoot resource: Resource): Resource;
+```
+
+If you wish to disable effective PATCH optionality in `@typespec/http`, preventing it from treating all properties of the request body as effectively optional, you can now do so explicitly:
+
+```tsp
+@patch(#{ implicitOptionality: false })
+op example(@bodyRoot resource: Resource): Resource;
+```
+
+### Deprecations
+
+- [#6310](https://github.com/microsoft/typespec/pull/6310) Deprecate `@typespec/compiler/emitter-framework` export in favor of a new package `@typespec/asset-emitter`
+  ```diff lang=json title=package.json
+  "dependencies": {
+  +   "@typespec/asset-emitter": "0.67.0"
+  }
+  ```
+  
+  ```diff lang=ts
+  -import { TypeEmitter, ... } from "@typespec/compiler/emitter-framework";
+  +import { TypeEmitter, ... } from "@typespec/asset-emitter";
+  ```
+- [#6306](https://github.com/microsoft/typespec/pull/6306) Remove the use of deprecated getDiscriminatedUnion
+
+### Features
+
+- [#6178](https://github.com/microsoft/typespec/pull/6178) Introducing the JS Http Client emitter
+- [#6411](https://github.com/microsoft/typespec/pull/6411) Introduce a new `dryRun` compiler option(`--dry-run` in the cli) that emitters can opt-in to support by setting `capabilities.dryRun` in their `$lib`.
+- [#6411](https://github.com/microsoft/typespec/pull/6411) Update `noEmit` compiler option (`--no-emit` cli flag) to prevent emitter to run. A new `dryRun` option has been added to achieve a safer similar result where emitters run but do not write output.
+- [#6220](https://github.com/microsoft/typespec/pull/6220) `tsp install` now downloads and uses the configured package manager in `devEngines.packageManager` or `packageManager` field of `package.json`
+- [#6357](https://github.com/microsoft/typespec/pull/6357) Add support for `@mediaTypeHint` to apply a hint for default Media/MIME type (Content-Type in HTTP) to a TypeSpec type.
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6335](https://github.com/microsoft/typespec/pull/6335) Improvements to the CLI output
+- [#6315](https://github.com/microsoft/typespec/pull/6315) Fix auto complete cannot replace $ prefix
+- [#6309](https://github.com/microsoft/typespec/pull/6309) Fixed an issue where the `--emit-files` flag on emitters with nested folders was not generating the correct paths to the files.
+- [#6292](https://github.com/microsoft/typespec/pull/6292) Fix `tsp init` not respecting default selected emitters
+
+
+## 0.66.0
+
+### Deprecations
+
+- [#6059](https://github.com/microsoft/typespec/pull/6059) Deprecate use of `@discriminator` on union. Migrate to `@discriminated`
+
+```diff lang="tsp"
+-@discriminator("type")
++@discriminated(#{envelope: "none", discriminatorPropertyName: "type"})
+union Pet;
+```
+- [#6088](https://github.com/microsoft/typespec/pull/6088) Deprecate use of string-based visibility modifiers using warnings.
+
+String-based visibilities can be replaced as follows:
+
+- `"create"`, `"read"`, `"update"`, `"delete"`, and `"query"` can be replaced with `Lifecycle.Create`, `Lifecycle.Read`, `Lifecycle.Update`, `Lifecycle.Delete`, and `Lifecycle.Query` respectively.
+- `@visibility("none")` can be replaced with `@invisible(Lifecycle)`.
+
+For example:
+
+```tsp
+@visibility("create", "read")
+example: string;
+```
+
+can be replaced with:
+
+```tsp
+@visibility(Lifecycle.Create, Lifecycle.Read)
+example: string;
+```
+
+```tsp
+@visibility("none")
+example: string;
+```
+
+can be replaced with:
+
+```tsp
+@invisible(Lifecycle)
+example: string;
+```
+
+Additionally, `@parameterVisibility` with no arguments is deprecated.
+
+```tsp
+@parameterVisibility
+@patch
+op example(@bodyRoot resource: Resource): Resource;
+```
+
+The effect of `@parameterVisibility` is to disable effective PATCH optionality. If you wish
+to disable effective PATCH optionality in `@typespec/http`, preventing it from treating all
+properties of the request body as effectively optional, you can now do so explicitly:
+
+```tsp
+@patch(#{ implicitOptionality: false })
+op example(@bodyRoot resource: Resource): Resource;
+```
+
+- [#6108](https://github.com/microsoft/typespec/pull/6108) Migrate `@service` decorator options to take in a value
+
+```diff lang="tsp"
+-@service({title: "My service"})
++@service(#{title: "My service"})
+```
+- [#6047](https://github.com/microsoft/typespec/pull/6047) `--version` shows if tsp is running from the standalone version
+- [#5453](https://github.com/microsoft/typespec/pull/5453) Report unused `using` in language server
+- [#6164](https://github.com/microsoft/typespec/pull/6164) Renamed package `@typespec/http-server-javascript` to `@typespec/http-server-js`.
+
+### Features
+
+- [#5483](https://github.com/microsoft/typespec/pull/5483) Add autocomplete of model properties for union type
+- [#5458](https://github.com/microsoft/typespec/pull/5458) Add codefix for for various triple quoted string syntax issues
+- [#6082](https://github.com/microsoft/typespec/pull/6082) Introduced `list-files` flag to log all emitted files.
+- [#6082](https://github.com/microsoft/typespec/pull/6082) Added a progress indicator to show the current stage of tsp compilation process.
+- [#6059](https://github.com/microsoft/typespec/pull/6059) Add new `@discriminated` decorator to represent discriminated union with implicit envelopes
+- [#5494](https://github.com/microsoft/typespec/pull/5494) Report unused template parameters in language server
+- [#6045](https://github.com/microsoft/typespec/pull/6045) Redesign and simplification of `tsp init`
+- [#5996](https://github.com/microsoft/typespec/pull/5996) Add Typekits to support EFV2
+- [#5986](https://github.com/microsoft/typespec/pull/5986) Tsp init template with both config and emitters merge in tspconfig.yaml
+
+### Bug Fixes
+
+- [#4926](https://github.com/microsoft/typespec/pull/4926) Augmenting an expression will now report an error instead of silently failing to apply.
+- [#5937](https://github.com/microsoft/typespec/pull/5937) Fix: StringTemplate type not supported in typespecValueToJson
+- [#6204](https://github.com/microsoft/typespec/pull/6204) Fix `@example` reporting assignability error when using mix metadata(http) models
+- [#6125](https://github.com/microsoft/typespec/pull/6125) Fix tmlanguage syntax highlighting when using decorator before escaped identifier
+- [#6192](https://github.com/microsoft/typespec/pull/6192) Fix `tsp info` crash
+- [#6203](https://github.com/microsoft/typespec/pull/6203) Fix mutator not mutating sourceModel(s)
+
+
+## 0.65.3
+
+### Bug Fixes
+
+- [#6041](https://github.com/microsoft/typespec/pull/6041) Fix validation issue in `@opExample` when using versioning/mutators
+
+
+## 0.65.2
+
+### Bug Fixes
+
+- [#6003](https://github.com/microsoft/typespec/pull/6003) Fix regression where enum values would report not being assignable to their enum when using versioning
+
+
+## 0.65.1
+
+### Bug Fixes
+
+- [#5975](https://github.com/microsoft/typespec/pull/5975) Downgrade arborist dependency which added node20+ requirement
+
+
+## 0.65.0
+
+### Bug Fixes
+
+- [#5940](https://github.com/microsoft/typespec/pull/5940) Fix: Infinite loop in language server due to not caching indeterminate entities in templates
+- [#5186](https://github.com/microsoft/typespec/pull/5186) Fix issue that extra " will be added when auto completing emitter options inside ""
+- [#5833](https://github.com/microsoft/typespec/pull/5833) Fix tracing in `SourceLoader`
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5572](https://github.com/microsoft/typespec/pull/5572) Add support for [ESM subpath imports](https://nodejs.org/api/packages.html#subpath-imports)
+- [#5790](https://github.com/microsoft/typespec/pull/5790) Add option for semantic walker to visit model derived types
+- [#5340](https://github.com/microsoft/typespec/pull/5340) Add Experimental Typekit helpers for `@typespec/http`
+- [#5716](https://github.com/microsoft/typespec/pull/5716) Updated Rest init template to include additional emitters(client, server) and a basic sample.
+- [#5186](https://github.com/microsoft/typespec/pull/5186) Support the auto completion for extends, imports, rule, rule sets and variables in tspconfig.yaml
+- [#5186](https://github.com/microsoft/typespec/pull/5186) Show required/optional information in the details of emitter's options completion item in tspconfig.yaml
+- [#5342](https://github.com/microsoft/typespec/pull/5342) Convert model/tuple expression to value code fix is applied to the entire value.
+- [#5699](https://github.com/microsoft/typespec/pull/5699) Promote `unsafe_useStateMap` and `unsafe_useStateSet` experimental APIs to stable version `useStateMap` and `useStateSet`. Old ones are deprecated
+- [#5794](https://github.com/microsoft/typespec/pull/5794) Use local version of npm to manage dependencies when running `tsp install`
+- [#5824](https://github.com/microsoft/typespec/pull/5824) `tsp init` will not automatically run `tsp install` if a `package.json` file is created.
+- [#4931](https://github.com/microsoft/typespec/pull/4931) [Experimental] Update to subgraph mutator to visit all missing relations
+- [#5416](https://github.com/microsoft/typespec/pull/5416) Added APIs for getting parameterVisibility and returnTypeVisibility as VisibilityFilter objects.
+
+### Deprecations
+
+- [#4931](https://github.com/microsoft/typespec/pull/4931) Deprecate experimental projection.
+
+
+## 0.64.0
+
+### Bug Fixes
+
+- [#5295](https://github.com/microsoft/typespec/pull/5295) Fix incorrectly returning a positive `BigInt` for a negative `Numeric`.
+- [#5353](https://github.com/microsoft/typespec/pull/5353) Meta property are auto-completed, current only supported '::type', '::parameters', '::returnType'
+- [#5180](https://github.com/microsoft/typespec/pull/5180) Fixed serialization of object examples on unions
+- [#5525](https://github.com/microsoft/typespec/pull/5525) Enum-driven visibility decorators and projections now interact correctly.
+
+Projections now project EnumValue values to preserve consistency with projected Enum/EnumMember types using a best-effort
+strategy.
+
+### Features
+
+- [#5415](https://github.com/microsoft/typespec/pull/5415) Added support for emitter selections for init template.
+- [#5316](https://github.com/microsoft/typespec/pull/5316) Compiler trace will be sent to IDE as trace log through language server
+- [#5594](https://github.com/microsoft/typespec/pull/5594) Support Emitters section in Init Template when creating TypeSpec project in vscode
+- [#5294](https://github.com/microsoft/typespec/pull/5294) Add capacities in TypeSpec Language Server to support "Scaffolding new TypeSpec project" in IDE
+
+
 ## 0.63.0
 
 ### Bug Fixes

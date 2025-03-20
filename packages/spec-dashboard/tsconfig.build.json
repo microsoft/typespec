@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "./src"
-  },
-  "references": [{ "path": "../spector/tsconfig.build.json" }],
-  "exclude": ["**/*.test.*", "test/**/*"]
-}

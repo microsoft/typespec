@@ -11,6 +11,6 @@ VERSION = "unknown"
 {% endif %}
 
 {% for client in clients %}
-    {% set serializer = get_serializer(client) %}
+    {% set serializer = get_serializer(client, serialize_namespace) %}
 {% include "config.py.jinja2" %}
 {% endfor %}

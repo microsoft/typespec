@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PipelinePolicyDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SecurityInfo;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import org.slf4j.Logger;
@@ -55,10 +54,10 @@ public final class TemplateHelper {
         SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails, JavaBlock function) {
         function.line("Configuration buildConfiguration = (configuration == null) ? Configuration"
             + ".getGlobalConfiguration() : configuration;");
-        String localHttpLogOptionsName = "local" + CodeNamer.toPascalCase("httpLogOptions");
+        String localHttpInstrumentationOptionsName = "local" + CodeNamer.toPascalCase("httpInstrumentationOptions");
         function.line(String.format(
-            "HttpLogOptions %s = this.httpLogOptions == null ? new HttpLogOptions() : this.httpLogOptions;",
-            localHttpLogOptionsName));
+            "HttpInstrumentationOptions %s = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;",
+            localHttpInstrumentationOptionsName));
 
         function.line("HttpPipelineBuilder httpPipelineBuilder = new HttpPipelineBuilder();");
         function.line("List<HttpPipelinePolicy> policies = new ArrayList<>();");
@@ -76,8 +75,8 @@ public final class TemplateHelper {
                     + "\", keyCredential, " + prefixExpr + "));");
             });
         }
-        function.line("policies.add(new HttpLoggingPolicy(%s));", localHttpLogOptionsName);
-        function.line("httpPipelineBuilder.policies(policies.toArray(new HttpPipelinePolicy[0]));");
+        function.line("policies.add(new HttpInstrumentationPolicy(%s));", localHttpInstrumentationOptionsName);
+        function.line("policies.forEach(httpPipelineBuilder::addPolicy);");
         function.methodReturn("httpPipelineBuilder.build()");
     }
 
@@ -172,16 +171,5 @@ public final class TemplateHelper {
             + ".policies(policies.toArray(new HttpPipelinePolicy[0]))" + ".httpClient(httpClient)"
             + String.format(".clientOptions(%s)", localClientOptionsName) + ".build();");
         function.methodReturn("httpPipeline");
-    }
-
-    public static void createRestProxyInstance(ServiceClientTemplate template, ServiceClient serviceClient,
-        JavaBlock constructorBlock) {
-        if (!JavaSettings.getInstance().isBranded()) {
-            constructorBlock.line("this.service = %s.create(%s.class, this.httpPipeline);",
-                ClassType.REST_PROXY.getName(), serviceClient.getProxy().getName());
-        } else {
-            constructorBlock.line("this.service = %s.create(%s.class, this.httpPipeline, %s);",
-                ClassType.REST_PROXY.getName(), serviceClient.getProxy().getName(), template.getSerializerPhrase());
-        }
     }
 }

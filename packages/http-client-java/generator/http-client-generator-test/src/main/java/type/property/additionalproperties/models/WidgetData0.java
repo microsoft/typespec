@@ -18,12 +18,6 @@ import java.io.IOException;
 @Immutable
 public final class WidgetData0 implements JsonSerializable<WidgetData0> {
     /*
-     * The kind property.
-     */
-    @Generated
-    private final String kind = "kind0";
-
-    /*
      * The fooProp property.
      */
     @Generated
@@ -37,16 +31,6 @@ public final class WidgetData0 implements JsonSerializable<WidgetData0> {
     @Generated
     public WidgetData0(String fooProp) {
         this.fooProp = fooProp;
-    }
-
-    /**
-     * Get the kind property: The kind property.
-     * 
-     * @return the kind value.
-     */
-    @Generated
-    public String getKind() {
-        return this.kind;
     }
 
     /**
@@ -66,7 +50,6 @@ public final class WidgetData0 implements JsonSerializable<WidgetData0> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("kind", this.kind);
         jsonWriter.writeStringField("fooProp", this.fooProp);
         return jsonWriter.writeEndObject();
     }

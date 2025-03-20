@@ -1,9 +1,7 @@
 import "@typespec/rest";
 import "@typespec/openapi";
 
-@service({
-  title: "Pet Store Service",
-})
+@service(#{ title: "Pet Store Service" })
 namespace PetStore;
 using TypeSpec.Http;
 

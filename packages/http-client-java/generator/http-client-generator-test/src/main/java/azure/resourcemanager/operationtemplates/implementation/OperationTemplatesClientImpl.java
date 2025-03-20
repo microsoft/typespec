@@ -4,8 +4,10 @@
 
 package azure.resourcemanager.operationtemplates.implementation;
 
+import azure.resourcemanager.operationtemplates.fluent.CheckNameAvailabilitiesClient;
 import azure.resourcemanager.operationtemplates.fluent.LroesClient;
 import azure.resourcemanager.operationtemplates.fluent.OperationTemplatesClient;
+import azure.resourcemanager.operationtemplates.fluent.OperationsClient;
 import com.azure.core.annotation.ServiceClient;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
@@ -124,6 +126,34 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
     }
 
     /**
+     * The OperationsClient object to access its operations.
+     */
+    private final OperationsClient operations;
+
+    /**
+     * Gets the OperationsClient object to access its operations.
+     * 
+     * @return the OperationsClient object.
+     */
+    public OperationsClient getOperations() {
+        return this.operations;
+    }
+
+    /**
+     * The CheckNameAvailabilitiesClient object to access its operations.
+     */
+    private final CheckNameAvailabilitiesClient checkNameAvailabilities;
+
+    /**
+     * Gets the CheckNameAvailabilitiesClient object to access its operations.
+     * 
+     * @return the CheckNameAvailabilitiesClient object.
+     */
+    public CheckNameAvailabilitiesClient getCheckNameAvailabilities() {
+        return this.checkNameAvailabilities;
+    }
+
+    /**
      * The LroesClient object to access its operations.
      */
     private final LroesClient lroes;
@@ -155,6 +185,8 @@ public final class OperationTemplatesClientImpl implements OperationTemplatesCli
         this.endpoint = endpoint;
         this.subscriptionId = subscriptionId;
         this.apiVersion = "2023-12-01-preview";
+        this.operations = new OperationsClientImpl(this);
+        this.checkNameAvailabilities = new CheckNameAvailabilitiesClientImpl(this);
         this.lroes = new LroesClientImpl(this);
     }
 

@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 from ..models.imports import FileImport, ImportType
+from ..models.utils import NamespaceType
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
 
@@ -18,7 +19,11 @@ class TypesSerializer(BaseSerializer):
                 ImportType.STDLIB,
             )
         for nu in self.code_model.named_unions:
-            file_import.merge(nu.imports(relative_path=".", model_typing=True, is_types_file=True))
+            file_import.merge(
+                nu.imports(
+                    serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.TYPES_FILE
+                )
+            )
         return file_import
 
     def serialize(self) -> str:

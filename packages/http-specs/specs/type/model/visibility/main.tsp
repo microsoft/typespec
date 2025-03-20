@@ -11,38 +11,38 @@ namespace Type.Model.Visibility;
 @doc("Output model with visibility properties.")
 model VisibilityModel {
   @doc("Required string, illustrating a readonly property.")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   readProp: string;
 
   @doc("Required int32, illustrating a query property.")
-  @visibility("query")
+  @visibility(Lifecycle.Query)
   queryProp: int32;
 
   @doc("Required string[], illustrating a create property.")
-  @visibility("create")
+  @visibility(Lifecycle.Create)
   createProp: string[];
 
   @doc("Required int32[], illustrating a update property.")
-  @visibility("update")
+  @visibility(Lifecycle.Update)
   updateProp: int32[];
 
   @doc("Required bool, illustrating a delete property.")
-  @visibility("delete")
+  @visibility(Lifecycle.Delete)
   deleteProp: boolean;
 
   @doc("Property that does not exist in any payload.")
-  @visibility("none")
+  @invisible(Lifecycle)
   noneProp: "none";
 }
 
 /** RoundTrip model with readonly optional properties. */
 model ReadOnlyModel {
   /** Optional readonly nullable int list. */
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   optionalNullableIntList?: int32[] | null;
 
   /** Optional readonly string dictionary. */
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   optionalStringRecord?: Record<string>;
 }
 

@@ -63,8 +63,8 @@ public final class MultipartClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> uploadWithResponse(String name, BinaryData data, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'upload' is
-        // 'multipart/form-data'
+        // Operation 'upload' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
         return this.serviceClient.uploadWithResponse(name, data, requestOptions);
     }
 
@@ -90,8 +90,8 @@ public final class MultipartClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> uploadHttpPartWithResponse(String name, BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'uploadHttpPart'
-        // is 'multipart/form-data'
+        // Operation 'uploadHttpPart' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
         return this.serviceClient.uploadHttpPartWithResponse(name, body, requestOptions);
     }
 

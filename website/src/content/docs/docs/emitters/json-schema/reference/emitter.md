@@ -61,3 +61,11 @@ When true, emit all model declarations to JSON Schema without requiring the @jso
 **Type:** `boolean`
 
 When true, emit all references as json schema files, even if the referenced type does not have the `@jsonSchema` decorator or is not within a namespace with the `@jsonSchema` decorator.
+
+### `seal-object-schemas`
+
+**Type:** `boolean`
+
+If true, then for models emitted as object schemas we default `unevaluatedProperties` to `{ not: {} }`,
+if not explicitly specified elsewhere.
+Default: `false`

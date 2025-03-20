@@ -55,8 +55,8 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Mono<Response<Void>> imageJpegContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation
-        // 'imageJpegContentType' is 'multipart/form-data'
+        // Operation 'imageJpegContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
+        // hence not generated.
         return this.serviceClient.imageJpegContentTypeWithResponseAsync(body, requestOptions);
     }
 
@@ -74,8 +74,8 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Mono<Response<Void>> requiredContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation
-        // 'requiredContentType' is 'multipart/form-data'
+        // Operation 'requiredContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
+        // hence not generated.
         return this.serviceClient.requiredContentTypeWithResponseAsync(body, requestOptions);
     }
 
@@ -93,8 +93,8 @@ public final class FormDataHttpPartsContentTypeAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Mono<Response<Void>> optionalContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation
-        // 'optionalContentType' is 'multipart/form-data'
+        // Operation 'optionalContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
+        // hence not generated.
         return this.serviceClient.optionalContentTypeWithResponseAsync(body, requestOptions);
     }
 

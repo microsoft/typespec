@@ -5,12 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "Polymorphism sample",
-})
-@info({
-  version: "0.0.0",
-})
+@service(#{ title: "Polymorphism sample" })
+@info(#{ version: "0.0.0" })
 namespace Polymorphismsample;
 
 model Cat extends Pet {
@@ -34,12 +30,4 @@ model Pet {
   kind?: string;
 }
 
-/**
- * The request has succeeded.
- */
-model root_read200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet;
-}
-
-@route("/Pets") @get op root_read(): root_read200ApplicationJsonResponse;
+@route("/Pets") @get op root_read(): Pet;

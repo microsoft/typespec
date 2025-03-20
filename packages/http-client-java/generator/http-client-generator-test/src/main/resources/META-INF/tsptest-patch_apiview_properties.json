@@ -19,7 +19,7 @@
     "tsptest.patch.models.Fish": "TspTest.Patch.Fish",
     "tsptest.patch.models.InnerModel": "TspTest.Patch.InnerModel",
     "tsptest.patch.models.Resource": "TspTest.Patch.Resource",
-    "tsptest.patch.models.ResourceEnumValue": "Resource.enumValue.anonymous",
+    "tsptest.patch.models.ResourceEnumValue": "TspTest.Patch.Resource.enumValue.anonymous",
     "tsptest.patch.models.Salmon": "TspTest.Patch.Salmon",
     "tsptest.patch.models.SawShark": "TspTest.Patch.SawShark",
     "tsptest.patch.models.Shark": "TspTest.Patch.Shark"

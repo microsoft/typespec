@@ -21,7 +21,7 @@ public final class Resource2 implements JsonSerializable<Resource2> {
      * The id property.
      */
     @Generated
-    private String id;
+    private final String id;
 
     /*
      * The name property.
@@ -38,10 +38,12 @@ public final class Resource2 implements JsonSerializable<Resource2> {
     /**
      * Creates an instance of Resource2 class.
      * 
+     * @param id the id value to set.
      * @param type the type value to set.
      */
     @Generated
-    private Resource2(String type) {
+    private Resource2(String id, String type) {
+        this.id = id;
         this.type = type;
     }
 
@@ -82,6 +84,7 @@ public final class Resource2 implements JsonSerializable<Resource2> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
+        jsonWriter.writeStringField("id", this.id);
         jsonWriter.writeStringField("type", this.type);
         return jsonWriter.writeEndObject();
     }
@@ -115,8 +118,7 @@ public final class Resource2 implements JsonSerializable<Resource2> {
                     reader.skipChildren();
                 }
             }
-            Resource2 deserializedResource2 = new Resource2(type);
-            deserializedResource2.id = id;
+            Resource2 deserializedResource2 = new Resource2(id, type);
             deserializedResource2.name = name;
 
             return deserializedResource2;

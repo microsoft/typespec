@@ -29,9 +29,8 @@ class ListType(BaseType):
     def encode(self) -> Optional[str]:
         return self.element_type.encode if hasattr(self.element_type, "encode") else None  # type: ignore
 
-    @property
-    def serialization_type(self) -> str:
-        return f"[{self.element_type.serialization_type}]"
+    def serialization_type(self, **kwargs: Any) -> str:
+        return f"[{self.element_type.serialization_type(**kwargs)}]"
 
     def type_annotation(self, **kwargs: Any) -> str:
         if (

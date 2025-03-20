@@ -1,29 +1,47 @@
 import react from "@vitejs/plugin-react";
-import { visualizer } from "rollup-plugin-visualizer";
+import { readFileSync } from "fs";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
 import { defineConfig } from "vite";
+import checker from "vite-plugin-checker";
+import dts from "vite-plugin-dts";
 
-// https://vitejs.dev/config/
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const packageJson = JSON.parse(readFileSync(resolve(__dirname, "package.json")).toString());
+const dependencies = Object.keys(packageJson.dependencies);
+const externals = [...dependencies];
+
 export default defineConfig({
-  base: "./",
   build: {
     target: "esnext",
+    minify: false,
     chunkSizeWarningLimit: 3000,
-  },
-  esbuild: {
-    target: "esnext",
+    lib: {
+      entry: {
+        index: "src/index.ts",
+      },
+      cssFileName: "style",
+      formats: ["es"],
+    },
+
+    rollupOptions: {
+      external: externals,
+    },
   },
   plugins: [
-    (react as any)({
-      jsxImportSource: "@emotion/react",
-      babel: {
-        plugins: ["@emotion/babel-plugin"],
-      },
+    react({}),
+    dts({
+      logLevel: "silent", // checker reports the errors
     }),
-    visualizer({
-      template: "treemap", // or sunburst
-      // open: true,
-      gzipSize: true,
-      filename: "temp/bundle-size.html",
+    checker({
+      // e.g. use TypeScript check
+      typescript: true,
     }),
   ],
+  server: {
+    fs: {
+      strict: false,
+    },
+  },
 });

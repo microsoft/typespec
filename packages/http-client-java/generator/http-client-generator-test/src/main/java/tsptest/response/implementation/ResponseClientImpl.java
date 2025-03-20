@@ -1025,7 +1025,7 @@ public final class ResponseClientImpl {
                         ? requestOptions.getContext()
                         : Context.NONE)
                     .setServiceVersion(this.getServiceVersion().getVersion()),
-                "lroResult"),
+                "lro_result"),
             TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
     }
 
@@ -1063,7 +1063,7 @@ public final class ResponseClientImpl {
                         ? requestOptions.getContext()
                         : Context.NONE)
                     .setServiceVersion(this.getServiceVersion().getVersion()),
-                "lroResult"),
+                "lro_result"),
             TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
     }
 
@@ -1102,7 +1102,7 @@ public final class ResponseClientImpl {
                         ? requestOptions.getContext()
                         : Context.NONE)
                     .setServiceVersion(this.getServiceVersion().getVersion()),
-                "lroResult"),
+                "lro_result"),
             TypeReference.createInstance(OperationDetails2.class), TypeReference.createInstance(Resource.class));
     }
 
@@ -1141,7 +1141,7 @@ public final class ResponseClientImpl {
                         ? requestOptions.getContext()
                         : Context.NONE)
                     .setServiceVersion(this.getServiceVersion().getVersion()),
-                "lroResult"),
+                "lro_result"),
             TypeReference.createInstance(OperationDetails2.class), TypeReference.createInstance(Resource.class));
     }
 
@@ -1167,7 +1167,7 @@ public final class ResponseClientImpl {
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.listStrings(this.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null));
+                getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null));
     }
 
     /**
@@ -1218,7 +1218,7 @@ public final class ResponseClientImpl {
         final String accept = "application/json";
         Response<BinaryData> res = service.listStringsSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null);
+            getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null);
     }
 
     /**
@@ -1482,7 +1482,7 @@ public final class ResponseClientImpl {
             .withContext(
                 context -> service.listStringsNext(nextLink, this.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null));
+                getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null));
     }
 
     /**
@@ -1509,7 +1509,7 @@ public final class ResponseClientImpl {
         Response<BinaryData> res
             = service.listStringsNextSync(nextLink, this.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null);
+            getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null);
     }
 
     private List<BinaryData> getValues(BinaryData binaryData, String path) {

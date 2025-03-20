@@ -49,6 +49,7 @@ model Dog {
   name: string;
 }
 
+// This model has only the `name` field.
 model CreateDog is Create<Dog>;
 ```
 
@@ -59,6 +60,9 @@ None
 
 A copy of the input model `T` with only the properties that are visible during the
 "Create" or "Update" resource lifecycle phases.
+
+The "CreateOrUpdate" lifecycle phase is used by default for properties passed as parameters to operations
+that can create _or_ update data, like HTTP PUT operations.
 
 This transformation is recursive, and will include only properties that have the
 `Lifecycle.Create` or `Lifecycle.Update` visibility modifier.
@@ -82,9 +86,16 @@ model Dog {
   @visibility(Lifecycle.Read)
   id: int32;
 
+  @visibility(Lifecycle.Create)
+  immutableSecret: string;
+
+  @visibility(Lifecycle.Create, Lifecycle.Update)
+  secretName: string;
+
   name: string;
 }
 
+// This model will have the `immutableSecret`, `secretName`, and `name` fields, but not the `id` field.
 model CreateOrUpdateDog is CreateOrUpdate<Dog>;
 ```
 
@@ -108,6 +119,66 @@ model DefaultKeyVisibility<Source, Visibility>
 #### Properties
 None
 
+### `Delete` {#Delete}
+
+A copy of the input model `T` with only the properties that are visible during the
+"Delete" resource lifecycle phase.
+
+The "Delete" lifecycle phase is used for properties passed as parameters to operations
+that delete data, like HTTP DELETE operations.
+
+This transformation is recursive, and will include only properties that have the
+`Lifecycle.Delete` visibility modifier.
+
+If a `NameTemplate` is provided, the new model will be named according to the template.
+The template uses the same syntax as the `@friendlyName` decorator.
+```typespec
+model Delete<T, NameTemplate>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| T | The model to transform. |
+| NameTemplate | The name template to use for the new model.<br /><br />* |
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  // Set when the Dog is removed from our data store. This happens when the
+  // Dog is re-homed to a new owner.
+  @visibility(Lifecycle.Delete)
+  nextOwner: string;
+
+  name: string;
+}
+
+// This model will have the `nextOwner` and `name` fields, but not the `id` field.
+model DeleteDog is Delete<Dog>;
+```
+
+#### Properties
+None
+
+### `DiscriminatedOptions` {#DiscriminatedOptions}
+
+Options for `@discriminated` decorator.
+```typespec
+model DiscriminatedOptions
+```
+
+
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
+| envelope? | `"object" \| "none"` | How is the discriminated union serialized. |
+| discriminatorPropertyName? | [`string`](#string) | Name of the discriminator property |
+| envelopePropertyName? | [`string`](#string) | Name of the property envelopping the data |
+
 ### `ExampleOptions` {#ExampleOptions}
 
 Options for example decorators
@@ -121,20 +192,6 @@ model ExampleOptions
 |------|------|-------------|
 | title? | [`string`](#string) | The title of the example |
 | description? | [`string`](#string) | Description of the example |
-
-### `object` {#object}
-:::caution
-**Deprecated**: object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
-:::
-
-Represent a model
-```typespec
-model object
-```
-
-
-#### Properties
-None
 
 ### `OmitDefaults` {#OmitDefaults}
 
@@ -216,10 +273,66 @@ model PickProperties<Source, Keys>
 #### Properties
 None
 
+### `Query` {#Query}
+
+A copy of the input model `T` with only the properties that are visible during the
+"Query" resource lifecycle phase.
+
+The "Query" lifecycle phase is used for properties passed as parameters to operations
+that read data, like HTTP GET or HEAD operations. This should not be confused for
+the `@query` decorator, which specifies that the property is transmitted in the
+query string of an HTTP request.
+
+This transformation is recursive, and will include only properties that have the
+`Lifecycle.Query` visibility modifier.
+
+If a `NameTemplate` is provided, the new model will be named according to the template.
+The template uses the same syntax as the `@friendlyName` decorator.
+```typespec
+model Query<T, NameTemplate>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| T | The model to transform. |
+| NameTemplate | The name template to use for the new model.<br /><br />* |
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  // When getting information for a Dog, you can set this field to true to include
+  // some extra information about the Dog's pedigree that is normally not returned.
+  // Alternatively, you could just use a separate option parameter to get this
+  // information.
+  @visibility(Lifecycle.Query)
+  includePedigree?: boolean;
+
+  name: string;
+
+  // Only included if `includePedigree` is set to true in the request.
+  @visibility(Lifecycle.Read)
+  pedigree?: string;
+}
+
+// This model will have the `includePedigree` and `name` fields, but not `id` or `pedigree`.
+model QueryDog is Query<Dog>;
+```
+
+#### Properties
+None
+
 ### `Read` {#Read}
 
 A copy of the input model `T` with only the properties that are visible during the
 "Read" resource lifecycle phase.
+
+The "Read" lifecycle phase is used for properties returned by operations that read data, like
+HTTP GET operations.
 
 This transformation is recursive, and will include only properties that have the
 `Lifecycle.Read` visibility modifier.
@@ -243,9 +356,13 @@ model Dog {
   @visibility(Lifecycle.Read)
   id: int32;
 
+  @visibility(Lifecycle.Create, Lifecycle.Update)
+  secretName: string;
+
   name: string;
 }
 
+// This model has the `id` and `name` fields, but not `secretName`.
 model ReadDog is Read<Dog>;
 ```
 
@@ -288,6 +405,9 @@ model ServiceOptions
 A copy of the input model `T` with only the properties that are visible during the
 "Update" resource lifecycle phase.
 
+The "Update" lifecycle phase is used for properties passed as parameters to operations
+that update data, like HTTP PATCH operations.
+
 This transformation will include only the properties that have the `Lifecycle.Update`
 visibility modifier, and the types of all properties will be replaced with the
 equivalent `CreateOrUpdate` transformation.
@@ -311,9 +431,13 @@ model Dog {
   @visibility(Lifecycle.Read)
   id: int32;
 
+  @visibility(Lifecycle.Create, Lifecycle.Update)
+  secretName: string;
+
   name: string;
 }
 
+// This model will have the `secretName` and `name` fields, but not the `id` field.
 model UpdateDog is Update<Dog>;
 ```
 
@@ -414,23 +538,28 @@ enum DurationKnownEncoding
 
 A visibility class for resource lifecycle phases.
 
-These visibilities control whether a property is visible during the create, read, and update phases of a resource's
-lifecycle.
+These visibilities control whether a property is visible during the various phases of a resource's lifecycle.
 ```typespec
 enum Lifecycle
 ```
 
 | Name | Value | Description |
 |------|-------|-------------|
-| Create |  |  |
-| Read |  |  |
-| Update |  |  |
+| Create |  | The property is visible when a resource is being created. |
+| Read |  | The property is visible when a resource is being read. |
+| Update |  | The property is visible when a resource is being updated. |
+| Delete |  | The property is visible when a resource is being deleted. |
+| Query |  | The property is visible when a resource is being queried.<br /><br />In HTTP APIs, this visibility applies to parameters of GET or HEAD operations. |
 #### Examples
 
 ```typespec
 model Dog {
- @visibility(Lifecycle.Read) id: int32;
- @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
+ @visibility(Lifecycle.Read)
+ id: int32;
+
+ @visibility(Lifecycle.Create, Lifecycle.Update)
+ secretName: string;
+
  name: string;
 }
 ```

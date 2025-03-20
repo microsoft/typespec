@@ -4,6 +4,8 @@
 
 package azure.resourcemanager.resources.implementation;
 
+import azure.resourcemanager.resources.fluent.ExtensionsResourcesClient;
+import azure.resourcemanager.resources.fluent.LocationResourcesClient;
 import azure.resourcemanager.resources.fluent.NestedsClient;
 import azure.resourcemanager.resources.fluent.ResourcesClient;
 import azure.resourcemanager.resources.fluent.SingletonsClient;
@@ -168,6 +170,34 @@ public final class ResourcesClientImpl implements ResourcesClient {
     }
 
     /**
+     * The ExtensionsResourcesClient object to access its operations.
+     */
+    private final ExtensionsResourcesClient extensionsResources;
+
+    /**
+     * Gets the ExtensionsResourcesClient object to access its operations.
+     * 
+     * @return the ExtensionsResourcesClient object.
+     */
+    public ExtensionsResourcesClient getExtensionsResources() {
+        return this.extensionsResources;
+    }
+
+    /**
+     * The LocationResourcesClient object to access its operations.
+     */
+    private final LocationResourcesClient locationResources;
+
+    /**
+     * Gets the LocationResourcesClient object to access its operations.
+     * 
+     * @return the LocationResourcesClient object.
+     */
+    public LocationResourcesClient getLocationResources() {
+        return this.locationResources;
+    }
+
+    /**
      * Initializes an instance of ResourcesClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -188,6 +218,8 @@ public final class ResourcesClientImpl implements ResourcesClient {
         this.topLevels = new TopLevelsClientImpl(this);
         this.nesteds = new NestedsClientImpl(this);
         this.singletons = new SingletonsClientImpl(this);
+        this.extensionsResources = new ExtensionsResourcesClientImpl(this);
+        this.locationResources = new LocationResourcesClientImpl(this);
     }
 
     /**

@@ -72,7 +72,7 @@ it("handles types", async () => {
   assert.deepStrictEqual(Foo["x-named-model"], { $ref: "Thing.json" });
   assert.deepStrictEqual(Foo["x-model-template"], { $ref: "CollectionThing.json" });
   assert.deepStrictEqual(Foo["x-record"], {
-    additionalProperties: {
+    unevaluatedProperties: {
       properties: {
         name: {
           type: "string",

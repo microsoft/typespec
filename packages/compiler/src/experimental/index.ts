@@ -11,5 +11,4 @@ export {
   mutateSubgraphWithNamespace as unsafe_mutateSubgraphWithNamespace,
 } from "./mutators.js";
 export { Realm as unsafe_Realm } from "./realm.js";
-export { unsafe_useStateMap, unsafe_useStateSet } from "./state-accessor.js";
 export { $ as unsafe_$ } from "./typekit/index.js";

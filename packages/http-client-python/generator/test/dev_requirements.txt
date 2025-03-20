@@ -1,0 +1,4 @@
+-r ../../eng/scripts/ci/dev_requirements.txt
+aiohttp
+pytest-asyncio==0.14.0
+requests==2.32.2

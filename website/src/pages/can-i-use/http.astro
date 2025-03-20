@@ -1,0 +1,26 @@
+---
+import { FluentLayout } from "../../components/fluent/fluent-layout";
+import BaseLayout from "../../layouts/base-layout.astro";
+import {
+  DashboardFromAzureStorage,
+  type CoverageFromAzureStorageOptions,
+} from "@typespec/spec-dashboard";
+
+const options: CoverageFromAzureStorageOptions = {
+  storageAccountName: "typespec",
+  containerName: "coverage",
+  manifestContainerName: "manifests-typespec",
+  emitterNames: [
+    "@typespec/http-client-python",
+    "@typespec/http-client-csharp",
+    "@typespec/http-client-js",
+    "@typespec/http-client-java",
+  ],
+};
+---
+
+<BaseLayout>
+  <FluentLayout client:only="react">
+    <DashboardFromAzureStorage options={options} client:only="react" />
+  </FluentLayout>
+</BaseLayout>

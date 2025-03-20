@@ -62,6 +62,13 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
+                    - packages/http-specs/**/*
+            then:
+              - addLabel:
+                  label: lib:http-specs
+          - if:
+              - includesModifiedFiles:
+                  files:
                     - blog/**/*
             then:
               - addLabel:
@@ -80,6 +87,19 @@ configuration:
             then:
               - addLabel:
                   label: tspd
+          - if:
+              - includesModifiedFiles:
+                  files: []
+            then:
+              - addLabel:
+                  label: emitter:client:all
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/http-client-js/**/*
+            then:
+              - addLabel:
+                  label: emitter:client:js
           - if:
               - includesModifiedFiles:
                   files:
@@ -146,7 +166,7 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/http-server-javascript
+                    - packages/http-server-js
             then:
               - addLabel:
                   label: emitter:service:js
@@ -178,3 +198,11 @@ configuration:
             then:
               - addLabel:
                   label: ui:type-graph-viewer
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/spector/**/*
+                    - packages/http-specs
+            then:
+              - addLabel:
+                  label: spector

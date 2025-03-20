@@ -29,9 +29,8 @@ class ResponseHeader(BaseModel):
         self.wire_name: str = yaml_data["wireName"]
         self.type = type
 
-    @property
-    def serialization_type(self) -> str:
-        return self.type.serialization_type
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.type.serialization_type(**kwargs)
 
     @classmethod
     def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "ResponseHeader":
@@ -64,7 +63,7 @@ class Response(BaseModel):
     def result_property(self) -> str:
         field = self.yaml_data.get("resultProperty")
         if field:
-            return f'.get("{field}")'
+            return "".join([f'.get("{field}", {{}})' for field in field.split(".")])
         return ""
 
     def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
@@ -88,10 +87,9 @@ class Response(BaseModel):
         )
         return retval
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         if self.type:
-            return self.type.serialization_type
+            return self.type.serialization_type(**kwargs)
         return "None"
 
     def type_annotation(self, **kwargs: Any) -> str:
@@ -120,9 +118,9 @@ class Response(BaseModel):
         if self.nullable:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if isinstance(self.type, CombinedType) and self.type.name:
-            async_mode = kwargs.get("async_mode", False)
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                "..." if async_mode else "..",
+                self.code_model.get_relative_import_path(serialize_namespace),
                 "_types",
                 ImportType.LOCAL,
                 TypingSection.TYPING,

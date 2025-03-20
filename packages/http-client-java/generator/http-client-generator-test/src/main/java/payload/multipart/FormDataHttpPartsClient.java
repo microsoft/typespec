@@ -53,8 +53,8 @@ public final class FormDataHttpPartsClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     Response<Void> jsonArrayAndFileArrayWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation
-        // 'jsonArrayAndFileArray' is 'multipart/form-data'
+        // Operation 'jsonArrayAndFileArray' is of content-type 'multipart/form-data'. Protocol API is not usable and
+        // hence not generated.
         return this.serviceClient.jsonArrayAndFileArrayWithResponse(body, requestOptions);
     }
 

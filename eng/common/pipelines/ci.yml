@@ -12,6 +12,8 @@ pr:
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
+    BinSkimSettings:
+      analyzeTargetGlob: +:file|**/*.dll;+:file|**/*.exe;-:f|**/tsp.exe # Flag issue with node binary which we can't fix https://github.com/nodejs/node/issues/42100
     stages:
       - stage: InitStage
         displayName: Initialize
@@ -23,9 +25,11 @@ extends:
           - job: InitJob
             displayName: Initialize
             steps:
-              - script: |
-                  corepack enable
-                  corepack prepare pnpm --activate
+              - task: NodeTool@0
+                displayName: Install Node.js
+                inputs:
+                  versionSpec: 22.x
+              - script: npm install -g pnpm # Pnpm manage-package-manager-versions will respect packageManager field
                 displayName: Install pnpm
 
               - script: pnpm install

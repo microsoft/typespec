@@ -1,4 +1,3 @@
-import { assert } from "vitest";
 import * as vscode from "vscode";
 
 describe("Web Extension", () => {
@@ -7,7 +6,9 @@ describe("Web Extension", () => {
   let basicUri: vscode.Uri;
   before(async () => {
     const ext = vscode.extensions.getExtension("typespec.typespec-vscode");
-    assert.ok(ext, "Could not activate extension!");
+    if (!ext) {
+      throw new Error("Could not find extension!");
+    }
     await ext!.activate();
 
     const scheme = ext?.extensionUri.scheme === "file" ? "file" : "vscode-test-web";

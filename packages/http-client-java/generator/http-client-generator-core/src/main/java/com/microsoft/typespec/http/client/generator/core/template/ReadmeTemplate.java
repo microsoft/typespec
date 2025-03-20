@@ -15,8 +15,7 @@ public class ReadmeTemplate {
         return TemplateUtil.loadTextFromResource("Readme_protocol.txt", TemplateUtil.SERVICE_NAME,
             project.getServiceName(), TemplateUtil.SERVICE_DESCRIPTION, project.getServiceDescriptionForMarkdown(),
             TemplateUtil.GROUP_ID, project.getGroupId(), TemplateUtil.ARTIFACT_ID, project.getArtifactId(),
-            TemplateUtil.ARTIFACT_VERSION, project.getVersion(), TemplateUtil.PACKAGE_NAME, project.getNamespace(),
-            TemplateUtil.IMPRESSION_PIXEL, getImpression(project));
+            TemplateUtil.ARTIFACT_VERSION, project.getVersion(), TemplateUtil.PACKAGE_NAME, project.getNamespace());
     }
 
     protected static String getImpression(Project project) {

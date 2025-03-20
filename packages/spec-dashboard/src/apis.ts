@@ -1,119 +1,131 @@
 import {
+  CoverageReport,
+  GeneratorMetadata,
   ResolvedCoverageReport,
   ScenarioManifest,
   SpecCoverageClient,
 } from "@typespec/spec-coverage-sdk";
 
-const storageAccountName = "typespec";
+export interface CoverageFromAzureStorageOptions {
+  readonly storageAccountName: string;
+  readonly containerName: string;
+  // TODO: why was this not back in the same place as the other options?
+  readonly manifestContainerName: string;
+  readonly emitterNames: string[];
+  readonly modes?: string[];
+}
 
-export type GeneratorNames =
-  | "@typespec/http-client-python"
-  | "@typespec/http-client-csharp"
-  | "@azure-tools/typespec-ts-rlc"
-  | "@azure-tools/typespec-ts-modular"
-  | "@typespec/http-client-java"
-  | "test";
-const query = new URLSearchParams(window.location.search);
-const generatorNames: GeneratorNames[] = [
-  "@typespec/http-client-python",
-  "@typespec/http-client-csharp",
-  "@azure-tools/typespec-ts-rlc",
-  "@azure-tools/typespec-ts-modular",
-  "@typespec/http-client-java",
-  ...(query.has("showtest") ? (["test"] as const) : []),
-];
+export interface GeneratorCoverageSuiteReport extends CoverageReport {
+  generatorMetadata: GeneratorMetadata;
+}
 
 export interface CoverageSummary {
   manifest: ScenarioManifest;
-  generatorReports: Record<GeneratorNames, ResolvedCoverageReport | undefined>;
+  generatorReports: Record<string, GeneratorCoverageSuiteReport | undefined>;
 }
 
 let client: SpecCoverageClient | undefined;
-export function getCoverageClient() {
+export function getCoverageClient(options: CoverageFromAzureStorageOptions) {
   if (client === undefined) {
-    client = new SpecCoverageClient(storageAccountName);
+    client = new SpecCoverageClient(options.storageAccountName);
   }
   return client;
 }
 
 let manifestClient: SpecCoverageClient | undefined;
-export function getManifestClient() {
+export function getManifestClient(options: CoverageFromAzureStorageOptions) {
   if (manifestClient === undefined) {
-    manifestClient = new SpecCoverageClient(storageAccountName, {
-      containerName: "manifests-typespec",
+    manifestClient = new SpecCoverageClient(options.storageAccountName, {
+      containerName: options.manifestContainerName,
     });
   }
   return manifestClient;
 }
 
-export async function getCoverageSummaries(): Promise<CoverageSummary[]> {
-  const coverageClient = getCoverageClient();
-  const manifestClient = getManifestClient();
+export async function getCoverageSummaries(
+  options: CoverageFromAzureStorageOptions,
+): Promise<CoverageSummary[]> {
+  const coverageClient = getCoverageClient(options);
+  const manifestClient = getManifestClient(options);
   const [manifests, generatorReports] = await Promise.all([
     manifestClient.manifest.get(),
-    loadReports(coverageClient, generatorNames),
+    loadReports(coverageClient, options),
   ]);
 
-  const manifestStandard = manifests.filter(
-    (manifest: ScenarioManifest) => manifest.setName !== "@azure-tools/azure-http-specs",
-  )[0];
-  for (const key in generatorReports["standard"]) {
-    if (!(generatorReports["standard"] as any)[key]) {
-      continue;
-    }
-    (generatorReports["standard"] as any)[key] = {
-      ...(generatorReports["standard"] as any)[key][0],
-      generatorMetadata: (generatorReports["standard"] as any)[key]["generatorMetadata"],
-    };
-  }
+  const reports = Object.values(generatorReports);
 
-  return [
-    {
-      manifest: manifestStandard,
-      generatorReports: generatorReports["standard"],
-    },
-  ];
+  return manifests.map((manifest, i) => {
+    return {
+      manifest,
+      generatorReports: processReports(reports[0], manifest),
+    };
+  });
 }
 
-enum GeneratorMode {
-  standard = "standard",
+function processReports(
+  reports: Record<string, ResolvedCoverageReport | undefined>,
+  manifest: ScenarioManifest,
+) {
+  const generatorReports: Record<string, GeneratorCoverageSuiteReport | undefined> = {};
+  for (const [emitterName, report] of Object.entries(reports)) {
+    generatorReports[emitterName] = report && getSuiteReportForManifest(report, manifest);
+  }
+  return generatorReports;
+}
+
+function getSuiteReportForManifest(
+  report: ResolvedCoverageReport,
+  manifest: ScenarioManifest,
+): GeneratorCoverageSuiteReport | undefined {
+  let data;
+  for (const [key, value] of Object.entries(report)) {
+    if (key === "generatorMetadata") {
+      continue;
+    }
+    if (value.scenariosMetadata.packageName === manifest.setName) {
+      data = value;
+    }
+  }
+  return data
+    ? {
+        generatorMetadata: report.generatorMetadata,
+        ...data,
+      }
+    : undefined;
 }
 
 async function loadReports(
   coverageClient: SpecCoverageClient,
-  generatorNames: GeneratorNames[],
-): Promise<{ [mode: string]: Record<GeneratorNames, ResolvedCoverageReport | undefined> }> {
+  options: CoverageFromAzureStorageOptions,
+): Promise<{ [mode: string]: Record<string, ResolvedCoverageReport | undefined> }> {
   const results = await Promise.all(
-    Object.keys(GeneratorMode).map(
-      async (
-        mode,
-      ): Promise<[string, Record<GeneratorNames, ResolvedCoverageReport | undefined>]> => {
+    (options.modes ?? ["standard"]).map(
+      async (mode): Promise<[string, Record<string, ResolvedCoverageReport | undefined>]> => {
         const items = await Promise.all(
-          generatorNames.map(
-            async (
-              generatorName,
-            ): Promise<[GeneratorNames, ResolvedCoverageReport | undefined]> => {
+          options.emitterNames.map(
+            async (emitterName): Promise<[string, ResolvedCoverageReport | undefined]> => {
               try {
                 const report = await coverageClient.coverage.getLatestCoverageFor(
-                  generatorName,
+                  emitterName,
                   mode,
                 );
-                return [generatorName, report];
+                return [emitterName, report];
               } catch (error) {
                 // eslint-disable-next-line no-console
                 console.error("Error resolving report", error);
-                return [generatorName, undefined];
+                return [emitterName, undefined];
               }
             },
           ),
         );
+
         return [mode, Object.fromEntries(items) as any];
       },
     ),
   );
 
   return results.reduce<{
-    [mode: string]: Record<GeneratorNames, ResolvedCoverageReport | undefined>;
+    [mode: string]: Record<string, ResolvedCoverageReport | undefined>;
   }>((results, [mode, reports]) => {
     results[mode] = reports;
     return results;

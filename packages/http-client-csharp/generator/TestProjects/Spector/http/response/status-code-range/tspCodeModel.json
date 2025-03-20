@@ -1,0 +1,390 @@
+{
+ "$id": "1",
+ "name": "Response.StatusCodeRange",
+ "apiVersions": [],
+ "enums": [],
+ "models": [
+  {
+   "$id": "2",
+   "kind": "model",
+   "name": "ErrorInRange",
+   "namespace": "Response.StatusCodeRange",
+   "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange",
+   "usage": "Error,Json,Exception",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "3",
+     "kind": "property",
+     "name": "code",
+     "serializedName": "code",
+     "type": {
+      "$id": "4",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange.code",
+     "serializationOptions": {
+      "$id": "5",
+      "json": {
+       "$id": "6",
+       "name": "code"
+      }
+     }
+    },
+    {
+     "$id": "7",
+     "kind": "property",
+     "name": "message",
+     "serializedName": "message",
+     "type": {
+      "$id": "8",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange.message",
+     "serializationOptions": {
+      "$id": "9",
+      "json": {
+       "$id": "10",
+       "name": "message"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "11",
+   "kind": "model",
+   "name": "DefaultError",
+   "namespace": "Response.StatusCodeRange",
+   "crossLanguageDefinitionId": "Response.StatusCodeRange.DefaultError",
+   "usage": "Error,Json,Exception",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "12",
+     "kind": "property",
+     "name": "code",
+     "serializedName": "code",
+     "type": {
+      "$id": "13",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.DefaultError.code",
+     "serializationOptions": {
+      "$id": "14",
+      "json": {
+       "$id": "15",
+       "name": "code"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "16",
+   "kind": "model",
+   "name": "NotFoundError",
+   "namespace": "Response.StatusCodeRange",
+   "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError",
+   "usage": "Error,Json,Exception",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "17",
+     "kind": "property",
+     "name": "code",
+     "serializedName": "code",
+     "type": {
+      "$id": "18",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError.code",
+     "serializationOptions": {
+      "$id": "19",
+      "json": {
+       "$id": "20",
+       "name": "code"
+      }
+     }
+    },
+    {
+     "$id": "21",
+     "kind": "property",
+     "name": "resourceId",
+     "serializedName": "resourceId",
+     "type": {
+      "$id": "22",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError.resourceId",
+     "serializationOptions": {
+      "$id": "23",
+      "json": {
+       "$id": "24",
+       "name": "resourceId"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "25",
+   "kind": "model",
+   "name": "Standard4XXError",
+   "namespace": "Response.StatusCodeRange",
+   "crossLanguageDefinitionId": "Response.StatusCodeRange.Standard4XXError",
+   "usage": "Error,Json,Exception",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "26",
+     "kind": "property",
+     "name": "code",
+     "serializedName": "code",
+     "type": {
+      "$id": "27",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.Standard4XXError.code",
+     "serializationOptions": {
+      "$id": "28",
+      "json": {
+       "$id": "29",
+       "name": "code"
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clients": [
+  {
+   "$id": "30",
+   "name": "StatusCodeRangeClient",
+   "namespace": "Response.StatusCodeRange",
+   "doc": "Test for range of status code.",
+   "operations": [
+    {
+     "$id": "31",
+     "name": "errorResponseStatusCodeInRange",
+     "resourceName": "StatusCodeRange",
+     "accessibility": "public",
+     "parameters": [
+      {
+       "$id": "32",
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
+        "$id": "33",
+        "kind": "constant",
+        "valueType": {
+         "$id": "34",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "responses": [
+      {
+       "$id": "35",
+       "statusCodes": [
+        200
+       ],
+       "bodyType": {
+        "$id": "36",
+        "kind": "constant",
+        "valueType": {
+         "$id": "37",
+         "kind": "int32",
+         "name": "int32",
+         "crossLanguageDefinitionId": "TypeSpec.int32",
+         "decorators": []
+        },
+        "value": 204,
+        "decorators": []
+       },
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/response/status-code-range/error-response-status-code-in-range",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCodeInRange",
+     "decorators": []
+    },
+    {
+     "$id": "38",
+     "name": "errorResponseStatusCode404",
+     "resourceName": "StatusCodeRange",
+     "accessibility": "public",
+     "parameters": [
+      {
+       "$id": "39",
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
+        "$id": "40",
+        "kind": "constant",
+        "valueType": {
+         "$id": "41",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "value": "application/json",
+        "decorators": []
+       },
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
+      }
+     ],
+     "responses": [
+      {
+       "$id": "42",
+       "statusCodes": [
+        200
+       ],
+       "bodyType": {
+        "$id": "43",
+        "kind": "constant",
+        "valueType": {
+         "$id": "44",
+         "kind": "int32",
+         "name": "int32",
+         "crossLanguageDefinitionId": "TypeSpec.int32",
+         "decorators": []
+        },
+        "value": 204,
+        "decorators": []
+       },
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/response/status-code-range/error-response-status-code-404",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCode404",
+     "decorators": []
+    }
+   ],
+   "parameters": [
+    {
+     "$id": "45",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "46",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "47",
+      "type": {
+       "$id": "48",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "value": "http://localhost:3000"
+     }
+    }
+   ],
+   "decorators": [],
+   "crossLanguageDefinitionId": "Response.StatusCodeRange"
+  }
+ ]
+}

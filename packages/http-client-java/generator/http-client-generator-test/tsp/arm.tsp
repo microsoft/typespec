@@ -14,9 +14,7 @@ using TypeSpec.OpenAPI;
 using Azure.ClientGenerator.Core;
 
 @armProviderNamespace
-@service({
-  title: "ArmResource",
-})
+@service(#{ title: "ArmResource" })
 @versioned(Versions)
 @doc("Arm Resource Provider management API.")
 namespace TspTest.ArmResourceProvider;
@@ -50,7 +48,7 @@ enum Versions {
 model ChildResource is TrackedResource<ChildResourceProperties> {
   @key("childResourceName")
   @doc("ChildResources")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @path
   @segment("childResources")
   @pattern("^[A-Za-z0-9]([A-Za-z0-9-_.]{0,62}[A-Za-z0-9])?$")
@@ -59,7 +57,7 @@ model ChildResource is TrackedResource<ChildResourceProperties> {
 
 @doc("Child Resource Properties.")
 model ChildResourceProperties {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @doc("Provisioning State of Top Level Arm Resource")
   provisioningState?: ProvisioningState;
 }
@@ -78,17 +76,17 @@ model TopLevelArmResource is TrackedResource<TopLevelArmResourceProperties> {
 @doc("Top Level Arm Resource Properties.")
 model TopLevelArmResourceProperties {
   @doc("Configuration Endpoints.")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   configurationEndpoints?: string[];
 
   userName: string; // this should be renamed to username
   userNames: string; // this isn't a whole word match, shouldn't be renamed to usernames
   accuserName: string; // this isn't a whole word match, shouldn't be renamed to accusername
 
-  @visibility("create", "read")
+  @visibility(Lifecycle.Create, Lifecycle.Read)
   startTimeStamp: utcDateTime; // this should be renamed to startTimestamp
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @doc("The status of the last operation.")
   provisioningState?: ProvisioningState;
 }
@@ -135,7 +133,7 @@ model Golden extends Dog {
 
 @doc("Top Level Arm Resource Properties.")
 model CustomTemplateResourceProperties {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @doc("The status of the last operation.")
   provisioningState?: ProvisioningState;
 
@@ -209,7 +207,7 @@ alias IfNoneMatchParameters<T extends Azure.ResourceManager.Foundations.Resource
 model ChildExtensionResource is ExtensionResource<ChildExtensionResourceProperties> {
   @key("childExtensionResourceName")
   @doc("ChildExtensionResources")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @path
   @segment("childExtensionResources")
   @pattern("^[A-Za-z0-9]([A-Za-z0-9-_.]{0,62}[A-Za-z0-9])?$")
@@ -218,9 +216,31 @@ model ChildExtensionResource is ExtensionResource<ChildExtensionResourceProperti
 
 /** Child ExtensionResource properties. */
 model ChildExtensionResourceProperties {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @doc("Provisioning State of the Resource")
   provisioningState?: ProvisioningState;
+}
+
+/** Resource for testing conflict name with operation group. */
+model ManagedMaintenanceWindowStatusContent
+  is TrackedResource<ManagedMaintenanceWindowStatusContentProperties> {
+  ...ResourceNameParameter<ManagedMaintenanceWindowStatusContent>;
+}
+
+model ManagedMaintenanceWindowStatusContentProperties {
+  @visibility(Lifecycle.Read)
+  @doc("The status of the last operation.")
+  provisioningState: string;
+}
+
+model ModelInterfaceDifferentName is TrackedResource<ModelInterfaceDifferentNameProperties> {
+  ...ResourceNameParameter<ModelInterfaceDifferentName>;
+}
+
+model ModelInterfaceDifferentNameProperties {
+  @visibility(Lifecycle.Read)
+  @doc("The status of the last operation.")
+  provisioningState: string;
 }
 
 //----------------------- Paths -----------------------
@@ -285,5 +305,17 @@ op ArmResourceUpdateSync<
   resource: TResource,
 ): ResponseWithHeader<TResource> | ErrorResponse;
 
+@armResourceOperations
+interface ManagedMaintenanceWindowStatus {
+  get is ArmResourceRead<ManagedMaintenanceWindowStatusContent>;
+}
+
+@armResourceOperations
+interface ModelInterfaceSameName {
+  get is ArmResourceRead<ModelInterfaceDifferentName>;
+}
+
+@@clientName(ManagedMaintenanceWindowStatusContent, "ManagedMaintenanceWindowStatus");
+@@clientName(ModelInterfaceDifferentName, "ModelInterfaceSameName");
 @@flattenProperty(TrackedResource.properties);
 @@flattenProperty(Azure.ResourceManager.Foundations.ResourceUpdateModel.properties);
