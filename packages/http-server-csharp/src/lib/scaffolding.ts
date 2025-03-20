@@ -90,7 +90,7 @@ export function getBusinessLogicImplementations(
       }),
     );
   }
-  //sourceFiles.push(...getScaffoldingHelpers(emitter, useSwagger, openApiPath, mocks.length > 0));
+
   return sourceFiles;
 }
 
