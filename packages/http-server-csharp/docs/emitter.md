@@ -1,12 +1,6 @@
-# @typespec/http-server-csharp
-
-TypeSpec service code generator for c-sharp
-
-## Install
-
-```bash
-npm install @typespec/http-server-csharp
-```
+---
+title: "Emitter usage"
+---
 
 ## Usage
 
