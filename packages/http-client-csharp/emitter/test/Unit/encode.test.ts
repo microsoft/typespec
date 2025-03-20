@@ -32,11 +32,11 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
-      (p) => p.Name === "input",
+    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+      (p) => p.name === "input",
     );
     strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].Type;
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
@@ -61,11 +61,11 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
-      (p) => p.Name === "input",
+    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+      (p) => p.name === "input",
     );
     strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].Type;
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
@@ -90,11 +90,11 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
-      (p) => p.Name === "input",
+    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+      (p) => p.name === "input",
     );
     strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].Type;
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "duration");
     strictEqual(type.name, "duration");
     strictEqual(type.crossLanguageDefinitionId, "TypeSpec.duration");
@@ -121,7 +121,7 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
-    const models = codeModel.Models;
+    const models = codeModel.models;
     const durationModel = models.find((m) => m.name === "ISO8601DurationProperty");
     ok(durationModel);
     const type = durationModel.properties[0].type;
@@ -150,7 +150,7 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
-    const models = codeModel.Models;
+    const models = codeModel.models;
     const durationModel = models.find((m) => m.name === "Int32SecondsDurationProperty");
     ok(durationModel);
     const type = durationModel.properties[0].type;
@@ -179,7 +179,7 @@ describe("Test encode duration", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
-    const models = codeModel.Models;
+    const models = codeModel.models;
     const durationModel = models.find((m) => m.name === "FloatSecondsDurationProperty");
     ok(durationModel);
     const type = durationModel.properties[0].type;

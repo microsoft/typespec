@@ -28,11 +28,11 @@ describe("Test string format", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
-      (p) => p.Name === "sourceUrl",
+    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+      (p) => p.name === "sourceUrl",
     );
     strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].Type;
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "url");
   });
 
@@ -52,7 +52,7 @@ describe("Test string format", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
-    const models = codeModel.Models;
+    const models = codeModel.models;
     const foo = models.find((m) => m.name === "Foo");
     ok(foo);
     const type = foo?.properties[0].type;

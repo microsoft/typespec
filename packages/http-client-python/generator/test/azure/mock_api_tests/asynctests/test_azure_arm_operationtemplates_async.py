@@ -18,6 +18,7 @@ async def client(credential, authentication_policy):
         SUBSCRIPTION_ID,
         "http://localhost:3000",
         authentication_policy=authentication_policy,
+        polling_interval=0,
     ) as client:
         yield client
 
