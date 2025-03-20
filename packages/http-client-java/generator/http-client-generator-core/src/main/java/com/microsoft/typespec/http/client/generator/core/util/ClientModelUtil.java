@@ -332,9 +332,21 @@ public class ClientModelUtil {
         return clientDefaultValueOrConstantValue;
     }
 
+    public static List<OperationGroup> getAllOperationGroups(CodeModel codeModel) {
+        List<OperationGroup> allOperationGroups;
+        if (!CoreUtils.isNullOrEmpty(codeModel.getClients())) {
+            allOperationGroups = codeModel.getClients()
+                .stream()
+                .flatMap(client -> client.getOperationGroups().stream())
+                .collect(Collectors.toList());
+        } else {
+            allOperationGroups = codeModel.getOperationGroups();
+        }
+        return allOperationGroups;
+    }
+
     private static String getFirstApiVersionFromOperation(CodeModel codeModel) {
-        return codeModel.getOperationGroups()
-            .stream()
+        return getAllOperationGroups(codeModel).stream()
             .flatMap(og -> og.getOperations().stream())
             .filter(o -> o.getApiVersions() != null)
             .flatMap(o -> o.getApiVersions().stream())
