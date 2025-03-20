@@ -4,7 +4,7 @@ import "@typespec/versioning";
 
 using Http;
 using Spector;
-using Versioning;
+using TypeSpec.Versioning;
 
 /**
  * Test for the `@renamedFrom` decorator.
