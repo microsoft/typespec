@@ -45,11 +45,11 @@ const FirstResponseTokenInHeader = {
 };
 
 const RequestTokenInQuery = {
-  params: { token: "page2", bar: "bar" },
+  query: { token: "page2", bar: "bar" },
   headers: { foo: "foo" },
 };
 
-const RequestTokenInHeader = { headers: { token: "page2", foo: "foo" }, params: { bar: "bar" } };
+const RequestTokenInHeader = { headers: { token: "page2", foo: "foo" }, query: { bar: "bar" } };
 
 function createTests(reqInfo: "query" | "header", resInfo: "body" | "header") {
   const uri = `/payload/pageable/server-driven-pagination/continuationtoken/request-${reqInfo}-response-${resInfo}`;

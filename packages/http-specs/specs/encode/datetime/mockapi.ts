@@ -93,7 +93,7 @@ function createPropertyServerTests(
     uri,
     method: "post",
     request: {
-      body: data,
+      body: json(data),
     },
     response: {
       status: 200,

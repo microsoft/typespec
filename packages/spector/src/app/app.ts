@@ -101,31 +101,28 @@ function isObject(value: any): boolean {
 
 function createHandler(apiDefinition: MockApiDefinition) {
   return (req: MockRequest) => {
+    const body = apiDefinition.request?.body;
     // Validate body if present in the request
-    if (apiDefinition.request.body) {
-      if (
-        apiDefinition.request.headers &&
-        apiDefinition.request.headers["Content-Type"] === "application/xml"
-      ) {
+    if (body) {
+      if (body.contentType === "application/xml") {
         req.expect.xmlBodyEquals(
-          apiDefinition.request.body.rawContent.replace(
-            `<?xml version='1.0' encoding='UTF-8'?>`,
-            "",
-          ),
+          (body.rawContent as any).replace(`<?xml version='1.0' encoding='UTF-8'?>`, ""),
         );
       } else {
-        if (isObject(apiDefinition.request.body)) {
-          Object.entries(apiDefinition.request.body).forEach(([key, value]) => {
-            req.expect.deepEqual(req.body[key], value);
-          });
-        } else {
-          req.expect.coercedBodyEquals(apiDefinition.request.body);
-        }
+        const json = JSON.parse(body.rawContent as any);
+        req.expect.deepEqual(req.body, json);
+        // if (isObject(body)) {
+        //   Object.entries(body).forEach(([key, value]) => {
+        //     req.expect.deepEqual(req.body[key], value);
+        //   });
+        // } else {
+        //   req.expect.coercedBodyEquals(body);
+        // }
       }
     }
 
     // Validate headers if present in the request
-    if (apiDefinition.request.headers) {
+    if (apiDefinition.request?.headers) {
       Object.entries(apiDefinition.request.headers).forEach(([key, value]) => {
         if (key.toLowerCase() !== "content-type") {
           if (Array.isArray(value)) {
@@ -138,20 +135,21 @@ function createHandler(apiDefinition: MockApiDefinition) {
     }
 
     // Validate query params if present in the request
-    if (apiDefinition.request.params) {
+    if (apiDefinition.request?.params) {
       Object.entries(apiDefinition.request.params).forEach(([key, value]) => {
-        if (!req.query[key]) {
-          if (Array.isArray(value)) {
-            req.expect.deepEqual(req.params[key], value);
-          } else {
-            req.expect.deepEqual(req.params[key], String(value));
-          }
+        if (Array.isArray(value)) {
+          req.expect.deepEqual(req.params[key], value);
         } else {
-          if (Array.isArray(value)) {
-            req.expect.deepEqual(req.query[key], value);
-          } else {
-            req.expect.containsQueryParam(key, String(value));
-          }
+          req.expect.deepEqual(req.params[key], String(value));
+        }
+      });
+    }
+    if (apiDefinition.request?.query) {
+      Object.entries(apiDefinition.request.query).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          req.expect.deepEqual(req.query[key], value);
+        } else {
+          req.expect.containsQueryParam(key, String(value));
         }
       });
     }

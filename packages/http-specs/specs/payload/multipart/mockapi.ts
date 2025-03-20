@@ -185,10 +185,7 @@ Scenarios.Payload_MultiPart_FormData_basic = passOnSuccess({
   uri: "/multipart/form-data/mixed-parts",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    body: { id: 123 },
+    body: { contentType: "multipart/form-data", rawContent: { id: 123 } as any },
     files: [files[0]],
   },
   response: { status: 204 },
@@ -199,10 +196,10 @@ Scenarios.Payload_MultiPart_FormData_fileArrayAndBasic = passOnSuccess({
   uri: "/multipart/form-data/complex-parts",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
+    body: {
+      contentType: "multipart/form-data",
+      rawContent: { id: 123, address: { city: "X" } } as any,
     },
-    body: { id: 123, address: { city: "X" } },
     files: [files[0], files[1], files[1]],
   },
   response: { status: 204 },
@@ -213,10 +210,7 @@ Scenarios.Payload_MultiPart_FormData_jsonPart = passOnSuccess({
   uri: "/multipart/form-data/json-part",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    body: { address: { city: "X" } },
+    body: { contentType: "multipart/form-data", rawContent: { address: { city: "X" } } as any },
     files: [files[0]],
   },
   response: { status: 204 },
@@ -230,7 +224,7 @@ Scenarios.Payload_MultiPart_FormData_binaryArrayParts = passOnSuccess({
     headers: {
       "Content-Type": "multipart/form-data",
     },
-    body: { id: 123 },
+    body: { contentType: "multipart/form-data", rawContent: { id: 123 } as any },
     files: [files[1], files[1]],
   },
   response: { status: 204 },
@@ -272,10 +266,7 @@ Scenarios.Payload_MultiPart_FormData_checkFileNameAndContentType = passOnSuccess
   uri: "/multipart/form-data/check-filename-and-content-type",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    body: { id: 123 },
+    body: { contentType: "multipart/form-data", rawContent: { id: 123 } as any },
     files: [{ ...files[0], mimetype: "image/jpg", originalname: "hello.jpg" }],
   },
   response: { status: 204 },
@@ -338,10 +329,14 @@ Scenarios.Payload_MultiPart_FormData_HttpParts_jsonArrayAndFileArray = passOnSuc
   uri: "/multipart/form-data/complex-parts-with-httppart",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
+    body: {
+      contentType: "multipart/form-data",
+      rawContent: {
+        id: 123,
+        address: { city: "X" },
+        previousAddresses: [{ city: "Y" }, { city: "Z" }],
+      } as any,
     },
-    body: { id: 123, address: { city: "X" }, previousAddresses: [{ city: "Y" }, { city: "Z" }] },
     files: [files[0], files[1], files[1]],
   },
   response: { status: 204 },
@@ -353,9 +348,9 @@ Scenarios.Payload_MultiPart_FormData_HttpParts_NonString_float = passOnSuccess({
   uri: "/multipart/form-data/non-string-float",
   method: "post",
   request: {
-    body: { temperature: 0.5 },
-    headers: {
-      "Content-Type": "multipart/form-data",
+    body: {
+      contentType: "multipart/form-data",
+      rawContent: { temperature: 0.5 } as any,
     },
   },
   response: { status: 204 },

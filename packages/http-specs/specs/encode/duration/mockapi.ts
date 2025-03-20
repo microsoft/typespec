@@ -13,7 +13,7 @@ function createBodyServerTests(uri: string, data: any, value: any) {
     uri,
     method: "post",
     request: {
-      body: data,
+      body: json(data),
     },
     response: {
       status: 200,

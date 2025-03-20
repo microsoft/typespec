@@ -66,7 +66,7 @@ export interface MockApi {
 export interface MockApiDefinition {
   uri: string;
   method: HttpMethod;
-  request: ServiceRequest;
+  request?: ServiceRequest;
   response: MockResponse;
   handler?: MockRequestHandler;
   kind: "MockApiDefinition";
@@ -80,10 +80,14 @@ export interface ServiceRequestFile {
 }
 
 export interface ServiceRequest {
-  body?: any;
+  body?: MockBody;
   status?: number;
   /**
    * Query parameters to match to the request.
+   */
+  query?: Record<string, unknown>;
+  /**
+   * Path parameters to match to the request.
    */
   params?: Record<string, unknown>;
   headers?: Record<string, unknown>;
@@ -104,7 +108,7 @@ export interface MockResponse {
     [key: string]: string | null;
   };
 
-  body?: MockResponseBody;
+  body?: MockBody;
 
   /**
    * Let the mock API know that this request was successful to counting coverage regardless of the status code.
@@ -117,7 +121,7 @@ export interface KeyedMockResponse<K extends string = string> extends MockRespon
   pass: K | typeof Fail;
 }
 
-export interface MockResponseBody {
+export interface MockBody {
   contentType: string;
   rawContent: string | Buffer | undefined;
 }

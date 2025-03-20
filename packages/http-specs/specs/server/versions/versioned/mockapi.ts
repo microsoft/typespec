@@ -31,11 +31,15 @@ Scenarios.Server_Versions_Versioned_withPathApiVersion = createServerTests(
   "/server/versions/versioned/with-path-api-version/2022-12-01-preview",
 );
 
-function createAPIVersionTests(uri: string, requestData: any, serverData: string) {
+function createAPIVersionTests(uri: string, version: string) {
   return passOnSuccess({
     uri,
     method: "head",
-    request: requestData,
+    request: {
+      query: {
+        "api-version": version,
+      },
+    },
     response: {
       status: 200,
     },
@@ -45,20 +49,10 @@ function createAPIVersionTests(uri: string, requestData: any, serverData: string
 
 Scenarios.Server_Versions_Versioned_withQueryOldApiVersion = createAPIVersionTests(
   "/server/versions/versioned/with-query-old-api-version",
-  {
-    params: {
-      "api-version": "2021-01-01-preview",
-    },
-  },
   "2021-01-01-preview",
 );
 
 Scenarios.Server_Versions_Versioned_withQueryApiVersion = createAPIVersionTests(
   "/server/versions/versioned/with-query-api-version",
-  {
-    params: {
-      "api-version": "2022-12-01-preview",
-    },
-  },
   "2022-12-01-preview",
 );

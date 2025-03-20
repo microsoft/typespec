@@ -73,7 +73,7 @@ function createPropertyServerTests(uri: string, data: any, value: any) {
     uri,
     method: "post",
     request: {
-      body: data,
+      body: json(data),
     },
     response: {
       status: 200,
@@ -162,7 +162,7 @@ function createRequestBodyServerTests(
     uri,
     method: "post",
     request: {
-      body: data,
+      body: json(data),
       headers: headersData,
     },
     response: {
