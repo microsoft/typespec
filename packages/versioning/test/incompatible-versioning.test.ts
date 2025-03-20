@@ -20,7 +20,7 @@ describe("versioning: incompatible use of decorators", () => {
       wrapper: (code) => `
       import "@typespec/versioning";
       ${imports.map((i) => `import "${i}";`).join("\n")}
-      using TypeSpec.Versioning;
+      usingVersioning;
       ${code}`,
     });
   });
@@ -74,7 +74,7 @@ describe("versioning: validate incompatible references", () => {
       wrapper: (code) => `
       import "@typespec/versioning";
       ${imports.map((i) => `import "${i}";`).join("\n")}
-      using TypeSpec.Versioning;
+      usingVersioning;
 
       @versioned(Versions)
       namespace TestService {

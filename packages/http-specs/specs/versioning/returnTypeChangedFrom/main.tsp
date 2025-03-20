@@ -4,7 +4,7 @@ import "@typespec/versioning";
 
 using Http;
 using Spector;
-using TypeSpec.Versioning;
+usingVersioning;
 
 /**
  * Test for the `@returnTypeChangedFrom` decorator.

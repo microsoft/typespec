@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/versioning";
 
-using TypeSpec.Versioning;
+usingVersioning;
 
 @versioned(Versions)
 @service(#{ title: "Widget Service" })
@@ -13,8 +13,8 @@ enum Versions {
   v2,
 }
 
-using TypeSpec.Http;
-using TypeSpec.Rest;
+using Http;
+using Rest;
 
 model Widget {
   @key id: string;

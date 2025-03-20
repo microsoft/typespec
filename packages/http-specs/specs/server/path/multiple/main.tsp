@@ -4,8 +4,8 @@ import "@typespec/versioning";
 
 using Http;
 using Spector;
-using TypeSpec.Versioning;
-using TypeSpec.Rest;
+usingVersioning;
+using Rest;
 
 @versioned(Versions)
 @service(#{ title: "ServerPathMultiple" })

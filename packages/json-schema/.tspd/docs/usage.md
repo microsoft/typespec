@@ -3,7 +3,7 @@ Add the `@jsonSchema` decorator to any types or namespaces you want to emit as J
 ```TypeSpec
 import "@typespec/json-schema";
 
-using TypeSpec.JsonSchema;
+using JsonSchema;
 
 @jsonSchema
 namespace Example;
