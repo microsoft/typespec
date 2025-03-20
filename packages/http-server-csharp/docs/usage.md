@@ -20,9 +20,7 @@ The generated code layout inside the 'generated' folder is as follows:
   - **models**: A set of models representing the data in requests and response
   - **operations**: A set of interfaces called by the controllers, that should be implemented with the business logic for each operation.
 
-  It is expected that you will regenerate whevener you make changes in your spec and these files
-  will be replaced inline to reflect the spec changes, without changing any of your hand-written
-  implementation in the project.
+  You should recompile whenever you make changes in your TypeSpec and these files will be replaced inline to reflect the spec changes, without changing any of your hand-written implementation in the project.
 
 ## Scaffolding
 
