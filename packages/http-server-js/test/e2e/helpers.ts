@@ -15,7 +15,7 @@ interface BasicRouter {
 export function startServer(router: BasicRouter, abortSignal: AbortSignal): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     if (abortSignal.aborted) {
-      return;
+      return reject(new Error("Server start cancelled"));
     }
     const server = createServer((req, res) => router.dispatch(req, res));
     const stop = () => {
