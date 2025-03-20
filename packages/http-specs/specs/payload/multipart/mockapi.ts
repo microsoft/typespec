@@ -1,5 +1,6 @@
 import {
   MockRequest,
+  multipart,
   passOnSuccess,
   ScenarioMockApi,
   ValidationError,
@@ -348,10 +349,9 @@ Scenarios.Payload_MultiPart_FormData_HttpParts_NonString_float = passOnSuccess({
   uri: "/multipart/form-data/non-string-float",
   method: "post",
   request: {
-    body: {
-      contentType: "multipart/form-data",
-      rawContent: { temperature: 0.5 } as any,
-    },
+    body: multipart({
+      parts: { temperature: 0.5 },
+    }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkFloat]),

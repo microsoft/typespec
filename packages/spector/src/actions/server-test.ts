@@ -35,8 +35,6 @@ class ServerTestsGenerator {
       body: this.mockApiDefinition.request?.body,
       headers: this.mockApiDefinition.request?.headers,
       query: this.mockApiDefinition.request?.query,
-      params: this.mockApiDefinition.request?.params,
-      // files: this.mockApiDefinition.request.files,
     });
 
     if (this.mockApiDefinition.response.status !== response.status) {

@@ -1,4 +1,4 @@
-import { MockBody } from "./types.js";
+import { MockBody, MockMultipartBody } from "./types.js";
 
 /**
  * Serialize the provided content as json to use in a MockResponse body.
@@ -22,5 +22,15 @@ export function xml(xmlString: string): MockBody {
   return {
     contentType: "application/xml",
     rawContent: `<?xml version='1.0' encoding='UTF-8'?>` + xmlString,
+  };
+}
+
+export function multipart(
+  config: Partial<Pick<MockMultipartBody, "contentType" | "parts" | "files">>,
+): MockMultipartBody {
+  return {
+    kind: "multipart",
+    contentType: "multipart/form-data",
+    ...config,
   };
 }

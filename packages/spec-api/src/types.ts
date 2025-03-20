@@ -80,7 +80,7 @@ export interface ServiceRequestFile {
 }
 
 export interface ServiceRequest {
-  body?: MockBody;
+  body?: MockBody | MockMultipartBody;
   status?: number;
   /**
    * Query parameters to match to the request.
@@ -124,6 +124,12 @@ export interface KeyedMockResponse<K extends string = string> extends MockRespon
 export interface MockBody {
   contentType: string;
   rawContent: string | Buffer | undefined;
+}
+export interface MockMultipartBody {
+  kind: "multipart";
+  contentType: `multipart/${string}`;
+  parts?: Record<string, unknown>;
+  files?: ServiceRequestFile[];
 }
 
 export type CollectionFormat = "multi" | "csv" | "ssv" | "tsv" | "pipes";

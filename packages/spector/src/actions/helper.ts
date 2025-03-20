@@ -1,54 +1,41 @@
-import { HttpMethod, ServiceRequestFile } from "@typespec/spec-api";
-import { MockBody } from "@typespec/spec-api/dist/types.js";
+import { HttpMethod } from "@typespec/spec-api";
+import { MockBody, MockMultipartBody } from "@typespec/spec-api/dist/types.js";
 
 export interface ServiceRequest {
   method: HttpMethod;
   url: string;
-  body?: MockBody;
+  body?: MockBody | MockMultipartBody;
   headers?: Record<string, unknown>;
   query?: Record<string, unknown>;
-  params?: Record<string, unknown>;
-  options?: {
-    files?: ServiceRequestFile[]; // w???
-  };
 }
 
-// function checkAndAddFormDataIfRequired(request: ServiceRequest) {
-//   if (request.options?.config?.headers?.["Content-Type"] === "multipart/form-data") {
-//     const formData = new FormData();
-//     if (request.options?.requestBody) {
-//       for (const key in request.options.requestBody) {
-//         formData.append(key, JSON.stringify(request.options.requestBody[key]));
-//       }
-//     }
-//     if (request.options.files) {
-//       request.options.files.forEach((file) => {
-//         formData.append(`${file.fieldname}`, file.buffer, {
-//           filename: file.originalname,
-//           contentType: file.mimetype,
-//         });
-//       });
-//     }
-//     request.options.requestBody = formData;
-//     request.options.config = {
-//       ...request.options.config,
-//       headers: formData.getHeaders(),
-//     };
-//   }
-// }
-
-function resolveUrl(request: ServiceRequest) {
-  let endpoint = request.url;
-
-  if (request.params) {
-    for (const key in request.params) {
-      endpoint = request.url.replace(`:${key}`, request.params[key]!.toString());
+function renderMultipartRequest(body: MockMultipartBody) {
+  const formData = new FormData();
+  if (body.parts) {
+    for (const key in body.parts) {
+      formData.append(key, JSON.stringify(body.parts[key]));
     }
   }
-  endpoint = endpoint.replaceAll("[:]", ":");
+  if (body.files) {
+    body.files.forEach((file) => {
+      formData.append(
+        `${file.fieldname}`,
+        file.buffer as any,
+        {
+          filename: file.originalname,
+          contentType: file.mimetype,
+        } as any,
+      );
+    });
+  }
+
+  return formData;
+}
+
+function resolveUrl(request: ServiceRequest) {
+  let endpoint = request.url.replaceAll("[:]", ":");
 
   if (request.query) {
-    console.log("request.query", request.query);
     const query = new URLSearchParams();
     for (const [key, value] of Object.entries(request.query)) {
       if (Array.isArray(value)) {
@@ -66,18 +53,34 @@ function resolveUrl(request: ServiceRequest) {
 
 export async function makeServiceCall(request: ServiceRequest): Promise<Response> {
   const url = resolveUrl(request);
-  console.log("url", url);
-  // checkAndAddFormDataIfRequired(request);
+  let body;
+  let headers = request.headers as Record<string, string>;
+  if (request.body) {
+    if ("kind" in request.body) {
+      const formData = renderMultipartRequest(request.body);
+      body = formData;
 
+      const resp = await fetch("https://echo-server.deno.dev", {
+        method: "POST",
+        body,
+      });
+
+      console.log("STATUS:", resp.status, "\nCONTENT TYPE:", resp.headers.get("content-type"));
+      console.log("RAW BODY:", await resp.text());
+    } else {
+      body = request.body.rawContent;
+      headers = {
+        ...headers,
+        ...(request.body?.contentType && {
+          "Content-Type": request.body.contentType,
+        }),
+      };
+    }
+  }
   return await fetch(url, {
     method: request.method.toUpperCase(),
-    body: request.body?.rawContent,
-    headers: {
-      ...request.headers,
-      ...(request.body?.contentType && {
-        "Content-Type": request.body.contentType,
-      }),
-    },
+    body,
+    headers,
   });
 }
 

@@ -13,7 +13,7 @@ export {
   validateValueFormat,
   validateXmlBodyEquals,
 } from "./request-validations.js";
-export { json, xml } from "./response-utils.js";
+export { json, multipart, xml } from "./response-utils.js";
 export { mockapi } from "./routes.js";
 export {
   WithKeysScenarioExpect,
