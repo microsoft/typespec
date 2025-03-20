@@ -101,7 +101,7 @@ import "@typespec/http";
 import "@typespec/versioning";
 
 using Http;
-usingVersioning;
+using Versioning;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")

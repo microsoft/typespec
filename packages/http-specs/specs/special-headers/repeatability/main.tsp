@@ -4,7 +4,7 @@ import "@typespec/spector";
 
 using Http;
 using Spector;
-usingVersioning;
+using Versioning;
 
 @doc("Illustrates OASIS repeatability headers")
 @scenarioService("/special-headers/repeatability")

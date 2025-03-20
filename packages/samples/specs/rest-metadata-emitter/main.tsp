@@ -2,7 +2,7 @@ import "@typespec/versioning";
 import "@typespec/rest";
 
 using Http;
-usingVersioning;
+using Versioning;
 
 // Simple services that is versioned and uses metadata and visibility features.
 @versioned(Versions)

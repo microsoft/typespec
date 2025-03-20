@@ -4,7 +4,7 @@ import "@typespec/versioning";
 
 using Http;
 using Spector;
-usingVersioning;
+using Versioning;
 
 /**
  * Illustrates versioned server.

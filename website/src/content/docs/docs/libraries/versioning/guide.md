@@ -69,7 +69,7 @@ enum Versions {
 The versioning library simplifies the process of versioning APIs. Let's start with a basic example. Assume we have a service with a single API that returns a list of widgets. We can define that API like this:
 
 ```typespec
-usingVersioning;
+using Versioning;
 using Rest;
 using Http;
 

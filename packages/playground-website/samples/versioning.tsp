@@ -2,7 +2,7 @@ import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/versioning";
 
-usingVersioning;
+using Versioning;
 
 @versioned(Versions)
 @service(#{ title: "Widget Service" })

@@ -2,7 +2,7 @@ import "@typespec/versioning";
 import "@typespec/rest";
 import "./library.tsp";
 
-usingVersioning;
+using Versioning;
 
 // Use version 1.0 of the Library
 @service(#{ title: "Pet Store Service" })

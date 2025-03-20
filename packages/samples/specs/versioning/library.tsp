@@ -1,6 +1,6 @@
 import "@typespec/versioning";
 
-usingVersioning;
+using Versioning;
 
 @versioned(Versions)
 namespace Library;
