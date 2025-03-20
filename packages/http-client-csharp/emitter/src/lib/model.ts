@@ -41,7 +41,8 @@ export function getInputType(
 
 export function navigateModels(sdkContext: CSharpEmitterContext) {
   for (const type of getAllModels(sdkContext)) {
-    if (isAzureCoreModel(type)) {
+    // we have the name empty check here because TCGC has this issue which impact some downstream packages: https://github.com/Azure/typespec-azure/issues/2417
+    if (type.name === "" || isAzureCoreModel(type)) {
       continue;
     }
     if (type.kind === "model") {
