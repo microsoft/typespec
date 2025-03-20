@@ -907,9 +907,6 @@ importers:
         specifier: ~2.7.0
         version: 2.7.0
     devDependencies:
-      '@types/cross-spawn':
-        specifier: ~6.0.6
-        version: 6.0.6
       '@types/node':
         specifier: ~22.13.9
         version: 22.13.9
@@ -937,12 +934,6 @@ importers:
       '@vitest/ui':
         specifier: ^3.0.7
         version: 3.0.7(vitest@3.0.7)
-      cross-spawn:
-        specifier: ^7.0.6
-        version: 7.0.6
-      execa:
-        specifier: ^9.5.2
-        version: 9.5.2
       fs-extra:
         specifier: ^11.2.0
         version: 11.3.0

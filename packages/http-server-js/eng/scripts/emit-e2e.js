@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import { execa } from "execa";
+import { run } from "@typespec/internal-build-utils";
 import pkg from "fs-extra";
 import { copyFile, mkdir, rm } from "fs/promises";
 import { globby } from "globby";
@@ -112,9 +112,10 @@ async function processPaths(paths, ignoreList) {
 // Run a shell command silently.
 async function runCommand(command, args, options = {}) {
   // Remove clutter by not printing anything; capture output by setting stdio to 'pipe'.
-  return await execa(command, args, {
+  return await run(command, args, {
     stdio: "pipe",
     env: { NODE_ENV: "test", ...process.env },
+    silent: true,
     ...options,
   });
 }

@@ -61,7 +61,6 @@
     "yaml": "~2.7.0"
   },
   "devDependencies": {
-    "@types/cross-spawn": "~6.0.6",
     "@types/node": "~22.13.9",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -71,8 +70,6 @@
     "@typespec/spector": "workspace:^",
     "@vitest/coverage-v8": "^3.0.7",
     "@vitest/ui": "^3.0.7",
-    "cross-spawn": "^7.0.6",
-    "execa": "^9.5.2",
     "fs-extra": "^11.2.0",
     "globby": "~14.1.0",
     "inquirer": "^12.2.0",
