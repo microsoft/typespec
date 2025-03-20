@@ -13,11 +13,9 @@ def client():
         yield client
 
 
-
 def test_known_value(client):
     assert client.string.get_known_value() == models.DaysOfWeekExtensibleEnum.MONDAY
     client.string.put_known_value(models.DaysOfWeekExtensibleEnum.MONDAY)
-
 
 
 def test_unknown_value(client):

@@ -14,6 +14,5 @@ async def client():
 
 
 @pytest.mark.asyncio
-
 async def test(client: ReturnTypeChangedFromClient):
     assert await client.test("test") == "test"

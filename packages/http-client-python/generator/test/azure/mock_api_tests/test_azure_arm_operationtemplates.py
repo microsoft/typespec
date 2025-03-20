@@ -23,7 +23,6 @@ def client(credential, authentication_policy):
         yield client
 
 
-
 def test_check_name_availability_check_global(client):
     result = client.check_name_availability.check_global(
         body=models.CheckNameAvailabilityRequest(name="checkName", type="Microsoft.Web/site")
@@ -31,7 +30,6 @@ def test_check_name_availability_check_global(client):
     assert result.name_available == False
     assert result.reason == models.CheckNameAvailabilityReason.ALREADY_EXISTS
     assert result.message == "Hostname 'checkName' already exists. Please select a different name."
-
 
 
 def test_check_name_availability_check_local(client):
@@ -44,11 +42,9 @@ def test_check_name_availability_check_local(client):
     assert result.message == "Hostname 'checkName' already exists. Please select a different name."
 
 
-
 def test_operations_list(client):
     result = client.operations.list()
     assert result
-
 
 
 def test_lro_begin_create_or_replace(client):
@@ -70,14 +66,12 @@ def test_lro_begin_create_or_replace(client):
     assert result.system_data.created_by == "AzureSDK"
 
 
-
 def test_lro_begin_export(client):
     client.lro.begin_export(
         resource_group_name=RESOURCE_GROUP_NAME,
         order_name="order1",
         body=models.ExportRequest(format="csv"),
     ).result()
-
 
 
 def test_lro_begin_delete(client):

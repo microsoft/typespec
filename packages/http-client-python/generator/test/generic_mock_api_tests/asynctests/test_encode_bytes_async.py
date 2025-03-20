@@ -23,7 +23,6 @@ async def client():
         yield client
 
 
-
 @pytest.mark.asyncio
 async def test_query(client: BytesClient):
     await client.query.default(
@@ -41,7 +40,6 @@ async def test_query(client: BytesClient):
             bytes("test", "utf-8"),
         ],
     )
-
 
 
 @pytest.mark.asyncio
@@ -81,7 +79,6 @@ async def test_property(client: BytesClient):
     ]
 
 
-
 @pytest.mark.asyncio
 async def test_header(client: BytesClient):
     await client.header.default(
@@ -107,7 +104,6 @@ def png_data() -> bytes:
         return file_in.read()
 
 
-
 @pytest.mark.asyncio
 async def test_request_body(client: BytesClient, png_data: bytes):
     await client.request_body.default(
@@ -125,7 +121,6 @@ async def test_request_body(client: BytesClient, png_data: bytes):
     await client.request_body.base64_url(
         value=bytes("test", "utf-8"),
     )
-
 
 
 @pytest.mark.asyncio

@@ -101,7 +101,6 @@ def png_data() -> bytes:
         return file_in.read()
 
 
-
 def test_request_body(client: BytesClient, png_data: bytes):
     client.request_body.default(
         value=bytes("test", "utf-8"),
@@ -118,7 +117,6 @@ def test_request_body(client: BytesClient, png_data: bytes):
     client.request_body.base64_url(
         value=bytes("test", "utf-8"),
     )
-
 
 
 def test_response_body(client: BytesClient, png_data: bytes):

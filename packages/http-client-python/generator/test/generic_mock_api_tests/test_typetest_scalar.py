@@ -16,11 +16,9 @@ def client():
         yield client
 
 
-
 def test_scalar_string(client: ScalarClient):
     assert client.string.get() == "test"
     client.string.put("test")
-
 
 
 def test_scalar_boolean(client: ScalarClient):
@@ -33,12 +31,10 @@ def test_scalar_unknown(client: ScalarClient):
     client.unknown.put("test")
 
 
-
 def test_decimal128_type(client: ScalarClient):
     assert client.decimal128_type.response_body() == decimal.Decimal("0.33333")
     client.decimal128_type.request_body(decimal.Decimal("0.33333"))
     client.decimal128_type.request_parameter(value=decimal.Decimal("0.33333"))
-
 
 
 def test_decimal_type(client: ScalarClient):
@@ -47,11 +43,9 @@ def test_decimal_type(client: ScalarClient):
     client.decimal_type.request_parameter(value=decimal.Decimal("0.33333"))
 
 
-
 def test_decimal128_verify(client: ScalarClient):
     prepare = client.decimal128_verify.prepare_verify()
     client.decimal128_verify.verify(reduce(lambda x, y: x + y, prepare))
-
 
 
 def test_decimal_verify(client: ScalarClient):

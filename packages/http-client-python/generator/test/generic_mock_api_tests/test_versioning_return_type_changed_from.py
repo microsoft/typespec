@@ -13,6 +13,5 @@ def client():
         yield client
 
 
-
 def test(client: ReturnTypeChangedFromClient):
     assert client.test("test") == "test"

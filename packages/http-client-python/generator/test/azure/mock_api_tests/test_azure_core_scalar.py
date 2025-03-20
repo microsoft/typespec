@@ -13,7 +13,6 @@ def client():
         yield client
 
 
-
 def test_azure_location_scalar_get(client: ScalarClient):
     result = client.azure_location_scalar.get()
     assert result == "eastus"

@@ -14,7 +14,6 @@ async def client():
         yield client
 
 
-
 @pytest.mark.asyncio
 async def test_azure_location_scalar_get(client: ScalarClient):
     result = await client.azure_location_scalar.get()
