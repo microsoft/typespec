@@ -84,7 +84,7 @@ export const defaultOptions = {
   "generator-name": _defaultGeneratorName,
   "emitter-extension-path": undefined,
   "update-code-model": (model: CodeModel) => model,
-  "generator-path": undefined
+  "generator-path": undefined,
 };
 
 /**

@@ -117,9 +117,9 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
 
       const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
       const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
-      const generatorPath = options["generator-path"] ?? resolvePath(
-        projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
-      );
+      const generatorPath =
+        options["generator-path"] ??
+        resolvePath(projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll");
 
       try {
         const result = await execCSharpGenerator(sdkContext, {
