@@ -9,7 +9,7 @@ Remove deprecated `@typespec/compiler/emitter-framework` export in favor of a ne
 
   ```diff lang=json title=package.json
   "dependencies": {
-  +   "@typespec/asset-emitter": "0.67.0"
+  +   "@typespec/asset-emitter": "^1.0.0-rc.0"
   }
   ```
 
