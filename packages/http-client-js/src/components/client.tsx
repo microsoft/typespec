@@ -82,7 +82,8 @@ export function ClientClass(props: ClientClassProps) {
                 <ts.FunctionCallExpression
                   target={ay.refkey(op.httpOperation.operation)}
                   args={[contextMemberRef, ...args]}
-                />;
+                />
+                ;
               </ClassMethod>
             );
           }}
