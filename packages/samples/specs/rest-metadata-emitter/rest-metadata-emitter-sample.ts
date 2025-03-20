@@ -18,12 +18,12 @@ import {
   getVisibilitySuffix,
   HttpOperation,
   HttpOperationResponse,
+  HttpPayloadBody,
   resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
 import { getVersioningMutators } from "@typespec/versioning";
 import assert from "assert";
-import { HttpPayloadBody } from "../../../http/src/types.js";
 
 export async function $onEmit(context: EmitContext): Promise<void> {
   // Keep track of current indentation, will increase by two spaces for each

@@ -59,6 +59,7 @@ import {
   HttpOperationPart,
   HttpOperationResponse,
   HttpOperationResponseContent,
+  HttpPayloadBody,
   HttpProperty,
   HttpServer,
   HttpServiceAuthentication,
@@ -81,7 +82,6 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { stringify } from "yaml";
-import { HttpPayloadBody } from "../../http/src/types.js";
 import { getRef } from "./decorators.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
