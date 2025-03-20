@@ -1,6 +1,5 @@
 import { MockApiDefinition } from "@typespec/spec-api";
-import * as fs from "fs";
-import * as path from "path";
+import micromatch from "micromatch";
 import pc from "picocolors";
 import { logger } from "../logger.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
@@ -150,8 +149,7 @@ class ServerTestsGenerator {
 
 export interface ServerTestOptions {
   baseUrl?: string;
-  runSingleScenario?: string;
-  runScenariosFromFile?: string;
+  filter?: string;
 }
 
 async function delay(ms: number) {
@@ -178,43 +176,35 @@ async function waitForServer(baseUrl: string) {
 export async function serverTest(scenariosPath: string, options: ServerTestOptions = {}) {
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   await waitForServer(baseUrl);
-  // 1. Get Testcases to run
-  const testCasesToRun: string[] = [];
-  if (options.runSingleScenario) {
-    testCasesToRun.push(options.runSingleScenario);
-  } else if (options.runScenariosFromFile) {
-    const data = fs.readFileSync(path.resolve(options.runScenariosFromFile), "utf8");
-    const lines = data.split("\n");
-    lines.forEach((line) => {
-      testCasesToRun.push(line.trim());
-    });
-  }
-  // 2. Load all the scenarios
   const scenarios = await loadScenarioMockApis(scenariosPath);
   const success_diagnostics: ServerTestDiagnostics[] = [];
   const failure_diagnostics: ServerTestDiagnostics[] = [];
 
   // 3. Execute each scenario
   for (const [name, scenario] of Object.entries(scenarios)) {
+    const pathLikeName = name.replaceAll("_", "/").toLowerCase();
+    const filter = options.filter?.toLowerCase();
+    if (filter && !micromatch.isMatch(pathLikeName, filter)) {
+      logger.debug(`Skipping scenario: ${pathLikeName}, does not match filter: ${filter}`);
+      continue;
+    }
     if (!Array.isArray(scenario.apis)) continue;
     for (const api of scenario.apis) {
       if (api.kind !== "MockApiDefinition") continue;
-      if (testCasesToRun.length === 0 || testCasesToRun.includes(name)) {
-        const obj: ServerTestsGenerator = new ServerTestsGenerator(name, api, baseUrl);
-        try {
-          await obj.executeScenario();
-          success_diagnostics.push({
-            scenario_name: name,
-            status: "success",
-            message: "executed successfully",
-          });
-        } catch (e: any) {
-          failure_diagnostics.push({
-            scenario_name: name,
-            status: "failure",
-            message: `code = ${e.code} \n message = ${e.message} \n name = ${e.name} \n stack = ${e.stack} \n status = ${e.status}`,
-          });
-        }
+      const obj: ServerTestsGenerator = new ServerTestsGenerator(name, api, baseUrl);
+      try {
+        await obj.executeScenario();
+        success_diagnostics.push({
+          scenario_name: name,
+          status: "success",
+          message: "executed successfully",
+        });
+      } catch (e: any) {
+        failure_diagnostics.push({
+          scenario_name: name,
+          status: "failure",
+          message: `code = ${e.code} \n message = ${e.message} \n name = ${e.name} \n stack = ${e.stack} \n status = ${e.status}`,
+        });
       }
     }
   }

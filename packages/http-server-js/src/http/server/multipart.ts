@@ -167,7 +167,7 @@ export function* emitMultipart(
       yield `        const __object = JSON.parse(Buffer.concat(__chunks).toString("utf-8"));`;
       yield "";
 
-      if (requiresJsonSerialization(ctx, namedPart.body.type)) {
+      if (requiresJsonSerialization(ctx, module, namedPart.body.type)) {
         const bodyTypeReference = emitTypeReference(
           ctx,
           namedPart.body.type,
