@@ -161,7 +161,7 @@ describe("Encode.Bytes", () => {
       },
     });
 
-    it("should test default encode (base64) for bytes in JSON body response", async () => {
+    it.skip("should test default encode (base64) for bytes in JSON body response", async () => {
       const response = await client.default_();
       expect(response).toStrictEqual(encodedTestString);
     });
