@@ -59,6 +59,7 @@ import {
   GeneratedFileHeaderWithNullable,
   getSerializationSourceFiles,
 } from "./boilerplate.js";
+import { getProjectDocs } from "./doc.js";
 import {
   CSharpSourceType,
   CSharpType,
@@ -1098,6 +1099,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     async writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
       sourceFiles.push(...getSerializationSourceFiles(this.emitter).flatMap((l) => l.source));
+      sourceFiles.push(
+        ...getProjectDocs(this.emitter, this.#useSwagger, this.#mockRegistrations).flatMap(
+          (l) => l.source,
+        ),
+      );
+
       if (this.#emitMocks === "all" || this.#emitMocks === "no-project") {
         if (this.#mockRegistrations.size > 0) {
           const mocks = getBusinessLogicImplementations(
@@ -1254,10 +1261,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
       return "";
     }
+    const openApiPath = await getOpenApiPath();
+    const UseSwaggerUI = openApiPath !== "" && options["use-swaggerui"] === true;
 
     if (options["emit-mocks"] !== "none") {
-      const openApiPath = await getOpenApiPath();
-      const UseSwaggerUI = openApiPath !== "" && options["use-swaggerui"] === true;
       getScaffoldingHelpers(emitter, UseSwaggerUI, openApiPath, true);
     }
     if (options["emit-mocks"] === "all") {

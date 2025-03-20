@@ -1411,6 +1411,9 @@ it("Produces correct scaffolding", async () => {
         ],
       ],
       ["Program.cs", ["MockRegistration"]],
+      ["README.md", [`  - \`mocks/ContosoOperations.cs\``]],
+      ["usage.md", [`**controllers**`]],
+      ["emitter.md", [`@typespec/http-server-csharp`]],
     ],
   );
 });

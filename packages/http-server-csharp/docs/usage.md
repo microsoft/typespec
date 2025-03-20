@@ -1,17 +1,12 @@
 ---
-title: Overview
-sidebar_position: 0
-toc_min_heading_level: 2
-toc_max_heading_level: 3
+title: Generated C-Sharp Overview
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
-
-Generated C-Sharp Overview
+# Generated C-Sharp Overview
 
 ## Layout
 
-The generated code layout inside the 'generated' folder is as follows:
+The code layout inside the 'generated' folder is as follows:
 
 - **generated**
 
@@ -24,11 +19,11 @@ The generated code layout inside the 'generated' folder is as follows:
 
 ## Scaffolding
 
-If you use the scaffolding cli (hscs) or use the `--emit-mocks` option on compilation, a
+If you use the scaffolding cli (hscs) or use the `--emit-mocks "all"` option on compilation, a
 fully-functional .Net 9 project will be created with mock implementations of your business
 logic, ready to compile and run.
 
-The following files will be generated. It is expected that you will edit or replace these
+The following additional files will be generated. It is expected that you will edit or replace these
 files as you implement your service, so you should only regenerate them when needed.
 To protect from inadvertently changing any edits you may have made to these files,
 these files will be overwritten by the emitter unless you specify the `--overwrite` option.
@@ -47,17 +42,42 @@ these files will be overwritten by the emitter unless you specify the `--overwri
   - **IInitializer.cs**: Interface used in the mocks to create responses.
   - **Initializer.cs**: Implementation of the interface to create mock responses.
 
-  ## SwaggerUI
+## SwaggerUI
 
-  If you include the `@typespec/openapi3` emitter in your typespec project, you can include a
-  SwaggerUI endpoint in the generated service using the `--use-swaggerui` option. This endpoint
-  provides a visual representation of operations and provides a GUI client for the service that you can use right away.
+If you include the `@typespec/openapi3` emitter in your typespec project, you can include a
+SwaggerUI endpoint in the generated service using the `--use-swaggerui` option. This endpoint
+provides a visual representation of operations and provides a web GUI client connected to the service that you can use right away to try out service operations.
 
-  ## Next steps after compilation
+## How Components Work Together
 
-  The generated controllers will automatically listen at the routes you specified in TypeSpec.
-  Controllers perform validation of input requests and use the dependency injection container to discover and instantiate your implementations of business logic for your operations. The business logic implementations are expected to return the response as specified in your operation, with the controllers adding specified Http metadata (like response status code). Your business logic can use the IHttpContextAccessor to access additional details of requests and responses, as demonstrated in mock implementations. After successful generation, you should:
+### Controllers
 
-  - Implement the business logic interfaces for your operations
-  - Update MockRegistration.cs, or register each of your interfaces as part of application startup
-  - Update configuration to suit your needs
+The generated controllers automatically listen at the routes you specified in TypeSpec. Controllers perform validation of input requests, call your implementation of business logic interfaces to perform the operation, and return the appropriate Http response.
+
+### Business Logic Interfaces
+
+You must implement business loginc interfaces to perform the work of each operation. There is one
+business logic interface for each `interface` type in your spec, or for each namespace that contain operations. Business logic can assume that input types meet the constraints specified in TypeSpec and are responsible for returning the response type for the operation.
+
+You can use the `--emit-mocks` option to emit mock implementations of your business logic, these mocks demonstrate a simple implementation that returns responses that match the response type in TypeSpec. They also show how to use `IHttpContextAccessor` to access additional details of the Http request and response.
+
+### Discovery using the ASP.Net Core Dependency Injection Container
+
+The Controllers find your business logic implementation through the ASP.Net dependency injection container. At server start, you register each of your implementations with the dependency injection container and they will automatically be instantiated and used by the controllers.
+
+If you use the `--emit-mocks` option, sample code registering mock implementations is emitted to `mocks/MockRegistration.cs`.
+
+### Models
+
+Model classes represent the data passed in Http requests and response and the data that passes from the front end controllers to your business logic.
+
+Models are partial, so you can add additional members for internal usage as needed by putting a partial class definition with additional members outside the `generated` folder in your project.
+
+### Next Steps
+
+After successful generation, you should:
+
+- Use the SwaggerUI endpoint to test out the running service
+- Implement the business logic interfaces for your operations
+- Update MockRegistration.cs, or register each of your interfaces as part of application startup
+- Update configuration to suit your needs

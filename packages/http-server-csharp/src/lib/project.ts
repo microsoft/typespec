@@ -1,25 +1,6 @@
 import { AssetEmitter } from "@typespec/asset-emitter";
-import { CSharpType, LibrarySourceFile } from "./interfaces.js";
+import { LibrarySourceFile } from "./interfaces.js";
 import { CSharpServiceEmitterOptions } from "./lib.js";
-
-export interface BusinessLogicImplementation {
-  namespace: string;
-  interfaceName: string;
-  usings: string[];
-  className: string;
-  methods: BusinessLogicMethod[];
-}
-
-export interface BusinessLogicMethod {
-  methodName: string;
-  methodParams: string;
-  returnTypeName: string;
-  returnType: CSharpType;
-  instantiatedReturnType?: string;
-}
-
-export type BusinessLogicRegistrations = Map<string, BusinessLogicImplementation>;
-export type BusinessLogicRegistration = [string, BusinessLogicImplementation];
 
 export function getProjectHelpers(
   emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
