@@ -61,7 +61,7 @@ public final class Decimal128TypesImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> requestBodySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions);
 
         @HttpRequestInformation(

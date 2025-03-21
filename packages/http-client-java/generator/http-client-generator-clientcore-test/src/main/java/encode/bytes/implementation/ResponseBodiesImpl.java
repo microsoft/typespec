@@ -13,7 +13,6 @@ import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.models.binarydata.BinaryData;
-import io.clientcore.core.utils.Base64Uri;
 
 /**
  * An instance of this class provides access to all the operations defined in ResponseBodies.
@@ -50,8 +49,8 @@ public final class ResponseBodiesImpl {
             path = "/encode/bytes/body/response/default",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<byte[]> defaultMethodSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestOptions requestOptions);
+        Response<BinaryData> defaultMethodSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
@@ -80,8 +79,7 @@ public final class ResponseBodiesImpl {
         @HttpRequestInformation(
             method = HttpMethod.GET,
             path = "/encode/bytes/body/response/base64url",
-            expectedStatusCodes = { 200 },
-            returnValueWireType = Base64Uri.class)
+            expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
         Response<byte[]> base64urlSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             RequestOptions requestOptions);
@@ -93,16 +91,16 @@ public final class ResponseBodiesImpl {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the service returns an error.
-     * @return represent a byte array.
+     * @return the response.
      */
-    public Response<byte[]> defaultMethodWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
+    public Response<BinaryData> defaultMethodWithResponse(RequestOptions requestOptions) {
+        final String accept = "application/octet-stream";
         return service.defaultMethodSync(this.client.getEndpoint(), accept, requestOptions);
     }
 
@@ -169,7 +167,7 @@ public final class ResponseBodiesImpl {
      * 
      * <pre>
      * {@code
-     * Base64Uri
+     * byte[]
      * }
      * </pre>
      * 
