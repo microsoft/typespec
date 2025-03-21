@@ -1,7 +1,4 @@
-import {
-  CreateSdkContextOptions,
-  SdkEmitterOptions,
-} from "@azure-tools/typespec-client-generator-core";
+import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger-level.js";
@@ -11,7 +8,7 @@ import { CodeModel } from "./type/code-model.js";
  * The emitter options for the CSharp emitter.
  * @beta
  */
-export interface CSharpEmitterOptions extends SdkEmitterOptions {
+export interface CSharpEmitterOptions {
   "api-version"?: string;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
@@ -34,8 +31,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
   type: "object",
   additionalProperties: false,
   properties: {
-    "emitter-name": { type: "string", nullable: true },
-    "examples-dir": { type: "string", nullable: true },
     "api-version": {
       type: "string",
       nullable: true,
@@ -68,9 +63,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       description:
         "Set to `true` to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the generator. The default value is `false`.",
     },
-    "generate-protocol-methods": { type: "boolean", nullable: true },
-    "generate-convenience-methods": { type: "boolean", nullable: true },
-    "flatten-union-as-enum": { type: "boolean", nullable: true },
     "package-name": {
       type: "string",
       nullable: true,
@@ -151,8 +143,6 @@ export const defaultOptions = {
   "new-project": false,
   "clear-output-folder": false,
   "save-inputs": false,
-  "generate-protocol-methods": true,
-  "generate-convenience-methods": true,
   "package-name": undefined,
   debug: undefined,
   logLevel: LoggerLevel.INFO,

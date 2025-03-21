@@ -42,14 +42,6 @@ options:
 
 ## Emitter options
 
-### `emitter-name`
-
-**Type:** `string`
-
-### `examples-dir`
-
-**Type:** `string`
-
 ### `api-version`
 
 **Type:** `string`
@@ -79,18 +71,6 @@ Indicates if you want to clear the output folder before generating. The default 
 **Type:** `boolean`
 
 Set to `true` to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the generator. The default value is `false`.
-
-### `generate-protocol-methods`
-
-**Type:** `boolean`
-
-### `generate-convenience-methods`
-
-**Type:** `boolean`
-
-### `flatten-union-as-enum`
-
-**Type:** `boolean`
 
 ### `package-name`
 

@@ -108,7 +108,6 @@ export function createEmitterContext(
       "clear-output-folder": false,
       "save-inputs": false,
       "generate-protocol-methods": true,
-      "generate-convenience-methods": true,
       "package-name": undefined,
     },
   } as EmitContext<CSharpEmitterOptions>;
