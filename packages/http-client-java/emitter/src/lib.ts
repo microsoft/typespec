@@ -101,6 +101,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Encode '${"encode"}' is not supported.`,
       },
     },
+    "invalid-java-namespace": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Namespace '${"namespace"}' contains reserved Java keywords, replaced it with '${"processedNamespace"}'.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema,

@@ -236,6 +236,7 @@ def test_spread_model_array(client: AdditionalPropertiesClient):
     client.spread_model_array.put(body)
 
 
+@pytest.mark.skip(reason="https://github.com/microsoft/typespec/pull/6425")
 def test_spread_record_discriminated_union(client: AdditionalPropertiesClient):
     body = {
         "name": "abc",

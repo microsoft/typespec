@@ -1,6 +1,6 @@
 import "@typespec/rest";
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "Binary sample" })
 namespace BinarySample;

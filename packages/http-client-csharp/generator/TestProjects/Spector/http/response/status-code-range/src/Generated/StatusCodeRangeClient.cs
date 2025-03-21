@@ -22,16 +22,16 @@ namespace Response.StatusCodeRange
 
         public virtual Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<int> ErrorResponseStatusCodeInRange(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult ErrorResponseStatusCodeInRange(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<int>> ErrorResponseStatusCodeInRangeAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult ErrorResponseStatusCode404(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ErrorResponseStatusCode404Async(RequestOptions options) => throw null;
 
-        public virtual ClientResult<int> ErrorResponseStatusCode404(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult ErrorResponseStatusCode404(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<int>> ErrorResponseStatusCode404Async(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ErrorResponseStatusCode404Async(CancellationToken cancellationToken = default) => throw null;
     }
 }

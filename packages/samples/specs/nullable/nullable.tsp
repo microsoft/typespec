@@ -1,7 +1,7 @@
 import "@typespec/rest";
 import "@typespec/openapi";
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "Nullable sample" })
 namespace NullableSample;

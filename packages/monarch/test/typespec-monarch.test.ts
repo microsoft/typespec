@@ -89,12 +89,12 @@ it(
 );
 
 it(
-  "using TypeSpec.Http",
+  "using Foo.Bar",
   tokenizeTo([
     Token.keyword("using"),
-    Token.identifier("TypeSpec"),
+    Token.identifier("Foo"),
     Token.default("."),
-    Token.identifier("Http"),
+    Token.identifier("Bar"),
   ]),
 );
 it(

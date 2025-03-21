@@ -8,7 +8,7 @@ Scenarios.Type_Model_Empty_putEmpty = passOnSuccess({
   uri: "/type/model/empty/alone",
   method: "put",
   request: {
-    body: body,
+    body: json(body),
   },
   response: {
     status: 204,
@@ -30,7 +30,7 @@ Scenarios.Type_Model_Empty_postRoundTripEmpty = passOnSuccess({
   uri: "/type/model/empty/round-trip",
   method: "post",
   request: {
-    body: body,
+    body: json(body),
   },
   response: {
     status: 200,

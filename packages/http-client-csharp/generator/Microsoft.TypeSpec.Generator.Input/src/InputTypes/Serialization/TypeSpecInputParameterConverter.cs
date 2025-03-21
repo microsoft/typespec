@@ -38,7 +38,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? kind = null;
             bool isRequired = false;
             bool isApiVersion = false;
-            bool isResourceParameter = false;
             bool isContentType = false;
             bool isEndpoint = false;
             bool skipUrlEncoding = false;
@@ -49,24 +48,23 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputParameter.Name), ref name)
-                    || reader.TryReadString(nameof(InputParameter.NameInRequest), ref nameInRequest)
-                    || reader.TryReadString("Summary", ref summary)
-                    || reader.TryReadString("Doc", ref doc)
-                    || reader.TryReadComplexType(nameof(InputParameter.Type), options, ref parameterType)
-                    || reader.TryReadString(nameof(InputParameter.Location), ref location)
-                    || reader.TryReadComplexType(nameof(InputParameter.DefaultValue), options, ref defaultValue)
-                    || reader.TryReadString(nameof(InputParameter.Kind), ref kind)
-                    || reader.TryReadBoolean(nameof(InputParameter.IsRequired), ref isRequired)
-                    || reader.TryReadBoolean(nameof(InputParameter.IsApiVersion), ref isApiVersion)
-                    || reader.TryReadBoolean(nameof(InputParameter.IsResourceParameter), ref isResourceParameter)
-                    || reader.TryReadBoolean(nameof(InputParameter.IsContentType), ref isContentType)
-                    || reader.TryReadBoolean(nameof(InputParameter.IsEndpoint), ref isEndpoint)
-                    || reader.TryReadBoolean(nameof(InputParameter.SkipUrlEncoding), ref skipUrlEncoding)
-                    || reader.TryReadBoolean(nameof(InputParameter.Explode), ref explode)
-                    || reader.TryReadString(nameof(InputParameter.ArraySerializationDelimiter), ref arraySerializationDelimiter)
-                    || reader.TryReadString(nameof(InputParameter.HeaderCollectionPrefix), ref headerCollectionPrefix)
-                    || reader.TryReadComplexType(nameof(InputParameter.Decorators), options, ref decorators);
+                    || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("nameInRequest", ref nameInRequest)
+                    || reader.TryReadString("summary", ref summary)
+                    || reader.TryReadString("doc", ref doc)
+                    || reader.TryReadComplexType("type", options, ref parameterType)
+                    || reader.TryReadString("location", ref location)
+                    || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
+                    || reader.TryReadString("kind", ref kind)
+                    || reader.TryReadBoolean("isRequired", ref isRequired)
+                    || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
+                    || reader.TryReadBoolean("isContentType", ref isContentType)
+                    || reader.TryReadBoolean("isEndpoint", ref isEndpoint)
+                    || reader.TryReadBoolean("skipUrlEncoding", ref skipUrlEncoding)
+                    || reader.TryReadBoolean("explode", ref explode)
+                    || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
+                    || reader.TryReadString("headerCollectionPrefix", ref headerCollectionPrefix)
+                    || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -106,7 +104,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                 kind: parameterKind,
                 isRequired: isRequired,
                 isApiVersion: isApiVersion,
-                isResourceParameter: isResourceParameter,
                 isContentType: isContentType,
                 isEndpoint: isEndpoint,
                 skipUrlEncoding: skipUrlEncoding,

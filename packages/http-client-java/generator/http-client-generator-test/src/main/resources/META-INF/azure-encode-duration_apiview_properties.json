@@ -1,0 +1,13 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.encode.duration.DurationAsyncClient": "_Specs_.Azure.Encode.Duration",
+    "azure.encode.duration.DurationAsyncClient.durationConstant": "_Specs_.Azure.Encode.Duration.durationConstant",
+    "azure.encode.duration.DurationAsyncClient.durationConstantWithResponse": "_Specs_.Azure.Encode.Duration.durationConstant",
+    "azure.encode.duration.DurationClient": "_Specs_.Azure.Encode.Duration",
+    "azure.encode.duration.DurationClient.durationConstant": "_Specs_.Azure.Encode.Duration.durationConstant",
+    "azure.encode.duration.DurationClient.durationConstantWithResponse": "_Specs_.Azure.Encode.Duration.durationConstant",
+    "azure.encode.duration.DurationClientBuilder": "_Specs_.Azure.Encode.Duration",
+    "azure.encode.duration.models.DurationModel": "_Specs_.Azure.Encode.Duration.DurationModel"
+  }
+}
