@@ -67,10 +67,6 @@ export interface ServiceRequest {
    * Query parameters to match to the request.
    */
   query?: Record<string, unknown>;
-  /**
-   * Path parameters to match to the request.
-   */
-  params?: Record<string, unknown>;
   headers?: Record<string, unknown>;
   files?: ServiceRequestFile[];
 }
