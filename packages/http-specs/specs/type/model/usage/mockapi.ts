@@ -8,9 +8,9 @@ Scenarios.Type_Model_Usage_input = passOnSuccess({
   uri: "/type/model/usage/input",
   method: "post",
   request: {
-    body: {
+    body: json({
       requiredProp: "example-value",
-    },
+    }),
   },
   response: {
     status: 204,
@@ -33,9 +33,9 @@ Scenarios.Type_Model_Usage_inputAndOutput = passOnSuccess({
   uri: "/type/model/usage/input-output",
   method: "post",
   request: {
-    body: {
+    body: json({
       requiredProp: "example-value",
-    },
+    }),
   },
   response: {
     status: 200,

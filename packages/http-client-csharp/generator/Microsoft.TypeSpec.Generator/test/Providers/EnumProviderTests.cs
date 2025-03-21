@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase]
         public void BuildEnumType_ValidateIntBasedFixedEnum()
         {
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(int));
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
 
             var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, values:
             [
@@ -46,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase]
         public void BuildEnumType_ValidateFloatBasedFixedEnum()
         {
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(float));
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(float));
 
             var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Float32, values:
             [
@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase]
         public void BuildEnumType_ValidateStringBasedFixedEnum()
         {
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
 
             var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.String, values:
             [
@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase]
         public void BuildEnumType_ValidateApiVersionEnum()
         {
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
 
             string[] apiVersions = ["2024-07-16", "2024-07-17"];
             var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.ApiVersionEnum, values:
@@ -113,7 +113,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase]
         public void BuildEnumType_ValidateIntBasedExtensibleEnum()
         {
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(int));
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
 
             var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, isExtensible: true, values:
             [
@@ -157,7 +157,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase]
         public void BuildEnumType_ValidateFloatBasedExtensibleEnum()
         {
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(float));
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(float));
 
             var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Float32, isExtensible: true, values:
             [
@@ -201,7 +201,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase]
         public void BuildEnumType_ValidateStringBasedExtensibleEnum()
         {
-            MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
 
             var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.String, isExtensible: true, values:
             [

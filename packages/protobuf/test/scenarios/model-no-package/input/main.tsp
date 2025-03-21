@@ -1,6 +1,6 @@
 import "@typespec/protobuf";
 
-using TypeSpec.Protobuf;
+using Protobuf;
 
 model Input {
   @field(1) name: string;

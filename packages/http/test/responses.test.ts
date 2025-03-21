@@ -170,3 +170,47 @@ it("empty response model becomes body if it has children", async () => {
   ok(body);
   strictEqual((body.type as Model).name, "A");
 });
+
+it("chooses correct content-type for extensible union body", async () => {
+  const [routes, diagnostics] = await getOperationsWithServiceNamespace(`
+    union DaysOfWeekExtensibleEnum {
+      string,
+
+      @doc("Monday.")
+      Monday: "Monday",
+
+      @doc("Tuesday.")
+      Tuesday: "Tuesday",
+
+      @doc("Wednesday.")
+      Wednesday: "Wednesday",
+
+      @doc("Thursday.")
+      Thursday: "Thursday",
+
+      @doc("Friday.")
+      Friday: "Friday",
+
+      @doc("Saturday.")
+      Saturday: "Saturday",
+
+      @doc("Sunday.")
+      Sunday: "Sunday",
+    }
+
+    @get
+    @route("/unknown-value")
+    op getUnknownValue(): {
+      @body body: DaysOfWeekExtensibleEnum;
+    };
+  `);
+
+  expectDiagnosticEmpty(diagnostics);
+  strictEqual(routes.length, 1);
+  const responses = routes[0].responses;
+  strictEqual(responses.length, 1);
+  const response = responses[0];
+  const body = response.responses[0].body;
+  ok(body);
+  deepStrictEqual(body.contentTypes, ["text/plain"]);
+});

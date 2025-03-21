@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
     public class InputLibraryVisitorTests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private Mock<CodeModelPlugin> _mockPlugin;
+        private Mock<CodeModelGenerator> _mockGenerator;
         private Mock<LibraryVisitor> _mockVisitor;
         private Mock<InputLibrary> _mockInputLibrary;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -22,24 +22,24 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [SetUp]
         public void Setup()
         {
-            _mockPlugin = MockHelpers.LoadMockPlugin(
+            _mockGenerator = MockHelpers.LoadMockGenerator(
                 createModelCore: inputModelType => new ModelProvider(inputModelType),
                 createEnumCore: (inputEnumType, _) => EnumProvider.Create(inputEnumType));
             _mockVisitor = new Mock<LibraryVisitor> { CallBase = true };
             _mockInputLibrary = new Mock<InputLibrary>();
-            _mockPlugin.Setup(p => p.InputLibrary).Returns(_mockInputLibrary.Object);
+            _mockGenerator.Setup(p => p.InputLibrary).Returns(_mockInputLibrary.Object);
         }
 
         [Test]
         public void PreVisitsProperties()
         {
-            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
+            _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
             var inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
             var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
-            _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
+            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("PreVisitModel", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
             _mockVisitor.Protected().Verify<PropertyProvider>("PreVisitProperty", Times.Once(), inputModelProperty, ItExpr.Is<PropertyProvider>(m => m.Name == new PropertyProvider(inputModelProperty, TestTypeProvider.Empty).Name));
@@ -48,14 +48,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void PreVisitsEnum()
         {
-            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
+            _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
             var inputEnum = InputFactory.Enum("enum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.Input, values: [InputFactory.EnumMember.Int32("value", 1)]);
             var inputModelProperty = InputFactory.Property("prop1", inputEnum, true, true);
             var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
-            _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
+            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("PreVisitEnum", Times.Once(), inputEnum, ItExpr.Is<EnumProvider>(m => m.Name == EnumProvider.Create(inputEnum, null).Name));
         }
@@ -63,14 +63,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void PreVisitsModel()
         {
-            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
+            _mockGenerator.Object.AddVisitor(_mockVisitor.Object);
             var inputEnum = InputFactory.Enum("enum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.Input, values: [InputFactory.EnumMember.Int32("value", 1)]);
             var inputModelProperty = InputFactory.Property("prop1", inputEnum, true, true);
             var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
-            _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
+            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("PreVisitModel", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
         }
@@ -88,8 +88,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel1, inputModel2]));
 
             var visitor = new PreVisitor();
-            _mockPlugin.Object.AddVisitor(visitor);
-            Assert.Throws<InvalidOperationException>(() => visitor.Visit(_mockPlugin.Object.OutputLibrary));
+            _mockGenerator.Object.AddVisitor(visitor);
+            Assert.Throws<InvalidOperationException>(() => visitor.Visit(_mockGenerator.Object.OutputLibrary));
         }
 
         [Test]
@@ -105,8 +105,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel1, inputModel2]));
 
             var visitor = new PreVisitor(true);
-            _mockPlugin.Object.AddVisitor(visitor);
-            Assert.DoesNotThrow(() => visitor.Visit(_mockPlugin.Object.OutputLibrary));
+            _mockGenerator.Object.AddVisitor(visitor);
+            Assert.DoesNotThrow(() => visitor.Visit(_mockGenerator.Object.OutputLibrary));
         }
 
         private class PreVisitor : LibraryVisitor

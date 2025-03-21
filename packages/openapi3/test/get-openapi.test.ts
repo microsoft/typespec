@@ -12,9 +12,9 @@ it("can get openapi as an object", async () => {
     import "@typespec/rest";
     import "@typespec/openapi";
     import "@typespec/openapi3";
-    using TypeSpec.Rest;
-    using TypeSpec.Http;
-    using TypeSpec.OpenAPI;
+    using Rest;
+    using Http;
+    using OpenAPI;
 
     @service
     namespace Foo;
@@ -40,9 +40,9 @@ it("has diagnostics", async () => {
     import "@typespec/rest";
     import "@typespec/openapi";
     import "@typespec/openapi3";
-    using TypeSpec.Rest;
-    using TypeSpec.Http;
-    using TypeSpec.OpenAPI;
+    using Rest;
+    using Http;
+    using OpenAPI;
 
     @service
     namespace Foo;

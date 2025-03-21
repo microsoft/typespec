@@ -15,7 +15,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.List;
 import java.util.Objects;
 
-public class FluentProxyMethodMapper extends ProxyMethodMapper {
+public final class FluentProxyMethodMapper extends ProxyMethodMapper {
 
     private static final FluentProxyMethodMapper INSTANCE = new FluentProxyMethodMapper();
 
@@ -24,13 +24,13 @@ public class FluentProxyMethodMapper extends ProxyMethodMapper {
     }
 
     @Override
-    protected void buildUnexpectedResponseExceptionTypes(ProxyMethod.Builder builder, Operation operation,
+    protected final void buildUnexpectedResponseExceptionFields(ProxyMethod.Builder builder, Operation operation,
         List<Integer> expectedStatusCodes, JavaSettings settings) {
         if (CoreUtils.isNullOrEmpty(operation.getExceptions())) {
             // use ManagementException
             builder.unexpectedResponseExceptionType(FluentType.MANAGEMENT_EXCEPTION);
         } else {
-            super.buildUnexpectedResponseExceptionTypes(builder, operation, expectedStatusCodes, settings);
+            super.buildUnexpectedResponseExceptionFields(builder, operation, expectedStatusCodes, settings);
         }
 
         /*
@@ -73,27 +73,29 @@ public class FluentProxyMethodMapper extends ProxyMethodMapper {
     }
 
     @Override
-    protected ClassType processExceptionClassType(ClassType errorType, JavaSettings settings) {
+    protected final ClassType mapToExceptionClassType(ClassType errorType, JavaSettings settings) {
         if (!FluentType.nonManagementError(errorType)) {
             return FluentType.MANAGEMENT_EXCEPTION;
         } else {
-            return super.processExceptionClassType(errorType, settings);
+            return super.mapToExceptionClassType(errorType, settings);
         }
     }
 
     @Override
-    protected ClassType getHttpResponseExceptionType() {
+    protected final ClassType getHttpResponseExceptionType() {
         return FluentType.MANAGEMENT_EXCEPTION;
     }
 
     @Override
-    protected boolean operationGroupNotNull(Operation operation, JavaSettings settings) {
-        return super.operationGroupNotNull(operation, settings)
-            // hack for Fluent, as Lite use "ResourceProvider" if operation group is unnamed
-            && !(settings.isFluent()
-                && Objects.equals(
-                    Utils.getNameForUngroupedOperations(operation.getOperationGroup().getCodeModel(),
-                        FluentStatic.getFluentJavaSettings()),
-                    operation.getOperationGroup().getLanguage().getDefault().getName()));
+    protected final boolean belongsToOperationGroup(Operation operation, JavaSettings settings) {
+        if (!super.belongsToOperationGroup(operation, settings)) {
+            return false;
+        }
+        assert settings.isFluent();
+        // hack for Fluent, as Lite use "ResourceProvider" if operation group is unnamed
+        final String groupName = operation.getOperationGroup().getLanguage().getDefault().getName();
+        final String ungroupedGroupName = Utils.getNameForUngroupedOperations(
+            operation.getOperationGroup().getCodeModel(), FluentStatic.getFluentJavaSettings());
+        return !Objects.equals(groupName, ungroupedGroupName);
     }
 }

@@ -18,7 +18,7 @@ Let's define the CRUD operations for our `Pet` model:
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
@@ -139,7 +139,7 @@ Let's update our pet operations to return different status codes based on the ou
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
@@ -219,20 +219,22 @@ In this example:
 **Explanation of the `|` Operator**:
 
 - The `|` operator is used to define multiple possible responses for an operation. Each response block specifies a different status code and response body.
-- In the `createPet` operation for example, the `|` operator allows the operation to return either a 201 status code with a `newPet` object or a 202 status code with an `acceptedPet` object.
+- In the `createPet` operation, for example, the `|` operator allows the operation to return either a 201 status code with a `newPet` object or a 202 status code with an `acceptedPet` object.
 
 ### OpenAPI Spec Mapping
 
 Here is how the TypeSpec operation definitions map to the OpenAPI specification:
 
-<div style="display: flex; gap: 10px;">
-  <div style="flex: 1;">
-    <h4>TypeSpec Definition:</h4>
-    <pre><code>
+<table>
+<tr>
+<td>TypeSpec Definition</td>
+<td>OpenAPI Spec</td>
+</tr>
+<td>
+
+```tsp
 @route("/pets")
 namespace Pets {
-<nbsp>
-
 @get
 op listPets(): {
 @statusCode statusCode: 200;
@@ -274,48 +276,48 @@ op deletePet(@path petId: int32): {
 @statusCode statusCode: 404;
 };
 }
-</code></pre>
+```
 
-</div>
-<div style="flex: 1;">
-  <h4>OpenAPI Spec:</h4>
-  <pre><code>
+</td>
+<td>
+
+```yml
 paths:
   /pets:
     get:
       operationId: Pets_listPets
       parameters: []
       responses:
-        '200':
+        "200":
           description: The request has succeeded.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Pet'
+                  $ref: "#/components/schemas/Pet"
     post:
       operationId: Pets_createPet
       parameters: []
       responses:
-        '201':
+        "201":
           description: The request has succeeded and a new resource has been created as a result.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pet'
-        '202':
+                $ref: "#/components/schemas/Pet"
+        "202":
           description: The request has been accepted for processing, but processing has not yet completed.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pet'
+                $ref: "#/components/schemas/Pet"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Pet'
+              $ref: "#/components/schemas/Pet"
   /pets/{petId}:
     get:
       operationId: Pets_getPet
@@ -327,13 +329,13 @@ paths:
             type: integer
             format: int32
       responses:
-        '200':
+        "200":
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pet'
-        '404':
+                $ref: "#/components/schemas/Pet"
+        "404":
           description: The server cannot find the requested resource.
     put:
       operationId: Pets_updatePet
@@ -345,20 +347,20 @@ paths:
             type: integer
             format: int32
       responses:
-        '200':
+        "200":
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pet'
-        '404':
+                $ref: "#/components/schemas/Pet"
+        "404":
           description: The server cannot find the requested resource.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Pet'
+              $ref: "#/components/schemas/Pet"
     delete:
       operationId: Pets_deletePet
       parameters:
@@ -369,11 +371,12 @@ paths:
             type: integer
             format: int32
       responses:
-        '204':
-          description: 'There is no content to send for this request, but the headers may be useful. '
-    </code></pre>
-  </div>
-</div>
+        "204":
+          description: "There is no content to send for this request, but the headers may be useful. "
+```
+
+</td>
+</table>
 
 **Note**: As you can see, TypeSpec is much more compact and easier to read compared to the equivalent OpenAPI specification.
 
