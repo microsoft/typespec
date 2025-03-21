@@ -417,8 +417,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             .proxyMethod(proxyMethod.toSync());
                         if (settings.isFluent()) {
                             // fluent + sync stack needs simple rest response for implementation only
-                            ReturnValue binaryDataResponse = createSimpleSyncRestResponseReturnValue(
-                                operation, createSyncReturnWithResponseType(ClassType.BINARY_DATA, operation,
+                            ReturnValue binaryDataResponse = createSimpleSyncRestResponseReturnValue(operation,
+                                ResponseTypeFactory.createSyncResponse(operation, ClassType.BINARY_DATA,
                                     isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored()),
                                 ClassType.BINARY_DATA);
                             builder.methodVisibility(NOT_VISIBLE).returnValue(binaryDataResponse);
