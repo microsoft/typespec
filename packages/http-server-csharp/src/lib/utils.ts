@@ -586,7 +586,11 @@ export function getModelAttributes(
   return getAttributes(program, entity, cSharpName);
 }
 
-export function getModelExcepCtor(program: Program, model: Model, className: string): string {
+export function getModelExceptionConstructor(
+  program: Program,
+  model: Model,
+  className: string,
+): string {
   function getDefinedStatusCode() {
     const statusCodeProperty = new ModelInfo().filterAllProperties(program, model, (p) =>
       isStatusCode(program, p),

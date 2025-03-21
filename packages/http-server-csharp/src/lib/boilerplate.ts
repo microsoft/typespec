@@ -715,7 +715,7 @@ function getHttpResponseException(): string {
     public class HttpResponseException : Exception
     {
       /// <summary>
-      /// Initializes a new instance of the <see cref="HttpResponseException"/> class.
+      /// Initializes a new instance of the HttpResponseException class.
       /// </summary>
       /// <param name="statusCode">The HTTP status code.</param>
       /// <param name="value">The optional value to include in the response.</param>
@@ -728,7 +728,7 @@ function getHttpResponseException(): string {
     }
 
     /// <summary>
-    /// An action filter that handles <see cref="HttpResponseException"/> and converts it to an HTTP response.
+    /// An action filter that handles HttpResponseException and converts it to an HTTP response.
     /// </summary>
     public class HttpResponseExceptionFilter : IActionFilter, IOrderedFilter
     {

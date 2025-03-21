@@ -94,7 +94,7 @@ import {
   getHttpDeclParameters,
   getModelAttributes,
   getModelDeclarationName,
-  getModelExcepCtor,
+  getModelExceptionConstructor,
   getModelInstantiationName,
   getOperationVerbDecorator,
   isEmptyResponseModel,
@@ -268,7 +268,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const doc = getDoc(this.emitter.getProgram(), model);
       const attributes = getModelAttributes(this.emitter.getProgram(), model, className);
-      const exceptionConstructor = getModelExcepCtor(this.emitter.getProgram(), model, className);
+      const exceptionConstructor = isErrorType
+        ? getModelExceptionConstructor(this.emitter.getProgram(), model, className)
+        : "";
 
       this.#metadateMap.set(model, new CSharpType({ name: className, namespace: namespace }));
       const decl = this.emitter.result.declaration(
@@ -279,7 +281,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       namespace ${namespace} {
 
       ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public partial class ${className} ${baseClass} {
-      ${isErrorType ? `${exceptionConstructor}` : ""}
+      ${exceptionConstructor}
       ${this.emitter.emitModelProperties(model)}
     }
    } `,
