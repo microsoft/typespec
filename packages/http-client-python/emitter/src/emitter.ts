@@ -11,7 +11,7 @@ import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
 import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
-import { md2Rst, removeUnderscoresFromNamespace } from "./utils.js";
+import { getRootNamespace, md2Rst } from "./utils.js";
 
 function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
@@ -26,9 +26,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   const options = sdkContext.emitContext.options;
   options["models-mode"] = sdkContext.emitContext.options["models-mode"] ?? "dpg";
   if (!options["package-name"]) {
-    options["package-name"] = removeUnderscoresFromNamespace(
-      (sdkContext.sdkPackage.rootNamespace ?? "").toLowerCase(),
-    ).replace(/\./g, "-");
+    options["package-name"] = getRootNamespace(sdkContext).replace(/\./g, "-");
   }
   if (!options.flavor && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
     options.flavor = "azure";

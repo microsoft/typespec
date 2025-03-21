@@ -205,7 +205,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
   method?: SdkServiceMethod<TServiceOperation>,
 ): ParamBase {
   let type = getType(context, parameter.type);
-  if (parameter.kind === "apiVersion") {
+  if (parameter.isApiVersionParam) {
     if (parameter.clientDefaultValue) {
       type = getSimpleTypeResult({
         type: "constant",
@@ -220,7 +220,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     addedOn: getAddedOn(context, parameter),
     clientName: camelToSnakeCase(parameter.name),
     inOverload: false,
-    isApiVersion: parameter.kind === "apiVersion",
+    isApiVersion: parameter.isApiVersionParam,
     isContinuationToken: isContinuationToken(parameter, method),
     type,
   };
@@ -243,9 +243,7 @@ export function capitalize(name: string): string {
 }
 
 export function getClientNamespace(context: PythonSdkContext, clientNamespace: string) {
-  const rootNamespace = removeUnderscoresFromNamespace(
-    context.sdkPackage.rootNamespace,
-  ).toLowerCase();
+  const rootNamespace = getRootNamespace(context);
   if (!context.emitContext.options["enable-typespec-namespace"]) {
     return rootNamespace;
   }
@@ -345,4 +343,8 @@ export function md2Rst(text?: string): string | undefined {
     }
   }
   return text;
+}
+
+export function getRootNamespace(context: PythonSdkContext): string {
+  return removeUnderscoresFromNamespace(context.sdkPackage.namespaces[0].fullName).toLowerCase();
 }

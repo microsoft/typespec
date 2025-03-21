@@ -1,5 +1,4 @@
 import {
-  SdkApiVersionParameter,
   SdkBasicServiceMethod,
   SdkClientType,
   SdkCredentialParameter,
@@ -33,12 +32,7 @@ import {
   simpleTypesMap,
   typesMap,
 } from "./types.js";
-import {
-  emitParamBase,
-  getClientNamespace,
-  getImplementation,
-  removeUnderscoresFromNamespace,
-} from "./utils.js";
+import { emitParamBase, getClientNamespace, getImplementation, getRootNamespace } from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext,
@@ -106,11 +100,7 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
 
 function emitMethodParameter(
   context: PythonSdkContext,
-  parameter:
-    | SdkEndpointParameter
-    | SdkCredentialParameter
-    | SdkMethodParameter
-    | SdkApiVersionParameter,
+  parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter,
 ): Record<string, any>[] {
   if (parameter.kind === "endpoint") {
     if (parameter.type.kind === "union") {
@@ -149,7 +139,7 @@ function emitMethodParameter(
     clientDefaultValue: parameter.clientDefaultValue,
     location: parameter.kind,
   };
-  if (parameter.kind === "apiVersion") {
+  if (parameter.isApiVersionParam) {
     return [
       {
         ...base,
@@ -284,7 +274,7 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
   // Get types
   const sdkPackage = sdkContext.sdkPackage;
   const codeModel: Record<string, any> = {
-    namespace: removeUnderscoresFromNamespace(sdkPackage.rootNamespace).toLowerCase(),
+    namespace: getRootNamespace(sdkContext),
     clients: [],
   };
   for (const client of sdkPackage.clients) {
