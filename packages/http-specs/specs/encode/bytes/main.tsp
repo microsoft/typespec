@@ -224,7 +224,7 @@ namespace RequestBody {
   @scenario
   @scenarioDoc("""
     When content type is not defined and body is `bytes` the payload is a binary stream.
-    Stream should match packages/cadl-ranch-specs/assets/image.png file.
+    Stream should match packages/http-specs/assets/image.png file.
     """)
   @post
   op default(
@@ -236,7 +236,7 @@ namespace RequestBody {
   @scenario
   @scenarioDoc("""
     When content type is application/octet-stream and body is `bytes` the payload is a binary stream.
-    Stream should match packages/cadl-ranch-specs/assets/image.png file.
+    Stream should match packages/http-specs/assets/image.png file.
     """)
   @post
   op octetStream(
@@ -251,7 +251,7 @@ namespace RequestBody {
   @scenario
   @scenarioDoc("""
     When content type is a custom type(image/png here) and body is `bytes` the payload is a binary file.
-    File should match packages/cadl-ranch-specs/assets/image.png.
+    File should match packages/http-specs/assets/image.png.
     """)
   @post
   op customContentType(
@@ -303,7 +303,7 @@ namespace ResponseBody {
   @scenario
   @scenarioDoc("""
     When content type is not defined and body is `bytes` the payload is a binary stream.
-    Stream should match packages/cadl-ranch-specs/assets/image.png file.
+    Stream should match packages/http-specs/assets/image.png file.
     """)
   op default(): {
     @body
@@ -314,7 +314,7 @@ namespace ResponseBody {
   @scenario
   @scenarioDoc("""
     When content type is application/octet-stream and body is `bytes` the payload is a binary stream.
-    Stream should match packages/cadl-ranch-specs/assets/image.png file.
+    Stream should match packages/http-specs/assets/image.png file.
     """)
   op octetStream(): {
     @header
@@ -328,7 +328,7 @@ namespace ResponseBody {
   @scenario
   @scenarioDoc("""
     When content type is a custom type(image/png here) and body is `bytes` the payload is a binary file.
-    File should match packages/cadl-ranch-specs/assets/image.png
+    File should match packages/http-specs/assets/image.png
     """)
   op customContentType(): {
     @header
