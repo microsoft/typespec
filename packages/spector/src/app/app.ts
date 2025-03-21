@@ -105,7 +105,7 @@ function validateBody(req: MockRequest, body: MockBody | MockMultipartBody) {
     } else {
       switch (body.contentType) {
         case "application/json":
-          req.expect.bodyEquals(JSON.parse(body.rawContent as any));
+          req.expect.coercedBodyEquals(JSON.parse(body.rawContent as any));
           break;
         case "application/xml":
           req.expect.xmlBodyEquals(
