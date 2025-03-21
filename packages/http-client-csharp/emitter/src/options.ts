@@ -110,12 +110,6 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       description:
         "Allows emitter authors to specify a custom function to modify the generated code model before emitting. This is useful for modifying the code model before it is passed to the generator.",
     },
-    namespace: {
-      type: "string",
-      nullable: true,
-      description:
-        "Specifies the namespace you want to override for namespaces set in the spec. With this config, all namespace for the spec types will default to it.",
-    },
     license: {
       type: "object",
       additionalProperties: false,

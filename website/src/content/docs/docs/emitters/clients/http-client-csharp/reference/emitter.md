@@ -109,12 +109,6 @@ Allows emitter authors to specify the path to a custom emitter package, allowing
 
 Allows emitter authors to specify a custom function to modify the generated code model before emitting. This is useful for modifying the code model before it is passed to the generator.
 
-### `namespace`
-
-**Type:** `string`
-
-Specifies the namespace you want to override for namespaces set in the spec. With this config, all namespace for the spec types will default to it.
-
 ### `license`
 
 **Type:** `object`
