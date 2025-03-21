@@ -487,7 +487,7 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         x: {
           anyOf: [
             {
-              type: "object",
+              type: "string",
               allOf: [{ $ref: "#/components/schemas/MyStr" }],
               nullable: true,
             },
@@ -522,6 +522,44 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
             },
           ],
         },
+      });
+    });
+
+    describe("scalar type property that extends std scalar should always be set as corresponding JSON type when nullable property is present", () => {
+      it.each([
+        ["bytes", "string"],
+        ["numeric", "number"],
+        ["integer", "integer"],
+        ["int8", "integer"],
+        ["int16", "integer"],
+        ["int32", "integer"],
+        ["int64", "integer"],
+        ["safeint", "integer"],
+        ["uint8", "integer"],
+        ["uint16", "integer"],
+        ["uint32", "integer"],
+        ["uint64", "integer"],
+        ["float", "number"],
+        ["float32", "number"],
+        ["float64", "number"],
+        ["decimal", "number"],
+        ["decimal128", "number"],
+        ["string", "string"],
+        ["boolean", "boolean"],
+        ["plainDate", "string"],
+        ["utcDateTime", "string"],
+        ["offsetDateTime", "string"],
+        ["plainTime", "string"],
+        ["duration", "string"],
+        ["url", "string"],
+      ])("%s", async (scalarDeclaration: string, expectedType: string) => {
+        const openApi = await openApiFor(`
+      scalar StdScalar extends ${scalarDeclaration};
+      model A {
+        x: StdScalar | null;
+      }
+      `);
+        expect(openApi.components.schemas.A.properties.x.type).toEqual(expectedType);
       });
     });
 

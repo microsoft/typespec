@@ -61,7 +61,7 @@ public final class DecimalVerifiesImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> verifySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions);
     }
 

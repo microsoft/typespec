@@ -1,7 +1,7 @@
 import "@typespec/rest";
 
-using TypeSpec.Http;
-using TypeSpec.Rest;
+using Http;
+using Rest;
 
 @service(#{ title: "Polymorphism sample" })
 namespace PolymorphismSample;

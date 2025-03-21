@@ -1,9 +1,9 @@
 {
  "$id": "1",
- "Name": "Response.StatusCodeRange",
- "ApiVersions": [],
- "Enums": [],
- "Models": [
+ "name": "Response.StatusCodeRange",
+ "apiVersions": [],
+ "enums": [],
+ "models": [
   {
    "$id": "2",
    "kind": "model",
@@ -205,24 +205,24 @@
    ]
   }
  ],
- "Clients": [
+ "clients": [
   {
    "$id": "30",
-   "Name": "StatusCodeRangeClient",
-   "Namespace": "Response.StatusCodeRange",
-   "Doc": "Test for range of status code.",
-   "Operations": [
+   "name": "StatusCodeRangeClient",
+   "namespace": "Response.StatusCodeRange",
+   "doc": "Test for range of status code.",
+   "operations": [
     {
      "$id": "31",
-     "Name": "errorResponseStatusCodeInRange",
-     "ResourceName": "StatusCodeRange",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "errorResponseStatusCodeInRange",
+     "resourceName": "StatusCodeRange",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "32",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
         "$id": "33",
         "kind": "constant",
         "valueType": {
@@ -235,24 +235,24 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "35",
-       "StatusCodes": [
+       "statusCodes": [
         200
        ],
-       "BodyType": {
+       "bodyType": {
         "$id": "36",
         "kind": "constant",
         "valueType": {
@@ -265,33 +265,33 @@
         "value": 204,
         "decorators": []
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/response/status-code-range/error-response-status-code-in-range",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCodeInRange",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/response/status-code-range/error-response-status-code-in-range",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCodeInRange",
+     "decorators": []
     },
     {
      "$id": "38",
-     "Name": "errorResponseStatusCode404",
-     "ResourceName": "StatusCodeRange",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "errorResponseStatusCode404",
+     "resourceName": "StatusCodeRange",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "39",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
         "$id": "40",
         "kind": "constant",
         "valueType": {
@@ -304,24 +304,24 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "42",
-       "StatusCodes": [
+       "statusCodes": [
         200
        ],
-       "BodyType": {
+       "bodyType": {
         "$id": "43",
         "kind": "constant",
         "valueType": {
@@ -334,61 +334,57 @@
         "value": 204,
         "decorators": []
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/response/status-code-range/error-response-status-code-404",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCode404",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/response/status-code-range/error-response-status-code-404",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCode404",
+     "decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "45"
-   },
-   "Parameters": [
+   "parameters": [
     {
-     "$id": "46",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "47",
+     "$id": "45",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "46",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "48",
-      "Type": {
-       "$id": "49",
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "47",
+      "type": {
+       "$id": "48",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Response.StatusCodeRange"
+   "decorators": [],
+   "crossLanguageDefinitionId": "Response.StatusCodeRange"
   }
  ]
 }
