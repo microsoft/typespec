@@ -10,7 +10,7 @@ npm run spector-start
 Write-Host "Compile and run the tests"
 mvn clean test --no-transfer-progress -T 1C
 if ($LASTEXITCODE -ne 0) {
-  exit $LASTEXITCODE
+    throw "Spector tests failed"
 }
 Write-Host "Stopping the Spector server"
 npm run spector-stop

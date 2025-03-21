@@ -669,7 +669,7 @@ it("Generates types for named model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -690,7 +690,7 @@ it("Generates types for generic model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -711,7 +711,7 @@ it("Generates good name for model instantiation without hints", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -736,7 +736,7 @@ it("Generates types and controllers in a service subnamespace", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -765,7 +765,7 @@ it("Handles user-defined model templates", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -806,7 +806,7 @@ it("Handles void type in operations", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -841,7 +841,7 @@ it("Handles empty body 2xx as void", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {

@@ -24,7 +24,6 @@ import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
-import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
 import com.azure.core.util.serializer.JacksonAdapter;
@@ -125,61 +124,54 @@ public final class StatusCodeRangeClientImpl {
     @ServiceInterface(name = "StatusCodeRangeClien")
     public interface StatusCodeRangeClientService {
         @Get("/response/status-code-range/error-response-status-code-in-range")
-        @ExpectedResponses({ 200 })
+        @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> errorResponseStatusCodeInRange(@HostParam("endpoint") String endpoint,
+        Mono<Response<Void>> errorResponseStatusCodeInRange(@HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/response/status-code-range/error-response-status-code-in-range")
-        @ExpectedResponses({ 200 })
+        @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> errorResponseStatusCodeInRangeSync(@HostParam("endpoint") String endpoint,
+        Response<Void> errorResponseStatusCodeInRangeSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/response/status-code-range/error-response-status-code-404")
-        @ExpectedResponses({ 200 })
+        @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> errorResponseStatusCode404(@HostParam("endpoint") String endpoint,
+        Mono<Response<Void>> errorResponseStatusCode404(@HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/response/status-code-range/error-response-status-code-404")
-        @ExpectedResponses({ 200 })
+        @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> errorResponseStatusCode404Sync(@HostParam("endpoint") String endpoint,
+        Response<Void> errorResponseStatusCode404Sync(@HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
     }
 
     /**
      * The errorResponseStatusCodeInRange operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * int
-     * }
-     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> errorResponseStatusCodeInRangeWithResponseAsync(RequestOptions requestOptions) {
+    public Mono<Response<Void>> errorResponseStatusCodeInRangeWithResponseAsync(RequestOptions requestOptions) {
         final String accept = "application/json";
         return FluxUtil.withContext(
             context -> service.errorResponseStatusCodeInRange(this.getEndpoint(), accept, requestOptions, context));
@@ -187,46 +179,32 @@ public final class StatusCodeRangeClientImpl {
 
     /**
      * The errorResponseStatusCodeInRange operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * int
-     * }
-     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> errorResponseStatusCodeInRangeWithResponse(RequestOptions requestOptions) {
+    public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestOptions requestOptions) {
         final String accept = "application/json";
         return service.errorResponseStatusCodeInRangeSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
     }
 
     /**
      * The errorResponseStatusCode404 operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * int
-     * }
-     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> errorResponseStatusCode404WithResponseAsync(RequestOptions requestOptions) {
+    public Mono<Response<Void>> errorResponseStatusCode404WithResponseAsync(RequestOptions requestOptions) {
         final String accept = "application/json";
         return FluxUtil.withContext(
             context -> service.errorResponseStatusCode404(this.getEndpoint(), accept, requestOptions, context));
@@ -234,23 +212,16 @@ public final class StatusCodeRangeClientImpl {
 
     /**
      * The errorResponseStatusCode404 operation.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * int
-     * }
-     * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> errorResponseStatusCode404WithResponse(RequestOptions requestOptions) {
+    public Response<Void> errorResponseStatusCode404WithResponse(RequestOptions requestOptions) {
         final String accept = "application/json";
         return service.errorResponseStatusCode404Sync(this.getEndpoint(), accept, requestOptions, Context.NONE);
     }

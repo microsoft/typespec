@@ -284,13 +284,6 @@ public final class EnumServiceAsyncClient {
      * form of "," separated string.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param priorityArray The priorityArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -298,12 +291,11 @@ public final class EnumServiceAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> setIntEnumArrayWithResponse(List<String> priorityArray,
-        RequestOptions requestOptions) {
+    public Mono<Response<Void>> setIntEnumArrayWithResponse(List<String> priorityArray, RequestOptions requestOptions) {
         return this.serviceClient.setIntEnumArrayWithResponseAsync(priorityArray, requestOptions);
     }
 
@@ -317,13 +309,6 @@ public final class EnumServiceAsyncClient {
      * "," separated string.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param stringArray The stringArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -331,12 +316,11 @@ public final class EnumServiceAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> setStringArrayWithResponse(List<String> stringArray,
-        RequestOptions requestOptions) {
+    public Mono<Response<Void>> setStringArrayWithResponse(List<String> stringArray, RequestOptions requestOptions) {
         return this.serviceClient.setStringArrayWithResponseAsync(stringArray, requestOptions);
     }
 
@@ -350,13 +334,6 @@ public final class EnumServiceAsyncClient {
      * separated string.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param intArray The intArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -364,11 +341,11 @@ public final class EnumServiceAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> setIntArrayWithResponse(List<Integer> intArray, RequestOptions requestOptions) {
+    public Mono<Response<Void>> setIntArrayWithResponse(List<Integer> intArray, RequestOptions requestOptions) {
         return this.serviceClient.setIntArrayWithResponseAsync(intArray, requestOptions);
     }
 
@@ -382,13 +359,6 @@ public final class EnumServiceAsyncClient {
      * {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param colorArray The colorArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -396,12 +366,11 @@ public final class EnumServiceAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> setStringEnumMultiWithResponse(List<String> colorArray,
-        RequestOptions requestOptions) {
+    public Mono<Response<Void>> setStringEnumMultiWithResponse(List<String> colorArray, RequestOptions requestOptions) {
         return this.serviceClient.setStringEnumMultiWithResponseAsync(colorArray, requestOptions);
     }
 
@@ -415,13 +384,6 @@ public final class EnumServiceAsyncClient {
      * {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param priorityArray The priorityArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -429,12 +391,11 @@ public final class EnumServiceAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> setIntEnumMultiWithResponse(List<String> priorityArray,
-        RequestOptions requestOptions) {
+    public Mono<Response<Void>> setIntEnumMultiWithResponse(List<String> priorityArray, RequestOptions requestOptions) {
         return this.serviceClient.setIntEnumMultiWithResponseAsync(priorityArray, requestOptions);
     }
 
@@ -448,13 +409,6 @@ public final class EnumServiceAsyncClient {
      * {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param stringArray The stringArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -462,12 +416,11 @@ public final class EnumServiceAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> setStringMultiWithResponse(List<String> stringArray,
-        RequestOptions requestOptions) {
+    public Mono<Response<Void>> setStringMultiWithResponse(List<String> stringArray, RequestOptions requestOptions) {
         return this.serviceClient.setStringMultiWithResponseAsync(stringArray, requestOptions);
     }
 
@@ -481,13 +434,6 @@ public final class EnumServiceAsyncClient {
      * {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param intArray The intArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -495,11 +441,11 @@ public final class EnumServiceAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> setIntMultiWithResponse(List<Integer> intArray, RequestOptions requestOptions) {
+    public Mono<Response<Void>> setIntMultiWithResponse(List<Integer> intArray, RequestOptions requestOptions) {
         return this.serviceClient.setIntMultiWithResponseAsync(intArray, requestOptions);
     }
 
@@ -512,13 +458,6 @@ public final class EnumServiceAsyncClient {
      * <tr><td>color-array-opt</td><td>List&lt;String&gt;</td><td>No</td><td>The colorArrayOpt parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param colorArray The colorArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -526,11 +465,11 @@ public final class EnumServiceAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> setStringEnumArrayHeaderWithResponse(List<String> colorArray,
+    public Mono<Response<Void>> setStringEnumArrayHeaderWithResponse(List<String> colorArray,
         RequestOptions requestOptions) {
         return this.serviceClient.setStringEnumArrayHeaderWithResponseAsync(colorArray, requestOptions);
     }
@@ -683,7 +622,7 @@ public final class EnumServiceAsyncClient {
         return setStringEnumArrayWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-                .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+                .map(protocolMethodData -> protocolMethodData.toString());
     }
 
     /**
@@ -706,7 +645,7 @@ public final class EnumServiceAsyncClient {
         return setStringEnumArrayWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-                .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+                .map(protocolMethodData -> protocolMethodData.toString());
     }
 
     /**
@@ -720,11 +659,11 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setIntEnumArray(List<Priority> priorityArray, List<Priority> priorityArrayOpt) {
+    public Mono<Void> setIntEnumArray(List<Priority> priorityArray, List<Priority> priorityArrayOpt) {
         // Generated convenience method for setIntEnumArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (priorityArrayOpt != null) {
@@ -736,8 +675,7 @@ public final class EnumServiceAsyncClient {
         }
         return setIntEnumArrayWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-                .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -750,17 +688,16 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setIntEnumArray(List<Priority> priorityArray) {
+    public Mono<Void> setIntEnumArray(List<Priority> priorityArray) {
         // Generated convenience method for setIntEnumArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return setIntEnumArrayWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-                .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -774,11 +711,11 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setStringArray(List<String> stringArray, List<String> stringArrayOpt) {
+    public Mono<Void> setStringArray(List<String> stringArray, List<String> stringArrayOpt) {
         // Generated convenience method for setStringArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (stringArrayOpt != null) {
@@ -788,8 +725,7 @@ public final class EnumServiceAsyncClient {
                     .collect(Collectors.joining(",")),
                 false);
         }
-        return setStringArrayWithResponse(stringArray, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+        return setStringArrayWithResponse(stringArray, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -802,15 +738,14 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setStringArray(List<String> stringArray) {
+    public Mono<Void> setStringArray(List<String> stringArray) {
         // Generated convenience method for setStringArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setStringArrayWithResponse(stringArray, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+        return setStringArrayWithResponse(stringArray, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -824,11 +759,11 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setIntArray(List<Integer> intArray, List<Integer> intArrayOpt) {
+    public Mono<Void> setIntArray(List<Integer> intArray, List<Integer> intArrayOpt) {
         // Generated convenience method for setIntArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (intArrayOpt != null) {
@@ -836,8 +771,7 @@ public final class EnumServiceAsyncClient {
                 JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(intArrayOpt, CollectionFormat.CSV),
                 false);
         }
-        return setIntArrayWithResponse(intArray, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+        return setIntArrayWithResponse(intArray, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -850,15 +784,14 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setIntArray(List<Integer> intArray) {
+    public Mono<Void> setIntArray(List<Integer> intArray) {
         // Generated convenience method for setIntArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setIntArrayWithResponse(intArray, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+        return setIntArrayWithResponse(intArray, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -872,11 +805,11 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setStringEnumMulti(List<ColorModel> colorArray, List<ColorModel> colorArrayOpt) {
+    public Mono<Void> setStringEnumMulti(List<ColorModel> colorArray, List<ColorModel> colorArrayOpt) {
         // Generated convenience method for setStringEnumMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (colorArrayOpt != null) {
@@ -888,8 +821,7 @@ public final class EnumServiceAsyncClient {
         }
         return setStringEnumMultiWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-                .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -902,17 +834,16 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setStringEnumMulti(List<ColorModel> colorArray) {
+    public Mono<Void> setStringEnumMulti(List<ColorModel> colorArray) {
         // Generated convenience method for setStringEnumMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return setStringEnumMultiWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-                .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -926,11 +857,11 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setIntEnumMulti(List<Priority> priorityArray, List<Priority> priorityArrayOpt) {
+    public Mono<Void> setIntEnumMulti(List<Priority> priorityArray, List<Priority> priorityArrayOpt) {
         // Generated convenience method for setIntEnumMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (priorityArrayOpt != null) {
@@ -942,8 +873,7 @@ public final class EnumServiceAsyncClient {
         }
         return setIntEnumMultiWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-                .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -956,17 +886,16 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setIntEnumMulti(List<Priority> priorityArray) {
+    public Mono<Void> setIntEnumMulti(List<Priority> priorityArray) {
         // Generated convenience method for setIntEnumMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return setIntEnumMultiWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-                .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -980,11 +909,11 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setStringMulti(List<String> stringArray, List<String> stringArrayOpt) {
+    public Mono<Void> setStringMulti(List<String> stringArray, List<String> stringArrayOpt) {
         // Generated convenience method for setStringMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (stringArrayOpt != null) {
@@ -994,8 +923,7 @@ public final class EnumServiceAsyncClient {
                 }
             }
         }
-        return setStringMultiWithResponse(stringArray, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+        return setStringMultiWithResponse(stringArray, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -1008,15 +936,14 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setStringMulti(List<String> stringArray) {
+    public Mono<Void> setStringMulti(List<String> stringArray) {
         // Generated convenience method for setStringMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setStringMultiWithResponse(stringArray, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+        return setStringMultiWithResponse(stringArray, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -1030,11 +957,11 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setIntMulti(List<Integer> intArray, List<Integer> intArrayOpt) {
+    public Mono<Void> setIntMulti(List<Integer> intArray, List<Integer> intArrayOpt) {
         // Generated convenience method for setIntMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (intArrayOpt != null) {
@@ -1042,8 +969,7 @@ public final class EnumServiceAsyncClient {
                 requestOptions.addQueryParam("intArrayOpt", String.valueOf(paramItemValue), false);
             }
         }
-        return setIntMultiWithResponse(intArray, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+        return setIntMultiWithResponse(intArray, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -1056,15 +982,14 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setIntMulti(List<Integer> intArray) {
+    public Mono<Void> setIntMulti(List<Integer> intArray) {
         // Generated convenience method for setIntMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setIntMultiWithResponse(intArray, requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+        return setIntMultiWithResponse(intArray, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -1078,11 +1003,11 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setStringEnumArrayHeader(List<ColorModel> colorArray, List<ColorModel> colorArrayOpt) {
+    public Mono<Void> setStringEnumArrayHeader(List<ColorModel> colorArray, List<ColorModel> colorArrayOpt) {
         // Generated convenience method for setStringEnumArrayHeaderWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (colorArrayOpt != null) {
@@ -1093,8 +1018,7 @@ public final class EnumServiceAsyncClient {
         }
         return setStringEnumArrayHeaderWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-                .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -1107,16 +1031,15 @@ public final class EnumServiceAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<String> setStringEnumArrayHeader(List<ColorModel> colorArray) {
+    public Mono<Void> setStringEnumArrayHeader(List<ColorModel> colorArray) {
         // Generated convenience method for setStringEnumArrayHeaderWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return setStringEnumArrayHeaderWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono)
-                .map(protocolMethodData -> protocolMethodData.toObject(String.class));
+            .collect(Collectors.toList()), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

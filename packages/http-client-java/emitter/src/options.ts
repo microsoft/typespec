@@ -19,12 +19,6 @@ export interface EmitterOptions {
 export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   properties: {
-    namespace: {
-      type: "string",
-      nullable: true,
-      description:
-        "Java package/namespace. If not provided, emitter would use package name converted from TypeSpec namespace.",
-    },
     "dev-options": {
       type: "object",
       description: "Developer options for http-client-java emitter.",

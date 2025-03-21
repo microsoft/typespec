@@ -1,6 +1,6 @@
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 
 model Pet {
   name: string;
