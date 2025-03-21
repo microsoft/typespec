@@ -23,7 +23,7 @@ Other necessary installations will be prompted within the extension as needed.
 
 ## Features
 
-### Writing TypeSpec
+### Write TypeSpec
 
 - **IntelliSense & Auto-completion**: Code faster with smart suggestions.
 - **Code Formatting & Folding**: Keep your code clean and organized with built-in formatting and folding support.
@@ -34,26 +34,30 @@ Other necessary installations will be prompted within the extension as needed.
 
 ![vscode.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode.gif)
 
-### Project Initialization
+### Create TypeSpec Project
 
 - **Create TypeSpec Project**: Easily initialize a new TypeSpec project based on a template, ensuring a structured and ready-to-use setup.
   ![vscode_project_scaffolding.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_project_scaffolding.gif)
 
-### Generating Code from TypeSpec
+### Emit Code from TypeSpec
 
-The extension allows generating various outputs from TypeSpec:
+The extension allows emitting various outputs from TypeSpec:
 
 - **OpenAPI Specification**
-- **Server SDKs**: Generate server stubs for different back-end frameworks.
-- **Client SDKs**: Generate client code for multiple languages, including:
+- **Server SDKs**: Emit server stubs for different back-end frameworks.
+- **Client SDKs**: Emit client code for multiple languages, including:
   - .NET (C#)
   - Python
   - Java
   - JavaScript/TypeScript
 
-Invoke `TypeSpec: Generate From TypeSpec` to generate code:
+Invoke `TypeSpec: Emit From TypeSpec` to emit needed outputs:
 
 ![vscode_tsp_to_openapi3_generation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_tsp_to_openapi3_generation.gif)
+
+### Import TypeSpec from OpenAPI3
+
+### Preview APIs
 
 ## Commands
 
