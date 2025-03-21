@@ -111,8 +111,8 @@ public final class ReturnTypeChangedFromClientImpl {
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
         Response<String> testSync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("text/plain") BinaryData body, RequestOptions requestOptions);
+            @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
     }
 
     /**
@@ -139,7 +139,7 @@ public final class ReturnTypeChangedFromClientImpl {
      * @return a sequence of textual characters.
      */
     public Response<String> testWithResponse(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         final String accept = "application/json";
         return service.testSync(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestOptions);
     }

@@ -69,6 +69,6 @@ public final class ReturnTypeChangedFromClient {
     public String test(String body) {
         // Generated convenience method for testWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return testWithResponse(BinaryData.fromString(body), requestOptions).getValue();
+        return testWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
     }
 }

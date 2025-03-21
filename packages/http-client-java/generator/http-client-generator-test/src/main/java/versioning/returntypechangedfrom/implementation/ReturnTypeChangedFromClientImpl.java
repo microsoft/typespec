@@ -173,8 +173,8 @@ public final class ReturnTypeChangedFromClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> test(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("text/plain") BinaryData body, RequestOptions requestOptions, Context context);
+            @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
 
         @Post("/test")
         @ExpectedResponses({ 200 })
@@ -183,8 +183,8 @@ public final class ReturnTypeChangedFromClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> testSync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("text/plain") BinaryData body, RequestOptions requestOptions, Context context);
+            @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -215,7 +215,7 @@ public final class ReturnTypeChangedFromClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> testWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.test(this.getEndpoint(), this.getVersion(), contentType, accept,
             body, requestOptions, context));
@@ -249,7 +249,7 @@ public final class ReturnTypeChangedFromClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> testWithResponse(BinaryData body, RequestOptions requestOptions) {
-        final String contentType = "text/plain";
+        final String contentType = "application/json";
         final String accept = "application/json";
         return service.testSync(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestOptions,
             Context.NONE);

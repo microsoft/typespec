@@ -86,7 +86,7 @@ public final class ReturnTypeChangedFromAsyncClient {
     public Mono<String> test(String body) {
         // Generated convenience method for testWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return testWithResponse(BinaryData.fromString(body), requestOptions).flatMap(FluxUtil::toMono)
+        return testWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(String.class));
     }
 }
