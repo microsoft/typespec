@@ -6,7 +6,11 @@ package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
 import com.azure.core.util.logging.ClientLogger;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.azure.json.JsonReader;
+import com.azure.json.JsonSerializable;
+import com.azure.json.JsonToken;
+import com.azure.json.JsonWriter;
+import java.io.IOException;
 import tsptest.armresourceprovider.models.CustomTemplateResourcePropertiesAnonymousEmptyModel;
 import tsptest.armresourceprovider.models.Dog;
 import tsptest.armresourceprovider.models.EmptyModel;
@@ -17,35 +21,30 @@ import tsptest.armresourceprovider.models.ProvisioningState;
  * Top Level Arm Resource Properties.
  */
 @Fluent
-public final class CustomTemplateResourceProperties {
+public final class CustomTemplateResourceProperties implements JsonSerializable<CustomTemplateResourceProperties> {
     /*
      * The status of the last operation.
      */
-    @JsonProperty(value = "provisioningState", access = JsonProperty.Access.WRITE_ONLY)
     private ProvisioningState provisioningState;
 
     /*
      * The dog property.
      */
-    @JsonProperty(value = "dog", required = true)
     private Dog dog;
 
     /*
      * The namedEmptyModel property.
      */
-    @JsonProperty(value = "namedEmptyModel", required = true)
     private EmptyModel namedEmptyModel;
 
     /*
      * The anonymousEmptyModel property.
      */
-    @JsonProperty(value = "anonymousEmptyModel", required = true)
     private CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel;
 
     /*
      * The priority property.
      */
-    @JsonProperty(value = "priority", required = true)
     private PriorityModel priority;
 
     /**
@@ -179,4 +178,55 @@ public final class CustomTemplateResourceProperties {
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(CustomTemplateResourceProperties.class);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        jsonWriter.writeStartObject();
+        jsonWriter.writeJsonField("dog", this.dog);
+        jsonWriter.writeJsonField("namedEmptyModel", this.namedEmptyModel);
+        jsonWriter.writeJsonField("anonymousEmptyModel", this.anonymousEmptyModel);
+        jsonWriter.writeNumberField("priority", this.priority == null ? null : this.priority.getValue());
+        return jsonWriter.writeEndObject();
+    }
+
+    /**
+     * Reads an instance of CustomTemplateResourceProperties from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of CustomTemplateResourceProperties if the JsonReader was pointing to an instance of it, or
+     * null if it was pointing to JSON null.
+     * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
+     * @throws IOException If an error occurs while reading the CustomTemplateResourceProperties.
+     */
+    public static CustomTemplateResourceProperties fromJson(JsonReader jsonReader) throws IOException {
+        return jsonReader.readObject(reader -> {
+            CustomTemplateResourceProperties deserializedCustomTemplateResourceProperties
+                = new CustomTemplateResourceProperties();
+            while (reader.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = reader.getFieldName();
+                reader.nextToken();
+
+                if ("dog".equals(fieldName)) {
+                    deserializedCustomTemplateResourceProperties.dog = Dog.fromJson(reader);
+                } else if ("namedEmptyModel".equals(fieldName)) {
+                    deserializedCustomTemplateResourceProperties.namedEmptyModel = EmptyModel.fromJson(reader);
+                } else if ("anonymousEmptyModel".equals(fieldName)) {
+                    deserializedCustomTemplateResourceProperties.anonymousEmptyModel
+                        = CustomTemplateResourcePropertiesAnonymousEmptyModel.fromJson(reader);
+                } else if ("priority".equals(fieldName)) {
+                    deserializedCustomTemplateResourceProperties.priority = PriorityModel.fromValue(reader.getInt());
+                } else if ("provisioningState".equals(fieldName)) {
+                    deserializedCustomTemplateResourceProperties.provisioningState
+                        = ProvisioningState.fromString(reader.getString());
+                } else {
+                    reader.skipChildren();
+                }
+            }
+
+            return deserializedCustomTemplateResourceProperties;
+        });
+    }
 }

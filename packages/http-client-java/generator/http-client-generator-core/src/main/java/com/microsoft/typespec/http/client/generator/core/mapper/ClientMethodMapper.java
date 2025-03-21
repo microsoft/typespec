@@ -406,17 +406,29 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
 
                     if (JavaSettings.getInstance().isSyncStackEnabled() && !proxyMethodUsesFluxByteBuffer) {
-                        // WithResponseAsync, with required and optional parameters
-                        methods.add(builder
+                        // WithResponseSync, with required and optional parameters
+                        builder
                             .returnValue(createSimpleSyncRestResponseReturnValue(operation,
                                 returnTypeHolder.syncReturnWithResponse, returnTypeHolder.syncReturnType))
                             .name(proxyMethod.getSimpleRestResponseMethodName())
                             .onlyRequiredParameters(false)
                             .type(ClientMethodType.SimpleSyncRestResponse)
                             .groupedParameterRequired(false)
-                            .methodVisibility(simpleSyncMethodVisibility)
-                            .proxyMethod(proxyMethod.toSync())
-                            .build());
+                            .proxyMethod(proxyMethod.toSync());
+
+                        // fluent + sync stack needs simple rest response for implementation only
+                        if (settings.isFluent()) {
+                            simpleSyncMethodVisibility = NOT_VISIBLE;
+                            simpleSyncMethodVisibilityWithContext = NOT_VISIBLE;
+                            ReturnValue binaryDataResponse = createSimpleSyncRestResponseReturnValue(operation,
+                                ResponseTypeFactory.createSyncResponse(operation, ClassType.BINARY_DATA,
+                                    isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored()),
+                                ClassType.BINARY_DATA);
+                            builder.returnValue(binaryDataResponse);
+                        }
+
+                        builder.methodVisibility(simpleSyncMethodVisibility);
+                        methods.add(builder.build());
 
                         builder.methodVisibility(simpleSyncMethodVisibilityWithContext);
                         addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));

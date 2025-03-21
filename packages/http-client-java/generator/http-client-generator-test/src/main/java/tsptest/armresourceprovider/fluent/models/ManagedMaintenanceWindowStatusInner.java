@@ -7,7 +7,11 @@ package tsptest.armresourceprovider.fluent.models;
 import com.azure.core.annotation.Immutable;
 import com.azure.core.management.Resource;
 import com.azure.core.management.SystemData;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.azure.json.JsonReader;
+import com.azure.json.JsonToken;
+import com.azure.json.JsonWriter;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * Resource for testing conflict name with operation group.
@@ -17,14 +21,27 @@ public final class ManagedMaintenanceWindowStatusInner extends Resource {
     /*
      * The resource-specific properties for this resource.
      */
-    @JsonProperty(value = "properties")
     private ManagedMaintenanceWindowStatusContentProperties innerProperties;
 
     /*
      * Azure Resource Manager metadata containing createdBy and modifiedBy information.
      */
-    @JsonProperty(value = "systemData", access = JsonProperty.Access.WRITE_ONLY)
     private SystemData systemData;
+
+    /*
+     * The type of the resource.
+     */
+    private String type;
+
+    /*
+     * The name of the resource.
+     */
+    private String name;
+
+    /*
+     * Fully qualified resource Id for the resource.
+     */
+    private String id;
 
     /**
      * Creates an instance of ManagedMaintenanceWindowStatusInner class.
@@ -51,6 +68,36 @@ public final class ManagedMaintenanceWindowStatusInner extends Resource {
     }
 
     /**
+     * Get the type property: The type of the resource.
+     * 
+     * @return the type value.
+     */
+    @Override
+    public String type() {
+        return this.type;
+    }
+
+    /**
+     * Get the name property: The name of the resource.
+     * 
+     * @return the name value.
+     */
+    @Override
+    public String name() {
+        return this.name;
+    }
+
+    /**
+     * Get the id property: Fully qualified resource Id for the resource.
+     * 
+     * @return the id value.
+     */
+    @Override
+    public String id() {
+        return this.id;
+    }
+
+    /**
      * Get the provisioningState property: The status of the last operation.
      * 
      * @return the provisioningState value.
@@ -68,5 +115,59 @@ public final class ManagedMaintenanceWindowStatusInner extends Resource {
         if (innerProperties() != null) {
             innerProperties().validate();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        jsonWriter.writeStartObject();
+        jsonWriter.writeStringField("location", location());
+        jsonWriter.writeMapField("tags", tags(), (writer, element) -> writer.writeString(element));
+        jsonWriter.writeJsonField("properties", this.innerProperties);
+        return jsonWriter.writeEndObject();
+    }
+
+    /**
+     * Reads an instance of ManagedMaintenanceWindowStatusInner from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of ManagedMaintenanceWindowStatusInner if the JsonReader was pointing to an instance of it,
+     * or null if it was pointing to JSON null.
+     * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
+     * @throws IOException If an error occurs while reading the ManagedMaintenanceWindowStatusInner.
+     */
+    public static ManagedMaintenanceWindowStatusInner fromJson(JsonReader jsonReader) throws IOException {
+        return jsonReader.readObject(reader -> {
+            ManagedMaintenanceWindowStatusInner deserializedManagedMaintenanceWindowStatusInner
+                = new ManagedMaintenanceWindowStatusInner();
+            while (reader.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = reader.getFieldName();
+                reader.nextToken();
+
+                if ("id".equals(fieldName)) {
+                    deserializedManagedMaintenanceWindowStatusInner.id = reader.getString();
+                } else if ("name".equals(fieldName)) {
+                    deserializedManagedMaintenanceWindowStatusInner.name = reader.getString();
+                } else if ("type".equals(fieldName)) {
+                    deserializedManagedMaintenanceWindowStatusInner.type = reader.getString();
+                } else if ("location".equals(fieldName)) {
+                    deserializedManagedMaintenanceWindowStatusInner.withLocation(reader.getString());
+                } else if ("tags".equals(fieldName)) {
+                    Map<String, String> tags = reader.readMap(reader1 -> reader1.getString());
+                    deserializedManagedMaintenanceWindowStatusInner.withTags(tags);
+                } else if ("properties".equals(fieldName)) {
+                    deserializedManagedMaintenanceWindowStatusInner.innerProperties
+                        = ManagedMaintenanceWindowStatusContentProperties.fromJson(reader);
+                } else if ("systemData".equals(fieldName)) {
+                    deserializedManagedMaintenanceWindowStatusInner.systemData = SystemData.fromJson(reader);
+                } else {
+                    reader.skipChildren();
+                }
+            }
+
+            return deserializedManagedMaintenanceWindowStatusInner;
+        });
     }
 }

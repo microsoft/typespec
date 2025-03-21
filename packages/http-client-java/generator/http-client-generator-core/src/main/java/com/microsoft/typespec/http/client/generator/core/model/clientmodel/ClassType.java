@@ -515,6 +515,11 @@ public class ClassType implements IType {
         .name("ResponseInnerError")
         .jsonToken("JsonToken.START_OBJECT")
         .build();
+    public static final ClassType SYNC_POLLER_FACTORY
+        = new Builder().packageName("com.azure.core.management.polling").name("SyncPollerFactory").build();
+
+    public static final ClassType SYNC_POLLER
+        = new Builder().packageName("com.azure.core.util.polling").name("SyncPoller").build();
 
     private final String fullName;
     private final String packageName;

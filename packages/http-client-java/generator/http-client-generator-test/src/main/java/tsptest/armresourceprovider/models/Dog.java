@@ -5,31 +5,25 @@
 package tsptest.armresourceprovider.models;
 
 import com.azure.core.annotation.Fluent;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeId;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.azure.json.JsonReader;
+import com.azure.json.JsonSerializable;
+import com.azure.json.JsonToken;
+import com.azure.json.JsonWriter;
+import java.io.IOException;
 
 /**
  * Test extensible enum type for discriminator.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "kind", defaultImpl = Dog.class, visible = true)
-@JsonTypeName("Dog")
-@JsonSubTypes({ @JsonSubTypes.Type(name = "golden_dog", value = Golden.class) })
 @Fluent
-public class Dog {
+public class Dog implements JsonSerializable<Dog> {
     /*
      * discriminator property
      */
-    @JsonTypeId
-    @JsonProperty(value = "kind", required = true)
     private DogKind kind = DogKind.fromString("Dog");
 
     /*
      * Weight of the dog
      */
-    @JsonProperty(value = "weight", required = true)
     private int weight;
 
     /**
@@ -73,5 +67,70 @@ public class Dog {
      * @throws IllegalArgumentException thrown if the instance is not valid.
      */
     public void validate() {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        jsonWriter.writeStartObject();
+        jsonWriter.writeIntField("weight", this.weight);
+        jsonWriter.writeStringField("kind", this.kind == null ? null : this.kind.toString());
+        return jsonWriter.writeEndObject();
+    }
+
+    /**
+     * Reads an instance of Dog from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of Dog if the JsonReader was pointing to an instance of it, or null if it was pointing to
+     * JSON null.
+     * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
+     * @throws IOException If an error occurs while reading the Dog.
+     */
+    public static Dog fromJson(JsonReader jsonReader) throws IOException {
+        return jsonReader.readObject(reader -> {
+            String discriminatorValue = null;
+            try (JsonReader readerToUse = reader.bufferObject()) {
+                readerToUse.nextToken(); // Prepare for reading
+                while (readerToUse.nextToken() != JsonToken.END_OBJECT) {
+                    String fieldName = readerToUse.getFieldName();
+                    readerToUse.nextToken();
+                    if ("kind".equals(fieldName)) {
+                        discriminatorValue = readerToUse.getString();
+                        break;
+                    } else {
+                        readerToUse.skipChildren();
+                    }
+                }
+                // Use the discriminator value to determine which subtype should be deserialized.
+                if ("golden_dog".equals(discriminatorValue)) {
+                    return Golden.fromJson(readerToUse.reset());
+                } else {
+                    return fromJsonKnownDiscriminator(readerToUse.reset());
+                }
+            }
+        });
+    }
+
+    static Dog fromJsonKnownDiscriminator(JsonReader jsonReader) throws IOException {
+        return jsonReader.readObject(reader -> {
+            Dog deserializedDog = new Dog();
+            while (reader.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = reader.getFieldName();
+                reader.nextToken();
+
+                if ("weight".equals(fieldName)) {
+                    deserializedDog.weight = reader.getInt();
+                } else if ("kind".equals(fieldName)) {
+                    deserializedDog.kind = DogKind.fromString(reader.getString());
+                } else {
+                    reader.skipChildren();
+                }
+            }
+
+            return deserializedDog;
+        });
     }
 }

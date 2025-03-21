@@ -5,12 +5,18 @@
 package tsptest.armresourceprovider.models;
 
 import com.azure.core.annotation.Immutable;
+import com.azure.json.JsonReader;
+import com.azure.json.JsonSerializable;
+import com.azure.json.JsonToken;
+import com.azure.json.JsonWriter;
+import java.io.IOException;
 
 /**
  * The CustomTemplateResourcePropertiesAnonymousEmptyModel model.
  */
 @Immutable
-public final class CustomTemplateResourcePropertiesAnonymousEmptyModel {
+public final class CustomTemplateResourcePropertiesAnonymousEmptyModel
+    implements JsonSerializable<CustomTemplateResourcePropertiesAnonymousEmptyModel> {
     /**
      * Creates an instance of CustomTemplateResourcePropertiesAnonymousEmptyModel class.
      */
@@ -23,5 +29,38 @@ public final class CustomTemplateResourcePropertiesAnonymousEmptyModel {
      * @throws IllegalArgumentException thrown if the instance is not valid.
      */
     public void validate() {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        jsonWriter.writeStartObject();
+        return jsonWriter.writeEndObject();
+    }
+
+    /**
+     * Reads an instance of CustomTemplateResourcePropertiesAnonymousEmptyModel from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of CustomTemplateResourcePropertiesAnonymousEmptyModel if the JsonReader was pointing to an
+     * instance of it, or null if it was pointing to JSON null.
+     * @throws IOException If an error occurs while reading the CustomTemplateResourcePropertiesAnonymousEmptyModel.
+     */
+    public static CustomTemplateResourcePropertiesAnonymousEmptyModel fromJson(JsonReader jsonReader)
+        throws IOException {
+        return jsonReader.readObject(reader -> {
+            CustomTemplateResourcePropertiesAnonymousEmptyModel deserializedCustomTemplateResourcePropertiesAnonymousEmptyModel
+                = new CustomTemplateResourcePropertiesAnonymousEmptyModel();
+            while (reader.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = reader.getFieldName();
+                reader.nextToken();
+
+                reader.skipChildren();
+            }
+
+            return deserializedCustomTemplateResourcePropertiesAnonymousEmptyModel;
+        });
     }
 }

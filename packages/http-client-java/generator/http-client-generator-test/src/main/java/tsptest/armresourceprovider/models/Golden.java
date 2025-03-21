@@ -5,23 +5,19 @@
 package tsptest.armresourceprovider.models;
 
 import com.azure.core.annotation.Fluent;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeId;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.azure.json.JsonReader;
+import com.azure.json.JsonToken;
+import com.azure.json.JsonWriter;
+import java.io.IOException;
 
 /**
  * Golden dog model.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "kind", defaultImpl = Golden.class, visible = true)
-@JsonTypeName("golden_dog")
 @Fluent
 public final class Golden extends Dog {
     /*
      * discriminator property
      */
-    @JsonTypeId
-    @JsonProperty(value = "kind", required = true)
     private DogKind kind = DogKind.GOLDEN;
 
     /**
@@ -56,6 +52,45 @@ public final class Golden extends Dog {
      */
     @Override
     public void validate() {
-        super.validate();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        jsonWriter.writeStartObject();
+        jsonWriter.writeIntField("weight", weight());
+        jsonWriter.writeStringField("kind", this.kind == null ? null : this.kind.toString());
+        return jsonWriter.writeEndObject();
+    }
+
+    /**
+     * Reads an instance of Golden from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of Golden if the JsonReader was pointing to an instance of it, or null if it was pointing to
+     * JSON null.
+     * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
+     * @throws IOException If an error occurs while reading the Golden.
+     */
+    public static Golden fromJson(JsonReader jsonReader) throws IOException {
+        return jsonReader.readObject(reader -> {
+            Golden deserializedGolden = new Golden();
+            while (reader.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = reader.getFieldName();
+                reader.nextToken();
+
+                if ("weight".equals(fieldName)) {
+                    deserializedGolden.withWeight(reader.getInt());
+                } else if ("kind".equals(fieldName)) {
+                    deserializedGolden.kind = DogKind.fromString(reader.getString());
+                } else {
+                    reader.skipChildren();
+                }
+            }
+
+            return deserializedGolden;
+        });
     }
 }

@@ -5,7 +5,6 @@
 package tsptest.armresourceprovider.models;
 
 import com.azure.core.util.ExpandableStringEnum;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Collection;
 
 /**
@@ -43,7 +42,6 @@ public final class Origin extends ExpandableStringEnum<Origin> {
      * @param name a name to look for.
      * @return the corresponding Origin.
      */
-    @JsonCreator
     public static Origin fromString(String name) {
         return fromString(name, Origin.class);
     }

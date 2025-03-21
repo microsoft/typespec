@@ -20,8 +20,10 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.management.polling.PollResult;
+import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
 import java.nio.ByteBuffer;
@@ -72,6 +74,16 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
             @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") TopLevelArmResourceTagsUpdate properties, Context context);
+
+        @Patch("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmStreamStyleSerialization/topLevelArmResources/{topLevelArmResourceName}")
+        @ExpectedResponses({ 200, 202 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<BinaryData> updateSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName,
+            @PathParam("topLevelArmResourceName") String topLevelArmResourceName,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") TopLevelArmResourceTagsUpdate properties, Context context);
     }
 
     /**
@@ -90,23 +102,26 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<Response<Flux<ByteBuffer>>> updateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, TopLevelArmResourceTagsUpdate properties) {
         if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -136,23 +151,26 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     private Mono<Response<Flux<ByteBuffer>>> updateWithResponseAsync(String resourceGroupName,
         String topLevelArmResourceName, TopLevelArmResourceTagsUpdate properties, Context context) {
         if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -161,6 +179,99 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         context = this.client.mergeContext(context);
         return service.update(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(),
             resourceGroupName, topLevelArmResourceName, contentType, accept, properties, context);
+    }
+
+    /**
+     * Update a TopLevelArmResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param properties The resource properties to be updated.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
+     * with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> updateWithResponse(String resourceGroupName, String topLevelArmResourceName,
+        TopLevelArmResourceTagsUpdate properties) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+        }
+        if (properties == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+        } else {
+            properties.validate();
+        }
+        final String contentType = "application/json";
+        final String accept = "application/json";
+        return service.updateSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, contentType, accept,
+            properties, Context.NONE);
+    }
+
+    /**
+     * Update a TopLevelArmResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param properties The resource properties to be updated.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
+     * with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> updateWithResponse(String resourceGroupName, String topLevelArmResourceName,
+        TopLevelArmResourceTagsUpdate properties, Context context) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (topLevelArmResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+        }
+        if (properties == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+        } else {
+            properties.validate();
+        }
+        final String contentType = "application/json";
+        final String accept = "application/json";
+        return service.updateSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourceName, contentType, accept,
+            properties, context);
     }
 
     /**
@@ -224,7 +335,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginUpdate(
         String resourceGroupName, String topLevelArmResourceName, TopLevelArmResourceTagsUpdate properties) {
-        return this.beginUpdateAsync(resourceGroupName, topLevelArmResourceName, properties).getSyncPoller();
+        Response<BinaryData> response = updateWithResponse(resourceGroupName, topLevelArmResourceName, properties);
+        return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(response,
+            TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, Context.NONE);
     }
 
     /**
@@ -244,7 +357,10 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginUpdate(
         String resourceGroupName, String topLevelArmResourceName, TopLevelArmResourceTagsUpdate properties,
         Context context) {
-        return this.beginUpdateAsync(resourceGroupName, topLevelArmResourceName, properties, context).getSyncPoller();
+        Response<BinaryData> response
+            = updateWithResponse(resourceGroupName, topLevelArmResourceName, properties, context);
+        return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(response,
+            TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, context);
     }
 
     /**
@@ -300,7 +416,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner update(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceTagsUpdate properties) {
-        return updateAsync(resourceGroupName, topLevelArmResourceName, properties).block();
+        return beginUpdate(resourceGroupName, topLevelArmResourceName, properties).getFinalResult();
     }
 
     /**
@@ -318,6 +434,8 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     public TopLevelArmResourceInner update(String resourceGroupName, String topLevelArmResourceName,
         TopLevelArmResourceTagsUpdate properties, Context context) {
-        return updateAsync(resourceGroupName, topLevelArmResourceName, properties, context).block();
+        return beginUpdate(resourceGroupName, topLevelArmResourceName, properties, context).getFinalResult();
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(TopLevelArmResourcesClientImpl.class);
 }

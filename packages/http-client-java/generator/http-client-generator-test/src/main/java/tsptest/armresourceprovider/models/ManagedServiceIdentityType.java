@@ -5,7 +5,6 @@
 package tsptest.armresourceprovider.models;
 
 import com.azure.core.util.ExpandableStringEnum;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Collection;
 
 /**
@@ -48,7 +47,6 @@ public final class ManagedServiceIdentityType extends ExpandableStringEnum<Manag
      * @param name a name to look for.
      * @return the corresponding ManagedServiceIdentityType.
      */
-    @JsonCreator
     public static ManagedServiceIdentityType fromString(String name) {
         return fromString(name, ManagedServiceIdentityType.class);
     }

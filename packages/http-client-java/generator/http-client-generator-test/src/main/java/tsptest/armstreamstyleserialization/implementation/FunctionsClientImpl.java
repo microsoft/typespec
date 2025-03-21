@@ -19,6 +19,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.fluent.FunctionsClient;
 import tsptest.armstreamstyleserialization.fluent.models.FunctionInner;
@@ -61,6 +62,13 @@ public final class FunctionsClientImpl implements FunctionsClient {
         Mono<Response<FunctionInner>> createFunction(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") FunctionInner function, Context context);
+
+        @Put("/function")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<FunctionInner> createFunctionSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") FunctionInner function, Context context);
     }
 
     /**
@@ -75,11 +83,13 @@ public final class FunctionsClientImpl implements FunctionsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FunctionInner>> createFunctionWithResponseAsync(FunctionInner function) {
         if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (function == null) {
-            return Mono.error(new IllegalArgumentException("Parameter function is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter function is required and cannot be null."));
         } else {
             function.validate();
         }
@@ -104,11 +114,13 @@ public final class FunctionsClientImpl implements FunctionsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FunctionInner>> createFunctionWithResponseAsync(FunctionInner function, Context context) {
         if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (function == null) {
-            return Mono.error(new IllegalArgumentException("Parameter function is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter function is required and cannot be null."));
         } else {
             function.validate();
         }
@@ -144,7 +156,20 @@ public final class FunctionsClientImpl implements FunctionsClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FunctionInner> createFunctionWithResponse(FunctionInner function, Context context) {
-        return createFunctionWithResponseAsync(function, context).block();
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (function == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter function is required and cannot be null."));
+        } else {
+            function.validate();
+        }
+        final String contentType = "application/json";
+        final String accept = "application/json";
+        return service.createFunctionSync(this.client.getEndpoint(), contentType, accept, function, context);
     }
 
     /**
@@ -160,4 +185,6 @@ public final class FunctionsClientImpl implements FunctionsClient {
     public FunctionInner createFunction(FunctionInner function) {
         return createFunctionWithResponse(function, Context.NONE).getValue();
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(FunctionsClientImpl.class);
 }

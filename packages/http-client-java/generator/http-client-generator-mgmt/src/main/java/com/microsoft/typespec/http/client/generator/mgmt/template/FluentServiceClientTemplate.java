@@ -17,6 +17,7 @@ import com.azure.core.util.polling.LongRunningOperationStatus;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.serializer.SerializerEncoding;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceClientTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
@@ -79,6 +80,26 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
                     "PollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType, defaultPollInterval, activationResponse, context)"))
                 .build();
 
+            MethodTemplate getLroResultSyncMethod = MethodTemplate.builder()
+                .imports(Arrays.asList(PollResult.class.getName(), ClassType.RESPONSE.getFullName(),
+                    Type.class.getName(), ClassType.SYNC_POLLER_FACTORY.getFullName(),
+                    ClassType.BINARY_DATA.getFullName(), ClassType.SYNC_POLLER.getFullName()))
+                .methodSignature(
+                    "<T, U> SyncPoller<PollResult<T>, U> getLroResult(Response<BinaryData> activationResponse, Type pollResultType, Type finalResultType, Context context)")
+                .comment(comment -> {
+                    comment.description("Gets long running operation result.");
+                    comment.param("activationResponse", "the response of activation operation.");
+                    comment.param("pollResultType", "type of poll result.");
+                    comment.param("finalResultType", "type of final result.");
+                    comment.param("context", "the context shared by all requests.");
+                    comment.param("<T>", "type of poll result.");
+                    comment.param("<U>", "type of final result.");
+                    comment.methodReturns("SyncPoller for poll result and final result.");
+                })
+                .method(method -> method.methodReturn(
+                    "SyncPollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType, defaultPollInterval, () -> activationResponse, context)"))
+                .build();
+
             MethodTemplate getLroFinalResultOrErrorMethod = MethodTemplate.builder()
                 .imports(Arrays.asList(PollerFlux.class.getName(), PollResult.class.getName(), Mono.class.getName(),
                     AsyncPollResponse.class.getName(), ManagementError.class.getName(),
@@ -102,6 +123,9 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
             INSTANCE.additionalMethods.add(getContextMethod);
             INSTANCE.additionalMethods.add(mergeContextMethod);
             INSTANCE.additionalMethods.add(getLroResultMethod);
+            if (JavaSettings.getInstance().isSyncStackEnabled()) {
+                INSTANCE.additionalMethods.add(getLroResultSyncMethod);
+            }
             INSTANCE.additionalMethods.add(getLroFinalResultOrErrorMethod);
         }
     }
