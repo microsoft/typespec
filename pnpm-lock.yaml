@@ -1802,13 +1802,28 @@ importers:
       deep-equal:
         specifier: ^2.2.0
         version: 2.2.3
+      express:
+        specifier: ^4.21.2
+        version: 4.21.2
+      xml2js:
+        specifier: ^0.6.2
+        version: 0.6.2
     devDependencies:
       '@types/deep-equal':
         specifier: ^1.0.1
         version: 1.0.4
+      '@types/express':
+        specifier: ^5.0.0
+        version: 5.0.0
+      '@types/multer':
+        specifier: ^1.4.10
+        version: 1.4.12
       '@types/node':
         specifier: ~22.13.9
         version: 22.13.9
+      '@types/xml2js':
+        specifier: ^0.4.11
+        version: 0.4.14
       '@vitest/coverage-v8':
         specifier: ^3.0.7
         version: 3.0.7(vitest@3.0.7(@types/debug@4.1.12)(@types/node@22.13.9)(@vitest/ui@3.0.7)(happy-dom@17.2.2)(jiti@2.4.2)(jsdom@26.0.0)(tsx@4.19.3)(yaml@2.7.0))
