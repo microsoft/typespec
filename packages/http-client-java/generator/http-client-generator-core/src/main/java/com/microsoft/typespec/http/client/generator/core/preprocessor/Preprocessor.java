@@ -21,6 +21,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -154,26 +155,11 @@ public class Preprocessor extends NewPlugin {
         Set<ConstantSchema> constantSchemas = new HashSet<>(codeModel.getSchemas().getConstants());
         if (!constantSchemas.isEmpty()) {
             Map<ConstantSchema, SealedChoiceSchema> convertedChoiceSchemas = new HashMap<>();
-
-            codeModel.getOperationGroups().stream().flatMap(og -> og.getOperations().stream()).forEach(o -> {
-                o.getParameters()
-                    .stream()
-                    .filter(p -> !p.isRequired() && p.getSchema() instanceof ConstantSchema)
-                    .forEach(p -> {
-                        ConstantSchema constantSchema = (ConstantSchema) p.getSchema();
-                        if (schemaIsConstantWithChoice.apply(constantSchema)) {
-                            p.setSchema(constantSchema.getValueType());
-                        } else {
-                            SealedChoiceSchema sealedChoiceSchema = convertedChoiceSchemas
-                                .computeIfAbsent(constantSchema, Preprocessor::convertToChoiceSchema);
-                            p.setSchema(sealedChoiceSchema);
-                        }
-
-                        o.getSignatureParameters().add(p);
-                    });
-
-                o.getRequests().forEach(r -> {
-                    r.getParameters()
+            ClientModelUtil.getAllOperationGroups(codeModel)
+                .stream()
+                .flatMap(og -> og.getOperations().stream())
+                .forEach(o -> {
+                    o.getParameters()
                         .stream()
                         .filter(p -> !p.isRequired() && p.getSchema() instanceof ConstantSchema)
                         .forEach(p -> {
@@ -186,10 +172,27 @@ public class Preprocessor extends NewPlugin {
                                 p.setSchema(sealedChoiceSchema);
                             }
 
-                            r.getSignatureParameters().add(p);
+                            o.getSignatureParameters().add(p);
                         });
+
+                    o.getRequests().forEach(r -> {
+                        r.getParameters()
+                            .stream()
+                            .filter(p -> !p.isRequired() && p.getSchema() instanceof ConstantSchema)
+                            .forEach(p -> {
+                                ConstantSchema constantSchema = (ConstantSchema) p.getSchema();
+                                if (schemaIsConstantWithChoice.apply(constantSchema)) {
+                                    p.setSchema(constantSchema.getValueType());
+                                } else {
+                                    SealedChoiceSchema sealedChoiceSchema = convertedChoiceSchemas
+                                        .computeIfAbsent(constantSchema, Preprocessor::convertToChoiceSchema);
+                                    p.setSchema(sealedChoiceSchema);
+                                }
+
+                                r.getSignatureParameters().add(p);
+                            });
+                    });
                 });
-            });
 
             codeModel.getSchemas()
                 .getObjects()

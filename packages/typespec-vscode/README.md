@@ -77,7 +77,7 @@ TypeSpec will interpolate a few variables using this pattern `${<name>}`. For ex
 
 Available variables:
 
-- `workspaceFolder`: Corespond to the root of your Visual Studio workspace.
+- `workspaceFolder`: Correspond to the root of your Visual Studio workspace.
 
 ### `typespec.tsp-server.path`: Configure the server path
 
@@ -89,3 +89,7 @@ This setting provides the ability to configure where the tsp compiler is located
   "typespec.tsp-server.path": "${workspaceFolder}/my-nested-project/node_modules/@typespec/compiler"
 }
 ```
+
+### Telemetry
+
+The TypeSpec Extension for Visual Studio Code collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://privacy.microsoft.com/privacystatement) to learn more. This extension respects the `telemetry.telemetryLevel` setting which you can find more information in the [FAQ](https://code.visualstudio.com/docs/supporting/faq#_how-to-disable-telemetry-reporting).

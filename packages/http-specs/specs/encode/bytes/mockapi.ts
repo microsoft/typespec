@@ -180,11 +180,12 @@ function createRequestBodyServerTests(
 }
 Scenarios.Encode_Bytes_RequestBody_default = createRequestBodyServerTests(
   "/encode/bytes/body/request/default",
-  '"dGVzdA=="',
+  pngFile,
   {
-    "Content-Type": "application/json",
+    "Content-Type": "application/octet-stream",
   },
-  '"dGVzdA=="',
+  pngFile,
+  "application/octet-stream",
 );
 Scenarios.Encode_Bytes_RequestBody_base64 = createRequestBodyServerTests(
   "/encode/bytes/body/request/base64",
@@ -255,11 +256,12 @@ function createResponseBodyServerTests(
 }
 Scenarios.Encode_Bytes_ResponseBody_default = createResponseBodyServerTests(
   "/encode/bytes/body/response/default",
-  JSON.stringify("dGVzdA=="),
+  pngFile,
   {
-    "Content-Type": "application/json",
+    "Content-Type": "application/octet-stream",
   },
-  JSON.stringify("dGVzdA=="),
+  pngFile,
+  "application/octet-stream",
 );
 Scenarios.Encode_Bytes_ResponseBody_base64 = createResponseBodyServerTests(
   "/encode/bytes/body/response/base64",

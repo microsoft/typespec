@@ -22,6 +22,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
@@ -206,9 +207,19 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
           (schema instanceof Placeholder || "$ref" in schema) &&
           !(type && shouldInline(program, type))
         ) {
-          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
+          if (type && type.kind === "Model") {
             return new ObjectBuilder({
               type: "object",
+              allOf: Builders.array([schema]),
+              ...additionalProps,
+            });
+          } else if (type && type.kind === "Scalar") {
+            const stdType = $.scalar.getStdBase(type);
+            const outputType: JsonType | undefined = stdType
+              ? this.getSchemaForStdScalars(stdType as any).type
+              : undefined;
+            return new ObjectBuilder({
+              type: outputType,
               allOf: Builders.array([schema]),
               ...additionalProps,
             });
