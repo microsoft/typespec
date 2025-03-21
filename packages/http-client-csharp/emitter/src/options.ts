@@ -21,6 +21,8 @@ export interface CSharpEmitterOptions {
   "emitter-extension-path"?: string;
   "update-code-model"?: (model: CodeModel) => CodeModel;
   "sdk-context-options"?: CreateSdkContextOptions;
+  "generate-protocol-methods"?: boolean;
+  "generate-convenience-methods"?: boolean;
 }
 
 /**
@@ -38,6 +40,8 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
         "For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, " +
         "set this option to the version that should be used to generate against.",
     },
+    "generate-protocol-methods": { type: "boolean", nullable: true },
+    "generate-convenience-methods": { type: "boolean", nullable: true },
     "unreferenced-types-handling": {
       type: "string",
       enum: ["removeOrInternalize", "internalize", "keepAll"],
@@ -143,6 +147,8 @@ export const defaultOptions = {
   "new-project": false,
   "clear-output-folder": false,
   "save-inputs": false,
+  "generate-protocol-methods": true,
+  "generate-convenience-methods": true,
   "package-name": undefined,
   debug: undefined,
   logLevel: LoggerLevel.INFO,

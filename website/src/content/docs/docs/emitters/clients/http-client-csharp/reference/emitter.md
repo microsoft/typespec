@@ -35,6 +35,14 @@ options:
 
 For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, set this option to the version that should be used to generate against.
 
+### `generate-protocol-methods`
+
+**Type:** `boolean`
+
+### `generate-convenience-methods`
+
+**Type:** `boolean`
+
 ### `unreferenced-types-handling`
 
 **Type:** `"removeOrInternalize" | "internalize" | "keepAll"`
