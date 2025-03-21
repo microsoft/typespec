@@ -1,12 +1,6 @@
-# @typespec/http-client-python
-
-TypeSpec emitter for Python SDKs
-
-## Install
-
-```bash
-npm install @typespec/http-client-python
-```
+---
+title: "Emitter usage"
+---
 
 ## Usage
 
