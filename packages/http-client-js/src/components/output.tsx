@@ -6,6 +6,7 @@ import { EncodingProvider } from "./encoding-provider.jsx";
 import { httpRuntimeTemplateLib } from "./external-packages/ts-http-runtime.js";
 import { uriTemplateLib } from "./external-packages/uri-template.js";
 import { createTransformNamePolicy } from "./transforms/transform-name-policy.js";
+import { $ } from "@typespec/compiler/experimental/typekit";
 
 export interface OutputProps {
   children?: ay.Children;
@@ -16,7 +17,7 @@ export function Output(props: OutputProps) {
   const defaultTransformNamePolicy = createTransformNamePolicy();
   return (
     <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib, httpRuntimeTemplateLib]}>
-      <ClientLibrary>
+      <ClientLibrary program={$.program}>
         <TransformNamePolicyContext.Provider value={defaultTransformNamePolicy}>
           <EncodingProvider>{props.children}</EncodingProvider>
         </TransformNamePolicyContext.Provider>
