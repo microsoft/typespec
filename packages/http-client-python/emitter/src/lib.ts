@@ -27,7 +27,7 @@ export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
 
 export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
   type: "object",
-  additionalProperties: false,
+  additionalProperties: true,
   properties: {
     "package-version": {
       type: "string",
