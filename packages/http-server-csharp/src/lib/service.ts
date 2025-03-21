@@ -1251,10 +1251,22 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     async function getOpenApiPath(): Promise<string> {
       if (options["openapi-path"]) return options["openapi-path"];
       const openApiSettings = await getOpenApiConfig(context.program);
+      const projectDir = resolvePath(context.program.projectRoot, options.emitterOutputDir, "..");
       if (openApiSettings.outputDir) {
-        const projectDir = resolvePath(context.program.projectRoot, options.emitterOutputDir, "..");
         const openApiPath = resolvePath(
           openApiSettings.outputDir,
+          openApiSettings.fileName || "openapi.yaml",
+        );
+        return normalizeSlashes(path.relative(projectDir, openApiPath));
+      }
+      if (openApiSettings.emitted) {
+        const baseDir =
+          context.program.compilerOptions.outputDir ||
+          resolvePath(context.program.projectRoot, "tsp-output");
+        const openApiPath = resolvePath(
+          baseDir,
+          "@typespec",
+          "openapi3",
           openApiSettings.fileName || "openapi.yaml",
         );
         return normalizeSlashes(path.relative(projectDir, openApiPath));
@@ -1263,13 +1275,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
     const openApiPath = await getOpenApiPath();
     const UseSwaggerUI = openApiPath !== "" && options["use-swaggerui"] === true;
+    let httpPort: number | undefined;
+    let httpsPort: number | undefined;
 
     if (options["emit-mocks"] !== "none") {
       getScaffoldingHelpers(emitter, UseSwaggerUI, openApiPath, true);
     }
     if (options["emit-mocks"] === "all") {
-      const httpPort = options["http-port"] || (await getFreePort(5000, 5999));
-      const httpsPort = options["https-port"] || (await getFreePort(7000, 7999));
+      httpPort = options["http-port"] || (await getFreePort(5000, 5999));
+      httpsPort = options["https-port"] || (await getFreePort(7000, 7999));
 
       getProjectHelpers(
         emitter,
@@ -1281,6 +1295,23 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     await emitter.writeOutput();
+    const projectDir = normalizeSlashes(
+      path.relative(process.cwd(), resolvePath(options.emitterOutputDir, "..")),
+    );
+    const traceId = "http-server-csharp";
+
+    context.program.trace(traceId, `Your project was successfully created at "${projectDir}"`);
+    context.program.trace(
+      traceId,
+      `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
+    );
+    if (options["use-swaggerui"] === true && httpsPort) {
+      context.program.trace(
+        traceId,
+        `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
+      );
+    }
+
     if (options["skip-format"] === undefined || options["skip-format"] === false) {
       await execFile("dotnet", [
         "format",

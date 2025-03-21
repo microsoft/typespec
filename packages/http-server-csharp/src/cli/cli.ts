@@ -19,7 +19,7 @@ async function main() {
       "boolean-negation": false,
     })
     .command(
-      "scaffold [options] <project-directory> <path-to-spec>",
+      "scaffold <path-to-spec> [--output <project-directory>] [--use-swaggerui] [OPTIONS]",
       "Generate a complete project with mock implementation at the given project-directory for the given spec.  This requires dotnet 9: https://dotnet.microsoft.com/download.",
       (cmd) => {
         return cmd
@@ -47,10 +47,9 @@ async function main() {
             type: "boolean",
             default: true,
           })
-          .positional("project-directory", {
+          .option("output", {
             description: "Path to the directory where the project will be created.",
             type: "string",
-            demandOption: true,
           })
           .positional("path-to-spec", {
             description: "The path to the spec to generate a project for",
@@ -59,7 +58,8 @@ async function main() {
           });
       },
       async (args) => {
-        const projectDir = resolvePath(process.cwd(), args["project-directory"]);
+        const projectDir =
+          args["output"] !== undefined ? resolvePath(process.cwd(), args["output"]) : undefined;
         const pathToSpec = resolvePath(process.cwd(), args["path-to-spec"]);
         const useSwagger: boolean = args["use-swaggerui"];
         const overwrite: boolean = args["overwrite"];
@@ -68,23 +68,19 @@ async function main() {
         const httpsPort: number = args["https-port"] || (await getFreePort(7000, 7999));
         console.log(pc.bold("Compiling spec to create project with mock implementations"));
         console.log(pc.bold(`using http port ${httpPort} and https port ${httpsPort}`));
-        const generatedTargetDir = resolvePath(process.cwd(), projectDir, "generated");
-        const generatedOpenApiDir = resolvePath(process.cwd(), projectDir, "openapi");
-        const openApiPath = path
-          .relative(projectDir, resolvePath(generatedOpenApiDir, "openapi.yaml"))
-          .replaceAll("\\", "/");
         const compileArgs: string[] = [
           "tsp",
           "compile",
           pathToSpec,
           "--emit",
           "@typespec/http-server-csharp",
-          "--option",
-          `@typespec/http-server-csharp.emitter-output-dir=${generatedTargetDir}`,
+
           "--option",
           "@typespec/http-server-csharp.emit-mocks=all",
           "--option",
           `@typespec/http-server-csharp.project-name=${projectName}`,
+          "--trace",
+          "http-server-csharp",
         ];
         if (overwrite) {
           compileArgs.push("--option", "@typespec/http-server-csharp.overwrite=true");
@@ -100,24 +96,30 @@ async function main() {
           "--emit",
           "@typespec/openapi3",
           "--option",
-          `@typespec/openapi3.emitter-output-dir=${generatedOpenApiDir}`,
-          "--option",
           "@typespec/http-server-csharp.use-swaggerui=true",
-          "--option",
-          `@typespec/http-server-csharp.openapi-path=${openApiPath}`,
         ];
+        if (projectDir) {
+          const generatedTargetDir = resolvePath(process.cwd(), projectDir, "generated");
+          const generatedOpenApiDir = resolvePath(process.cwd(), projectDir, "openapi");
+          const openApiPath = path
+            .relative(projectDir, resolvePath(generatedOpenApiDir, "openapi.yaml"))
+            .replaceAll("\\", "/");
+          compileArgs.push(
+            "--option",
+            `@typespec/http-server-csharp.emitter-output-dir=${generatedTargetDir}`,
+          );
+          swaggerArgs.push(
+            "--option",
+            `@typespec/openapi3.emitter-output-dir=${generatedOpenApiDir}`,
+            "--option",
+            `@typespec/http-server-csharp.openapi-path=${openApiPath}`,
+          );
+        }
+
         if (useSwagger) compileArgs.push(...swaggerArgs);
         const result = await runScriptAsync("npx", compileArgs);
         if (result === 0) {
-          console.log(pc.bold(`Your project was successfully created at "${projectDir}"`));
-          console.log(
-            `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
-          );
-          if (useSwagger && overwrite) {
-            console.log(
-              `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
-            );
-          }
+          console.log(pc.bold(`Your project was successfully created`));
         } else {
           console.log(pc.bold("There were one or more errors"));
           if (useSwagger) {
