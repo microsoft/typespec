@@ -6,6 +6,7 @@ import { format } from "prettier";
 import { afterAll, describe, expect, it } from "vitest";
 import { LanguageConfiguration, SnippetExtractor } from "./snippet-extractor.js";
 import { emitWithDiagnostics } from "./test-host.js";
+import { normalizePath } from "@typespec/compiler";
 
 const rawArgs = process.env.TEST_ARGS ? process.env.TEST_ARGS.split(" ") : [];
 
@@ -61,10 +62,6 @@ async function assertGetEmittedFile(
     );
   }
   return sourceFile;
-}
-
-function normalizePath(path: string) {
-  return path.replace(/\\/g, "/");
 }
 
 /**
