@@ -114,9 +114,6 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "type/union": {
     "package-name": "typetest-union",
   },
-  "azure/core/lro/rpc": {
-    "package-name": "azurecore-lro-rpc",
-  },
   "client/structure/multi-client": {
     "package-name": "client-structure-multiclient",
   },
