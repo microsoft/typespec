@@ -79,9 +79,9 @@ namespace FormData {
   @scenarioDoc("""
     Expect request (
     - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-      appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+      appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
     - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-      If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+      If there are duplicated filename in same fieldName, server can't parse them all.
     ):
     ```
     POST /upload HTTP/1.1
@@ -114,9 +114,9 @@ namespace FormData {
   @scenarioDoc("""
     Expect request (
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-        appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+        appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-        If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+        If there are duplicated filename in same fieldName, server can't parse them all.
       ):
     ```
     POST /upload HTTP/1.1
@@ -175,9 +175,9 @@ namespace FormData {
   @scenarioDoc("""
     Expect request (
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-        appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+        appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-        If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+        If there are duplicated filename in same fieldName, server can't parse them all.
       ):
     ```
     POST /upload HTTP/1.1
@@ -212,9 +212,9 @@ namespace FormData {
   @scenarioDoc("""
     Expect request (
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-        appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+        appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-        If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+        If there are duplicated filename in same fieldName, server can't parse them all.
       ):
     ```
     POST /upload HTTP/1.1
@@ -252,9 +252,9 @@ namespace FormData {
   @scenarioDoc("""
     Please send request twice, first time with only profileImage, second time with both profileImage and picture(
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-        appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+        appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-        If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+        If there are duplicated filename in same fieldName, server can't parse them all.
       ):
     ```
     POST /upload HTTP/1.1
@@ -318,9 +318,9 @@ namespace FormData {
   @scenarioDoc("""
     Expect request (
     - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with 
-      appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+      appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
     - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-      If there are duplicated filename in same filedName, cadl-ranch can't parse them all.
+      If there are duplicated filename in same filedName, server can't parse them all.
     ):
     ```
     POST /multipart/form-data/anonymous-model HTTP/1.1
@@ -419,7 +419,7 @@ namespace FormData {
     }
     @scenario
     @scenarioDoc("""
-      For File part, filename will not be checked but it is necessary otherwise cadl-ranch can't parse it;
+      For File part, filename will not be checked but it is necessary otherwise server can't parse it;
       content-type will be checked with value "application/octet-stream". Expect request:
       ```
       POST /upload HTTP/1.1

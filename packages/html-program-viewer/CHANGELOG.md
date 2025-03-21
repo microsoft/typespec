@@ -1,5 +1,16 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.67.0
+
+### Features
+
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+
 ## 0.66.0
 
 ### Features

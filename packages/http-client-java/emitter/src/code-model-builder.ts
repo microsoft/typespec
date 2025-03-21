@@ -147,6 +147,7 @@ import {
 } from "./type-utils.js";
 import {
   DiagnosticError,
+  escapeJavaKeywords,
   getNamespace,
   isStableApiVersion,
   pascalCase,
@@ -214,6 +215,8 @@ export class CodeModelBuilder {
   private codeModel: CodeModel;
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
+
+  private readonly javaNamespaceCache = new Map<string, string>();
 
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
     this.processSchemaImpl(type, name),
@@ -876,7 +879,6 @@ export class CodeModelBuilder {
     const operationName = sdkMethod.name;
     const httpOperation = sdkMethod.operation;
     const operationId = groupName ? `${groupName}_${operationName}` : `${operationName}`;
-    const operationGroup = this.codeModel.getOperationGroup(groupName);
 
     const operationExamples = this.getOperationExample(sdkMethod);
 
@@ -1034,8 +1036,6 @@ export class CodeModelBuilder {
 
     // check for long-running operation
     this.processRouteForLongRunning(codeModelOperation, lroMetadata);
-
-    operationGroup.addOperation(codeModelOperation);
 
     return codeModelOperation;
   }
@@ -2972,7 +2972,7 @@ export class CodeModelBuilder {
     if (!baseJavaNamespace) {
       baseJavaNamespace = this.namespace;
     }
-    return baseJavaNamespace.toLowerCase();
+    return this.escapeJavaNamespace(baseJavaNamespace.toLowerCase());
   }
 
   private getJavaNamespace(
@@ -3027,7 +3027,27 @@ export class CodeModelBuilder {
     if (this.legacyJavaNamespace || !clientNamespace) {
       return this.baseJavaNamespace;
     } else {
-      return clientNamespace.toLowerCase();
+      return this.escapeJavaNamespace(clientNamespace.toLowerCase());
+    }
+  }
+
+  private escapeJavaNamespace(namespace: string): string {
+    if (this.javaNamespaceCache.has(namespace)) {
+      return this.javaNamespaceCache.get(namespace)!;
+    } else {
+      const processedJavaNamespace = namespace
+        .split(".")
+        .map((segment) => escapeJavaKeywords(segment, "namespace"))
+        .join(".");
+      if (processedJavaNamespace !== namespace) {
+        reportDiagnostic(this.program, {
+          code: "invalid-java-namespace",
+          format: { namespace: namespace, processedNamespace: processedJavaNamespace },
+          target: NoTarget,
+        });
+      }
+      this.javaNamespaceCache.set(namespace, processedJavaNamespace);
+      return processedJavaNamespace;
     }
   }
 

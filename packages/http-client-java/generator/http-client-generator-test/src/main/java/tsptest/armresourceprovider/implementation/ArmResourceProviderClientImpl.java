@@ -35,6 +35,8 @@ import tsptest.armresourceprovider.fluent.ArmResourceProviderClient;
 import tsptest.armresourceprovider.fluent.ChildExtensionResourceInterfacesClient;
 import tsptest.armresourceprovider.fluent.ChildResourcesInterfacesClient;
 import tsptest.armresourceprovider.fluent.CustomTemplateResourceInterfacesClient;
+import tsptest.armresourceprovider.fluent.ManagedMaintenanceWindowStatusOperationsClient;
+import tsptest.armresourceprovider.fluent.ModelInterfaceSameNamesClient;
 import tsptest.armresourceprovider.fluent.OperationsClient;
 import tsptest.armresourceprovider.fluent.TopLevelArmResourceInterfacesClient;
 
@@ -198,6 +200,34 @@ public final class ArmResourceProviderClientImpl implements ArmResourceProviderC
     }
 
     /**
+     * The ManagedMaintenanceWindowStatusOperationsClient object to access its operations.
+     */
+    private final ManagedMaintenanceWindowStatusOperationsClient managedMaintenanceWindowStatusOperations;
+
+    /**
+     * Gets the ManagedMaintenanceWindowStatusOperationsClient object to access its operations.
+     * 
+     * @return the ManagedMaintenanceWindowStatusOperationsClient object.
+     */
+    public ManagedMaintenanceWindowStatusOperationsClient getManagedMaintenanceWindowStatusOperations() {
+        return this.managedMaintenanceWindowStatusOperations;
+    }
+
+    /**
+     * The ModelInterfaceSameNamesClient object to access its operations.
+     */
+    private final ModelInterfaceSameNamesClient modelInterfaceSameNames;
+
+    /**
+     * Gets the ModelInterfaceSameNamesClient object to access its operations.
+     * 
+     * @return the ModelInterfaceSameNamesClient object.
+     */
+    public ModelInterfaceSameNamesClient getModelInterfaceSameNames() {
+        return this.modelInterfaceSameNames;
+    }
+
+    /**
      * Initializes an instance of ArmResourceProviderClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -220,6 +250,8 @@ public final class ArmResourceProviderClientImpl implements ArmResourceProviderC
         this.customTemplateResourceInterfaces = new CustomTemplateResourceInterfacesClientImpl(this);
         this.operations = new OperationsClientImpl(this);
         this.childExtensionResourceInterfaces = new ChildExtensionResourceInterfacesClientImpl(this);
+        this.managedMaintenanceWindowStatusOperations = new ManagedMaintenanceWindowStatusOperationsClientImpl(this);
+        this.modelInterfaceSameNames = new ModelInterfaceSameNamesClientImpl(this);
     }
 
     /**

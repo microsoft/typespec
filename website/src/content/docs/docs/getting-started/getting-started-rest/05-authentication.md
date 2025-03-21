@@ -14,12 +14,12 @@ Bearer authentication uses tokens for access control. The server generates a tok
 
 ### Example: Enforcing Authentication on Specific Operations
 
-Let's update our existing operations to enforce authentication using the `@useAuth` decorator. We'll add authentication to the operations that modify pet data: creating, updating, and deleting pets. We'll also add a new error model for unauthorized access.
+Let's update our existing operations by enforcing authentication using the `@useAuth` decorator.We'll add authentication to the operations that modify pet data, such as creating, updating, and deleting pets. We'll also add a new error model for unauthorized access.
 
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
