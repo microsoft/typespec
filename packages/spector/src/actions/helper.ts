@@ -6,6 +6,7 @@ export interface ServiceRequest {
   body?: MockBody | MockMultipartBody;
   headers?: Record<string, unknown>;
   query?: Record<string, unknown>;
+  pathParams?: Record<string, unknown>;
 }
 
 function renderMultipartRequest(body: MockMultipartBody) {
@@ -29,7 +30,15 @@ function renderMultipartRequest(body: MockMultipartBody) {
 }
 
 function resolveUrl(request: ServiceRequest) {
-  let endpoint = request.url.replaceAll("[:]", ":");
+  let endpoint = request.url;
+
+  if (request.pathParams) {
+    for (const [key, value] of Object.entries(request.pathParams)) {
+      endpoint = endpoint.replaceAll(`:${key}`, String(value));
+    }
+  }
+
+  endpoint = endpoint.replaceAll("[:]", ":");
 
   if (request.query) {
     const query = new URLSearchParams();
