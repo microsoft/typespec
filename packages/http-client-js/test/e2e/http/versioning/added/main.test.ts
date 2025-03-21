@@ -19,7 +19,7 @@ describe("Versioning.Added", () => {
 
   // Issue in spec op v1(@body body: ModelV1, @added(Versions.v2) @header headerV2: string): ModelV1;
   // Mock expects header-v2 as the name.
-  it.skip("should send and receive v1 operation with ModelV1 at latest version", async () => {
+  it("should send and receive v1 operation with ModelV1 at latest version", async () => {
     const body: ModelV1 = {
       prop: "foo",
       unionProp: 10,

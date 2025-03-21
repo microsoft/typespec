@@ -1,0 +1,6 @@
+/**
+!/src
+/src/**
+!/src/index.d.ts
+!/.gitignore
+!/tspconfig.yaml

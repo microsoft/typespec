@@ -61,7 +61,7 @@ describe("Encode.Datetime", () => {
       expect(response).toEqual(requestBody);
     });
 
-    it.skip("should handle unixTimestamp encode for datetime property", async () => {
+    it("should handle unixTimestamp encode for datetime property", async () => {
       // Correct property unixTimestamp date.
       const requestBody = { value: new Date("2023-06-12T06:41:04.000Z") };
       const response = await client.unixTimestamp(requestBody);
@@ -149,9 +149,10 @@ describe("Encode.Datetime", () => {
     it("should handle rfc7231 encode for datetime response header", async () => {
       let value;
 
-      await client.rfc3339({
+      await client.rfc7231({
         operationOptions: {
           onResponse: (r) => {
+            console.log("rfc7231", r.headers);
             value = new Date((r.headers as any)["value"]);
           },
         },
