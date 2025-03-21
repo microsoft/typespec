@@ -29,12 +29,6 @@ options:
 
 ## Emitter options
 
-### `namespace`
-
-**Type:** `string`
-
-Java package/namespace. If not provided, emitter would use package name converted from TypeSpec namespace.
-
 ### `dev-options`
 
 **Type:** `object`
