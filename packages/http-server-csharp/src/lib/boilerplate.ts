@@ -67,6 +67,11 @@ export function getSerializationSourceFiles(
       emitter: emitter,
       getContents: getJsonProvider,
     }),
+    new LibrarySourceFile({
+      filename: "HttpResponseException.cs",
+      emitter: emitter,
+      getContents: getHttpResponseException,
+    }),
   );
   return sourceFiles;
 }
@@ -693,5 +698,57 @@ namespace TypeSpec.Helpers
         }
     }
 }
+`;
+}
+
+function getHttpResponseException(): string {
+  return `${GeneratedFileHeaderWithNullable}
+
+  using Microsoft.AspNetCore.Mvc;
+  using Microsoft.AspNetCore.Mvc.Filters;
+
+  namespace TypeSpec.Helpers
+  {
+    /// <summary>
+    /// Represents an HTTP response exception with a status code and optional value.
+    /// </summary>
+    public class HttpResponseException : Exception
+    {
+      /// <summary>
+      /// Initializes a new instance of the <see cref="HttpResponseException"/> class.
+      /// </summary>
+      /// <param name="statusCode">The HTTP status code.</param>
+      /// <param name="value">The optional value to include in the response.</param>
+      public HttpResponseException(int statusCode, object? value = null) =>
+          (StatusCode, Value) = (statusCode, value);
+
+      public int StatusCode { get; }
+
+      public object? Value { get; }
+    }
+
+    /// <summary>
+    /// An action filter that handles <see cref="HttpResponseException"/> and converts it to an HTTP response.
+    /// </summary>
+    public class HttpResponseExceptionFilter : IActionFilter, IOrderedFilter
+    {
+      public int Order => int.MaxValue - 10;
+
+      public void OnActionExecuting(ActionExecutingContext context) { }
+
+      public void OnActionExecuted(ActionExecutedContext context)
+      {
+        if (context.Exception is HttpResponseException httpResponseException)
+        {
+            context.Result = new ObjectResult(httpResponseException.Value)
+            {
+                StatusCode = httpResponseException.StatusCode
+            };
+
+            context.ExceptionHandled = true;
+        }
+      }
+    }
+  }
 `;
 }

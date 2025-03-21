@@ -1,7 +1,7 @@
 import { Program, Type, navigateProgram } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
-import { beforeEach, it } from "vitest";
+import { beforeEach, describe, it } from "vitest";
 import { getPropertySource, getSourceModel } from "../src/lib/utils.js";
 import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
 
@@ -1683,4 +1683,97 @@ it("generates jsdoc comments", async () => {
       "public string Name { get; set; }",
     ],
   );
+});
+
+describe("emit correct code for `@error` models", () => {
+  it("model has additional properties apart from `@statusCode`", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model NotFoundError {
+          @statusCode statusCode: 404;
+          code: "not-found";
+        }
+      `,
+      "NotFoundError.cs",
+      [
+        "public partial class NotFoundError : HttpResponseException {",
+        "public NotFoundError() : base(404) { }",
+      ],
+    );
+  });
+  it("model only has `@statusCode` property", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model NotFoundError {
+          @statusCode _: 404;
+        }
+      `,
+      "NotFoundError.cs",
+      [
+        "public partial class NotFoundError : HttpResponseException {",
+        "public NotFoundError() : base(404) { }",
+      ],
+    );
+  });
+  it("emits default value when `@statusCode` property is not present and provides constructor to set status code", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model NotDefinedError {
+          code: string;
+        }
+      `,
+      "NotDefinedError.cs",
+      [
+        "public partial class NotDefinedError : HttpResponseException {",
+        "public NotDefinedError() : base(400) { }",
+        "public NotDefinedError(int statusCode) : base(statusCode) { }",
+      ],
+    );
+  });
+  it("emits `@min` value when `@statusCode` property is not defined but has `@min` and `@max` decorators", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model ErrorInRange {
+          @minValue(500)
+          @maxValue(599)
+          @statusCode
+          _: int32;
+        }
+      `,
+      "ErrorInRange.cs",
+      [
+        "public partial class ErrorInRange : HttpResponseException {",
+        "public ErrorInRange() : base(500) { }",
+      ],
+    );
+  });
+  it("emits error models when they inherit the `@error` decorator and resolves all the inheritance correctly", async () => {
+    await compileAndValidateMultiple(
+      runner,
+      `
+        @error
+        model ApiError {
+          code: string;
+          message: string;
+        }
+     
+        model Error extends ApiError {
+          @statusCode
+          statusCode: 500;
+        }
+      `,
+      [
+        ["ApiError.cs", ["public partial class ApiError : HttpResponseException {"]],
+        ["Error.cs", [" public partial class Error : ApiError {"]],
+      ],
+    );
+  });
 });

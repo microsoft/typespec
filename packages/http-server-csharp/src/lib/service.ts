@@ -94,6 +94,7 @@ import {
   getHttpDeclParameters,
   getModelAttributes,
   getModelDeclarationName,
+  getModelExcepCtor,
   getModelInstantiationName,
   getOperationVerbDecorator,
   isEmptyResponseModel,
@@ -257,22 +258,28 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         parts.forEach((p) => this.emitter.emitType(p));
         return "";
       }
-      const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
+      const isErrorType = isErrorModel(this.emitter.getProgram(), model);
+      const baseModelRef = model.baseModel
+        ? code`: ${this.emitter.emitTypeReference(model.baseModel)}`
+        : "";
+      const baseClass = baseModelRef || (isErrorType ? ": HttpResponseException" : "");
+
       const namespace = this.emitter.getContext().namespace;
+      const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const doc = getDoc(this.emitter.getProgram(), model);
       const attributes = getModelAttributes(this.emitter.getProgram(), model, className);
+      const exceptionConstructor = getModelExcepCtor(this.emitter.getProgram(), model, className);
+
       this.#metadateMap.set(model, new CSharpType({ name: className, namespace: namespace }));
       const decl = this.emitter.result.declaration(
         className,
         code`${this.#generatedFileHeader}
 
       ${this.#emitUsings()}
-      
       namespace ${namespace} {
 
-      ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public partial class ${className} ${
-        model.baseModel ? code`: ${this.emitter.emitTypeReference(model.baseModel)}` : ""
-      } {
+      ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public partial class ${className} ${baseClass} {
+      ${isErrorType ? `${exceptionConstructor}` : ""}
       ${this.emitter.emitModelProperties(model)}
     }
    } `,
@@ -886,6 +893,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       context.file.imports.set("TypeSpec.Helpers.JsonConverters", [
         "TypeSpec.Helpers.JsonConverters",
       ]);
+      context.file.imports.set("TypeSpec.Helpers", ["TypeSpec.Helpers"]);
       return context;
     }
 

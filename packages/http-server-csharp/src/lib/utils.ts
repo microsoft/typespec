@@ -13,6 +13,8 @@ import {
   Type,
   Union,
   getFriendlyName,
+  getMinValue,
+  isErrorModel,
   isNullType,
   isNumericType,
   isTemplateInstance,
@@ -584,6 +586,34 @@ export function getModelAttributes(
   return getAttributes(program, entity, cSharpName);
 }
 
+export function getModelExcepCtor(program: Program, model: Model, className: string): string {
+  function getDefinedStatusCode() {
+    const statusCodeProperty = new ModelInfo().filterAllProperties(program, model, (p) =>
+      isStatusCode(program, p),
+    );
+
+    if (!statusCodeProperty) return undefined;
+
+    if (statusCodeProperty.type.kind === "Number") {
+      return statusCodeProperty.type.value;
+    }
+
+    return getMinValue(program, statusCodeProperty) ?? undefined;
+  }
+
+  if (!isErrorModel(program, model)) {
+    return "";
+  }
+
+  const definedStatusCode = getDefinedStatusCode();
+  const defaultStatusCode = 400;
+
+  return definedStatusCode
+    ? `public ${className}() : base(${definedStatusCode}) { }`
+    : `public ${className}() : base(${defaultStatusCode}) { }
+       public ${className}(int statusCode) : base(statusCode) { }`;
+}
+
 export function getModelDeclarationName(
   program: Program,
   model: Model,
@@ -814,7 +844,12 @@ export function getCSharpStatusCode(entry: HttpStatusCodesEntry): string | undef
 export function isEmptyResponseModel(program: Program, model: Type): boolean {
   if (model.kind !== "Model") return false;
   if (model.properties.size === 0) return true;
-  return model.properties.size === 1 && isStatusCode(program, [...model.properties.values()][0]);
+
+  return (
+    model.properties.size === 1 &&
+    isStatusCode(program, [...model.properties.values()][0]) &&
+    !isErrorModel(program, model)
+  );
 }
 
 export function isContentTypeHeader(program: Program, parameter: ModelProperty): boolean {
