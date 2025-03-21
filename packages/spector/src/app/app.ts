@@ -1,5 +1,11 @@
-import { MockApiDefinition, MockRequest, RequestExt, ScenarioMockApi } from "@typespec/spec-api";
-import { MockBody, MockMultipartBody } from "@typespec/spec-api/dist/types.js";
+import {
+  MockApiDefinition,
+  MockBody,
+  MockMultipartBody,
+  MockRequest,
+  RequestExt,
+  ScenarioMockApi,
+} from "@typespec/spec-api";
 import { ScenariosMetadata } from "@typespec/spec-coverage-sdk";
 import { Response, Router } from "express";
 import { getScenarioMetadata } from "../coverage/common.js";

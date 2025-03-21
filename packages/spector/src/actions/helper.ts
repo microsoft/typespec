@@ -1,5 +1,4 @@
-import { HttpMethod } from "@typespec/spec-api";
-import { MockBody, MockMultipartBody } from "@typespec/spec-api/dist/types.js";
+import { HttpMethod, MockBody, MockMultipartBody } from "@typespec/spec-api";
 
 export interface ServiceRequest {
   method: HttpMethod;
