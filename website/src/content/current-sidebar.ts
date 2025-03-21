@@ -139,7 +139,7 @@ const sidebar: SidebarItem[] = [
         "preview",
       ),
       createLibraryReferenceStructure("libraries/events", "Events", false, [], "preview"),
-      createLibraryReferenceStructure("libraries/sse", "Server-Sent Events", false, [], "preview"),
+      createLibraryReferenceStructure("libraries/sse", "SSE", false, [], "preview"),
       createLibraryReferenceStructure("libraries/streams", "Streams", false, [], "preview"),
       createLibraryReferenceStructure(
         "libraries/versioning",
