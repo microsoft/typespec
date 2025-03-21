@@ -6,4 +6,4 @@ packages:
   - "@typespec/spec-api"
 ---
 
-Make handling of request body and response body consitent
+Make handling of request body and response body consistent
