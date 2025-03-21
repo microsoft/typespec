@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import static com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil.toImmutableList;
-
 import com.azure.core.http.HttpMethod;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
@@ -233,9 +231,9 @@ final class ProxyMethodParameterProcessor {
 
         private Result(List<ProxyMethodParameter> parameters, List<ProxyMethodParameter> allParameters,
             List<String> specialHeaderParameterNames) {
-            this.parameters = toImmutableList(parameters);
-            this.allParameters = toImmutableList(allParameters);
-            this.specialHeaderParameterNames = toImmutableList(specialHeaderParameterNames);
+            this.parameters = CollectionUtil.toImmutableList(parameters);
+            this.allParameters = CollectionUtil.toImmutableList(allParameters);
+            this.specialHeaderParameterNames = CollectionUtil.toImmutableList(specialHeaderParameterNames);
         }
     }
 }
