@@ -307,7 +307,6 @@ namespace FormData {
     @multipartBody body: MultiPartRequest,
   ): NoContentResponse;
 
-  #suppress "deprecated" "For testing to migrate for 1.0-rc"
   @scenario
   @scenarioDoc("""
     Expect request (
