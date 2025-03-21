@@ -141,6 +141,22 @@ function internalError(error: unknown) {
   console.log(error);
 }
 
+function processStream(input: string | number | null | undefined): string {
+  if (input === undefined || input === null) return "";
+  const data = `${input}`;
+  const lines = data.split("\n");
+  const result: string[] = [];
+  for (const line of lines) {
+    if (line.includes("http-server-csharp") && line.includes("trace")) {
+      const endPos = line.indexOf("http-server-csharp") + 25;
+      result.push(pc.bold(line.substring(endPos)));
+    } else {
+      result.push(pc.dim(line));
+    }
+  }
+  return result.join("\n");
+}
+
 function runScriptAsync(cmd: string, args: string[]): Promise<number> {
   let resolver: (value: number | PromiseLike<number>) => void;
   const promise = new Promise<number>((resolve, _) => {
@@ -148,9 +164,11 @@ function runScriptAsync(cmd: string, args: string[]): Promise<number> {
   });
   console.log(pc.green(`> ${cmd} ${args.join(" ")}`));
   const proc = spawn(cmd, args);
-  proc.stdout?.on("data", (data) => console.log(pc.dim(data)));
+  proc.stdout?.on("data", (data) => {
+    console.log(processStream(data));
+  });
   proc.stderr?.on("data", (data) => {
-    console.log(pc.dim(data));
+    console.log(processStream(data));
   });
   proc.on("close", (_, __) => {
     resolver(proc.exitCode || 0);
