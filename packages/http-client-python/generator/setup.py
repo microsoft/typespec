@@ -53,6 +53,6 @@ setup(
         "Jinja2==3.1.6",
         "PyYAML==6.0.1",
         "tomli==2.0.1",
-        "setuptools==77.0.3",
+        "setuptools==69.5.1",
     ],
 )
