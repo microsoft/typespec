@@ -10,7 +10,7 @@ import {
   typeSpecCompile,
 } from "./utils/test-util.js";
 
-describe("execCSharpGenerator tests", async () => {
+describe("execCSharpGenerator tests", () => {
   let spawnMock: any;
   let sdkContext: CSharpEmitterContext;
   beforeEach(async () => {
@@ -18,7 +18,7 @@ describe("execCSharpGenerator tests", async () => {
     vi.mock("child_process", () => ({
       spawn: vi.fn(),
     }));
-    let runner = await createEmitterTestHost();
+    const runner = await createEmitterTestHost();
     const program = await typeSpecCompile(``, runner);
     const context = createEmitterContext(program);
     sdkContext = await createCSharpSdkContext(context);

@@ -148,7 +148,6 @@ describe("$onEmit tests", () => {
       "new-project": false,
     });
     await $onEmit(context);
-    console.log("Test reached assertion point");
     expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
       generatorPath: expect.any(String),
       outputFolder: expect.any(String),
