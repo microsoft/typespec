@@ -1,6 +1,6 @@
 import "@typespec/rest";
 
-using TypeSpec.Http;
+using Http;
 
 @route("/alpha/{id}")
 op doAlpha(id: string): string;

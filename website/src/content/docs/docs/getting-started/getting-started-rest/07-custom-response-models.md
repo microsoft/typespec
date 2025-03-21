@@ -100,8 +100,8 @@ Now that we have defined our custom response models, let's use them in our API o
 import "@typespec/http";
 import "@typespec/versioning";
 
-using TypeSpec.Http;
-using TypeSpec.Versioning;
+using Http;
+using Versioning;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")

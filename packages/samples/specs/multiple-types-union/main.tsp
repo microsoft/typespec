@@ -3,7 +3,7 @@ import "@typespec/openapi";
 
 @service(#{ title: "Pet Store Service" })
 namespace PetStore;
-using TypeSpec.Http;
+using Http;
 
 model ApiVersionParam {
   @header apiVersion: string;
