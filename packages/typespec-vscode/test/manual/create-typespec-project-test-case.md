@@ -1,0 +1,207 @@
+# Create TypeSpec Project from A Template Test Scenario
+
+New TypeSpec projects can be created using a variety of templates for specific purposes. TypeSpec supports the following non-branded templates:
+
+- Generic REST API
+- TypeSpec library
+- TypeSpec emitter
+
+Selecting a template involves:
+
+- Installing required libraries
+- Initializing essential project files with a specified folder structure
+- Configuring output settings for a designated emission purpose
+
+## Test Environment
+
+- OS : Windows or Linux
+- Template : Generic REST API, TypeSpec library, TypeSpec emitter ...
+
+> Note: The extension should support all test cases in VS Code for Windows and Linux.
+
+## Prerequisites
+
+Install TypeSpec Compiler before starting to write TypeSpec.
+
+- [Node.js 20+](https://nodejs.org/download/)
+- Npm 7+
+- [Install TypeSpec Compiler CLI](https://typespec.io/docs/): `"npm install -g @typespec/compiler"`
+
+## Test Cases
+
+1. [Create TypeSpec project related to non-branded templates](#test-case-1-create-typespec-project-related-to-non-branded-templates)
+2. [Create TypeSpec project related to Azure Data/Mgmt Plane](#test-case-2-create-typespec-project-related-to-azure-datamgmt-plane)
+
+## Test Steps
+
+### Test Case 1: Create TypeSpec project related to non-branded templates
+
+#### Step 1: Install the typespec extension.
+
+_Option 1_. Install using .vsix file:
+Click `Extension` -> `…` -> `Install form VSIX...`. Choose the `.vsix` file you want to install locally.
+
+![alt text](./images/InstallTypespec_VSIX.png)
+
+_Option 2_. Install typespec with vscode extension marketplace:
+`Extension` -> input `TypeSpec` -> `Install`
+
+![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
+
+#### Step 2: Trigger Create TypeSpec Project
+
+_Option 1_. Clicking "Create TypeSpec Project" button/link in the "No Folder Opened" View of Explore.
+
+![alt text](./images/TriggerCreateTypeSpecProject_NoFolderOpened.png)
+
+_Option 2_. Typing `>TypeSpec: Create TypeSpec Project` in the _Command Palette_.
+
+![alt text](./images/TriggerCreateTypeSpecProject_CommandPalette.png)
+
+#### Step 3. Select a folder as the root folder for the new TypeSpec project.
+
+Click the `Create TypeSpec Project` command, and a folder selection interface will appear. Select a folder.
+
+- Select a non-empty folder. _(Single choice)_ `Y/N`
+
+  **Validate:** Will it appear: `The folder selected is not empty. Are you sure you want to initialize a new project here?`
+
+  ![alt text](./images/CreateTypeSpecProject_VerifyFolderIsEmpty.png)
+
+- Select a empty folder.
+  If the folder is empty, skip the query and go to the next step.
+
+#### Step 4. After successfully installing TypeSpec Compiler, will go through the questions of `tsp init`.
+
+1. Select a template _(Single choice)_.
+
+   **Validate:** There should be a prompt "Please select a template", and should see four options: `Generic REST API`, `TypeSpec library`, `TypeSpec emitter`.
+
+   ![alt text](./images/CreateTypeSpecProject_SelectTemplate.png)
+
+2. Input project name - _(Text input)_ by default, it is the project root folder name.
+
+   ![alt text](./images/CreateTypeSpecProject_InputProjectName.png)
+
+3. Select emitters. _(Multiple choice)_
+
+   > Note: `Select emitters` is required only when you select `Generic REST API`. This step will not appear if you select other templates.
+
+   **Validate:** Will it appear: `Select emitters?` and emitter type.
+
+   ![alt text](./images/CreateTypeSpecProject_GenericRESTAPI_SelectEmitters.png)
+
+4. Click `OK` and the project will be created, the folder structure will be set up, dependencies will be installed, and tspconfig.yaml will be updated.
+
+   **Validate:** Verify that the project was created correctly and the dependencies are installed.
+
+   - Install Dependencies
+
+     ![alt text](./images/CreateTypeSpecProject_InstallDependencies.png)
+
+   - Folder structure
+
+     - For `Generic REST API`, the folder structure.
+
+       ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_GenericRESTAPI.png)
+
+     - For `TypeSpec library`, the folder structure.
+
+       ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_TypeSpecLibrary.png)
+
+     - For `TypeSpec emitter`, the folder structure.
+
+       ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_TypeSpecEmitter.png)
+
+#### Step 5. Choose how to open the project.
+
+After the project is created successfully, the user can choose `Add to workspace` or `Open in New Window`.
+
+![alt text](./images/CreateTypeSpecProject_OpenProject.png)
+
+### Test Case 2: Create TypeSpec project related to Azure Data/Mgmt Plane
+
+Configure more initialization templates.
+
+#### Step 1 are the same as [Test Case 1](#step-1-install-the-typespec-extension).
+
+#### Step 2. Config settings "initTemplatesUrls".
+
+1. Open settings.
+
+   ![alt text](./images/CreateTypeSpecProject_testcase2_opensettings.png)
+
+2. Add configuration as below and save.
+
+   ```JSON
+   "typespec.initTemplatesUrls": [
+   {
+   "name": "Azure",
+   "url": "https://aka.ms/typespec/azure-init"
+   }
+   ]
+   ```
+
+#### Step 3: Trigger Create TypeSpec Project
+
+See [step 2 of test case 1](#step-2-trigger-create-typespec-project) for details.
+
+#### Step 4: Select a folder as the root folder for the new TypeSpec project.
+
+See [step 3 of test case 1](#step-3-select-a-folder-as-the-root-folder-for-the-new-typespec-project) for details.
+
+#### Step 5: Create a template.
+
+1. Select a template _(Single choice)_.
+
+   **Validate:** There should be a prompt "Select a template", and should see more options.
+
+   ![alt text](./images/CreateTypeSpecProject_SelectMoreTemplate.png)
+
+2. Input project name - _(Text input)_ by default, it is the project root folder name.
+
+   ![alt text](./images/CreateTypeSpecProject_InputProjectName.png)
+
+3. Input your `service namespace` or `ARM Resource Provider Name` - _(Text input)_ requires Pascal format.
+
+   - For Data Plane API - Input service namespace.
+
+     ![alt text](./images/CreateTypeSpecProject_InputServiceNamespace.png)
+
+   - For ARM API - Input ARM Resource Provider Name.
+
+     ![alt text](./images/CreateTypeSpecProject_InputARMResourceProviderName.png)
+
+4. Press "Enter" and the project will be created.
+
+   **Validate:** Verify that the project was created correctly.
+
+   ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder.png)
+
+   > Note: The name of the created file will change depending on the template used, it may be client.tsp, or employee.tsp.
+
+#### Step 6. Choose how to open the project.
+
+See [step 5](#step-5-choose-how-to-open-the-project) of test case 1 for details.
+
+## Issue Report
+
+When an error is detected, it's necessary to document the findings by using the following form:
+
+| No  |                Title                |                                                  Template                                                  |                                                             Issue Description                                                             |                                                                                     Repro Steps                                                                                     |                                                                                      Expected Results                                                                                       |                                                              Actual Results                                                               |  Comments  |
+| --- | :---------------------------------: | :--------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: | :--------: |
+| 1   | e.g. Create typespec project failed | Generic REST API / TypeSpec library / TypeSpec emitter | Create project feature is not supported by the current TypeSpec Compiler (ver <= 0.63.0). Please upgrade TypeSpec Compiler and try again. | 1. Typing `>TypeSpec: Create TypeSpec Project` in the _Command Palette_. <br> 2. Select an empty folder as the root folder for the new TypeSpec project. <br> 3. Select a template. | There should be a prompt "Select a template", and should see three options: `Generic REST API`, `TypeSpec Library (With TypeScript)`, `TypeSpec Emitter (With TypeScript)`. | Create project feature is not supported by the current TypeSpec Compiler (ver <= 0.63.0). Please upgrade TypeSpec Compiler and try again. | Issue link |
+
+## Test Results Summary
+
+The test results will be presented in the following form:
+
+| NO  |               Test Cases                |   Platform    |                          Template                           | Result | Issues | Comments |
+| --- | :-------------------------------------: | :-----------: | :---------------------------------------------------------: | :----: | :----: | :------: |
+| 1   | Create TypeSpec Project from A Template | Windows/Linux |                      Generic REST API                       |        |        |          |
+| 2   | Create TypeSpec Project from A Template | Windows/Linux |             TypeSpec library            |        |        |          |
+| 3   | Create TypeSpec Project from A Template | Windows/Linux |             TypeSpec emitter              |        |        |          |
+| 4   | Create TypeSpec Project from A Template | Windows/Linux |    (rest-api-spec repo) Azure Data Plane Service Project    |        |        |          |
+| 5   | Create TypeSpec Project from A Template | Windows/Linux | (rest-api-spec repo) Azure Resource Manager Service Project |        |        |          |
+| 6   | Create TypeSpec Project from A Template | Windows/Linux |       (stand alone) Azure Data Plane Service Project        |        |        |          |
+| 7   | Create TypeSpec Project from A Template | Windows/Linux |    (stand alone) Azure Resource Manager Service Project     |        |        |          |
