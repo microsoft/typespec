@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package type.enums.extensible;
+package type.enumnamespace.extensible;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

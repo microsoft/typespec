@@ -3,4 +3,4 @@
 /**
  * Package containing the implementations for Extensible.
  */
-package type.enums.extensible.implementation;
+package type.enumnamespace.extensible.implementation;

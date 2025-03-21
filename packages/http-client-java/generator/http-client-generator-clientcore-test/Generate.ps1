@@ -28,13 +28,6 @@ $generateScript = {
   # for each test run. We do this by appending a random number to the output directory.
   # Without this, we could have multiple runs trying to write to the same directory which introduces race conditions.
   $tspOptions = "--option ""@typespec/http-client-java.emitter-output-dir={project-root}/tsp-output/$(Get-Random)"""
-  if ($tspFile -match "type[\\/]enum[\\/]extensible[\\/]") {
-    # override namespace for reserved keyword "enum"
-    $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.extensible"""
-  } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
-    # override namespace for reserved keyword "enum"
-    $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.fixed"""
-  }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
   $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"

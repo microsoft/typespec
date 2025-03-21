@@ -3,4 +3,4 @@
 /**
  * Package containing the classes for Fixed.
  */
-package type.enums.fixed;
+package type.enumnamespace.fixed;
