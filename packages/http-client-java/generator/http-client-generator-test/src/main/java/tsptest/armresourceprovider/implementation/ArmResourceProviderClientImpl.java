@@ -295,6 +295,23 @@ public final class ArmResourceProviderClientImpl implements ArmResourceProviderC
     }
 
     /**
+     * Gets long running operation result.
+     * 
+     * @param activationResponse the response of activation operation.
+     * @param pollResultType type of poll result.
+     * @param finalResultType type of final result.
+     * @param context the context shared by all requests.
+     * @param <T> type of poll result.
+     * @param <U> type of final result.
+     * @return SyncPoller for poll result and final result.
+     */
+    public <T, U> SyncPoller<PollResult<T>, U> getLroResult(Response<BinaryData> activationResponse,
+        Type pollResultType, Type finalResultType, Context context) {
+        return SyncPollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType,
+            defaultPollInterval, () -> activationResponse, context);
+    }
+
+    /**
      * Gets the final result, or an error, based on last async poll response.
      * 
      * @param response the last async poll response.
@@ -338,23 +355,6 @@ public final class ArmResourceProviderClientImpl implements ArmResourceProviderC
         } else {
             return response.getFinalResult();
         }
-    }
-
-    /**
-     * Gets long running operation result.
-     * 
-     * @param activationResponse the response of activation operation.
-     * @param pollResultType type of poll result.
-     * @param finalResultType type of final result.
-     * @param context the context shared by all requests.
-     * @param <T> type of poll result.
-     * @param <U> type of final result.
-     * @return SyncPoller for poll result and final result.
-     */
-    public <T, U> SyncPoller<PollResult<T>, U> getLroResult(Response<BinaryData> activationResponse,
-        Type pollResultType, Type finalResultType, Context context) {
-        return SyncPollerFactory.create(serializerAdapter, httpPipeline, pollResultType, finalResultType,
-            defaultPollInterval, () -> activationResponse, context);
     }
 
     private static final class HttpResponseImpl extends HttpResponse {

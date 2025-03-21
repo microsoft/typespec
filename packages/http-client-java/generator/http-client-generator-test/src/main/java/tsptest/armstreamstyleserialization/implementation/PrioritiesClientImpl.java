@@ -159,7 +159,7 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
             throw LOGGER.atError()
                 .log(new IllegalArgumentException("Parameter priority is required and cannot be null."));
         }
-        final String accept = "application/json";
+        final String accept = "text/plain";
         return service.setPrioritySync(this.client.getEndpoint(), priority, accept, context);
     }
 
