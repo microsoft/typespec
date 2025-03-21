@@ -1,4 +1,4 @@
-import { MockApiDefinition, MockResponseBody, ValidationError } from "@typespec/spec-api";
+import { MockApiDefinition, MockBody, ValidationError } from "@typespec/spec-api";
 import deepEqual from "deep-equal";
 import micromatch from "micromatch";
 import { inspect } from "node:util";
@@ -64,7 +64,7 @@ class ServerTestsGenerator {
     }
   }
 
-  async #validateBody(response: Response, body: MockResponseBody) {
+  async #validateBody(response: Response, body: MockBody) {
     if (Buffer.isBuffer(body.rawContent)) {
       const responseData = Buffer.from(await response.arrayBuffer());
       if (!deepEqual(responseData, body.rawContent)) {

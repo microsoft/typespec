@@ -14,7 +14,6 @@ export {
   validateXmlBodyEquals,
 } from "./request-validations.js";
 export { json, multipart, xml } from "./response-utils.js";
-export { mockapi } from "./routes.js";
 export {
   WithKeysScenarioExpect,
   passOnCode,
@@ -26,17 +25,14 @@ export {
   CollectionFormat,
   Fail,
   HttpMethod,
-  KeyedMockApi,
   KeyedMockRequestHandler,
   KeyedMockResponse,
-  MockApi,
   MockApiDefinition,
-  MockApiForHandler,
+  MockBody,
+  MockMultipartBody,
   MockRequestHandler,
   MockResponse,
-  MockBody as MockResponseBody,
   PassByKeyScenario,
-  PassByServiceKeyScenario,
   PassOnCodeScenario,
   PassOnSuccessScenario,
   RequestExt,

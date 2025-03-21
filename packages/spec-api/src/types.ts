@@ -18,30 +18,21 @@ export type ScenarioPassCondition = "response-success" | "status-code";
 
 export interface PassOnSuccessScenario {
   passCondition: "response-success";
-  apis: MockApi[] | MockApiDefinition[];
+  apis: MockApiDefinition[];
 }
 
 export interface PassOnCodeScenario {
   passCondition: "status-code";
   code: number;
-  apis: MockApi[] | MockApiDefinition[];
+  apis: MockApiDefinition[];
 }
 export interface PassByKeyScenario<K extends string = string> {
-  passCondition: "by-key";
-  keys: K[];
-  apis: KeyedMockApi<K>[];
-}
-export interface PassByServiceKeyScenario<K extends string = string> {
   passCondition: "by-key";
   keys: K[];
   apis: KeyedMockApiDefinition<K>[];
 }
 
-export type ScenarioMockApi =
-  | PassOnSuccessScenario
-  | PassOnCodeScenario
-  | PassByKeyScenario
-  | PassByServiceKeyScenario;
+export type ScenarioMockApi = PassOnSuccessScenario | PassOnCodeScenario | PassByKeyScenario;
 export type MockRequestHandler = SimpleMockRequestHandler | KeyedMockRequestHandler;
 export type SimpleMockRequestHandler = (req: MockRequest) => MockResponse | Promise<MockResponse>;
 export type KeyedMockRequestHandler<T extends string = string> = (
@@ -52,16 +43,6 @@ export type KeyedServiceRequestHandler<T extends string = string> = (
 ) => KeyedMockResponse<T> | Promise<KeyedMockResponse<T>>;
 
 export type HttpMethod = "get" | "post" | "put" | "patch" | "delete" | "head" | "options";
-
-export type MockApiForHandler<Handler extends MockRequestHandler> =
-  Handler extends KeyedMockRequestHandler<infer K> ? KeyedMockApi<K> : MockApi;
-
-export interface MockApi {
-  method: HttpMethod;
-  uri: string;
-  handler: MockRequestHandler;
-  kind: "MockApi";
-}
 
 export interface MockApiDefinition {
   uri: string;
@@ -95,9 +76,6 @@ export interface ServiceRequest {
 }
 
 export const Fail = Symbol.for("Fail");
-export interface KeyedMockApi<K extends string> extends MockApi {
-  handler: KeyedMockRequestHandler<K>;
-}
 export interface KeyedMockApiDefinition<K extends string> extends MockApiDefinition {
   handler: KeyedMockRequestHandler<K>;
 }
