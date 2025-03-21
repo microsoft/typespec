@@ -513,11 +513,11 @@ public class ClientMethod {
             }
 
             // sync-stack, lro (+ pageable)
+            boolean isLroPageable = (type == ClientMethodType.PagingSyncSinglePage
+                && proxyMethod != null
+                && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()));
             if (settings.isSyncStackEnabled() && settings.isFluent()) {
-                if ((type == ClientMethodType.PagingSyncSinglePage
-                    && proxyMethod != null
-                    && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()))
-                    || type == ClientMethodType.LongRunningBeginSync) {
+                if (type == ClientMethodType.LongRunningBeginSync || isLroPageable) {
                     ClassType.SYNC_POLLER_FACTORY.addImportsTo(imports, false);
                 }
             }

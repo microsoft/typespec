@@ -174,6 +174,13 @@ public abstract class ResourceOperation {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Find an appropriate method for fluent method implementation.
+     *
+     * @param hasContextParameter whether the fluent method has Context as its parameter
+     * @param parameters fluent method parameters
+     * @return {@link Optional} of the method
+     */
     protected Optional<FluentCollectionMethod> findMethod(boolean hasContextParameter,
         List<ClientMethodParameter> parameters) {
         Optional<FluentCollectionMethod> methodOpt = this.getMethodReferencesOfFullParameters()
@@ -181,6 +188,7 @@ public abstract class ResourceOperation {
             .filter(m -> hasContextParameter
                 ? m.getInnerClientMethod().getParameters().stream().anyMatch(FluentUtils::isContextParameter)
                 : m.getInnerClientMethod().getParameters().stream().noneMatch(FluentUtils::isContextParameter))
+            // fluent method implementation calls client interface API, thus we need the method to be public
             .filter(method -> JavaVisibility.Public == method.getInnerClientMethod().getMethodVisibility())
             .findFirst();
         if (methodOpt.isPresent() && hasContextParameter) {
