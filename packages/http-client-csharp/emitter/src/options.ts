@@ -1,4 +1,7 @@
-import { SdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
+import {
+  CreateSdkContextOptions,
+  SdkEmitterOptions,
+} from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { _defaultGeneratorName, tspOutputFileName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger-level.js";
@@ -22,6 +25,7 @@ export interface CSharpEmitterOptions extends SdkEmitterOptions {
   "generator-name"?: string;
   "emitter-extension-path"?: string;
   "update-code-model"?: (model: CodeModel) => CodeModel;
+  "sdk-context-options"?: CreateSdkContextOptions;
 }
 
 /**
@@ -74,6 +78,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
         description: { type: "string", nullable: true },
       },
     },
+    "sdk-context-options": { type: "object", nullable: true },
   },
   required: [],
 };
@@ -97,6 +102,7 @@ export const defaultOptions = {
   "generator-name": _defaultGeneratorName,
   "emitter-extension-path": undefined,
   "update-code-model": (model: CodeModel) => model,
+  "sdk-context-options": undefined,
 };
 
 /**

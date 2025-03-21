@@ -17,8 +17,6 @@
     "parameters.collectionformat.QueryAsyncClient.pipesWithResponse": "Parameters.CollectionFormat.Query.pipes",
     "parameters.collectionformat.QueryAsyncClient.ssv": "Parameters.CollectionFormat.Query.ssv",
     "parameters.collectionformat.QueryAsyncClient.ssvWithResponse": "Parameters.CollectionFormat.Query.ssv",
-    "parameters.collectionformat.QueryAsyncClient.tsv": "Parameters.CollectionFormat.Query.tsv",
-    "parameters.collectionformat.QueryAsyncClient.tsvWithResponse": "Parameters.CollectionFormat.Query.tsv",
     "parameters.collectionformat.QueryClient": "Parameters.CollectionFormat.Query",
     "parameters.collectionformat.QueryClient.csv": "Parameters.CollectionFormat.Query.csv",
     "parameters.collectionformat.QueryClient.csvWithResponse": "Parameters.CollectionFormat.Query.csv",
@@ -27,8 +25,6 @@
     "parameters.collectionformat.QueryClient.pipes": "Parameters.CollectionFormat.Query.pipes",
     "parameters.collectionformat.QueryClient.pipesWithResponse": "Parameters.CollectionFormat.Query.pipes",
     "parameters.collectionformat.QueryClient.ssv": "Parameters.CollectionFormat.Query.ssv",
-    "parameters.collectionformat.QueryClient.ssvWithResponse": "Parameters.CollectionFormat.Query.ssv",
-    "parameters.collectionformat.QueryClient.tsv": "Parameters.CollectionFormat.Query.tsv",
-    "parameters.collectionformat.QueryClient.tsvWithResponse": "Parameters.CollectionFormat.Query.tsv"
+    "parameters.collectionformat.QueryClient.ssvWithResponse": "Parameters.CollectionFormat.Query.ssv"
   }
 }

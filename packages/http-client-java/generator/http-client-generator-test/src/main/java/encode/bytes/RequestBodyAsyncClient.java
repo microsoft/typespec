@@ -44,7 +44,7 @@ public final class RequestBodyAsyncClient {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -172,10 +172,10 @@ public final class RequestBodyAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> defaultMethod(byte[] value) {
+    public Mono<Void> defaultMethod(BinaryData value) {
         // Generated convenience method for defaultMethodWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return defaultMethodWithResponse(BinaryData.fromObject(value), requestOptions).flatMap(FluxUtil::toMono);
+        return defaultMethodWithResponse(value, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**

@@ -131,3 +131,61 @@ export async function spawnAsync(
     });
   });
 }
+
+export function escapeJavaKeywords(name: string, suffix: string): string {
+  return JAVA_KEYWORDS.has(name) ? name + suffix : name;
+}
+
+// https://docs.oracle.com/javase/tutorial/java/nutsandbolts/_keywords.html
+const JAVA_KEYWORDS: Set<string> = new Set<string>([
+  "abstract",
+  "assert",
+  "boolean",
+  "break",
+  "byte",
+  "case",
+  "catch",
+  "char",
+  "class",
+  "const",
+  "continue",
+  "default",
+  "do",
+  "double",
+  "else",
+  "enum",
+  "extends",
+  "final",
+  "finally",
+  "float",
+  "for",
+  "goto",
+  "if",
+  "implements",
+  "import",
+  "instanceof",
+  "int",
+  "interface",
+  "long",
+  "native",
+  "new",
+  "package",
+  "private",
+  "protected",
+  "public",
+  "return",
+  "short",
+  "static",
+  "strictfp",
+  "super",
+  "switch",
+  "synchronized",
+  "this",
+  "throw",
+  "throws",
+  "transient",
+  "try",
+  "void",
+  "volatile",
+  "while",
+]);

@@ -49,8 +49,8 @@ import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi3";
 
-using TypeSpec.Http;
-using TypeSpec.Rest;
+using Http;
+using Rest;
 
 /** This is a pet store service. */
 @service(#{ title: "Pet Store Service" })
