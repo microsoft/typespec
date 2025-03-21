@@ -39,7 +39,7 @@ function createGetPutServerTests(uri: string, data: any) {
       uri: uri,
       method: "put",
       request: {
-        body: data,
+        body: json(data),
       },
       response: {
         status: 204,
