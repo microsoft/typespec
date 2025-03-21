@@ -1,4 +1,4 @@
-# Generate from TypeSpec Test Scenario
+# Emit from TypeSpec Test Scenario
 
 Different emitter types can be used to generate different codes to meet specific purposes. TypeSpec supports the following emitter types:
 
@@ -45,29 +45,29 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 ![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
 
-### Step 2: Trigger generate from TypeSpec
+### Step 2: Trigger Emit from TypeSpec
 
 Generation from a TypeSpec can be triggered in two ways:
 
-_Option 1_. Clicking `Generate from TypeSpec` in the _Context Menu_ for a .tsp file in the extended TypeSpec project, will skip to [step 4](#step-4-select-an-emitter-for-code-generationoptional).
+_Option 1_. Clicking `Emit from TypeSpec` in the _Context Menu_ for a .tsp file in the extended TypeSpec project, will skip to [step 4](#step-4-select-an-emitter-for-code-generationoptional).
 
-![alt text](./images/TriggerGeneratefromTypeSpec_ContextMenu.png)
+![alt text](./images/TriggerEmitfromTypeSpec_ContextMenu.png)
 
-_Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ with at least a TypeSpec project folder extended in the _Side Bar_.
+_Option 2_. Typing `>TypeSpec: Emit from TypeSpec` in the _Command Palette_ with at least a TypeSpec project folder extended in the _Side Bar_.
 
-![alt text](./images/TriggerGeneratefromTypeSpec_CommandPalette.png)
+![alt text](./images/TriggerEmitfromTypeSpec_CommandPalette.png)
 
-### Step 3: Click the command `TypeSpec: Generate from TypeSpec`, and choose a project.
+### Step 3: Click the command `TypeSpec: Emit from TypeSpec`, and choose a project.
 
 **Validate:** There should be a prompt "Select a project".
 
-![alt text](./images/GeneratefromTypeSpec_SelectTypespecProject.png)
+![alt text](./images/EmitfromTypeSpec_SelectTypespecProject.png)
 
 ### Step 4: Select an Emitter for code generation.(optional)
 
-**Validate:** There should be a prompt "Select an emitter for code generation".
+**Validate:** There should be a prompt "Select emitters for code emitting".
 
-![alt text](./images/GeneratefromTypeSpec_yamlFileConfigurationEmitter.png)
+![alt text](./images/EmitfromTypeSpec_yamlFileConfigurationEmitter.png)
 
 - If there is no emitter that you need, click `Choose another emitter`.
 
@@ -77,9 +77,9 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
   1. Click `Select multiple emitters`.
 
-     **Validate:** There should be a prompt "Select emitters for code generation", and will display all emitters configured in the `tspconfig.yaml` file.
+     **Validate:** There should be a prompt "Select emitters", and will display all emitters configured in the `tspconfig.yaml` file.
 
-     ![alt text](./images/GeneratefromTypeSpec_yamlFileConfigurationEmittermultiple.png)
+     ![alt text](./images/EmitfromTypeSpec_yamlFileConfigurationEmittermultiple.png)
 
   2. Click `OK`, and skip to step 6 of the corresponding emitter type step `Check if packages need to be installed or updated`.
 
@@ -95,9 +95,9 @@ emit:
 
 ### Step 5: Select an Emitter Type.
 
-**Validate:** There should be a prompt "Select an Emitter Type", and should see three emitter types: `Client Code`, `<PREVIEW> Server Stub`, `OpenAPI Document`.
+**Validate:** There should be a prompt "Select an emitter type", and should see three emitter types: `Client Code`, `<PREVIEW> Server Stub`, `OpenAPI Document`.
 
-![alt text](./images/GeneratefromTypeSpec_SelectEmitter_client.png)
+![alt text](./images/EmitfromTypeSpec_SelectEmitter_client.png)
 
 ### Step 6: Click an Emitter Type, Select a Language and Generate Code.
 
@@ -107,9 +107,9 @@ emit:
 
   1. Click `Client Code`, and select a Language.
 
-     **Validate:** There should be a prompt "Select a Language for client code generation", and should see four languages: `.NET`, `Java`, `JavaScript`, `Python`.
+     **Validate:** There should be a prompt "Select a Language for client code emitting", and should see four languages: `.NET`, `Java`, `JavaScript`, `Python`.
 
-     ![alt text](./images/GenerateClientCode_SelectLanguage_clientcode.png)
+     ![alt text](./images/EmitClientCode_SelectLanguage_clientcode.png)
 
   2. Check if packages need to be installed or updated.
 
@@ -117,7 +117,7 @@ emit:
 
        **Validate:** There should be a prompt `Here are libraries to install or update`, and confirm to install the required libraries.
 
-       ![alt text](./images/GenerateClientCode_ConfirmTypeSpecEmitters.png)
+       ![alt text](./images/EmitClientCode_ConfirmTypeSpecEmitters.png)
 
      - If already installed, it will be skipped.
 
@@ -127,19 +127,19 @@ emit:
 
      - For `.NET`:
 
-       ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_DotNet.png)
+       ![alt text](./images/EmitClientCode_VerifyGenerateCodeSucceeded_DotNet.png)
 
      - For `Java`:
 
-       ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_Java.png)
+       ![alt text](./images/EmitClientCode_VerifyGenerateCodeSucceeded_Java.png)
 
      - For `JavaScript`:
 
-       ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_JS.png)
+       ![alt text](./images/EmitClientCode_VerifyGenerateCodeSucceeded_JS.png)
 
      - For `Python`:
 
-       ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_Python.png)
+       ![alt text](./images/EmitClientCode_VerifyGenerateCodeSucceeded_Python.png)
 
 - For Emitter Type `<PREVIEW> Server Stub`:
 
@@ -149,17 +149,17 @@ emit:
 
   1. Click `<PREVIEW> Server Stub`, and select a Language.
 
-     **Validate:** There should be a prompt "Select a Language for server code generation", and should see two languages: `.NET`, `JavaScript`.
+     **Validate:** There should be a prompt "Select a Language for server code emitting", and should see two languages: `.NET`, `JavaScript`.
 
      > Note: JavaScript server code emitter is experimental.
 
-     ![alt text](./images/GenerateServerStub_SelectLanguage.png)
+     ![alt text](./images/EmitServerStub_SelectLanguage.png)
 
   2. Check if packages need to be installed or updated.
 
      **Validate:** There should be a prompt `Here are libraries to install or update`, and confirm to install the required libraries.
 
-     ![alt text](./images/GenerateClientCode_ConfirmTypeSpecEmitters_serverstub.png)
+     ![alt text](./images/EmitClientCode_ConfirmTypeSpecEmitters_serverstub.png)
 
   3. Initiate the generation of Server Stub on the backend.
 
@@ -167,7 +167,7 @@ emit:
 
      - For `.NET`:
 
-       ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodePrompt_DotNet.png)
+       ![alt text](./images/EmitfromTypeSpec_EmitServerCodePrompt_DotNet.png)
 
 - For Emitter Type `OpenAPI Document`:
 
@@ -177,9 +177,9 @@ emit:
 
   1. Click `OpenAPI Document`, and select a Language.
 
-     **Validate:** There should be a prompt "Select a Language for openapi code generation", and should see languages: `OpenAPI3`.
+     **Validate:** There should be a prompt "Select a language for openapi code emitting", and should see languages: `OpenAPI3`.
 
-     ![alt text](./images/GenerateOpenAPI_SelectLanguage.png)
+     ![alt text](./images/EmitOpenAPI_SelectLanguage.png)
 
   2. Check if packages need to be installed or updated.
 
@@ -195,7 +195,7 @@ emit:
 
      **Validate:** A detailed trace log should be printed in the OUTPUT window. The result appears as a Notification in the bottom right corner, and generate the schema folder.
 
-     ![alt text](./images/GeneratefromTypeSpec_GenerateOpenAPIResult_prompt.png)
+     ![alt text](./images/EmitfromTypeSpec_EmitOpenAPIResult_prompt.png)
 
 ## Issue Report
 
@@ -203,7 +203,7 @@ When an error is detected, it's necessary to document the findings by using the 
 
 | No  |              Title               | Emitter Type |              Language              |                       Issue Description                        |                                                                          Repro Steps                                                                          |                 Expected Results                  |                         Actual Results                         |  Comments  |
 | --- | :------------------------------: | :----------: | :--------------------------------: | :------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------: | :------------------------------------------------------------: | :--------: |
-| 1   | e.g. Generate Client Code failed | Client Code  | DotNet/ Java / JavaScript / Python | Exception occurred when generating client code for JavaScript. | 1. Typing `> TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. Choose a project. <br> 3. Select an Emitter Type. <br> 4. Select a Language. | Generate client code for JavaScript ...Succeeded. | Exception occurred when generating client code for JavaScript. | Issue link |
+| 1   | e.g. Emit Client Code failed | Client Code  | DotNet/ Java / JavaScript / Python | Exception occurred when emitting client code for JavaScript. | 1. Typing `> TypeSpec: Emit from TypeSpec` in the _Command Palette_. <br> 2. Choose a project. <br> 3. Select an Emitter Type. <br> 4. Select a Language. | Emitting client code for JavaScript...Succeeded. | Exception occurred when emitting client code for JavaScript. | Issue link |
 
 ## Test Results Summary
 
@@ -211,10 +211,10 @@ The test results will be presented in the following form:
 
 | NO  |             Test Cases             |   Platform    |          Language           | Result | Issues | Comments |
 | --- | :--------------------------------: | :-----------: | :-------------------------: | :----: | :----: | :------: |
-| 1   | Generate Client Code from TypeSpec | Windows/Linux |           Python            |        |        |          |
-| 2   | Generate Client Code from TypeSpec | Windows/Linux |            Java             |        |        |          |
-| 3   | Generate Client Code from TypeSpec | Windows/Linux |            .NET             |        |        |          |
-| 4   | Generate Client Code from TypeSpec | Windows/Linux |         JavaScript          |        |        |          |
-| 5   | Generate Server Stub from TypeSpec | Windows/Linux |           DotNet            |        |        |          |
-| 6   | Generate Server Stub from TypeSpec | Windows/Linux | JavaScript _(Experimental)_ |        |        |          |
-| 7   | Generate OpenAPI 3.x from TypeSpec | Windows/Linux |          OpenAPI3           |        |        |          |
+| 1   | Emit Client Code from TypeSpec | Windows/Linux |           Python            |        |        |          |
+| 2   | Emit Client Code from TypeSpec | Windows/Linux |            Java             |        |        |          |
+| 3   | Emit Client Code from TypeSpec | Windows/Linux |            .NET             |        |        |          |
+| 4   | Emit Client Code from TypeSpec | Windows/Linux |         JavaScript          |        |        |          |
+| 5   | Emit Server Stub from TypeSpec | Windows/Linux |           DotNet            |        |        |          |
+| 6   | Emit Server Stub from TypeSpec | Windows/Linux | JavaScript _(Experimental)_ |        |        |          |
+| 7   | Emit OpenAPI 3.x from TypeSpec | Windows/Linux |          OpenAPI3           |        |        |          |

@@ -48,7 +48,7 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 ![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
 
-#### Step 2: Trigger create TypeSpec Project
+#### Step 2: Trigger Create TypeSpec Project
 
 _Option 1_. Clicking "Create TypeSpec Project" button/link in the "No Folder Opened" View of Explore.
 
@@ -142,7 +142,7 @@ Configure more initialization templates.
    ]
    ```
 
-#### Step 3: Trigger create TypeSpec Project
+#### Step 3: Trigger Create TypeSpec Project
 
 See [step 2 of test case 1](#step-2-trigger-create-typespec-project) for details.
 
@@ -190,7 +190,7 @@ When an error is detected, it's necessary to document the findings by using the 
 
 | No  |                Title                |                                                  Template                                                  |                                                             Issue Description                                                             |                                                                                     Repro Steps                                                                                     |                                                                                      Expected Results                                                                                       |                                                              Actual Results                                                               |  Comments  |
 | --- | :---------------------------------: | :--------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: | :--------: |
-| 1   | e.g. Create typespec project failed | Empty project / Generic REST API / TypeSpec Library (With TypeScript) / TypeSpec Emitter (With TypeScript) | Create project feature is not supported by the current TypeSpec Compiler (ver <= 0.63.0). Please upgrade TypeSpec Compiler and try again. | 1. Typing `>TypeSpec: Create TypeSpec Project` in the _Command Palette_. <br> 2. Select an empty folder as the root folder for the new TypeSpec project. <br> 3. Select a template. | There should be a prompt "Select a template", and should see four options: `Empty project`, `Generic REST API`, `TypeSpec Library (With TypeScript)`, `TypeSpec Emitter (With TypeScript)`. | Create project feature is not supported by the current TypeSpec Compiler (ver <= 0.63.0). Please upgrade TypeSpec Compiler and try again. | Issue link |
+| 1   | e.g. Create typespec project failed | Generic REST API / TypeSpec library / TypeSpec emitter | Create project feature is not supported by the current TypeSpec Compiler (ver <= 0.63.0). Please upgrade TypeSpec Compiler and try again. | 1. Typing `>TypeSpec: Create TypeSpec Project` in the _Command Palette_. <br> 2. Select an empty folder as the root folder for the new TypeSpec project. <br> 3. Select a template. | There should be a prompt "Select a template", and should see three options: `Generic REST API`, `TypeSpec Library (With TypeScript)`, `TypeSpec Emitter (With TypeScript)`. | Create project feature is not supported by the current TypeSpec Compiler (ver <= 0.63.0). Please upgrade TypeSpec Compiler and try again. | Issue link |
 
 ## Test Results Summary
 
@@ -198,11 +198,10 @@ The test results will be presented in the following form:
 
 | NO  |               Test Cases                |   Platform    |                          Template                           | Result | Issues | Comments |
 | --- | :-------------------------------------: | :-----------: | :---------------------------------------------------------: | :----: | :----: | :------: |
-| 1   | Create TypeSpec Project from A Template | Windows/Linux |                        Empty project                        |        |        |          |
-| 2   | Create TypeSpec Project from A Template | Windows/Linux |                      Generic REST API                       |        |        |          |
-| 3   | Create TypeSpec Project from A Template | Windows/Linux |             TypeSpec Library (With TypeScript)              |        |        |          |
-| 4   | Create TypeSpec Project from A Template | Windows/Linux |             TypeSpec Emitter (With TypeScript)              |        |        |          |
-| 5   | Create TypeSpec Project from A Template | Windows/Linux |    (rest-api-spec repo) Azure Data Plane Service Project    |        |        |          |
-| 6   | Create TypeSpec Project from A Template | Windows/Linux | (rest-api-spec repo) Azure Resource Manager Service Project |        |        |          |
-| 7   | Create TypeSpec Project from A Template | Windows/Linux |       (stand alone) Azure Data Plane Service Project        |        |        |          |
-| 8   | Create TypeSpec Project from A Template | Windows/Linux |    (stand alone) Azure Resource Manager Service Project     |        |        |          |
+| 1   | Create TypeSpec Project from A Template | Windows/Linux |                      Generic REST API                       |        |        |          |
+| 2   | Create TypeSpec Project from A Template | Windows/Linux |             TypeSpec library            |        |        |          |
+| 3   | Create TypeSpec Project from A Template | Windows/Linux |             TypeSpec emitter              |        |        |          |
+| 4   | Create TypeSpec Project from A Template | Windows/Linux |    (rest-api-spec repo) Azure Data Plane Service Project    |        |        |          |
+| 5   | Create TypeSpec Project from A Template | Windows/Linux | (rest-api-spec repo) Azure Resource Manager Service Project |        |        |          |
+| 6   | Create TypeSpec Project from A Template | Windows/Linux |       (stand alone) Azure Data Plane Service Project        |        |        |          |
+| 7   | Create TypeSpec Project from A Template | Windows/Linux |    (stand alone) Azure Resource Manager Service Project     |        |        |          |
