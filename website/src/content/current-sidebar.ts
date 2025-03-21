@@ -1,12 +1,14 @@
 import type { Badge, SidebarItem } from "@typespec/astro-utils/sidebar";
 
-type LibraryStability = "stable" | "preview" | "beta";
+type LibraryStability = "stable" | "preview" | "beta" | "alpha";
 
 function getBadgeForLibraryStability(stability: LibraryStability | undefined): Badge | undefined {
   switch (stability) {
     case "preview":
       return { text: "preview", variant: "tip" };
     case "beta":
+      return { text: "beta", variant: "caution" };
+    case "alpha":
       return { text: "beta", variant: "caution" };
     case "stable":
     default:
