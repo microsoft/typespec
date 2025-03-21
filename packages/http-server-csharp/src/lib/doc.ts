@@ -76,7 +76,7 @@ The code layout inside the 'generated' folder is as follows:
 
 ## Scaffolding
 
-If you use the scaffolding cli (hscs) or use the \`--emit-mocks "all"\` option on compilation, a
+If you use the scaffolding cli (hscs) or use the \`--emit-mocks "mocks-and-project-files"\` option on compilation, a
 fully-functional .Net 9 project will be created with mock implementations of your business
 logic, ready to compile and run.
 
@@ -187,9 +187,9 @@ Chooses which service artifacts to emit. choices include 'models' or 'all' artif
 
 ### \`emit-mocks\`
 
-**Type:** \`"all" | "no-project" | "none"\`
+**Type:** \`"mocks-and-project-files" | "mocks-only" | "none"\`
 
-Emits mock implementations of business logic, enabling the service to respond to requests before a real implementation is provided
+Emits mock implementations of business logic, setup code, and project files enabling the service to respond to requests before a real implementation is provided
 
 ### \`use-swaggerui\`
 
@@ -207,7 +207,7 @@ Use openapi at the given path for generating SwaggerUI endpoints. By default, th
 
 **Type:** \`boolean\`
 
-When generating mock files, overwrite any existing files with the same name.
+When generating mock files, setup code, and project files overwrite any existing files with the same name.
 
 ### \`project-name\`
 

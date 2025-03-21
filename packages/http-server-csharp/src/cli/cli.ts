@@ -43,7 +43,7 @@ async function main() {
             type: "number",
           })
           .option("overwrite", {
-            description: "Overwrite existing mock implementations",
+            description: "Overwrite existing mock implementations and project files",
             type: "boolean",
             default: true,
           })
@@ -52,7 +52,7 @@ async function main() {
             type: "string",
           })
           .positional("path-to-spec", {
-            description: "The path to the spec to generate a project for",
+            description: "The path to the TypeSpec spec or TypeSpec project directory",
             type: "string",
             demandOption: true,
           });
@@ -66,7 +66,9 @@ async function main() {
         const projectName: string = args["project-name"];
         const httpPort: number = args["http-port"] || (await getFreePort(5000, 5999));
         const httpsPort: number = args["https-port"] || (await getFreePort(7000, 7999));
-        console.log(pc.bold("Compiling spec to create project with mock implementations"));
+        console.log(
+          pc.bold("Compiling spec to create ASP.Net core project with mock implementations"),
+        );
         console.log(pc.bold(`using http port ${httpPort} and https port ${httpsPort}`));
         const compileArgs: string[] = [
           "tsp",
@@ -74,9 +76,8 @@ async function main() {
           pathToSpec,
           "--emit",
           "@typespec/http-server-csharp",
-
           "--option",
-          "@typespec/http-server-csharp.emit-mocks=all",
+          "@typespec/http-server-csharp.emit-mocks=mocks-and-project-files",
           "--option",
           `@typespec/http-server-csharp.project-name=${projectName}`,
           "--trace",

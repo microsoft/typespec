@@ -1396,7 +1396,7 @@ op createFileAttachment(
 
 it("Produces correct scaffolding", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     multipartSpec,
     [
       ["IInitializer.cs", ["public interface IInitializer"]],
@@ -1419,7 +1419,9 @@ it("Produces correct scaffolding", async () => {
 });
 
 it("Does not overwrite mock files", async () => {
-  const runner = await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" });
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "mocks-and-project-files",
+  });
   runner.fs.set(
     resolveVirtualPath("@typespec", "http-server-csharp", "../", "ServiceProject.csproj"),
     "ServiceProject\n",
@@ -1431,7 +1433,7 @@ it("Does not overwrite mock files", async () => {
 
 it("Does overwrite mock files with overWrite option", async () => {
   const runner = await createCSharpServiceEmitterTestRunner({
-    "emit-mocks": "all",
+    "emit-mocks": "mocks-and-project-files",
     overwrite: true,
   });
   runner.fs.set(
@@ -1445,7 +1447,7 @@ it("Does overwrite mock files with overWrite option", async () => {
 
 it("reads default location for OpenAPI from config", async () => {
   const runner = await createCSharpServiceEmitterTestRunner({
-    "emit-mocks": "all",
+    "emit-mocks": "mocks-and-project-files",
     "use-swaggerui": true,
   });
   runner.fs.set(
@@ -1478,7 +1480,7 @@ options:
 
 it("Handles spread parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
     model Widget {
       @path id: string;
@@ -1525,7 +1527,7 @@ it("Handles spread parameters", async () => {
 
 it("Handles bodyRoot parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
     model Widget {
       @visibility(Lifecycle.Update, Lifecycle.Read)
@@ -1563,7 +1565,7 @@ it("Handles bodyRoot parameters", async () => {
 
 it("Initializes enum types", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
     enum Color {
       Red,
@@ -1617,7 +1619,7 @@ it("Initializes enum types", async () => {
 
 it("emits correct code for GET requests with body parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
       #suppress "@typespec/http-server-csharp/get-request-body" "Test"
       @route("/foo") @get op foo(intProp?: int32): void;
@@ -1638,7 +1640,7 @@ it("emits correct code for GET requests with body parameters", async () => {
 
 it("emits correct code for GET requests with explicit body parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
       #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
       #suppress "@typespec/http-server-csharp/get-request-body" "Test"

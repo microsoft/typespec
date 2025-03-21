@@ -992,9 +992,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       if (sourceFile.meta.emitted) {
         return sourceFile.meta.emitted;
       }
-      if (sourceFile.meta.emitted) {
-        return sourceFile.meta.emitted;
-      }
 
       const emittedSourceFile: EmittedSourceFile = {
         path: sourceFile.path,
@@ -1105,7 +1102,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         ),
       );
 
-      if (this.#emitMocks === "all" || this.#emitMocks === "no-project") {
+      if (this.#emitMocks === "mocks-and-project-files" || this.#emitMocks === "mocks-only") {
         if (this.#mockRegistrations.size > 0) {
           const mocks = getBusinessLogicImplementations(
             this.emitter,
@@ -1281,7 +1278,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     if (options["emit-mocks"] !== "none") {
       getScaffoldingHelpers(emitter, UseSwaggerUI, openApiPath, true);
     }
-    if (options["emit-mocks"] === "all") {
+    if (options["emit-mocks"] === "mocks-and-project-files") {
       httpPort = options["http-port"] || (await getFreePort(5000, 5999));
       httpsPort = options["https-port"] || (await getFreePort(7000, 7999));
 
