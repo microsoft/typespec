@@ -127,7 +127,8 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
     "sdk-context-options": {
       type: "object",
       nullable: true,
-      description: "SDK context options to be used by the CSharp emitter.",
+      description:
+        "The SDK context options that implement the `CreateSdkContextOptions` interface from the [`@azure-tools/typespec-client-generator-core`](https://www.npmjs.com/package/@azure-tools/typespec-client-generator-core) package to be used by the CSharp emitter.",
     },
   },
   required: [],

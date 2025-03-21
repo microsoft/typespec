@@ -132,4 +132,4 @@ License information for the generated client code.
 
 **Type:** `object`
 
-SDK context options to be used by the CSharp emitter.
+The SDK context options that implement the `CreateSdkContextOptions` interface from the [`@azure-tools/typespec-client-generator-core`](https://www.npmjs.com/package/@azure-tools/typespec-client-generator-core) package to be used by the CSharp emitter.
