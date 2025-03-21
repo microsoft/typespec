@@ -4,11 +4,16 @@ import { join, parse, resolve } from "pathe";
 
 export type StarlightSidebarUserConfig = StarlightUserConfig["sidebar"];
 
+export interface Badge {
+  text: string;
+  variant: "note" | "tip" | "caution" | "danger" | "success";
+}
 export interface AutoGenerateItem {
   label?: string;
   autogenerate: { directory: string; order?: "asc" | "desc" };
   index?: string;
   expanded?: boolean;
+  badge?: Badge;
 }
 
 export interface CategoryItem {
@@ -16,11 +21,13 @@ export interface CategoryItem {
   index?: string;
   items: SidebarItem[];
   expanded?: boolean;
+  badge?: Badge;
 }
 
 export interface SlugItem {
   label?: string;
   slug: string;
+  badge?: Badge;
 }
 
 export type SidebarItem = string | CategoryItem | SlugItem | AutoGenerateItem;
