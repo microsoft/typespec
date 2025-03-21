@@ -39,11 +39,9 @@ options:
 
 **Type:** `string`
 
+The version of the package.
+
 ### `package-name`
-
-**Type:** `string`
-
-### `output-dir`
 
 **Type:** `string`
 
@@ -51,59 +49,67 @@ options:
 
 **Type:** `boolean`
 
+Whether to generate packaging files. Packaging files refer to the `setup.py`, `README`, and other files that are needed to package your code.
+
 ### `packaging-files-dir`
 
 **Type:** `string`
+
+If you are using a custom packaging files directory, you can specify it here. We won't generate with the default packaging files we have.
 
 ### `packaging-files-config`
 
 **Type:** `object`
 
+If you are using a custom packaging files directory, and have additional configuration parameters you want to pass in during generation, you can specify it here. Only applicable if `packaging-files-dir` is set.
+
 ### `package-pprint-name`
 
 **Type:** `string`
+
+The name of the package to be used in pretty-printing. Will be the name of the package in `README` and pprinting of `setup.py`.
 
 ### `head-as-boolean`
 
 **Type:** `boolean`
 
+Whether to return responses from HEAD requests as boolean. Defaults to `true`.
+
 ### `models-mode`
 
-**Type:** `string`
+**Type:** `"dpg" | "none"`
 
-### `tracing`
-
-**Type:** `boolean`
+What kind of models to generate. If you pass in `none`, we won't generate models. `dpg` models are the default models we generate.
 
 ### `company-name`
 
 **Type:** `string`
 
-### `generate-test`
+The name of the company. This will be reflected in your license files and documentation.
+
+### `use-pyodide`
 
 **Type:** `boolean`
 
-### `debug`
-
-**Type:** `boolean`
+Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.
 
 ### `flavor`
 
 **Type:** `string`
 
-### `examples-dir`
+The flavor of the SDK.
 
-**Type:** `string`
+### `generate-test`
 
-Specifies the directory where the emitter will look for example files. If the flag isn’t set, the emitter defaults to using an `examples` directory located at the project root.
+**Type:** `boolean`
+
+Whether to generate test files, for basic testing of your generated sdks. Defaults to `false`.
 
 ### `enable-typespec-namespace`
 
 **Type:** `boolean`
 
-### `use-pyodide`
-
-**Type:** `boolean`
+Whether the generated package namespace will respec the typespec namespace. Defaults to `true`, which is the suggested value. Use `false` to continue with legacy handling of namespace following `package-name`.
 
 ### `emitter-name`
 
@@ -126,6 +132,12 @@ When set to `true`, the emitter will generate low-level protocol methods for eac
 ### `flatten-union-as-enum`
 
 **Type:** `boolean`
+
+### `examples-dir`
+
+**Type:** `string`
+
+Specifies the directory where the emitter will look for example files. If the flag isn’t set, the emitter defaults to using an `examples` directory located at the project root.
 
 ### `namespace`
 
