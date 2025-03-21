@@ -149,6 +149,7 @@ const sidebar: SidebarItem[] = [
             false,
             [],
           ),
+          createLibraryReferenceStructure("emitters/clients/http-client-java", "Java", false, []),
         ],
       },
     ],
