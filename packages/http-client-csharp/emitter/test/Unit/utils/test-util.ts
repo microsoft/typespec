@@ -30,7 +30,7 @@ async function getLogger() {
   return Logger;
 }
 // Dynamically import TCGC context to allow it to be mocked in tests with vi.resetModules
-async function getCreateSdkContext() {
+export async function getCreateSdkContext() {
   const { createSdkContext } = await import("@azure-tools/typespec-client-generator-core");
   return createSdkContext;
 }
