@@ -3,7 +3,7 @@ import "../dist/src/internal-decorators.js";
 
 namespace TypeSpec.Rest.Resource;
 
-using TypeSpec.Http;
+using Http;
 
 @doc("The default error response for resource operations.")
 model ResourceError {

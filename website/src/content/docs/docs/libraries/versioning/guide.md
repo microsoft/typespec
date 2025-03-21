@@ -69,9 +69,9 @@ enum Versions {
 The versioning library simplifies the process of versioning APIs. Let's start with a basic example. Assume we have a service with a single API that returns a list of widgets. We can define that API like this:
 
 ```typespec
-using TypeSpec.Versioning;
-using TypeSpec.Rest;
-using TypeSpec.Http;
+using Versioning;
+using Rest;
+using Http;
 
 @service(#{ title: "Contoso Widget Manager" })
 @versioned(Contoso.WidgetManager.Versions)

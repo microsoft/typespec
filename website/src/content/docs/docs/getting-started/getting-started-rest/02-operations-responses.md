@@ -18,7 +18,7 @@ Let's define the CRUD operations for our `Pet` model:
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
@@ -139,7 +139,7 @@ Let's update our pet operations to return different status codes based on the ou
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")

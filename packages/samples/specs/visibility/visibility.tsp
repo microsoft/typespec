@@ -1,8 +1,8 @@
 import "@typespec/http";
 import "@typespec/rest";
 
-using TypeSpec.Http;
-using TypeSpec.Rest;
+using Http;
+using Rest;
 
 @service(#{ title: "Visibility sample" })
 namespace VisibilitySample;
