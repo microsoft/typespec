@@ -59,8 +59,7 @@ async function compileAndValidateMultiple(
   fileChecks: [string, string[]][],
 ): Promise<void> {
   const spec = getStandardService(code);
-  const [_, diagnostics] = await runner.compileAndDiagnose(spec);
-  assert.ok(diagnostics === undefined || diagnostics.length === 0);
+  await runner.compile(spec);
   for (const [fileToCheck, expectedContent] of fileChecks) {
     const [modelKey, modelContents] = getGeneratedFile(runner, fileToCheck);
     expectedContent.forEach((element) => {
@@ -647,7 +646,7 @@ it("Generates types for named model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -668,7 +667,7 @@ it("Generates types for generic model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -689,7 +688,7 @@ it("Generates good name for model instantiation without hints", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -714,7 +713,7 @@ it("Generates types and controllers in a service subnamespace", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -743,7 +742,7 @@ it("Handles user-defined model templates", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -784,7 +783,7 @@ it("Handles void type in operations", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -819,7 +818,7 @@ it("Handles empty body 2xx as void", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -936,6 +935,56 @@ it("generates appropriate types for literals in operation parameters", async () 
         "IContosoOperations.cs",
         [
           `Task FooAsync( int intProp, double floatProp, string stringProp, string stringTempProp, bool trueProp, bool falseProp);`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("generates appropriate types for records", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model BarResponse {
+        /** Typed record */
+        recordProp: Record<string>;
+        /** Floating point literal */
+        stringMap: Record<string>;
+      }
+
+      @route("/foo") @post op foo(recordProp: Record<string>): Record<unknown>;
+      @route("/foo") @get op bar(): BarResponse;
+      `,
+    [
+      [
+        "BarResponse.cs",
+        [
+          "public partial class BarResponse",
+          "public System.Text.Json.Nodes.JsonObject RecordProp { get; set; }",
+          "public System.Text.Json.Nodes.JsonObject StringMap { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsFooRequest.cs",
+        [
+          "public partial class ContosoOperationsFooRequest",
+          "public System.Text.Json.Nodes.JsonObject RecordProp { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(System.Text.Json.Nodes.JsonObject))]",
+          `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
+          `public virtual async Task<IActionResult> Bar()`,
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          `Task<System.Text.Json.Nodes.JsonObject> FooAsync( System.Text.Json.Nodes.JsonObject recordProp);`,
+          `Task<BarResponse> BarAsync( );`,
         ],
       ],
     ],
@@ -1519,6 +1568,119 @@ it("emits correct code for GET requests with explicit body parameters", async ()
         "ContosoOperations.cs",
         ["public class ContosoOperations : IContosoOperations", "public Task FooAsync( )"],
       ],
+    ],
+  );
+});
+
+it("generates one line `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        @doc("Pet name in the format of a string")
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      @doc("""
+        Pet name in the format of a string.
+        The name will be the main identifier for the dog. It is suggested to keep it short and simple.
+        Pets have a difficult time understanding and learning complex names.
+        """)
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. The name will be the main identifier",
+      "/// for the dog. It is suggested to keep it short and simple. Pets have a",
+      "/// difficult time understanding and learning complex names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline `@doc` decorator comments with long non-space words", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      @doc("""
+        Pet name in the format of a string.
+        Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.
+        """)
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. Visit",
+      "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
+      "/// where you can find many unique names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates single line `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        @doc("Pet name in the format of a string")
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates jsdoc comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        /**
+         * Pet name in the format of a string
+        **/
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
     ],
   );
 });

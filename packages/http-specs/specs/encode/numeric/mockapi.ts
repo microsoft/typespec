@@ -7,9 +7,9 @@ function createTests(uri: string, value: any) {
     uri,
     method: "post",
     request: {
-      body: {
+      body: json({
         value,
-      },
+      }),
     },
     response: {
       status: 200,

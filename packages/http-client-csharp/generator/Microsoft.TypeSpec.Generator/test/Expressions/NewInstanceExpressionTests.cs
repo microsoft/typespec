@@ -14,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
     {
         public NewInstanceExpressionTests()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
                 InputFactory.EnumMember.Int32("One", 1),
                 InputFactory.EnumMember.Int32("Two", 2)
             ]);
-            var provider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(enumType);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(enumType);
             Assert.NotNull(provider);
             var expr = New.Instance(provider!.Type, Literal("three"));
             using CodeWriter writer = new CodeWriter();

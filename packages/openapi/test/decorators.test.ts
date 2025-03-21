@@ -75,26 +75,6 @@ describe("openapi: decorators", () => {
     });
 
     it.for([
-      { type: `{ name: "foo" }`, expected: { name: "foo" } },
-      { type: `["foo"]`, expected: ["foo"] },
-    ])("treats type $type as raw value and emits diagnostic", async ({ type, expected }) => {
-      const [{ Foo }, diagnostics] = await runner.compileAndDiagnose(`
-          @extension("x-custom", ${type})
-          @test
-          model Foo{}  
-        `);
-
-      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
-        "x-custom": expected,
-      });
-
-      expectDiagnostics(diagnostics, {
-        code: "deprecated",
-        severity: "warning",
-      });
-    });
-
-    it.for([
       { value: `#{ name: "foo" }`, expected: { name: "foo" } },
       { value: `#{ items: #[ #{foo: "bar" }]}`, expected: { items: [{ foo: "bar" }] } },
       { value: `#["foo"]`, expected: ["foo"] },

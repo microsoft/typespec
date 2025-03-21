@@ -21,8 +21,6 @@ namespace _Type.Property.AdditionalProperties
 
         public static WidgetData0 WidgetData0(WidgetData0Kind kind = default, string fooProp = default) => throw null;
 
-        public static SpreadRecordForDiscriminatedUnion SpreadRecordForDiscriminatedUnion(string name = default, IDictionary<string, BinaryData> additionalProperties = default) => throw null;
-
         public static SpreadRecordForUnion SpreadRecordForUnion(bool flag = default, IDictionary<string, string> additionalProperties = default, IDictionary<string, float> additionalSingleProperties = default) => throw null;
 
         public static MultipleSpreadRecord MultipleSpreadRecord(bool flag = default, IDictionary<string, string> additionalProperties = default, IDictionary<string, float> additionalSingleProperties = default) => throw null;

@@ -1,5 +1,20 @@
 # Change Log - @typespec/rest
 
+## 0.67.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6326](https://github.com/microsoft/typespec/pull/6326) Updates `@autoRoute` behavior to apply same HttpOperationParameter filtering to HttpProperty
+
+
 ## 0.66.0
 
 No changes, version bump only.

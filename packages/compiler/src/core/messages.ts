@@ -142,7 +142,6 @@ const diagnostics = {
       unexpected: paramMessage`Unexpected token ${"token"}`,
       numericOrStringLiteral: "Expected numeric or string literal.",
       identifier: "Identifier expected.",
-      projectionDirection: "from or to expected.",
       expression: "Expression expected.",
       statement: "Statement expected.",
       property: "Property expected.",
@@ -181,6 +180,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Keyword cannot be used as identifier.",
+      future: paramMessage`${"name"} is a reserved keyword`,
     },
   },
   "invalid-directive-location": {
@@ -193,15 +193,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
-    },
-  },
-  "invalid-projection": {
-    severity: "error",
-    messages: {
-      default: "Invalid projection",
-      wrongType: "Non-projection can't be used to project",
-      noTo: "Projection missing to projection",
-      projectionError: paramMessage`An error occurred when projecting this type: ${"message"}`,
     },
   },
   "default-required": {
@@ -401,7 +392,8 @@ const diagnostics = {
     messages: {
       default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
       model: paramMessage`${"name"} refers to a model type, but is being used as a value here. Use #{} to create an object value.`,
-      tuple: paramMessage`${"name"} refers to a tuple type, but is being used as a value here. Use #[] to create an array value.`,
+      modelExpression: `Is a model expression type, but is being used as a value here. Use #{} to create an object value.`,
+      tuple: `Is a tuple type, but is being used as a value here. Use #[] to create an array value.`,
       templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
     },
   },
@@ -545,6 +537,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "A function declaration must be prefixed with the 'extern' modifier.",
+    },
+  },
+  "function-unsupported": {
+    severity: "error",
+    messages: {
+      default: "Function are currently not supported.",
     },
   },
   "missing-implementation": {
@@ -1023,21 +1021,6 @@ const diagnostics = {
       default: paramMessage`Visibility of property '${"propName"}' is sealed and cannot be changed.`,
     },
   },
-  "visibility-mixed-legacy": {
-    severity: "error",
-    messages: {
-      default:
-        "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers to a property.",
-    },
-  },
-  "visibility-legacy": {
-    severity: "warning",
-    messages: {
-      default: paramMessage`String (legacy) visibility modifier '${"modifier"}' is deprecated and will be removed in TypeSpec version 1.0-rc. Use '${"newModifier"}' instead.`,
-      unrecognized: paramMessage`String (legacy) visibility modifier '${"modifier"}' is not recognized. This warning will become an error in TypeSpec 1.0-rc.`,
-      none: "String (legacy) visibility modifier 'none' should be replaced with '@invisible(Lifecycle)'. This warning will become an error in TypeSpec 1.0-rc.",
-    },
-  },
   "default-visibility-not-member": {
     severity: "error",
     messages: {
@@ -1045,14 +1028,12 @@ const diagnostics = {
     },
   },
   "operation-visibility-constraint-empty": {
-    severity: "warning",
+    severity: "error",
     messages: {
-      default:
-        "Operation visibility constraints with no arguments are deprecated and will become an error in TypeSpec version 1.0-rc.",
-      returnType:
-        "Return type visibility constraints with no arguments are deprecated and will become an error in TypeSpec version 1.0-rc.",
+      default: "Operation visibility constraints with no arguments are not allowed.",
+      returnType: "Return type visibility constraints with no arguments are not allowed.",
       parameter:
-        "Parameter visibility constraints with no arguments are deprecated and will become an error in TypeSpec version 1.0-rc. To disable effective PATCH optionality, use @patch(#{ implicitOptionality: false }) instead.",
+        "Parameter visibility constraints with no arguments are not allowed. To disable effective PATCH optionality, use @patch(#{ implicitOptionality: false }) instead.",
     },
   },
   // #endregion

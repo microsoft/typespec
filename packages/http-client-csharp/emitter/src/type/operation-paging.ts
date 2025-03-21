@@ -5,20 +5,20 @@ import { InputOperation } from "./input-operation.js";
 import { InputParameter } from "./input-parameter.js";
 import { ResponseLocation } from "./response-location.js";
 
-export interface OperationPaging {
-  NextLink?: NextLink;
-  ContinuationToken?: ContinuationToken;
-  ItemPropertySegments: string[];
+export interface InputOperationPaging {
+  nextLink?: InputNextLink;
+  continuationToken?: InputContinuationToken;
+  itemPropertySegments: string[];
 }
 
-export interface NextLink {
-  Operation?: InputOperation;
-  ResponseSegments: string[];
-  ResponseLocation: ResponseLocation;
+export interface InputNextLink {
+  operation?: InputOperation;
+  responseSegments: string[];
+  responseLocation: ResponseLocation;
 }
 
-export interface ContinuationToken {
-  Parameter: InputParameter;
-  ResponseSegments: string[];
-  ResponseLocation: ResponseLocation;
+export interface InputContinuationToken {
+  parameter: InputParameter;
+  responseSegments: string[];
+  responseLocation: ResponseLocation;
 }

@@ -42,7 +42,7 @@ export function getSourceFileKindFromExt(path: string): SourceFileKind | undefin
   const ext = getAnyExtensionFromPath(path);
   if (ext === ".js" || ext === ".mjs") {
     return "js";
-  } else if (ext === ".tsp" || ext === ".cadl") {
+  } else if (ext === ".tsp") {
     return "typespec";
   } else {
     return undefined;

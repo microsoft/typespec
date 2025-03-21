@@ -65,7 +65,7 @@ public final class RequestBodiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> defaultMethod(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData value,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/octet-stream") BinaryData value,
             RequestOptions requestOptions, Context context);
 
         @Post("/encode/bytes/body/request/default")
@@ -75,7 +75,7 @@ public final class RequestBodiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> defaultMethodSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData value,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/octet-stream") BinaryData value,
             RequestOptions requestOptions, Context context);
 
         @Post("/encode/bytes/body/request/octet-stream")
@@ -125,7 +125,7 @@ public final class RequestBodiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> base64(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData value,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData value,
             RequestOptions requestOptions, Context context);
 
         @Post("/encode/bytes/body/request/base64")
@@ -135,7 +135,7 @@ public final class RequestBodiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> base64Sync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData value,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData value,
             RequestOptions requestOptions, Context context);
 
         @Post("/encode/bytes/body/request/base64url")
@@ -145,7 +145,7 @@ public final class RequestBodiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> base64url(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData value,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData value,
             RequestOptions requestOptions, Context context);
 
         @Post("/encode/bytes/body/request/base64url")
@@ -155,7 +155,7 @@ public final class RequestBodiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> base64urlSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData value,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData value,
             RequestOptions requestOptions, Context context);
     }
 
@@ -165,7 +165,7 @@ public final class RequestBodiesImpl {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -179,7 +179,7 @@ public final class RequestBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> defaultMethodWithResponseAsync(BinaryData value, RequestOptions requestOptions) {
-        final String contentType = "application/json";
+        final String contentType = "application/octet-stream";
         return FluxUtil.withContext(
             context -> service.defaultMethod(this.client.getEndpoint(), contentType, value, requestOptions, context));
     }
@@ -190,7 +190,7 @@ public final class RequestBodiesImpl {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -204,7 +204,7 @@ public final class RequestBodiesImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(BinaryData value, RequestOptions requestOptions) {
-        final String contentType = "application/json";
+        final String contentType = "application/octet-stream";
         return service.defaultMethodSync(this.client.getEndpoint(), contentType, value, requestOptions, Context.NONE);
     }
 

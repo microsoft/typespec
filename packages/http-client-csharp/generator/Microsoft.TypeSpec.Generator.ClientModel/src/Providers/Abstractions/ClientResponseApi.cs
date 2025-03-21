@@ -3,7 +3,9 @@
 
 using System;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -31,6 +33,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public abstract CSharpType ClientResponseType { get; }
 
         public abstract CSharpType ClientResponseOfTType { get; }
+
+        public abstract CSharpType ClientCollectionResponseType { get; }
+        public abstract CSharpType ClientCollectionAsyncResponseType { get; }
+
+        public abstract CSharpType ClientCollectionResponseOfTType { get; }
+        public abstract CSharpType ClientCollectionAsyncResponseOfTType { get; }
+
+        public abstract TypeProvider CreateClientCollectionResultDefinition(
+            ClientProvider client,
+            InputOperation operation,
+            CSharpType? type,
+            bool isAsync);
 
         public abstract CSharpType ClientResponseExceptionType { get; }
     }

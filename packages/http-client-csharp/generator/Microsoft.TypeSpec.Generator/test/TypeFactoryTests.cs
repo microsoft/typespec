@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [SetUp]
         public void SetUp()
         {
-            MockHelpers.LoadMockPlugin();
+            MockHelpers.LoadMockGenerator();
         }
 
         [Test]
@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             ]);
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
 
-            var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input);
+            var actual = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var nullableInput = new InputNullableType(input);
             var expected = new CSharpType("SampleType", "Sample.Models", true, true, null, [], true, true, underlyingEnumType: typeof(string));
 
-            var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(nullableInput);
+            var actual = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(nullableInput);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
@@ -61,7 +61,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             ]);
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, true, underlyingEnumType: typeof(string));
 
-            var enumProvider = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
+            var enumProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
 
             Assert.IsNotNull(enumProvider);
             Assert.AreEqual(expected, enumProvider!.Type);
@@ -77,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             ]);
             var expected = new CSharpType("SampleType", "Sample.Models", true, false, null, [], true, false, underlyingEnumType: typeof(string));
 
-            var actual = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input);
+            var actual = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual);
@@ -91,9 +91,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 InputFactory.EnumMember.String("value1", "value1"),
                 InputFactory.EnumMember.String("value2", "value2")
             ]);
-            var expected = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
+            var expected = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
 
-            var actual = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
+            var actual = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
 
             Assert.IsTrue(ReferenceEquals(expected, actual));
         }
@@ -107,20 +107,20 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 InputFactory.EnumMember.String("value2", "value2")
             ]);
             var declaringType = new Mock<TypeProvider>().Object;
-            var expected = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input, declaringType);
-            var actual = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input, declaringType);
+            var expected = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType);
+            var actual = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType);
             Assert.IsTrue(ReferenceEquals(expected, actual));
 
             // Validate that a new type is created when the declaring type is different
             var declaringType2 = new Mock<TypeProvider>().Object;
-            var expected2 = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input, declaringType2);
-            var actual2 = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input, declaringType2);
+            var expected2 = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType2);
+            var actual2 = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input, declaringType2);
             Assert.IsTrue(ReferenceEquals(expected2, actual2));
             Assert.IsFalse(ReferenceEquals(actual2, actual));
 
             // finally, validate that the type is not reused when the declaring type is null
-            var expected3 = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
-            var actual3 = CodeModelPlugin.Instance.TypeFactory.CreateEnum(input);
+            var expected3 = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
+            var actual3 = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
             Assert.IsTrue(ReferenceEquals(expected3, actual3));
             Assert.IsFalse(ReferenceEquals(actual3, actual));
             Assert.IsFalse(ReferenceEquals(actual3, actual2));
@@ -144,7 +144,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var name = kind.ToString().ToLower();
             var input = new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode, null);
 
-            Assert.AreEqual(encode == "string" ? SerializationFormat.Int_String : SerializationFormat.Default, CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(input));
+            Assert.AreEqual(encode == "string" ? SerializationFormat.Int_String : SerializationFormat.Default, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(input));
         }
     }
 }

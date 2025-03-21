@@ -21,26 +21,44 @@ public final class OrphanModel implements JsonSerializable<OrphanModel> {
      * The name property.
      */
     @Generated
-    private final String name;
+    private final String modelName;
+
+    /*
+     * The desc property.
+     */
+    @Generated
+    private final String description;
 
     /**
      * Creates an instance of OrphanModel class.
      * 
-     * @param name the name value to set.
+     * @param modelName the modelName value to set.
+     * @param description the description value to set.
      */
     @Generated
-    public OrphanModel(String name) {
-        this.name = name;
+    public OrphanModel(String modelName, String description) {
+        this.modelName = modelName;
+        this.description = description;
     }
 
     /**
-     * Get the name property: The name property.
+     * Get the modelName property: The name property.
      * 
-     * @return the name value.
+     * @return the modelName value.
      */
     @Generated
-    public String getName() {
-        return this.name;
+    public String getModelName() {
+        return this.modelName;
+    }
+
+    /**
+     * Get the description property: The desc property.
+     * 
+     * @return the description value.
+     */
+    @Generated
+    public String getDescription() {
+        return this.description;
     }
 
     /**
@@ -50,7 +68,8 @@ public final class OrphanModel implements JsonSerializable<OrphanModel> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("name", this.name);
+        jsonWriter.writeStringField("name", this.modelName);
+        jsonWriter.writeStringField("desc", this.description);
         return jsonWriter.writeEndObject();
     }
 
@@ -66,18 +85,21 @@ public final class OrphanModel implements JsonSerializable<OrphanModel> {
     @Generated
     public static OrphanModel fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            String name = null;
+            String modelName = null;
+            String description = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("name".equals(fieldName)) {
-                    name = reader.getString();
+                    modelName = reader.getString();
+                } else if ("desc".equals(fieldName)) {
+                    description = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
             }
-            return new OrphanModel(name);
+            return new OrphanModel(modelName, description);
         });
     }
 }

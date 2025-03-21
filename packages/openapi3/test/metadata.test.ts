@@ -289,7 +289,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
 
   it("emits the appropriate properties for ResourceCreateModel", async () => {
     const res = await openApiFor(`
-    using TypeSpec.Rest.Resource;
+    using Rest.Resource;
 
     model M {
       @visibility(Lifecycle.Read) r?: string;
@@ -629,7 +629,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           responses: {
             "200": {
               description: "The request has succeeded.",
-              content: { "application/json": { schema: { type: "string" } } },
+              content: { "text/plain": { schema: { type: "string" } } },
             },
           },
         },
@@ -641,7 +641,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           responses: {
             "200": {
               description: "The request has succeeded.",
-              content: { "application/json": { schema: { type: "string" } } },
+              content: { "text/plain": { schema: { type: "string" } } },
             },
           },
           requestBody: {
@@ -751,7 +751,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           responses: {
             "200": {
               description: "The request has succeeded.",
-              content: { "application/json": { schema: { type: "string" } } },
+              content: { "text/plain": { schema: { type: "string" } } },
             },
           },
           requestBody: {
@@ -799,7 +799,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
           responses: {
             "200": {
               description: "The request has succeeded.",
-              content: { "application/json": { schema: { type: "string" } } },
+              content: { "text/plain": { schema: { type: "string" } } },
             },
           },
           requestBody: {

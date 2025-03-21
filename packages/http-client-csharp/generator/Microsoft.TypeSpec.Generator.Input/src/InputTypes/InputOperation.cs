@@ -19,15 +19,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? deprecated,
             string? accessibility,
             IReadOnlyList<InputParameter> parameters,
-            IReadOnlyList<OperationResponse> responses,
+            IReadOnlyList<InputOperationResponse> responses,
             string httpMethod,
             string uri,
             string path,
             string? externalDocsUrl,
             IReadOnlyList<string>? requestMediaTypes,
             bool bufferResponse,
-            OperationLongRunning? longRunning,
-            OperationPaging? paging,
+            InputOperationLongRunning? longRunning,
+            InputOperationPaging? paging,
             bool generateProtocolMethod,
             bool generateConvenienceMethod,
             string crossLanguageDefinitionId)
@@ -61,7 +61,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             deprecated: null,
             accessibility: null,
             parameters: Array.Empty<InputParameter>(),
-            responses: Array.Empty<OperationResponse>(),
+            responses: Array.Empty<InputOperationResponse>(),
             httpMethod: string.Empty,
             uri: string.Empty,
             path: string.Empty,
@@ -82,15 +82,15 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? Deprecated { get; internal set; }
         public string? Accessibility { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
-        public IReadOnlyList<OperationResponse> Responses { get; internal set; }
+        public IReadOnlyList<InputOperationResponse> Responses { get; internal set; }
         public string HttpMethod { get; internal set; }
         public string Uri { get; internal set; }
         public string Path { get; internal set; }
         public string? ExternalDocsUrl { get; internal set; }
         public IReadOnlyList<string>? RequestMediaTypes { get; internal set; }
         public bool BufferResponse { get; internal set; }
-        public OperationLongRunning? LongRunning { get; internal set; }
-        public OperationPaging? Paging { get; internal set; }
+        public InputOperationLongRunning? LongRunning { get; internal set; }
+        public InputOperationPaging? Paging { get; internal set; }
         public bool GenerateProtocolMethod { get; internal set; }
         public bool GenerateConvenienceMethod { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }

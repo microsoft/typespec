@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http",
-  "version": "0.66.0",
+  "version": "0.67.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
@@ -19,10 +19,10 @@
   ],
   "type": "module",
   "main": "dist/src/index.js",
-  "tspMain": "lib/http.tsp",
+  "tspMain": "lib/main.tsp",
   "exports": {
     ".": {
-      "typespec": "./lib/http.tsp",
+      "typespec": "./lib/main.tsp",
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     },
@@ -45,11 +45,12 @@
     }
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
+    "api-extractor": "api-extractor run --local --verbose",
     "watch": "tsc -p . --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
@@ -67,8 +68,8 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~",
-    "@typespec/streams": "workspace:~"
+    "@typespec/compiler": "workspace:^",
+    "@typespec/streams": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@typespec/streams": {
@@ -76,16 +77,16 @@
     }
   },
   "devDependencies": {
-    "@types/node": "~22.10.10",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/library-linter": "workspace:~",
-    "@typespec/streams": "workspace:~",
-    "@typespec/tspd": "workspace:~",
-    "@vitest/coverage-v8": "^3.0.4",
-    "@vitest/ui": "^3.0.3",
+    "@types/node": "~22.13.9",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/library-linter": "workspace:^",
+    "@typespec/streams": "workspace:^",
+    "@typespec/tspd": "workspace:^",
+    "@vitest/coverage-v8": "^3.0.7",
+    "@vitest/ui": "^3.0.7",
     "c8": "^10.1.3",
     "rimraf": "~6.0.1",
-    "typescript": "~5.7.3",
-    "vitest": "^3.0.5"
+    "typescript": "~5.8.2",
+    "vitest": "^3.0.7"
   }
 }

@@ -55,19 +55,6 @@ public final class QueryClient {
     }
 
     /**
-     * The tsv operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public Response<Void> tsvWithResponse(List<String> colors, RequestOptions requestOptions) {
-        return this.serviceClient.tsvWithResponse(colors, requestOptions);
-    }
-
-    /**
      * The pipes operation.
      * 
      * @param colors Possible values for colors are [blue,red,green].
@@ -121,21 +108,6 @@ public final class QueryClient {
         // Generated convenience method for ssvWithResponse
         RequestOptions requestOptions = new RequestOptions();
         ssvWithResponse(colors, requestOptions).getValue();
-    }
-
-    /**
-     * The tsv operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Metadata(generated = true)
-    public void tsv(List<String> colors) {
-        // Generated convenience method for tsvWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        tsvWithResponse(colors, requestOptions).getValue();
     }
 
     /**

@@ -1,8 +1,5 @@
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
-import {
-  createSdkContext,
-  CreateSdkContextOptions,
-} from "@azure-tools/typespec-client-generator-core";
+import type { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import { CompilerOptions, EmitContext, Program } from "@typespec/compiler";
 import { createTestHost, TestHost } from "@typespec/compiler/testing";
@@ -11,7 +8,6 @@ import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
 import { LoggerLevel } from "../../../src/lib/logger-level.js";
-import { Logger } from "../../../src/lib/logger.js";
 import { CSharpEmitterOptions } from "../../../src/options.js";
 import { CSharpEmitterContext } from "../../../src/sdk-context.js";
 
@@ -28,12 +24,24 @@ export async function createEmitterTestHost(): Promise<TestHost> {
   });
 }
 
+// Dynamically import Logger to allow it to be mocked in tests with vi.resetModules
+async function getLogger() {
+  const { Logger } = await import("../../../src/lib/logger.js");
+  return Logger;
+}
+// Dynamically import TCGC context to allow it to be mocked in tests with vi.resetModules
+export async function getCreateSdkContext() {
+  const { createSdkContext } = await import("@azure-tools/typespec-client-generator-core");
+  return createSdkContext;
+}
+
 export interface TypeSpecCompileOptions {
   IsNamespaceNeeded?: boolean;
   IsAzureCoreNeeded?: boolean;
   IsTCGCNeeded?: boolean;
   IsXmlNeeded?: boolean;
   AuthDecorator?: string;
+  NoEmit?: boolean;
 }
 
 export async function typeSpecCompile(
@@ -50,7 +58,7 @@ export async function typeSpecCompile(
   const namespace = `
     @versioned(Versions)
     ${authDecorator}
-    @service({
+    @service(#{
       title: "Azure Csharp emitter Testing",
     })
 
@@ -82,16 +90,20 @@ export async function typeSpecCompile(
   host.addTypeSpecFile("main.tsp", fileContent);
   const cliOptions = {
     warningAsError: false,
+    noEmit: options?.NoEmit ?? true,
   } as CompilerOptions;
   await host.compile("./", cliOptions);
   return host.program;
 }
 
-export function createEmitterContext(program: Program): EmitContext<CSharpEmitterOptions> {
+export function createEmitterContext(
+  program: Program,
+  options: CSharpEmitterOptions = {},
+): EmitContext<CSharpEmitterOptions> {
   return {
     program: program,
     emitterOutputDir: "./",
-    options: {
+    options: options ?? {
       outputFile: "tspCodeModel.json",
       logFile: "log.json",
       "new-project": false,
@@ -109,11 +121,13 @@ export async function createCSharpSdkContext(
   program: EmitContext<CSharpEmitterOptions>,
   sdkContextOptions: CreateSdkContextOptions = {},
 ): Promise<CSharpEmitterContext> {
+  const createSdkContext = await getCreateSdkContext();
   const context = await createSdkContext(
     program,
     "@typespec/http-client-csharp",
     sdkContextOptions,
   );
+  const Logger = await getLogger();
   return {
     ...context,
     logger: new Logger(program.program, LoggerLevel.INFO),

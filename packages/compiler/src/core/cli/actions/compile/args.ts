@@ -21,6 +21,7 @@ export interface CompileCliArgs {
   "warn-as-error"?: boolean;
   "list-files"?: boolean;
   "no-emit"?: boolean;
+  "dry-run"?: boolean;
   "ignore-deprecated"?: boolean;
   args?: string[];
 }
@@ -63,6 +64,8 @@ export async function getCompilerOptions(
     resolvedOptions.noEmit = true;
   } else if (args["list-files"]) {
     resolvedOptions.listFiles = true;
+  } else if (args["dry-run"]) {
+    resolvedOptions.dryRun = true;
   }
 
   return diagnostics.wrap(

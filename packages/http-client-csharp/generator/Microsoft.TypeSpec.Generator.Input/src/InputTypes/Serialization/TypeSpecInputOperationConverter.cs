@@ -43,15 +43,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? deprecated = null;
             string? accessibility = null;
             IReadOnlyList<InputParameter>? parameters = null;
-            IReadOnlyList<OperationResponse>? responses = null;
+            IReadOnlyList<InputOperationResponse>? responses = null;
             string? httpMethod = null;
             string? uri = null;
             string? path = null;
             string? externalDocsUrl = null;
             IReadOnlyList<string>? requestMediaTypes = null;
             bool bufferResponse = false;
-            OperationLongRunning? longRunning = null;
-            OperationPaging? paging = null;
+            InputOperationLongRunning? longRunning = null;
+            InputOperationPaging? paging = null;
             bool generateProtocolMethod = false;
             bool generateConvenienceMethod = false;
             string? crossLanguageDefinitionId = null;
@@ -59,26 +59,26 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadString(nameof(InputOperation.Name), ref name)
-                    || reader.TryReadString(nameof(InputOperation.ResourceName), ref resourceName)
-                    || reader.TryReadString("Summary", ref summary)
-                    || reader.TryReadString("Doc", ref doc)
-                    || reader.TryReadString(nameof(InputOperation.Deprecated), ref deprecated)
-                    || reader.TryReadString(nameof(InputOperation.Accessibility), ref accessibility)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Parameters), options, ref parameters)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Responses), options, ref responses)
-                    || reader.TryReadString(nameof(InputOperation.HttpMethod), ref httpMethod)
-                    || reader.TryReadString(nameof(InputOperation.Uri), ref uri)
-                    || reader.TryReadString(nameof(InputOperation.Path), ref path)
-                    || reader.TryReadString(nameof(InputOperation.ExternalDocsUrl), ref externalDocsUrl)
-                    || reader.TryReadWithConverter(nameof(InputOperation.RequestMediaTypes), options, ref requestMediaTypes)
-                    || reader.TryReadBoolean(nameof(InputOperation.BufferResponse), ref bufferResponse)
-                    || reader.TryReadWithConverter(nameof(InputOperation.LongRunning), options, ref longRunning)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Paging), options, ref paging)
-                    || reader.TryReadBoolean(nameof(InputOperation.GenerateProtocolMethod), ref generateProtocolMethod)
-                    || reader.TryReadBoolean(nameof(InputOperation.GenerateConvenienceMethod), ref generateConvenienceMethod)
-                    || reader.TryReadString(nameof(InputOperation.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
-                    || reader.TryReadWithConverter(nameof(InputOperation.Decorators), options, ref decorators);
+                var isKnownProperty = reader.TryReadString("name", ref name)
+                    || reader.TryReadString("resourceName", ref resourceName)
+                    || reader.TryReadString("summary", ref summary)
+                    || reader.TryReadString("doc", ref doc)
+                    || reader.TryReadString("deprecated", ref deprecated)
+                    || reader.TryReadString("accessibility", ref accessibility)
+                    || reader.TryReadComplexType("parameters", options, ref parameters)
+                    || reader.TryReadComplexType("responses", options, ref responses)
+                    || reader.TryReadString("httpMethod", ref httpMethod)
+                    || reader.TryReadString("uri", ref uri)
+                    || reader.TryReadString("path", ref path)
+                    || reader.TryReadString("externalDocsUrl", ref externalDocsUrl)
+                    || reader.TryReadComplexType("requestMediaTypes", options, ref requestMediaTypes)
+                    || reader.TryReadBoolean("bufferResponse", ref bufferResponse)
+                    || reader.TryReadComplexType("longRunning", options, ref longRunning)
+                    || reader.TryReadComplexType("paging", options, ref paging)
+                    || reader.TryReadBoolean("generateProtocolMethod", ref generateProtocolMethod)
+                    || reader.TryReadBoolean("generateConvenienceMethod", ref generateConvenienceMethod)
+                    || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
+                    || reader.TryReadComplexType("decorators", options, ref decorators);
 
                 if (!isKnownProperty)
                 {
@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             operation.Deprecated = deprecated;
             operation.Accessibility = accessibility;
             operation.Parameters = parameters ?? Array.Empty<InputParameter>();
-            operation.Responses = responses ?? Array.Empty<OperationResponse>();
+            operation.Responses = responses ?? Array.Empty<InputOperationResponse>();
             operation.HttpMethod = httpMethod ?? throw new JsonException("InputOperation must have HttpMethod");
             operation.Uri = uri ?? throw new JsonException("InputOperation must have Uri");
             operation.Path = path ?? throw new JsonException("InputOperation must have Path");

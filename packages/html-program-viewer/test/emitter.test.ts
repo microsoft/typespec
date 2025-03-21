@@ -10,6 +10,6 @@ beforeEach(async () => {
 
 it("runs emitter", async () => {
   await runner.compile(`op foo(): string;`, {
-    emitters: { "@typespec/html-program-viewer": {} },
+    emit: ["@typespec/html-program-viewer"],
   });
 });

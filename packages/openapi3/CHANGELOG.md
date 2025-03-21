@@ -1,5 +1,32 @@
 # Change Log - @typespec/openapi3
 
+## 0.67.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Deprecations
+
+- [#6305](https://github.com/microsoft/typespec/pull/6305) Related changes based on `http` library deprecation removal.
+
+### Features
+
+- [#6268](https://github.com/microsoft/typespec/pull/6268) `@typespec/versioning` is now an optional dependency.
+- [#6286](https://github.com/microsoft/typespec/pull/6286) Remove support for `@discriminator` on union
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6289](https://github.com/microsoft/typespec/pull/6289) Fix `utcDateTime` and `offsetDateTime` not using format `http-date` in header by default as the default http encoding defines
+- [#6411](https://github.com/microsoft/typespec/pull/6411) Add support for new `dryRun` emitter option
+- [#6473](https://github.com/microsoft/typespec/pull/6473) Adds support for `@encode` to specify array encodings for `@query` parameters
+
+
 ## 0.66.0
 
 ### Breaking Changes

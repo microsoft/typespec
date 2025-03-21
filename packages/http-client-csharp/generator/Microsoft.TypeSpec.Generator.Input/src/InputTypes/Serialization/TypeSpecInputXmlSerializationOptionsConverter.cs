@@ -46,10 +46,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
                     || reader.TryReadNullableBoolean("attribute", ref attribute)
-                    || reader.TryReadWithConverter("ns", options, ref ns)
+                    || reader.TryReadComplexType("ns", options, ref ns)
                     || reader.TryReadNullableBoolean("unwrapped", ref unwrapped)
                     || reader.TryReadString("itemsName", ref itemsName)
-                    || reader.TryReadWithConverter("itemsNs", options, ref itemsNs);
+                    || reader.TryReadComplexType("itemsNs", options, ref itemsNs);
 
                 if (!isKnownProperty)
                 {

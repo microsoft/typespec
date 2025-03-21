@@ -42,12 +42,12 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadString(nameof(InputNamespace.Name), ref name)
-                    || reader.TryReadWithConverter(nameof(InputNamespace.ApiVersions), options, ref apiVersions)
-                    || reader.TryReadWithConverter(nameof(InputNamespace.Enums), options, ref enums)
-                    || reader.TryReadWithConverter(nameof(InputNamespace.Models), options, ref models)
-                    || reader.TryReadWithConverter(nameof(InputNamespace.Clients), options, ref clients)
-                    || reader.TryReadWithConverter(nameof(InputNamespace.Auth), options, ref auth);
+                var isKnownProperty = reader.TryReadString("name", ref name)
+                    || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
+                    || reader.TryReadComplexType("enums", options, ref enums)
+                    || reader.TryReadComplexType("models", options, ref models)
+                    || reader.TryReadComplexType("clients", options, ref clients)
+                    || reader.TryReadComplexType("auth", options, ref auth);
 
                 if (!isKnownProperty)
                 {
@@ -55,10 +55,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            apiVersions ??= Array.Empty<string>();
-            enums ??= Array.Empty<InputEnumType>();
-            models ??= Array.Empty<InputModelType>();
-            clients ??= Array.Empty<InputClient>();
+            apiVersions ??= [];
+            enums ??= [];
+            models ??= [];
+            clients ??= [];
 
             return new InputNamespace(
                 name ?? throw new JsonException(),

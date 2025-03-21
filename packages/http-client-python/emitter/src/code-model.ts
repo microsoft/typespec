@@ -1,4 +1,5 @@
 import {
+  SdkApiVersionParameter,
   SdkBasicServiceMethod,
   SdkClientType,
   SdkCredentialParameter,
@@ -105,7 +106,11 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
 
 function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter,
+  parameter:
+    | SdkEndpointParameter
+    | SdkCredentialParameter
+    | SdkMethodParameter
+    | SdkApiVersionParameter,
 ): Record<string, any>[] {
   if (parameter.kind === "endpoint") {
     if (parameter.type.kind === "union") {
@@ -198,7 +203,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
         propertyName: operationGroup.name,
         operations: operations,
         operationGroups: emitOperationGroups(context, operationGroup, rootClient, name),
-        clientNamespace: getClientNamespace(context, operationGroup.clientNamespace),
+        clientNamespace: getClientNamespace(context, operationGroup.namespace),
       });
     }
   }
@@ -216,7 +221,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
         className: "",
         propertyName: "",
         operations: operations,
-        clientNamespace: getClientNamespace(context, client.clientNamespace),
+        clientNamespace: getClientNamespace(context, client.namespace),
       });
     }
   }
@@ -235,17 +240,17 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   client: SdkClientType<TServiceOperation>,
 ): Record<string, any> {
-  if (client.initialization) {
+  if (client.clientInitialization) {
     context.__endpointPathParameters = [];
   }
   const parameters =
-    client.initialization?.properties
+    client.clientInitialization?.parameters
       .map((x) => emitMethodParameter(context, x))
       .reduce((a, b) => [...a, ...b]) ?? [];
 
-  const endpointParameter = client.initialization?.properties.find((x) => x.kind === "endpoint") as
-    | SdkEndpointParameter
-    | undefined;
+  const endpointParameter = client.clientInitialization?.parameters.find(
+    (x) => x.kind === "endpoint",
+  ) as SdkEndpointParameter | undefined;
   const operationGroups = emitOperationGroups(context, client, client, "");
   let url: string | undefined;
   if (endpointParameter?.type.kind === "union") {
@@ -261,7 +266,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
     url,
     apiVersions: client.apiVersions,
     arm: context.arm,
-    clientNamespace: getClientNamespace(context, client.clientNamespace),
+    clientNamespace: getClientNamespace(context, client.namespace),
   };
 }
 

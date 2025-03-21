@@ -160,7 +160,48 @@ export enum Token {
   /** @internal */ __EndKeyword,
   ///////////////////////////////////////////////////////////////
 
-  /** @internal */ __Count = __EndKeyword,
+  /** @internal */ __StartReservedKeyword = __EndKeyword,
+  ///////////////////////////////////////////////////////////////
+  // List of keywords that have special meaning in the language but are reserved for future use
+  StatemachineKeyword = __StartReservedKeyword,
+  MacroKeyword,
+  PackageKeyword,
+  MetadataKeyword,
+  EnvKeyword,
+  ArgKeyword,
+  DeclareKeyword,
+  ArrayKeyword,
+  StructKeyword,
+  RecordKeyword,
+  ModuleKeyword,
+  ModKeyword,
+  PubKeyword,
+  SubKeyword,
+  TypeRefKeyword,
+  TraitKeyword,
+  ThisKeyword,
+  SelfKeyword,
+  SuperKeyword,
+  KeyofKeyword,
+  WithKeyword,
+  ImplementsKeyword,
+  ImplKeyword,
+  SatisfiesKeyword,
+  FlagKeyword,
+  AutoKeyword,
+  PartialKeyword,
+  PrivateKeyword,
+  PublicKeyword,
+  ProtectedKeyword,
+  InternalKeyword,
+  SealedKeyword,
+  LocalKeyword,
+  AsyncKeyword,
+
+  /** @internal */ __EndReservedKeyword,
+  ///////////////////////////////////////////////////////////////
+
+  /** @internal */ __Count = __EndReservedKeyword,
 }
 
 export type DocToken =
@@ -264,6 +305,42 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.NeverKeyword, "'never'"],
   [Token.UnknownKeyword, "'unknown'"],
   [Token.ExternKeyword, "'extern'"],
+
+  // Reserved keywords
+  [Token.StatemachineKeyword, "'statemachine'"],
+  [Token.MacroKeyword, "'macro'"],
+  [Token.PackageKeyword, "'package'"],
+  [Token.MetadataKeyword, "'metadata'"],
+  [Token.EnvKeyword, "'env'"],
+  [Token.ArgKeyword, "'arg'"],
+  [Token.DeclareKeyword, "'declare'"],
+  [Token.ArrayKeyword, "'array'"],
+  [Token.StructKeyword, "'struct'"],
+  [Token.RecordKeyword, "'record'"],
+  [Token.ModuleKeyword, "'module'"],
+  [Token.ModKeyword, "'mod'"],
+  [Token.PubKeyword, "'pub'"],
+  [Token.SubKeyword, "'sub'"],
+  [Token.TypeRefKeyword, "'typeref'"],
+  [Token.TraitKeyword, "'trait'"],
+  [Token.ThisKeyword, "'this'"],
+  [Token.SelfKeyword, "'self'"],
+  [Token.SuperKeyword, "'super'"],
+  [Token.KeyofKeyword, "'keyof'"],
+  [Token.WithKeyword, "'with'"],
+  [Token.ImplementsKeyword, "'implements'"],
+  [Token.ImplKeyword, "'impl'"],
+  [Token.SatisfiesKeyword, "'satisfies'"],
+  [Token.FlagKeyword, "'flag'"],
+  [Token.AutoKeyword, "'auto'"],
+  [Token.PartialKeyword, "'partial'"],
+  [Token.PrivateKeyword, "'private'"],
+  [Token.PublicKeyword, "'public'"],
+  [Token.ProtectedKeyword, "'protected'"],
+  [Token.InternalKeyword, "'internal'"],
+  [Token.SealedKeyword, "'sealed'"],
+  [Token.LocalKeyword, "'local'"],
+  [Token.AsyncKeyword, "'async'"],
 ]);
 
 /** @internal */
@@ -296,12 +373,82 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
   ["extern", Token.ExternKeyword],
+
+  // Reserved keywords
+  ["statemachine", Token.StatemachineKeyword],
+  ["macro", Token.MacroKeyword],
+  ["package", Token.PackageKeyword],
+  ["metadata", Token.MetadataKeyword],
+  ["env", Token.EnvKeyword],
+  ["arg", Token.ArgKeyword],
+  ["declare", Token.DeclareKeyword],
+  ["array", Token.ArrayKeyword],
+  ["struct", Token.StructKeyword],
+  ["record", Token.RecordKeyword],
+  ["module", Token.ModuleKeyword],
+  ["mod", Token.ModKeyword],
+  ["pub", Token.PubKeyword],
+  ["sub", Token.SubKeyword],
+  ["typeref", Token.TypeRefKeyword],
+  ["trait", Token.TraitKeyword],
+  ["this", Token.ThisKeyword],
+  ["self", Token.SelfKeyword],
+  ["super", Token.SuperKeyword],
+  ["keyof", Token.KeyofKeyword],
+  ["with", Token.WithKeyword],
+  ["implements", Token.ImplementsKeyword],
+  ["impl", Token.ImplKeyword],
+  ["satisfies", Token.SatisfiesKeyword],
+  ["flag", Token.FlagKeyword],
+  ["auto", Token.AutoKeyword],
+  ["partial", Token.PartialKeyword],
+  ["private", Token.PrivateKeyword],
+  ["public", Token.PublicKeyword],
+  ["protected", Token.ProtectedKeyword],
+  ["internal", Token.InternalKeyword],
+  ["sealed", Token.SealedKeyword],
+  ["local", Token.LocalKeyword],
+  ["async", Token.AsyncKeyword],
+]);
+/** @internal */
+export const ReservedKeywords: ReadonlyMap<string, Token> = new Map([
+  // Reserved keywords
+  ["statemachine", Token.StatemachineKeyword],
+  ["macro", Token.MacroKeyword],
+  ["package", Token.PackageKeyword],
+  ["metadata", Token.MetadataKeyword],
+  ["env", Token.EnvKeyword],
+  ["arg", Token.ArgKeyword],
+  ["declare", Token.DeclareKeyword],
+  ["array", Token.ArrayKeyword],
+  ["struct", Token.StructKeyword],
+  ["record", Token.RecordKeyword],
+  ["module", Token.ModuleKeyword],
+  ["trait", Token.TraitKeyword],
+  ["this", Token.ThisKeyword],
+  ["self", Token.SelfKeyword],
+  ["super", Token.SuperKeyword],
+  ["keyof", Token.KeyofKeyword],
+  ["with", Token.WithKeyword],
+  ["implements", Token.ImplementsKeyword],
+  ["impl", Token.ImplKeyword],
+  ["satisfies", Token.SatisfiesKeyword],
+  ["flag", Token.FlagKeyword],
+  ["auto", Token.AutoKeyword],
+  ["partial", Token.PartialKeyword],
+  ["private", Token.PrivateKeyword],
+  ["public", Token.PublicKeyword],
+  ["protected", Token.ProtectedKeyword],
+  ["internal", Token.InternalKeyword],
+  ["sealed", Token.SealedKeyword],
+  ["local", Token.LocalKeyword],
+  ["async", Token.AsyncKeyword],
 ]);
 
 /** @internal */
 export const enum KeywordLimit {
   MinLength = 2,
-  MaxLength = 10,
+  MaxLength = 12,
 }
 
 export interface Scanner {
@@ -390,6 +537,11 @@ export function isComment(token: Token): boolean {
 
 export function isKeyword(token: Token) {
   return token >= Token.__StartKeyword && token < Token.__EndKeyword;
+}
+
+/** If is a keyword with no actual use right now but will be in the future. */
+export function isReservedKeyword(token: Token) {
+  return token >= Token.__StartReservedKeyword && token < Token.__EndReservedKeyword;
 }
 
 export function isPunctuation(token: Token) {
