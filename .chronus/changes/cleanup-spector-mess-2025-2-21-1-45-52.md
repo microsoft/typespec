@@ -3,6 +3,7 @@
 changeKind: feature
 packages:
   - "@typespec/spector"
+  - "@typespec/spec-api"
 ---
 
 Make handling of request body and response body consitent
