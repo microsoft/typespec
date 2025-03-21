@@ -1,14 +1,8 @@
-# @typespec/http-server-csharp
+---
+title: "Emitter usage"
+---
 
-TypeSpec service code generator for c-sharp
-
-## Install
-
-```bash
-npm install @typespec/http-server-csharp
-```
-
-## Usage
+# Emitter Usage
 
 1. Via the command line
 
@@ -51,7 +45,7 @@ Chooses which service artifacts to emit. choices include 'models' or 'all' artif
 
 **Type:** `"mocks-and-project-files" | "mocks-only" | "none"`
 
-Emits mock implementations of business logic, setup code, and project files, enabling the service to respond to requests before a real implementation is provided
+Emits mock implementations of business logic, setup code, and project files enabling the service to respond to requests before a real implementation is provided
 
 ### `use-swaggerui`
 
@@ -69,7 +63,7 @@ Use openapi at the given path for generating SwaggerUI endpoints. By default, th
 
 **Type:** `boolean`
 
-When generating mock and project files, overwrite any existing files with the same name.
+When generating mock files, setup code, and project files, overwrite any existing files with the same name.
 
 ### `project-name`
 
