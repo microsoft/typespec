@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package type.enums.fixed;
+package type.enumnamespace.fixed;
 
 import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.pipeline.HttpRetryOptions;

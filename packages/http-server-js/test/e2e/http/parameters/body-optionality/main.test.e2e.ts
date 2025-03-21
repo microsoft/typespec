@@ -39,7 +39,11 @@ describe("Parameters.BodyOptionality", () => {
       testRouterOptions,
     );
     const baseUrl = await startServer(router, serverAbortController.signal);
-    const { status } = await runScenario("parameters/body-optionality/**/*", baseUrl);
+    // Skipping optional explicit scenarios: https://github.com/microsoft/typespec/issues/6561
+    const { status } = await runScenario(
+      "parameters/bodyoptionality/**/!(optionalexplicit)*",
+      baseUrl,
+    );
     expect(status).toBe("pass");
   });
 });

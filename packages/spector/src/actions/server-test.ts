@@ -170,6 +170,11 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
   log("");
   log("Server Tests Diagnostics Summary");
 
+  if (successfullScenarios.length === 0 && failureDiagnostics.length === 0) {
+    logger.error("No scenarios were executed");
+    process.exit(-1);
+  }
+  
   if (successfullScenarios.length > 0) log("Success Scenarios");
   successfullScenarios.forEach((diagnostic) => {
     log(`${pc.green("✓")} Scenario: ${pc.cyan(diagnostic.name)}`);
