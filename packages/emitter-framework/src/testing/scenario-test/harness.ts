@@ -52,7 +52,8 @@ async function assertGetEmittedFile(
     throw new Error(`Error compiling code:\n ${errors.map((x) => x.message).join("\n")}`);
   }
 
-  const sourceFile = emittedFiles.find((x) => x.path === file);
+  const normalizedTarget = normalizePath(file);
+  const sourceFile = emittedFiles.find((x) => normalizePath(x.path) === normalizedTarget);
 
   if (!sourceFile) {
     throw new Error(
@@ -60,6 +61,10 @@ async function assertGetEmittedFile(
     );
   }
   return sourceFile;
+}
+
+function normalizePath(path: string) {
+  return path.replace(/\\/g, "/");
 }
 
 /**
