@@ -58,7 +58,7 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-unicorn": "^57.0.0",
-    "eslint-plugin-vitest": "^0.5.4",
+    "@vitest/eslint-plugin": "^1.1.38",
     "micromatch": "^4.0.8",
     "picocolors": "~1.1.1",
     "playwright": "^1.51.1",
