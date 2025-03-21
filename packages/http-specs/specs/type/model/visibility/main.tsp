@@ -61,10 +61,18 @@ model ReadOnlyModel {
   ```
   """)
 @get
-op getModel(): {
+op getModel(@bodyRoot input: VisibilityModel): {
   @body
   output: VisibilityModel;
 };
+
+@scenario
+@scenarioDoc("""
+  Generate abd send put model with write/create properties.
+  Expected no body with `?queryProp=123`.
+  """)
+@head
+op headModel(@bodyRoot input: VisibilityModel): OkResponse;
 
 @scenario
 @scenarioDoc("""

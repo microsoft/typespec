@@ -31,9 +31,23 @@ Scenarios.Type_Model_Visibility_putReadOnlyModel = passOnSuccess({
   },
   kind: "MockApiDefinition",
 });
+Scenarios.Type_Model_Visibility_headModel = passOnSuccess({
+  uri: "/type/model/visibility",
+  method: "head",
+  request: {
+    query: { queryProp: 123 },
+  },
+  response: {
+    status: 200,
+  },
+  kind: "MockApiDefinition",
+});
 Scenarios.Type_Model_Visibility_getModel = passOnSuccess({
   uri: "/type/model/visibility",
   method: "get",
+  request: {
+    query: { queryProp: 123 },
+  },
   response: {
     status: 200,
     body: json(genData(["readProp"])),
