@@ -415,22 +415,22 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             .type(ClientMethodType.SimpleSyncRestResponse)
                             .groupedParameterRequired(false)
                             .proxyMethod(proxyMethod.toSync());
+
+                        // fluent + sync stack needs simple rest response for implementation only
                         if (settings.isFluent()) {
-                            // fluent + sync stack needs simple rest response for implementation only
+                            simpleSyncMethodVisibility = NOT_VISIBLE;
+                            simpleSyncMethodVisibilityWithContext = NOT_VISIBLE;
                             ReturnValue binaryDataResponse = createSimpleSyncRestResponseReturnValue(operation,
                                 ResponseTypeFactory.createSyncResponse(operation, ClassType.BINARY_DATA,
                                     isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored()),
                                 ClassType.BINARY_DATA);
-                            builder.methodVisibility(NOT_VISIBLE).returnValue(binaryDataResponse);
-                        } else {
-                            builder.methodVisibility(simpleSyncMethodVisibility);
+                            builder.returnValue(binaryDataResponse);
                         }
 
+                        builder.methodVisibility(simpleSyncMethodVisibility);
                         methods.add(builder.build());
 
-                        if (!settings.isFluent()) {
-                            builder.methodVisibility(simpleSyncMethodVisibilityWithContext);
-                        }
+                        builder.methodVisibility(simpleSyncMethodVisibilityWithContext);
                         addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
 
                         // reset builder

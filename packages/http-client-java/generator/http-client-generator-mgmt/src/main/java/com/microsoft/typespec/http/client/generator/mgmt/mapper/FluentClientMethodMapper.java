@@ -85,7 +85,8 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
 
         boolean syncStack = JavaSettings.getInstance().isSyncStackEnabled();
 
-        JavaVisibility visibility;
+        JavaVisibility visibility
+            = super.methodVisibility(methodType, methodOverloadType, hasContextParameter, isProtocolMethod);
         if (methodType == ClientMethodType.PagingAsyncSinglePage) {
             // utility methods
             // single page method is not visible, but the method is required for other client methods
@@ -111,20 +112,17 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
                 && methodOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM) {
                 // SimpleAsync with maximum overload is covered by SimpleAsyncRestResponse
                 visibility = NOT_GENERATE;
-            } else if (((methodType.name().contains("Sync") && !hasContextParameter))
-                && ((methodOverloadType.value() & MethodOverloadType.OVERLOAD_MINIMUM.value())
-                    != MethodOverloadType.OVERLOAD_MINIMUM.value())) {
-                // sync method has both minimum overload and maximum overload + Context parameter, but not maximum
-                // overload without Context parameter
-                if (methodType == ClientMethodType.LongRunningBeginSync && syncStack) {
+            } else if (((methodType.name().contains("Sync")))) {
+                if (syncStack && methodType == ClientMethodType.LongRunningBeginSync) {
                     // In sync-stack, LongRunningSync calls LongRunningBeginSync for implementation.
                     visibility = NOT_VISIBLE;
-                } else {
+                } else if ((methodOverloadType.value() & MethodOverloadType.OVERLOAD_MINIMUM.value())
+                    != MethodOverloadType.OVERLOAD_MINIMUM.value()
+                    && !hasContextParameter) {
+                    // sync method has both minimum overload and maximum overload + Context parameter, but not maximum
+                    // overload without Context parameter
                     visibility = NOT_GENERATE;
                 }
-            } else {
-                visibility
-                    = super.methodVisibility(methodType, methodOverloadType, hasContextParameter, isProtocolMethod);
             }
         }
 
