@@ -23,6 +23,7 @@ export interface CSharpEmitterOptions {
   "sdk-context-options"?: CreateSdkContextOptions;
   "generate-protocol-methods"?: boolean;
   "generate-convenience-methods"?: boolean;
+  "package-name"?: string;
 }
 
 /**
