@@ -41,7 +41,7 @@ export async function validateMockApis({
     );
 
     if (programDiagnostics.length > 0) {
-      specCompiler.logDiagnostics(programDiagnostics, { log: logger.error });
+      specCompiler.logDiagnostics(programDiagnostics, specCompiler.NodeHost.logSink);
       diagnostics.reportDiagnostic({
         message: `Scenario ${name} is invalid.`,
       });
