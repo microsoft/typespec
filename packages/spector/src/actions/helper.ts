@@ -20,11 +20,8 @@ function renderMultipartRequest(body: MockMultipartBody) {
     body.files.forEach((file) => {
       formData.append(
         `${file.fieldname}`,
-        file.buffer as any,
-        {
-          filename: file.originalname,
-          contentType: file.mimetype,
-        } as any,
+        new Blob([file.buffer], { type: file.mimetype }),
+        file.originalname,
       );
     });
   }
@@ -59,14 +56,6 @@ export async function makeServiceCall(request: ServiceRequest): Promise<Response
     if ("kind" in request.body) {
       const formData = renderMultipartRequest(request.body);
       body = formData;
-
-      const resp = await fetch("https://echo-server.deno.dev", {
-        method: "POST",
-        body,
-      });
-
-      console.log("STATUS:", resp.status, "\nCONTENT TYPE:", resp.headers.get("content-type"));
-      console.log("RAW BODY:", await resp.text());
     } else {
       body = request.body.rawContent;
       headers = {
