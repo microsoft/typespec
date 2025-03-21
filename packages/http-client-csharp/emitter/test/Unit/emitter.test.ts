@@ -5,6 +5,7 @@ vi.mock("../../src/lib/utils.js", () => ({
   execAsync: vi.fn(),
 }));
 
+import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
@@ -92,6 +93,26 @@ describe("$onEmit tests", () => {
     context.options["update-code-model"] = updateCallback;
     await $onEmit(context);
     expect(updateCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it("should apply sdk-context-options", async () => {
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    const additionalDecorators = ["Decorator1", "Decorator2"];
+    context.options["sdk-context-options"] = {
+      versioning: {
+        previewStringRegex: /$/,
+      },
+      additionalDecorators: additionalDecorators,
+    };
+    await $onEmit(context);
+
+    expect(createSdkContext).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.any(String),
+      expect.objectContaining({
+        additionalDecorators: additionalDecorators,
+      }),
+    );
   });
 
   it("should set newProject to true if .csproj file DOES NOT exist", async () => {
