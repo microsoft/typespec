@@ -17,7 +17,7 @@ import { JsClientEmitterOptions } from "./lib.js";
  * @param context - The context for the emission process.
  */
 export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
-  const packageName = context.options["package-name"] ?? "testpackage";
+  const packageName = context.options["package-name"] ?? "test-package";
   const output = (
     <Output>
       <ts.PackageDirectory
