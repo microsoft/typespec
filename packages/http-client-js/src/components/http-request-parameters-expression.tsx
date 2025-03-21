@@ -1,10 +1,12 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
-import { HttpProperty } from "@typespec/http";
+import { HttpOperation, HttpProperty } from "@typespec/http";
 import { getDefaultValue } from "../utils/parameters.jsx";
 import { JsonTransform } from "./transforms/json/json-transform.jsx";
+import { $ } from "@typespec/compiler/experimental/typekit";
 export interface HttpRequestParametersExpressionProps {
+  httpOperation: HttpOperation;
   optionsParameter: ay.Children;
   parameters?: HttpProperty[];
   children?: ay.Children;
@@ -29,17 +31,15 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
     <ay.For each={props.parameters} line comma>
       {(httpProperty) => {
         const parameter = httpProperty.property;
-
+        
         const defaultValue = getDefaultValue(httpProperty);
-        const paramItemRef: ay.Children = transformNamer.getApplicationName(parameter);
-
-        const paramRef = ay.code`${optionsParamRef}?.${paramItemRef}`;
+        const paramItemRef: ay.Children = $.httpOperation.resolveParameterAccess(props.httpOperation, httpProperty)
 
         if (defaultValue) {
           const defaultAssignment = defaultValue ? ` ?? ${defaultValue}` : "";
           const headerValue = (
             <>
-              {paramRef}
+              {paramItemRef}
               {defaultAssignment}
             </>
           );
@@ -48,10 +48,11 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
           return paramAssignment;
         }
 
-        const itemRef: ay.Children = parameter.optional ? ay.code`${optionsParamRef}?` : null;
+        // Removes the last part of the parameter name
+        const itemRef: ay.Children = paramItemRef.split(".").slice(0, -1).join(".");
         if (parameter.optional) {
           return ay.code`
-        ...(${paramRef} && {${(<JsonTransform itemRef={itemRef} type={parameter} target="transport" />)}})
+        ...(${paramItemRef} && {${(<JsonTransform itemRef={itemRef} type={parameter} target="transport" />)}})
       `;
         } else {
           return <JsonTransform itemRef={itemRef} type={parameter} target="transport" />;

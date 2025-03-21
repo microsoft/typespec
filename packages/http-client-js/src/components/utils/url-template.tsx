@@ -8,7 +8,7 @@ export interface UrlTemplateProps {
   parameters: ModelProperty[];
 }
 
-export function UrlTemplate(props: UrlTemplateProps) {
+export function UrlTemplates(props: UrlTemplateProps) {
   const namer = useTransformNamePolicy();
   const params = props.parameters.map((p) => {
     return (

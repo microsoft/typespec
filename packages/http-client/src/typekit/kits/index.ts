@@ -3,3 +3,4 @@ export * from "./client.js";
 export * from "./model-property.js";
 export * from "./model.js";
 export * from "./operation.js";
+export * from "./http-operation.js";
