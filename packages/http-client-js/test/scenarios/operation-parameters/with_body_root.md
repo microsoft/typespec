@@ -27,7 +27,7 @@ export async function create(
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {
-      ...(options?.foo && { foo: options?.foo }),
+      ...(widget.foo && { foo: widget.foo }),
     },
     body: jsonWidgetToTransportTransform(widget),
   };
@@ -45,13 +45,10 @@ export async function create(
 
 ## Options
 
-The options bag should like all the optional parameters of the operation
+In this case the options bag should be empty, since the operation has no optional parameters. The optional properties are on the model.
 
 ```ts src/api/testClientOperations.ts interface CreateOptions
-export interface CreateOptions extends OperationOptions {
-  age?: string;
-  foo?: string;
-}
+export interface CreateOptions extends OperationOptions {}
 ```
 
 ## Client

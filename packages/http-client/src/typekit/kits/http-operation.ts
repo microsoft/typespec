@@ -1,6 +1,6 @@
 import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { HttpOperation, HttpProperty } from "@typespec/http";
-import {resolveOperationParameter} from "../../utils/operation-parameters.js"
+import { resolveOperationParameter } from "../../utils/operation-parameters.js";
 
 /**
  * Utilities for working with http operations in the context of a client.
@@ -25,7 +25,6 @@ defineKit<TypekitExtension>({
   httpOperation: {
     resolveParameterAccess(httpOperation, property) {
       return resolveOperationParameter(httpOperation, property);
-    }
-  }
+    },
+  },
 });
-

@@ -1,5 +1,5 @@
-import { HttpOperation, HttpProperty } from "@typespec/http";
 import { ModelProperty } from "@typespec/compiler";
+import { HttpOperation, HttpProperty } from "@typespec/http";
 import { usePropertyAccessPolicy } from "../context/property-access-policy-context.js";
 import { PropertyMetadata } from "../property-access-policy.js";
 
@@ -89,7 +89,10 @@ export function getOperationParameters(httpOp: HttpOperation): HttpProperty[] {
   return buildParameterTree(httpOp).roots.map((n) => n.httpProperty);
 }
 
-export function resolveOperationParameter(httpOperation: HttpOperation, httpProp: HttpProperty): string {
+export function resolveOperationParameter(
+  httpOperation: HttpOperation,
+  httpProp: HttpProperty,
+): string {
   const tree = buildParameterTree(httpOperation);
   const node = tree.nodeMap.get(httpProp);
   if (!node) throw new Error("HttpProperty not found.");
@@ -98,21 +101,20 @@ export function resolveOperationParameter(httpOperation: HttpOperation, httpProp
   const { path, property } = httpProp;
 
   if (path.length === 1) {
-    return policy.getTopLevelAccess(path[0], property.optional);
+    return policy.getTopLevelAccess(httpProp);
   }
 
   const fullPath = collectAccessPathWithOptionality(property, path, tree.parentMap);
-  const root = fullPath[0].name;
-  const rootOptional = fullPath[0].property.optional;
+  const root = fullPath[0];
   const tail = fullPath.slice(1);
 
-  return policy.getNestedAccess(root, tail, rootOptional);
+  return policy.getNestedAccess(root, tail);
 }
 
 function collectAccessPathWithOptionality(
   property: ModelProperty,
   path: (string | number)[],
-  parentMap: Map<ModelProperty, ModelProperty>
+  parentMap: Map<ModelProperty, ModelProperty>,
 ): PropertyMetadata[] {
   const result: PropertyMetadata[] = [];
   let current = property;
@@ -123,7 +125,7 @@ function collectAccessPathWithOptionality(
     result.unshift({
       name: path[i],
       property: current,
-      parent
+      parent,
     });
     if (!parent) break;
     current = parent;

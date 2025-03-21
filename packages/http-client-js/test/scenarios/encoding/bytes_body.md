@@ -15,6 +15,14 @@ op foo(@header contentType: "application/octet-stream", @body value: bytes): {
 
 ## TypeScript
 
+FooOptions should contain an optional contentType property, this is because it has a default value of "application/octet-stream" in the operation.
+
+```ts src/api/testClientOperations.ts interface FooOptions
+export interface FooOptions extends OperationOptions {
+  contentType?: "application/octet-stream";
+}
+```
+
 ```ts src/api/testClientOperations.ts function foo
 export async function foo(
   client: TestClientContext,

@@ -58,11 +58,12 @@ export async function create(
 ## Options
 
 The options bag should like all the optional parameters of the operation
+Note: interiorNumber is not included in the options bag because it is not a parameter of the operation
+
 
 ```ts src/api/testClientOperations.ts interface CreateOptions
 export interface CreateOptions extends OperationOptions {
   age?: string;
-  interiorNumber?: string;
   address?: Address;
 }
 ```

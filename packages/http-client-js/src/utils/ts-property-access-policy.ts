@@ -1,16 +1,21 @@
 import { useTSNamePolicy } from "@alloy-js/typescript";
 import { PropertyAccessPolicy } from "@typespec/http-client";
+import { getDefaultValue } from "./parameters.jsx";
 
 export const TypeScriptPropertyAccessPolicy: PropertyAccessPolicy = {
-  getTopLevelAccess(name, optional) {
-    const id = formatAccess(name);
-    return optional ? `options?.${id}` : id;
+  getTopLevelAccess(httpProperty) {
+    const id = formatAccess(httpProperty.property.name);
+    const isOptional =
+      httpProperty.property.optional || getDefaultValue(httpProperty.property) !== undefined;
+    return isOptional ? `options?.${id}` : id;
   },
 
-  getNestedAccess(root, path, rootOptional) {
-    let result = rootOptional
-      ? `options?.${formatAccess(root)}`
-      : formatAccess(root);
+  getNestedAccess(root, path) {
+    const name = root.name;
+    let result =
+      root.property.optional || getDefaultValue(root.property) !== undefined
+        ? `options?.${formatAccess(name)}`
+        : formatAccess(name);
 
     for (const segment of path) {
       const isParentOptional = segment.parent?.optional ?? false;

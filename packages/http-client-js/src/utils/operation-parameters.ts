@@ -14,7 +14,7 @@ export function resolveHttpParameters(httpOperation: HttpOperation): OperationPa
   const namePolicy = useTSNamePolicy();
 
   const positionalParameters = httpProperties.filter(
-    (p) => p.path.length === 1 && !p.property.optional
+    (p) => p.path.length === 1 && !p.property.optional,
   );
 
   const positionalParamMap = new Map<string | number, HttpProperty>();

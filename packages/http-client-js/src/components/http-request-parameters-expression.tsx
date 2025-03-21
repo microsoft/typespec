@@ -1,10 +1,10 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import { HttpOperation, HttpProperty } from "@typespec/http";
 import { getDefaultValue } from "../utils/parameters.jsx";
 import { JsonTransform } from "./transforms/json/json-transform.jsx";
-import { $ } from "@typespec/compiler/experimental/typekit";
 export interface HttpRequestParametersExpressionProps {
   httpOperation: HttpOperation;
   optionsParameter: ay.Children;
@@ -31,9 +31,12 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
     <ay.For each={props.parameters} line comma>
       {(httpProperty) => {
         const parameter = httpProperty.property;
-        
+
         const defaultValue = getDefaultValue(httpProperty);
-        const paramItemRef: ay.Children = $.httpOperation.resolveParameterAccess(props.httpOperation, httpProperty)
+        const paramItemRef: ay.Children = $.httpOperation.resolveParameterAccess(
+          props.httpOperation,
+          httpProperty,
+        );
 
         if (defaultValue) {
           const defaultAssignment = defaultValue ? ` ?? ${defaultValue}` : "";

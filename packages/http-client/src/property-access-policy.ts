@@ -1,11 +1,12 @@
 import { ModelProperty } from "@typespec/compiler";
+import { HttpProperty } from "@typespec/http";
 
-export interface PropertyMetadata { name: string | number; property: ModelProperty, parent?: ModelProperty }
+export interface PropertyMetadata {
+  name: string | number;
+  property: ModelProperty;
+  parent?: ModelProperty;
+}
 export interface PropertyAccessPolicy {
-  getTopLevelAccess(name: string | number, optional: boolean): string;
-  getNestedAccess(
-    root: string | number,
-    metadata: PropertyMetadata[],
-    rootOptional: boolean
-  ): string;
+  getTopLevelAccess(property: HttpProperty): string;
+  getNestedAccess(root: PropertyMetadata, metadata: PropertyMetadata[]): string;
 }
