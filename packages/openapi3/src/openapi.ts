@@ -1116,7 +1116,7 @@ function createOAPIEmitter(
             body.type,
             visibility,
             body.isExplicit && body.containsMetadataAnnotations,
-            contentType.startsWith("multipart/") ? contentType : undefined,
+            undefined,
           ),
           ...oai3Examples,
         };

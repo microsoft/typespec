@@ -133,7 +133,14 @@ export const $lib = createTypeSpecLibrary({
     "multipart-model": {
       severity: "error",
       messages: {
-        default: "Multipart request body must be a model.",
+        default: "Multipart request body must be a model or a tuple of http parts.",
+      },
+    },
+    "no-implicit-multipart": {
+      severity: "error",
+      messages: {
+        default:
+          "Using multipart payloads requires the use of @multipartBody and HttpPart<T> models.",
       },
     },
     "multipart-part": {
