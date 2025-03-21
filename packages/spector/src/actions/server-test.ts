@@ -175,14 +175,13 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
     process.exit(-1);
   }
 
-  if (successfullScenarios.length > 0) log("Success Scenarios");
+  if (successfullScenarios.length > 0) log("Successfull scenarios");
   successfullScenarios.forEach((diagnostic) => {
     log(`${pc.green("✓")} Scenario: ${pc.cyan(diagnostic.name)}`);
   });
 
-  if (failureDiagnostics.length > 0) log("Failure Scenarios");
   if (failureDiagnostics.length > 0) {
-    log("Failed Scenario details");
+    log("Failed scenarios");
     failureDiagnostics.forEach((diagnostic) => {
       log(`${pc.red("✘")} Scenario: ${pc.cyan(diagnostic.scenarioName)}`);
       log(`${diagnostic.message}`);

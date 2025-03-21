@@ -2043,9 +2043,6 @@ importers:
       '@types/node':
         specifier: ~22.13.9
         version: 22.13.9
-      '@types/node-fetch':
-        specifier: ^2.6.12
-        version: 2.6.12
       '@types/xml2js':
         specifier: ^0.4.11
         version: 0.4.14
@@ -6122,9 +6119,6 @@ packages:
 
   '@types/nlcst@2.0.3':
     resolution: {integrity: sha512-vSYNSDe6Ix3q+6Z7ri9lyWqgGhJTmzRjZRqyq15N0Z/1/UnVsno9G/N40NBijoYx2seFDIl0+B2mgAb9mezUCA==}
-
-  '@types/node-fetch@2.6.12':
-    resolution: {integrity: sha512-8nneRWKCg3rMtF69nLQJnOYUcbafYeFSjqkw3jCRLsqkWFlHaoQrr5mXmofFGOx3DKn7UfmBMyov8ySvLRVldA==}
 
   '@types/node@17.0.45':
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
@@ -18235,11 +18229,6 @@ snapshots:
   '@types/nlcst@2.0.3':
     dependencies:
       '@types/unist': 3.0.3
-
-  '@types/node-fetch@2.6.12':
-    dependencies:
-      '@types/node': 22.13.9
-      form-data: 4.0.2
 
   '@types/node@17.0.45': {}
 
