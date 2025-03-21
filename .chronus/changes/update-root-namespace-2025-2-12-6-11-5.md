@@ -5,4 +5,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Always respect namesapce from TCGC
+Always respect namespace from TCGC
