@@ -1,4 +1,4 @@
-import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -6,9 +6,9 @@ Scenarios.SpecialWords_ModelProperties_sameAsModel = passOnSuccess({
   uri: "/special-words/model-properties/same-as-model",
   method: "post",
   request: {
-    body: {
+    body: json({
       SameAsModel: "ok",
-    },
+    }),
   },
   response: {
     status: 204,
@@ -21,9 +21,9 @@ function createModelsTests(uri: string) {
     uri,
     method: "post",
     request: {
-      body: {
+      body: json({
         name: "ok",
-      },
+      }),
     },
     response: {
       status: 204,
@@ -134,7 +134,7 @@ function createParametersTests(uri: string, data: any, paramName: string) {
     uri,
     method: "get",
     request: {
-      params: data,
+      query: data,
     },
     response: {
       status: 204,
