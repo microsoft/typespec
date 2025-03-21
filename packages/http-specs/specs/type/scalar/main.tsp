@@ -14,14 +14,25 @@ interface String {
   @scenarioDoc("Expect to handle a string value. Mock api will return 'test'")
   @get
   @doc("get string value")
-  get(): string;
+  get(): {
+    @header
+    contentType: "application/json";
+
+    @body
+    body: string;
+  };
 
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
   @scenario
   @scenarioDoc("Expect to send a string value. Mock api expect to receive 'test'")
   @put
   @doc("put string value")
-  put(@body @doc("_") body: string): void;
+  put(
+    @header
+    contentType: "application/json",
+
+    @body @doc("_") body: string,
+  ): void;
 }
 
 @route("/boolean")
@@ -31,14 +42,25 @@ interface Boolean {
   @scenarioDoc("Expect to handle a boolean value. Mock api will return true ")
   @get
   @doc("get boolean value")
-  get(): boolean;
+  get(): {
+    @header
+    contentType: "application/json";
+
+    @body
+    body: boolean;
+  };
 
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
   @scenario
   @scenarioDoc("Expect to send a boolean value. Mock api expect to receive 'true'")
   @put
   @doc("put boolean value")
-  put(@body @doc("_") body: boolean): void;
+  put(
+    @header
+    contentType: "application/json",
+
+    @body @doc("_") body: boolean,
+  ): void;
 }
 
 @route("/unknown")
@@ -48,14 +70,25 @@ interface Unknown {
   @scenarioDoc("Expect to handle a unknown type value. Mock api will return 'test'")
   @get
   @doc("get unknown value")
-  get(): unknown;
+  get(): {
+    @header
+    contentType: "application/json";
+
+    @body
+    body: unknown;
+  };
 
   #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
   @scenario
   @scenarioDoc("Expect to send a string value. Mock api expect to receive 'test'")
   @put
   @doc("put unknown value")
-  put(@body @doc("_") body: unknown): void;
+  put(
+    @header
+    contentType: "application/json",
+
+    @body @doc("_") body: unknown,
+  ): void;
 }
 
 @doc("Template to have scalar types operations")
@@ -69,7 +102,13 @@ interface ScalarTypesOperations<T, TDoc extends valueof string> {
     """)
   @get
   @route("/response_body")
-  responseBody(): T;
+  responseBody(): {
+    @header
+    contentType: "application/json";
+
+    @body
+    body: T;
+  };
 
   @scenario
   @scenarioDoc("""
@@ -80,7 +119,12 @@ interface ScalarTypesOperations<T, TDoc extends valueof string> {
     """)
   @put
   @route("/resquest_body")
-  requestBody(@body body: T): void;
+  requestBody(
+    @header
+    contentType: "application/json",
+
+    @body body: T,
+  ): void;
 
   @scenario
   @scenarioDoc("""
@@ -124,7 +168,12 @@ interface NumberTypesVerifyOperations<
     """)
   @post
   @route("/verify")
-  verify(@body body: T): void;
+  verify(
+    @header
+    contentType: "application/json",
+
+    @body body: T,
+  ): void;
 }
 
 @doc("Decimal type verification")
