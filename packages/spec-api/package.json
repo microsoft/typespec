@@ -2,8 +2,12 @@
   "name": "@typespec/spec-api",
   "version": "0.1.0-alpha.2",
   "description": "Spec api to implement mock api",
-  "main": "dist/index.js",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json",

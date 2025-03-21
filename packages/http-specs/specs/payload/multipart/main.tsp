@@ -9,8 +9,8 @@ using Spector;
 namespace Payload.MultiPart;
 
 model MultiPartRequest {
-  id: string;
-  profileImage: bytes;
+  id: HttpPart<string>;
+  profileImage: HttpPart<bytes>;
 }
 
 model Address {
@@ -52,25 +52,25 @@ model ComplexHttpPartsModelRequest {
 }
 
 model ComplexPartsRequest {
-  id: string;
-  address: Address;
-  profileImage: bytes;
-  pictures: bytes[];
+  id: HttpPart<string>;
+  address: HttpPart<Address>;
+  profileImage: HttpPart<bytes>;
+  pictures: HttpPart<bytes>[];
 }
 
 model JsonPartRequest {
-  address: Address;
-  profileImage: bytes;
+  address: HttpPart<Address>;
+  profileImage: HttpPart<bytes>;
 }
 
 model BinaryArrayPartsRequest {
-  id: string;
-  pictures: bytes[];
+  id: HttpPart<string>;
+  pictures: HttpPart<bytes>[];
 }
 
 model MultiBinaryPartsRequest {
-  profileImage: bytes;
-  picture?: bytes;
+  profileImage: HttpPart<bytes>;
+  picture?: HttpPart<bytes>;
 }
 
 @route("/form-data")
@@ -106,8 +106,7 @@ namespace FormData {
   @route("/mixed-parts")
   op basic(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: MultiPartRequest,
+    @multipartBody body: MultiPartRequest,
   ): NoContentResponse;
 
   @scenario
@@ -167,8 +166,7 @@ namespace FormData {
   @route("/complex-parts")
   op fileArrayAndBasic(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: ComplexPartsRequest,
+    @multipartBody body: ComplexPartsRequest,
   ): NoContentResponse;
 
   @scenario
@@ -204,8 +202,7 @@ namespace FormData {
   @route("/json-part")
   op jsonPart(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: JsonPartRequest,
+    @multipartBody body: JsonPartRequest,
   ): NoContentResponse;
 
   @scenario
@@ -244,8 +241,7 @@ namespace FormData {
   @route("/binary-array-parts")
   op binaryArrayParts(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: BinaryArrayPartsRequest,
+    @multipartBody body: BinaryArrayPartsRequest,
   ): NoContentResponse;
 
   @scenario
@@ -279,8 +275,7 @@ namespace FormData {
   @route("/multi-binary-parts")
   op multiBinaryParts(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: MultiBinaryPartsRequest,
+    @multipartBody body: MultiBinaryPartsRequest,
   ): NoContentResponse;
 
   @scenario
@@ -309,11 +304,9 @@ namespace FormData {
   @route("/check-filename-and-content-type")
   op checkFileNameAndContentType(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: MultiPartRequest,
+    @multipartBody body: MultiPartRequest,
   ): NoContentResponse;
 
-  #suppress "deprecated" "For testing to migrate for 1.0-rc"
   @scenario
   @scenarioDoc("""
     Expect request (
@@ -340,7 +333,9 @@ namespace FormData {
   @route("/anonymous-model")
   op anonymousModel(
     @header contentType: "multipart/form-data",
-    profileImage: MultiPartRequest.profileImage,
+    @multipartBody body: {
+      profileImage: HttpPart<bytes>;
+    },
   ): NoContentResponse;
 
   namespace HttpParts {

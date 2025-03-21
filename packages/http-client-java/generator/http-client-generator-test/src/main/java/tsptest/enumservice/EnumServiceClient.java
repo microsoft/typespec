@@ -281,13 +281,6 @@ public final class EnumServiceClient {
      * form of "," separated string.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param priorityArray The priorityArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -295,11 +288,11 @@ public final class EnumServiceClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> setIntEnumArrayWithResponse(List<String> priorityArray, RequestOptions requestOptions) {
+    public Response<Void> setIntEnumArrayWithResponse(List<String> priorityArray, RequestOptions requestOptions) {
         return this.serviceClient.setIntEnumArrayWithResponse(priorityArray, requestOptions);
     }
 
@@ -313,13 +306,6 @@ public final class EnumServiceClient {
      * "," separated string.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param stringArray The stringArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -327,11 +313,11 @@ public final class EnumServiceClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> setStringArrayWithResponse(List<String> stringArray, RequestOptions requestOptions) {
+    public Response<Void> setStringArrayWithResponse(List<String> stringArray, RequestOptions requestOptions) {
         return this.serviceClient.setStringArrayWithResponse(stringArray, requestOptions);
     }
 
@@ -345,13 +331,6 @@ public final class EnumServiceClient {
      * separated string.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param intArray The intArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -359,11 +338,11 @@ public final class EnumServiceClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> setIntArrayWithResponse(List<Integer> intArray, RequestOptions requestOptions) {
+    public Response<Void> setIntArrayWithResponse(List<Integer> intArray, RequestOptions requestOptions) {
         return this.serviceClient.setIntArrayWithResponse(intArray, requestOptions);
     }
 
@@ -377,13 +356,6 @@ public final class EnumServiceClient {
      * {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param colorArray The colorArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -391,11 +363,11 @@ public final class EnumServiceClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> setStringEnumMultiWithResponse(List<String> colorArray, RequestOptions requestOptions) {
+    public Response<Void> setStringEnumMultiWithResponse(List<String> colorArray, RequestOptions requestOptions) {
         return this.serviceClient.setStringEnumMultiWithResponse(colorArray, requestOptions);
     }
 
@@ -409,13 +381,6 @@ public final class EnumServiceClient {
      * {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param priorityArray The priorityArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -423,11 +388,11 @@ public final class EnumServiceClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> setIntEnumMultiWithResponse(List<String> priorityArray, RequestOptions requestOptions) {
+    public Response<Void> setIntEnumMultiWithResponse(List<String> priorityArray, RequestOptions requestOptions) {
         return this.serviceClient.setIntEnumMultiWithResponse(priorityArray, requestOptions);
     }
 
@@ -441,13 +406,6 @@ public final class EnumServiceClient {
      * {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param stringArray The stringArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -455,11 +413,11 @@ public final class EnumServiceClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> setStringMultiWithResponse(List<String> stringArray, RequestOptions requestOptions) {
+    public Response<Void> setStringMultiWithResponse(List<String> stringArray, RequestOptions requestOptions) {
         return this.serviceClient.setStringMultiWithResponse(stringArray, requestOptions);
     }
 
@@ -473,13 +431,6 @@ public final class EnumServiceClient {
      * {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param intArray The intArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -487,11 +438,11 @@ public final class EnumServiceClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> setIntMultiWithResponse(List<Integer> intArray, RequestOptions requestOptions) {
+    public Response<Void> setIntMultiWithResponse(List<Integer> intArray, RequestOptions requestOptions) {
         return this.serviceClient.setIntMultiWithResponse(intArray, requestOptions);
     }
 
@@ -504,13 +455,6 @@ public final class EnumServiceClient {
      * <tr><td>color-array-opt</td><td>List&lt;String&gt;</td><td>No</td><td>The colorArrayOpt parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * String
-     * }
-     * </pre>
      * 
      * @param colorArray The colorArray parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -518,12 +462,11 @@ public final class EnumServiceClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return a sequence of textual characters along with {@link Response}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> setStringEnumArrayHeaderWithResponse(List<String> colorArray,
-        RequestOptions requestOptions) {
+    public Response<Void> setStringEnumArrayHeaderWithResponse(List<String> colorArray, RequestOptions requestOptions) {
         return this.serviceClient.setStringEnumArrayHeaderWithResponse(colorArray, requestOptions);
     }
 
@@ -669,7 +612,7 @@ public final class EnumServiceClient {
         }
         return setStringEnumArrayWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -691,7 +634,7 @@ public final class EnumServiceClient {
         RequestOptions requestOptions = new RequestOptions();
         return setStringEnumArrayWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue().toString();
     }
 
     /**
@@ -705,11 +648,10 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setIntEnumArray(List<Priority> priorityArray, List<Priority> priorityArrayOpt) {
+    public void setIntEnumArray(List<Priority> priorityArray, List<Priority> priorityArrayOpt) {
         // Generated convenience method for setIntEnumArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (priorityArrayOpt != null) {
@@ -719,9 +661,9 @@ public final class EnumServiceClient {
                     .collect(Collectors.joining(",")),
                 false);
         }
-        return setIntEnumArrayWithResponse(priorityArray.stream()
+        setIntEnumArrayWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue();
     }
 
     /**
@@ -734,16 +676,15 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setIntEnumArray(List<Priority> priorityArray) {
+    public void setIntEnumArray(List<Priority> priorityArray) {
         // Generated convenience method for setIntEnumArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setIntEnumArrayWithResponse(priorityArray.stream()
+        setIntEnumArrayWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue();
     }
 
     /**
@@ -757,11 +698,10 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setStringArray(List<String> stringArray, List<String> stringArrayOpt) {
+    public void setStringArray(List<String> stringArray, List<String> stringArrayOpt) {
         // Generated convenience method for setStringArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (stringArrayOpt != null) {
@@ -771,7 +711,7 @@ public final class EnumServiceClient {
                     .collect(Collectors.joining(",")),
                 false);
         }
-        return setStringArrayWithResponse(stringArray, requestOptions).getValue().toObject(String.class);
+        setStringArrayWithResponse(stringArray, requestOptions).getValue();
     }
 
     /**
@@ -784,14 +724,13 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setStringArray(List<String> stringArray) {
+    public void setStringArray(List<String> stringArray) {
         // Generated convenience method for setStringArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setStringArrayWithResponse(stringArray, requestOptions).getValue().toObject(String.class);
+        setStringArrayWithResponse(stringArray, requestOptions).getValue();
     }
 
     /**
@@ -805,11 +744,10 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setIntArray(List<Integer> intArray, List<Integer> intArrayOpt) {
+    public void setIntArray(List<Integer> intArray, List<Integer> intArrayOpt) {
         // Generated convenience method for setIntArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (intArrayOpt != null) {
@@ -817,7 +755,7 @@ public final class EnumServiceClient {
                 JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(intArrayOpt, CollectionFormat.CSV),
                 false);
         }
-        return setIntArrayWithResponse(intArray, requestOptions).getValue().toObject(String.class);
+        setIntArrayWithResponse(intArray, requestOptions).getValue();
     }
 
     /**
@@ -830,14 +768,13 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setIntArray(List<Integer> intArray) {
+    public void setIntArray(List<Integer> intArray) {
         // Generated convenience method for setIntArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setIntArrayWithResponse(intArray, requestOptions).getValue().toObject(String.class);
+        setIntArrayWithResponse(intArray, requestOptions).getValue();
     }
 
     /**
@@ -851,11 +788,10 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setStringEnumMulti(List<ColorModel> colorArray, List<ColorModel> colorArrayOpt) {
+    public void setStringEnumMulti(List<ColorModel> colorArray, List<ColorModel> colorArrayOpt) {
         // Generated convenience method for setStringEnumMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (colorArrayOpt != null) {
@@ -865,9 +801,9 @@ public final class EnumServiceClient {
                 }
             }
         }
-        return setStringEnumMultiWithResponse(colorArray.stream()
+        setStringEnumMultiWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue();
     }
 
     /**
@@ -880,16 +816,15 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setStringEnumMulti(List<ColorModel> colorArray) {
+    public void setStringEnumMulti(List<ColorModel> colorArray) {
         // Generated convenience method for setStringEnumMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setStringEnumMultiWithResponse(colorArray.stream()
+        setStringEnumMultiWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue();
     }
 
     /**
@@ -903,11 +838,10 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setIntEnumMulti(List<Priority> priorityArray, List<Priority> priorityArrayOpt) {
+    public void setIntEnumMulti(List<Priority> priorityArray, List<Priority> priorityArrayOpt) {
         // Generated convenience method for setIntEnumMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (priorityArrayOpt != null) {
@@ -917,9 +851,9 @@ public final class EnumServiceClient {
                 }
             }
         }
-        return setIntEnumMultiWithResponse(priorityArray.stream()
+        setIntEnumMultiWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue();
     }
 
     /**
@@ -932,16 +866,15 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setIntEnumMulti(List<Priority> priorityArray) {
+    public void setIntEnumMulti(List<Priority> priorityArray) {
         // Generated convenience method for setIntEnumMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setIntEnumMultiWithResponse(priorityArray.stream()
+        setIntEnumMultiWithResponse(priorityArray.stream()
             .map(paramItemValue -> paramItemValue == null ? "" : String.valueOf(paramItemValue.toInt()))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue();
     }
 
     /**
@@ -955,11 +888,10 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setStringMulti(List<String> stringArray, List<String> stringArrayOpt) {
+    public void setStringMulti(List<String> stringArray, List<String> stringArrayOpt) {
         // Generated convenience method for setStringMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (stringArrayOpt != null) {
@@ -969,7 +901,7 @@ public final class EnumServiceClient {
                 }
             }
         }
-        return setStringMultiWithResponse(stringArray, requestOptions).getValue().toObject(String.class);
+        setStringMultiWithResponse(stringArray, requestOptions).getValue();
     }
 
     /**
@@ -982,14 +914,13 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setStringMulti(List<String> stringArray) {
+    public void setStringMulti(List<String> stringArray) {
         // Generated convenience method for setStringMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setStringMultiWithResponse(stringArray, requestOptions).getValue().toObject(String.class);
+        setStringMultiWithResponse(stringArray, requestOptions).getValue();
     }
 
     /**
@@ -1003,11 +934,10 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setIntMulti(List<Integer> intArray, List<Integer> intArrayOpt) {
+    public void setIntMulti(List<Integer> intArray, List<Integer> intArrayOpt) {
         // Generated convenience method for setIntMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (intArrayOpt != null) {
@@ -1015,7 +945,7 @@ public final class EnumServiceClient {
                 requestOptions.addQueryParam("intArrayOpt", String.valueOf(paramItemValue), false);
             }
         }
-        return setIntMultiWithResponse(intArray, requestOptions).getValue().toObject(String.class);
+        setIntMultiWithResponse(intArray, requestOptions).getValue();
     }
 
     /**
@@ -1028,14 +958,13 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setIntMulti(List<Integer> intArray) {
+    public void setIntMulti(List<Integer> intArray) {
         // Generated convenience method for setIntMultiWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setIntMultiWithResponse(intArray, requestOptions).getValue().toObject(String.class);
+        setIntMultiWithResponse(intArray, requestOptions).getValue();
     }
 
     /**
@@ -1049,11 +978,10 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setStringEnumArrayHeader(List<ColorModel> colorArray, List<ColorModel> colorArrayOpt) {
+    public void setStringEnumArrayHeader(List<ColorModel> colorArray, List<ColorModel> colorArrayOpt) {
         // Generated convenience method for setStringEnumArrayHeaderWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (colorArrayOpt != null) {
@@ -1062,9 +990,9 @@ public final class EnumServiceClient {
                     .map(paramItemValue -> Objects.toString(paramItemValue, ""))
                     .collect(Collectors.joining(",")));
         }
-        return setStringEnumArrayHeaderWithResponse(colorArray.stream()
+        setStringEnumArrayHeaderWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue();
     }
 
     /**
@@ -1077,15 +1005,14 @@ public final class EnumServiceClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a sequence of textual characters.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public String setStringEnumArrayHeader(List<ColorModel> colorArray) {
+    public void setStringEnumArrayHeader(List<ColorModel> colorArray) {
         // Generated convenience method for setStringEnumArrayHeaderWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return setStringEnumArrayHeaderWithResponse(colorArray.stream()
+        setStringEnumArrayHeaderWithResponse(colorArray.stream()
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.toList()), requestOptions).getValue().toObject(String.class);
+            .collect(Collectors.toList()), requestOptions).getValue();
     }
 }

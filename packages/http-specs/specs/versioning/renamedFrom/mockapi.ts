@@ -6,12 +6,12 @@ Scenarios.Versioning_RenamedFrom_newOp = passOnSuccess({
   uri: `/versioning/renamed-from/api-version:v2/test`,
   method: `post`,
   request: {
-    body: {
+    body: json({
       newProp: "foo",
       enumProp: "newEnumMember",
       unionProp: 10,
-    },
-    params: {
+    }),
+    query: {
       newQuery: "bar",
     },
   },
@@ -26,11 +26,11 @@ Scenarios.Versioning_RenamedFrom_NewInterface = passOnSuccess({
   uri: `/versioning/renamed-from/api-version:v2/interface/test`,
   method: `post`,
   request: {
-    body: {
+    body: json({
       newProp: "foo",
       enumProp: "newEnumMember",
       unionProp: 10,
-    },
+    }),
   },
   response: {
     status: 200,

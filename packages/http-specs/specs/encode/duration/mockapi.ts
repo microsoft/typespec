@@ -13,7 +13,7 @@ function createBodyServerTests(uri: string, data: any, value: any) {
     uri,
     method: "post",
     request: {
-      body: data,
+      body: json(data),
     },
     response: {
       status: 200,
@@ -75,7 +75,7 @@ function createQueryServerTests(
     uri,
     method: "get",
     request: {
-      params: paramData,
+      query: paramData,
     },
     response: {
       status: 204,

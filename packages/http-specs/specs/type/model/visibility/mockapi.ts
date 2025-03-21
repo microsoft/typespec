@@ -6,7 +6,6 @@ function genData(keys: string[]): Record<string, any> {
   const ret: Record<string, any> = {};
   const fullData: Record<string, any> = {
     readProp: "abc",
-    queryProp: 123,
     createProp: ["foo", "bar"],
     updateProp: [1, 2],
     deleteProp: true,
@@ -36,7 +35,7 @@ Scenarios.Type_Model_Visibility_headModel = passOnSuccess({
   uri: "/type/model/visibility",
   method: "head",
   request: {
-    body: { queryProp: 123 },
+    query: { queryProp: 123 },
   },
   response: {
     status: 200,
@@ -47,7 +46,7 @@ Scenarios.Type_Model_Visibility_getModel = passOnSuccess({
   uri: "/type/model/visibility",
   method: "get",
   request: {
-    body: { queryProp: 123 },
+    query: { queryProp: 123 },
   },
   response: {
     status: 200,
@@ -59,10 +58,10 @@ Scenarios.Type_Model_Visibility_putModel = passOnSuccess({
   uri: "/type/model/visibility",
   method: "put",
   request: {
-    body: {
+    body: json({
       createProp: ["foo", "bar"],
       updateProp: [1, 2],
-    },
+    }),
   },
   response: {
     status: 204,
@@ -73,9 +72,9 @@ Scenarios.Type_Model_Visibility_patchModel = passOnSuccess({
   uri: "/type/model/visibility",
   method: "patch",
   request: {
-    body: {
+    body: json({
       updateProp: [1, 2],
-    },
+    }),
   },
   response: {
     status: 204,
@@ -86,9 +85,9 @@ Scenarios.Type_Model_Visibility_postModel = passOnSuccess({
   uri: "/type/model/visibility",
   method: "post",
   request: {
-    body: {
+    body: json({
       createProp: ["foo", "bar"],
-    },
+    }),
   },
   response: {
     status: 204,
@@ -99,7 +98,7 @@ Scenarios.Type_Model_Visibility_deleteModel = passOnSuccess({
   uri: "/type/model/visibility",
   method: "delete",
   request: {
-    body: { deleteProp: true },
+    body: json({ deleteProp: true }),
   },
   response: {
     status: 204,
