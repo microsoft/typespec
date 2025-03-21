@@ -13,6 +13,7 @@ import {
   createEmitterContext,
   createEmitterTestHost,
   typeSpecCompile,
+  getCreateSdkContext
 } from "./utils/test-util.js";
 
 describe("$onEmit tests", () => {
@@ -104,7 +105,7 @@ describe("$onEmit tests", () => {
       additionalDecorators: additionalDecorators,
     };
     await $onEmit(context);
-
+    const createSdkContext = await getCreateSdkContext();
     expect(createSdkContext).toHaveBeenCalledWith(
       expect.anything(),
       expect.any(String),
