@@ -1168,6 +1168,14 @@ function createOAPIEmitter(
           items: schema,
         };
       }
+
+      if (part.property) {
+        const doc = getDoc(program, part.property);
+        if (doc) {
+          schema = { ...schema, description: doc };
+        }
+      }
+
       properties[partName] = schema;
 
       const encoding = resolveEncodingForMultipartPart(part, visibility, schema);
