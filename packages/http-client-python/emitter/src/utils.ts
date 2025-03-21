@@ -345,6 +345,30 @@ export function md2Rst(text?: string): string | undefined {
   return text;
 }
 
+const LIB_NAMESPACE = [
+  "azure.core",
+  "azure.resourcemanager",
+  "azure.clientgenerator.core",
+  "typespec.rest",
+  "typespec.http",
+  "typespec.versioning",
+];
+
 export function getRootNamespace(context: PythonSdkContext): string {
-  return removeUnderscoresFromNamespace(context.sdkPackage.namespaces[0].fullName).toLowerCase();
+  let rootNamespace = "";
+  if (context.sdkPackage.clients.length > 0) {
+    rootNamespace = context.sdkPackage.clients[0].namespace;
+  } else if (context.sdkPackage.models.length > 0) {
+    const result = context.sdkPackage.models
+      .map((model) => model.namespace)
+      .filter((namespace) => !LIB_NAMESPACE.includes(namespace));
+    if (result.length > 0) {
+      result.sort();
+      rootNamespace = result[0];
+    }
+  } else if (context.sdkPackage.namespaces.length > 0) {
+    rootNamespace = context.sdkPackage.namespaces[0].fullName;
+  }
+
+  return removeUnderscoresFromNamespace(rootNamespace).toLowerCase();
 }
