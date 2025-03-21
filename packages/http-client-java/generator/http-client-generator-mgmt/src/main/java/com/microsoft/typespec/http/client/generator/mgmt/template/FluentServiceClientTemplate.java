@@ -125,10 +125,10 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
             INSTANCE.additionalMethods.add(getContextMethod);
             INSTANCE.additionalMethods.add(mergeContextMethod);
             INSTANCE.additionalMethods.add(getLroResultMethod);
-            INSTANCE.additionalMethods.add(getLroFinalResultOrErrorMethod);
             if (JavaSettings.getInstance().isSyncStackEnabled()) {
                 INSTANCE.additionalMethods.add(getLroResultSyncMethod);
             }
+            INSTANCE.additionalMethods.add(getLroFinalResultOrErrorMethod);
         }
     }
 
