@@ -11,8 +11,7 @@ const DEFAULT_BASE_URL = "http://localhost:3000";
 
 export interface ServerTestDiagnostics {
   scenarioName: string;
-  status: "success" | "failure";
-  message: any;
+  message: string;
 }
 
 class ServerTestsGenerator {
@@ -27,7 +26,7 @@ class ServerTestsGenerator {
   }
 
   public async executeScenario() {
-    logger.info(`Executing ${this.name} endpoint - Method: ${this.mockApiDefinition.method}`);
+    log(`Executing ${this.name} endpoint - Method: ${this.mockApiDefinition.method}`);
 
     const response = await makeServiceCall({
       method: this.mockApiDefinition.method,
@@ -105,7 +104,7 @@ async function delay(ms: number) {
 }
 
 async function waitForServer(baseUrl: string) {
-  logger.info(`Executing server tests with base URL: ${baseUrl}`);
+  logger.debug(`Executing server tests with base URL: ${baseUrl}`);
   let retry = 0;
 
   while (retry < 3) {
@@ -125,15 +124,16 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   await waitForServer(baseUrl);
   const scenarios = await loadScenarioMockApis(scenariosPath);
-  const success_diagnostics: ServerTestDiagnostics[] = [];
+  const successfullScenarios: { name: string; pathlikeName: string }[] = [];
   const failureDiagnostics: ServerTestDiagnostics[] = [];
 
+  const scenarioEntries = Object.entries(scenarios);
   // 3. Execute each scenario
-  for (const [name, scenario] of Object.entries(scenarios)) {
-    const pathLikeName = name.replaceAll("_", "/").toLowerCase();
+  for (const [name, scenario] of scenarioEntries) {
+    const pathlikeName = name.replaceAll("_", "/").toLowerCase();
     const filter = options.filter?.toLowerCase();
-    if (filter && !micromatch.isMatch(pathLikeName, filter)) {
-      logger.debug(`Skipping scenario: ${pathLikeName}, does not match filter: ${filter}`);
+    if (filter && !micromatch.isMatch(pathlikeName, filter)) {
+      logger.debug(`Skipping scenario: ${pathlikeName}, does not match filter: ${filter}`);
       continue;
     }
     if (!Array.isArray(scenario.apis)) continue;
@@ -142,16 +142,14 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
       const obj: ServerTestsGenerator = new ServerTestsGenerator(name, api, baseUrl);
       try {
         await obj.executeScenario();
-        success_diagnostics.push({
-          scenarioName: name,
-          status: "success",
-          message: "executed successfully",
+        successfullScenarios.push({
+          name,
+          pathlikeName,
         });
       } catch (e: any) {
         if (e instanceof ValidationError) {
           failureDiagnostics.push({
             scenarioName: name,
-            status: "failure",
             message: [
               `Validation failed: ${e.message}:`,
               ` Expected:\n    ${inspect(e.expected)}`,
@@ -161,7 +159,6 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
         } else {
           failureDiagnostics.push({
             scenarioName: name,
-            status: "failure",
             message: `code = ${e.code} \n message = ${e.message} \n name = ${e.name} \n stack = ${e.stack} \n status = ${e.status}`,
           });
         }
@@ -170,23 +167,28 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
   }
 
   // 4. Print diagnostics
-  logger.info("Server Tests Diagnostics Summary");
+  log("");
+  log("Server Tests Diagnostics Summary");
 
-  if (success_diagnostics.length > 0) logger.info("Success Scenarios");
-  success_diagnostics.forEach((diagnostic) => {
-    logger.info(`${pc.green("✓")} Scenario: ${diagnostic.scenarioName} - ${diagnostic.message}`);
+  if (successfullScenarios.length > 0) log("Success Scenarios");
+  successfullScenarios.forEach((diagnostic) => {
+    log(`${pc.green("✓")} Scenario: ${pc.cyan(diagnostic.name)}`);
   });
 
-  if (failureDiagnostics.length > 0) logger.error("Failure Scenarios");
+  if (failureDiagnostics.length > 0) log("Failure Scenarios");
   if (failureDiagnostics.length > 0) {
     log("Failed Scenario details");
     failureDiagnostics.forEach((diagnostic) => {
-      log(`${pc.red("✘")} Scenario: ${diagnostic.scenarioName}`);
+      log(`${pc.red("✘")} Scenario: ${pc.cyan(diagnostic.scenarioName)}`);
       log(`${diagnostic.message}`);
     });
-    log(`${pc.red("✘")} ${failureDiagnostics.length} scenarios failed`);
-    process.exit(-1);
   }
+  log(pc.bold(pc.green(`✓ ${scenarioEntries.length} passed`)));
+  if (failureDiagnostics.length > 0) {
+    log(pc.red(`✘ ${failureDiagnostics.length} failed`));
+  }
+
+  process.exit(failureDiagnostics.length > 0 ? 1 : 0);
 }
 
 function log(message: string) {
