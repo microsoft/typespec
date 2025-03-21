@@ -17,9 +17,7 @@ export interface PythonEmitterOptions {
   debug?: boolean;
   flavor?: "azure";
   "examples-dir"?: string;
-  // If true, package namespace will respect the typespec namespace. Otherwise,
-  // package namespace is always aligned with package name.
-  "enable-typespec-namespace"?: boolean;
+  namespace?: string;
   "use-pyodide"?: boolean;
 }
 
@@ -47,7 +45,7 @@ const EmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
     debug: { type: "boolean", nullable: true },
     flavor: { type: "string", nullable: true },
     "examples-dir": { type: "string", nullable: true, format: "absolute-path" },
-    "enable-typespec-namespace": { type: "boolean", nullable: true },
+    namespace: { type: "string", nullable: true },
     "use-pyodide": { type: "boolean", nullable: true },
   },
   required: [],
@@ -77,6 +75,12 @@ const libDef = {
       },
     },
     // warning
+    "no-package-name": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`No package-name configured in tspconfig.yaml and will infer package-name '${"packageName"}' from namespace '${"namespace"}'.`,
+      },
+    },
     "no-valid-client": {
       severity: "warning",
       messages: {
