@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-java",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "TypeSpec library for emitting Java client from the TypeSpec REST protocol binding",
   "keywords": [
     "TypeSpec"
@@ -25,7 +25,7 @@
     }
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp ./emitter/temp ./generator/target/emitter.jar",
@@ -38,6 +38,7 @@
     "lint": "eslint ./emitter --max-warnings=0",
     "lint:fix": "eslint ./emitter --fix",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
+    "regen-docs": "node ../../packages/tspd/cmd/tspd.js doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-java/reference --skip-js",
     "extract-api": "npx api-extractor run --local --verbose"
   },
   "files": [

@@ -161,10 +161,15 @@ export class TspLanguageClient {
         logger.error(
           [
             `TypeSpec server executable was not found: '${this.exe.command}' is not found. Make sure either:`,
+            this.exe.command === "node"
+              ? " - Node.js is installed locally and available in PATH."
+              : "",
             ` - TypeSpec is installed locally at the root of this workspace ("${workspaceFolder}") or in a parent directory.`,
             " - TypeSpec is installed globally with `npm install -g @typespec/compiler'.",
             " - TypeSpec server path is configured with https://typespec.io/docs/introduction/editor/vscode/#configure.",
-          ].join("\n"),
+          ]
+            .filter((m) => m.trim() !== "")
+            .join("\n"),
           [],
           { showOutput: false, showPopup: true },
         );

@@ -4,16 +4,16 @@ This package contains all the scenarios that should be supported by a client & s
 
 ## Development
 
-1. [FOLLOW THE MONOREPO INSTRUCTION](https://github.com/Azure/cadl-ranch) to get the environment setup.
+1. [FOLLOW THE MONOREPO INSTRUCTION](https://github.com/microsoft/typespec) to get the environment setup.
 2. Scenarios should be in `./specs` folder
 
 #### Writing scenarios
 
-[Docs on writing scenarios specs](../../docs/writing-scenario-spec.md)
+[Docs on writing scenarios specs](../spector/docs/writing-scenario-spec.md)
 
 #### Writing mockapis
 
-[Docs on writing mock apis](../../docs/writing-mock-apis.md)
+[Docs on writing mock apis](../spector/docs/writing-mock-apis.md)
 
 #### Validate the scenarios are valid
 
