@@ -579,8 +579,9 @@ describe("uri template", () => {
         "/foo{?one*,two*}",
       ],
 
-      // cspell:ignore Atwo
+      // cspell:ignore Atwo Dtwo
       [`@query("one:two") one: string`, "/foo{?one%3Atwo}"],
+      [`@query("one-two") one: string`, "/foo{?one%2Dtwo}"],
     ])("%s -> %s", async (param, expectedUri) => {
       const op = await getOp(`@route("/foo") op foo(${param}): void;`);
       expect(op.uriTemplate).toEqual(expectedUri);

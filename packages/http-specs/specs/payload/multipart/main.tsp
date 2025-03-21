@@ -9,8 +9,8 @@ using Spector;
 namespace Payload.MultiPart;
 
 model MultiPartRequest {
-  id: string;
-  profileImage: bytes;
+  id: HttpPart<string>;
+  profileImage: HttpPart<bytes>;
 }
 
 model Address {
@@ -52,25 +52,25 @@ model ComplexHttpPartsModelRequest {
 }
 
 model ComplexPartsRequest {
-  id: string;
-  address: Address;
-  profileImage: bytes;
-  pictures: bytes[];
+  id: HttpPart<string>;
+  address: HttpPart<Address>;
+  profileImage: HttpPart<bytes>;
+  pictures: HttpPart<bytes>[];
 }
 
 model JsonPartRequest {
-  address: Address;
-  profileImage: bytes;
+  address: HttpPart<Address>;
+  profileImage: HttpPart<bytes>;
 }
 
 model BinaryArrayPartsRequest {
-  id: string;
-  pictures: bytes[];
+  id: HttpPart<string>;
+  pictures: HttpPart<bytes>[];
 }
 
 model MultiBinaryPartsRequest {
-  profileImage: bytes;
-  picture?: bytes;
+  profileImage: HttpPart<bytes>;
+  picture?: HttpPart<bytes>;
 }
 
 @route("/form-data")
@@ -79,9 +79,9 @@ namespace FormData {
   @scenarioDoc("""
     Expect request (
     - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-      appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+      appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
     - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-      If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+      If there are duplicated filename in same fieldName, server can't parse them all.
     ):
     ```
     POST /upload HTTP/1.1
@@ -106,17 +106,16 @@ namespace FormData {
   @route("/mixed-parts")
   op basic(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: MultiPartRequest,
+    @multipartBody body: MultiPartRequest,
   ): NoContentResponse;
 
   @scenario
   @scenarioDoc("""
     Expect request (
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-        appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+        appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-        If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+        If there are duplicated filename in same fieldName, server can't parse them all.
       ):
     ```
     POST /upload HTTP/1.1
@@ -167,17 +166,16 @@ namespace FormData {
   @route("/complex-parts")
   op fileArrayAndBasic(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: ComplexPartsRequest,
+    @multipartBody body: ComplexPartsRequest,
   ): NoContentResponse;
 
   @scenario
   @scenarioDoc("""
     Expect request (
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-        appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+        appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-        If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+        If there are duplicated filename in same fieldName, server can't parse them all.
       ):
     ```
     POST /upload HTTP/1.1
@@ -204,17 +202,16 @@ namespace FormData {
   @route("/json-part")
   op jsonPart(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: JsonPartRequest,
+    @multipartBody body: JsonPartRequest,
   ): NoContentResponse;
 
   @scenario
   @scenarioDoc("""
     Expect request (
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-        appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+        appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-        If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+        If there are duplicated filename in same fieldName, server can't parse them all.
       ):
     ```
     POST /upload HTTP/1.1
@@ -244,17 +241,16 @@ namespace FormData {
   @route("/binary-array-parts")
   op binaryArrayParts(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: BinaryArrayPartsRequest,
+    @multipartBody body: BinaryArrayPartsRequest,
   ): NoContentResponse;
 
   @scenario
   @scenarioDoc("""
     Please send request twice, first time with only profileImage, second time with both profileImage and picture(
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-        appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+        appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
       - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-        If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+        If there are duplicated filename in same fieldName, server can't parse them all.
       ):
     ```
     POST /upload HTTP/1.1
@@ -279,8 +275,7 @@ namespace FormData {
   @route("/multi-binary-parts")
   op multiBinaryParts(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: MultiBinaryPartsRequest,
+    @multipartBody body: MultiBinaryPartsRequest,
   ): NoContentResponse;
 
   @scenario
@@ -309,18 +304,16 @@ namespace FormData {
   @route("/check-filename-and-content-type")
   op checkFileNameAndContentType(
     @header contentType: "multipart/form-data",
-    #suppress "deprecated" "For testing to migrate for 1.0-rc"
-    @body body: MultiPartRequest,
+    @multipartBody body: MultiPartRequest,
   ): NoContentResponse;
 
-  #suppress "deprecated" "For testing to migrate for 1.0-rc"
   @scenario
   @scenarioDoc("""
     Expect request (
     - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with 
-      appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+      appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
     - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-      If there are duplicated filename in same filedName, cadl-ranch can't parse them all.
+      If there are duplicated filename in same filedName, server can't parse them all.
     ):
     ```
     POST /multipart/form-data/anonymous-model HTTP/1.1
@@ -340,7 +333,9 @@ namespace FormData {
   @route("/anonymous-model")
   op anonymousModel(
     @header contentType: "multipart/form-data",
-    profileImage: MultiPartRequest.profileImage,
+    @multipartBody body: {
+      profileImage: HttpPart<bytes>;
+    },
   ): NoContentResponse;
 
   namespace HttpParts {
@@ -419,7 +414,7 @@ namespace FormData {
     }
     @scenario
     @scenarioDoc("""
-      For File part, filename will not be checked but it is necessary otherwise cadl-ranch can't parse it;
+      For File part, filename will not be checked but it is necessary otherwise server can't parse it;
       content-type will be checked with value "application/octet-stream". Expect request:
       ```
       POST /upload HTTP/1.1

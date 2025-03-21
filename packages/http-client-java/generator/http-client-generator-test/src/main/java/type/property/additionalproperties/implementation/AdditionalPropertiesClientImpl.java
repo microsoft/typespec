@@ -450,20 +450,6 @@ public final class AdditionalPropertiesClientImpl {
     }
 
     /**
-     * The SpreadRecordDiscriminatedUnionsImpl object to access its operations.
-     */
-    private final SpreadRecordDiscriminatedUnionsImpl spreadRecordDiscriminatedUnions;
-
-    /**
-     * Gets the SpreadRecordDiscriminatedUnionsImpl object to access its operations.
-     * 
-     * @return the SpreadRecordDiscriminatedUnionsImpl object.
-     */
-    public SpreadRecordDiscriminatedUnionsImpl getSpreadRecordDiscriminatedUnions() {
-        return this.spreadRecordDiscriminatedUnions;
-    }
-
-    /**
      * The SpreadRecordNonDiscriminatedUnionsImpl object to access its operations.
      */
     private final SpreadRecordNonDiscriminatedUnionsImpl spreadRecordNonDiscriminatedUnions;
@@ -565,7 +551,6 @@ public final class AdditionalPropertiesClientImpl {
         this.extendsDifferentSpreadModelArrays = new ExtendsDifferentSpreadModelArraysImpl(this);
         this.multipleSpreads = new MultipleSpreadsImpl(this);
         this.spreadRecordUnions = new SpreadRecordUnionsImpl(this);
-        this.spreadRecordDiscriminatedUnions = new SpreadRecordDiscriminatedUnionsImpl(this);
         this.spreadRecordNonDiscriminatedUnions = new SpreadRecordNonDiscriminatedUnionsImpl(this);
         this.spreadRecordNonDiscriminatedUnion2s = new SpreadRecordNonDiscriminatedUnion2sImpl(this);
         this.spreadRecordNonDiscriminatedUnion3s = new SpreadRecordNonDiscriminatedUnion3sImpl(this);

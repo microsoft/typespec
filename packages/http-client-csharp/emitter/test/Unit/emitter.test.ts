@@ -19,6 +19,7 @@ describe("$onEmit tests", () => {
   let program: Program;
   let $onEmit: (arg0: EmitContext<CSharpEmitterOptions>) => any;
   beforeEach(async () => {
+
     // Reset the dynamically imported module to ensure a clean state
     vi.resetModules();
     vi.clearAllMocks();
@@ -93,6 +94,26 @@ describe("$onEmit tests", () => {
     expect(updateCallback).toHaveBeenCalledTimes(1);
   });
 
+  it("should apply sdk-context-options", async () => {
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    const additionalDecorators = ["Decorator1", "Decorator2"];
+    context.options["sdk-context-options"] = {
+      versioning: {
+        previewStringRegex: /$/,
+      },
+      additionalDecorators: additionalDecorators,
+    };
+    await $onEmit(context);
+
+    expect(createSdkContext).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.any(String),
+      expect.objectContaining({
+        additionalDecorators: additionalDecorators,
+      }),
+    );
+  });
+
   it("should set newProject to TRUE if .csproj file DOES NOT exist", async () => {
     vi.mocked(statSync).mockImplementation(() => {
       throw new Error("File not found");
@@ -127,10 +148,9 @@ describe("$onEmit tests", () => {
 
   it("should set newProject to TRUE if passed in options", async () => {
     vi.mocked(statSync).mockReturnValue({ isFile: () => true } as any);
-
+  
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
-      "new-project": true,
-    });
+      "new-project": true,});
     await $onEmit(context);
     expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
       generatorPath: expect.any(String),
@@ -143,11 +163,11 @@ describe("$onEmit tests", () => {
 
   it("should set newProject to FALSE if passed in options", async () => {
     vi.mocked(statSync).mockReturnValue({ isFile: () => true } as any);
-
+  
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
-      "new-project": false,
-    });
+      "new-project": false,});
     await $onEmit(context);
+    console.log("Test reached assertion point");
     expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
       generatorPath: expect.any(String),
       outputFolder: expect.any(String),
@@ -158,6 +178,7 @@ describe("$onEmit tests", () => {
   });
 });
 
+
 describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
   let program: Program;
@@ -166,12 +187,6 @@ describe("Test _validateDotNetSdk", () => {
 
   beforeEach(async () => {
     vi.resetModules();
-    vi.clearAllMocks();
-    vi.mock("../../src/lib/utils.js", () => ({
-      execCSharpGenerator: vi.fn(),
-      execAsync: vi.fn(),
-    }));
-
     runner = await createEmitterTestHost();
     program = await typeSpecCompile(
       `
@@ -183,7 +198,13 @@ describe("Test _validateDotNetSdk", () => {
       `,
       runner,
     );
-
+    // Restore all mocks before each test
+    vi.restoreAllMocks();
+    vi.mock("../../src/lib/utils.js", () => ({
+      execCSharpGenerator: vi.fn(),
+      execAsync: vi.fn(),
+    }));
+    
     // dynamically import the module to get the $onEmit function
     // we avoid importing it at the top to allow mocking of dependencies
     _validateDotNetSdk = (await import("../../src/emitter.js"))._validateDotNetSdk;

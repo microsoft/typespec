@@ -17,8 +17,8 @@ import "@typespec/protobuf";
 import "@typespec/http";
 import "@typespec/json-schema";
 
-using TypeSpec.Protobuf;
-using TypeSpec.Http;
+using Protobuf;
+using Http;
 
 @JsonSchema.jsonSchema
 @Protobuf.package({
