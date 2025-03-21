@@ -107,7 +107,6 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
       // }),
     },
     handler: (req: MockRequest) => {
-      console.log("req.baseUrl", req.baseUrl);
       return {
         status: 200,
         body: json({
