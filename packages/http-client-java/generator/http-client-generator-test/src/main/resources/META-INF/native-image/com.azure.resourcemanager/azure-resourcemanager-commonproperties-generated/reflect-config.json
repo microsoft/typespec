@@ -1,1 +1,1 @@
-[]
+[{"name":"azure.resourcemanager.commonproperties.models.ApiError","allDeclaredConstructors":true,"allDeclaredFields":true,"allDeclaredMethods":true},{"name":"azure.resourcemanager.commonproperties.models.ApiErrorException","allDeclaredConstructors":true,"allDeclaredFields":true,"allDeclaredMethods":true},{"name":"azure.resourcemanager.commonproperties.models.InnerError","allDeclaredConstructors":true,"allDeclaredFields":true,"allDeclaredMethods":true}]

@@ -26,7 +26,7 @@ namespace Response.StatusCodeRange;
   """)
 @route("/error-response-status-code-in-range")
 @get
-op errorResponseStatusCodeInRange(): 204 | ErrorInRange | DefaultError;
+op errorResponseStatusCodeInRange(): NoContentResponse | ErrorInRange | DefaultError;
 
 @scenario
 @scenarioDoc("""
@@ -44,7 +44,7 @@ op errorResponseStatusCodeInRange(): 204 | ErrorInRange | DefaultError;
   """)
 @route("/error-response-status-code-404")
 @get
-op errorResponseStatusCode404(): 204 | NotFoundError | Standard4XXError;
+op errorResponseStatusCode404(): NoContentResponse | NotFoundError | Standard4XXError;
 
 @error
 model NotFoundError {
