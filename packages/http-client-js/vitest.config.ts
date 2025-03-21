@@ -5,7 +5,8 @@ export default mergeConfig(
   defaultTypeSpecVitestConfig,
   defineConfig({
     test: {
-      include: ["test/scenarios.test.ts"],
+      include: ["test/**/*.test.ts"],
+      exclude: ["test/e2e/**/*"],
     },
   }),
 );
