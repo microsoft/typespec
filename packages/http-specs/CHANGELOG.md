@@ -1,5 +1,12 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.15
+
+### Bug Fixes
+
+- [#6521](https://github.com/microsoft/typespec/pull/6528) Add explicit `application/json` content type for some test cases to avoid wrong content type inferred from http lib.
+
+
 ## 0.1.0-alpha.14
 
 ### Bug Fixes
