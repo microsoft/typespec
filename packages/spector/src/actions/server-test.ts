@@ -212,6 +212,12 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
   // 4. Print diagnostics
   logger.info("Server Tests Diagnostics Summary");
 
+  // Exit with error if no diagnostics were ran
+  if (success_diagnostics.length === 0 && failure_diagnostics.length === 0) {
+    logger.error("No scenarios were executed");
+    process.exit(-1);
+  }
+
   if (success_diagnostics.length > 0) logger.info("Success Scenarios");
   success_diagnostics.forEach((diagnostic) => {
     logger.info(`${pc.green("✓")} Scenario: ${diagnostic.scenario_name} - ${diagnostic.message}`);

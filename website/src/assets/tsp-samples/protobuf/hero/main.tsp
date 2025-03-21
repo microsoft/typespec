@@ -1,6 +1,6 @@
 import "@typespec/protobuf";
 
-using TypeSpec.Protobuf;
+using Protobuf;
 
 @package({
   name: "addressbook",

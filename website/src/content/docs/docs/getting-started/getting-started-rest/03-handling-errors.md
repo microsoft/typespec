@@ -27,7 +27,7 @@ We'll define models to represent validation errors, not-found errors, and intern
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
