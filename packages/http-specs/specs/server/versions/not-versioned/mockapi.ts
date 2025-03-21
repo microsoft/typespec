@@ -40,7 +40,7 @@ Scenarios.Server_Versions_NotVersioned_withQueryApiVersion = passOnSuccess({
   uri: "/server/versions/not-versioned/with-query-api-version",
   method: "head",
   request: {
-    params: {
+    query: {
       "api-version": "v1.0",
     },
   },

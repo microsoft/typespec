@@ -6,10 +6,10 @@ Scenarios.Streaming_Jsonl_Basic_send = passOnSuccess({
   uri: "/streaming/jsonl/basic/send",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "application/jsonl",
+    body: {
+      rawContent: Buffer.from('{"desc": "one"}\n{"desc": "two"}\n{"desc": "three"}'),
+      contentType: "application/jsonl",
     },
-    body: Buffer.from('{"desc": "one"}\n{"desc": "two"}\n{"desc": "three"}'),
   },
   response: {
     status: 204,
