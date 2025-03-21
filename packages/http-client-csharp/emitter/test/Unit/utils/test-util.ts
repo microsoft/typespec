@@ -96,11 +96,14 @@ export async function typeSpecCompile(
   return host.program;
 }
 
-export function createEmitterContext(program: Program): EmitContext<CSharpEmitterOptions> {
+export function createEmitterContext(
+  program: Program,
+  options: CSharpEmitterOptions = {},
+): EmitContext<CSharpEmitterOptions> {
   return {
     program: program,
     emitterOutputDir: "./",
-    options: {
+    options: options ?? {
       outputFile: "tspCodeModel.json",
       logFile: "log.json",
       "new-project": false,

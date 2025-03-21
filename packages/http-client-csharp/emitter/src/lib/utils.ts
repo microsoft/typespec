@@ -21,7 +21,7 @@ export async function execCSharpGenerator(
     "-g",
     options.generatorName,
   ];
-  if (options.newProject) {
+  if (options.newProject === true) {
     args.push("--new-project");
   }
   if (options.debug) {
