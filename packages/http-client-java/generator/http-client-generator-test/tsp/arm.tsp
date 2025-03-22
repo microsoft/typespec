@@ -221,6 +221,28 @@ model ChildExtensionResourceProperties {
   provisioningState?: ProvisioningState;
 }
 
+/** Resource for testing conflict name with operation group. */
+model ManagedMaintenanceWindowStatusContent
+  is TrackedResource<ManagedMaintenanceWindowStatusContentProperties> {
+  ...ResourceNameParameter<ManagedMaintenanceWindowStatusContent>;
+}
+
+model ManagedMaintenanceWindowStatusContentProperties {
+  @visibility(Lifecycle.Read)
+  @doc("The status of the last operation.")
+  provisioningState: string;
+}
+
+model ModelInterfaceDifferentName is TrackedResource<ModelInterfaceDifferentNameProperties> {
+  ...ResourceNameParameter<ModelInterfaceDifferentName>;
+}
+
+model ModelInterfaceDifferentNameProperties {
+  @visibility(Lifecycle.Read)
+  @doc("The status of the last operation.")
+  provisioningState: string;
+}
+
 //----------------------- Paths -----------------------
 @armResourceOperations
 interface ChildResourcesInterface
@@ -283,5 +305,17 @@ op ArmResourceUpdateSync<
   resource: TResource,
 ): ResponseWithHeader<TResource> | ErrorResponse;
 
+@armResourceOperations
+interface ManagedMaintenanceWindowStatus {
+  get is ArmResourceRead<ManagedMaintenanceWindowStatusContent>;
+}
+
+@armResourceOperations
+interface ModelInterfaceSameName {
+  get is ArmResourceRead<ModelInterfaceDifferentName>;
+}
+
+@@clientName(ManagedMaintenanceWindowStatusContent, "ManagedMaintenanceWindowStatus");
+@@clientName(ModelInterfaceDifferentName, "ModelInterfaceSameName");
 @@flattenProperty(TrackedResource.properties);
 @@flattenProperty(Azure.ResourceManager.Foundations.ResourceUpdateModel.properties);

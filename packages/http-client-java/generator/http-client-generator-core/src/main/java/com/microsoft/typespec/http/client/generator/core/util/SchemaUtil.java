@@ -235,13 +235,14 @@ public class SchemaUtil {
         return returnType;
     }
 
-    public static IType removeModelFromResponse(IType type, Operation operation) {
-        if (type.asNullable() != ClassType.VOID) {
-            if (!operationIsHeadAsBoolean(operation)) {
-                type = ClassType.BINARY_DATA;
-            }
+    public static IType tryMapToBinaryData(IType type, Operation operation) {
+        if (type.asNullable() == ClassType.VOID) {
+            return type;
         }
-        return type;
+        if (operationIsHeadAsBoolean(operation)) {
+            return type;
+        }
+        return ClassType.BINARY_DATA;
     }
 
     private static boolean operationIsHeadAsBoolean(Operation operation) {

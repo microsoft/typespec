@@ -1,6 +1,7 @@
-import { AssetEmitter, code } from "@typespec/compiler/emitter-framework";
+import { AssetEmitter, code } from "@typespec/asset-emitter";
 import { GeneratedFileHeaderWithNullable } from "./boilerplate.js";
 import { CSharpType, LibrarySourceFile } from "./interfaces.js";
+import { CSharpServiceEmitterOptions } from "./lib.js";
 
 export interface BusinessLogicImplementation {
   namespace: string;
@@ -22,7 +23,7 @@ export type BusinessLogicRegistrations = Map<string, BusinessLogicImplementation
 export type BusinessLogicRegistration = [string, BusinessLogicImplementation];
 
 export function getScaffoldingHelpers(
-  emitter: AssetEmitter<string, Record<string, never>>,
+  emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
   useSwagger: boolean,
   openApiPath: string,
   hasMockRegistration: boolean,
@@ -32,7 +33,8 @@ export function getScaffoldingHelpers(
       filename: "Program.cs",
       emitter: emitter,
       getContents: () => getProjectStartup(useSwagger, openApiPath, hasMockRegistration),
-      path: "../",
+      path: "..",
+      conditional: true,
     }),
   ];
   if (hasMockRegistration) {
@@ -41,13 +43,15 @@ export function getScaffoldingHelpers(
         filename: "IInitializer.cs",
         emitter: emitter,
         getContents: getInitializerInterface,
-        path: "../mocks/",
+        path: "../mocks",
+        conditional: true,
       }),
       new LibrarySourceFile({
         filename: "Initializer.cs",
         emitter: emitter,
         getContents: getInitializerImplementation,
-        path: "../mocks/",
+        path: "../mocks",
+        conditional: true,
       }),
     );
   }
@@ -69,7 +73,8 @@ export function getBusinessLogicImplementations(
         filename: `${impl.className}.cs`,
         emitter: emitter,
         getContents: () => getBusinessLogicImplementation(impl),
-        path: "../mocks/",
+        path: "../mocks",
+        conditional: true,
       }),
     );
     mocks.push(impl);
@@ -80,11 +85,12 @@ export function getBusinessLogicImplementations(
         filename: "MockRegistration.cs",
         emitter: emitter,
         getContents: () => getMockRegistration(mocks),
-        path: "../mocks/",
+        path: "../mocks",
+        conditional: true,
       }),
     );
   }
-  sourceFiles.push(...getScaffoldingHelpers(emitter, useSwagger, openApiPath, mocks.length > 0));
+
   return sourceFiles;
 }
 

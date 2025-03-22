@@ -16,7 +16,7 @@ describe("http: plain data", () => {
       "main.tsp",
       `
       import "@typespec/http";
-      using TypeSpec.Http;
+      using Http;
 
       @test
       model Before {

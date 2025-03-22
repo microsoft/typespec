@@ -6,7 +6,7 @@ options:
     partial-update: true
     generate-samples: true
     generate-tests: true
-    examples-directory: "{project-root}/tsp/examples"
+    examples-dir: "{project-root}/tsp/examples"
     flavor: "Azure"
     dev-options:
       generate-code-model: true

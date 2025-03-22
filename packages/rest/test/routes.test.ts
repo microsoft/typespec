@@ -90,7 +90,7 @@ describe("rest: routes", () => {
   it("automatically generates routes for operations in various scopes when specified", async () => {
     const routes = await getRoutesFor(
       `
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       @route("/api")
       namespace Things {

@@ -4,9 +4,11 @@
 package azure.clientgenerator.core.usage;
 
 import azure.clientgenerator.core.usage.models.InputModel;
+import azure.clientgenerator.core.usage.models.OrphanModel;
 import azure.clientgenerator.core.usage.models.OutputModel;
 import azure.clientgenerator.core.usage.models.ResultModel;
 import azure.clientgenerator.core.usage.models.RoundTripModel;
+import com.azure.core.util.BinaryData;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import org.junit.jupiter.api.Assertions;
@@ -31,5 +33,8 @@ public class UsageTests {
         // verify "ResultModel" class has private constructor and no setter
         Constructor<ResultModel> ctorResultModel = ResultModel.class.getDeclaredConstructor(String.class);
         Assertions.assertEquals("private", Modifier.toString(ctorResultModel.getModifiers()));
+
+        // verify "OrphanModel" (when made public) can be serialized (and de-serializable as well) to JSON
+        client.orphanModelSerializableWithResponse(BinaryData.fromObject(new OrphanModel("name", "desc")), null);
     }
 }

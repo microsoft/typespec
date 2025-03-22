@@ -1,5 +1,5 @@
 import { Program, Type, navigateProgram } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import { BasicTestRunner, resolveVirtualPath } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, it } from "vitest";
 import { getPropertySource, getSourceModel } from "../src/lib/utils.js";
@@ -405,6 +405,29 @@ it("generates default values in properties", async () => {
     ],
   );
 });
+it("generates default values in required properties", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** string literal */
+        stringLiteralProp: string = "This is a string literal";
+        /** boolean literal */
+        boolLiteralProp: boolean =  true;
+        /** numeric literal */
+        numericLiteralProp: int32 = 17;
+      }
+      `,
+    "Foo.cs",
+    [
+      "public partial class Foo",
+      `public string StringLiteralProp { get; set; } = "This is a string literal";`,
+      "public bool BoolLiteralProp { get; set; } = true;",
+      "public int NumericLiteralProp { get; set; } = 17;",
+    ],
+  );
+});
 
 it("generates standard scalar array properties", async () => {
   await compileAndValidateSingleModel(
@@ -760,7 +783,7 @@ it("Generates types for named model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -781,7 +804,7 @@ it("Generates types for generic model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -802,7 +825,7 @@ it("Generates good name for model instantiation without hints", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -827,7 +850,7 @@ it("Generates types and controllers in a service subnamespace", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -856,7 +879,7 @@ it("Handles user-defined model templates", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -897,7 +920,7 @@ it("Handles void type in operations", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -932,7 +955,7 @@ it("Handles empty body 2xx as void", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -1444,55 +1467,57 @@ model FileAttachmentMultipartRequest {
   );
 });
 
-it("Produces correct scaffolding", async () => {
-  await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
-    `
-      @error
-  model NotFoundErrorResponse {
-     @statusCode statusCode: 404;
-     code: "not-found";
-  }
-model ApiError {
-  /** A machine readable error code */
-  code: string;
-
-  /** A human readable message */
-  message: string;
+const multipartSpec = `
+@error
+model NotFoundErrorResponse {
+@statusCode statusCode: 404;
+code: "not-found";
 }
-    /**
- * Something is wrong with you.
- */
+model ApiError {
+/** A machine readable error code */
+code: string;
+
+/** A human readable message */
+message: string;
+}
+/**
+* Something is wrong with you.
+*/
 model Standard4XXResponse extends ApiError {
-  @minValue(400)
-  @maxValue(499)
-  @statusCode
-  statusCode: int32;
+@minValue(400)
+@maxValue(499)
+@statusCode
+statusCode: int32;
 }
 
 /**
- * Something is wrong with me.
- */
+* Something is wrong with me.
+*/
 model Standard5XXResponse extends ApiError {
-  @minValue(500)
-  @maxValue(599)
-  @statusCode
-  statusCode: int32;
+@minValue(500)
+@maxValue(599)
+@statusCode
+statusCode: int32;
 }
 
 model FileAttachmentMultipartRequest {
-  contents: HttpPart<File>;
+contents: HttpPart<File>;
 }
 
-    alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
+alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
 
-    @post
-    op createFileAttachment(
-      @header contentType: "multipart/form-data",
-      @path itemId: int32,
-      @multipartBody body: FileAttachmentMultipartRequest,
-    ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
-    `,
+@post
+op createFileAttachment(
+@header contentType: "multipart/form-data",
+@path itemId: int32,
+@multipartBody body: FileAttachmentMultipartRequest,
+): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+`;
+
+it("Produces correct scaffolding", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    multipartSpec,
     [
       ["IInitializer.cs", ["public interface IInitializer"]],
       ["Initializer.cs", ["public class Initializer : IInitializer"]],
@@ -1506,13 +1531,76 @@ model FileAttachmentMultipartRequest {
         ],
       ],
       ["Program.cs", ["MockRegistration"]],
+      ["README.md", [`  - \`mocks/ContosoOperations.cs\``]],
+      ["usage.md", [`**controllers**`]],
+      ["emitter.md", [`@typespec/http-server-csharp`]],
     ],
   );
 });
 
+it("Does not overwrite mock files", async () => {
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "mocks-and-project-files",
+  });
+  runner.fs.set(
+    resolveVirtualPath("@typespec", "http-server-csharp", "../", "ServiceProject.csproj"),
+    "ServiceProject\n",
+  );
+  await compileAndValidateMultiple(runner, multipartSpec, [
+    ["ServiceProject.csproj", ["ServiceProject"]],
+  ]);
+});
+
+it("Does overwrite mock files with overWrite option", async () => {
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "mocks-and-project-files",
+    overwrite: true,
+  });
+  runner.fs.set(
+    resolveVirtualPath("@typespec", "http-server-csharp", "../", "ServiceProject.csproj"),
+    "ServiceProject\n",
+  );
+  await compileAndValidateMultiple(runner, multipartSpec, [
+    ["ServiceProject.csproj", ["<TargetFramework>net9.0</TargetFramework>"]],
+  ]);
+});
+
+it("reads default location for OpenAPI from config", async () => {
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "mocks-and-project-files",
+    "use-swaggerui": true,
+  });
+  runner.fs.set(
+    resolveVirtualPath("tspconfig.yaml"),
+    `
+emit:
+  - "@typespec/openapi3"
+options:
+  "@typespec/openapi3":
+    emitter-output-dir: "{project-root}/generated"
+    output-file: "openapi.yaml"
+
+`,
+  );
+  await compileAndValidateMultiple(runner, multipartSpec, [
+    [
+      "Program.cs",
+      [
+        "builder.Services.AddSwaggerGen();",
+        "app.UseSwagger();",
+        "app.UseSwaggerUI( c=> {",
+        `c.DocumentTitle = "TypeSpec Generated OpenAPI Viewer";`,
+        `c.SwaggerEndpoint("/openapi.yaml", "TypeSpec Generated OpenAPI Docs");`,
+        `c.RoutePrefix = "swagger";`,
+        `var externalFilePath = "../generated/openapi.yaml"; // Full path to the file outside the project`,
+      ],
+    ],
+  ]);
+});
+
 it("Handles spread parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
     model Widget {
       @path id: string;
@@ -1559,7 +1647,7 @@ it("Handles spread parameters", async () => {
 
 it("Handles bodyRoot parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
     model Widget {
       @visibility(Lifecycle.Update, Lifecycle.Read)
@@ -1597,7 +1685,7 @@ it("Handles bodyRoot parameters", async () => {
 
 it("Initializes enum types", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
     enum Color {
       Red,
@@ -1651,7 +1739,7 @@ it("Initializes enum types", async () => {
 
 it("emits correct code for GET requests with body parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
       #suppress "@typespec/http-server-csharp/get-request-body" "Test"
       @route("/foo") @get op foo(intProp?: int32): void;
@@ -1672,7 +1760,7 @@ it("emits correct code for GET requests with body parameters", async () => {
 
 it("emits correct code for GET requests with explicit body parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
       #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
       #suppress "@typespec/http-server-csharp/get-request-body" "Test"
@@ -1706,6 +1794,198 @@ it("generates one line `@doc` decorator comments", async () => {
       "public partial class Pet",
       "///<summary>",
       "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline jsdoc comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /**
+       * Pet name in the format of a string.
+       * The name will be the main identifier for the dog. It is suggested to keep it short and simple.
+       * Pets have a difficult time understanding and learning complex names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. The name will be the main identifier",
+      "/// for the dog. It is suggested to keep it short and simple. Pets have a",
+      "/// difficult time understanding and learning complex names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline jsdoc comments with long non-space words", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /**
+       * Pet name in the format of a string.
+       * Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. Visit",
+      "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
+      "/// where you can find many unique names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates correct (awkward) multiline jsdoc comments without multiline asterisk", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    /**
+     * A multiline comment.
+     *   This line is indented.
+     * This line is not
+     * This line is quite long and likely should be broken into multiple lines as it goes on and on and on and on and doesn't stop ever, really it doesn't ever stop.  OK, it stops now.
+     * https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html
+     * and a line afterward.
+     */
+    model Pet {
+      /**
+        Pet name in the format of a string.
+        The name will be the main identifier for the dog. It is suggested to keep it short and simple.
+        Pets have a difficult time understanding and learning complex names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "///<summary>",
+      "/// A multiline comment. This line is indented. This line is not This line is",
+      "/// quite long and likely should be broken into multiple lines as it goes on",
+      "/// and on and on and on and doesn't stop ever, really it doesn't ever stop. ",
+      "/// OK, it stops now.",
+      "/// https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html",
+      "/// and a line afterward.",
+      "///</summary>",
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string.         The name will be the main",
+      "/// identifier for the dog. It is suggested to keep it short and simple.  ",
+      "///  Pets have a difficult time understanding and learning complex names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates correct multiline jsdoc comments for operations", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /** Pet name string */
+      name?: string;
+    }
+    
+    @route("/pets")
+    interface Pets {
+      /**
+       * List Pet results
+       * Provide top/skip or filter by name if needed
+       */
+      @get op listPets(
+        @query top?: int32 = 50, 
+        @query skip?: int32 = 0,
+        @query nameFilter?: string = "*"
+      ) : Pet[];
+    }
+    `,
+    "IPets.cs",
+    [
+      "public interface IPets",
+      "///<summary>",
+      "/// List Pet results Provide top/skip or filter by name if needed",
+      "///</summary>",
+      `Task<Pet[]> ListPetsAsync( int? top, int? skip, string? nameFilter);`,
+    ],
+  );
+});
+
+it("generates correct multiline jsdoc long comments for operations", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /** Pet name string */
+      name?: string;
+    }
+    
+    @route("/pets")
+    interface Pets {
+      /**
+       * A multiline comment.
+       *   This line is indented.
+       * This line is not
+       * This line is quite long and likely should be broken into multiple lines as it goes on and on and on and on and doesn't stop ever, really it doesn't ever stop.  OK, it stops now.
+       * https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html
+       * and a line afterward.
+       */
+      @get op listPets(
+        @query top?: string, 
+        @query skip?: string
+      ) : Pet[];
+    }
+    `,
+    "IPets.cs",
+    [
+      "public interface IPets",
+      "///<summary>",
+      "/// A multiline comment. This line is indented. This line is not This line is",
+      "/// quite long and likely should be broken into multiple lines as it goes on",
+      "/// and on and on and on and doesn't stop ever, really it doesn't ever stop. ",
+      "/// OK, it stops now.",
+      "/// https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html",
+      "/// and a line afterward.",
+      "///</summary>",
+      "Task<Pet[]> ListPetsAsync( string? top, string? skip);",
+    ],
+  );
+});
+
+it("generates correct (awkward) multiline jsdoc comments with long non-space words  without multiline asterisk", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /**
+        Pet name in the format of a string.
+        Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string.         Visit",
+      "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
+      "/// where you can find many unique names.",
       "///</summary>",
       "public string Name { get; set; }",
     ],

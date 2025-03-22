@@ -5,7 +5,7 @@ title: Resource and routes
 Resources are operations that are grouped in a namespace. You declare such a namespace by adding the `@route` decorator to provide the path to that resource:
 
 ```typespec
-using TypeSpec.Http;
+using Http;
 
 @route("/pets")
 namespace Pets {

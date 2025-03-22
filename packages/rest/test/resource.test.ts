@@ -64,7 +64,7 @@ describe("rest: resources", () => {
   it("@resource decorator applies @segment decorator that reaches route generation", async () => {
     const routes = await getRoutesFor(
       `
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       @test
       @resource("things")
@@ -91,7 +91,7 @@ describe("rest: resources", () => {
   it("resources: generates standard operations for resource types and their children", async () => {
     const routes = await getRoutesFor(
       `
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       namespace Things {
         model Thing {
@@ -172,7 +172,7 @@ describe("rest: resources", () => {
   it("resources: collection action paths are generated correctly", async () => {
     const routes = await getRoutesFor(
       `
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       model Thing {
         @key
@@ -210,7 +210,7 @@ describe("rest: resources", () => {
 
   it("resources: emit diagnostic if using 2 @key on the same model", async () => {
     const [_, diagnostics] = await compileOperations(`
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       model Thing {
         @key("thingId")
@@ -231,7 +231,7 @@ describe("rest: resources", () => {
 
   it("resources: resources with parents must not have duplicate their parents' key names", async () => {
     const [_, diagnostics] = await compileOperations(`
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       namespace Things {
         model Thing {
@@ -282,7 +282,7 @@ describe("rest: resources", () => {
   it("resources: standard lifecycle operations have expected paths and verbs", async () => {
     const routes = await getRoutesFor(
       `
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       model Thing {
         @key
@@ -334,7 +334,7 @@ describe("rest: resources", () => {
   it("singleton resource: generates standard operations", async () => {
     const routes = await getRoutesFor(
       `
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       namespace Things {
         model Thing {
@@ -378,7 +378,7 @@ describe("rest: resources", () => {
   it("extension resources: generates standard operations for extensions on parent and child resources", async () => {
     const routes = await getRoutesFor(
       `
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       namespace Things {
         model Thing {
@@ -466,7 +466,7 @@ describe("rest: resources", () => {
     const runner = await createRestTestRunner();
     const diagnostics = await runner.diagnose(
       `
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       interface Dogs extends ResourceOperations<Dog, Error> {}
 
@@ -485,7 +485,7 @@ describe("rest: resources", () => {
     const runner = await createRestTestRunner();
     const diagnostics = await runner.diagnose(
       `
-      using TypeSpec.Rest.Resource;
+      using Rest.Resource;
 
       interface Dogs extends ResourceOperations<Dog, Error> {}
       

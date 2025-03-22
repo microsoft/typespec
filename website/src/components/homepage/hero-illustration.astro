@@ -14,7 +14,7 @@ import clsx from "clsx";
   /* Patch starlight tabs to look like fluent design */
   .hero-illustration > :global(starlight-tabs) {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column; /* Ensure tabs are above the content */
 
     .tablist-wrapper {
       align-self: center;
@@ -59,6 +59,7 @@ import clsx from "clsx";
     font-size: 90%;
   }
 </style>
+
 <div class="hero-illustration">
   <Tabs>
     <TabItem label="Http">
