@@ -9,14 +9,14 @@ importers:
   .:
     devDependencies:
       '@chronus/chronus':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^1.0.0
+        version: 1.0.0
       '@chronus/github':
-        specifier: ^0.4.9
-        version: 0.4.9
+        specifier: ^1.0.0
+        version: 1.0.0
       '@chronus/github-pr-commenter':
-        specifier: ^0.5.9
-        version: 0.5.9
+        specifier: ^1.0.0
+        version: 1.0.0
       '@eslint/js':
         specifier: ^9.23.0
         version: 9.23.0
@@ -3493,19 +3493,19 @@ packages:
   '@chevrotain/utils@11.0.3':
     resolution: {integrity: sha512-YslZMgtJUyuMbZ+aKvfF3x1f5liK4mWNxghFRv7jqRR9C3R3fAOGTTKvxXDa2Y1s9zSbcpuO0cAxDYsc9SrXoQ==}
 
-  '@chronus/chronus@0.17.0':
-    resolution: {integrity: sha512-i4ZnvCCNnB8/i+Xl+vVLizy15k5HDyAoTfvxmQEE9bAyOy78hlCxJDhGY1dOA1pVmLT3oq9kV2e4qbVAYsokBw==}
-    engines: {node: '>=16.0.0'}
+  '@chronus/chronus@1.0.0':
+    resolution: {integrity: sha512-hq8tTSTWjoM6R46nD9PVP0C/lY90kxcvEE497G+w6Upz1Kw13VfVtk0HZw5mCk4F4GNUL+XMrwzAyJWIb+kd5w==}
+    engines: {node: '>=20.0.0'}
     hasBin: true
 
-  '@chronus/github-pr-commenter@0.5.9':
-    resolution: {integrity: sha512-Iwrrjed8k13Zrgz8UTGMNHTEj/TbkTBNBvyKNGfUZXnWNmzD0W5V+GUKg0JF0ulfFMWSCh+bwKMW5qNEHziQeQ==}
-    engines: {node: '>=16.0.0'}
+  '@chronus/github-pr-commenter@1.0.0':
+    resolution: {integrity: sha512-3Ap3g/jNhfNBPLIPQw0+FMgPOnS6tVAwFvNY4FTN2GpGRO7vFxzF54QmByDtS4Z0gDd3oldcQzYjz4M4cvqwlQ==}
+    engines: {node: '>=20.0.0'}
     hasBin: true
 
-  '@chronus/github@0.4.9':
-    resolution: {integrity: sha512-gyuZ0b1Q50qdB1wUve7zt/5d249lIxzaH0yWovX6BfKlEMHmHlVY4D3VG4j+doRB/M8gC97JfptK5SbRuboSdQ==}
-    engines: {node: '>=16.0.0'}
+  '@chronus/github@1.0.0':
+    resolution: {integrity: sha512-maqGDxVRFo3OXy7jTKfRMVfhUaRLvpJ4UXzkS/dnZgKg4lJ7pKM0Rpd07iVjUOdG+sv5A9qRu9nUpPTBJL2+0A==}
+    engines: {node: '>=20.0.0'}
     hasBin: true
 
   '@colors/colors@1.5.0':
@@ -10345,9 +10345,9 @@ packages:
     resolution: {integrity: sha512-f1NpFjNI9O4VbKMOlA5QoBq/vSQPORHcTZ2feJpFkTHJ9eQkdlmZEKSjcAhxTGInC7RlEyScT9ui67NaOsjFWA==}
     engines: {node: ^18.17.0 || >=20.5.0}
 
-  npm-packlist@9.0.0:
-    resolution: {integrity: sha512-8qSayfmHJQTx3nJWYbbUmflpyarbLMBc6LCAjYsiGtXxDB68HaZpb8re6zeaLGxZzDuMdhsg70jryJe+RrItVQ==}
-    engines: {node: ^18.17.0 || >=20.5.0}
+  npm-packlist@10.0.0:
+    resolution: {integrity: sha512-rht9U6nS8WOBDc53eipZNPo5qkAV4X2rhKE2Oj1DYUQ3DieXfj0mKkVmjnf3iuNdtMd8WfLdi2L6ASkD/8a+Kg==}
+    engines: {node: ^20.17.0 || >=22.9.0}
 
   npm-pick-manifest@10.0.0:
     resolution: {integrity: sha512-r4fFa4FqYY8xaM7fHecQ9Z2nE9hgNfJR+EmoKv0+chvzWkBcORX3r0FpTByP+CbOVJDladMXnPQGVN8PBLGuTQ==}
@@ -10554,9 +10554,9 @@ packages:
   package-manager-detector@1.1.0:
     resolution: {integrity: sha512-Y8f9qUlBzW8qauJjd/eu6jlpJZsuPJm2ZAV0cDVd420o4EdpH5RPdoCv+60/TdJflGatr4sDfpAL6ArWZbM5tA==}
 
-  pacote@20.0.0:
-    resolution: {integrity: sha512-pRjC5UFwZCgx9kUFDVM9YEahv4guZ1nSLqwmWiLUnDbGsjs+U5w7z6Uc8HNR1a6x8qnu5y9xtGE6D1uAuYz+0A==}
-    engines: {node: ^18.17.0 || >=20.5.0}
+  pacote@21.0.0:
+    resolution: {integrity: sha512-lcqexq73AMv6QNLo7SOpz0JJoaGdS3rBFgF122NZVl1bApo2mfu+XzUBU/X/XsiJu+iUmKpekRayqQYAs+PhkA==}
+    engines: {node: ^20.17.0 || >=22.9.0}
     hasBin: true
 
   pagefind@1.3.0:
@@ -14470,13 +14470,13 @@ snapshots:
 
   '@chevrotain/utils@11.0.3': {}
 
-  '@chronus/chronus@0.17.0':
+  '@chronus/chronus@1.0.0':
     dependencies:
       cross-spawn: 7.0.6
       globby: 14.1.0
       is-unicode-supported: 2.1.0
       micromatch: 4.0.8
-      pacote: 20.0.0
+      pacote: 21.0.0
       picocolors: 1.1.1
       pluralize: 8.0.0
       prompts: 2.4.2
@@ -14489,16 +14489,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@chronus/github-pr-commenter@0.5.9':
+  '@chronus/github-pr-commenter@1.0.0':
     dependencies:
-      '@chronus/github': 0.4.9
+      '@chronus/github': 1.0.0
       '@octokit/rest': 21.1.1
     transitivePeerDependencies:
       - supports-color
 
-  '@chronus/github@0.4.9':
+  '@chronus/github@1.0.0':
     dependencies:
-      '@chronus/chronus': 0.17.0
+      '@chronus/chronus': 1.0.0
       '@octokit/graphql': 8.2.1
       '@octokit/rest': 21.1.1
       cross-spawn: 7.0.6
@@ -23723,7 +23723,7 @@ snapshots:
       semver: 7.7.1
       validate-npm-package-name: 6.0.0
 
-  npm-packlist@9.0.0:
+  npm-packlist@10.0.0:
     dependencies:
       ignore-walk: 7.0.0
 
@@ -23973,7 +23973,7 @@ snapshots:
 
   package-manager-detector@1.1.0: {}
 
-  pacote@20.0.0:
+  pacote@21.0.0:
     dependencies:
       '@npmcli/git': 6.0.3
       '@npmcli/installed-package-contents': 3.0.0
@@ -23984,7 +23984,7 @@ snapshots:
       fs-minipass: 3.0.3
       minipass: 7.1.2
       npm-package-arg: 12.0.2
-      npm-packlist: 9.0.0
+      npm-packlist: 10.0.0
       npm-pick-manifest: 10.0.0
       npm-registry-fetch: 18.0.2
       proc-log: 5.0.0
