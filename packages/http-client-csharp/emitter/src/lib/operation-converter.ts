@@ -67,7 +67,7 @@ export function fromSdkServiceMethod(
     resourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
         .name ??
-      getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
+      getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.namespaces[0].name),
     deprecated: getDeprecated(sdkContext.program, method.__raw!),
     summary: method.summary,
     doc: method.doc,
