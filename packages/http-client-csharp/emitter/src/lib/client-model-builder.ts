@@ -21,6 +21,7 @@ import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
+import { getClientNamespaceString } from "./utils.js";
 
 /**
  * Creates the code model from the SDK context.
@@ -56,7 +57,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const clientModel: CodeModel = {
     // To ensure deterministic library name, customers would need to set the package-name property as the ordering of the namespaces could change
     // if the typespec is changed.
-    name: sdkContext.emitContext.options["package-name"] ?? sdkPackage.namespaces[0].name,
+    name: getClientNamespaceString(sdkContext)!,
     apiVersions: rootApiVersions,
     enums: Array.from(sdkContext.__typeCache.enums.values()),
     models: Array.from(sdkContext.__typeCache.models.values()),

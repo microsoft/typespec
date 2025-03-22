@@ -1,6 +1,7 @@
-import { NoTarget, Type } from "@typespec/compiler";
+import { getNamespaceFullName, Namespace, NoTarget, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 import { CSharpEmitterContext } from "../sdk-context.js";
+import { listAllServiceNamespaces, TCGCContext } from "@azure-tools/typespec-client-generator-core";
 
 export async function execCSharpGenerator(
   context: CSharpEmitterContext,
@@ -127,4 +128,29 @@ export async function execAsync(
       });
     });
   });
+}
+
+export function getClientNamespaceString(context: CSharpEmitterContext): string | undefined {
+  return getClientNamespaceStringHelper(context.emitContext.options["package-name"], listAllServiceNamespaces(context)[0]);
+}
+
+/**
+ * @param context
+ * @param namespace If we know explicitly the namespace of the client, pass this in
+ * @returns The name of the namespace
+ */
+export function getClientNamespaceStringHelper(
+  packageName?: string,
+  namespace?: Namespace,
+): string | undefined {
+  if (packageName) {
+    packageName = packageName
+      .replace(/-/g, ".")
+      .replace(/\.([a-z])?/g, (match: string) => match.toUpperCase());
+    return packageName.charAt(0).toUpperCase() + packageName.slice(1);
+  }
+  if (namespace) {
+    return getNamespaceFullName(namespace);
+  }
+  return undefined;
 }
