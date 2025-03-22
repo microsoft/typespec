@@ -137,11 +137,6 @@ export function getClientNamespaceString(context: CSharpEmitterContext): string 
   );
 }
 
-/**
- * @param context
- * @param namespace If we know explicitly the namespace of the client, pass this in
- * @returns The name of the namespace
- */
 export function getClientNamespaceStringHelper(
   packageName?: string,
   namespace?: Namespace,
