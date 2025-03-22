@@ -86,9 +86,5 @@
     ]
   },
   "pnpm": {
-    "overrides": {
-      "@fluentui/react-theme": "9.1.17",
-      "playwright": "1.51.1"
-    }
   }
 }
