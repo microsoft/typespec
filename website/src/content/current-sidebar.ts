@@ -54,6 +54,7 @@ const sidebar: SidebarItem[] = [
       "handbook/formatter",
       "handbook/package-manager",
       "handbook/reproducibility",
+      "handbook/breaking-change-policy",
       {
         label: "Configuration",
         items: ["handbook/configuration/configuration", "handbook/configuration/tracing"],
