@@ -2,7 +2,7 @@
   "name": "@typespec/http-client-csharp",
   "version": "1.0.0",
   "author": "Microsoft Corporation",
-  "description": "The typespec library that can be used to generate C# models from a TypeSpec REST protocol binding",
+  "description": "TypeSpec library for emitting Http Client libraries for C#.",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/Microsoft/typespec/blob/main/packages/http-client-csharp/readme.md",
   "license": "MIT",
@@ -19,7 +19,10 @@
   "type": "module",
   "main": "dist/emitter/src/index.js",
   "exports": {
-    ".": "./dist/emitter/src/index.js"
+    ".": {
+      "types": "./dist/emitter/src/index.d.ts",
+      "default": "./dist/emitter/src/index.js"
+    }
   },
   "scripts": {
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
@@ -37,7 +40,8 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "pnpm -w format:dir packages/http-client-csharp",
-    "extract-api": "npx api-extractor run --local --verbose"
+    "extract-api": "npx api-extractor run --local --verbose",
+    "regen-docs": "node ../../packages/tspd/cmd/tspd.js doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-csharp/reference --skip-js"
   },
   "files": [
     "dist/emitter/src/**",
