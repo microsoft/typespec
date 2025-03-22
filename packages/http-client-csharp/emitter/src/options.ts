@@ -26,6 +26,7 @@ export interface CSharpEmitterOptions extends SdkEmitterOptions {
   "emitter-extension-path"?: string;
   "update-code-model"?: (model: CodeModel) => CodeModel;
   "sdk-context-options"?: CreateSdkContextOptions;
+  "package-name"?: string;
 }
 
 /**

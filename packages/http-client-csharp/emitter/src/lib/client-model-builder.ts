@@ -56,7 +56,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const clientModel: CodeModel = {
     // To ensure deterministic library name, customers would need to set the package-name property as the ordering of the namespaces could change
     // if the typespec is changed.
-    name: sdkPackage.namespaces[0].name,
+    name: sdkContext.emitContext.options["package-name"] ?? sdkPackage.namespaces[0].name,
     apiVersions: rootApiVersions,
     enums: Array.from(sdkContext.__typeCache.enums.values()),
     models: Array.from(sdkContext.__typeCache.models.values()),
