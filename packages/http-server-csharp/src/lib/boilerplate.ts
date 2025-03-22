@@ -329,6 +329,10 @@ function getArrayConstraintConverter(): string {
             {
                 return new ConstrainedSetConverter<T>(_minItems, _maxItems);
             }
+            else if (typeToConvert.IsArray && typeToConvert.GetElementType() == typeof(T))
+            {
+                return new ConstrainedStandardArrayConverter<T>(_minItems, _maxItems);
+            }
             else 
             {
                 return new ConstrainedEnumerableConverter<T>(_minItems, _maxItems);
@@ -401,9 +405,7 @@ function getArrayConstraintConverter(): string {
     public class ConstrainedEnumerableConverter<T> : ConstrainedArrayConverter<T, IEnumerable<T>>
     {
         public ConstrainedEnumerableConverter(int? min, int? max) : base(min, max) { }
-
         protected override IEnumerable<T> ConvertToCollection(List<T> list) => list;
-
         protected override IEnumerable<T> GetEnumerable(IEnumerable<T> collection) => collection;
     }
 
@@ -411,8 +413,14 @@ function getArrayConstraintConverter(): string {
     {
         public ConstrainedSetConverter(int? min, int? max) : base(min, max) { }
         protected override ISet<T> ConvertToCollection(List<T> list) => new HashSet<T>(list);
-
         protected override IEnumerable<T> GetEnumerable(ISet<T> collection) => collection;
+    }
+
+    public class ConstrainedStandardArrayConverter<T> : ConstrainedArrayConverter<T, T[]>
+    {
+        public ConstrainedStandardArrayConverter(int? min, int? max) : base(min, max) { }
+        protected override T[] ConvertToCollection(List<T> list) => list.ToArray();
+        protected override IEnumerable<T> GetEnumerable(T[] collection) => collection;
     }
 
     internal static class ConverterHelpers
@@ -423,7 +431,6 @@ function getArrayConstraintConverter(): string {
             {
                 converter.InnerConverter = (JsonConverter<T>)options.GetConverter(typeof(T));
             }
-
             return converter.InnerConverter;
         }
     }

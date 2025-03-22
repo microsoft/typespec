@@ -163,9 +163,17 @@ export function getCSharpType(
         const { type: itemType, value: _ } = resolvedItem;
 
         const uniqueItems = getUniqueItems(program, type);
+        const isByte = ["byte", "SByte"].includes(itemType.name);
+
+        const returnType = uniqueItems
+          ? `ISet<${itemType.name}>`
+          : isByte
+            ? `${itemType.name}[]`
+            : `IEnumerable<${itemType.name}>`;
+
         return {
           type: new CSharpType({
-            name: uniqueItems ? `ISet<${itemType.name}>` : `IEnumerable<${itemType.name}>`,
+            name: returnType,
             namespace: itemType.namespace,
             isBuiltIn: itemType.isBuiltIn,
             isValueType: false,
@@ -970,11 +978,11 @@ export interface EmittedTypeInfo {
 export class CSharpOperationHelpers {
   constructor(inEmitter: AssetEmitter<string, CSharpServiceEmitterOptions>) {
     this.emitter = inEmitter;
-    this.#anonymousModels = new Map<Model, Map<boolean, EmittedTypeInfo>>();
+    this.#anonymousModels = new Map<Model, EmittedTypeInfo & { hasUniqueItems: boolean }>();
     this.#opCache = new Map<Operation, CSharpOperationParameter[]>();
   }
   emitter: AssetEmitter<string, CSharpServiceEmitterOptions>;
-  #anonymousModels: Map<Model, Map<boolean, EmittedTypeInfo>>;
+  #anonymousModels: Map<Model, EmittedTypeInfo & { hasUniqueItems: boolean }>;
   #opCache: Map<Operation, CSharpOperationParameter[]>;
   getParameters(program: Program, operation: HttpOperation): CSharpOperationParameter[] {
     function safeConcat(...names: (string | undefined)[]): string {
@@ -1304,41 +1312,49 @@ export class CSharpOperationHelpers {
           nullableType: csharpType.isNullable,
         };
       case "Model":
-        let modelResult: EmittedTypeInfo;
-
+        let modelResult: EmittedTypeInfo & { hasUniqueItems: boolean };
         const hasUniqueItems = modelProperty
           ? getUniqueItems(program, modelProperty) !== undefined
           : false;
 
-        const cachedResult = this.#anonymousModels.get(tsType)?.get(hasUniqueItems);
-        if (cachedResult) {
+        const cachedResult = this.#anonymousModels.get(tsType);
+        if (cachedResult && cachedResult.hasUniqueItems === hasUniqueItems) {
           return cachedResult;
         }
+
         if (isRecord(tsType)) {
           modelResult = {
             typeReference: code`System.Text.Json.Nodes.JsonObject`,
             nullableType: false,
+            hasUniqueItems: hasUniqueItems,
           };
         } else if (isArrayModelType(program, tsType)) {
-          modelResult = {
-            typeReference: hasUniqueItems
-              ? code`ISet<${this.emitter.emitTypeReference(tsType.indexer.value)}>`
-              : code`${this.emitter.emitTypeReference(tsType)}`,
-            businessTypeReference: hasUniqueItems
-              ? code`ISet<${this.emitter.emitTypeReference(tsType.indexer.value)}>`
-              : code`ICollection<${this.emitter.emitTypeReference(tsType.indexer.value)}>`,
-            nullableType: false,
-          };
+          const typeReference = code`${this.emitter.emitTypeReference(tsType.indexer.value)}`;
+          const collectionType = hasUniqueItems ? "ISet" : "ICollection";
+
+          modelResult = isByteType(tsType.indexer.value)
+            ? {
+                typeReference: code`${typeReference}[]`,
+                nullableType: false,
+                hasUniqueItems: hasUniqueItems,
+              }
+            : {
+                typeReference: hasUniqueItems
+                  ? code`${collectionType}<${typeReference}>`
+                  : code`${this.emitter.emitTypeReference(tsType)}`,
+                businessTypeReference: code`${collectionType}<${typeReference}>`,
+                nullableType: false,
+                hasUniqueItems: hasUniqueItems,
+              };
         } else {
           modelResult = {
             typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
             nullableType: false,
+            hasUniqueItems: hasUniqueItems,
           };
         }
 
-        const modelMap = this.#anonymousModels.get(tsType) ?? new Map<boolean, EmittedTypeInfo>();
-        this.#anonymousModels.set(tsType, modelMap);
-        modelMap.set(hasUniqueItems, modelResult);
+        this.#anonymousModels.set(tsType, modelResult);
 
         return modelResult;
       case "ModelProperty":
@@ -1491,4 +1507,8 @@ export function coalesceTsTypes(program: Program, types: Type[]): [CSharpType, b
 
 export function isRecord(type: Type): boolean {
   return type.kind === "Model" && type.name === "Record" && type.indexer !== undefined;
+}
+
+export function isByteType(type: Type): boolean {
+  return type.kind === "Scalar" && ["int8", "uint8"].includes(type.name);
 }

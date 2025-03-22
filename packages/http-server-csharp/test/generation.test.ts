@@ -406,7 +406,7 @@ it("generates default values in properties", async () => {
   );
 });
 
-it("generates standard scalar array  properties", async () => {
+it("generates standard scalar array properties", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
@@ -451,8 +451,8 @@ it("generates standard scalar array  properties", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "public IEnumerable<SByte> ArrSbyteProp { get; set; }",
-      "public IEnumerable<Byte> ArrByteProp { get; set; }",
+      "public SByte[] ArrSbyteProp { get; set; }",
+      "public Byte[] ArrByteProp { get; set; }",
       "public IEnumerable<Int16> Arrint16Prop { get; set; }",
       "public IEnumerable<int> Arrint32Prop { get; set; }",
       "public IEnumerable<long> Arrint64Prop { get; set; }",
@@ -472,7 +472,7 @@ it("generates standard scalar array  properties", async () => {
   );
 });
 
-it("generates standard scalar array  constraints", async () => {
+it("generates standard scalar array constraints", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
@@ -491,9 +491,9 @@ it("generates standard scalar array  constraints", async () => {
     [
       "public partial class Foo",
       "[ArrayConstraint( MinItems = 1, MaxItems = 10)]",
-      "public IEnumerable<SByte> ArrSbyteProp { get; set; }",
+      "public SByte[] ArrSbyteProp { get; set; }",
       "[ArrayConstraint( MaxItems = 10)]",
-      "public IEnumerable<Byte> ArrByteProp { get; set; }",
+      "public Byte[] ArrByteProp { get; set; }",
     ],
   );
 });
@@ -545,6 +545,70 @@ it("generates standard scalar array for uniqueItems model", async () => {
       `,
     "IContosoOperations.cs",
     ["Task<IEnumerable<ISet<string>>> ListAsync( )", "Task<ISet<string>> GetAsync( string id)"],
+  );
+});
+
+it("generates standard array properties", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `    
+      /** A simple test model*/
+      model Foo {
+        /** Names */
+        arrNames: string[];
+
+        /** Colors */
+        arrColors: Array<string>;
+      }
+        
+     @patch @route("/Foo") op update(...Foo): Foo[];
+
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public IEnumerable<string> ArrNames { get; set; }",
+          "public IEnumerable<string> ArrColors { get; set; }",
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          "Task<IEnumerable<Foo>> UpdateAsync( ICollection<string> arrNames, ICollection<string> arrColors)",
+        ],
+      ],
+    ],
+  );
+});
+it("generates bytes array properties", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `    
+      /** A simple test model*/
+      model Foo {
+        /** Names */
+        arrBytes: uint8[];
+
+        /** Colors */
+        arrSBytes: int8[];
+      }
+        
+     @patch @route("/Foo") op update(...Foo): int8[];
+
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public Byte[] ArrBytes { get; set; }",
+          "public SByte[] ArrSBytes { get; set; }",
+        ],
+      ],
+      ["IContosoOperations.cs", ["Task<SByte[]> UpdateAsync( Byte[] arrBytes, SByte[] arrSBytes)"]],
+    ],
   );
 });
 
