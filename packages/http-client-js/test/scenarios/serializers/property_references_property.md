@@ -43,7 +43,7 @@ Validates that the serializer generates the correct serialization logic for:
 - Direct property references (`title?: TodoItem.title`)
 - Nullable property references (`assignedTo?: TodoItem.assignedTo | null`)
 
-```ts src/models/serializers.ts function jsonTodoItemPatchToTransportTransform
+```ts src/models/internal/serializers.ts function jsonTodoItemPatchToTransportTransform
 export function jsonTodoItemPatchToTransportTransform(input_?: TodoItemPatch | null): any {
   if (!input_) {
     return input_ as any;
@@ -59,7 +59,7 @@ export function jsonTodoItemPatchToTransportTransform(input_?: TodoItemPatch | n
 
 Validates the deserialization logic maintains type consistency when converting from transport to application models.
 
-```ts src/models/serializers.ts function jsonTodoItemPatchToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonTodoItemPatchToApplicationTransform
 export function jsonTodoItemPatchToApplicationTransform(input_?: any): TodoItemPatch {
   if (!input_) {
     return input_ as any;

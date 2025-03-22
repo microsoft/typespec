@@ -39,7 +39,7 @@ op put(@body body: SpreadRecordForDiscriminatedUnion): void;
 
 ## Typescript
 
-```ts src/models/serializers.ts function jsonSpreadRecordForDiscriminatedUnionToTransportTransform
+```ts src/models/internal/serializers.ts function jsonSpreadRecordForDiscriminatedUnionToTransportTransform
 export function jsonSpreadRecordForDiscriminatedUnionToTransportTransform(
   input_?: SpreadRecordForDiscriminatedUnion | null,
 ): any {
@@ -53,7 +53,7 @@ export function jsonSpreadRecordForDiscriminatedUnionToTransportTransform(
 }
 ```
 
-```ts src/models/serializers.ts function jsonSpreadRecordForDiscriminatedUnionToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonSpreadRecordForDiscriminatedUnionToApplicationTransform
 export function jsonSpreadRecordForDiscriminatedUnionToApplicationTransform(
   input_?: any,
 ): SpreadRecordForDiscriminatedUnion {
@@ -69,7 +69,7 @@ export function jsonSpreadRecordForDiscriminatedUnionToApplicationTransform(
 }
 ```
 
-```ts src/models/serializers.ts function jsonWidgetDataToTransportTransform
+```ts src/models/internal/serializers.ts function jsonWidgetDataToTransportTransform
 export function jsonWidgetDataToTransportTransform(input_?: WidgetData | null): any {
   if (!input_) {
     return input_ as any;
@@ -78,7 +78,7 @@ export function jsonWidgetDataToTransportTransform(input_?: WidgetData | null): 
 }
 ```
 
-```ts src/models/serializers.ts function jsonWidgetDataToApplicationDiscriminator
+```ts src/models/internal/serializers.ts function jsonWidgetDataToApplicationDiscriminator
 export function jsonWidgetDataToApplicationDiscriminator(input_?: any): WidgetData {
   if (!input_) {
     return input_ as any;
@@ -96,7 +96,7 @@ export function jsonWidgetDataToApplicationDiscriminator(input_?: any): WidgetDa
 }
 ```
 
-```ts src/models/serializers.ts function jsonWidgetDataToTransportDiscriminator
+```ts src/models/internal/serializers.ts function jsonWidgetDataToTransportDiscriminator
 export function jsonWidgetDataToTransportDiscriminator(input_?: WidgetData): any {
   if (!input_) {
     return input_ as any;
