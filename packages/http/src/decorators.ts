@@ -188,7 +188,7 @@ export const $path: PathDecorator = (
     type: "path",
     explode: userOptions.explode ?? false,
     allowReserved: userOptions.allowReserved ?? false,
-    style: userOptions.style ?? "simple",
+    style: userOptions.style ?? (entity.optional ? "path" : "simple"),
     name: paramName,
   };
   context.program.stateMap(HttpStateKeys.path).set(entity, options);

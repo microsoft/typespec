@@ -120,12 +120,13 @@ function getHttpProperty(
   };
   const defined = Object.entries(annotations).filter((x) => !!x[1]);
   const implicit = options.implicitParameter?.(property);
+  const expectedStyle = property.optional ? "path" : "simple";
 
   if (implicit && defined.length > 0) {
     if (implicit.type === "path" && annotations.path) {
       if (
         annotations.path.explode ||
-        annotations.path.style !== "simple" ||
+        annotations.path.style !== expectedStyle ||
         annotations.path.allowReserved
       ) {
         diagnostics.push(
