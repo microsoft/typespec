@@ -1,7 +1,7 @@
+import { listAllServiceNamespaces } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName, Namespace, NoTarget, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 import { CSharpEmitterContext } from "../sdk-context.js";
-import { listAllServiceNamespaces, TCGCContext } from "@azure-tools/typespec-client-generator-core";
 
 export async function execCSharpGenerator(
   context: CSharpEmitterContext,
@@ -131,7 +131,10 @@ export async function execAsync(
 }
 
 export function getClientNamespaceString(context: CSharpEmitterContext): string | undefined {
-  return getClientNamespaceStringHelper(context.emitContext.options["package-name"], listAllServiceNamespaces(context)[0]);
+  return getClientNamespaceStringHelper(
+    context.emitContext.options["package-name"],
+    listAllServiceNamespaces(context)[0],
+  );
 }
 
 /**
