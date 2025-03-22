@@ -160,6 +160,18 @@ export const $lib = createTypeSpecLibrary({
         default: "Part used in multipart/form-data must have a name.",
       },
     },
+    "http-file-structured": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`HTTP File body is treated as a structured model and serialized to '${"contentTypes"}' because an explicit Content-Type header is defined. Override the \`contentType\` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.`,
+      },
+    },
+    "http-file-contents-not-scalar": {
+      severity: "error",
+      messages: {
+        default: paramMessage`The 'contents' property of the file model must be a scalar type that extends 'string' or 'bytes'. Found '${"type"}'.`,
+      },
+    },
   },
   state: {
     authentication: { description: "State for the @auth decorator" },

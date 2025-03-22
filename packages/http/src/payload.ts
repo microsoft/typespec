@@ -24,13 +24,18 @@ import {
   HttpProperty,
   resolvePayloadProperties,
 } from "./http-property.js";
-import { createDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import { HttpFileModel, getHttpFileModel, getHttpPart } from "./private.decorators.js";
-import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "./types.js";
+import {
+  HttpOperationFileBody,
+  HttpOperationMultipartBody,
+  HttpOperationPart,
+  HttpPayloadBody,
+} from "./types.js";
 
 export interface HttpPayload {
-  readonly body?: HttpOperationBody | HttpOperationMultipartBody;
+  readonly body?: HttpPayloadBody;
   readonly metadata: HttpProperty[];
 }
 
@@ -102,21 +107,28 @@ function resolveBody(
   metadata: HttpProperty[],
   visibility: Visibility,
   disposition: HttpPayloadDisposition,
-): DiagnosticResult<HttpOperationBody | HttpOperationMultipartBody | undefined> {
+): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
 
   const contentTypeProperty = metadata.find((x) => x.kind === "contentType");
 
   const file = getHttpFileModel(program, requestOrResponseType);
   if (file !== undefined) {
-    return diagnostics.wrap({
-      bodyKind: "single",
-      contentTypes: diagnostics.pipe(getContentTypes(file.contentType)),
-      contentTypeProperty: file.contentType,
-      type: file.contents.type,
-      isExplicit: false,
-      containsMetadataAnnotations: false,
-    });
+    if (!contentTypeProperty) {
+      // If no content-type property was specified, then this is a _literal_ file.
+      return diagnostics.join(getFileBody(file));
+    } else {
+      const contentTypes =
+        contentTypeProperty && diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+
+      reportDiagnostic(program, {
+        code: "http-file-structured",
+        format: {
+          contentTypes: contentTypes!.join(", "),
+        },
+        target: contentTypeProperty.property,
+      });
+    }
   }
 
   // non-model or intrinsic/array model -> response body is response type
@@ -133,7 +145,7 @@ function resolveBody(
   }
 
   // look for explicit body
-  const resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined = diagnostics.pipe(
+  const resolvedBody: HttpPayloadBody | undefined = diagnostics.pipe(
     resolveExplicitBodyProperty(program, metadata, contentTypeProperty, visibility, disposition),
   );
 
@@ -216,9 +228,9 @@ function resolveExplicitBodyProperty(
   contentTypeProperty: HttpProperty | undefined,
   visibility: Visibility,
   disposition: HttpPayloadDisposition,
-): DiagnosticResult<HttpOperationBody | HttpOperationMultipartBody | undefined> {
+): DiagnosticResult<HttpPayloadBody | undefined> {
   const diagnostics = createDiagnosticCollector();
-  let resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined;
+  let resolvedBody: HttpPayloadBody | undefined;
   const duplicateTracker = new DuplicateTracker<string, Type>();
 
   for (const item of metadata) {
@@ -234,18 +246,34 @@ function resolveExplicitBodyProperty(
           const valid = diagnostics.pipe(validateBodyProperty(program, item.property, disposition));
           containsMetadataAnnotations = !valid;
         }
-        if (resolvedBody === undefined) {
-          resolvedBody = {
-            bodyKind: "single",
-            ...diagnostics.pipe(
-              resolveContentTypesForBody(program, contentTypeProperty, item.property.type),
-            ),
-            type: item.property.type,
-            isExplicit: item.kind === "body",
-            containsMetadataAnnotations,
-            property: item.property,
-          };
+
+        const file = getHttpFileModel(program, item.property.type);
+
+        const isFile = file !== undefined && !contentTypeProperty;
+
+        if (file && contentTypeProperty) {
+          const contentTypes = diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+          reportDiagnostic(program, {
+            code: "http-file-structured",
+            format: {
+              contentTypes: contentTypes!.join(", "),
+            },
+            target: contentTypeProperty.property,
+          });
         }
+
+        resolvedBody ??= isFile
+          ? diagnostics.pipe(getFileBody(file))
+          : {
+              bodyKind: "single",
+              ...diagnostics.pipe(
+                resolveContentTypesForBody(program, contentTypeProperty, item.property.type),
+              ),
+              type: item.property.type,
+              isExplicit: item.kind === "body",
+              containsMetadataAnnotations,
+              property: item.property,
+            };
         break;
       case "multipartBody":
         resolvedBody = diagnostics.pipe(
@@ -461,10 +489,6 @@ function resolvePart(
   const diagnostics = createDiagnosticCollector();
   const part = getHttpPart(program, type);
   if (part) {
-    const file = getHttpFileModel(program, part.type);
-    if (file !== undefined) {
-      return getFilePart(part.options.name, file);
-    }
     let { body, metadata } = diagnostics.pipe(
       resolveHttpPayload(program, part.type, visibility, HttpPayloadDisposition.Multipart),
     );
@@ -493,6 +517,7 @@ function resolvePart(
       body,
       optional: false,
       headers: metadata.filter((x): x is HeaderProperty => x.kind === "header"),
+      filename: body.bodyKind === "file" ? body.filename : undefined,
     });
   }
 
@@ -501,26 +526,18 @@ function resolvePart(
   return diagnostics.wrap(undefined);
 }
 
-function getFilePart(
-  name: string | undefined,
-  file: HttpFileModel,
-): DiagnosticResult<HttpOperationPart | undefined> {
+function getFileBody(file: HttpFileModel): DiagnosticResult<HttpOperationFileBody> {
   const [contentTypes, diagnostics] = getContentTypes(file.contentType);
+
   return [
     {
-      multi: false,
-      name,
-      body: {
-        bodyKind: "single",
-        contentTypeProperty: file.contentType,
-        contentTypes: contentTypes,
-        type: file.contents.type,
-        isExplicit: false,
-        containsMetadataAnnotations: false,
-      },
+      bodyKind: "file",
+      type: file.type,
+      contents: file.contents,
       filename: file.filename,
-      optional: false,
-      headers: [],
+      isText: file.contents.type.name === "string",
+      contentTypeProperty: file.contentType,
+      contentTypes,
     },
     diagnostics,
   ];

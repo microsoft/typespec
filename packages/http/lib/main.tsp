@@ -107,10 +107,10 @@ model PlainData<Data> {
 }
 
 @Private.httpFile
-model File {
+model File<Contents extends bytes | string = bytes> {
   contentType?: string;
   filename?: string;
-  contents: bytes;
+  contents: Contents;
 }
 
 model HttpPartOptions {

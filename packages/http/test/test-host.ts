@@ -1,4 +1,4 @@
-import { Diagnostic } from "@typespec/compiler";
+import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
 import {
   BasicTestRunner,
   createTestHost,
@@ -79,6 +79,31 @@ export async function compileOperations(
   });
 
   return [details, diagnostics];
+}
+
+export interface CompileOperationsResult {
+  runner: BasicTestRunner;
+  operations: HttpOperation[];
+  diagnostics: readonly Diagnostic[];
+}
+
+export async function compileOperationsFull(
+  code: string,
+  routeOptions?: RouteResolutionOptions,
+): Promise<CompileOperationsResult> {
+  const runner = await createHttpTestRunner();
+  const diagnostics = createDiagnosticCollector();
+  diagnostics.pipe(
+    await runner.compileAndDiagnose(
+      `@service(#{title: "Test Service"}) namespace TestService;
+    ${code}`,
+      {
+        noEmit: true,
+      },
+    ),
+  );
+  const services = diagnostics.pipe(getAllHttpServices(runner.program, routeOptions));
+  return { runner, operations: services[0].operations, diagnostics: diagnostics.diagnostics };
 }
 
 export async function diagnoseOperations(
