@@ -1,3 +1,4 @@
+import { normalizePath } from "@typespec/compiler";
 import { TypeSpecTestLibrary } from "@typespec/compiler/testing";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import minimist from "minimist";
@@ -6,7 +7,6 @@ import { format } from "prettier";
 import { afterAll, describe, expect, it } from "vitest";
 import { LanguageConfiguration, SnippetExtractor } from "./snippet-extractor.js";
 import { emitWithDiagnostics } from "./test-host.js";
-import { normalizePath } from "@typespec/compiler";
 
 const rawArgs = process.env.TEST_ARGS ? process.env.TEST_ARGS.split(" ") : [];
 
