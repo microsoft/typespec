@@ -54,8 +54,9 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   fromSdkClients(rootClients, inputClients, []);
 
   const clientModel: CodeModel = {
-    // rootNamespace is really coalescing the `package-name` option and the first namespace found.
-    name: sdkPackage.rootNamespace,
+    // To ensure deterministic library name, customers would need to set the package-name property as the ordering of the namespaces could change
+    // if the typespec is changed.
+    name: sdkPackage.namespaces[0].name,
     apiVersions: rootApiVersions,
     enums: Array.from(sdkContext.__typeCache.enums.values()),
     models: Array.from(sdkContext.__typeCache.models.values()),
