@@ -1,16 +1,16 @@
 /* eslint-disable no-console */
 import { execa } from "execa";
+import { copy, pathExists } from "fs-extra";
+import { mkdir, readFile, rm, writeFile } from "fs/promises";
 import { globby } from "globby";
-import { mkdir, rm, copyFile, readFile, writeFile } from "fs/promises";
-import { basename, join, dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-import { pathExists, copy } from "fs-extra";
-import pc from "picocolors";
+import inquirer from "inquirer";
+import ora from "ora";
 import pLimit from "p-limit";
+import { basename, dirname, join, resolve } from "path";
+import pc from "picocolors";
+import { fileURLToPath } from "url";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import ora from "ora";
-import inquirer from "inquirer";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -39,8 +39,7 @@ const argv = yargs(hideBin(process.argv))
     describe: "Enable interactive mode",
     default: false,
   })
-  .help()
-  .argv;
+  .help().argv;
 
 const specDir = resolve(argv.input);
 
@@ -66,7 +65,6 @@ async function compileSpec(file, options) {
   const { build, interactive } = options;
   const patchFileDir = join(testScenarioPath, dirname(relativePath));
   const outputDir = join(testScenarioPath, "generated", dirname(relativePath));
-  const specCopyPath = join(outputDir, "spec.tsp");
   const logDir = join(logDirRoot, dirname(relativePath));
 
   let spinner;
@@ -82,44 +80,48 @@ async function compileSpec(file, options) {
     if (spinner) spinner.text = `Creating directory: ${outputDir}`;
     await mkdir(outputDir, { recursive: true });
 
-    if (spinner) spinner.text = `Copying spec to: ${specCopyPath}`;
-    await copyFile(fullPath, specCopyPath);
+    // Compile the spec and generate openapi for swagger
+    // if (spinner) spinner.text = `Generating swagger: ${relativePath}`;
+    // await execa("npx", [
+    //   "tsp",
+    //   "compile",
+    //   fullPath,
+    //   "--emit",
+    //   resolve(import.meta.dirname, "../../../openapi3"),
+    //   "--config",
+    //   tspConfig,
+    //   "--output-dir",
+    //   join(outputDir, "generated"),
+    // ]);
 
     // Compile the spec and generate server code
-    if (spinner) spinner.text = `Compiling: ${relativePath}`;
+    if (spinner) spinner.text = `Generating csharp server code: ${relativePath}`;
     await execa("npx", [
       "tsp",
       "compile",
       fullPath,
+      // "--emit",
+      // resolve(import.meta.dirname, "../../../openapi3"),
       "--emit",
       resolve(import.meta.dirname, "../.."),
       "--config",
       tspConfig,
       "--output-dir",
-      outputDir,
-    ]);
-
-    // Running scaffold command `npx hscs scaffold ./tsp-output/server/ . --use-swaggerui`
-    if (spinner) spinner.text = `Creating Project Scaffolding: ${relativePath}`;
-    await execa("npx", [
-      "hscs",
-      "scaffold",
-      outputDir,
-      ".",
-      "--use-swaggerui",
+      join(outputDir, "generated"),
     ]);
 
     if (spinner) spinner.text = `Formatting with Prettier: ${relativePath}`;
     await execa("npx", ["prettier", outputDir, "--write"]);
 
-    // if (build) {
-    //   if (spinner) spinner.text = `Building project: ${relativePath}`;
-    //   await execa("npm", ["run", "build"], { cwd: outputDir });
-    // }
+    if (build) {
+      if (spinner) spinner.text = `Building project: ${relativePath}`;
+      await execa("dotnet", ["build"], { cwd: outputDir });
+    }
 
     if (await pathExists(patchFileDir)) {
-      if (spinner) spinner.text = `Copying mock patch files to: ${outputDir}`;
-      await copySelectiveFiles("*.cs", patchFileDir, outputDir);
+      const mockDir = join(outputDir, "mocks");
+      if (spinner) spinner.text = `Copying mock patch files to: ${mockDir}`;
+      await copySelectiveFiles("*.cs", patchFileDir, mockDir);
     }
 
     if (spinner) {
@@ -259,7 +261,7 @@ async function main() {
     const patterns = ["**/main.tsp"];
     const specsList = await globby(patterns, { cwd: specDir });
 
-    const paths = specsList.filter(item => !ignoreList.includes(item));
+    const paths = specsList.filter((item) => !ignoreList.includes(item));
 
     await processFiles(paths, {
       interactive: argv.interactive,
@@ -277,7 +279,7 @@ async function main() {
     console.log(pc.green("All specs processed."));
   } catch (error) {
     console.error(pc.red(`❌ Fatal Error: ${error.message}`));
-    exitCode = 1; // ✅ Ensure graceful failure handling    
+    exitCode = 1; // ✅ Ensure graceful failure handling
   } finally {
     // ✅ Always log execution time before exit
     const endTime = process.hrtime.bigint();

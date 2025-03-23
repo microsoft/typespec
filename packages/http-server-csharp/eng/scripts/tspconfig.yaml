@@ -1,5 +1,12 @@
 emitters:
   "@typespec/http-server-csharp": true
+  "@typespec/openapi3": true
 options:
   "@typespec/http-server-csharp":
     emitter-output-dir: "{output-dir}"
+    emit-mocks: "mocks-and-project-files"
+    overwrite: true
+    http-port: 8080
+    https-port: 8443
+  "@typespec/openapi3":
+    emitter-output-dir: "{output-dir}/spec"
