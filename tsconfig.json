@@ -6,6 +6,6 @@
     "**/.storybook/**/*.ts",
     "**/.storybook/**/*.tsx",
     "eng/tsp-core/scripts/resolve-cli-artifacts.js"
-  ],
+, "packages/http-server-csharp/eng/scripts/emit-scenarios.js"  ],
   "exclude": ["**/node_modules/", "**/dist/", "**/build/", "**/coverage/"]
 }

@@ -1,0 +1,5 @@
+emitters:
+  "@typespec/http-server-csharp": true
+options:
+  "@typespec/http-server-csharp":
+    emitter-output-dir: "{output-dir}"
