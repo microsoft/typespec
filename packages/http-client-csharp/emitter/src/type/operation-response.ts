@@ -5,9 +5,9 @@ import { HttpResponseHeader } from "./http-response-header.js";
 import { InputType } from "./input-type.js";
 
 export interface OperationResponse {
-  StatusCodes: number[];
-  BodyType?: InputType;
-  Headers: HttpResponseHeader[];
-  ContentTypes?: string[];
-  IsErrorResponse: boolean;
+  statusCodes: number[];
+  bodyType?: InputType;
+  headers: HttpResponseHeader[];
+  contentTypes?: string[];
+  isErrorResponse: boolean;
 }

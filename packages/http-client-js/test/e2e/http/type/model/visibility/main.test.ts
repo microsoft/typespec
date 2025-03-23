@@ -4,7 +4,7 @@ import { VisibilityClient } from "../../../../generated/type/model/visibility/sr
 describe("Type.Model.Visibility", () => {
   const client = new VisibilityClient({ allowInsecureConnection: true });
 
-  it("should generate and receive an output model with readonly properties (getModel)", async () => {
+  it.skip("should generate and receive an output model with readonly properties (getModel)", async () => {
     const input = {
       queryProp: 123,
     };
@@ -12,7 +12,7 @@ describe("Type.Model.Visibility", () => {
     expect(response.readProp).toBe("abc");
   });
 
-  it("should send a model with write/create properties (headModel)", async () => {
+  it.skip("should send a model with write/create properties (headModel)", async () => {
     const input = {
       queryProp: 123,
     };

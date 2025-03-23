@@ -59,7 +59,6 @@ import type.property.additionalproperties.implementation.AdditionalPropertiesCli
         ExtendsDifferentSpreadModelArrayClient.class,
         MultipleSpreadClient.class,
         SpreadRecordUnionClient.class,
-        SpreadRecordDiscriminatedUnionClient.class,
         SpreadRecordNonDiscriminatedUnionClient.class,
         SpreadRecordNonDiscriminatedUnion2Client.class,
         SpreadRecordNonDiscriminatedUnion3Client.class })
@@ -541,16 +540,6 @@ public final class AdditionalPropertiesClientBuilder
     @Metadata(generated = true)
     public SpreadRecordUnionClient buildSpreadRecordUnionClient() {
         return new SpreadRecordUnionClient(buildInnerClient().getSpreadRecordUnions());
-    }
-
-    /**
-     * Builds an instance of SpreadRecordDiscriminatedUnionClient class.
-     * 
-     * @return an instance of SpreadRecordDiscriminatedUnionClient.
-     */
-    @Metadata(generated = true)
-    public SpreadRecordDiscriminatedUnionClient buildSpreadRecordDiscriminatedUnionClient() {
-        return new SpreadRecordDiscriminatedUnionClient(buildInnerClient().getSpreadRecordDiscriminatedUnions());
     }
 
     /**

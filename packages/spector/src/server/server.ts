@@ -77,7 +77,7 @@ export class MockApiServer {
         verify: rawBinaryBodySaver,
       }),
     );
-    this.app.use(multer().any());
+    this.app.use(multer().any() as any);
   }
 
   public use(route: string, ...handlers: RequestHandler[]): void {

@@ -223,7 +223,7 @@ function emitProperty<TServiceOperation extends SdkServiceOperation>(
   model: SdkModelType,
   property: SdkBodyModelPropertyType,
 ): Record<string, any> {
-  const isMultipartFileInput = property.multipartOptions?.isFilePart;
+  const isMultipartFileInput = property.serializationOptions?.multipart?.isFilePart;
   let sourceType: SdkType | MultiPartFileType = property.type;
   if (isMultipartFileInput) {
     sourceType = createMultiPartFileType(property.type);
@@ -523,7 +523,7 @@ export function emitEndpointType<TServiceOperation extends SdkServiceOperation>(
       location: "endpointPath",
       implementation: getImplementation(context, param),
       clientDefaultValue: param.clientDefaultValue,
-      skipUrlEncoding: param.urlEncode === false,
+      skipUrlEncoding: param.allowReserved === false,
     });
     context.__endpointPathParameters!.push(params.at(-1)!);
   }
