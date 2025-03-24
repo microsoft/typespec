@@ -42,9 +42,6 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   if (options.flavor === undefined && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
     options.flavor = "azure";
   }
-  if (!options.flavor && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
-    options.flavor = "azure";
-  }
 }
 
 async function createPythonSdkContext(
