@@ -13,10 +13,7 @@ export interface PythonEmitterOptions extends SdkEmitterOptions {
   "packaging-files-config"?: object;
   "package-pprint-name"?: string;
   "head-as-boolean"?: boolean;
-  "models-mode"?: string;
   "company-name"?: string;
-  "generate-test"?: boolean;
-  flavor?: "azure";
   "use-pyodide"?: boolean;
 }
 
@@ -67,13 +64,6 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description: "Whether to return responses from HEAD requests as boolean. Defaults to `true`.",
     },
-    "models-mode": {
-      type: "string",
-      nullable: true,
-      enum: ["dpg", "none"],
-      description:
-        "What kind of models to generate. If you pass in `none`, we won't generate models. `dpg` models are the default models we generate.",
-    },
     "company-name": {
       type: "string",
       nullable: true,
@@ -85,17 +75,6 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description:
         "Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.",
-    },
-    flavor: {
-      type: "string",
-      nullable: true,
-      description: "The flavor of the SDK.",
-    },
-    "generate-test": {
-      type: "boolean",
-      nullable: true,
-      description:
-        "Whether to generate test files, for basic testing of your generated sdks. Defaults to `false`.",
     },
     ...SdkEmitterOptionsSchema.properties,
   },

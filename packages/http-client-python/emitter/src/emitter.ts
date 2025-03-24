@@ -17,14 +17,12 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
     "package-version": "1.0.0b1",
     "generate-packaging-files": true,
-    flavor: undefined,
   };
   sdkContext.emitContext.options = {
     ...defaultOptions,
     ...sdkContext.emitContext.options,
   };
   const options = sdkContext.emitContext.options;
-  options["models-mode"] = sdkContext.emitContext.options["models-mode"] ?? "dpg";
   if (!options["package-name"]) {
     const namespace = getRootNamespace(sdkContext);
     const packageName = namespace.replace(/\./g, "-");
@@ -35,12 +33,24 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     });
     options["package-name"] = packageName;
   }
-  if (options.flavor !== "azure") {
+  if ((options as any).flavor !== "azure") {
     // if they pass in a flavor other than azure, we want to ignore the value
-    options.flavor = undefined;
+    (options as any).flavor = undefined;
   }
-  if (options.flavor === undefined && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
-    options.flavor = "azure";
+  if (
+    (options as any).flavor === undefined &&
+    sdkContext.emitContext.emitterOutputDir.includes("azure")
+  ) {
+    (options as any).flavor = "azure";
+  }
+
+  if (
+    options["package-pprint-name"] !== undefined &&
+    !options["package-pprint-name"].startsWith('"')
+  ) {
+    options["package-pprint-name"] = options["use-pyodide"]
+      ? `${options["package-pprint-name"]}`
+      : `"${options["package-pprint-name"]}"`;
   }
 }
 
@@ -151,14 +161,6 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     commandArgs["packaging-files-config"] = keyValuePairs.join("|");
     resolvedOptions["packaging-files-config"] = undefined;
   }
-  if (
-    resolvedOptions["package-pprint-name"] !== undefined &&
-    !resolvedOptions["package-pprint-name"].startsWith('"')
-  ) {
-    resolvedOptions["package-pprint-name"] = resolvedOptions["use-pyodide"]
-      ? `${resolvedOptions["package-pprint-name"]}`
-      : `"${resolvedOptions["package-pprint-name"]}"`;
-  }
 
   for (const [key, value] of Object.entries(resolvedOptions)) {
     commandArgs[key] = value;
@@ -169,10 +171,11 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   if (sdkContext.arm === true) {
     commandArgs["azure-arm"] = "true";
   }
-  if (resolvedOptions.flavor === "azure") {
+  if ((resolvedOptions as any).flavor === "azure") {
     commandArgs["emit-cross-language-definition-file"] = "true";
   }
   commandArgs["from-typespec"] = "true";
+  commandArgs["models-mode"] = "dpg";
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // if not using pyodide and there's no venv, we try to create venv
