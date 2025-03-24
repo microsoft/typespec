@@ -19,6 +19,12 @@ Before using the TypeSpec extension, install [Node.js](https://nodejs.org/en/dow
 npm --version
 ```
 
+Install the TypeSpec CLI:
+
+```sh
+npm install -g @typespec/compiler
+```
+
 Other necessary installations will be prompted within the extension as needed.
 
 ## Features
@@ -44,8 +50,8 @@ Other necessary installations will be prompted within the extension as needed.
 The extension allows emitting various outputs from TypeSpec:
 
 - **OpenAPI Specification**
-- **Server SDKs**: Emit server stubs for different back-end frameworks.
-- **Client SDKs**: Emit client code for multiple languages, including:
+- **Server SDKs** _preview_: Emit server stubs for different back-end frameworks.
+- **Client SDKs** _preview_: Emit client code for multiple languages, including:
   - .NET (C#)
   - Python
   - Java
@@ -55,9 +61,13 @@ Invoke `TypeSpec: Emit From TypeSpec` to emit needed outputs:
 
 ![vscode_tsp_to_openapi3_generation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_tsp_to_openapi3_generation.gif)
 
-### Import TypeSpec from OpenAPI3
+### Import TypeSpec from OpenAPI 3
 
-### Preview APIs
+### Preview API Documentation
+
+The extension allows to preview API documentation. The action appears in the context menu on a tsp file. Or invoke "TypeSpec: Preview API Documentation" to visualize your API definitions.
+
+![vscode_preview_api_documentation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_preview_api_documentation.gif)
 
 ## Commands
 
@@ -70,6 +80,8 @@ The extension provides the following commands:
 | `TypeSpec: Generate From TypeSpec`                 | Compile and generate from TypeSpec files into the specified output. |
 | `TypeSpec: Restart TypeSpec Server`                | Restart the TypeSpec language server.                               |
 | `TypeSpec: Show Output Channel`                    | Open the TypeSpec output channel to view logs.                      |
+| `TypeSpec: Preview API Documentation`                    | Preview API documentation generated from TypeSpec in the workspace.                      |
+| `TypeSpec: Import TypeSpec from OpenAPI 3`                    | Import TypeSpec from existing OpenAPI 3 definitions                     |
 
 ## Configuration
 
