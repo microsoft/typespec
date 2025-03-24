@@ -41,13 +41,13 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.Clients[0].Operations[0].Paging;
+    const paging = root.clients[0].operations[0].paging;
     ok(paging);
-    ok(paging.ItemPropertySegments);
-    strictEqual(paging.ItemPropertySegments[0], "items");
-    strictEqual(paging.NextLink?.ResponseLocation, ResponseLocation.Body);
-    strictEqual(paging.NextLink?.ResponseSegments.length, 1);
-    strictEqual(paging.NextLink?.ResponseSegments[0], "next");
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    strictEqual(paging.nextLink?.responseLocation, ResponseLocation.Body);
+    strictEqual(paging.nextLink?.responseSegments.length, 1);
+    strictEqual(paging.nextLink?.responseSegments[0], "next");
   });
 
   // skipped until https://github.com/Azure/typespec-azure/issues/2341 is fixed
@@ -72,13 +72,13 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.Clients[0].Operations[0].Paging;
+    const paging = root.clients[0].operations[0].paging;
     ok(paging);
-    ok(paging.ItemPropertySegments);
-    strictEqual(paging.ItemPropertySegments[0], "items");
-    strictEqual(paging.NextLink?.ResponseLocation, ResponseLocation.Header);
-    strictEqual(paging.NextLink?.ResponseSegments.length, 1);
-    strictEqual(paging.NextLink?.ResponseSegments[0], "next");
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    strictEqual(paging.nextLink?.responseLocation, ResponseLocation.Header);
+    strictEqual(paging.nextLink?.responseSegments.length, 1);
+    strictEqual(paging.nextLink?.responseSegments[0], "next");
   });
 
   // skipped until https://github.com/Azure/typespec-azure/issues/2287 is fixed
@@ -105,14 +105,14 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.Clients[0].Operations[0].Paging;
+    const paging = root.clients[0].operations[0].paging;
     ok(paging);
-    ok(paging.ItemPropertySegments);
-    strictEqual(paging.ItemPropertySegments[0], "items");
-    strictEqual(paging.NextLink?.ResponseLocation, ResponseLocation.Body);
-    strictEqual(paging.NextLink?.ResponseSegments.length, 2);
-    strictEqual(paging.NextLink?.ResponseSegments[0], "next");
-    strictEqual(paging.NextLink?.ResponseSegments[1], "nested");
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    strictEqual(paging.nextLink?.responseLocation, ResponseLocation.Body);
+    strictEqual(paging.nextLink?.responseSegments.length, 2);
+    strictEqual(paging.nextLink?.responseSegments[0], "next");
+    strictEqual(paging.nextLink?.responseSegments[1], "nested");
   });
 
   it("next link as invalid location", async () => {
@@ -136,13 +136,13 @@ describe("Next link operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.Clients[0].Operations[0].Paging;
+    const paging = root.clients[0].operations[0].paging;
     ok(paging);
-    ok(paging.ItemPropertySegments);
-    strictEqual(paging.ItemPropertySegments[0], "items");
-    strictEqual(paging.NextLink?.ResponseLocation, ResponseLocation.None);
-    strictEqual(paging.NextLink?.ResponseSegments.length, 1);
-    strictEqual(paging.NextLink?.ResponseSegments[0], "next");
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    strictEqual(paging.nextLink?.responseLocation, ResponseLocation.None);
+    strictEqual(paging.nextLink?.responseSegments.length, 1);
+    strictEqual(paging.nextLink?.responseSegments[0], "next");
 
     strictEqual(program.diagnostics.length, 1);
     strictEqual(
@@ -151,7 +151,7 @@ describe("Next link operations", () => {
     );
     strictEqual(
       program.diagnostics[0].message,
-      `Unsupported continuation location for operation ${root.Clients[0].Operations[0].CrossLanguageDefinitionId}.`,
+      `Unsupported continuation location for operation ${root.clients[0].operations[0].crossLanguageDefinitionId}.`,
     );
   });
 });
@@ -181,17 +181,17 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.Clients[0].Operations[0].Paging;
+    const paging = root.clients[0].operations[0].paging;
     ok(paging);
-    ok(paging.ItemPropertySegments);
-    strictEqual(paging.ItemPropertySegments[0], "items");
-    const continuationToken = paging.ContinuationToken;
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    const continuationToken = paging.continuationToken;
     ok(continuationToken);
-    strictEqual(continuationToken.Parameter.Name, "token");
-    strictEqual(continuationToken.Parameter.Location, RequestLocation.Header);
-    strictEqual(continuationToken.ResponseLocation, ResponseLocation.Header);
-    strictEqual(continuationToken.ResponseSegments.length, 1);
-    strictEqual(continuationToken.ResponseSegments[0], "next-token");
+    strictEqual(continuationToken.parameter.name, "token");
+    strictEqual(continuationToken.parameter.location, RequestLocation.Header);
+    strictEqual(continuationToken.responseLocation, ResponseLocation.Header);
+    strictEqual(continuationToken.responseSegments.length, 1);
+    strictEqual(continuationToken.responseSegments[0], "next-token");
   });
 
   it("header request body response", async () => {
@@ -213,18 +213,18 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.Clients[0].Operations[0].Paging;
+    const paging = root.clients[0].operations[0].paging;
     ok(paging);
-    ok(paging.ItemPropertySegments);
-    strictEqual(paging.ItemPropertySegments[0], "items");
-    const continuationToken = paging.ContinuationToken;
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    const continuationToken = paging.continuationToken;
     ok(continuationToken);
-    strictEqual(continuationToken.Parameter.Name, "token");
-    strictEqual(continuationToken.Parameter.NameInRequest, "token");
-    strictEqual(continuationToken.Parameter.Location, RequestLocation.Header);
-    strictEqual(continuationToken.ResponseLocation, ResponseLocation.Body);
-    strictEqual(continuationToken.ResponseSegments.length, 1);
-    strictEqual(continuationToken.ResponseSegments[0], "nextToken");
+    strictEqual(continuationToken.parameter.name, "token");
+    strictEqual(continuationToken.parameter.nameInRequest, "token");
+    strictEqual(continuationToken.parameter.location, RequestLocation.Header);
+    strictEqual(continuationToken.responseLocation, ResponseLocation.Body);
+    strictEqual(continuationToken.responseSegments.length, 1);
+    strictEqual(continuationToken.responseSegments[0], "nextToken");
   });
 
   it("query request header response", async () => {
@@ -246,18 +246,18 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.Clients[0].Operations[0].Paging;
+    const paging = root.clients[0].operations[0].paging;
     ok(paging);
-    ok(paging.ItemPropertySegments);
-    strictEqual(paging.ItemPropertySegments[0], "items");
-    const continuationToken = paging.ContinuationToken;
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    const continuationToken = paging.continuationToken;
     ok(continuationToken);
-    strictEqual(continuationToken.Parameter.Name, "token");
-    strictEqual(continuationToken.Parameter.NameInRequest, "token");
-    strictEqual(continuationToken.Parameter.Location, RequestLocation.Query);
-    strictEqual(continuationToken.ResponseLocation, ResponseLocation.Header);
-    strictEqual(continuationToken.ResponseSegments.length, 1);
-    strictEqual(continuationToken.ResponseSegments[0], "next-token");
+    strictEqual(continuationToken.parameter.name, "token");
+    strictEqual(continuationToken.parameter.nameInRequest, "token");
+    strictEqual(continuationToken.parameter.location, RequestLocation.Query);
+    strictEqual(continuationToken.responseLocation, ResponseLocation.Header);
+    strictEqual(continuationToken.responseSegments.length, 1);
+    strictEqual(continuationToken.responseSegments[0], "next-token");
   });
 
   it("query request body response", async () => {
@@ -279,18 +279,18 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.Clients[0].Operations[0].Paging;
+    const paging = root.clients[0].operations[0].paging;
     ok(paging);
-    ok(paging.ItemPropertySegments);
-    strictEqual(paging.ItemPropertySegments[0], "items");
-    const continuationToken = paging.ContinuationToken;
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    const continuationToken = paging.continuationToken;
     ok(continuationToken);
-    strictEqual(continuationToken.Parameter.Name, "token");
-    strictEqual(continuationToken.Parameter.NameInRequest, "token");
-    strictEqual(continuationToken.Parameter.Location, RequestLocation.Query);
-    strictEqual(continuationToken.ResponseLocation, ResponseLocation.Body);
-    strictEqual(continuationToken.ResponseSegments.length, 1);
-    strictEqual(continuationToken.ResponseSegments[0], "nextToken");
+    strictEqual(continuationToken.parameter.name, "token");
+    strictEqual(continuationToken.parameter.nameInRequest, "token");
+    strictEqual(continuationToken.parameter.location, RequestLocation.Query);
+    strictEqual(continuationToken.responseLocation, ResponseLocation.Body);
+    strictEqual(continuationToken.responseSegments.length, 1);
+    strictEqual(continuationToken.responseSegments[0], "nextToken");
   });
 
   it("query request invalid response location", async () => {
@@ -312,18 +312,18 @@ describe("Continuation token operations", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const paging = root.Clients[0].Operations[0].Paging;
+    const paging = root.clients[0].operations[0].paging;
     ok(paging);
-    ok(paging.ItemPropertySegments);
-    strictEqual(paging.ItemPropertySegments[0], "items");
-    const continuationToken = paging.ContinuationToken;
+    ok(paging.itemPropertySegments);
+    strictEqual(paging.itemPropertySegments[0], "items");
+    const continuationToken = paging.continuationToken;
     ok(continuationToken);
-    strictEqual(continuationToken.Parameter.Name, "token");
-    strictEqual(continuationToken.Parameter.NameInRequest, "token");
-    strictEqual(continuationToken.Parameter.Location, RequestLocation.Query);
-    strictEqual(continuationToken.ResponseLocation, ResponseLocation.None);
-    strictEqual(continuationToken.ResponseSegments.length, 1);
-    strictEqual(continuationToken.ResponseSegments[0], "nextToken");
+    strictEqual(continuationToken.parameter.name, "token");
+    strictEqual(continuationToken.parameter.nameInRequest, "token");
+    strictEqual(continuationToken.parameter.location, RequestLocation.Query);
+    strictEqual(continuationToken.responseLocation, ResponseLocation.None);
+    strictEqual(continuationToken.responseSegments.length, 1);
+    strictEqual(continuationToken.responseSegments[0], "nextToken");
     strictEqual(program.diagnostics.length, 1);
     strictEqual(
       program.diagnostics[0].code,
@@ -331,7 +331,7 @@ describe("Continuation token operations", () => {
     );
     strictEqual(
       program.diagnostics[0].message,
-      `Unsupported continuation location for operation ${root.Clients[0].Operations[0].CrossLanguageDefinitionId}.`,
+      `Unsupported continuation location for operation ${root.clients[0].operations[0].crossLanguageDefinitionId}.`,
     );
   });
 });

@@ -1,17 +1,17 @@
-import { MockApiDefinition } from "@typespec/spec-api";
-import * as fs from "fs";
-import * as path from "path";
+import { MockApiDefinition, MockBody, ValidationError } from "@typespec/spec-api";
+import deepEqual from "deep-equal";
+import micromatch from "micromatch";
+import { inspect } from "node:util";
 import pc from "picocolors";
 import { logger } from "../logger.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
-import { makeServiceCall, uint8ArrayToString } from "./helper.js";
+import { makeServiceCall } from "./helper.js";
 
 const DEFAULT_BASE_URL = "http://localhost:3000";
 
 export interface ServerTestDiagnostics {
-  scenario_name: string;
-  status: "success" | "failure";
-  message: any;
+  scenarioName: string;
+  message: string;
 }
 
 class ServerTestsGenerator {
@@ -25,124 +25,71 @@ class ServerTestsGenerator {
     this.serverBasePath = serverBasePath;
   }
 
-  private getConfigObj() {
-    let config = {};
-    if (this.mockApiDefinition.request.status) {
-      const validStatusCode = this.mockApiDefinition.request.status;
-      config = {
-        validateStatus: function (status: number) {
-          return (status >= 200 && status < 300) || validStatusCode === status;
-        },
-      };
-    }
-    if (this.mockApiDefinition.request.params) {
-      config = {
-        ...config,
-        params: this.mockApiDefinition.request.params,
-      };
-    }
-    if (this.mockApiDefinition.request.headers) {
-      config = {
-        ...config,
-        headers: this.mockApiDefinition.request.headers,
-      };
-    }
-    if (
-      ["head", "get", "delete"].includes(this.mockApiDefinition.method) &&
-      this.mockApiDefinition.request.body
-    ) {
-      config = {
-        ...config,
-        data: this.mockApiDefinition.request.body,
-      };
-    }
-    return config;
-  }
-
   public async executeScenario() {
-    logger.info(`Executing ${this.name} endpoint - Method: ${this.mockApiDefinition.method}`);
+    log(`Executing ${this.name} endpoint - Method: ${this.mockApiDefinition.method}`);
 
-    const response = await makeServiceCall(this.mockApiDefinition.method, {
-      endPoint: `${this.serverBasePath}${this.mockApiDefinition.uri}`,
-      options: {
-        requestBody: this.mockApiDefinition.request.body,
-        files: this.mockApiDefinition.request.files,
-        config: this.getConfigObj(),
-      },
+    const response = await makeServiceCall({
+      method: this.mockApiDefinition.method,
+      url: `${this.serverBasePath}${this.mockApiDefinition.uri}`,
+      body: this.mockApiDefinition.request?.body,
+      headers: this.mockApiDefinition.request?.headers,
+      query: this.mockApiDefinition.request?.query,
+      pathParams: this.mockApiDefinition.request?.pathParams,
     });
 
     if (this.mockApiDefinition.response.status !== response.status) {
-      logger.error(`Status code mismatch for ${this.name} endpoint`);
-      logger.error(
-        `Expected: ${this.mockApiDefinition.response.status} - Actual: ${response.status}`,
+      throw new ValidationError(
+        "Status code mismatch",
+        this.mockApiDefinition.response.status,
+        response.status,
       );
-      throw new Error(`Status code mismatch for ${this.name} endpoint`);
     }
+
     if (this.mockApiDefinition.response.body) {
-      if (this.mockApiDefinition.response.body.contentType === "application/xml") {
-        if (
-          JSON.stringify(this.mockApiDefinition.response.body.rawContent) !==
-          JSON.stringify(response.data)
-        ) {
-          logger.error(`Response data mismatch for ${this.name} endpoint`);
-          logger.error(
-            `Expected: ${this.mockApiDefinition.response.body["rawContent"]} - Actual: ${response.data}`,
-          );
-          throw new Error(`Response data mismatch for ${this.name} endpoint`);
-        }
-      } else if (Buffer.isBuffer(this.mockApiDefinition.response.body.rawContent)) {
-        if (
-          this.mockApiDefinition.request.headers &&
-          this.mockApiDefinition.request.headers["accept"] === "application/json"
-        ) {
-          if (
-            response.data.content !==
-            this.mockApiDefinition.response.body.rawContent.toString("base64")
-          ) {
-            throw new Error(`Response data mismatch for ${this.name} endpoint`);
-          }
-        } else {
-          if (
-            uint8ArrayToString(response.data, "utf-8") !==
-            this.mockApiDefinition.response.body.rawContent.toString()
-          ) {
-            throw new Error(`Response data mismatch for ${this.name} endpoint`);
-          }
-        }
-      } else if (this.mockApiDefinition.response.body.contentType === "text/plain") {
-        if (this.mockApiDefinition.response.body.rawContent !== response.data) {
-          logger.error(`Response data mismatch for ${this.name} endpoint`);
-          logger.error(
-            `Expected: ${this.mockApiDefinition.response.body} - Actual: ${response.data}`,
-          );
-          throw new Error(`Response data mismatch for ${this.name} endpoint`);
-        }
-      } else {
-        const responseData = JSON.stringify(response.data);
-        if (
-          this.mockApiDefinition.response.body.rawContent !==
-          responseData.replace(this.serverBasePath, "")
-        ) {
-          logger.error(`Response data mismatch for ${this.name} endpoint`);
-          logger.error(
-            `Expected: ${this.mockApiDefinition.response.body} - Actual: ${response.data}`,
-          );
-          throw new Error(`Response data mismatch for ${this.name} endpoint`);
-        }
-      }
+      await this.#validateBody(response, this.mockApiDefinition.response.body);
     }
+
     if (this.mockApiDefinition.response.headers) {
       for (const key in this.mockApiDefinition.response.headers) {
         if (
           this.mockApiDefinition.response.headers[key] !==
-          response.headers[key].replace(this.serverBasePath, "")
+          response.headers.get(key)?.replace(this.serverBasePath, "")
         ) {
-          logger.error(`Response headers mismatch for ${this.name} endpoint`);
-          logger.error(
-            `Expected: ${this.mockApiDefinition.response.headers[key]} - Actual: ${response.headers[key]}`,
+          throw new ValidationError(
+            `Response headers mismatch`,
+            this.mockApiDefinition.response.headers[key],
+            response.headers.get(key),
           );
-          throw new Error(`Response headers mismatch for ${this.name} endpoint`);
         }
+      }
+    }
+  }
+
+  async #validateBody(response: Response, body: MockBody) {
+    if (Buffer.isBuffer(body.rawContent)) {
+      const responseData = Buffer.from(await response.arrayBuffer());
+      if (!deepEqual(responseData, body.rawContent)) {
+        throw new ValidationError(`Raw body mismatch`, body.rawContent, responseData);
+      }
+    } else {
+      const responseData = await response.text();
+      if (typeof body.rawContent !== "string") {
+        throw new Error(` bodyContent should be string`);
+      }
+
+      switch (body.contentType) {
+        case "application/xml":
+        case "text/plain":
+          if (body.rawContent !== responseData) {
+            throw new ValidationError("Response data mismatch", body.rawContent, responseData);
+          }
+          break;
+        case "application/json":
+          const expected = JSON.parse(body.rawContent);
+          const actual = JSON.parse(responseData);
+          if (!deepEqual(actual, expected, { strict: true })) {
+            throw new ValidationError("Response data mismatch", expected, actual);
+          }
       }
     }
   }
@@ -150,8 +97,7 @@ class ServerTestsGenerator {
 
 export interface ServerTestOptions {
   baseUrl?: string;
-  runSingleScenario?: string;
-  runScenariosFromFile?: string;
+  filter?: string;
 }
 
 async function delay(ms: number) {
@@ -159,7 +105,7 @@ async function delay(ms: number) {
 }
 
 async function waitForServer(baseUrl: string) {
-  logger.info(`Executing server tests with base URL: ${baseUrl}`);
+  logger.debug(`Executing server tests with base URL: ${baseUrl}`);
   let retry = 0;
 
   while (retry < 3) {
@@ -178,40 +124,44 @@ async function waitForServer(baseUrl: string) {
 export async function serverTest(scenariosPath: string, options: ServerTestOptions = {}) {
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   await waitForServer(baseUrl);
-  // 1. Get Testcases to run
-  const testCasesToRun: string[] = [];
-  if (options.runSingleScenario) {
-    testCasesToRun.push(options.runSingleScenario);
-  } else if (options.runScenariosFromFile) {
-    const data = fs.readFileSync(path.resolve(options.runScenariosFromFile), "utf8");
-    const lines = data.split("\n");
-    lines.forEach((line) => {
-      testCasesToRun.push(line.trim());
-    });
-  }
-  // 2. Load all the scenarios
   const scenarios = await loadScenarioMockApis(scenariosPath);
-  const success_diagnostics: ServerTestDiagnostics[] = [];
-  const failure_diagnostics: ServerTestDiagnostics[] = [];
+  const successfullScenarios: { name: string }[] = [];
+  const failureDiagnostics: ServerTestDiagnostics[] = [];
 
+  const allScenarioEntries = Object.entries(scenarios);
+  const scenarioEntries = allScenarioEntries.filter(([name]) => {
+    const pathlikeName = name.replaceAll("_", "/").toLowerCase();
+    const filter = options.filter?.toLowerCase();
+    if (filter && !micromatch.isMatch(pathlikeName, filter)) {
+      logger.debug(`Skipping scenario: ${pathlikeName}, does not match filter: ${filter}`);
+      return false;
+    }
+    return true;
+  });
   // 3. Execute each scenario
-  for (const [name, scenario] of Object.entries(scenarios)) {
+  for (const [name, scenario] of scenarioEntries) {
     if (!Array.isArray(scenario.apis)) continue;
     for (const api of scenario.apis) {
       if (api.kind !== "MockApiDefinition") continue;
-      if (testCasesToRun.length === 0 || testCasesToRun.includes(name)) {
-        const obj: ServerTestsGenerator = new ServerTestsGenerator(name, api, baseUrl);
-        try {
-          await obj.executeScenario();
-          success_diagnostics.push({
-            scenario_name: name,
-            status: "success",
-            message: "executed successfully",
+      const obj: ServerTestsGenerator = new ServerTestsGenerator(name, api, baseUrl);
+      try {
+        await obj.executeScenario();
+        successfullScenarios.push({
+          name,
+        });
+      } catch (e: any) {
+        if (e instanceof ValidationError) {
+          failureDiagnostics.push({
+            scenarioName: name,
+            message: [
+              `Validation failed: ${e.message}:`,
+              ` Expected:\n    ${inspect(e.expected)}`,
+              ` Actual:\n    ${inspect(e.actual)}`,
+            ].join("\n"),
           });
-        } catch (e: any) {
-          failure_diagnostics.push({
-            scenario_name: name,
-            status: "failure",
+        } else {
+          failureDiagnostics.push({
+            scenarioName: name,
             message: `code = ${e.code} \n message = ${e.message} \n name = ${e.name} \n stack = ${e.stack} \n status = ${e.status}`,
           });
         }
@@ -220,20 +170,35 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
   }
 
   // 4. Print diagnostics
-  logger.info("Server Tests Diagnostics Summary");
+  log("");
+  log("Server Tests Diagnostics Summary");
 
-  if (success_diagnostics.length > 0) logger.info("Success Scenarios");
-  success_diagnostics.forEach((diagnostic) => {
-    logger.info(`${pc.green("✓")} Scenario: ${diagnostic.scenario_name} - ${diagnostic.message}`);
-  });
-
-  if (failure_diagnostics.length > 0) logger.error("Failure Scenarios");
-  if (failure_diagnostics.length > 0) {
-    logger.error("Failed Scenario details");
-    failure_diagnostics.forEach((diagnostic) => {
-      logger.error(`${pc.red("✘")} Scenario: ${diagnostic.scenario_name}`);
-      logger.error(`${diagnostic.message}`);
-    });
+  if (successfullScenarios.length === 0 && failureDiagnostics.length === 0) {
+    logger.error("No scenarios were executed");
     process.exit(-1);
   }
+
+  if (successfullScenarios.length > 0) log("Successfull scenarios");
+  successfullScenarios.forEach((diagnostic) => {
+    log(`${pc.green("✓")} Scenario: ${pc.cyan(diagnostic.name)}`);
+  });
+
+  if (failureDiagnostics.length > 0) {
+    log("Failed scenarios");
+    failureDiagnostics.forEach((diagnostic) => {
+      log(`${pc.red("✘")} Scenario: ${pc.cyan(diagnostic.scenarioName)}`);
+      log(`${diagnostic.message}`);
+    });
+  }
+  log(pc.bold(pc.green(`✓ ${scenarioEntries.length} passed`)));
+  if (failureDiagnostics.length > 0) {
+    log(pc.red(`✘ ${failureDiagnostics.length} failed`));
+  }
+
+  process.exit(failureDiagnostics.length > 0 ? 1 : 0);
+}
+
+function log(message: string) {
+  // eslint-disable-next-line no-console
+  console.log(message);
 }

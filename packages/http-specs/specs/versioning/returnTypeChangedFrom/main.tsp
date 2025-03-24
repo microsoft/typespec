@@ -53,5 +53,20 @@ enum Versions {
   """)
 @route("/test")
 @post
-@returnTypeChangedFrom(Versions.v2, int32)
-op test(@body body: string): string;
+@returnTypeChangedFrom(
+  Versions.v2,
+  {
+    @header
+    contentType: "application/json",
+
+    @body
+    body: int32,
+  }
+)
+op test(@header contentType: "application/json", @body body: string): {
+  @header
+  contentType: "application/json";
+
+  @body
+  body: string;
+};

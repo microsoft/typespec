@@ -33,3 +33,39 @@ By default, this emitter will produce separate schema files for each JSON Schema
 Note that bundling does not affect any references within the bundled schemas. In particular, references between JSON Schema types still use relative URIs. As such, correctly resolving these references to the local file requires JSON Schema implementations to support bundling as defined in the JSON Schema 2020-12 specification.
 
 Note also that this does not affect the behavior of non-JSON Schema data types. In particular, by default, non-JSON Schema data types are inlined into each referencing schema's `$defs` object. The `emitAllModels` and `emitAllRefs` options can be used to turn these inlined `$defs` into `$defs` in the bundle.
+
+## Example Configuration for `emitAllModels`
+
+To treat all TypeSpec types as JSON Schema types, set the `emitAllModels` option to true. This will generate a schema file for every data type in your TypeSpec program.
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    emitAllModels: true
+```
+
+## Example Configuration for `emitAllRefs`
+
+To treat all TypeSpec types referenced from JSON Schema types as JSON Schema types, set the `emitAllRefs` option to true. This will generate a schema file for every referenced data type.
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    emitAllRefs: true
+```
+
+## Example Configuration for `bundleId`
+
+To bundle all schemas into a single file, set the `bundleId` option to the desired id. This will generate a single file containing all schemas.
+
+```yaml
+emit:
+  - "@typespec/json-schema"
+options:
+  "@typespec/json-schema":
+    bundleId: "my-bundle"
+```

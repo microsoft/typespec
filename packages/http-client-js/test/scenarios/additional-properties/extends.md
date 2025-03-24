@@ -32,7 +32,7 @@ export interface Widget {
 
 The deserializer flattens the additional property envelope into the root of the payload
 
-```ts src/models/serializers.ts function jsonWidgetToTransportTransform
+```ts src/models/internal/serializers.ts function jsonWidgetToTransportTransform
 export function jsonWidgetToTransportTransform(input_?: Widget | null): any {
   if (!input_) {
     return input_ as any;
@@ -50,7 +50,7 @@ export function jsonWidgetToTransportTransform(input_?: Widget | null): any {
 
 Deserializer puts the known properties in the root of the object and creates an additional Properties envelope.
 
-```ts src/models/serializers.ts function jsonWidgetToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonWidgetToApplicationTransform
 export function jsonWidgetToApplicationTransform(input_?: any): Widget {
   if (!input_) {
     return input_ as any;

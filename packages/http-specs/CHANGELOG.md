@@ -1,5 +1,19 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.15
+
+### Bug Fixes
+
+- [#6521](https://github.com/microsoft/typespec/pull/6528) Add explicit `application/json` content type for some test cases to avoid wrong content type inferred from http lib.
+
+
+## 0.1.0-alpha.14
+
+### Bug Fixes
+
+- [#6521](https://github.com/microsoft/typespec/pull/6521) Fix response scenarios
+
+
 ## 0.1.0-alpha.13
 
 ### Breaking Changes
@@ -27,13 +41,11 @@
 
 - [#6286](https://github.com/microsoft/typespec/pull/6286) Replace @discriminator union with @discriminated
 
-
 ## 0.1.0-alpha.11
 
 ### Features
 
 - [#6140](https://github.com/microsoft/typespec/pull/6140) all parameters including headers and queries shall be passed when next call for continuation token paging
-
 
 ## 0.1.0-alpha.10
 
@@ -44,7 +56,6 @@
 ### Features
 
 - [#6038](https://github.com/microsoft/typespec/pull/6038) Add test case for continuationtoken paging
-
 
 ## 0.1.0-alpha.9
 
@@ -60,7 +71,6 @@
 ### Features
 
 - [#5577](https://github.com/microsoft/typespec/pull/5577) Add test case on status code range
-
 
 ## 0.1.0-alpha.8
 
@@ -79,7 +89,6 @@ No changes, version bump only.
 - [#5545](https://github.com/microsoft/typespec/pull/5545) remove unsupported pageable things
 - [#5401](https://github.com/microsoft/typespec/pull/5401) fix missing `@list` decorator for unbranded pageable operation
 
-
 ## 0.1.0-alpha.5
 
 ### Bug Fixes
@@ -92,7 +101,6 @@ No changes, version bump only.
 
 - [#5211](https://github.com/microsoft/typespec/pull/5211) add link case of server driven pagination test
 - [#5210](https://github.com/microsoft/typespec/pull/5210) add none visibility test
-
 
 ## 0.1.0-alpha.4
 

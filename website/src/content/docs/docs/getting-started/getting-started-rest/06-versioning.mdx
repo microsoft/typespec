@@ -60,9 +60,9 @@ import "@typespec/http";
 // highlight-next-line
 import "@typespec/versioning";
 
-using TypeSpec.Http;
+using Http;
 // highlight-next-line
-using TypeSpec.Versioning;
+using Versioning;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
@@ -86,7 +86,7 @@ In this example:
 
 ### Generating OpenAPI Specifications for Different Versions
 
-Once we start adding versions, the TypeSpec compiler will generate individual OpenAPI specifications for each version. In our case, it will generate two OpenAPI specs, one for each version of our Pet Store service API. Our file structure will now look like this:
+Once versions are added, the TypeSpec compiler generates individual OpenAPI specifications for each version.
 
 {/* prettier-ignore */}
 <FileTree>
@@ -117,8 +117,8 @@ Let's add a `Toy` model that is only available in version 2 of the API:
 import "@typespec/http";
 import "@typespec/versioning";
 
-using TypeSpec.Http;
-using TypeSpec.Versioning;
+using Http;
+using Versioning;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
@@ -174,8 +174,8 @@ Let's define version-specific operations to manage toys for pets. These operatio
 import "@typespec/http";
 import "@typespec/versioning";
 
-using TypeSpec.Http;
-using TypeSpec.Versioning;
+using Http;
+using Versioning;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
