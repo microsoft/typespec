@@ -77,7 +77,18 @@ export class CSharpType implements CSharpTypeMetadata {
     }
   }
   public getTypeReference(scope?: Scope<string>): string {
-    return `${this.isNamespaceInScope(scope) ? "" : this.namespace + "."}${this.name}`;
+    if (this.isNamespaceInScope(scope)) {
+      return this.name;
+    }
+
+    const collectionPatternRegex = /^(ISet|IEnumerable|ICollection)<(.+)>$/;
+    const collectionPattern = this.name.match(collectionPatternRegex);
+    if (collectionPattern) {
+      const [_, collectionType, innerType] = collectionPattern;
+      return `${collectionType}<${this.namespace + "." + innerType}>`;
+    }
+
+    return `${this.namespace}.${this.name}`;
   }
 
   public equals(other: CSharpType | undefined): boolean {

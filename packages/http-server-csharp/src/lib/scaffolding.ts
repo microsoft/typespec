@@ -102,7 +102,17 @@ function getReturnStatement(returnType: CSharpType): string {
     return `return Task.FromResult<${returnType.getTypeReference()}>(default);`;
   }
   if (returnType.isCollection) {
-    return `return Task.FromResult<${returnType.getTypeReference()}>([]);`;
+    const collectionPattern = /^(ISet|IEnumerable)<(.+)>$/;
+    const returnTypeReference = returnType.getTypeReference();
+    const collectionMatch = returnTypeReference.match(collectionPattern);
+
+    if (collectionMatch) {
+      const [_, collectionType, innerType] = collectionMatch;
+      const initCollectionType = collectionType === "ISet" ? "HashSet" : "List";
+      return `return Task.FromResult<${returnTypeReference}>(new ${initCollectionType}<${innerType}>());`;
+    }
+
+    return `return Task.FromResult<${returnTypeReference}>([]);`;
   }
   if (returnType.name === "string") {
     return `return Task.FromResult("");`;
@@ -428,6 +438,14 @@ namespace TypeSpec.Helpers
                 var element = type.GetElementType();
                 if (element == null) return null;
                 return CacheAndReturn(type, Array.CreateInstance(element, 0));
+            }
+            if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+            {
+                var elementType = type.GetGenericArguments()[0];
+                if (elementType == null) return null;
+                var listType = typeof(List<>).MakeGenericType(elementType);
+        
+                return CacheAndReturn(type, Activator.CreateInstance(listType));
             }
             if (type.IsClass)
             {
