@@ -326,7 +326,6 @@ export class LibrarySourceFile {
 export interface CSharpOperationParameter {
   name: string;
   typeName: EmitterOutput<string>;
-  businessTypeName?: EmitterOutput<string>;
   optional: boolean;
   httpParameterKind: HttpRequestParameterKind;
   httpParameterName?: string;

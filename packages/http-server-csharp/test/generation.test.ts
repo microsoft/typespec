@@ -599,7 +599,7 @@ it("generates standard array properties", async () => {
       [
         "IContosoOperations.cs",
         [
-          "Task<IEnumerable<Foo>> UpdateAsync( ICollection<string> arrNames, ICollection<string> arrColors)",
+          "Task<IEnumerable<Foo>> UpdateAsync( IEnumerable<string> arrNames, IEnumerable<string> arrColors)",
         ],
       ],
     ],
@@ -1169,13 +1169,13 @@ it("generates appropriate types for literal tuples in operation parameters", asy
       [
         "ContosoOperationsController.cs",
         [
-          `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] ICollection<int> intProp, [FromHeader(Name="float-prop")] ICollection<double> floatProp, [FromHeader(Name="string-prop")] string stringProp = "string of characters", [FromHeader(Name="string-array-prop")] ICollection<string> stringArrayProp, [FromHeader(Name="string-temp-prop")] ICollection<string> stringTempProp, [FromHeader(Name="true-prop")] ICollection<bool> trueProp, [FromHeader(Name="false-prop")] ICollection<bool> falseProp)`,
+          `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] IEnumerable<int> intProp, [FromHeader(Name="float-prop")] IEnumerable<double> floatProp, [FromHeader(Name="string-prop")] string stringProp = "string of characters", [FromHeader(Name="string-array-prop")] IEnumerable<string> stringArrayProp, [FromHeader(Name="string-temp-prop")] IEnumerable<string> stringTempProp, [FromHeader(Name="true-prop")] IEnumerable<bool> trueProp, [FromHeader(Name="false-prop")] IEnumerable<bool> falseProp)`,
         ],
       ],
       [
         "IContosoOperations.cs",
         [
-          `Task FooAsync( ICollection<int> intProp, ICollection<double> floatProp, string stringProp, ICollection<string> stringArrayProp, ICollection<string> stringTempProp, ICollection<bool> trueProp, ICollection<bool> falseProp);`,
+          `Task FooAsync( IEnumerable<int> intProp, IEnumerable<double> floatProp, string stringProp, IEnumerable<string> stringArrayProp, IEnumerable<string> stringTempProp, IEnumerable<bool> trueProp, IEnumerable<bool> falseProp);`,
         ],
       ],
     ],
@@ -1321,7 +1321,7 @@ it("handles implicit request body models correctly", async () => {
           ".FooAsync(body.IntProp, body.ArrayProp)",
         ],
       ],
-      ["IContosoOperations.cs", [`Task FooAsync( int? intProp, ICollection<string>? arrayProp);`]],
+      ["IContosoOperations.cs", [`Task FooAsync( int? intProp, IEnumerable<string>? arrayProp);`]],
     ],
   );
 });
