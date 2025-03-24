@@ -39,6 +39,8 @@ The version of the package.
 
 **Type:** `string`
 
+The name of the package.
+
 ### `generate-packaging-files`
 
 **Type:** `boolean`
@@ -99,18 +101,6 @@ The flavor of the SDK.
 
 Whether to generate test files, for basic testing of your generated sdks. Defaults to `false`.
 
-### `enable-typespec-namespace`
-
-**Type:** `boolean`
-
-Whether the generated package namespace will respec the typespec namespace. Defaults to `true`, which is the suggested value. Use `false` to continue with legacy handling of namespace following `package-name`.
-
-### `emitter-name`
-
-**Type:** `string`
-
-Set `emitter-name` to output TCGC code models for specific language's emitter. This flag only work for taking TCGC as an emitter.
-
 ### `generate-protocol-methods`
 
 **Type:** `boolean`
@@ -122,10 +112,6 @@ When set to `true`, the emitter will generate low-level protocol methods for eac
 **Type:** `boolean`
 
 When set to `true`, the emitter will generate low-level protocol methods for each service operation if `@convenientAPI` is not set for an operation. Default value is `true`.
-
-### `flatten-union-as-enum`
-
-**Type:** `boolean`
 
 ### `examples-dir`
 
