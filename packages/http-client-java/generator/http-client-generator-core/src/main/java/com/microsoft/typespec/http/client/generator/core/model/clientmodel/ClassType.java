@@ -52,6 +52,7 @@ import com.azure.core.util.ExpandableStringEnum;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.logging.LogLevel;
 import com.azure.core.util.polling.PollOperationDetails;
+import com.azure.core.util.polling.SyncPoller;
 import com.azure.core.util.serializer.JsonSerializer;
 import com.azure.core.util.serializer.SerializerAdapter;
 import com.azure.json.JsonReader;
@@ -518,8 +519,7 @@ public class ClassType implements IType {
     public static final ClassType SYNC_POLLER_FACTORY
         = new Builder().packageName("com.azure.core.management.polling").name("SyncPollerFactory").build();
 
-    public static final ClassType SYNC_POLLER
-        = new Builder().packageName("com.azure.core.util.polling").name("SyncPoller").build();
+    public static final ClassType SYNC_POLLER = new Builder().knownClass(SyncPoller.class).build();
 
     private final String fullName;
     private final String packageName;
