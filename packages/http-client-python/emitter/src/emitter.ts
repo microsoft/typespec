@@ -1,9 +1,4 @@
-import {
-  createSdkContext,
-  SdkContext,
-  SdkHttpOperation,
-  SdkServiceOperation,
-} from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
@@ -18,39 +13,18 @@ import { runPython3 } from "./run-python3.js";
 import { disableGenerationMap, simpleTypesMap, typesMap } from "./types.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
 
-export function getModelsMode(context: SdkContext): "dpg" | "none" {
-  const specifiedModelsMode = context.emitContext.options["models-mode"];
-  if (specifiedModelsMode) {
-    const modelModes = ["dpg", "none"];
-    if (modelModes.includes(specifiedModelsMode)) {
-      return specifiedModelsMode;
-    }
-    reportDiagnostic(context.program, {
-      code: "invalid-models-mode",
-      target: NoTarget,
-      format: { inValidValue: specifiedModelsMode },
-    });
-  }
-  return "dpg";
-}
-
-function addDefaultOptions(sdkContext: SdkContext) {
+function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
     "package-version": "1.0.0b1",
     "generate-packaging-files": true,
-    flavor: undefined,
   };
   sdkContext.emitContext.options = {
     ...defaultOptions,
     ...sdkContext.emitContext.options,
   };
   const options = sdkContext.emitContext.options;
-  options["models-mode"] = getModelsMode(sdkContext);
-  if (options["generate-packaging-files"]) {
-    options["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
-  }
   if (!options["package-name"]) {
-    const namespace = getRootNamespace(sdkContext as PythonSdkContext<SdkServiceOperation>);
+    const namespace = getRootNamespace(sdkContext);
     const packageName = namespace.replace(/\./g, "-");
     reportDiagnostic(sdkContext.program, {
       code: "no-package-name",
@@ -59,19 +33,31 @@ function addDefaultOptions(sdkContext: SdkContext) {
     });
     options["package-name"] = packageName;
   }
-  if (options.flavor !== "azure") {
+  if ((options as any).flavor !== "azure") {
     // if they pass in a flavor other than azure, we want to ignore the value
-    options.flavor = undefined;
+    (options as any).flavor = undefined;
   }
-  if (!options.flavor && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
-    options.flavor = "azure";
+  if (
+    (options as any).flavor === undefined &&
+    sdkContext.emitContext.emitterOutputDir.includes("azure")
+  ) {
+    (options as any).flavor = "azure";
+  }
+
+  if (
+    options["package-pprint-name"] !== undefined &&
+    !options["package-pprint-name"].startsWith('"')
+  ) {
+    options["package-pprint-name"] = options["use-pyodide"]
+      ? `${options["package-pprint-name"]}`
+      : `"${options["package-pprint-name"]}"`;
   }
 }
 
-async function createPythonSdkContext<TServiceOperation extends SdkServiceOperation>(
+async function createPythonSdkContext(
   context: EmitContext<PythonEmitterOptions>,
-): Promise<PythonSdkContext<TServiceOperation>> {
-  const sdkContext = await createSdkContext<PythonEmitterOptions, TServiceOperation>(
+): Promise<PythonSdkContext> {
+  const sdkContext = await createSdkContext<PythonEmitterOptions>(
     context,
     "@azure-tools/typespec-python",
   );
@@ -148,7 +134,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   cleanAllCache();
 
   const program = context.program;
-  const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context);
+  const sdkContext = await createPythonSdkContext(context);
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
   addDefaultOptions(sdkContext);
@@ -175,25 +161,21 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     commandArgs["packaging-files-config"] = keyValuePairs.join("|");
     resolvedOptions["packaging-files-config"] = undefined;
   }
-  if (
-    resolvedOptions["package-pprint-name"] !== undefined &&
-    !resolvedOptions["package-pprint-name"].startsWith('"')
-  ) {
-    resolvedOptions["package-pprint-name"] = resolvedOptions["use-pyodide"]
-      ? `${resolvedOptions["package-pprint-name"]}`
-      : `"${resolvedOptions["package-pprint-name"]}"`;
-  }
 
   for (const [key, value] of Object.entries(resolvedOptions)) {
     commandArgs[key] = value;
   }
+  if (resolvedOptions["generate-packaging-files"]) {
+    commandArgs["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
+  }
   if (sdkContext.arm === true) {
     commandArgs["azure-arm"] = "true";
   }
-  if (resolvedOptions.flavor === "azure") {
+  if ((resolvedOptions as any).flavor === "azure") {
     commandArgs["emit-cross-language-definition-file"] = "true";
   }
   commandArgs["from-typespec"] = "true";
+  commandArgs["models-mode"] = (resolvedOptions as any)["models-mode"] ?? "dpg";
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // if not using pyodide and there's no venv, we try to create venv

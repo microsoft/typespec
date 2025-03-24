@@ -35,7 +35,7 @@ import {
 import { emitParamBase, getClientNamespace, getImplementation, getRootNamespace } from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkBasicServiceMethod<TServiceOperation>,
   operationGroupName: string,
@@ -51,7 +51,7 @@ function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroServiceMethod<TServiceOperation>,
   operationGroupName: string,
@@ -67,7 +67,7 @@ function emitLroMethod<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkPagingServiceMethod<TServiceOperation>,
   operationGroupName: string,
@@ -83,7 +83,7 @@ function emitPagingMethod<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkLroPagingServiceMethod<TServiceOperation>,
   operationGroupName: string,
@@ -98,8 +98,8 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
   }
 }
 
-function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+function emitMethodParameter(
+  context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter,
 ): Record<string, any>[] {
   if (parameter.kind === "endpoint") {
@@ -153,7 +153,7 @@ function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitMethod<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   rootClient: SdkClientType<TServiceOperation>,
   method: SdkServiceMethod<TServiceOperation>,
   operationGroupName: string,
@@ -171,7 +171,7 @@ function emitMethod<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   client: SdkClientType<TServiceOperation>,
   rootClient: SdkClientType<TServiceOperation>,
   prefix: string,
@@ -227,7 +227,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
 }
 
 function emitClient<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   client: SdkClientType<TServiceOperation>,
 ): Record<string, any> {
   if (client.clientInitialization) {
@@ -270,9 +270,7 @@ function onlyUsedByPolling(usage: UsageFlags): boolean {
   );
 }
 
-export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
-  sdkContext: PythonSdkContext<TServiceOperation>,
-) {
+export function emitCodeModel(sdkContext: PythonSdkContext) {
   // Get types
   const sdkPackage = sdkContext.sdkPackage;
   const codeModel: Record<string, any> = {

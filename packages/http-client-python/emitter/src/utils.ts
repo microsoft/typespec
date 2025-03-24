@@ -110,8 +110,8 @@ export function removeUnderscoresFromNamespace(name?: string): string {
   return (name || "").replace(/_/g, "");
 }
 
-export function getImplementation<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+export function getImplementation(
+  context: PythonSdkContext,
   parameter: SdkParameter | SdkHttpParameter,
 ): "Client" | "Method" {
   if (parameter.onClient) return "Client";
@@ -156,7 +156,7 @@ type ParamBase = {
 };
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   type: SdkModelPropertyType | SdkMethod<TServiceOperation>,
 ): string | undefined {
   // since we do not support multi-service for now, we can just check the root client's api version
@@ -200,7 +200,7 @@ export function isContinuationToken<TServiceOperation extends SdkServiceOperatio
 }
 
 export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   parameter: SdkParameter | SdkHttpParameter,
   method?: SdkServiceMethod<TServiceOperation>,
 ): ParamBase {
@@ -251,7 +251,7 @@ const LIB_NAMESPACE = [
   "typespec.versioning",
 ];
 
-export function getRootNamespace(context: PythonSdkContext<SdkServiceOperation>): string {
+export function getRootNamespace(context: PythonSdkContext): string {
   let rootNamespace = "";
   if (context.sdkPackage.clients.length > 0) {
     rootNamespace = context.sdkPackage.clients[0].namespace;
@@ -270,10 +270,7 @@ export function getRootNamespace(context: PythonSdkContext<SdkServiceOperation>)
   return removeUnderscoresFromNamespace(rootNamespace).toLowerCase();
 }
 
-export function getClientNamespace<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
-  clientNamespace: string,
-) {
+export function getClientNamespace(context: PythonSdkContext, clientNamespace: string) {
   if (
     clientNamespace === "" ||
     LIB_NAMESPACE.some((item) => clientNamespace.toLowerCase().startsWith(item))
