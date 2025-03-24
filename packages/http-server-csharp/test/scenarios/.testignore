@@ -12,7 +12,7 @@ encode/numeric/main.tsp
 parameters/body-optionality/main.tsp
 parameters/collection-format/main.tsp
 parameters/spread/main.tsp
-payload/content-negotiation/main.tsp
+#payload/content-negotiation/main.tsp
 payload/json-merge-patch/main.tsp
 payload/media-type/main.tsp
 payload/multipart/main.tsp

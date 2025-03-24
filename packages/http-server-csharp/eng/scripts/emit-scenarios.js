@@ -43,10 +43,13 @@ const argv = yargs(hideBin(process.argv))
 
 const specDir = resolve(argv.input);
 
+// Initialize the port number
+let portNumber = 65000;
+
 // Remove the log directory if it exists.
-async function clearLogDirectory() {
-  if (await pathExists(logDirRoot)) {
-    await rm(logDirRoot, { recursive: true, force: true });
+async function clearDirectory(dirRoot) {
+  if (await pathExists(dirRoot)) {
+    await rm(dirRoot, { recursive: true, force: true });
   }
 }
 
@@ -80,20 +83,25 @@ async function compileSpec(file, options) {
     if (spinner) spinner.text = `Creating directory: ${outputDir}`;
     await mkdir(outputDir, { recursive: true });
 
+    // Increment the port number for each folder
+    portNumber++;
+
     // Compile the spec and generate server code
     if (spinner) spinner.text = `Generating csharp server code: ${relativePath}`;
     await execa("npx", [
       "tsp",
       "compile",
       fullPath,
-      // "--emit",
-      // resolve(import.meta.dirname, "../../../openapi3"),
       "--emit",
       resolve(import.meta.dirname, "../.."),
       "--config",
       tspConfig,
       "--output-dir",
       join(outputDir, "generated"),
+      "--arg",
+      `service-port-http=${portNumber.toString()}`,
+      "--arg",
+      `service-port-https=${(portNumber + 500).toString()}`,
     ]);
 
     if (spinner) spinner.text = `Formatting with Prettier: ${relativePath}`;
@@ -113,7 +121,7 @@ async function compileSpec(file, options) {
     if (spinner) {
       spinner.succeed(`Finished processing: ${relativePath}`);
     }
-    return { status: "succeeded", relativePath };
+    return { status: "succeeded", relativePath, portNumber };
   } catch (error) {
     if (spinner) {
       spinner.fail(`Failed processing: ${relativePath}`);
@@ -240,7 +248,8 @@ async function main() {
   const startTime = process.hrtime.bigint();
   let exitCode = 0;
   try {
-    await clearLogDirectory(); // ✅ Clear logs at the start
+    await clearDirectory(logDirRoot); // ✅ Clear logs at the start
+    await clearDirectory(join(testScenarioPath, "generated")); // ✅ Clear output folders at the start
 
     const ignoreList = await getIgnoreList();
 

@@ -1,69 +1,33 @@
-// import { ChildProcess, spawn } from "child_process";
-// import { logger } from "logger";
+/* eslint-disable no-console */
+import { ChildProcess, spawn } from "child_process";
 
-// interface ServerConfig {
-//   name: string;
-//   scaffoldCommand: string;
-//   startCommand: string;
-//   workingDirectory: string;
-// }
+export class Server {
+  private process: ChildProcess | null = null;
 
-// export class CustomServerManager {
-//   private serverProcess: ChildProcess | null = null;
+  constructor(private workDir: string) {}
 
-//   public async scaffold(): Promise<void> {
-//     logger.info(`Scaffolding ${this.config.name}...`);
-//     await this.executeCommand(this.config.scaffoldCommand);
-//     logger.info(`${this.config.name} scaffolding completed.`);
-//   }
+  async start(): Promise<void> {
+    console.log(`Starting server in ${this.workDir}...`);
 
-//   public start(): void {
-//     if (this.serverProcess) {
-//       logger.warn(`${this.config.name} is already running.`);
-//       return;
-//     }
+    this.process = spawn("dotnet", ["run"], {
+      cwd: this.workDir,
+      stdio: "inherit",
+    });
 
-//     logger.info(`Starting ${this.config.name}...`);
-//     const [command, ...args] = this.config.startCommand.split(" ");
-//     this.serverProcess = spawn(command, args, {
-//       cwd: this.config.workingDirectory,
-//       stdio: "inherit",
-//     });
+    // Wait for server to initialize
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
-//     this.serverProcess.on("close", (code) => {
-//       logger.info(`${this.config.name} exited with code ${code}`);
-//       this.serverProcess = null;
-//       this.emit("stopped", code);
-//     });
+    if (!this.process.pid) {
+      throw new Error("Failed to start server");
+    }
 
-//     this.emit("started");
-//   }
+    console.log(`Server started with PID: ${this.process.pid}`);
+  }
 
-//   public stop(): void {
-//     if (!this.serverProcess) {
-//       logger.warn(`${this.config.name} is not running.`);
-//       return;
-//     }
-
-//     logger.info(`Stopping ${this.config.name}...`);
-//     this.serverProcess.kill();
-//   }
-
-//   private executeCommand(command: string): Promise<void> {
-//     return new Promise((resolve, reject) => {
-//       const [cmd, ...args] = command.split(" ");
-//       const process = spawn(cmd, args, {
-//         cwd: this.config.workingDirectory,
-//         stdio: "inherit",
-//       });
-
-//       process.on("close", (code) => {
-//         if (code === 0) {
-//           resolve();
-//         } else {
-//           reject(new Error(`Command "${command}" exited with code ${code}`));
-//         }
-//       });
-//     });
-//   }
-// }
+  stop(): void {
+    if (this.process && !this.process.killed) {
+      console.log(`Stopping server with PID: ${this.process.pid}...`);
+      this.process.kill("SIGTERM"); // Gracefully terminate
+    }
+  }
+}
