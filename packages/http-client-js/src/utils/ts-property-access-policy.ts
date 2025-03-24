@@ -17,14 +17,17 @@ export const TypeScriptPropertyAccessPolicy: PropertyAccessPolicy = {
     // Process each segment
     for (let i = 0; i < metadata.length; i++) {
       const {segmentName, property} = metadata[i];
-      const isFirst = i === 0;
-      const formattedName = typeof segmentName === "number" 
+      const isTopLevel = i === 0;
+      // When the segment name is a number, we are handling an array index
+      const isArrayIndex = typeof segmentName === "number";
+      const formattedName = isArrayIndex
         ? `[${segmentName}]` 
         : namePolicy.getName(segmentName, "object-member-data");
       
       // Handle first segment
-      if (isFirst) {
-        const hasDefault = getDefaultValue(httpProperty.property) !== undefined;
+      if (isTopLevel) {
+        const hasDefault = getDefaultValue(property) !== undefined;
+        // Top level optional parameters are put in options bag.
         result = property.optional || hasDefault
           ? `options?.${formattedName}`
           : formattedName;
@@ -33,15 +36,12 @@ export const TypeScriptPropertyAccessPolicy: PropertyAccessPolicy = {
       
       // Handle subsequent segments
       const prevSegment = metadata[i - 1];
-      if (prevSegment.property.optional) {
-        result += typeof segmentName === "number" 
-          ? `?.[${segmentName}]` 
-          : `?.${formattedName}`;
-      } else {
-        result += typeof segmentName === "number" 
-          ? `[${segmentName}]` 
-          : `.${formattedName}`;
-      }
+
+      result = prevSegment.property.optional ?
+        // Optional chaining for previous segment
+        `${result}?.${formattedName}`
+        : // Regular property access
+        `${result}.${formattedName}`
     }
     
     return result;
