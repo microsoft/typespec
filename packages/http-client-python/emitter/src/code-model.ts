@@ -1,5 +1,4 @@
 import {
-  SdkApiVersionParameter,
   SdkBasicServiceMethod,
   SdkClientType,
   SdkCredentialParameter,
@@ -101,11 +100,7 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
 
 function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  parameter:
-    | SdkEndpointParameter
-    | SdkCredentialParameter
-    | SdkMethodParameter
-    | SdkApiVersionParameter,
+  parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter,
 ): Record<string, any>[] {
   if (parameter.kind === "endpoint") {
     if (parameter.type.kind === "union") {
