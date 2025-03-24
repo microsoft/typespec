@@ -135,12 +135,12 @@ class GeneralSerializer(BaseSerializer):
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
             file_import.add_submodule_import(
-                "._model_base",
+                ".._model_base",
                 "SdkJSONEncoder",
                 ImportType.LOCAL,
             )
             file_import.add_submodule_import(
-                "._model_base",
+                ".._model_base",
                 "Model",
                 ImportType.LOCAL,
             )
