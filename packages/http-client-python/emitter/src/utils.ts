@@ -110,8 +110,8 @@ export function removeUnderscoresFromNamespace(name?: string): string {
   return (name || "").replace(/_/g, "");
 }
 
-export function getImplementation<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+export function getImplementation(
+  context: PythonSdkContext,
   parameter: SdkParameter | SdkHttpParameter,
 ): "Client" | "Method" {
   if (parameter.onClient) return "Client";
@@ -156,7 +156,7 @@ type ParamBase = {
 };
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   type: SdkModelPropertyType | SdkMethod<TServiceOperation>,
 ): string | undefined {
   // since we do not support multi-service for now, we can just check the root client's api version
@@ -200,7 +200,7 @@ export function isContinuationToken<TServiceOperation extends SdkServiceOperatio
 }
 
 export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   parameter: SdkParameter | SdkHttpParameter,
   method?: SdkServiceMethod<TServiceOperation>,
 ): ParamBase {
@@ -242,31 +242,42 @@ export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
 
-export function getClientNamespace<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
-  clientNamespace: string,
-) {
-  const rootNamespace = removeUnderscoresFromNamespace(
-    context.sdkPackage.rootNamespace,
-  ).toLowerCase();
-  if (!context.emitContext.options["enable-typespec-namespace"]) {
-    return rootNamespace;
+const LIB_NAMESPACE = [
+  "azure.core",
+  "azure.resourcemanager",
+  "azure.clientgenerator.core",
+  "typespec.rest",
+  "typespec.http",
+  "typespec.versioning",
+];
+
+export function getRootNamespace(context: PythonSdkContext): string {
+  let rootNamespace = "";
+  if (context.sdkPackage.clients.length > 0) {
+    rootNamespace = context.sdkPackage.clients[0].namespace;
+  } else if (context.sdkPackage.models.length > 0) {
+    const result = context.sdkPackage.models
+      .map((model) => model.namespace)
+      .filter((namespace) => !LIB_NAMESPACE.includes(namespace));
+    if (result.length > 0) {
+      result.sort();
+      rootNamespace = result[0];
+    }
+  } else if (context.sdkPackage.namespaces.length > 0) {
+    rootNamespace = context.sdkPackage.namespaces[0].fullName;
   }
+
+  return removeUnderscoresFromNamespace(rootNamespace).toLowerCase();
+}
+
+export function getClientNamespace(context: PythonSdkContext, clientNamespace: string) {
   if (
-    [
-      "azure.core",
-      "azure.resourcemanager",
-      "azure.clientgenerator.core",
-      "typespec.rest",
-      "typespec.http",
-      "typespec.versioning",
-    ].some((item) => clientNamespace.toLowerCase().startsWith(item))
+    clientNamespace === "" ||
+    LIB_NAMESPACE.some((item) => clientNamespace.toLowerCase().startsWith(item))
   ) {
-    return rootNamespace;
+    return getRootNamespace(context);
   }
-  return clientNamespace === ""
-    ? rootNamespace
-    : removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+  return removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
 }
 
 function parseToken(token: Token): string {
