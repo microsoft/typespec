@@ -4,4 +4,4 @@ packages:
   - typespec-vscode
 ---
 
-Update menu item and command text from "Show OpenAPI3 Documentation" to "Preview API Documentation"
+Update menu item and command text for "Show OpenAPI3 Documentation" and "Import TypeSpec from OpenApi3"
