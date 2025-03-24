@@ -19,7 +19,7 @@ Let's update our existing operations by enforcing authentication using the `@use
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")

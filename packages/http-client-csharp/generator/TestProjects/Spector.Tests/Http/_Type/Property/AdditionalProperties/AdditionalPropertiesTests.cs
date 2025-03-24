@@ -778,39 +778,6 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.AdditionalProperties
         });
 
         [SpectorTest]
-        public Task SpreadRecordDiscriminatedUnionGet() => Test(async host =>
-        {
-            var response = await new AdditionalPropertiesClient(host, null).GetSpreadRecordDiscriminatedUnionClient().GetAsync();
-            Assert.AreEqual(200, response.GetRawResponse().Status);
-            Assert.AreEqual("abc", response.Value.Name);
-            Assert.AreEqual(2, response.Value.AdditionalProperties.Count);
-            var prop1 = ModelReaderWriter.Read<WidgetData0>(response.Value.AdditionalProperties["prop1"]);
-            Assert.AreEqual("abc", prop1!.FooProp);
-            var prop2 = ModelReaderWriter.Read<WidgetData1>(response.Value.AdditionalProperties["prop2"]);
-            Assert.AreEqual(new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero), prop2!.Start);
-            Assert.AreEqual(new DateTimeOffset(2021, 1, 2, 0, 0, 0, TimeSpan.Zero), prop2.End);
-        });
-
-        [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/6426")]
-        public Task SpreadRecordDiscriminatedUnionPut() => Test(async host =>
-        {
-            var value = new SpreadRecordForDiscriminatedUnion("abc")
-            {
-                AdditionalProperties =
-                {
-                    ["prop1"] = ModelReaderWriter.Write(new WidgetData0("abc")),
-                    ["prop2"] = ModelReaderWriter.Write(new WidgetData1(new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero))
-                    {
-                        End = new DateTimeOffset(2021, 1, 2, 0, 0, 0, TimeSpan.Zero)
-                    })
-                }
-            };
-            var response = await new AdditionalPropertiesClient(host, null).GetSpreadRecordDiscriminatedUnionClient().PutAsync(value);
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
         public Task SpreadRecordNonDiscriminatedUnionGet() => Test(async host =>
         {
             var response = await new AdditionalPropertiesClient(host, null).GetSpreadRecordNonDiscriminatedUnionClient().GetAsync();
@@ -825,7 +792,6 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.AdditionalProperties
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/6426")]
         public Task SpreadRecordNonDiscriminatedUnionPut() => Test(async host =>
         {
             var value = new SpreadRecordForNonDiscriminatedUnion("abc")
@@ -858,7 +824,6 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.AdditionalProperties
         });
 
         [SpectorTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/6426")]
         public Task SpreadRecordNonDiscriminatedUnion2Put() => Test(async host =>
         {
             var value = new SpreadRecordForNonDiscriminatedUnion2("abc")

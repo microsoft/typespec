@@ -36,8 +36,8 @@ export async function emitSchemaWithDiagnostics(
   }
 
   code = testOptions.emitNamespace
-    ? `import "@typespec/json-schema"; using TypeSpec.JsonSchema; @jsonSchema namespace test; ${code}`
-    : `import "@typespec/json-schema"; using TypeSpec.JsonSchema; ${code}`;
+    ? `import "@typespec/json-schema"; using JsonSchema; @jsonSchema namespace test; ${code}`
+    : `import "@typespec/json-schema"; using JsonSchema; ${code}`;
   const host = await getHostForTspFile(code, testOptions.decorators);
   const emitter = createAssetEmitter(
     host.program,

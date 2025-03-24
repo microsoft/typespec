@@ -38,11 +38,13 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "@typespec/spec-api": "workspace:^",
-    "@typespec/spector": "workspace:^"
+    "@typespec/spector": "workspace:^",
+    "deep-equal": "^2.2.0"
   },
   "devDependencies": {
+    "@types/deep-equal": "^1.0.1",
     "@types/multer": "^1.4.10",
-    "@types/node": "~22.13.9",
+    "@types/node": "~22.13.11",
     "@typespec/openapi": "workspace:^",
     "@typespec/openapi3": "workspace:^",
     "concurrently": "^9.1.2",

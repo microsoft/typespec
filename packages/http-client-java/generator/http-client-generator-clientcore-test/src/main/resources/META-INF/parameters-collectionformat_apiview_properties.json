@@ -13,8 +13,6 @@
     "parameters.collectionformat.QueryClient.pipes": "Parameters.CollectionFormat.Query.pipes",
     "parameters.collectionformat.QueryClient.pipesWithResponse": "Parameters.CollectionFormat.Query.pipes",
     "parameters.collectionformat.QueryClient.ssv": "Parameters.CollectionFormat.Query.ssv",
-    "parameters.collectionformat.QueryClient.ssvWithResponse": "Parameters.CollectionFormat.Query.ssv",
-    "parameters.collectionformat.QueryClient.tsv": "Parameters.CollectionFormat.Query.tsv",
-    "parameters.collectionformat.QueryClient.tsvWithResponse": "Parameters.CollectionFormat.Query.tsv"
+    "parameters.collectionformat.QueryClient.ssvWithResponse": "Parameters.CollectionFormat.Query.ssv"
   }
 }

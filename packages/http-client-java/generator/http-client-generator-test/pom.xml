@@ -23,12 +23,12 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.55.2</version>
+      <version>1.55.3</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-json</artifactId>
-      <version>1.4.0</version>
+      <version>1.5.0</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
@@ -38,7 +38,7 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-test</artifactId>
-      <version>1.27.0-beta.7</version>
+      <version>1.27.0-beta.8</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -50,12 +50,12 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-identity</artifactId>
-      <version>1.15.3</version>
+      <version>1.15.4</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-management</artifactId>
-      <version>1.16.2</version>
+      <version>1.17.0</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -79,7 +79,7 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.15.5</version>
+      <version>1.14.10</version>
       <scope>test</scope>
     </dependency>
     <dependency>

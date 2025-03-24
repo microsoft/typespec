@@ -1,6 +1,6 @@
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 @service(#{ title: "Widget Service" })
 namespace DemoService;
 

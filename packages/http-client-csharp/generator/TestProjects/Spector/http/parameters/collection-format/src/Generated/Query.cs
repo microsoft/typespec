@@ -32,14 +32,6 @@ namespace Parameters.CollectionFormat._Query
 
         public virtual Task<ClientResult> SsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Tsv(IEnumerable<string> colors, RequestOptions options) => throw null;
-
-        public virtual Task<ClientResult> TsvAsync(IEnumerable<string> colors, RequestOptions options) => throw null;
-
-        public virtual ClientResult Tsv(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
-
-        public virtual Task<ClientResult> TsvAsync(IEnumerable<string> colors, CancellationToken cancellationToken = default) => throw null;
-
         public virtual ClientResult Pipes(IEnumerable<string> colors, RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> PipesAsync(IEnumerable<string> colors, RequestOptions options) => throw null;

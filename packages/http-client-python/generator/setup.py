@@ -50,9 +50,9 @@ setup(
     install_requires=[
         "black==24.8.0",
         "docutils>=0.20.1",
-        "Jinja2==3.1.3",
+        "Jinja2==3.1.6",
         "PyYAML==6.0.1",
         "tomli==2.0.1",
-        "setuptools==69.5.1",
+        "setuptools==70.0.0",
     ],
 )

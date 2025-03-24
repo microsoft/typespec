@@ -102,7 +102,7 @@ public final class StringOperationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> putKnownValue(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Put("/type/enum/extensible/string/known-value")
@@ -112,7 +112,7 @@ public final class StringOperationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> putKnownValueSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Put("/type/enum/extensible/string/unknown-value")
@@ -122,7 +122,7 @@ public final class StringOperationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> putUnknownValue(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Put("/type/enum/extensible/string/unknown-value")
@@ -132,7 +132,7 @@ public final class StringOperationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> putUnknownValueSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
     }
 
