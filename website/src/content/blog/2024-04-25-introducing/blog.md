@@ -4,6 +4,10 @@ title: "Introducing TypeSpec: A New Language for API-Centric Development"
 image: ./intro.png
 description: Over last few years, we've been hard at work on https://typespec.io/, a modern API definition language. This language is designed to meet the evolving needs of API developers, architects, and managers in an environment where the delivery of consistently high-quality APIs and related experiences is becoming increasingly complex and critical.
 publishDate: 2024-04-25
+authors:
+  - name: The TypeSpec Team
+    title: The TypeSpec Team @ Microsoft
+    avatar: assets/img/authors/default.png
 ---
 
 Over last few years, we've been hard at work on https://typespec.io/, a modern API definition language. This language is designed to meet the evolving needs of API developers, architects, and managers in an environment where the delivery of consistently high-quality APIs and related experiences is becoming increasingly complex and critical.
