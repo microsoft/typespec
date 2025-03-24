@@ -43,7 +43,8 @@
     "test:generator": "tsx ./eng/scripts/ci/run-ci.ts --command=test",
     "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
     "change:version": "pnpm chronus version --ignore-policies --only @typespec/http-client-python",
-    "change:add": "pnpm chronus add"
+    "change:add": "pnpm chronus add",
+    "regen-docs": "node ../../packages/tspd/cmd/tspd.js doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-python/reference --skip-js"
   },
   "files": [
     "dist/**",
