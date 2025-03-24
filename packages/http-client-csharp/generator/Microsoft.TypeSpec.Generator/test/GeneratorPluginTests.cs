@@ -11,7 +11,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         public void PluginAddsVisitorToGenerator()
         {
             var generator = MockHelpers.LoadMockGenerator();
-            var plugin = new TestGeneratorPlugin([new TestLibraryVisitor()]);
+            var plugin = new TestGeneratorPlugin();
 
             plugin.Apply(generator.Object);
 

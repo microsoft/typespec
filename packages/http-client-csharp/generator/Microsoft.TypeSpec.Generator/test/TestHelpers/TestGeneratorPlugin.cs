@@ -3,21 +3,13 @@
 
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator;
+using Microsoft.TypeSpec.Generator.Tests;
 
 public class TestGeneratorPlugin : GeneratorPlugin
 {
-    private readonly IEnumerable<LibraryVisitor> _visitors;
-
-    public TestGeneratorPlugin(IEnumerable<LibraryVisitor> visitors)
-    {
-        _visitors = visitors;
-    }
 
     public override void Apply(CodeModelGenerator generator)
     {
-        foreach (var visitor in _visitors)
-        {
-            generator.AddVisitor(visitor);
-        }
+        generator.AddVisitor(new TestLibraryVisitor());
     }
 }
