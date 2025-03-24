@@ -277,7 +277,26 @@
          "bodyType": {
           "$ref": "2"
          },
-         "headers": [],
+         "headers": [
+          {
+           "$id": "33",
+           "name": "contentType",
+           "nameInResponse": "content-type",
+           "type": {
+            "$id": "34",
+            "kind": "constant",
+            "valueType": {
+             "$id": "35",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
+            },
+            "value": "application/json",
+            "decorators": []
+           }
+          }
+         ],
          "isErrorResponse": false,
          "contentTypes": [
           "application/json"
@@ -294,22 +313,21 @@
        "decorators": []
       },
       {
-       "$id": "33",
+       "$id": "36",
        "name": "putKnownValue",
        "resourceName": "String",
        "doc": "putKnownValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "34",
+         "$id": "37",
          "name": "contentType",
          "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "35",
+          "$id": "38",
           "kind": "constant",
           "valueType": {
-           "$id": "36",
+           "$id": "39",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -329,7 +347,7 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "37",
+         "$id": "40",
          "name": "body",
          "nameInRequest": "body",
          "doc": "_",
@@ -349,7 +367,7 @@
        ],
        "responses": [
         {
-         "$id": "38",
+         "$id": "41",
          "statusCodes": [
           204
          ],
@@ -370,22 +388,21 @@
        "decorators": []
       },
       {
-       "$id": "39",
+       "$id": "42",
        "name": "putUnknownValue",
        "resourceName": "String",
        "doc": "putUnknownValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "40",
+         "$id": "43",
          "name": "contentType",
          "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "41",
+          "$id": "44",
           "kind": "constant",
           "valueType": {
-           "$id": "42",
+           "$id": "45",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -405,7 +422,7 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "43",
+         "$id": "46",
          "name": "body",
          "nameInRequest": "body",
          "doc": "_",
@@ -425,7 +442,7 @@
        ],
        "responses": [
         {
-         "$id": "44",
+         "$id": "47",
          "statusCodes": [
           204
          ],

@@ -276,7 +276,26 @@
          "bodyType": {
           "$ref": "2"
          },
-         "headers": [],
+         "headers": [
+          {
+           "$id": "33",
+           "name": "contentType",
+           "nameInResponse": "content-type",
+           "type": {
+            "$id": "34",
+            "kind": "constant",
+            "valueType": {
+             "$id": "35",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
+            },
+            "value": "application/json",
+            "decorators": []
+           }
+          }
+         ],
          "isErrorResponse": false,
          "contentTypes": [
           "application/json"
@@ -293,20 +312,20 @@
        "decorators": []
       },
       {
-       "$id": "33",
+       "$id": "36",
        "name": "getUnknownValue",
        "resourceName": "String",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "34",
+         "$id": "37",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "35",
+          "$id": "38",
           "kind": "constant",
           "valueType": {
-           "$id": "36",
+           "$id": "39",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -328,14 +347,33 @@
        ],
        "responses": [
         {
-         "$id": "37",
+         "$id": "40",
          "statusCodes": [
           200
          ],
          "bodyType": {
           "$ref": "2"
          },
-         "headers": [],
+         "headers": [
+          {
+           "$id": "41",
+           "name": "contentType",
+           "nameInResponse": "content-type",
+           "type": {
+            "$id": "42",
+            "kind": "constant",
+            "valueType": {
+             "$id": "43",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
+            },
+            "value": "application/json",
+            "decorators": []
+           }
+          }
+         ],
          "isErrorResponse": false,
          "contentTypes": [
           "application/json"
@@ -352,82 +390,8 @@
        "decorators": []
       },
       {
-       "$id": "38",
-       "name": "putKnownValue",
-       "resourceName": "String",
-       "accessibility": "public",
-       "parameters": [
-        {
-         "$id": "39",
-         "name": "contentType",
-         "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
-         "type": {
-          "$id": "40",
-          "kind": "constant",
-          "valueType": {
-           "$id": "41",
-           "kind": "string",
-           "name": "string",
-           "crossLanguageDefinitionId": "TypeSpec.string",
-           "decorators": []
-          },
-          "value": "application/json",
-          "decorators": []
-         },
-         "location": "Header",
-         "isApiVersion": false,
-         "isContentType": true,
-         "isEndpoint": false,
-         "explode": false,
-         "isRequired": true,
-         "kind": "Constant",
-         "decorators": [],
-         "skipUrlEncoding": false
-        },
-        {
-         "$id": "42",
-         "name": "body",
-         "nameInRequest": "body",
-         "type": {
-          "$ref": "2"
-         },
-         "location": "Body",
-         "isApiVersion": false,
-         "isContentType": false,
-         "isEndpoint": false,
-         "explode": false,
-         "isRequired": true,
-         "kind": "Method",
-         "decorators": [],
-         "skipUrlEncoding": false
-        }
-       ],
-       "responses": [
-        {
-         "$id": "43",
-         "statusCodes": [
-          204
-         ],
-         "headers": [],
-         "isErrorResponse": false
-        }
-       ],
-       "httpMethod": "PUT",
-       "uri": "{endpoint}",
-       "path": "/type/enum/extensible/string/known-value",
-       "requestMediaTypes": [
-        "application/json"
-       ],
-       "bufferResponse": true,
-       "generateProtocolMethod": true,
-       "generateConvenienceMethod": true,
-       "crossLanguageDefinitionId": "Type.Enum.Extensible.String.putKnownValue",
-       "decorators": []
-      },
-      {
        "$id": "44",
-       "name": "putUnknownValue",
+       "name": "putKnownValue",
        "resourceName": "String",
        "accessibility": "public",
        "parameters": [
@@ -435,7 +399,6 @@
          "$id": "45",
          "name": "contentType",
          "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
          "type": {
           "$id": "46",
           "kind": "constant",
@@ -480,6 +443,79 @@
        "responses": [
         {
          "$id": "49",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "PUT",
+       "uri": "{endpoint}",
+       "path": "/type/enum/extensible/string/known-value",
+       "requestMediaTypes": [
+        "application/json"
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Enum.Extensible.String.putKnownValue",
+       "decorators": []
+      },
+      {
+       "$id": "50",
+       "name": "putUnknownValue",
+       "resourceName": "String",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "51",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "type": {
+          "$id": "52",
+          "kind": "constant",
+          "valueType": {
+           "$id": "53",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        },
+        {
+         "$id": "54",
+         "name": "body",
+         "nameInRequest": "body",
+         "type": {
+          "$ref": "2"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Method",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "55",
          "statusCodes": [
           204
          ],

@@ -283,26 +283,10 @@
       {
        "$id": "39",
        "statusCodes": [
-        200
+        204
        ],
-       "bodyType": {
-        "$id": "40",
-        "kind": "constant",
-        "valueType": {
-         "$id": "41",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "value": 204,
-        "decorators": []
-       },
        "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
+       "isErrorResponse": false
       }
      ],
      "httpMethod": "GET",
@@ -315,20 +299,20 @@
      "decorators": []
     },
     {
-     "$id": "42",
+     "$id": "40",
      "name": "errorResponseStatusCode404",
      "resourceName": "StatusCodeRange",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "43",
+       "$id": "41",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "44",
+        "$id": "42",
         "kind": "constant",
         "valueType": {
-         "$id": "45",
+         "$id": "43",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -350,28 +334,12 @@
      ],
      "responses": [
       {
-       "$id": "46",
+       "$id": "44",
        "statusCodes": [
-        200
+        204
        ],
-       "bodyType": {
-        "$id": "47",
-        "kind": "constant",
-        "valueType": {
-         "$id": "48",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "value": 204,
-        "decorators": []
-       },
        "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
+       "isErrorResponse": false
       }
      ],
      "httpMethod": "GET",

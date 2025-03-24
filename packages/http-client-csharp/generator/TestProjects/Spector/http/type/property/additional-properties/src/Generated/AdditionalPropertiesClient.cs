@@ -71,8 +71,6 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual SpreadRecordUnion GetSpreadRecordUnionClient() => throw null;
 
-        public virtual SpreadRecordDiscriminatedUnion GetSpreadRecordDiscriminatedUnionClient() => throw null;
-
         public virtual SpreadRecordNonDiscriminatedUnion GetSpreadRecordNonDiscriminatedUnionClient() => throw null;
 
         public virtual SpreadRecordNonDiscriminatedUnion2 GetSpreadRecordNonDiscriminatedUnion2Client() => throw null;

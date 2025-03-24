@@ -3912,14 +3912,14 @@
        "headers": [],
        "isErrorResponse": false,
        "contentTypes": [
-        "application/json",
-        "application/json",
-        "application/json",
-        "application/json",
-        "application/json",
-        "application/json",
-        "application/json",
-        "application/json"
+        "text/plain",
+        "text/plain",
+        "text/plain",
+        "text/plain",
+        "text/plain",
+        "text/plain",
+        "text/plain",
+        "text/plain"
        ]
       }
      ],

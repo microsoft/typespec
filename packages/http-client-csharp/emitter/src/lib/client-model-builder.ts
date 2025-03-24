@@ -8,6 +8,7 @@ import { CodeModel } from "../type/code-model.js";
 import { fromSdkClients } from "./client-converter.js";
 import { navigateModels } from "./model.js";
 import { processServiceAuthentication } from "./service-authentication.js";
+import { getClientNamespaceString } from "./utils.js";
 
 /**
  * Creates the code model from the SDK context.
@@ -40,8 +41,9 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
 
   const clientModel: CodeModel = {
-    // rootNamespace is really coalescing the `package-name` option and the first namespace found.
-    name: sdkPackage.rootNamespace,
+    // To ensure deterministic library name, customers would need to set the package-name property as the ordering of the namespaces could change
+    // if the typespec is changed.
+    name: getClientNamespaceString(sdkContext)!,
     apiVersions: rootApiVersions,
     enums: Array.from(sdkContext.__typeCache.enums.values()),
     models: Array.from(sdkContext.__typeCache.models.values()),

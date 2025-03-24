@@ -335,6 +335,7 @@
          "decorators": []
         }
        ],
+       "apiVersions": [],
        "crossLanguageDefinitionId": "Client.Structure.Service.Baz.Foo",
        "decorators": [],
        "parent": {
@@ -492,6 +493,7 @@
          "decorators": []
         }
        ],
+       "apiVersions": [],
        "crossLanguageDefinitionId": "Client.Structure.Service.Qux.Bar",
        "decorators": [],
        "parent": {

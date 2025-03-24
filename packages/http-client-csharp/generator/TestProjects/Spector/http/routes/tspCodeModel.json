@@ -394,6 +394,7 @@
          "decorators": []
         }
        ],
+       "apiVersions": [],
        "crossLanguageDefinitionId": "Routes.PathParameters.ReservedExpansion",
        "decorators": [],
        "parent": {
@@ -438,6 +439,7 @@
         }
        ],
        "operations": [],
+       "apiVersions": [],
        "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion",
        "decorators": [],
        "parent": {
@@ -643,6 +645,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard",
          "decorators": [],
          "parent": {
@@ -848,6 +851,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode",
          "decorators": [],
          "parent": {
@@ -894,6 +898,7 @@
         }
        ],
        "operations": [],
+       "apiVersions": [],
        "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion",
        "decorators": [],
        "parent": {
@@ -1099,6 +1104,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard",
          "decorators": [],
          "parent": {
@@ -1304,6 +1310,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode",
          "decorators": [],
          "parent": {
@@ -1350,6 +1357,7 @@
         }
        ],
        "operations": [],
+       "apiVersions": [],
        "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion",
        "decorators": [],
        "parent": {
@@ -1555,6 +1563,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard",
          "decorators": [],
          "parent": {
@@ -1760,6 +1769,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode",
          "decorators": [],
          "parent": {
@@ -1806,6 +1816,7 @@
         }
        ],
        "operations": [],
+       "apiVersions": [],
        "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion",
        "decorators": [],
        "parent": {
@@ -2011,6 +2022,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard",
          "decorators": [],
          "parent": {
@@ -2216,6 +2228,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode",
          "decorators": [],
          "parent": {
@@ -2451,6 +2464,7 @@
         }
        ],
        "operations": [],
+       "apiVersions": [],
        "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion",
        "decorators": [],
        "parent": {
@@ -2656,6 +2670,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard",
          "decorators": [],
          "parent": {
@@ -2861,6 +2876,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode",
          "decorators": [],
          "parent": {
@@ -2907,6 +2923,7 @@
         }
        ],
        "operations": [],
+       "apiVersions": [],
        "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation",
        "decorators": [],
        "parent": {
@@ -3112,6 +3129,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard",
          "decorators": [],
          "parent": {
@@ -3317,6 +3335,7 @@
            "decorators": []
           }
          ],
+         "apiVersions": [],
          "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode",
          "decorators": [],
          "parent": {

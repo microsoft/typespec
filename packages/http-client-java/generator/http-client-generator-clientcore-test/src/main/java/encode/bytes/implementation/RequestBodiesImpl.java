@@ -51,7 +51,7 @@ public final class RequestBodiesImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> defaultMethodSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData value,
+            @HeaderParam("Content-Type") String contentType, @BodyParam("application/octet-stream") BinaryData value,
             RequestOptions requestOptions);
 
         @HttpRequestInformation(
@@ -78,7 +78,7 @@ public final class RequestBodiesImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> base64Sync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData value,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData value,
             RequestOptions requestOptions);
 
         @HttpRequestInformation(
@@ -87,7 +87,7 @@ public final class RequestBodiesImpl {
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> base64urlSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData value,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData value,
             RequestOptions requestOptions);
     }
 
@@ -97,7 +97,7 @@ public final class RequestBodiesImpl {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -107,7 +107,7 @@ public final class RequestBodiesImpl {
      * @return the response.
      */
     public Response<Void> defaultMethodWithResponse(BinaryData value, RequestOptions requestOptions) {
-        final String contentType = "application/json";
+        final String contentType = "application/octet-stream";
         return service.defaultMethodSync(this.client.getEndpoint(), contentType, value, requestOptions);
     }
 

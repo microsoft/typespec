@@ -133,7 +133,26 @@
           "crossLanguageDefinitionId": "TypeSpec.string",
           "decorators": []
          },
-         "headers": [],
+         "headers": [
+          {
+           "$id": "18",
+           "name": "contentType",
+           "nameInResponse": "content-type",
+           "type": {
+            "$id": "19",
+            "kind": "constant",
+            "valueType": {
+             "$id": "20",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
+            },
+            "value": "application/json",
+            "decorators": []
+           }
+          }
+         ],
          "isErrorResponse": false,
          "contentTypes": [
           "application/json"
@@ -150,22 +169,21 @@
        "decorators": []
       },
       {
-       "$id": "18",
+       "$id": "21",
        "name": "put",
        "resourceName": "String",
        "doc": "put string value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "19",
+         "$id": "22",
          "name": "contentType",
          "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "20",
+          "$id": "23",
           "kind": "constant",
           "valueType": {
-           "$id": "21",
+           "$id": "24",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -185,12 +203,12 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "22",
+         "$id": "25",
          "name": "body",
          "nameInRequest": "body",
          "doc": "_",
          "type": {
-          "$id": "23",
+          "$id": "26",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -209,7 +227,7 @@
        ],
        "responses": [
         {
-         "$id": "24",
+         "$id": "27",
          "statusCodes": [
           204
          ],
@@ -238,18 +256,18 @@
      }
     },
     {
-     "$id": "25",
+     "$id": "28",
      "kind": "client",
      "name": "Boolean",
      "namespace": "Type.Scalar",
      "parameters": [
       {
-       "$id": "26",
+       "$id": "29",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "27",
+        "$id": "30",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -263,9 +281,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "28",
+        "$id": "31",
         "type": {
-         "$id": "29",
+         "$id": "32",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -276,21 +294,21 @@
      ],
      "operations": [
       {
-       "$id": "30",
+       "$id": "33",
        "name": "get",
        "resourceName": "Boolean",
        "doc": "get boolean value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "31",
+         "$id": "34",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "32",
+          "$id": "35",
           "kind": "constant",
           "valueType": {
-           "$id": "33",
+           "$id": "36",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -312,18 +330,37 @@
        ],
        "responses": [
         {
-         "$id": "34",
+         "$id": "37",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "35",
+          "$id": "38",
           "kind": "boolean",
           "name": "boolean",
           "crossLanguageDefinitionId": "TypeSpec.boolean",
           "decorators": []
          },
-         "headers": [],
+         "headers": [
+          {
+           "$id": "39",
+           "name": "contentType",
+           "nameInResponse": "content-type",
+           "type": {
+            "$id": "40",
+            "kind": "constant",
+            "valueType": {
+             "$id": "41",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
+            },
+            "value": "application/json",
+            "decorators": []
+           }
+          }
+         ],
          "isErrorResponse": false,
          "contentTypes": [
           "application/json"
@@ -340,22 +377,21 @@
        "decorators": []
       },
       {
-       "$id": "36",
+       "$id": "42",
        "name": "put",
        "resourceName": "Boolean",
        "doc": "put boolean value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "37",
+         "$id": "43",
          "name": "contentType",
          "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "38",
+          "$id": "44",
           "kind": "constant",
           "valueType": {
-           "$id": "39",
+           "$id": "45",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -375,12 +411,12 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "40",
+         "$id": "46",
          "name": "body",
          "nameInRequest": "body",
          "doc": "_",
          "type": {
-          "$id": "41",
+          "$id": "47",
           "kind": "boolean",
           "name": "boolean",
           "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -399,7 +435,7 @@
        ],
        "responses": [
         {
-         "$id": "42",
+         "$id": "48",
          "statusCodes": [
           204
          ],
@@ -428,18 +464,18 @@
      }
     },
     {
-     "$id": "43",
+     "$id": "49",
      "kind": "client",
      "name": "Unknown",
      "namespace": "Type.Scalar",
      "parameters": [
       {
-       "$id": "44",
+       "$id": "50",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "45",
+        "$id": "51",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -453,9 +489,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "46",
+        "$id": "52",
         "type": {
-         "$id": "47",
+         "$id": "53",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -466,21 +502,21 @@
      ],
      "operations": [
       {
-       "$id": "48",
+       "$id": "54",
        "name": "get",
        "resourceName": "Unknown",
        "doc": "get unknown value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "49",
+         "$id": "55",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "50",
+          "$id": "56",
           "kind": "constant",
           "valueType": {
-           "$id": "51",
+           "$id": "57",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -502,18 +538,37 @@
        ],
        "responses": [
         {
-         "$id": "52",
+         "$id": "58",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "53",
+          "$id": "59",
           "kind": "unknown",
           "name": "unknown",
           "crossLanguageDefinitionId": "",
           "decorators": []
          },
-         "headers": [],
+         "headers": [
+          {
+           "$id": "60",
+           "name": "contentType",
+           "nameInResponse": "content-type",
+           "type": {
+            "$id": "61",
+            "kind": "constant",
+            "valueType": {
+             "$id": "62",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
+            },
+            "value": "application/json",
+            "decorators": []
+           }
+          }
+         ],
          "isErrorResponse": false,
          "contentTypes": [
           "application/json"
@@ -530,22 +585,21 @@
        "decorators": []
       },
       {
-       "$id": "54",
+       "$id": "63",
        "name": "put",
        "resourceName": "Unknown",
        "doc": "put unknown value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "55",
+         "$id": "64",
          "name": "contentType",
          "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "56",
+          "$id": "65",
           "kind": "constant",
           "valueType": {
-           "$id": "57",
+           "$id": "66",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -565,12 +619,12 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "58",
+         "$id": "67",
          "name": "body",
          "nameInRequest": "body",
          "doc": "_",
          "type": {
-          "$id": "59",
+          "$id": "68",
           "kind": "unknown",
           "name": "unknown",
           "crossLanguageDefinitionId": "",
@@ -589,7 +643,7 @@
        ],
        "responses": [
         {
-         "$id": "60",
+         "$id": "69",
          "statusCodes": [
           204
          ],
@@ -618,19 +672,19 @@
      }
     },
     {
-     "$id": "61",
+     "$id": "70",
      "kind": "client",
      "name": "DecimalType",
      "namespace": "Type.Scalar",
      "doc": "Decimal type",
      "parameters": [
       {
-       "$id": "62",
+       "$id": "71",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "63",
+        "$id": "72",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -644,9 +698,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "64",
+        "$id": "73",
         "type": {
-         "$id": "65",
+         "$id": "74",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -657,20 +711,20 @@
      ],
      "operations": [
       {
-       "$id": "66",
+       "$id": "75",
        "name": "responseBody",
        "resourceName": "DecimalType",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "67",
+         "$id": "76",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "68",
+          "$id": "77",
           "kind": "constant",
           "valueType": {
-           "$id": "69",
+           "$id": "78",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -692,18 +746,37 @@
        ],
        "responses": [
         {
-         "$id": "70",
+         "$id": "79",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "71",
+          "$id": "80",
           "kind": "decimal",
           "name": "decimal",
           "crossLanguageDefinitionId": "TypeSpec.decimal",
           "decorators": []
          },
-         "headers": [],
+         "headers": [
+          {
+           "$id": "81",
+           "name": "contentType",
+           "nameInResponse": "content-type",
+           "type": {
+            "$id": "82",
+            "kind": "constant",
+            "valueType": {
+             "$id": "83",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
+            },
+            "value": "application/json",
+            "decorators": []
+           }
+          }
+         ],
          "isErrorResponse": false,
          "contentTypes": [
           "application/json"
@@ -720,21 +793,20 @@
        "decorators": []
       },
       {
-       "$id": "72",
+       "$id": "84",
        "name": "requestBody",
        "resourceName": "DecimalType",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "73",
+         "$id": "85",
          "name": "contentType",
          "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "74",
+          "$id": "86",
           "kind": "constant",
           "valueType": {
-           "$id": "75",
+           "$id": "87",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -754,11 +826,11 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "76",
+         "$id": "88",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "77",
+          "$id": "89",
           "kind": "decimal",
           "name": "decimal",
           "crossLanguageDefinitionId": "TypeSpec.decimal",
@@ -777,7 +849,7 @@
        ],
        "responses": [
         {
-         "$id": "78",
+         "$id": "90",
          "statusCodes": [
           204
          ],
@@ -798,17 +870,17 @@
        "decorators": []
       },
       {
-       "$id": "79",
+       "$id": "91",
        "name": "requestParameter",
        "resourceName": "DecimalType",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "80",
+         "$id": "92",
          "name": "value",
          "nameInRequest": "value",
          "type": {
-          "$id": "81",
+          "$id": "93",
           "kind": "decimal",
           "name": "decimal",
           "crossLanguageDefinitionId": "TypeSpec.decimal",
@@ -827,7 +899,7 @@
        ],
        "responses": [
         {
-         "$id": "82",
+         "$id": "94",
          "statusCodes": [
           204
          ],
@@ -853,19 +925,19 @@
      }
     },
     {
-     "$id": "83",
+     "$id": "95",
      "kind": "client",
      "name": "Decimal128Type",
      "namespace": "Type.Scalar",
      "doc": "Decimal128 type",
      "parameters": [
       {
-       "$id": "84",
+       "$id": "96",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "85",
+        "$id": "97",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -879,9 +951,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "86",
+        "$id": "98",
         "type": {
-         "$id": "87",
+         "$id": "99",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -892,20 +964,20 @@
      ],
      "operations": [
       {
-       "$id": "88",
+       "$id": "100",
        "name": "responseBody",
        "resourceName": "Decimal128Type",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "89",
+         "$id": "101",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "90",
+          "$id": "102",
           "kind": "constant",
           "valueType": {
-           "$id": "91",
+           "$id": "103",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -927,18 +999,37 @@
        ],
        "responses": [
         {
-         "$id": "92",
+         "$id": "104",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "93",
+          "$id": "105",
           "kind": "decimal128",
           "name": "decimal128",
           "crossLanguageDefinitionId": "TypeSpec.decimal128",
           "decorators": []
          },
-         "headers": [],
+         "headers": [
+          {
+           "$id": "106",
+           "name": "contentType",
+           "nameInResponse": "content-type",
+           "type": {
+            "$id": "107",
+            "kind": "constant",
+            "valueType": {
+             "$id": "108",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string",
+             "decorators": []
+            },
+            "value": "application/json",
+            "decorators": []
+           }
+          }
+         ],
          "isErrorResponse": false,
          "contentTypes": [
           "application/json"
@@ -955,21 +1046,20 @@
        "decorators": []
       },
       {
-       "$id": "94",
+       "$id": "109",
        "name": "requestBody",
        "resourceName": "Decimal128Type",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "95",
+         "$id": "110",
          "name": "contentType",
          "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "96",
+          "$id": "111",
           "kind": "constant",
           "valueType": {
-           "$id": "97",
+           "$id": "112",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -989,11 +1079,11 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "98",
+         "$id": "113",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "99",
+          "$id": "114",
           "kind": "decimal128",
           "name": "decimal128",
           "crossLanguageDefinitionId": "TypeSpec.decimal128",
@@ -1012,7 +1102,7 @@
        ],
        "responses": [
         {
-         "$id": "100",
+         "$id": "115",
          "statusCodes": [
           204
          ],
@@ -1033,17 +1123,17 @@
        "decorators": []
       },
       {
-       "$id": "101",
+       "$id": "116",
        "name": "requestParameter",
        "resourceName": "Decimal128Type",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "102",
+         "$id": "117",
          "name": "value",
          "nameInRequest": "value",
          "type": {
-          "$id": "103",
+          "$id": "118",
           "kind": "decimal128",
           "name": "decimal128",
           "crossLanguageDefinitionId": "TypeSpec.decimal128",
@@ -1062,7 +1152,7 @@
        ],
        "responses": [
         {
-         "$id": "104",
+         "$id": "119",
          "statusCodes": [
           204
          ],
@@ -1088,19 +1178,19 @@
      }
     },
     {
-     "$id": "105",
+     "$id": "120",
      "kind": "client",
      "name": "DecimalVerify",
      "namespace": "Type.Scalar",
      "doc": "Decimal type verification",
      "parameters": [
       {
-       "$id": "106",
+       "$id": "121",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "107",
+        "$id": "122",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1114,9 +1204,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "108",
+        "$id": "123",
         "type": {
-         "$id": "109",
+         "$id": "124",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1127,20 +1217,20 @@
      ],
      "operations": [
       {
-       "$id": "110",
+       "$id": "125",
        "name": "prepareVerify",
        "resourceName": "DecimalVerify",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "111",
+         "$id": "126",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "112",
+          "$id": "127",
           "kind": "constant",
           "valueType": {
-           "$id": "113",
+           "$id": "128",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1162,16 +1252,16 @@
        ],
        "responses": [
         {
-         "$id": "114",
+         "$id": "129",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "115",
+          "$id": "130",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "116",
+           "$id": "131",
            "kind": "decimal",
            "name": "decimal",
            "crossLanguageDefinitionId": "TypeSpec.decimal",
@@ -1197,21 +1287,20 @@
        "decorators": []
       },
       {
-       "$id": "117",
+       "$id": "132",
        "name": "verify",
        "resourceName": "DecimalVerify",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "118",
+         "$id": "133",
          "name": "contentType",
          "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "119",
+          "$id": "134",
           "kind": "constant",
           "valueType": {
-           "$id": "120",
+           "$id": "135",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1231,11 +1320,11 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "121",
+         "$id": "136",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "122",
+          "$id": "137",
           "kind": "decimal",
           "name": "decimal",
           "crossLanguageDefinitionId": "TypeSpec.decimal",
@@ -1254,7 +1343,7 @@
        ],
        "responses": [
         {
-         "$id": "123",
+         "$id": "138",
          "statusCodes": [
           204
          ],
@@ -1283,19 +1372,19 @@
      }
     },
     {
-     "$id": "124",
+     "$id": "139",
      "kind": "client",
      "name": "Decimal128Verify",
      "namespace": "Type.Scalar",
      "doc": "Decimal128 type verification",
      "parameters": [
       {
-       "$id": "125",
+       "$id": "140",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "126",
+        "$id": "141",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1309,9 +1398,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "127",
+        "$id": "142",
         "type": {
-         "$id": "128",
+         "$id": "143",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1322,20 +1411,20 @@
      ],
      "operations": [
       {
-       "$id": "129",
+       "$id": "144",
        "name": "prepareVerify",
        "resourceName": "Decimal128Verify",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "130",
+         "$id": "145",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "131",
+          "$id": "146",
           "kind": "constant",
           "valueType": {
-           "$id": "132",
+           "$id": "147",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1357,16 +1446,16 @@
        ],
        "responses": [
         {
-         "$id": "133",
+         "$id": "148",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "134",
+          "$id": "149",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "135",
+           "$id": "150",
            "kind": "decimal",
            "name": "decimal",
            "crossLanguageDefinitionId": "TypeSpec.decimal",
@@ -1392,21 +1481,20 @@
        "decorators": []
       },
       {
-       "$id": "136",
+       "$id": "151",
        "name": "verify",
        "resourceName": "Decimal128Verify",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "137",
+         "$id": "152",
          "name": "contentType",
          "nameInRequest": "Content-Type",
-         "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "138",
+          "$id": "153",
           "kind": "constant",
           "valueType": {
-           "$id": "139",
+           "$id": "154",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1426,11 +1514,11 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "140",
+         "$id": "155",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "141",
+          "$id": "156",
           "kind": "decimal",
           "name": "decimal",
           "crossLanguageDefinitionId": "TypeSpec.decimal",
@@ -1449,7 +1537,7 @@
        ],
        "responses": [
         {
-         "$id": "142",
+         "$id": "157",
          "statusCodes": [
           204
          ],

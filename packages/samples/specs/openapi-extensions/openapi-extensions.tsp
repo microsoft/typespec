@@ -1,7 +1,7 @@
 import "@typespec/rest";
 import "@typespec/openapi";
 
-using TypeSpec.OpenAPI;
+using OpenAPI;
 
 const MyConfig = #{ name: "Foo", age: 12, other: NestedConfig };
 const NestedConfig = #{ id: "some" };

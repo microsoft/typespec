@@ -31,7 +31,7 @@ op put(@body body: WidgetData): void;
 
 ## Typescript
 
-```ts src/models/serializers.ts function jsonWidgetDataToTransportTransform
+```ts src/models/internal/serializers.ts function jsonWidgetDataToTransportTransform
 export function jsonWidgetDataToTransportTransform(input_?: WidgetData | null): any {
   if (!input_) {
     return input_ as any;
@@ -40,7 +40,7 @@ export function jsonWidgetDataToTransportTransform(input_?: WidgetData | null): 
 }
 ```
 
-```ts src/models/serializers.ts function jsonWidgetDataToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonWidgetDataToApplicationTransform
 export function jsonWidgetDataToApplicationTransform(input_?: any): WidgetData {
   if (!input_) {
     return input_ as any;
@@ -49,7 +49,7 @@ export function jsonWidgetDataToApplicationTransform(input_?: any): WidgetData {
 }
 ```
 
-```ts src/models/serializers.ts function jsonWidgetDataToTransportDiscriminator
+```ts src/models/internal/serializers.ts function jsonWidgetDataToTransportDiscriminator
 export function jsonWidgetDataToTransportDiscriminator(input_?: WidgetData): any {
   if (!input_) {
     return input_ as any;
@@ -67,7 +67,7 @@ export function jsonWidgetDataToTransportDiscriminator(input_?: WidgetData): any
 }
 ```
 
-```ts src/models/serializers.ts function jsonWidgetDataToApplicationDiscriminator
+```ts src/models/internal/serializers.ts function jsonWidgetDataToApplicationDiscriminator
 export function jsonWidgetDataToApplicationDiscriminator(input_?: any): WidgetData {
   if (!input_) {
     return input_ as any;

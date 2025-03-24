@@ -199,7 +199,7 @@
       },
       {
        "$id": "22",
-       "name": "tsv",
+       "name": "pipes",
        "resourceName": "Query",
        "accessibility": "public",
        "parameters": [
@@ -227,7 +227,7 @@
          "isContentType": false,
          "isEndpoint": false,
          "explode": false,
-         "arraySerializationDelimiter": "\t",
+         "arraySerializationDelimiter": "|",
          "isRequired": true,
          "kind": "Method",
          "decorators": [],
@@ -246,16 +246,16 @@
        ],
        "httpMethod": "GET",
        "uri": "{endpoint}",
-       "path": "/parameters/collection-format/query/tsv",
+       "path": "/parameters/collection-format/query/pipes",
        "bufferResponse": true,
        "generateProtocolMethod": true,
        "generateConvenienceMethod": true,
-       "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query.tsv",
+       "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query.pipes",
        "decorators": []
       },
       {
        "$id": "27",
-       "name": "pipes",
+       "name": "csv",
        "resourceName": "Query",
        "accessibility": "public",
        "parameters": [
@@ -283,62 +283,6 @@
          "isContentType": false,
          "isEndpoint": false,
          "explode": false,
-         "arraySerializationDelimiter": "|",
-         "isRequired": true,
-         "kind": "Method",
-         "decorators": [],
-         "skipUrlEncoding": false
-        }
-       ],
-       "responses": [
-        {
-         "$id": "31",
-         "statusCodes": [
-          204
-         ],
-         "headers": [],
-         "isErrorResponse": false
-        }
-       ],
-       "httpMethod": "GET",
-       "uri": "{endpoint}",
-       "path": "/parameters/collection-format/query/pipes",
-       "bufferResponse": true,
-       "generateProtocolMethod": true,
-       "generateConvenienceMethod": true,
-       "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query.pipes",
-       "decorators": []
-      },
-      {
-       "$id": "32",
-       "name": "csv",
-       "resourceName": "Query",
-       "accessibility": "public",
-       "parameters": [
-        {
-         "$id": "33",
-         "name": "colors",
-         "nameInRequest": "colors",
-         "doc": "Possible values for colors are [blue,red,green]",
-         "type": {
-          "$id": "34",
-          "kind": "array",
-          "name": "Array",
-          "valueType": {
-           "$id": "35",
-           "kind": "string",
-           "name": "string",
-           "crossLanguageDefinitionId": "TypeSpec.string",
-           "decorators": []
-          },
-          "crossLanguageDefinitionId": "TypeSpec.Array",
-          "decorators": []
-         },
-         "location": "Query",
-         "isApiVersion": false,
-         "isContentType": false,
-         "isEndpoint": false,
-         "explode": false,
          "arraySerializationDelimiter": ",",
          "isRequired": true,
          "kind": "Method",
@@ -348,7 +292,7 @@
        ],
        "responses": [
         {
-         "$id": "36",
+         "$id": "31",
          "statusCodes": [
           204
          ],
@@ -374,18 +318,18 @@
      }
     },
     {
-     "$id": "37",
+     "$id": "32",
      "kind": "client",
      "name": "Header",
      "namespace": "Parameters.CollectionFormat.Header",
      "parameters": [
       {
-       "$id": "38",
+       "$id": "33",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "39",
+        "$id": "34",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -399,9 +343,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "40",
+        "$id": "35",
         "type": {
-         "$id": "41",
+         "$id": "36",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -412,22 +356,22 @@
      ],
      "operations": [
       {
-       "$id": "42",
+       "$id": "37",
        "name": "csv",
        "resourceName": "Header",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "43",
+         "$id": "38",
          "name": "colors",
          "nameInRequest": "colors",
          "doc": "Possible values for colors are [blue,red,green]",
          "type": {
-          "$id": "44",
+          "$id": "39",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "45",
+           "$id": "40",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -450,7 +394,7 @@
        ],
        "responses": [
         {
-         "$id": "46",
+         "$id": "41",
          "statusCodes": [
           204
          ],

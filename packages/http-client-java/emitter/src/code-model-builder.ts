@@ -147,6 +147,7 @@ import {
 } from "./type-utils.js";
 import {
   DiagnosticError,
+  escapeJavaKeywords,
   getNamespace,
   isStableApiVersion,
   pascalCase,
@@ -215,6 +216,8 @@ export class CodeModelBuilder {
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
 
+  private readonly javaNamespaceCache = new Map<string, string>();
+
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
     this.processSchemaImpl(type, name),
   );
@@ -282,6 +285,7 @@ export class CodeModelBuilder {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@override"],
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
+    this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // java namespace
     if (this.options.namespace) {
@@ -295,11 +299,7 @@ export class CodeModelBuilder {
       // otherwise, the clientNamespace from SdkType will be used.
       this.baseJavaNamespace = this.getBaseJavaNamespace();
     }
-
     this.codeModel.language.java!.namespace = this.baseJavaNamespace;
-
-    // potential problem https://github.com/Azure/typespec-azure/issues/1675
-    this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // auth
     // TODO: it is not very likely, but different client could have different auth
@@ -329,7 +329,7 @@ export class CodeModelBuilder {
     const hostParameters: Parameter[] = [];
     let parameter;
     sdkPathParameters.forEach((arg) => {
-      if (arg.isApiVersionParam) {
+      if (this.isApiVersionParameter(arg)) {
         parameter = this.createApiVersionParameter(arg.name, ParameterLocation.Uri);
       } else {
         const schema = this.processSchema(arg.type, arg.name);
@@ -1305,7 +1305,7 @@ export class CodeModelBuilder {
     param: SdkHttpOperationParameterType,
     clientContext: ClientContext,
   ) {
-    if (clientContext.apiVersions && param.isApiVersionParam && param.kind !== "cookie") {
+    if (clientContext.apiVersions && this.isApiVersionParameter(param) && param.kind !== "cookie") {
       // pre-condition for "isApiVersion": the client supports ApiVersions
       if (this.isArm()) {
         // Currently we assume ARM tsp only have one client and one api-version.
@@ -2969,7 +2969,7 @@ export class CodeModelBuilder {
     if (!baseJavaNamespace) {
       baseJavaNamespace = this.namespace;
     }
-    return baseJavaNamespace.toLowerCase();
+    return this.escapeJavaNamespace(baseJavaNamespace.toLowerCase());
   }
 
   private getJavaNamespace(
@@ -3024,7 +3024,27 @@ export class CodeModelBuilder {
     if (this.legacyJavaNamespace || !clientNamespace) {
       return this.baseJavaNamespace;
     } else {
-      return clientNamespace.toLowerCase();
+      return this.escapeJavaNamespace(clientNamespace.toLowerCase());
+    }
+  }
+
+  private escapeJavaNamespace(namespace: string): string {
+    if (this.javaNamespaceCache.has(namespace)) {
+      return this.javaNamespaceCache.get(namespace)!;
+    } else {
+      const processedJavaNamespace = namespace
+        .split(".")
+        .map((segment) => escapeJavaKeywords(segment, "namespace"))
+        .join(".");
+      if (processedJavaNamespace !== namespace) {
+        reportDiagnostic(this.program, {
+          code: "invalid-java-namespace",
+          format: { namespace: namespace, processedNamespace: processedJavaNamespace },
+          target: NoTarget,
+        });
+      }
+      this.javaNamespaceCache.set(namespace, processedJavaNamespace);
+      return processedJavaNamespace;
     }
   }
 
@@ -3124,6 +3144,10 @@ export class CodeModelBuilder {
         },
       },
     );
+  }
+
+  private isApiVersionParameter(param: SdkHttpOperationParameterType): boolean {
+    return param.isApiVersionParam;
   }
 
   private _apiVersionParameter?: Parameter;

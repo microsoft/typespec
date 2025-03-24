@@ -18,7 +18,7 @@ function createMockServerTests(uri: string, data: any) {
       uri,
       method: "put",
       request: {
-        body: data,
+        body: json(data),
         headers: {
           "Content-Type": "text/plain",
         },
