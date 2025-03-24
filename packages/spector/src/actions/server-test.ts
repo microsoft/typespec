@@ -34,6 +34,7 @@ class ServerTestsGenerator {
       body: this.mockApiDefinition.request?.body,
       headers: this.mockApiDefinition.request?.headers,
       query: this.mockApiDefinition.request?.query,
+      pathParams: this.mockApiDefinition.request?.pathParams,
     });
 
     if (this.mockApiDefinition.response.status !== response.status) {
@@ -124,18 +125,21 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
   const baseUrl = options.baseUrl ?? DEFAULT_BASE_URL;
   await waitForServer(baseUrl);
   const scenarios = await loadScenarioMockApis(scenariosPath);
-  const successfullScenarios: { name: string; pathlikeName: string }[] = [];
+  const successfullScenarios: { name: string }[] = [];
   const failureDiagnostics: ServerTestDiagnostics[] = [];
 
-  const scenarioEntries = Object.entries(scenarios);
-  // 3. Execute each scenario
-  for (const [name, scenario] of scenarioEntries) {
+  const allScenarioEntries = Object.entries(scenarios);
+  const scenarioEntries = allScenarioEntries.filter(([name]) => {
     const pathlikeName = name.replaceAll("_", "/").toLowerCase();
     const filter = options.filter?.toLowerCase();
     if (filter && !micromatch.isMatch(pathlikeName, filter)) {
       logger.debug(`Skipping scenario: ${pathlikeName}, does not match filter: ${filter}`);
-      continue;
+      return false;
     }
+    return true;
+  });
+  // 3. Execute each scenario
+  for (const [name, scenario] of scenarioEntries) {
     if (!Array.isArray(scenario.apis)) continue;
     for (const api of scenario.apis) {
       if (api.kind !== "MockApiDefinition") continue;
@@ -144,7 +148,6 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
         await obj.executeScenario();
         successfullScenarios.push({
           name,
-          pathlikeName,
         });
       } catch (e: any) {
         if (e instanceof ValidationError) {
