@@ -107,7 +107,7 @@ class GeneralSerializer(BaseSerializer):
                 TypingSection.TYPING,
             )
             file_import.add_msrest_import(
-                serialize_namespace=self.serialize_namespace,
+                serialize_namespace=f"{self.serialize_namespace}._vendor",
                 msrest_import_type=MsrestImportType.SerializerDeserializer,
                 typing_section=TypingSection.TYPING,
             )
