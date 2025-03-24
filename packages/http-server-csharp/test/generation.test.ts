@@ -1921,7 +1921,7 @@ it("generates correct multiline jsdoc comments for operations", async () => {
       "///<summary>",
       "/// List Pet results Provide top/skip or filter by name if needed",
       "///</summary>",
-      `Task<Pet[]> ListPetsAsync( int? top, int? skip, string? nameFilter);`,
+      `Task<IEnumerable<Pet>> ListPetsAsync( int? top, int? skip, string? nameFilter);`,
     ],
   );
 });
@@ -1962,7 +1962,7 @@ it("generates correct multiline jsdoc long comments for operations", async () =>
       "/// https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html",
       "/// and a line afterward.",
       "///</summary>",
-      "Task<Pet[]> ListPetsAsync( string? top, string? skip);",
+      "Task<IEnumerable<Pet>> ListPetsAsync( string? top, string? skip);",
     ],
   );
 });
