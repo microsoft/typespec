@@ -1,8 +1,12 @@
 include *.md
 include LICENSE
+{% if code_model.is_tsp %}
+include {{ code_model.namespace.replace('.', '/') }}/py.typed
+{% else %}
 include {{ package_name.replace('-', '/') }}/py.typed
+{% endif %}
 recursive-include tests *.py
 recursive-include samples *.py *.md
-{%- for init_name in init_names %}
+{% for init_name in init_names %}
 include {{ init_name }}
-{%- endfor %}
+{% endfor %}
