@@ -102,6 +102,18 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                         developerBlock.tag("name", "Microsoft");
                     });
                 });
+            } else {
+                if (pom.getLicenseName() != null) {
+                    projectBlock.block("licenses", licensesBlock -> {
+                        licensesBlock.block("license", licenseBlock -> {
+                            licenseBlock.tag("name", pom.getLicenseName());
+                            if (pom.getLicenseUrl() != null) {
+                                licenseBlock.tag("url", pom.getLicenseUrl());
+                            }
+                            licenseBlock.tag("distribution", "repo");
+                        });
+                    });
+                }
             }
 
             if (!branded && pom.getRepositories() != null && !pom.getRepositories().isEmpty()) {

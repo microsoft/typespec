@@ -298,7 +298,12 @@ public class TypeSpecPlugin extends Javagen {
             SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", false);
             SETTINGS_MAP.put("generate-samples", false);
             SETTINGS_MAP.put("generate-tests", false);
+
+            if (options.getLicenseHeader() != null) {
+                SETTINGS_MAP.put("license-header", options.getLicenseHeader());
+            }
         }
+
         JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", options.getOutputDir());
         LOGGER.info("Namespace: {}", JavaSettings.getInstance().getPackage());
