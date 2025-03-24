@@ -235,13 +235,14 @@ public class SchemaUtil {
         return returnType;
     }
 
-    public static IType removeModelFromResponse(IType type, Operation operation) {
-        if (type.asNullable() != ClassType.VOID) {
-            if (!operationIsHeadAsBoolean(operation)) {
-                type = ClassType.BINARY_DATA;
-            }
+    public static IType tryMapToBinaryData(IType type, Operation operation) {
+        if (type.asNullable() == ClassType.VOID) {
+            return type;
         }
-        return type;
+        if (operationIsHeadAsBoolean(operation)) {
+            return type;
+        }
+        return ClassType.BINARY_DATA;
     }
 
     private static boolean operationIsHeadAsBoolean(Operation operation) {
@@ -274,13 +275,12 @@ public class SchemaUtil {
                         || (Objects.equals(SchemaUtil.getCrossLanguageDefinitionId(compositeType),
                             "Azure.Core.Foundations.Error"))) {
                         classType = ClassType.RESPONSE_ERROR;
-                    } else if (Objects.equals(name, "InnerError")
-                        || (Objects.equals(SchemaUtil.getCrossLanguageDefinitionId(compositeType),
-                            "Azure.Core.Foundations.InnerError"))) {
-                        // InnerError is not public, but usually it is only referenced from Error
-                        classType = ClassType.RESPONSE_INNER_ERROR;
                     }
-                    // ErrorResponse is not available, but that should only be used in Exception
+                    /*
+                     * ResponseInnerError is not public, however it could be exposed via "innererror" when a model
+                     * extends Error.
+                     * In this case, generator would had to generate a class.
+                     */
                 }
 
                 if (compositeType.getLanguage().getJava() != null

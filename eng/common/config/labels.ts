@@ -35,6 +35,10 @@ export const AreaLabels = defineLabels({
     color: "c7aee6",
     description: "",
   },
+  "lib:http-specs": {
+    color: "c7aee6",
+    description: "For issues/prs related to the @typespec/http-specs package",
+  },
   "meta:blog": {
     color: "007dc8",
     description: "Blog updates",
@@ -46,6 +50,14 @@ export const AreaLabels = defineLabels({
   tspd: {
     color: "004185",
     description: "Issues for the tspd tool",
+  },
+  "emitter:client:all": {
+    color: "e1b300",
+    description: "General issue for client emitters",
+  },
+  "emitter:client:js": {
+    color: "e1b300",
+    description: "Issue for the JS client emitter: @typespec/http-client-js",
   },
   "emitter:client:csharp": {
     color: "e1b300",

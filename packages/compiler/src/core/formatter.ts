@@ -12,9 +12,6 @@ export async function formatTypeSpec(code: string, prettierConfig?: Options): Pr
   return output;
 }
 
-/** @deprecated use checkFormatTypeSpec */
-export const checkFormatCadl = checkFormatTypeSpec;
-
 /**
  * Check the given is correctly formatted.
  * @returns true if code is formatted correctly.

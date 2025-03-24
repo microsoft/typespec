@@ -6,7 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     /// <summary> The Thing_requiredLiteralInt. </summary>
     public readonly partial struct ThingRequiredLiteralInt : IEquatable<ThingRequiredLiteralInt>

@@ -12,9 +12,6 @@
     {% for description in serializer.description_and_summary(builder) %}
         {% if description %}
 {% set description = wrap_string(description, wrapstring='\n') %}
-            {% if (serializer.line_too_long(example_template) or ns.line_too_long) and loop.first %}
-# pylint: disable=line-too-long
-            {% endif %}
 {{ '"""' + description if loop.first else description }}
         {% else %}
 

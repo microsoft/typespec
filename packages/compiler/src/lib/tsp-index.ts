@@ -1,6 +1,5 @@
 import { TypeSpecDecorators } from "../../generated-defs/TypeSpec.js";
 import {
-  $deprecated,
   $discriminator,
   $doc,
   $encode,
@@ -13,11 +12,11 @@ import {
   $inspectType,
   $inspectTypeName,
   $key,
-  $knownValues,
   $maxItems,
   $maxLength,
   $maxValue,
   $maxValueExclusive,
+  $mediaTypeHint,
   $minItems,
   $minLength,
   $minValue,
@@ -25,7 +24,6 @@ import {
   $opExample,
   $overload,
   $pattern,
-  $projectedName,
   $returnsDoc,
   $secret,
   $service,
@@ -35,6 +33,7 @@ import {
   $withPickedProperties,
   $withoutDefaultValues,
   $withoutOmittedProperties,
+  discriminatedDecorator,
 } from "./decorators.js";
 import {
   continuationTokenDecorator,
@@ -66,6 +65,7 @@ import {
 export const $decorators = {
   TypeSpec: {
     encode: $encode,
+    mediaTypeHint: $mediaTypeHint,
     doc: $doc,
     withOptionalProperties: $withOptionalProperties,
     withUpdateableProperties: $withUpdateableProperties,
@@ -75,7 +75,6 @@ export const $decorators = {
     summary: $summary,
     returnsDoc: $returnsDoc,
     errorsDoc: $errorsDoc,
-    deprecated: $deprecated,
     service: $service,
     error: $error,
     format: $format,
@@ -91,11 +90,10 @@ export const $decorators = {
     secret: $secret,
     tag: $tag,
     friendlyName: $friendlyName,
-    knownValues: $knownValues,
     key: $key,
     overload: $overload,
-    projectedName: $projectedName,
     encodedName: $encodedName,
+    discriminated: discriminatedDecorator,
     discriminator: $discriminator,
     example: $example,
     opExample: $opExample,
@@ -125,6 +123,4 @@ export const $decorators = {
   } satisfies TypeSpecDecorators,
 };
 
-// Projection function exports
 export const namespace = "TypeSpec";
-export { getProjectedName, hasProjectedName } from "./decorators.js";

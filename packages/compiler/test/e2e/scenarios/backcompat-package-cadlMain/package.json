@@ -1,5 +1,0 @@
-{
-  "name": "@typespec/test-typespec-lib",
-  "type": "module",
-  "cadlMain": "lib.cadl"
-}

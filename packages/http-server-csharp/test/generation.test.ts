@@ -1,5 +1,5 @@
 import { Program, Type, navigateProgram } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import { BasicTestRunner, resolveVirtualPath } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, it } from "vitest";
 import { getPropertySource, getSourceModel } from "../src/lib/utils.js";
@@ -59,8 +59,7 @@ async function compileAndValidateMultiple(
   fileChecks: [string, string[]][],
 ): Promise<void> {
   const spec = getStandardService(code);
-  const [_, diagnostics] = await runner.compileAndDiagnose(spec);
-  assert.ok(diagnostics === undefined || diagnostics.length === 0);
+  await runner.compile(spec);
   for (const [fileToCheck, expectedContent] of fileChecks) {
     const [modelKey, modelContents] = getGeneratedFile(runner, fileToCheck);
     expectedContent.forEach((element) => {
@@ -242,11 +241,11 @@ it("generates numeric constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<int>( MinValue = 100, MaxValue = 1000)]",
+      "[NumericConstraint<int>( MinValue = 100, MaxValue = 1000)]",
       "public int? Int32Prop { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<UInt32>( MaxValue = 5000)]",
+      "[NumericConstraint<UInt32>( MaxValue = 5000)]",
       "public UInt32? Uint32Prop { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<float>( MinValue = 0, MinValueExclusive = true)]",
+      "[NumericConstraint<float>( MinValue = 0, MinValueExclusive = true)]",
       "public float? F32Prop { get; set; }",
     ],
   );
@@ -269,7 +268,7 @@ it("generates string constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.StringConstraint( MinLength = 3, MaxLength = 72)]",
+      "[StringConstraint( MinLength = 3, MaxLength = 72)]",
       "public string StringProp { get; set; }",
     ],
   );
@@ -406,6 +405,29 @@ it("generates default values in properties", async () => {
     ],
   );
 });
+it("generates default values in required properties", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** string literal */
+        stringLiteralProp: string = "This is a string literal";
+        /** boolean literal */
+        boolLiteralProp: boolean =  true;
+        /** numeric literal */
+        numericLiteralProp: int32 = 17;
+      }
+      `,
+    "Foo.cs",
+    [
+      "public partial class Foo",
+      `public string StringLiteralProp { get; set; } = "This is a string literal";`,
+      "public bool BoolLiteralProp { get; set; } = true;",
+      "public int NumericLiteralProp { get; set; } = 17;",
+    ],
+  );
+});
 
 it("generates standard scalar array  properties", async () => {
   await compileAndValidateSingleModel(
@@ -491,9 +513,9 @@ it("generates standard scalar array  constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MinItems = 1, MaxItems = 10)]",
+      "[ArrayConstraint( MinItems = 1, MaxItems = 10)]",
       "public SByte[] ArrSbyteProp { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MaxItems = 10)]",
+      "[ArrayConstraint( MaxItems = 10)]",
       "public Byte[] ArrByteProp { get; set; }",
     ],
   );
@@ -504,7 +526,11 @@ it("handles enum, complex type properties, and circular references", async () =>
     runner,
     `
       /** A simple enum */
-      enum Bar { /** one */ One, /** two */Two, /** three */ Three}
+      enum SimpleBar { /** one */ One, /** two */Two, /** three */ Three}
+      /** A named enum */
+      enum ComplexBar {/** one */ One: "first", /** two */Two: "second", /** three */ Three: "third"}
+      /** An escaped enum */
+      enum EscapedBar {/** one */ One:"2023-02-01-preview", /** two */Two:"2024-02-01-preview", /** three */ Three:"2025-02-01"}
       /** A model with a circular references */
       model Baz {
         /** Mutually circular with Foo */
@@ -515,7 +541,7 @@ it("handles enum, complex type properties, and circular references", async () =>
       /** A simple test model*/
       model Foo {
         /** enum */
-        barProp?: Bar;
+        barProp?: SimpleBar;
         /** circular */
         bazProp?: Baz;
       }
@@ -525,11 +551,43 @@ it("handles enum, complex type properties, and circular references", async () =>
         "Foo.cs",
         [
           "public partial class Foo",
-          `public Bar? BarProp { get; set; }`,
+          `public SimpleBar? BarProp { get; set; }`,
           `public Baz BazProp { get; set; }`,
         ],
       ],
-      ["Bar.cs", ["public enum Bar"]],
+      [
+        "SimpleBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum SimpleBar",
+          "One",
+          "Two",
+          "Three",
+        ],
+      ],
+      [
+        "ComplexBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum ComplexBar",
+          `[JsonStringEnumMemberName("first")]`,
+          "One",
+          `[JsonStringEnumMemberName("second")]`,
+          "Two",
+          `[JsonStringEnumMemberName("third")]`,
+          "Three",
+        ],
+      ],
+      [
+        "EscapedBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum EscapedBar",
+          `[JsonStringEnumMemberName("2023-02-01-preview")]`,
+          `[JsonStringEnumMemberName("2024-02-01-preview")]`,
+          `[JsonStringEnumMemberName("2025-02-01")]`,
+        ],
+      ],
       [
         "Baz.cs",
         [
@@ -611,7 +669,7 @@ it("Generates types for named model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -632,7 +690,7 @@ it("Generates types for generic model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -653,7 +711,7 @@ it("Generates good name for model instantiation without hints", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -678,7 +736,7 @@ it("Generates types and controllers in a service subnamespace", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -707,7 +765,7 @@ it("Handles user-defined model templates", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -748,7 +806,7 @@ it("Handles void type in operations", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -783,7 +841,7 @@ it("Handles empty body 2xx as void", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -812,7 +870,8 @@ it("Handles empty body 2xx as void", async () => {
         "MyServiceOperationsController.cs",
         [
           "public partial class MyServiceOperationsController: ControllerBase",
-          "public virtual async Task<IActionResult> Foo(Toy body)",
+          "public virtual async Task<IActionResult> Foo(MyServiceOperationsFooRequest body)",
+          ".FooAsync(body.Id, body.PetId, body.Name)",
         ],
       ],
       ["Toy.cs", ["public partial class Toy"]],
@@ -899,6 +958,56 @@ it("generates appropriate types for literals in operation parameters", async () 
         "IContosoOperations.cs",
         [
           `Task FooAsync( int intProp, double floatProp, string stringProp, string stringTempProp, bool trueProp, bool falseProp);`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("generates appropriate types for records", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model BarResponse {
+        /** Typed record */
+        recordProp: Record<string>;
+        /** Floating point literal */
+        stringMap: Record<string>;
+      }
+
+      @route("/foo") @post op foo(recordProp: Record<string>): Record<unknown>;
+      @route("/foo") @get op bar(): BarResponse;
+      `,
+    [
+      [
+        "BarResponse.cs",
+        [
+          "public partial class BarResponse",
+          "public System.Text.Json.Nodes.JsonObject RecordProp { get; set; }",
+          "public System.Text.Json.Nodes.JsonObject StringMap { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsFooRequest.cs",
+        [
+          "public partial class ContosoOperationsFooRequest",
+          "public System.Text.Json.Nodes.JsonObject RecordProp { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(System.Text.Json.Nodes.JsonObject))]",
+          `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
+          `public virtual async Task<IActionResult> Bar()`,
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          `Task<System.Text.Json.Nodes.JsonObject> FooAsync( System.Text.Json.Nodes.JsonObject recordProp);`,
+          `Task<BarResponse> BarAsync( );`,
         ],
       ],
     ],
@@ -1086,18 +1195,10 @@ it("handles implicit request body models correctly", async () => {
       `,
     [
       [
-        "Model0.cs",
-        [
-          "public partial class Model0",
-          "public int? IntProp { get; set; }",
-          "public string[] ArrayProp { get; set; }",
-        ],
-      ],
-      [
         "ContosoOperationsController.cs",
         [
-          `public virtual async Task<IActionResult> Foo(Model0 body)`,
-          ".FooAsync(body?.IntProp, body?.ArrayProp)",
+          `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
+          ".FooAsync(body.IntProp, body.ArrayProp)",
         ],
       ],
       ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
@@ -1246,64 +1347,620 @@ model FileAttachmentMultipartRequest {
   );
 });
 
-it("Produces correct scaffolding", async () => {
-  await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
-    `
-      @error
-  model NotFoundErrorResponse {
-     @statusCode statusCode: 404;
-     code: "not-found";
-  }
-model ApiError {
-  /** A machine readable error code */
-  code: string;
-
-  /** A human readable message */
-  message: string;
+const multipartSpec = `
+@error
+model NotFoundErrorResponse {
+@statusCode statusCode: 404;
+code: "not-found";
 }
-    /**
- * Something is wrong with you.
- */
+model ApiError {
+/** A machine readable error code */
+code: string;
+
+/** A human readable message */
+message: string;
+}
+/**
+* Something is wrong with you.
+*/
 model Standard4XXResponse extends ApiError {
-  @minValue(400)
-  @maxValue(499)
-  @statusCode
-  statusCode: int32;
+@minValue(400)
+@maxValue(499)
+@statusCode
+statusCode: int32;
 }
 
 /**
- * Something is wrong with me.
- */
+* Something is wrong with me.
+*/
 model Standard5XXResponse extends ApiError {
-  @minValue(500)
-  @maxValue(599)
-  @statusCode
-  statusCode: int32;
+@minValue(500)
+@maxValue(599)
+@statusCode
+statusCode: int32;
 }
 
 model FileAttachmentMultipartRequest {
-  contents: HttpPart<File>;
+contents: HttpPart<File>;
 }
 
-    alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
+alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
 
-    @post
-    op createFileAttachment(
-      @header contentType: "multipart/form-data",
-      @path itemId: int32,
-      @multipartBody body: FileAttachmentMultipartRequest,
-    ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
-    `,
+@post
+op createFileAttachment(
+@header contentType: "multipart/form-data",
+@path itemId: int32,
+@multipartBody body: FileAttachmentMultipartRequest,
+): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+`;
+
+it("Produces correct scaffolding", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    multipartSpec,
     [
       ["IInitializer.cs", ["public interface IInitializer"]],
       ["Initializer.cs", ["public class Initializer : IInitializer"]],
       ["ContosoOperations.cs", ["public class ContosoOperations : IContosoOperations"]],
       [
         "MockRegistration.cs",
+        [
+          "public static class MockRegistration",
+          "<IContosoOperations, ContosoOperations>()",
+          "builder.Services.AddHttpContextAccessor();",
+        ],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+      ["README.md", [`  - \`mocks/ContosoOperations.cs\``]],
+      ["usage.md", [`**controllers**`]],
+      ["emitter.md", [`@typespec/http-server-csharp`]],
+    ],
+  );
+});
+
+it("Does not overwrite mock files", async () => {
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "mocks-and-project-files",
+  });
+  runner.fs.set(
+    resolveVirtualPath("@typespec", "http-server-csharp", "../", "ServiceProject.csproj"),
+    "ServiceProject\n",
+  );
+  await compileAndValidateMultiple(runner, multipartSpec, [
+    ["ServiceProject.csproj", ["ServiceProject"]],
+  ]);
+});
+
+it("Does overwrite mock files with overWrite option", async () => {
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "mocks-and-project-files",
+    overwrite: true,
+  });
+  runner.fs.set(
+    resolveVirtualPath("@typespec", "http-server-csharp", "../", "ServiceProject.csproj"),
+    "ServiceProject\n",
+  );
+  await compileAndValidateMultiple(runner, multipartSpec, [
+    ["ServiceProject.csproj", ["<TargetFramework>net9.0</TargetFramework>"]],
+  ]);
+});
+
+it("reads default location for OpenAPI from config", async () => {
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "mocks-and-project-files",
+    "use-swaggerui": true,
+  });
+  runner.fs.set(
+    resolveVirtualPath("tspconfig.yaml"),
+    `
+emit:
+  - "@typespec/openapi3"
+options:
+  "@typespec/openapi3":
+    emitter-output-dir: "{project-root}/generated"
+    output-file: "openapi.yaml"
+
+`,
+  );
+  await compileAndValidateMultiple(runner, multipartSpec, [
+    [
+      "Program.cs",
+      [
+        "builder.Services.AddSwaggerGen();",
+        "app.UseSwagger();",
+        "app.UseSwaggerUI( c=> {",
+        `c.DocumentTitle = "TypeSpec Generated OpenAPI Viewer";`,
+        `c.SwaggerEndpoint("/openapi.yaml", "TypeSpec Generated OpenAPI Docs");`,
+        `c.RoutePrefix = "swagger";`,
+        `var externalFilePath = "../generated/openapi.yaml"; // Full path to the file outside the project`,
+      ],
+    ],
+  ]);
+});
+
+it("Handles spread parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    `
+    model Widget {
+      @path id: string;
+      @query kind?: string;
+      color: string;
+    }
+
+    @route("/widgets")
+
+    @post op create(...Widget) : Widget;
+
+    `,
+    [
+      [
+        "IContosoOperations.cs",
+        ["Task<Widget> CreateAsync( string id, string color, string? kind);"],
+      ],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public ContosoOperations(IInitializer initializer, IHttpContextAccessor accessor)",
+          "_initializer = initializer;",
+          "HttpContextAccessor = accessor;",
+          "public IHttpContextAccessor HttpContextAccessor { get; }",
+          "public Task<Widget> CreateAsync( string id, string color, string? kind)",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          `public virtual async Task<IActionResult> Create(string id, ContosoOperationsCreateRequest body, [FromQuery(Name="kind")] string? kind)`,
+          ".CreateAsync(id, body.Color, kind)",
+        ],
+      ],
+      [
+        "MockRegistration.cs",
         ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
       ],
       ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("Handles bodyRoot parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    `
+    model Widget {
+      @visibility(Lifecycle.Update, Lifecycle.Read)
+      @path id: string;
+      @query kind?: string;
+      color: string;
+    }
+
+    @route("/widgets")
+
+    @post op create(@bodyRoot body: Widget) : Widget;
+
+    `,
+    [
+      ["IContosoOperations.cs", ["Task<Widget> CreateAsync( Widget body);"]],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public Task<Widget> CreateAsync( Widget body)",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [`public virtual async Task<IActionResult> Create(Widget body)`, ".CreateAsync(body)"],
+      ],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("Initializes enum types", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    `
+    enum Color {
+      Red,
+      Blue,
+      Green
+    }
+    model Widget {
+      @visibility(Lifecycle.Update, Lifecycle.Read)
+      @path id: string;
+      @query kind?: string;
+      color: Color;
+    }
+
+    @route("/widgets")
+    @post op create(@bodyRoot body: Widget) : Widget;
+    @route("/colors")
+    @get op getDefaultColor(): Color;
+
+    `,
+    [
+      [
+        "IContosoOperations.cs",
+        ["Task<Widget> CreateAsync( Widget body);", "Task<Color> GetDefaultColorAsync( );"],
+      ],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public Task<Widget> CreateAsync( Widget body)",
+          "public Task<Color> GetDefaultColorAsync( )",
+          "return Task.FromResult<Microsoft.Contoso.Service.Models.Color>(default);",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          `public virtual async Task<IActionResult> Create(Widget body)`,
+          ".CreateAsync(body)",
+          `public virtual async Task<IActionResult> GetDefaultColor()`,
+          ".GetDefaultColorAsync()",
+        ],
+      ],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("emits correct code for GET requests with body parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    `
+      #suppress "@typespec/http-server-csharp/get-request-body" "Test"
+      @route("/foo") @get op foo(intProp?: int32): void;
+      `,
+    [
+      [
+        "ContosoOperationsController.cs",
+        [`public virtual async Task<IActionResult> Foo()`, ".FooAsync()"],
+      ],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+      [
+        "ContosoOperations.cs",
+        ["public class ContosoOperations : IContosoOperations", "public Task FooAsync( )"],
+      ],
+    ],
+  );
+});
+
+it("emits correct code for GET requests with explicit body parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    `
+      #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
+      #suppress "@typespec/http-server-csharp/get-request-body" "Test"
+      @route("/foo") @get op foo(@body body?: { intProp?: int32}): void;
+      `,
+    [
+      [
+        "ContosoOperationsController.cs",
+        [`public virtual async Task<IActionResult> Foo()`, ".FooAsync()"],
+      ],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+      [
+        "ContosoOperations.cs",
+        ["public class ContosoOperations : IContosoOperations", "public Task FooAsync( )"],
+      ],
+    ],
+  );
+});
+
+it("generates one line `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        @doc("Pet name in the format of a string")
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline jsdoc comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /**
+       * Pet name in the format of a string.
+       * The name will be the main identifier for the dog. It is suggested to keep it short and simple.
+       * Pets have a difficult time understanding and learning complex names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. The name will be the main identifier",
+      "/// for the dog. It is suggested to keep it short and simple. Pets have a",
+      "/// difficult time understanding and learning complex names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline jsdoc comments with long non-space words", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /**
+       * Pet name in the format of a string.
+       * Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. Visit",
+      "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
+      "/// where you can find many unique names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates correct (awkward) multiline jsdoc comments without multiline asterisk", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    /**
+     * A multiline comment.
+     *   This line is indented.
+     * This line is not
+     * This line is quite long and likely should be broken into multiple lines as it goes on and on and on and on and doesn't stop ever, really it doesn't ever stop.  OK, it stops now.
+     * https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html
+     * and a line afterward.
+     */
+    model Pet {
+      /**
+        Pet name in the format of a string.
+        The name will be the main identifier for the dog. It is suggested to keep it short and simple.
+        Pets have a difficult time understanding and learning complex names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "///<summary>",
+      "/// A multiline comment. This line is indented. This line is not This line is",
+      "/// quite long and likely should be broken into multiple lines as it goes on",
+      "/// and on and on and on and doesn't stop ever, really it doesn't ever stop. ",
+      "/// OK, it stops now.",
+      "/// https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html",
+      "/// and a line afterward.",
+      "///</summary>",
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string.         The name will be the main",
+      "/// identifier for the dog. It is suggested to keep it short and simple.  ",
+      "///  Pets have a difficult time understanding and learning complex names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates correct multiline jsdoc comments for operations", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /** Pet name string */
+      name?: string;
+    }
+    
+    @route("/pets")
+    interface Pets {
+      /**
+       * List Pet results
+       * Provide top/skip or filter by name if needed
+       */
+      @get op listPets(
+        @query top?: int32 = 50, 
+        @query skip?: int32 = 0,
+        @query nameFilter?: string = "*"
+      ) : Pet[];
+    }
+    `,
+    "IPets.cs",
+    [
+      "public interface IPets",
+      "///<summary>",
+      "/// List Pet results Provide top/skip or filter by name if needed",
+      "///</summary>",
+      `Task<Pet[]> ListPetsAsync( int? top, int? skip, string? nameFilter);`,
+    ],
+  );
+});
+
+it("generates correct multiline jsdoc long comments for operations", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /** Pet name string */
+      name?: string;
+    }
+    
+    @route("/pets")
+    interface Pets {
+      /**
+       * A multiline comment.
+       *   This line is indented.
+       * This line is not
+       * This line is quite long and likely should be broken into multiple lines as it goes on and on and on and on and doesn't stop ever, really it doesn't ever stop.  OK, it stops now.
+       * https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html
+       * and a line afterward.
+       */
+      @get op listPets(
+        @query top?: string, 
+        @query skip?: string
+      ) : Pet[];
+    }
+    `,
+    "IPets.cs",
+    [
+      "public interface IPets",
+      "///<summary>",
+      "/// A multiline comment. This line is indented. This line is not This line is",
+      "/// quite long and likely should be broken into multiple lines as it goes on",
+      "/// and on and on and on and doesn't stop ever, really it doesn't ever stop. ",
+      "/// OK, it stops now.",
+      "/// https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html",
+      "/// and a line afterward.",
+      "///</summary>",
+      "Task<Pet[]> ListPetsAsync( string? top, string? skip);",
+    ],
+  );
+});
+
+it("generates correct (awkward) multiline jsdoc comments with long non-space words  without multiline asterisk", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /**
+        Pet name in the format of a string.
+        Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string.         Visit",
+      "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
+      "/// where you can find many unique names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      @doc("""
+        Pet name in the format of a string.
+        The name will be the main identifier for the dog. It is suggested to keep it short and simple.
+        Pets have a difficult time understanding and learning complex names.
+        """)
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. The name will be the main identifier",
+      "/// for the dog. It is suggested to keep it short and simple. Pets have a",
+      "/// difficult time understanding and learning complex names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline `@doc` decorator comments with long non-space words", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      @doc("""
+        Pet name in the format of a string.
+        Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.
+        """)
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. Visit",
+      "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
+      "/// where you can find many unique names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates single line `@doc` decorator comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        @doc("Pet name in the format of a string")
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates jsdoc comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      model Pet {
+        /**
+         * Pet name in the format of a string
+        **/
+        name?: string;
+      }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
     ],
   );
 });

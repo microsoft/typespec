@@ -1,13 +1,13 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { getTypeName } from "../../src/core/index.js";
 import type { Program } from "../../src/core/program.js";
 import { Model, Namespace, Type } from "../../src/core/types.js";
+import { getTypeName } from "../../src/index.js";
 import {
   TestHost,
   createTestHost,
   expectDiagnostics,
-  expectIdenticalTypes,
+  expectTypeEquals,
 } from "../../src/testing/index.js";
 
 describe("compiler: namespaces with blocks", () => {
@@ -725,6 +725,6 @@ describe("compiler: decorators in namespaces", () => {
     strictEqual(X.kind, "Model" as const);
     strictEqual(Y.kind, "Model" as const);
     ok(Y.baseModel);
-    expectIdenticalTypes(Y.baseModel, X);
+    expectTypeEquals(Y.baseModel, X);
   });
 });

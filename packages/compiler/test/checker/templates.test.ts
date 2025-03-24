@@ -10,6 +10,7 @@ import {
   createTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  expectTypeEquals,
   extractCursor,
   extractSquiggles,
 } from "../../src/testing/index.js";
@@ -127,6 +128,22 @@ describe("compiler: templates", () => {
 
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("cache indeterminate types", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model Template<T> {t: T}
+        @test model Test {
+          a: Template<"a">;
+          b: Template<"a">;
+        }
+      `,
+    );
+
+    const { Test } = (await testHost.compile("main.tsp")) as { Test: Model };
+    expectTypeEquals(Test.properties.get("a")!.type, Test.properties.get("b")!.type);
   });
 
   it("allows default template parameters that are models", async () => {

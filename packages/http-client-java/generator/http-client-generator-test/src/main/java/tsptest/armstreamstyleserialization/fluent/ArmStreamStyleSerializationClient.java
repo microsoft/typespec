@@ -66,4 +66,11 @@ public interface ArmStreamStyleSerializationClient {
      * @return the FunctionsClient object.
      */
     FunctionsClient getFunctions();
+
+    /**
+     * Gets the PrioritiesClient object to access its operations.
+     * 
+     * @return the PrioritiesClient object.
+     */
+    PrioritiesClient getPriorities();
 }

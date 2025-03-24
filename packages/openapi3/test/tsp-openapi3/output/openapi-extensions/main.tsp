@@ -5,12 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "(title)",
-})
-@info({
-  version: "0.0.0",
-})
+@service(#{ title: "(title)" })
+@info(#{ version: "0.0.0" })
 namespace title;
 
 model Foo {
@@ -48,12 +44,4 @@ model NestedConfig {
   id: "some";
 }
 
-/**
- * The request has succeeded.
- */
-model foo200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Foo;
-}
-
-@route("/") @get op foo(): foo200ApplicationJsonResponse;
+@route("/") @get op foo(): Foo;

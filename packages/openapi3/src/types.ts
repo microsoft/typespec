@@ -685,7 +685,7 @@ export type OpenAPI3Operation = Extensions & {
   responses?: any;
   tags?: string[];
   operationId?: string;
-  requestBody?: OpenAPI3RequestBody;
+  requestBody?: Refable<OpenAPI3RequestBody>;
   parameters: Refable<OpenAPI3Parameter>[];
   deprecated?: boolean;
   security?: Record<string, string[]>[];
@@ -1011,6 +1011,15 @@ export type JsonSchema<AdditionalVocabularies extends {} = {}> = AdditionalVocab
    * @see https://json-schema.org/draft/2020-12/json-schema-core#name-additionalproperties
    */
   additionalProperties?: boolean | Refable<JsonSchema<AdditionalVocabularies>>;
+
+  /**
+   * Indicates that additional unlisted properties can exist in this schema.
+   * This differs from additionalProperties in that it is aware of any in-place applicators.
+   * This includes being aware of properties defined in sibling `allOf` sub-schemas.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-core#name-unevaluatedproperties
+   */
+  unevaluatedProperties?: boolean | Refable<JsonSchema<AdditionalVocabularies>>;
 
   /**
    * Property is readonly.

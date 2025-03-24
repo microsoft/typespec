@@ -349,11 +349,13 @@ public class JavaPackage {
         }
     }
 
-    protected void checkDuplicateFile(String filePath) {
+    protected boolean checkDuplicateFile(String filePath) {
         if (filePaths.contains(filePath)) {
 //            throw new IllegalStateException(String.format("Name conflict for output file '%1$s'.", filePath));
             logger.warn(String.format("Name conflict for output file '%1$s'.", filePath));
+            return true;
         }
+        return false;
     }
 
     public void addJsonMergePatchHelper(List<ClientModel> models) {

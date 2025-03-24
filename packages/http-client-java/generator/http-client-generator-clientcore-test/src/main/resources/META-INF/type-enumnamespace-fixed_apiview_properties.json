@@ -1,0 +1,14 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "type.enumnamespace.fixed.DaysOfWeekEnum": "Type.Enum.Fixed.DaysOfWeekEnum",
+    "type.enumnamespace.fixed.FixedClient": "Type.Enum.Fixed.String",
+    "type.enumnamespace.fixed.FixedClient.getKnownValue": "Type.Enum.Fixed.String.getKnownValue",
+    "type.enumnamespace.fixed.FixedClient.getKnownValueWithResponse": "Type.Enum.Fixed.String.getKnownValue",
+    "type.enumnamespace.fixed.FixedClient.putKnownValue": "Type.Enum.Fixed.String.putKnownValue",
+    "type.enumnamespace.fixed.FixedClient.putKnownValueWithResponse": "Type.Enum.Fixed.String.putKnownValue",
+    "type.enumnamespace.fixed.FixedClient.putUnknownValue": "Type.Enum.Fixed.String.putUnknownValue",
+    "type.enumnamespace.fixed.FixedClient.putUnknownValueWithResponse": "Type.Enum.Fixed.String.putUnknownValue",
+    "type.enumnamespace.fixed.FixedClientBuilder": "Type.Enum.Fixed"
+  }
+}

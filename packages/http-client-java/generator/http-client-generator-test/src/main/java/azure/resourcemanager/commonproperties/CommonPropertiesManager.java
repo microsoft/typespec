@@ -6,7 +6,9 @@ package azure.resourcemanager.commonproperties;
 
 import azure.resourcemanager.commonproperties.fluent.CommonPropertiesClient;
 import azure.resourcemanager.commonproperties.implementation.CommonPropertiesClientBuilder;
+import azure.resourcemanager.commonproperties.implementation.ErrorsImpl;
 import azure.resourcemanager.commonproperties.implementation.ManagedIdentitiesImpl;
+import azure.resourcemanager.commonproperties.models.Errors;
 import azure.resourcemanager.commonproperties.models.ManagedIdentities;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.HttpClient;
@@ -26,11 +28,13 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.core.util.Configuration;
+import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -40,6 +44,8 @@ import java.util.stream.Collectors;
  */
 public final class CommonPropertiesManager {
     private ManagedIdentities managedIdentities;
+
+    private Errors errors;
 
     private final CommonPropertiesClient clientObject;
 
@@ -93,6 +99,9 @@ public final class CommonPropertiesManager {
      */
     public static final class Configurable {
         private static final ClientLogger LOGGER = new ClientLogger(Configurable.class);
+        private static final String SDK_VERSION = "version";
+        private static final Map<String, String> PROPERTIES
+            = CoreUtils.getProperties("azure-resourcemanager-commonproperties-generated.properties");
 
         private HttpClient httpClient;
         private HttpLogOptions httpLogOptions;
@@ -200,12 +209,14 @@ public final class CommonPropertiesManager {
             Objects.requireNonNull(credential, "'credential' cannot be null.");
             Objects.requireNonNull(profile, "'profile' cannot be null.");
 
+            String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, "UnknownVersion");
+
             StringBuilder userAgentBuilder = new StringBuilder();
             userAgentBuilder.append("azsdk-java")
                 .append("-")
                 .append("azure.resourcemanager.commonproperties")
                 .append("/")
-                .append("1.0.0-beta.1");
+                .append(clientVersion);
             if (!Configuration.getGlobalConfiguration().get("AZURE_TELEMETRY_DISABLED", false)) {
                 userAgentBuilder.append(" (")
                     .append(Configuration.getGlobalConfiguration().get("java.version"))
@@ -261,6 +272,18 @@ public final class CommonPropertiesManager {
             this.managedIdentities = new ManagedIdentitiesImpl(clientObject.getManagedIdentities(), this);
         }
         return managedIdentities;
+    }
+
+    /**
+     * Gets the resource collection API of Errors. It manages ConfidentialResource.
+     * 
+     * @return Resource collection API of Errors.
+     */
+    public Errors errors() {
+        if (this.errors == null) {
+            this.errors = new ErrorsImpl(clientObject.getErrors(), this);
+        }
+        return errors;
     }
 
     /**

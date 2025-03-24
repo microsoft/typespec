@@ -1,5 +1,45 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.12
+
+### Features
+
+- [#6507](https://github.com/microsoft/typespec/pull/6507) Scaffolding updates for rc
+
+
+## 0.58.0-alpha.11
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Features
+
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6267](https://github.com/microsoft/typespec/pull/6267) Fix the generation of long and multiline comments.
+- [#6443](https://github.com/microsoft/typespec/pull/6443) Fix handling of record types
+- [#6411](https://github.com/microsoft/typespec/pull/6411) Add support for new `dryRun` emitter option
+
+
+## 0.58.0-alpha.10
+
+### Bug Fixes
+
+- [#6177](https://github.com/microsoft/typespec/pull/6177) Fix issues with sample mock tests
+- [#5952](https://github.com/microsoft/typespec/pull/5952) Fixes to enums, operation signatures
+
+
+## 0.58.0-alpha.9
+
+No changes, version bump only.
+
 ## 0.58.0-alpha.8
 
 ### Bug Fixes

@@ -2,13 +2,13 @@
 
 package parameters.collectionformat.implementation;
 
-import io.clientcore.core.annotation.ServiceInterface;
+import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.http.RestProxy;
-import io.clientcore.core.http.annotation.HostParam;
-import io.clientcore.core.http.annotation.HttpRequestInformation;
-import io.clientcore.core.http.annotation.QueryParam;
-import io.clientcore.core.http.annotation.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exception.HttpResponseException;
+import io.clientcore.core.http.annotations.HostParam;
+import io.clientcore.core.http.annotations.HttpRequestInformation;
+import io.clientcore.core.http.annotations.QueryParam;
+import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
@@ -65,14 +65,6 @@ public final class QueriesImpl {
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
-            path = "/parameters/collection-format/query/tsv",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> tsvSync(@HostParam("endpoint") String endpoint, @QueryParam("colors") String colors,
-            RequestOptions requestOptions);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
             path = "/parameters/collection-format/query/pipes",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
@@ -115,21 +107,6 @@ public final class QueriesImpl {
             .map(paramItemValue -> Objects.toString(paramItemValue, ""))
             .collect(Collectors.joining(" "));
         return service.ssvSync(this.client.getEndpoint(), colorsConverted, requestOptions);
-    }
-
-    /**
-     * The tsv operation.
-     * 
-     * @param colors Possible values for colors are [blue,red,green].
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @return the response.
-     */
-    public Response<Void> tsvWithResponse(List<String> colors, RequestOptions requestOptions) {
-        String colorsConverted = colors.stream()
-            .map(paramItemValue -> Objects.toString(paramItemValue, ""))
-            .collect(Collectors.joining("\t"));
-        return service.tsvSync(this.client.getEndpoint(), colorsConverted, requestOptions);
     }
 
     /**

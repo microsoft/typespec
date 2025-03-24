@@ -1,5 +1,52 @@
 # Change Log - @typespec/http-client-python
 
+## 0.8.1
+
+### Other Changes
+
+- Bump `@typespec/*` 0.67.0
+
+## 0.8.0
+
+### Features
+
+- [#6242](https://github.com/microsoft/typespec/pull/6242) support continuation token for paging
+
+
+## 0.7.1
+
+### Bug Fixes
+
+- [6579d19](https://github.com/microsoft/typespec/commit/6579d19b4ce852aa62c78b1e1ce871ecd884a554) pass combined types to python generator
+
+
+## 0.7.0
+
+### Features
+
+- [#5930](https://github.com/microsoft/typespec/pull/5930) Report TCGC diagnostics after create SDK context.
+
+### Bug Fixes
+
+- [#6163](https://github.com/microsoft/typespec/pull/6163) Fix sphinx syntax for raising `DeserializationError` in serialization file
+- [#6138](https://github.com/microsoft/typespec/pull/6138) [python] remove useless docstring for models
+- [#6104](https://github.com/microsoft/typespec/pull/6104) [python] Don't throw error directly when emitter crash
+
+
+## 0.6.11
+
+No changes, version bump only.
+
+## 0.6.10
+
+### Bug Fixes
+
+- [#5739](https://github.com/microsoft/typespec/pull/5739) Fix output folder of models when output folder is different with namespace in configuration
+- [#5862](https://github.com/microsoft/typespec/pull/5862) Fix crash when value of `--package-pprint-name` contains space
+- [#5764](https://github.com/microsoft/typespec/pull/5764) Fix bug in indentation for wrapping a property description that includes a long url
+- [#5853](https://github.com/microsoft/typespec/pull/5853) Improve logging by catching expected `ModuleNotFoundError`
+
+
 ## 0.6.9
 
 ### Bug Fixes

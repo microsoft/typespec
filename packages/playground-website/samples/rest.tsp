@@ -1,13 +1,11 @@
 import "@typespec/http";
 import "@typespec/rest";
 
-@service({
-  title: "Widget Service",
-})
+@service(#{ title: "Widget Service" })
 namespace DemoService;
 
-using TypeSpec.Http;
-using TypeSpec.Rest;
+using Http;
+using Rest;
 
 model Widget {
   @key id: string;

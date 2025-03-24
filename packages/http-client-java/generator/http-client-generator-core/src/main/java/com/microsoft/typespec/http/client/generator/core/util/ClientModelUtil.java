@@ -26,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import java.net.URI;
@@ -319,21 +320,33 @@ public class ClientModelUtil {
     }
 
     public static String getClientDefaultValueOrConstantValue(Parameter parameter) {
-        String clientDefaultValueOrConstantValue = parameter.getClientDefaultValue();
-        if (clientDefaultValueOrConstantValue == null) {
-            if (parameter.getSchema() != null && parameter.getSchema() instanceof ConstantSchema) {
-                ConstantSchema constantSchema = (ConstantSchema) parameter.getSchema();
-                if (constantSchema.getValue() != null) {
-                    clientDefaultValueOrConstantValue = constantSchema.getValue().getValue().toString();
-                }
+        if (parameter.getClientDefaultValue() != null) {
+            return parameter.getClientDefaultValue();
+        }
+        if (parameter.getSchema() != null && parameter.getSchema() instanceof ConstantSchema) {
+            final ConstantSchema constantSchema = (ConstantSchema) parameter.getSchema();
+            if (constantSchema.getValue() != null) {
+                return constantSchema.getValue().getValue().toString();
             }
         }
-        return clientDefaultValueOrConstantValue;
+        return null;
+    }
+
+    public static List<OperationGroup> getAllOperationGroups(CodeModel codeModel) {
+        List<OperationGroup> allOperationGroups;
+        if (!CoreUtils.isNullOrEmpty(codeModel.getClients())) {
+            allOperationGroups = codeModel.getClients()
+                .stream()
+                .flatMap(client -> client.getOperationGroups().stream())
+                .collect(Collectors.toList());
+        } else {
+            allOperationGroups = codeModel.getOperationGroups();
+        }
+        return allOperationGroups;
     }
 
     private static String getFirstApiVersionFromOperation(CodeModel codeModel) {
-        return codeModel.getOperationGroups()
-            .stream()
+        return getAllOperationGroups(codeModel).stream()
             .flatMap(og -> og.getOperations().stream())
             .filter(o -> o.getApiVersions() != null)
             .flatMap(o -> o.getApiVersions().stream())
@@ -935,6 +948,24 @@ public class ClientModelUtil {
             errorBodyClassName = errorBodyClassName.substring(0, errorBodyClassName.length() - "Exception".length());
         }
         return ClientModels.getInstance().getModel(errorBodyClassName);
+    }
+
+    /**
+     * Gets a ModelPropertySegment represents the model and property.
+     *
+     * @param modelType the type of the model
+     * @param propertySerializedName the serialized name of the property
+     * @return the ModelPropertySegment represents the model and property
+     */
+    public static ModelPropertySegment getModelPropertySegment(IType modelType, String propertySerializedName) {
+        ClientModel responseBodyModel = ClientModelUtil.getClientModel(modelType.toString());
+        ClientModelProperty property = Stream
+            .concat(responseBodyModel.getProperties().stream(),
+                ClientModelUtil.getParentProperties(responseBodyModel).stream())
+            .filter(p -> p.getSerializedName().equals(propertySerializedName))
+            .findAny()
+            .orElse(null);
+        return property == null ? null : new ModelPropertySegment(responseBodyModel, property);
     }
 
     private static boolean hasNoUsage(ClientModel model) {

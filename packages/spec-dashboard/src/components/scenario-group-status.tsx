@@ -1,6 +1,7 @@
 import { SerializedStyles, css } from "@emotion/react";
+import { tokens } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
-import { Colors, GroupRatioColors, GroupRatios } from "../constants.js";
+import { GroupRatioColors, GroupRatios } from "../constants.js";
 
 export interface ScenarioGroupStatusRatioBoxProps {
   readonly ratio: number;
@@ -25,7 +26,7 @@ export const ScenarioGroupRatioStatusBox: FunctionComponent<ScenarioGroupStatusR
           height: "100%",
           width: "100%",
           display: "flex",
-          color: Colors.bgSubtle,
+          color: tokens.colorNeutralForegroundOnBrand,
           alignItems: "center",
           justifyContent: "center",
         },

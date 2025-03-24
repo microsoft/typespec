@@ -2,18 +2,18 @@
 
 package type.array.implementation;
 
-import io.clientcore.core.annotation.ServiceInterface;
+import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.http.RestProxy;
-import io.clientcore.core.http.annotation.BodyParam;
-import io.clientcore.core.http.annotation.HeaderParam;
-import io.clientcore.core.http.annotation.HostParam;
-import io.clientcore.core.http.annotation.HttpRequestInformation;
-import io.clientcore.core.http.annotation.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.exception.HttpResponseException;
+import io.clientcore.core.http.annotations.BodyParam;
+import io.clientcore.core.http.annotations.HeaderParam;
+import io.clientcore.core.http.annotations.HostParam;
+import io.clientcore.core.http.annotations.HttpRequestInformation;
+import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import java.util.List;
 
 /**
@@ -48,7 +48,7 @@ public final class UnknownValuesImpl {
     public interface UnknownValuesService {
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/array/unknown", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<List<Object>> getSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+        Response<List<BinaryData>> getSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             RequestOptions requestOptions);
 
         @HttpRequestInformation(method = HttpMethod.PUT, path = "/type/array/unknown", expectedStatusCodes = { 204 })
@@ -64,7 +64,7 @@ public final class UnknownValuesImpl {
      * <pre>
      * {@code
      * [
-     *     Object (Required)
+     *     BinaryData (Required)
      * ]
      * }
      * </pre>
@@ -73,7 +73,7 @@ public final class UnknownValuesImpl {
      * @throws HttpResponseException thrown if the service returns an error.
      * @return the response.
      */
-    public Response<List<Object>> getWithResponse(RequestOptions requestOptions) {
+    public Response<List<BinaryData>> getWithResponse(RequestOptions requestOptions) {
         final String accept = "application/json";
         return service.getSync(this.client.getEndpoint(), accept, requestOptions);
     }
@@ -85,7 +85,7 @@ public final class UnknownValuesImpl {
      * <pre>
      * {@code
      * [
-     *     Object (Required)
+     *     BinaryData (Required)
      * ]
      * }
      * </pre>

@@ -17,11 +17,9 @@ For the sake of demonstration, we're going to require each API call in our Pet S
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;
 
@@ -74,11 +72,9 @@ Now that we have defined our common parameters model, let's reuse it across mult
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
-using TypeSpec.Http;
+using Http;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;
 
@@ -195,7 +191,7 @@ model InternalServerError {
 
 In this example:
 
-- The `CommonParameters` model is reused across multiple operations using the [spread operator](../../language-basics/models#spread) `(...)`, which tells the TypeSpec compiler to expand the model definition inline.
+- The `CommonParameters` model is reused across multiple operations using the [spread operator](../../../language-basics/models/#spread) `(...)`, which tells the TypeSpec compiler to expand the model definition inline.
 - This approach ensures that the common parameters are consistently applied to all relevant operations, making the API more maintainable and reducing redundancy.
 
 ### Example: OpenAPI Specification for Common Parameters

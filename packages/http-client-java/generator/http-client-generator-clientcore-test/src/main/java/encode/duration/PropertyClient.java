@@ -9,12 +9,12 @@ import encode.duration.property.FloatSecondsDurationArrayProperty;
 import encode.duration.property.FloatSecondsDurationProperty;
 import encode.duration.property.ISO8601DurationProperty;
 import encode.duration.property.Int32SecondsDurationProperty;
-import io.clientcore.core.annotation.Metadata;
-import io.clientcore.core.annotation.ServiceClient;
-import io.clientcore.core.http.exception.HttpResponseException;
+import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.ServiceClient;
+import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 
 /**
  * Initializes a new instance of the synchronous DurationClient type.

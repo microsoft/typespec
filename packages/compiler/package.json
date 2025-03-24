@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.64.0",
+  "version": "0.67.1",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -38,9 +38,8 @@
       "types": "./dist/module-resolver/module-resolver.d.ts",
       "default": "./dist/src/module-resolver/module-resolver.js"
     },
-    "./emitter-framework": {
-      "types": "./dist/src/emitter-framework/index.d.ts",
-      "default": "./dist/src/emitter-framework/index.js"
+    "./ast": {
+      "import": "./dist/src/ast/index.js"
     },
     "./experimental": {
       "types": "./dist/src/experimental/index.d.ts",
@@ -49,6 +48,10 @@
     "./experimental/typekit": {
       "types": "./dist/src/experimental/typekit/index.d.ts",
       "default": "./dist/src/experimental/typekit/index.js"
+    },
+    "./internals": {
+      "types": "./dist/src/internals/index.d.ts",
+      "import": "./dist/src/internals/index.js"
     }
   },
   "browser": {
@@ -56,7 +59,7 @@
     "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "bin": {
     "tsp": "cmd/tsp.js",
@@ -73,6 +76,7 @@
     "clean": "rimraf ./dist ./temp",
     "build:init-templates-index": "tsx ./.scripts/build-init-templates.ts",
     "build": "npm run gen-manifest && npm run build:init-templates-index && npm run compile && npm run generate-tmlanguage",
+    "api-extractor": "api-extractor run --local --verbose",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
     "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
@@ -92,14 +96,17 @@
   },
   "dependencies": {
     "@babel/code-frame": "~7.26.2",
+    "@inquirer/prompts": "^7.4.0",
     "ajv": "~8.17.1",
     "change-case": "~5.4.4",
-    "globby": "~14.0.2",
+    "env-paths": "^3.0.0",
+    "globby": "~14.1.0",
+    "is-unicode-supported": "^2.1.0",
     "mustache": "~4.2.0",
     "picocolors": "~1.1.1",
-    "prettier": "~3.4.2",
-    "prompts": "~2.4.2",
-    "semver": "^7.6.3",
+    "prettier": "~3.5.3",
+    "semver": "^7.7.1",
+    "tar": "^7.4.3",
     "temporal-polyfill": "^0.2.5",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.12",
@@ -109,20 +116,20 @@
   "devDependencies": {
     "@types/babel__code-frame": "~7.0.6",
     "@types/mustache": "~4.2.5",
-    "@types/node": "~22.10.10",
-    "@types/prompts": "~2.4.9",
+    "@types/node": "~22.13.11",
     "@types/semver": "^7.5.8",
     "@types/yargs": "~17.0.33",
-    "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^3.0.4",
-    "@vitest/ui": "^3.0.3",
+    "@typespec/internal-build-utils": "workspace:^",
+    "@vitest/coverage-v8": "^3.0.9",
+    "@vitest/ui": "^3.0.9",
     "c8": "^10.1.3",
     "grammarkdown": "~3.3.2",
+    "pathe": "^2.0.3",
     "rimraf": "~6.0.1",
     "source-map-support": "~0.5.21",
-    "tmlanguage-generator": "workspace:~",
-    "typescript": "~5.7.3",
-    "vitest": "^3.0.4",
+    "tmlanguage-generator": "workspace:^",
+    "typescript": "~5.8.2",
+    "vitest": "^3.0.9",
     "vscode-oniguruma": "~2.0.1",
     "vscode-textmate": "~9.2.0"
   }

@@ -36,13 +36,6 @@ public final class NoApiVersionClient {
 
     /**
      * The action operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>param1</td><td>String</td><td>No</td><td>The param1 parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -55,28 +48,6 @@ public final class NoApiVersionClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> actionWithResponse(RequestOptions requestOptions) {
         return this.serviceClient.actionWithResponse(requestOptions);
-    }
-
-    /**
-     * The action operation.
-     * 
-     * @param param1 The param1 parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void action(String param1) {
-        // Generated convenience method for actionWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        if (param1 != null) {
-            requestOptions.addQueryParam("param1", param1, false);
-        }
-        actionWithResponse(requestOptions).getValue();
     }
 
     /**

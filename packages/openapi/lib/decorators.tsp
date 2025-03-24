@@ -19,18 +19,18 @@ extern dec operationId(target: Operation, operationId: valueof string);
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
  *
- * @param key Extension key. Must start with `x-`
+ * @param key Extension key.
  * @param value Extension value.
  *
  * @example
  *
  * ```typespec
  * @extension("x-custom", "My value")
- * @extension("x-pageable", {nextLink: "x-next-link"})
+ * @extension("x-pageable", #{nextLink: "x-next-link"})
  * op read(): string;
  * ```
  */
-extern dec extension(target: unknown, key: valueof string, value: unknown);
+extern dec extension(target: unknown, key: valueof string, value: valueof unknown);
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.
@@ -80,6 +80,8 @@ model AdditionalInfo {
 
   /** The license information for the exposed API. */
   license?: License;
+
+  ...Record<unknown>;
 }
 
 /** Contact information for the exposed API. */
@@ -92,6 +94,8 @@ model Contact {
 
   /** The email address of the contact person/organization. MUST be in the format of an email address. */
   email?: string;
+
+  ...Record<unknown>;
 }
 
 /** License information for the exposed API. */
@@ -101,6 +105,8 @@ model License {
 
   /** A URL to the license used for the API. MUST be in the format of a URL. */
   url?: url;
+
+  ...Record<unknown>;
 }
 
 /**
@@ -108,7 +114,7 @@ model License {
  * The service `title` and `version` are already specified using `@service`.
  * @param additionalInfo Additional information
  */
-extern dec info(target: Namespace, additionalInfo: AdditionalInfo);
+extern dec info(target: Namespace, additionalInfo: valueof AdditionalInfo);
 
 /** Metadata to a single tag that is used by operations. */
 model TagMetadata {

@@ -4,13 +4,11 @@ import "@typespec/versioning";
 
 using Http;
 using Spector;
-using TypeSpec.Versioning;
-using TypeSpec.Rest;
+using Versioning;
+using Rest;
 
 @versioned(Versions)
-@service({
-  title: "ServerPathMultiple",
-})
+@service(#{ title: "ServerPathMultiple" })
 @server(
   "{endpoint}/server/path/multiple/{apiVersion}",
   "Test server with path parameters.",

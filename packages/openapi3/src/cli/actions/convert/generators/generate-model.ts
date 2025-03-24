@@ -1,8 +1,10 @@
+import { OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   TypeSpecAlias,
   TypeSpecDataTypes,
   TypeSpecEnum,
   TypeSpecModel,
+  TypeSpecModelProperty,
   TypeSpecScalar,
   TypeSpecUnion,
 } from "../interfaces.js";
@@ -88,15 +90,32 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
 
   const schema = union.schema;
 
+  const getVariantName = (member: Refable<OpenAPI3Schema>) => {
+    if (union.schema.discriminator === undefined) {
+      return "";
+    }
+
+    const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref)! : member;
+
+    const value = (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)
+      ?.enum?.[0];
+    return value ? `${value}: ` : "";
+  };
   if (schema.enum) {
     definitions.push(...schema.enum.map((e) => `${JSON.stringify(e)},`));
   } else if (schema.oneOf) {
     definitions.push(
-      ...schema.oneOf.map((member) => context.generateTypeFromRefableSchema(member, union.scope)),
+      ...schema.oneOf.map(
+        (member) =>
+          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope),
+      ),
     );
   } else if (schema.anyOf) {
     definitions.push(
-      ...schema.anyOf.map((member) => context.generateTypeFromRefableSchema(member, union.scope)),
+      ...schema.anyOf.map(
+        (member) =>
+          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope),
+      ),
     );
   } else {
     // check if it's a primitive type
@@ -131,18 +150,7 @@ function generateModel(model: TypeSpecModel, context: Context): string {
   }
 
   definitions.push(
-    ...model.properties.map((prop) => {
-      // Decorators will be a combination of top-level (parameters) and
-      // schema-level decorators.
-      const decorators = generateDecorators([
-        ...prop.decorators,
-        ...getDecoratorsForSchema(prop.schema),
-      ]).join(" ");
-
-      const doc = prop.doc ? generateDocs(prop.doc) : "";
-
-      return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.generateTypeFromRefableSchema(prop.schema, model.scope)};`;
-    }),
+    ...model.properties.map((prop) => generateModelProperty(prop, model.scope, context)),
   );
 
   if (model.additionalProperties) {
@@ -154,6 +162,31 @@ function generateModel(model: TypeSpecModel, context: Context): string {
   if (modelDeclaration.close) definitions.push(modelDeclaration.close);
 
   return definitions.join("\n");
+}
+
+export function generateModelProperty(
+  prop: TypeSpecModelProperty,
+  containerScope: string[],
+  context: Context,
+): string {
+  // Decorators will be a combination of top-level (parameters) and
+  // schema-level decorators.
+  const decorators = generateDecorators([
+    ...prop.decorators,
+    ...getDecoratorsForSchema(prop.schema),
+  ]).join(" ");
+
+  const doc = prop.doc ? generateDocs(prop.doc) : "";
+
+  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.generateTypeFromRefableSchema(prop.schema, containerScope)};`;
+}
+
+export function generateModelExpression(
+  props: TypeSpecModelProperty[],
+  containerScope: string[],
+  context: Context,
+): string {
+  return `{ ${props.map((prop) => generateModelProperty(prop, containerScope, context)).join(" ")} }`;
 }
 
 type ModelDeclarationOutput = { open: string; close?: string };

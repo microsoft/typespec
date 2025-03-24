@@ -57,12 +57,6 @@ export const $lib = createTypeSpecLibrary({
         default: "@renamedFrom.oldName cannot be empty string.",
       },
     },
-    "no-service-fixed-version": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Namespace '${"name"}' cannot specify a fixed service version with @service({version: ${"version"}}) while using @versioned. Remove the version argument from @service.`,
-      },
-    },
     "incompatible-versioned-reference": {
       severity: "error",
       messages: {
@@ -71,8 +65,8 @@ export const $lib = createTypeSpecLibrary({
         dependentAddedAfter: paramMessage`'${"sourceName"}' was added in version '${"sourceAddedOn"}' but contains type '${"targetName"}' added in version '${"targetAddedOn"}'.`,
         removedBefore: paramMessage`'${"sourceName"}' was removed in version '${"sourceRemovedOn"}' but referencing type '${"targetName"}' removed in version '${"targetRemovedOn"}'.`,
         dependentRemovedBefore: paramMessage`'${"sourceName"}' was removed in version '${"sourceRemovedOn"}' but contains type '${"targetName"}' removed in version '${"targetRemovedOn"}'.`,
-        versionedDependencyAddedAfter: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' added in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
-        versionedDependencyRemovedBefore: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' removed in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
+        versionedDependencyAddedAfter: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' added in version '${"targetAddedOn"}' but version used is '${"dependencyVersion"}'.`,
+        versionedDependencyRemovedBefore: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' removed in version '${"targetAddedOn"}' but version used is '${"dependencyVersion"}'.`,
         doesNotExist: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' which does not exist in version '${"version"}'.`,
       },
     },

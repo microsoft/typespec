@@ -47,7 +47,6 @@ function makeComment(
   const links = [
     `[🛝 Playground]( https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/)`,
     `[🌐 Website](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/)`,
-    `[📚 Next docs](https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/docs/next.html)`,
   ];
 
   if (vscodeDownloadUrl) {

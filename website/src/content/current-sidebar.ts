@@ -52,12 +52,12 @@ const sidebar: SidebarItem[] = [
       "handbook/cli",
       "handbook/style-guide",
       "handbook/formatter",
+      "handbook/package-manager",
       "handbook/reproducibility",
       {
         label: "Configuration",
         items: ["handbook/configuration/configuration", "handbook/configuration/tracing"],
       },
-      "handbook/releases",
       "handbook/faq",
     ],
   },
@@ -139,6 +139,25 @@ const sidebar: SidebarItem[] = [
       createLibraryReferenceStructure("emitters/protobuf", "Protobuf", false, [
         "emitters/protobuf/guide",
       ]),
+      {
+        label: "Clients",
+        items: [
+          "emitters/clients/introduction",
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-js",
+            "Javascript",
+            false,
+            [],
+          ),
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-python",
+            "Python",
+            false,
+            [],
+          ),
+          createLibraryReferenceStructure("emitters/clients/http-client-java", "Java", false, []),
+        ],
+      },
     ],
   },
   {

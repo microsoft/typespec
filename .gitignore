@@ -107,7 +107,7 @@ venv.bak/
 .mypy_cache/
 node_modules/
 package-lock.json
-report.xml 
+report.xml
 *.tgz
 
 # Logs
@@ -201,7 +201,6 @@ developer/
 *.zip
 vite.config.ts.timestamp-*
 
-
 # Astro
 .astro/
 
@@ -225,3 +224,6 @@ packages/http-client-python/generator/test/**/generated/
 packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
 packages/http-client-python/micropip.lock
+
+# http-server-js emitter
+packages/http-server-js/test/e2e/generated

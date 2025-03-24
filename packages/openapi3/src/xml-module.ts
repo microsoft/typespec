@@ -1,3 +1,4 @@
+import { ArrayBuilder, ObjectBuilder } from "@typespec/asset-emitter";
 import {
   ArrayModelType,
   IntrinsicScalarName,
@@ -8,7 +9,6 @@ import {
   isArrayModelType,
   resolveEncodedName,
 } from "@typespec/compiler";
-import { ArrayBuilder, ObjectBuilder } from "@typespec/compiler/emitter-framework";
 import { reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
@@ -72,7 +72,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
       emitObject: OpenAPI3Schema,
       refSchema: OpenAPI3Schema,
     ) => {
-      if (!isXmlModelChecker(program, prop.model!, [])) return;
+      if (prop.model === undefined || !isXmlModelChecker(program, prop.model, [])) return;
 
       const xmlObject: OpenAPI3XmlSchema = {};
 

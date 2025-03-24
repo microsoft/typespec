@@ -3,7 +3,7 @@ import "../dist/src/internal-decorators.js";
 
 namespace TypeSpec.Rest.Resource;
 
-using TypeSpec.Http;
+using Http;
 
 @doc("The default error response for resource operations.")
 model ResourceError {
@@ -114,7 +114,7 @@ interface ResourceCreateOrReplace<Resource extends {}, Error> {
  */
 @friendlyName("{name}Update", Resource)
 model ResourceCreateOrUpdateModel<Resource extends {}>
-  is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<Resource, "read">>>;
+  is OptionalProperties<UpdateableProperties<DefaultKeyVisibility<Resource, Lifecycle.Read>>>;
 
 /**
  * Resource create or update operation template.
@@ -144,8 +144,8 @@ interface ResourceCreateOrUpdate<Resource extends {}, Error> {
  * @template Resource The resource model to create.
  */
 @friendlyName("{name}Create", Resource)
-@withVisibility("create")
-model ResourceCreateModel<Resource extends {}> is DefaultKeyVisibility<Resource, "read">;
+@withVisibility(Lifecycle.Create)
+model ResourceCreateModel<Resource extends {}> is DefaultKeyVisibility<Resource, Lifecycle.Read>;
 
 /**
  * Resource create operation template.

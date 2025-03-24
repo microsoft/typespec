@@ -1,6 +1,15 @@
 import {
+  AssetEmitter,
+  createAssetEmitter,
+  EmitterOutput,
+  ObjectBuilder,
+  Placeholder,
+  TypeEmitter,
+} from "@typespec/asset-emitter";
+import {
   compilerAssert,
   Enum,
+  getDiscriminatedUnion,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
@@ -13,14 +22,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import {
-  AssetEmitter,
-  createAssetEmitter,
-  EmitterOutput,
-  ObjectBuilder,
-  Placeholder,
-  TypeEmitter,
-} from "@typespec/compiler/emitter-framework";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
@@ -137,6 +139,10 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
 
   unionSchema(union: Union): ObjectBuilder<OpenAPI3Schema> {
     const program = this.emitter.getProgram();
+    const [discriminated] = getDiscriminatedUnion(program, union);
+    if (discriminated) {
+      return this.discriminatedUnion(discriminated);
+    }
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });
       return new ObjectBuilder({});
@@ -201,9 +207,19 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
           (schema instanceof Placeholder || "$ref" in schema) &&
           !(type && shouldInline(program, type))
         ) {
-          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
+          if (type && type.kind === "Model") {
             return new ObjectBuilder({
               type: "object",
+              allOf: Builders.array([schema]),
+              ...additionalProps,
+            });
+          } else if (type && type.kind === "Scalar") {
+            const stdType = $.scalar.getStdBase(type);
+            const outputType: JsonType | undefined = stdType
+              ? this.getSchemaForStdScalars(stdType as any).type
+              : undefined;
+            return new ObjectBuilder({
+              type: outputType,
               allOf: Builders.array([schema]),
               ...additionalProps,
             });
@@ -257,8 +273,6 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     if (!isMerge && nullable) {
       schema.nullable = true;
     }
-
-    this.applyDiscriminator(union, schema);
 
     return this.applyConstraints(union, schema);
   }

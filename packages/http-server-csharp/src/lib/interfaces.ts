@@ -1,4 +1,3 @@
-import { Model } from "@typespec/compiler";
 import {
   AssetEmitter,
   Context,
@@ -6,8 +5,11 @@ import {
   EmitterOutput,
   Scope,
   SourceFile,
-} from "@typespec/compiler/emitter-framework";
+} from "@typespec/asset-emitter";
+import { Model } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
+import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
+import { CSharpServiceEmitterOptions } from "./lib.js";
 
 export const HelperNamespace: string = "TypeSpec.Helpers.JsonConverters";
 
@@ -28,6 +30,8 @@ export class CSharpType implements CSharpTypeMetadata {
   isBuiltIn: boolean;
   isValueType: boolean;
   isNullable: boolean;
+  isClass: boolean;
+  isCollection: boolean;
 
   public constructor(input: {
     name: string;
@@ -35,12 +39,16 @@ export class CSharpType implements CSharpTypeMetadata {
     isBuiltIn?: boolean;
     isValueType?: boolean;
     isNullable?: boolean;
+    isClass?: boolean;
+    isCollection?: boolean;
   }) {
     this.name = input.name;
     this.namespace = input.namespace;
     this.isBuiltIn = input.isBuiltIn !== undefined ? input.isBuiltIn : input.namespace === "System";
     this.isValueType = input.isValueType !== undefined ? input.isValueType : false;
     this.isNullable = input.isNullable !== undefined ? input.isNullable : false;
+    this.isClass = input.isClass !== undefined ? input.isClass : false;
+    this.isCollection = input.isCollection !== undefined ? input.isCollection : false;
   }
 
   isNamespaceInScope(scope?: Scope<string>, visited?: Set<Scope<string>>): boolean {
@@ -281,20 +289,38 @@ export class LibrarySourceFile {
   constructor(params: {
     filename: string;
     getContents: () => string;
-    emitter: AssetEmitter<string, Record<string, never>>;
+    emitter: AssetEmitter<string, CSharpServiceEmitterOptions>;
     path?: string;
+    conditional?: boolean;
   }) {
-    this.path = params.path !== undefined ? params.path : "lib/";
+    this.path = params.path || "lib/";
     this.filename = params.filename;
-    this.source = params.emitter.createSourceFile(`${this.path}/${this.filename}`);
+    const source = params.emitter.createSourceFile(`${this.path}/${this.filename}`);
+    this.conditional = params.conditional || false;
     this.emitted = {
-      path: this.source.path,
+      path: source.path,
       contents: params.getContents(),
     };
-  }
 
+    source.meta = { emitted: this.emitted, conditional: this.conditional };
+    this.source = source;
+  }
+  conditional: boolean;
   filename: string;
   source: SourceFile<string>;
   emitted: EmittedSourceFile;
   path: string;
+}
+
+export interface CSharpOperationParameter {
+  name: string;
+  typeName: EmitterOutput<string>;
+  optional: boolean;
+  httpParameterKind: HttpRequestParameterKind;
+  httpParameterName?: string;
+  callName: string;
+  isExplicitBody: boolean;
+  nullable: boolean;
+  operationKind: "Http" | "BusinessLogic" | "All";
+  defaultValue?: string | boolean;
 }

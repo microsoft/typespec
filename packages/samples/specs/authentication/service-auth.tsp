@@ -1,10 +1,8 @@
 import "@typespec/rest";
 
-using TypeSpec.Http;
+using Http;
 
-@service({
-  title: "Authenticated service",
-})
+@service(#{ title: "Authenticated service" })
 @useAuth(
   // Here authentication can either be a
   // - ApiKey AND Basic Auth together

@@ -32,10 +32,11 @@ it("should return true for an error response", async () => {
     @test op getFoo(): Foo | Error;
   `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
-  const responses = $.httpOperation.getResponses(getFoo);
+  const httpOperation = $.httpOperation.get(getFoo);
+  const responses = $.httpOperation.flattenResponses(httpOperation);
   expect(responses).toHaveLength(2);
-  expect($.httpResponse.isErrorResponse(responses[0].responseContent)).toBe(false);
-  expect($.httpResponse.isErrorResponse(responses[1].responseContent)).toBe(true);
+  expect($.httpResponse.isErrorResponse(responses[0])).toBe(false);
+  expect($.httpResponse.isErrorResponse(responses[1])).toBe(true);
 });
 
 it("should identify a single  and default status code", async () => {
@@ -57,8 +58,10 @@ it("should identify a single  and default status code", async () => {
     @test op getFoo(): Foo | Error;
   `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
-  const response = $.httpOperation.getResponses(getFoo)[0];
-  const error = $.httpOperation.getResponses(getFoo)[1];
+  const httpOperation = $.httpOperation.get(getFoo);
+  const responses = $.httpOperation.flattenResponses(httpOperation);
+  const response = responses[0];
+  const error = responses[1];
   expect($.httpResponse.statusCode.isSingle(response.statusCode)).toBe(true);
   expect($.httpResponse.statusCode.isDefault(error.statusCode)).toBe(true);
 });
@@ -83,8 +86,10 @@ it("should identify a range status code", async () => {
     @test op getFoo(): Foo | Error;
   `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
-  const response = $.httpOperation.getResponses(getFoo)[0];
-  const error = $.httpOperation.getResponses(getFoo)[1];
+  const httpOperation = $.httpOperation.get(getFoo);
+  const responses = $.httpOperation.flattenResponses(httpOperation);
+  const response = responses[0];
+  const error = responses[1];
   expect($.httpResponse.statusCode.isRange(response.statusCode)).toBe(true);
   expect($.httpResponse.statusCode.isDefault(error.statusCode)).toBe(true);
 });

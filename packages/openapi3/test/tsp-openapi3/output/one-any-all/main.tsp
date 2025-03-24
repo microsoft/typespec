@@ -5,12 +5,8 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
-  title: "OneAnyAll Service",
-})
-@info({
-  version: "0.0.0",
-})
+@service(#{ title: "OneAnyAll Service" })
+@info(#{ version: "0.0.0" })
 namespace OneAnyAllService;
 
 model Cat {
@@ -28,29 +24,15 @@ model Pet {
   age: int32;
 }
 
-/**
- * There is no content to send for this request, but the headers may be useful.
- */
-model putAny204Response {
-  @statusCode statusCode: 204;
-}
-
-/**
- * There is no content to send for this request, but the headers may be useful.
- */
-model putOne204Response {
-  @statusCode statusCode: 204;
-}
-
 @route("/any") @post op putAny(
-  @bodyRoot body: {
+  @body body: {
     pet: Dog | Cat;
   },
-): putAny204Response;
+): NoContentResponse;
 
 @route("/one") @post op putOne(
-  @bodyRoot body: {
+  @body body: {
     @oneOf
     pet: Dog | Cat;
   },
-): putOne204Response;
+): NoContentResponse;

@@ -1,11 +1,9 @@
 import "@typespec/rest";
 import "@typespec/openapi";
 
-using TypeSpec.Http;
+using Http;
 
-@service({
-  title: "sample",
-})
+@service(#{ title: "sample" })
 namespace Sample;
 
 @doc("Error")
@@ -94,8 +92,8 @@ model DictionaryWrapper {
 }
 
 model ReadonlyObj {
-  @visibility("read") id: int32;
-  @visibility("read") size: int32;
+  @visibility(Lifecycle.Read) id: int32;
+  @visibility(Lifecycle.Read) size: int32;
 }
 
 @doc("AutoRest Complex Body Test Service")

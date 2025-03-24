@@ -1,6 +1,6 @@
 import { Exports } from "../../types/package-json.js";
-import { resolvePackageImportsExports } from "../esm/resolve-package-imports-exports.js";
-import { resolvePackageTarget } from "../esm/resolve-package-target.js";
+import { resolvePackageImportsExports } from "./resolve-package-imports-exports.js";
+import { resolvePackageTarget } from "./resolve-package-target.js";
 import {
   EsmResolutionContext,
   InvalidModuleSpecifierError,

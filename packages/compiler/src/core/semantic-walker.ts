@@ -27,6 +27,10 @@ export interface NavigationOptions {
    * Skip non instantiated templates.
    */
   includeTemplateDeclaration?: boolean;
+  /**
+   * Visit derived types.
+   */
+  visitDerivedTypes?: boolean;
 }
 
 export interface NamespaceNavigationOptions {
@@ -253,6 +257,13 @@ function navigateModelType(model: Model, context: NavigationContext) {
   if (model.indexer && model.indexer.value) {
     navigateTypeInternal(model.indexer.value, context);
   }
+
+  if (context.options.visitDerivedTypes) {
+    for (const derived of model.derivedModels) {
+      navigateModelType(derived, context);
+    }
+  }
+
   context.emit("exitModel", model);
 }
 
@@ -415,9 +426,6 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
       return navigateDecoratorDeclaration(type, context);
     case "ScalarConstructor":
       return navigateScalarConstructor(type, context);
-    case "Object":
-    case "Projection":
-    case "Function":
     case "FunctionParameter":
     case "Boolean":
     case "EnumMember":
@@ -500,10 +508,4 @@ const eventNames: Array<keyof SemanticNodeListener> = [
   "exitUnionVariant",
   "intrinsic",
   "exitIntrinsic",
-  "function",
-  "exitFunction",
-  "object",
-  "exitObject",
-  "projection",
-  "exitProjection",
 ];

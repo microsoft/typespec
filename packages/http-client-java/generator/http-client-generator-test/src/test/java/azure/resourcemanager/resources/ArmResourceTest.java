@@ -4,6 +4,8 @@
 package azure.resourcemanager.resources;
 
 import azure.resourcemanager.resources.fluent.models.SingletonTrackedResourceInner;
+import azure.resourcemanager.resources.models.LocationResource;
+import azure.resourcemanager.resources.models.LocationResourceProperties;
 import azure.resourcemanager.resources.models.NestedProxyResource;
 import azure.resourcemanager.resources.models.NestedProxyResourceProperties;
 import azure.resourcemanager.resources.models.NotificationDetails;
@@ -37,8 +39,66 @@ public class ArmResourceTest {
     private static final ProvisioningState RESOURCE_PROVISIONING_STATE = ProvisioningState.SUCCEEDED;
     private static final String RESOURCE_GROUP_NAME = "test-rg";
     private static final String NOTIFICATION_DETAILS_MESSAGE = "Resource action at top level.";
+    private static final String LOCATION_RESOURCE_NAME = "resource";
+    private static final String LOCATION_RESOURCE_LOCATION = "eastus";
+    private static final String LOCATION_RESOURCE_ID
+        = "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Azure.ResourceManager.Resources/locations/eastus/locationResources/resource";
+    private static final String LOCATION_RESOURCE_TYPE = "Azure.ResourceManager.Resources/locationResources";
     private final ResourcesManager manager
         = ResourcesManager.authenticate(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile());
+
+    @Test
+    public void tetsLocationResources() {
+        LocationResourceProperties properties
+            = new LocationResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID);
+        LocationResource locationResource = manager.locationResources()
+            .define(LOCATION_RESOURCE_NAME)
+            .withExistingLocation(LOCATION_RESOURCE_LOCATION)
+            .withProperties(properties)
+            .create();
+        Assertions.assertEquals(LOCATION_RESOURCE_ID, locationResource.id());
+        Assertions.assertEquals(LOCATION_RESOURCE_NAME, locationResource.name());
+        Assertions.assertEquals(LOCATION_RESOURCE_TYPE, locationResource.type());
+        Assertions.assertNotNull(locationResource.properties());
+        properties = locationResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        List<LocationResource> locationResources = manager.locationResources()
+            .listByLocation(LOCATION_RESOURCE_LOCATION)
+            .stream()
+            .collect(Collectors.toList());
+        Assertions.assertEquals(1, locationResources.size());
+        locationResource = locationResources.get(0);
+        Assertions.assertEquals(LOCATION_RESOURCE_ID, locationResource.id());
+        Assertions.assertEquals(LOCATION_RESOURCE_NAME, locationResource.name());
+        Assertions.assertEquals(LOCATION_RESOURCE_TYPE, locationResource.type());
+        Assertions.assertNotNull(locationResource.properties());
+        properties = locationResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        locationResource = manager.locationResources().get(LOCATION_RESOURCE_LOCATION, LOCATION_RESOURCE_NAME);
+        Assertions.assertEquals(LOCATION_RESOURCE_ID, locationResource.id());
+        Assertions.assertEquals(LOCATION_RESOURCE_NAME, locationResource.name());
+        Assertions.assertEquals(LOCATION_RESOURCE_TYPE, locationResource.type());
+        Assertions.assertNotNull(locationResource.properties());
+        properties = locationResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        properties = new LocationResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2);
+        locationResource = locationResource.update().withProperties(properties).apply();
+        Assertions.assertEquals(LOCATION_RESOURCE_ID, locationResource.id());
+        Assertions.assertEquals(LOCATION_RESOURCE_NAME, locationResource.name());
+        Assertions.assertEquals(LOCATION_RESOURCE_TYPE, locationResource.type());
+        Assertions.assertNotNull(locationResource.properties());
+        properties = locationResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        manager.locationResources().deleteByResourceGroup(LOCATION_RESOURCE_LOCATION, LOCATION_RESOURCE_NAME);
+    }
 
     @Test
     public void testTopLevelTrackedResource() {

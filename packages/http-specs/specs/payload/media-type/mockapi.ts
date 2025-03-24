@@ -6,7 +6,7 @@ Scenarios.Payload_MediaType_StringBody_sendAsText = passOnSuccess({
   uri: "/payload/media-type/string-body/sendAsText",
   method: "post",
   request: {
-    body: "{cat}",
+    body: json("{cat}"),
     headers: {
       "Content-Type": "text/plain",
     },
@@ -36,7 +36,7 @@ Scenarios.Payload_MediaType_StringBody_sendAsJson = passOnSuccess({
   uri: "/payload/media-type/string-body/sendAsJson",
   method: "post",
   request: {
-    body: "foo",
+    body: json("foo"),
     headers: {
       "Content-Type": "application/json",
     },

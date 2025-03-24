@@ -1,4 +1,5 @@
 import {
+  InitializedByFlags,
   SdkHeaderParameter,
   SdkHttpParameter,
   SdkMethod,
@@ -7,9 +8,11 @@ import {
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceOperation,
+  SdkServiceResponseHeader,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName } from "@typespec/compiler";
+import { marked, Token } from "marked";
 import { PythonSdkContext } from "./lib.js";
 import { getSimpleTypeResult, getType } from "./types.js";
 
@@ -107,8 +110,8 @@ export function removeUnderscoresFromNamespace(name?: string): string {
   return (name || "").replace(/_/g, "");
 }
 
-export function getImplementation<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+export function getImplementation(
+  context: PythonSdkContext,
   parameter: SdkParameter | SdkHttpParameter,
 ): "Client" | "Method" {
   if (parameter.onClient) return "Client";
@@ -149,25 +152,57 @@ type ParamBase = {
   inOverload: boolean;
   isApiVersion: boolean;
   type: Record<string, any>;
+  isContinuationToken: boolean;
 };
 
 export function getAddedOn<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   type: SdkModelPropertyType | SdkMethod<TServiceOperation>,
 ): string | undefined {
   // since we do not support multi-service for now, we can just check the root client's api version
   // if type is added in the first version of the client, we do not need to add the versioning info
   if (
     type.apiVersions[0] ===
-    context.sdkPackage.clients.find((c) => c.initialization.access === "public")?.apiVersions[0]
+    context.sdkPackage.clients.find(
+      (c) => c.clientInitialization.initializedBy | InitializedByFlags.Individually,
+    )?.apiVersions[0]
   )
     return undefined;
   return type.apiVersions[0];
 }
 
+export function isContinuationToken<TServiceOperation extends SdkServiceOperation>(
+  parameter: SdkParameter | SdkHttpParameter | SdkServiceResponseHeader,
+  method?: SdkServiceMethod<TServiceOperation>,
+  input: boolean = true,
+): boolean {
+  const parameterSegments =
+    method && method.kind === "paging"
+      ? method.pagingMetadata.continuationTokenParameterSegments
+      : undefined;
+  const responseSegments =
+    method && method.kind === "paging"
+      ? method.pagingMetadata.continuationTokenResponseSegments
+      : undefined;
+  if (!parameterSegments || !responseSegments) return false;
+  if (input) {
+    return Boolean(
+      parameterSegments &&
+        parameterSegments.length > 0 &&
+        (parameter.kind === "header" || parameter.kind === "query" || parameter.kind === "body") &&
+        parameterSegments.at(-1) === parameter.correspondingMethodParams.at(-1),
+    );
+  }
+
+  return Boolean(
+    responseSegments && responseSegments.length > 0 && responseSegments.at(-1) === parameter,
+  );
+}
+
 export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
+  context: PythonSdkContext,
   parameter: SdkParameter | SdkHttpParameter,
+  method?: SdkServiceMethod<TServiceOperation>,
 ): ParamBase {
   let type = getType(context, parameter.type);
   if (parameter.isApiVersionParam) {
@@ -186,6 +221,7 @@ export function emitParamBase<TServiceOperation extends SdkServiceOperation>(
     clientName: camelToSnakeCase(parameter.name),
     inOverload: false,
     isApiVersion: parameter.isApiVersionParam,
+    isContinuationToken: isContinuationToken(parameter, method),
     type,
   };
 }
@@ -206,29 +242,121 @@ export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
 
-export function getClientNamespace<TServiceOperation extends SdkServiceOperation>(
-  context: PythonSdkContext<TServiceOperation>,
-  clientNamespace: string,
-) {
-  const rootNamespace = removeUnderscoresFromNamespace(
-    context.sdkPackage.rootNamespace,
-  ).toLowerCase();
-  if (!context.emitContext.options["enable-typespec-namespace"]) {
-    return rootNamespace;
+const LIB_NAMESPACE = [
+  "azure.core",
+  "azure.resourcemanager",
+  "azure.clientgenerator.core",
+  "typespec.rest",
+  "typespec.http",
+  "typespec.versioning",
+];
+
+export function getRootNamespace(context: PythonSdkContext): string {
+  let rootNamespace = "";
+  if (context.sdkPackage.clients.length > 0) {
+    rootNamespace = context.sdkPackage.clients[0].namespace;
+  } else if (context.sdkPackage.models.length > 0) {
+    const result = context.sdkPackage.models
+      .map((model) => model.namespace)
+      .filter((namespace) => !LIB_NAMESPACE.includes(namespace));
+    if (result.length > 0) {
+      result.sort();
+      rootNamespace = result[0];
+    }
+  } else if (context.sdkPackage.namespaces.length > 0) {
+    rootNamespace = context.sdkPackage.namespaces[0].fullName;
   }
+
+  return removeUnderscoresFromNamespace(rootNamespace).toLowerCase();
+}
+
+export function getClientNamespace(context: PythonSdkContext, clientNamespace: string) {
   if (
-    [
-      "azure.core",
-      "azure.resourcemanager",
-      "azure.clientgenerator.core",
-      "typespec.rest",
-      "typespec.http",
-      "typespec.versioning",
-    ].some((item) => clientNamespace.toLowerCase().startsWith(item))
+    clientNamespace === "" ||
+    LIB_NAMESPACE.some((item) => clientNamespace.toLowerCase().startsWith(item))
   ) {
-    return rootNamespace;
+    return getRootNamespace(context);
   }
-  return clientNamespace === ""
-    ? rootNamespace
-    : removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+  return removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+}
+
+function parseToken(token: Token): string {
+  let parsed = "";
+  switch (token.type) {
+    case "heading":
+      parsed += `${"=".repeat(token.text.length)}\n${token.text}\n${"=".repeat(
+        token.text.length,
+      )}\n\n`;
+      break;
+    case "paragraph":
+      parsed += `${token.text}\n\n`;
+      break;
+    case "strong":
+      parsed += `**${token.text}**`;
+      break;
+    case "em":
+      parsed += `*${token.text}*`;
+      break;
+    case "codespan":
+      parsed += `\`\`${token.text}\`\``;
+      break;
+    case "code":
+      let codeBlockStyle = token.codeBlockStyle;
+      if (codeBlockStyle === undefined) {
+        codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
+      }
+      parsed += `\n\n.. code-block:: ${codeBlockStyle ?? ""}\n\n   ${token.text.split("\n").join("\n   ")}`;
+      break;
+    case "link":
+      if (token.href !== undefined) {
+        parsed += `\`${token.text} <${token.href}>\`_`;
+        break;
+      }
+      parsed += `${token.text}`;
+      break;
+    case "list":
+      if (!token.ordered) {
+        parsed += `\n\n${token.items.map((item: any) => `* ${item.text}`).join("\n")}`;
+        break;
+      }
+      parsed += `\n\n${token.items.map((item: any, index: number) => `${index + 1}. ${item.text}`).join("\n")}`;
+      break;
+    default:
+      parsed += token.raw;
+  }
+  return parsed;
+}
+
+export function md2Rst(text?: string): string | undefined {
+  try {
+    if (!text || text === "") return text;
+    const tokens = marked.lexer(text);
+    let rst = "";
+
+    tokens.forEach((token: Token) => {
+      if (token.type === "heading") {
+        // Heading tokens are block level, so we should check if there are additional tokens inside
+        const parsedHeadingText = md2Rst(token.text);
+        rst += `${"=".repeat(
+          parsedHeadingText!.length,
+        )}\n${parsedHeadingText}\n${"=".repeat(parsedHeadingText!.length)}\n\n`;
+      } else if ("tokens" in token && token.tokens !== undefined && token.tokens.length > 0) {
+        token.tokens.forEach((element: any) => {
+          rst += parseToken(element);
+        });
+      } else {
+        rst += parseToken(token);
+      }
+    });
+
+    // Trim trailing whitespace or tabs
+    return rst.replace(/[ \t]+$/, "");
+  } catch (e) {
+    if (e instanceof RangeError) {
+      // The error is thrown by the tokenizer when the markdown is too long
+      // We can ignore it and return the original text
+      return text;
+    }
+  }
+  return text;
 }

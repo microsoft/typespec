@@ -20,10 +20,12 @@ export {
   getUseDependencies,
   getVersion,
 } from "./decorators.js";
-export { buildVersionProjections, type VersionProjections } from "./projection.js";
 export * from "./types.js";
 export * from "./validate.js";
 export * from "./versioning.js";
 
 /** @internal */
 export { $decorators } from "./tsp-index.js";
+
+// TODO: be explicit - for testing right now
+export * from "./mutator.js";

@@ -1,5 +1,30 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.67.0
+
+### Features
+
+- [#6327](https://github.com/microsoft/typespec/pull/6327) Remove reference to delete projection feature
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+
+## 0.66.0
+
+### Features
+
+- [#5996](https://github.com/microsoft/typespec/pull/5996) Emitter Framework V2
+
+
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+
 ## 0.64.0
 
 No changes, version bump only.

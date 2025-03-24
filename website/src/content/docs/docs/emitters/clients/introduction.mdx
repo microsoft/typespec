@@ -1,0 +1,294 @@
+---
+title: Client Emitters
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+## How to Use Emitters to Generate HTTP Clients from TypeSpec
+
+### Introduction
+
+This guide will walk you through the process of using different client emitters (JavaScript, Python, Java, C#) to generate HTTP clients from TypeSpec. Please note that all client emitters are currently in **preview** and are subject to changes in future versions.
+
+By following this guide, you will learn:
+
+1. How to set up client emitters in `package.json`.
+2. Update the client emitter configurations in `tspconfig.yaml`.
+3. How to generate HTTP clients for each specific programming language.
+
+## Location of All Client Emitters
+
+The client emitters are defined in the `package.json` file within your project.
+
+| **Emitter Name**             | **Language** | **Version**                                                    |
+| ---------------------------- | ------------ | -------------------------------------------------------------- |
+| @typespec/http-client-js     | JavaScript   | ![](https://img.shields.io/npm/v/@typespec/http-client-js)     |
+| @typespec/http-client-python | Python       | ![](https://img.shields.io/npm/v/@typespec/http-client-python) |
+| @typespec/http-client-java   | Java         | ![](https://img.shields.io/npm/v/@typespec/http-client-java)   |
+| @typespec/http-client-csharp | C#           | ![](https://img.shields.io/npm/v/@typespec/http-client-csharp) |
+
+Below is an example of the `package.json` snippet where client emitters are defined:
+
+```json
+  "dependencies": {
+    "@typespec/http-client-csharp": "^0.1.9-alpha.20250113.2",
+    "@typespec/http-client-java": "^0.1.9",
+    "@typespec/http-client-python": "^0.6.6",
+    "@typespec/http-client-js": "^0.38.1",
+  }
+```
+
+## Client Emitter Settings
+
+This part provides an overview of the common and language-specific settings for each client emitter. These settings are stored in the `tspconfig.yaml` file.
+
+### Common Configuration Options
+
+The below option applies to all client emitters.
+
+- `emitter-output-dir`: Defines where the generated SDK files will be stored.
+
+### JavaScript Client Emitter Settings
+
+JavaScript generally requires minimal configuration. However, it is recommended to provide `packageDetails` for package metadata, which is used in `package.json` and `README.md` files.
+
+#### packageDetails
+
+Provide the metadata for `package.json`, `README.md` information.
+
+| Property    | Description                                                            |
+| ----------- | ---------------------------------------------------------------------- |
+| name        | Package name used in `package.json`                                    |
+| description | Package description used in `package.json` file                        |
+| version     | Detailed version for your package, the default value is `1.0.0-beta.1` |
+
+Example configuration:
+
+```yaml
+packageDetails:
+  name: "${your_package_name}"
+  version: 1.0.0
+```
+
+### Java Client Emitter Settings
+
+#### Prerequisites
+
+Before using the Java client emitter, ensure the following dependencies are installed:
+
+- **Java 17 or later** - [Download here](https://docs.microsoft.com/java/openjdk/download)  
+  _(Verify installation with `java --version`)_
+- **Maven** - [Download here](https://maven.apache.org/download.cgi)  
+  _(Verify installation with `mvn --version`)_
+
+### C# Client Emitter Settings
+
+Before using the C# client emitter, ensure that the [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (or higher) is installed.
+Full configuration options can be found in the [C# Client Emitter README](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/readme.md#configuration)
+
+## JavaScript Client Emitter Example
+
+### Step 1: Install Dependencies
+
+Add the following dependencies to your `package.json` file:
+
+```json
+"dependencies": {
+  "@typespec/http-client-js": "^0.38.1"
+}
+```
+
+Run the following command to install the dependencies:
+
+```bash
+tsp install
+```
+
+### Step 2: Update Configuration
+
+Update your `tspconfig.yaml` file with the following configuration:
+
+```yaml
+emit:
+  - "@typespec/http-client-js"
+options:
+  "@typespec/http-client-js":
+    emitter-output-dir: "{project-root}/clients/javascript"
+    packageDetails:
+      name: "your_package_name"
+      version: 1.0.0
+```
+
+### Step 3: Generate Client
+
+Run the following command to generate the JavaScript client:
+
+```bash
+tsp compile {path to main.tsp}/main.tsp
+```
+
+## Python Client Emitter Example
+
+### Step 1: Install Dependencies
+
+Add the following dependencies to your `package.json` file:
+
+```json
+"dependencies": {
+  "@typespec/http-client-python": "^0.6.6"
+}
+```
+
+Run the following command to install the dependencies:
+
+```bash
+tsp install
+```
+
+### Step 2: Update Configuration
+
+Update your `tspconfig.yaml` file with the following configuration:
+
+```yaml
+emit:
+  - "@typespec/http-client-python"
+options:
+  "@typespec/http-client-python":
+    emitter-output-dir: "{project-root}/clients/python"
+```
+
+### Step 3: Generate Client
+
+Run the following command to generate the Python client:
+
+```bash
+tsp compile {path to main.tsp}/main.tsp
+```
+
+## Java Client Emitter Example
+
+### Step 1: Install Dependencies
+
+Add the following dependencies to your `package.json` file:
+
+```json
+"dependencies": {
+  "@typespec/http-client-java": "^0.1.9"
+}
+```
+
+Run the following command to install the dependencies:
+
+```bash
+tsp install
+```
+
+### Step 2: Update Configuration
+
+Update your `tspconfig.yaml` file with the following configuration:
+
+```yaml
+emit:
+  - "@typespec/http-client-java"
+options:
+  "@typespec/http-client-java":
+    emitter-output-dir: "{project-root}/clients/java"
+```
+
+### Step 3: Generate Client
+
+Run the following command to generate the Java client:
+
+```bash
+tsp compile {path to main.tsp}/main.tsp
+```
+
+## C# Client Emitter Example
+
+### Step 1: Install Dependencies
+
+Add the following dependencies to your `package.json` file:
+
+```json
+"dependencies": {
+  "@typespec/http-client-csharp": "^0.1.9-alpha.20250113.2"
+}
+```
+
+Run the following command to install the dependencies:
+
+```bash
+tsp install
+```
+
+### Step 2: Update Configuration
+
+Update your `tspconfig.yaml` file with the following configuration:
+
+```yaml
+emit:
+  - "@typespec/http-client-csharp"
+options:
+  "@typespec/http-client-csharp":
+    emitter-output-dir: "{project-root}/clients/dotnet"
+```
+
+### Step 3: Generate Client
+
+Run the following command to generate the C# client:
+
+```bash
+tsp compile {path to main.tsp}/main.tsp
+```
+
+## Running Language-Specific Emitters in CLI
+
+<Steps>
+
+1. Ensure that your package.json file is correctly configured to include the necessary dependencies for running the emitters
+
+2. Update the tspconfig.yaml file for properly configured for the language-specific emitter.
+
+   ```yaml
+   emit:
+     - "@typespec/http-client-csharp"
+     - "@typespec/http-client-java"
+     - "@typespec/http-client-python"
+     - "@typespec/http-client-js"
+   options:
+     "@typespec/http-client-csharp":
+       emitter-output-dir: "{project-root}/clients/dotnet"
+     "@typespec/http-client-java":
+       emitter-output-dir: "{project-root}/clients/java"
+     "@typespec/http-client-python":
+       emitter-output-dir: "{project-root}/clients/python"
+     "@typespec/http-client-js":
+       emitter-output-dir: "{project-root}/clients/javascript"
+   ```
+
+3. Once the package.json and tspconfig.yaml files are updated, you need to install all required dependencies by running the following command in the project root:
+
+   ```bash
+   tsp install
+   ```
+
+4. Run the emitter to compile your TypeScript code into the desired language. Use the following command to trigger the emitter and compile your project:
+
+   ```bash
+   tsp compile {path to main.tsp}/main.tsp
+   ```
+
+</Steps>
+
+## Disclaimer
+
+<Aside>
+
+**All client emitters are in preview**. These emitters are actively being developed and may experience changes or updates that could affect their functionality. Please follow the official documentation for the latest updates.
+
+- [TypeSpec C# emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/readme.md)
+- [TypeSpec Python emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-python/README.md)
+- [TypeSpec Java emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-java/README.md)
+- [TypeSpec JS emitter library](https://github.com/Azure/autorest.typescript/blob/main/packages/typespec-ts/README.md)
+
+</Aside>

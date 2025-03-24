@@ -1,4 +1,18 @@
 import {
+  CodeTypeEmitter,
+  Context,
+  Declaration,
+  EmitEntity,
+  EmittedSourceFile,
+  EmitterOutput,
+  Scope,
+  SourceFile,
+  StringBuilder,
+  TypeSpecDeclaration,
+  code,
+  createAssetEmitter,
+} from "@typespec/asset-emitter";
+import {
   BooleanLiteral,
   EmitContext,
   Enum,
@@ -14,7 +28,6 @@ import {
   Service,
   StringLiteral,
   StringTemplate,
-  StringTemplateSpan,
   Tuple,
   Type,
   Union,
@@ -26,54 +39,37 @@ import {
   isNullType,
   isTemplateDeclaration,
   isVoidType,
+  resolvePath,
+  serializeValueAsJson,
 } from "@typespec/compiler";
-import {
-  CodeTypeEmitter,
-  Context,
-  Declaration,
-  EmitEntity,
-  EmittedSourceFile,
-  EmitterOutput,
-  Scope,
-  SourceFile,
-  StringBuilder,
-  TypeSpecDeclaration,
-  code,
-  createAssetEmitter,
-} from "@typespec/compiler/emitter-framework";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import {
   HttpOperation,
-  HttpOperationParameter,
   HttpOperationResponse,
-  MetadataInfo,
-  Visibility,
-  createMetadataInfo,
-  getHeaderFieldName,
   getHttpOperation,
   getHttpPart,
-  isHeader,
-  isPathParam,
-  isQueryParam,
   isStatusCode,
 } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { execFile } from "child_process";
+import path from "path";
+import { getEncodedNameAttribute } from "./attributes.js";
 import {
   GeneratedFileHeader,
   GeneratedFileHeaderWithNullable,
   getSerializationSourceFiles,
 } from "./boilerplate.js";
+import { getProjectDocs } from "./doc.js";
 import {
   CSharpSourceType,
   CSharpType,
   CSharpTypeMetadata,
   ControllerContext,
-  LibrarySourceFile,
   NameCasingType,
   ResponseInfo,
 } from "./interfaces.js";
 import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
+import { getProjectHelpers } from "./project.js";
 import {
   BusinessLogicImplementation,
   BusinessLogicMethod,
@@ -83,51 +79,58 @@ import {
 } from "./scaffolding.js";
 import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
 import {
+  CSharpOperationHelpers,
+  EmittedTypeInfo,
   HttpMetadata,
   UnknownType,
   coalesceTypes,
+  coalesceUnionTypes,
   ensureCSharpIdentifier,
   ensureCleanDirectory,
   formatComment,
+  getBusinessLogicCallParameters,
+  getBusinessLogicDeclParameters,
   getCSharpIdentifier,
   getCSharpStatusCode,
   getCSharpType,
   getCSharpTypeForIntrinsic,
   getCSharpTypeForScalar,
+  getFreePort,
+  getHttpDeclParameters,
   getModelAttributes,
+  getModelDeclarationName,
   getModelInstantiationName,
+  getOpenApiConfig,
   getOperationVerbDecorator,
+  isEmptyResponseModel,
   isValueType,
 } from "./utils.js";
+
+type FileExists = (path: string) => Promise<boolean>;
 
 export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>) {
   let _unionCounter: number = 0;
   const controllers = new Map<string, ControllerContext>();
   const NoResourceContext: string = "RPCOperations";
-  const doNotEmit: boolean = context.program.compilerOptions.noEmit || false;
+  const doNotEmit: boolean = context.program.compilerOptions.dryRun || false;
 
+  function getFileWriter(program: Program): FileExists {
+    return async (path: string) =>
+      !!(await program.host.stat(resolvePath(path)).catch((_) => false));
+  }
   class CSharpCodeEmitter extends CodeTypeEmitter {
     #metadateMap: Map<Type, CSharpTypeMetadata> = new Map<Type, CSharpTypeMetadata>();
     #generatedFileHeaderWithNullable: string = GeneratedFileHeaderWithNullable;
     #generatedFileHeader: string = GeneratedFileHeader;
     #sourceTypeKey: string = "sourceType";
-    #libraryFiles: LibrarySourceFile[] = getSerializationSourceFiles(this.emitter);
     #baseNamespace: string | undefined = undefined;
     #emitterOutputType = context.options["output-type"];
     #emitMocks: string | undefined = context.options["emit-mocks"];
     #useSwagger: boolean = context.options["use-swaggerui"] || false;
     #openapiPath: string = context.options["openapi-path"] || "openapi/openapi.yaml";
     #mockRegistrations: BusinessLogicRegistrations = new Map<string, BusinessLogicImplementation>();
-    #mockHelpers: LibrarySourceFile[] =
-      this.#emitMocks === "all"
-        ? getScaffoldingHelpers(this.emitter, this.#useSwagger, this.#openapiPath)
-        : [];
-    #mockFiles: LibrarySourceFile[] = [];
-
-    #metaInfo: MetadataInfo = createMetadataInfo(this.emitter.getProgram(), {
-      canonicalVisibility: Visibility.Read,
-      canShareProperty: (p) => true,
-    });
+    #opHelpers: CSharpOperationHelpers = new CSharpOperationHelpers(this.emitter);
+    #fileExists: FileExists = getFileWriter(this.emitter.getProgram());
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
       return this.emitter.result.declaration(
@@ -145,8 +148,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     unionLiteral(union: Union): EmitterOutput<string> {
-      const csType = this.#coalesceUnionTypes(union);
-      return this.emitter.result.rawCode(csType && csType.isBuiltIn ? csType.name : "object");
+      const csType = coalesceUnionTypes(this.emitter.getProgram(), union);
+      return this.emitter.result.rawCode(
+        csType ? csType.getTypeReference(this.emitter.getContext()?.scope) : "object",
+      );
     }
 
     declarationName(declarationType: TypeSpecDeclaration): string {
@@ -158,7 +163,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           if (!declarationType.name) return `Interface${_unionCounter++}`;
           return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Model":
-          if (!declarationType.name) return `Model${_unionCounter++}`;
+          if (!declarationType.name)
+            return getModelDeclarationName(
+              this.emitter.getProgram(),
+              declarationType,
+              `${_unionCounter++}`,
+            );
           return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Operation":
           return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
@@ -191,7 +201,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
             ${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}
             public enum ${enumName}
             {
-              ${this.emitter.emitEnumMembers(en)};
+              ${this.emitter.emitEnumMembers(en)}
             }
         } `,
       );
@@ -202,11 +212,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const enumFile = this.emitter.createSourceFile(`models/${enumName}.cs`);
       enumFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const enumNamespace = `${this.#getOrSetBaseNamespace(en)}.Models`;
-      return {
-        namespace: enumNamespace,
-        file: enumFile,
-        scope: enumFile.globalScope,
-      };
+      return this.#createEnumContext(enumNamespace, enumFile, enumName);
     }
 
     enumMembers(en: Enum): EmitterOutput<string> {
@@ -217,11 +223,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         const memberName: string = ensureCSharpIdentifier(this.emitter.getProgram(), member, name);
         this.#metadateMap.set(member, { name: memberName });
         result.push(
-          code`${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)} = "${
-            member.value ? (member.value as string) : name
-          }"`,
+          code`
+          [JsonStringEnumMemberName("${member.value ? (member.value as string) : name}")]
+          ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)}`,
         );
-        if (i < en.members.size) result.pushLiteralSegment(", ");
+        if (i < en.members.size) result.pushLiteralSegment(",\n");
       }
 
       return this.emitter.result.rawCode(result.reduce());
@@ -374,10 +380,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return this.modelDeclaration(model, modelName);
     }
 
-    #isRecord(type: Type): boolean {
-      return type.kind === "Model" && type.name === "Record" && type.indexer !== undefined;
-    }
-
     #isInheritedProperty(property: ModelProperty): boolean {
       const visited: Model[] = [];
       function isInherited(model: Model, propertyName: string) {
@@ -394,19 +396,24 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
       if (isStatusCode(this.emitter.getProgram(), property)) return "";
-      const propertyName = ensureCSharpIdentifier(
-        this.emitter.getProgram(),
-        property,
-        property.name,
-      );
+      let propertyName = ensureCSharpIdentifier(this.emitter.getProgram(), property, property.name);
 
-      const [typeName, typeDefault, nullable] = this.#findPropertyType(property);
+      const {
+        typeReference: typeName,
+        defaultValue: typeDefault,
+        nullableType: nullable,
+      } = this.#findPropertyType(property);
       const doc = getDoc(this.emitter.getProgram(), property);
       const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      const defaultValue = property.default
-        ? // eslint-disable-next-line @typescript-eslint/no-deprecated
-          code`${this.emitter.emitType(property.default)}`
+      const modelName: string | undefined = this.emitter.getContext()["name"];
+      if (modelName === propertyName) {
+        propertyName = `${propertyName}Prop`;
+        attributes.push(
+          getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!,
+        );
+      }
+      const defaultValue = property.defaultValue
+        ? code`${JSON.stringify(serializeValueAsJson(this.emitter.getProgram(), property.defaultValue, property))}`
         : typeDefault;
       return this.emitter.result
         .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${
@@ -419,10 +426,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     `);
     }
 
-    #findPropertyType(
-      property: ModelProperty,
-    ): [EmitterOutput<string>, string | boolean | undefined, boolean] {
-      return this.#getTypeInfoForTsType(property.type);
+    #findPropertyType(property: ModelProperty): EmittedTypeInfo {
+      return this.#opHelpers.getTypeInfo(this.emitter.getProgram(), property.type);
     }
 
     #isMultipartRequest(operation: HttpOperation): boolean {
@@ -440,117 +445,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return false;
     }
 
-    #getTypeInfoForUnion(
-      union: Union,
-    ): [EmitterOutput<string>, string | boolean | undefined, boolean] {
-      const propResult = this.#getNonNullableTsType(union);
-      if (propResult === undefined) {
-        return [
-          code`${emitter.emitTypeReference(union)}`,
-          undefined,
-          [...union.variants.values()].filter((v) => isNullType(v.type)).length > 0,
-        ];
-      }
-      const [typeName, typeDefault, _] = this.#getTypeInfoForTsType(propResult.type);
-      return [typeName, typeDefault, propResult.nullable];
-    }
-    #getTypeInfoForTsType(
-      tsType: Type,
-    ): [EmitterOutput<string>, string | boolean | undefined, boolean] {
-      function extractStringValue(type: Type, span: StringTemplateSpan): string {
-        switch (type.kind) {
-          case "String":
-            return type.value;
-          case "Boolean":
-            return `${type.value}`;
-          case "Number":
-            return type.valueAsString;
-          case "StringTemplateSpan":
-            if (type.isInterpolated) {
-              return extractStringValue(type.type, span);
-            } else {
-              return type.type.value;
-            }
-          case "ModelProperty":
-            return extractStringValue(type.type, span);
-          case "EnumMember":
-            if (type.value === undefined) return type.name;
-            if (typeof type.value === "string") return type.value;
-            if (typeof type.value === "number") return `${type.value}`;
-        }
-        reportDiagnostic(emitter.getProgram(), {
-          code: "invalid-interpolation",
-          target: span,
-          format: {},
-        });
-        return "";
-      }
-      switch (tsType.kind) {
-        case "String":
-          return [code`string`, `"${tsType.value}"`, false];
-        case "StringTemplate":
-          const template = tsType;
-          if (template.stringValue !== undefined)
-            return [code`string`, `"${template.stringValue}"`, false];
-          const spanResults: string[] = [];
-          for (const span of template.spans) {
-            spanResults.push(extractStringValue(span, span));
-          }
-          return [code`string`, `"${spanResults.join("")}"`, false];
-        case "Boolean":
-          return [code`bool`, `${tsType.value === true ? true : false}`, false];
-        case "Number":
-          const [type, value] = this.#findNumericType(tsType);
-          return [code`${type}`, `${value}`, false];
-        case "Tuple":
-          const defaults = [];
-          const [csharpType, isObject] = this.#coalesceTypes(tsType.values);
-          if (isObject) return ["object[]", undefined, false];
-          for (const value of tsType.values) {
-            const [_, itemDefault] = this.#getTypeInfoForTsType(value);
-            defaults.push(itemDefault);
-          }
-          return [
-            code`${csharpType.getTypeReference()}[]`,
-            `[${defaults.join(", ")}]`,
-            csharpType.isNullable,
-          ];
-        case "Object":
-          return [code`object`, undefined, false];
-        case "Model":
-          if (this.#isRecord(tsType)) {
-            return [code`JsonObject`, undefined, false];
-          }
-          return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
-        case "ModelProperty":
-          return this.#getTypeInfoForTsType(tsType.type);
-        case "Enum":
-          return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
-        case "EnumMember":
-          if (typeof tsType.value === "number") {
-            const stringValue = tsType.value.toString();
-            if (stringValue.includes(".") || stringValue.includes("e"))
-              return ["double", stringValue, false];
-            return ["int", stringValue, false];
-          }
-          if (typeof tsType.value === "string") {
-            return ["string", tsType.value, false];
-          }
-          return [code`object`, undefined, false];
-        case "Union":
-          return this.#getTypeInfoForUnion(tsType);
-        case "UnionVariant":
-          return this.#getTypeInfoForTsType(tsType.type);
-        default:
-          return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
-      }
-    }
-
-    #findNumericType(type: NumericLiteral): [string, string] {
-      const stringValue = type.valueAsString;
-      if (stringValue.includes(".") || stringValue.includes("e")) return ["double", stringValue];
-      return ["int", stringValue];
-    }
     modelPropertyReference(property: ModelProperty): EmitterOutput<string> {
       return code`${this.emitter.emitTypeReference(property.type)}`;
     }
@@ -652,37 +546,23 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           name,
           NameCasingType.Method,
         );
-        let opDecl: Declaration<string>;
-        let opImpl: BusinessLogicMethod;
-        if (this.#isMultipartRequest(httpOp)) {
-          opImpl = {
-            methodName: `${opName}Async`,
-            methodParams: `${this.#emitInterfaceOperationParameters(operation, "MultipartReader reader")}`,
-            returnType: `${returnType.name === "void" ? "Task" : `Task<${returnType.getTypeReference(context.scope)}>`}`,
-            instantiatedReturnType:
-              returnType.name === "void"
-                ? undefined
-                : `${returnType.getTypeReference(context.scope)}`,
-          };
-          opDecl = this.emitter.result.declaration(
-            opName,
-            code`${doc ? `${formatComment(doc)}\n` : ""}${opImpl.returnType} ${opImpl.methodName}( ${opImpl.methodParams});`,
-          );
-        } else {
-          opImpl = {
-            methodName: `${opName}Async`,
-            methodParams: `${this.#emitInterfaceOperationParameters(operation)}`,
-            returnType: `${returnType.name === "void" ? "Task" : `Task<${returnType.getTypeReference(context.scope)}>`}`,
-            instantiatedReturnType:
-              returnType.name === "void"
-                ? undefined
-                : `${returnType.getTypeReference(context.scope)}`,
-          };
-          opDecl = this.emitter.result.declaration(
-            opName,
-            code`${doc ? `${formatComment(doc)}\n` : ""}${opImpl.returnType} ${opImpl.methodName}( ${opImpl.methodParams});`,
-          );
-        }
+        const parameters = this.#opHelpers.getParameters(this.emitter.getProgram(), httpOp);
+
+        const opImpl: BusinessLogicMethod = {
+          methodName: `${opName}Async`,
+          methodParams: `${getBusinessLogicDeclParameters(parameters)}`,
+          returnType: returnType,
+          returnTypeName: `${returnType.name === "void" ? "Task" : `Task<${returnType.getTypeReference(context.scope)}>`}`,
+          instantiatedReturnType:
+            returnType.name === "void"
+              ? undefined
+              : `${returnType.getTypeReference(context.scope)}`,
+        };
+        const opDecl: Declaration<string> = this.emitter.result.declaration(
+          opName,
+          code`${doc ? `${formatComment(doc)}\n` : ""}${opImpl.returnTypeName} ${opImpl.methodName}( ${opImpl.methodParams});`,
+        );
+
         mock.methods.push(opImpl);
         builder.push(code`${opDecl.value}\n`);
         this.emitter.emitInterfaceOperation(operation);
@@ -713,9 +593,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const doc = getDoc(this.emitter.getProgram(), operation);
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
       const multipart: boolean = this.#isMultipartRequest(httpOperation);
-      const declParams = !multipart
-        ? this.#emitHttpOperationParameters(httpOperation)
-        : this.#emitHttpOperationParameters(httpOperation, true);
+      const parameters = this.#opHelpers.getParameters(this.emitter.getProgram(), httpOperation);
+      const declParams = getHttpDeclParameters(parameters);
 
       if (multipart) {
         const context = this.emitter.getContext();
@@ -751,13 +630,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         {
           ${
             hasResponseValue
-              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
-                  httpOperation,
-                )});
+              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}(result);`
-              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
-                  httpOperation,
-                )});
+              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}();`
           }
         }`,
@@ -783,9 +658,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           var reader = new MultipartReader(boundary, Request.Body);
           ${
             hasResponseValue
-              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(httpOperation, "reader")});
+              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}(result);`
-              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(httpOperation, "reader")});
+              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}();`
           }
         }`,
@@ -811,7 +686,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       );
       const doc = getDoc(this.emitter.getProgram(), operation);
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
-      const declParams = this.#emitHttpOperationParameters(httpOperation);
+      const parameters = this.#opHelpers.getParameters(this.emitter.getProgram(), httpOperation);
+      const declParams = getHttpDeclParameters(parameters);
       const responseInfo = this.#getOperationResponse(httpOperation);
       const status = responseInfo?.statusCode ?? 200;
       const response: CSharpType =
@@ -836,13 +712,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         {
           ${
             hasResponseValue
-              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
-                  httpOperation,
-                )});
+              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}(result);`
-              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
-                  httpOperation,
-                )});
+              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}();`
           }
         }`,
@@ -923,105 +795,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return resultType.getTypeReference(context.scope);
     }
 
-    #emitInterfaceOperationParameters(
-      operation: Operation,
-      bodyParam?: string,
-    ): EmitterOutput<string> {
-      const signature = new StringBuilder();
-      const requiredParams: ModelProperty[] = [];
-      const optionalParams: ModelProperty[] = [];
-      let totalParams = 0;
-      if (bodyParam !== undefined) totalParams++;
-      const validParams = [...operation.parameters.properties.entries()].filter(([_, p]) =>
-        isValidParameter(this.emitter.getProgram(), p),
-      );
-      for (const [_, parameter] of validParams) {
-        if (
-          !isContentTypeHeader(this.emitter.getProgram(), parameter) &&
-          (bodyParam === undefined || isHttpMetadata(this.emitter.getProgram(), parameter))
-        ) {
-          if (parameter.optional || parameter.defaultValue) optionalParams.push(parameter);
-          else requiredParams.push(parameter);
-          totalParams++;
-        }
-      }
-      let i = 1;
-      for (const requiredParam of requiredParams) {
-        const [paramType, _, __] = this.#findPropertyType(requiredParam);
-        signature.push(
-          code`${paramType} ${ensureCSharpIdentifier(this.emitter.getProgram(), requiredParam, requiredParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
-        );
-      }
-      if (bodyParam) {
-        signature.push(bodyParam);
-        if (i++ < totalParams) signature.push(", ");
-      }
-      for (const optionalParam of optionalParams) {
-        const [paramType, _, __] = this.#findPropertyType(optionalParam);
-        signature.push(
-          code`${paramType}? ${ensureCSharpIdentifier(this.emitter.getProgram(), optionalParam, optionalParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
-        );
-      }
-
-      return signature.reduce();
-    }
-
-    #emitHttpOperationParameters(
-      operation: HttpOperation,
-      bodyParameter?: boolean,
-    ): EmitterOutput<string> {
-      const signature = new StringBuilder();
-      const bodyParam = operation.parameters.body;
-      let i = 0;
-      //const pathParameters = operation.parameters.parameters.filter((p) => p.type === "path");
-      const validParams: HttpOperationParameter[] = operation.parameters.parameters.filter((p) =>
-        isValidParameter(this.emitter.getProgram(), p.param),
-      );
-      const requiredParams: HttpOperationParameter[] = validParams.filter(
-        (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),
-      );
-      const optionalParams: HttpOperationParameter[] = validParams.filter(
-        (p) => p.type !== "path" && (p.param.optional || p.param.defaultValue !== undefined),
-      );
-      for (const parameter of requiredParams) {
-        signature.push(
-          code`${this.#emitOperationSignatureParameter(operation, parameter)}${
-            ++i < requiredParams.length ? ", " : ""
-          }`,
-        );
-      }
-      if (
-        requiredParams.length > 0 &&
-        (optionalParams.length > 0 || (bodyParameter === undefined && bodyParam !== undefined))
-      ) {
-        signature.push(code`, `);
-      }
-      if (bodyParameter === undefined) {
-        if (bodyParam !== undefined) {
-          signature.push(
-            code`${this.emitter.emitTypeReference(
-              this.#metaInfo.getEffectivePayloadType(
-                bodyParam.type,
-                Visibility.Create || Visibility.Update,
-              ),
-            )} body${requiredParams.length > 0 && optionalParams.length > 0 ? ", " : ""}`,
-          );
-        }
-      }
-      i = 0;
-      for (const parameter of optionalParams) {
-        signature.push(
-          code`${this.#emitOperationSignatureParameter(operation, parameter)}${
-            ++i < optionalParams.length ? ", " : ""
-          }`,
-        );
-      }
-
-      return signature.reduce();
-    }
-
     unionDeclaration(union: Union, name: string): EmitterOutput<string> {
-      const baseType = this.#coalesceUnionTypes(union);
+      const baseType = coalesceUnionTypes(this.emitter.getProgram(), union);
       if (baseType.isBuiltIn && baseType.name === "string") {
         const program = this.emitter.getProgram();
         const unionName = ensureCSharpIdentifier(program, union, name);
@@ -1052,7 +827,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     unionDeclarationContext(union: Union): Context {
-      const baseType = this.#coalesceUnionTypes(union);
+      const baseType = coalesceUnionTypes(this.emitter.getProgram(), union);
       if (baseType.isBuiltIn && baseType.name === "string") {
         const unionName = ensureCSharpIdentifier(
           this.emitter.getProgram(),
@@ -1107,140 +882,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return super.unionVariantContext(union);
     }
 
-    #emitOperationSignatureParameter(
-      operation: HttpOperation,
-      httpParam: HttpOperationParameter,
-    ): EmitterOutput<string> {
-      const name = httpParam.param.name;
-      const parameter = httpParam.param;
-      const emittedName = ensureCSharpIdentifier(
-        this.emitter.getProgram(),
-        parameter,
-        name,
-        NameCasingType.Parameter,
-      );
-      let [emittedType, emittedDefault, _] = this.#findPropertyType(parameter);
-      if (emittedType.toString().endsWith("[]")) emittedDefault = undefined;
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      const defaultValue = parameter.default
-        ? // eslint-disable-next-line @typescript-eslint/no-deprecated
-          code`${this.emitter.emitType(parameter.default)}`
-        : emittedDefault;
-      return this.emitter.result.rawCode(
-        code`${httpParam.type !== "path" ? this.#emitParameterAttribute(httpParam) : ""}${emittedType} ${emittedName}${defaultValue === undefined ? "" : ` = ${defaultValue}`}`,
-      );
-    }
-    #getBodyParameters(operation: HttpOperation): ModelProperty[] | undefined {
-      const bodyParam = operation.parameters.body;
-      if (bodyParam === undefined) return undefined;
-      if (bodyParam.property !== undefined) return [bodyParam.property];
-      if (bodyParam.type.kind !== "Model" || bodyParam.type.properties.size < 1) return undefined;
-      return [...bodyParam.type.properties.values()];
-    }
-
-    #emitOperationCallParameters(
-      operation: HttpOperation,
-      bodyParameter: string = "body",
-    ): EmitterOutput<string> {
-      const signature = new StringBuilder();
-      let i = 0;
-      const bodyParameters = this.#getBodyParameters(operation);
-      //const pathParameters = operation.parameters.parameters.filter((p) => p.type === "path");
-      const valid = operation.parameters.parameters.filter((p) =>
-        isValidParameter(this.emitter.getProgram(), p.param),
-      );
-      const required: HttpOperationParameter[] = valid.filter(
-        (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),
-      );
-      const optional: HttpOperationParameter[] = valid.filter(
-        (p) => p.type !== "path" && (p.param.optional || p.param.defaultValue !== undefined),
-      );
-      for (const parameter of required) {
-        const contentType: boolean = isContentTypeHeader(
-          this.emitter.getProgram(),
-          parameter.param,
-        );
-        i++;
-        if (
-          !isNeverType(parameter.param.type) &&
-          !isNullType(parameter.param.type) &&
-          !isVoidType(parameter.param.type) &&
-          !contentType
-        ) {
-          signature.push(
-            code`${this.#emitOperationCallParameter(operation, parameter)}${
-              i < valid.length || bodyParameters !== undefined ? ", " : ""
-            }`,
-          );
-        }
-      }
-      if (bodyParameters !== undefined) {
-        if (bodyParameters.length === 1) {
-          signature.push(code`${bodyParameter}`);
-        } else {
-          let j = 0;
-          for (const parameter of bodyParameters) {
-            j++;
-            const propertyName = ensureCSharpIdentifier(
-              this.emitter.getProgram(),
-              parameter,
-              parameter.name,
-              NameCasingType.Property,
-            );
-            signature.push(
-              code`${bodyParameter}?.${propertyName}${j < bodyParameters.length || i < valid.length ? ", " : ""}`,
-            );
-          }
-        }
-      }
-
-      for (const parameter of optional) {
-        const contentType: boolean = isContentTypeHeader(
-          this.emitter.getProgram(),
-          parameter.param,
-        );
-        i++;
-        if (
-          !isNeverType(parameter.param.type) &&
-          !isNullType(parameter.param.type) &&
-          !isVoidType(parameter.param.type) &&
-          !contentType
-        ) {
-          signature.push(
-            code`${this.#emitOperationCallParameter(operation, parameter)}${
-              i < valid.length ? ", " : ""
-            }`,
-          );
-        }
-      }
-      return signature.reduce();
-    }
-    #emitOperationCallParameter(
-      operation: HttpOperation,
-      httpParam: HttpOperationParameter,
-    ): EmitterOutput<string> {
-      const name = httpParam.param.name;
-      const parameter = httpParam.param;
-      const emittedName = ensureCSharpIdentifier(
-        this.emitter.getProgram(),
-        parameter,
-        name,
-        NameCasingType.Parameter,
-      );
-      return this.emitter.result.rawCode(code`${emittedName}`);
-    }
-
-    #emitParameterAttribute(parameter: HttpOperationParameter): EmitterOutput<string> {
-      switch (parameter.type) {
-        case "header":
-          return code`[FromHeader(Name="${parameter.name}")] `;
-        case "query":
-          return code`[FromQuery(Name="${parameter.name}")] `;
-        default:
-          return "";
-      }
-    }
-
     #createModelContext(namespace: string, file: SourceFile<string>, name: string): Context {
       const context = {
         namespace: namespace,
@@ -1253,6 +894,23 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       context.file.imports.set("System.Text.Json.Serialization", [
         "System.Text.Json.Serialization",
       ]);
+      context.file.imports.set("TypeSpec.Helpers.JsonConverters", [
+        "TypeSpec.Helpers.JsonConverters",
+      ]);
+      return context;
+    }
+
+    #createEnumContext(namespace: string, file: SourceFile<string>, name: string): Context {
+      const context = {
+        namespace: namespace,
+        name: name,
+        file: file,
+        scope: file.globalScope,
+      };
+      context.file.imports.set("System.Text.Json", ["System.Text.Json"]);
+      context.file.imports.set("System.Text.Json.Serialization", [
+        "System.Text.Json.Serialization",
+      ]);
       return context;
     }
 
@@ -1261,11 +919,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       operation: Operation,
       resource?: Model,
     ): ControllerContext {
+      name = ensureCSharpIdentifier(
+        this.emitter.getProgram(),
+        operation,
+        name,
+        NameCasingType.Class,
+      );
       let context: ControllerContext | undefined = controllers.get(name);
       if (context !== undefined) return context;
       const sourceFile: SourceFile<string> = this.emitter.createSourceFile(
         `controllers/${name}Controller.cs`,
       );
+
       const namespace = this.#getOrSetBaseNamespace(operation);
       const modelNamespace = `${namespace}.Models`;
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Controller;
@@ -1324,18 +989,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
-      for (const libFile of this.#libraryFiles) {
-        if (sourceFile === libFile.source) return libFile.emitted;
-      }
-      if (this.#emitMocks === "all") {
-        for (const helper of this.#mockHelpers) {
-          if (sourceFile === helper.source) return helper.emitted;
-        }
-      }
-      if (this.#mockFiles.length > 0) {
-        for (const mock of this.#mockFiles) {
-          if (sourceFile === mock.source) return mock.emitted;
-        }
+      if (sourceFile.meta.emitted) {
+        return sourceFile.meta.emitted;
       }
 
       const emittedSourceFile: EmittedSourceFile = {
@@ -1367,7 +1022,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #emitControllerContents(file: SourceFile<string>): string {
       const namespace = file.meta.namespace;
       const contents: StringBuilder = new StringBuilder();
-      contents.push(`${this.#generatedFileHeader}\n\n`);
+      contents.push(`${this.#generatedFileHeaderWithNullable}\n\n`);
       contents.push(code`${this.#emitUsings(file)}\n`);
       contents.push("\n");
       contents.push(`namespace ${namespace}.Controllers\n`);
@@ -1439,96 +1094,31 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return "";
     }
 
-    #coalesceUnionTypes(union: Union): CSharpType {
-      const [result, _] = this.#coalesceTypes([...union.variants.values()].flatMap((v) => v.type));
-      return result;
-    }
+    async writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
+      sourceFiles.push(...getSerializationSourceFiles(this.emitter).flatMap((l) => l.source));
+      sourceFiles.push(
+        ...getProjectDocs(this.emitter, this.#useSwagger, this.#mockRegistrations).flatMap(
+          (l) => l.source,
+        ),
+      );
 
-    #getNonNullableTsType(union: Union): { type: Type; nullable: boolean } | undefined {
-      const types = [...union.variants.values()];
-      const nulls = types.flatMap((v) => v.type).filter((t) => isNullType(t));
-      const nonNulls = types.flatMap((v) => v.type).filter((t) => !isNullType(t));
-      if (nonNulls.length === 1) return { type: nonNulls[0], nullable: nulls.length > 0 };
-      return undefined;
-    }
-
-    #coalesceTypes(types: Type[]): [CSharpType, boolean] {
-      const defaultValue: [CSharpType, boolean] = [
-        new CSharpType({
-          name: "object",
-          namespace: "System",
-          isValueType: false,
-        }),
-        true,
-      ];
-      let current: CSharpType | undefined = undefined;
-      let nullable: boolean = false;
-      for (const type of types) {
-        let candidate: CSharpType | undefined = undefined;
-        switch (type.kind) {
-          case "Boolean":
-            candidate = new CSharpType({ name: "bool", namespace: "System", isValueType: true });
-            break;
-          case "StringTemplate":
-          case "String":
-            candidate = new CSharpType({ name: "string", namespace: "System", isValueType: false });
-            break;
-          case "Number":
-            const stringValue = type.valueAsString;
-            if (stringValue.includes(".") || stringValue.includes("e")) {
-              candidate = new CSharpType({
-                name: "double",
-                namespace: "System",
-                isValueType: true,
-              });
-            } else {
-              candidate = new CSharpType({ name: "int", namespace: "System", isValueType: true });
-            }
-            break;
-          case "Union":
-            candidate = this.#coalesceUnionTypes(type);
-            break;
-          case "Scalar":
-            candidate = getCSharpTypeForScalar(this.emitter.getProgram(), type);
-            break;
-          case "Intrinsic":
-            if (isNullType(type)) {
-              nullable = true;
-              candidate = current;
-            } else {
-              return defaultValue;
-            }
-            break;
-          default:
-            return defaultValue;
-        }
-
-        current = current ?? candidate;
-        if (current === undefined || (candidate !== undefined && !candidate.equals(current)))
-          return defaultValue;
-      }
-
-      if (current !== undefined && nullable) current.isNullable = true;
-      return current === undefined ? defaultValue : [current, false];
-    }
-
-    writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
-      for (const source of this.#libraryFiles) {
-        sourceFiles.push(source.source);
-      }
-
-      if (this.#emitMocks === "all") {
-        for (const helper of this.#mockHelpers) {
-          sourceFiles.push(helper.source);
-        }
-
+      if (this.#emitMocks === "mocks-and-project-files" || this.#emitMocks === "mocks-only") {
         if (this.#mockRegistrations.size > 0) {
-          const mocks = getBusinessLogicImplementations(this.emitter, this.#mockRegistrations);
-          this.#mockFiles.push(...mocks);
+          const mocks = getBusinessLogicImplementations(
+            this.emitter,
+            this.#mockRegistrations,
+            this.#useSwagger,
+            this.#openapiPath,
+          );
+
           sourceFiles.push(...mocks.flatMap((l) => l.source));
         }
       }
-
+      async function shouldWrite(source: SourceFile<string>, exists: FileExists): Promise<boolean> {
+        return (
+          !source.meta.conditional || options.overwrite === true || !(await exists(source.path))
+        );
+      }
       const emittedSourceFiles: SourceFile<string>[] = [];
       for (const source of sourceFiles) {
         switch (this.#emitterOutputType) {
@@ -1539,13 +1129,17 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                   // do nothing
                   break;
                 default:
-                  emittedSourceFiles.push(source);
+                  if (await shouldWrite(source, this.#fileExists)) {
+                    emittedSourceFiles.push(source);
+                  }
                   break;
               }
             }
             break;
           default:
-            emittedSourceFiles.push(source);
+            if (await shouldWrite(source, this.#fileExists)) {
+              emittedSourceFiles.push(source);
+            }
             break;
         }
       }
@@ -1572,34 +1166,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
   }
 
-  function isEmptyResponseModel(program: Program, model: Type): boolean {
-    if (model.kind !== "Model") return false;
-    return model.properties.size === 1 && isStatusCode(program, [...model.properties.values()][0]);
-  }
-
-  function isContentTypeHeader(program: Program, parameter: ModelProperty): boolean {
-    return (
-      isHeader(program, parameter) &&
-      (parameter.name === "contentType" ||
-        getHeaderFieldName(program, parameter) === "Content-type")
-    );
-  }
-
-  function isValidParameter(program: Program, parameter: ModelProperty): boolean {
-    return (
-      !isContentTypeHeader(program, parameter) &&
-      (parameter.type.kind !== "Intrinsic" || parameter.type.name !== "never")
-    );
-  }
-
-  /** Determine whether the given parameter is http metadata */
-  function isHttpMetadata(program: Program, property: ModelProperty) {
-    return (
-      isPathParam(program, property) ||
-      isHeader(program, property) ||
-      isQueryParam(program, property)
-    );
-  }
   function processNameSpace(program: Program, target: Namespace, service?: Service | undefined) {
     if (!service) service = getService(program, target);
     if (service) {
@@ -1668,12 +1234,81 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     CSharpCodeEmitter,
     context,
   );
-  const ns = context.program.checker.getGlobalNamespaceType();
+  const ns = context.program.getGlobalNamespaceType();
   const options = emitter.getOptions();
+
   processNameSpace(context.program, ns);
   if (!doNotEmit) {
     await ensureCleanDirectory(context.program, options.emitterOutputDir);
+
+    function normalizeSlashes(path: string) {
+      return path.replaceAll("\\", "/");
+    }
+
+    async function getOpenApiPath(): Promise<string> {
+      if (options["openapi-path"]) return options["openapi-path"];
+      const openApiSettings = await getOpenApiConfig(context.program);
+      const projectDir = resolvePath(context.program.projectRoot, options.emitterOutputDir, "..");
+      if (openApiSettings.outputDir) {
+        const openApiPath = resolvePath(
+          openApiSettings.outputDir,
+          openApiSettings.fileName || "openapi.yaml",
+        );
+        return normalizeSlashes(path.relative(projectDir, openApiPath));
+      }
+      if (openApiSettings.emitted) {
+        const baseDir =
+          context.program.compilerOptions.outputDir ||
+          resolvePath(context.program.projectRoot, "tsp-output");
+        const openApiPath = resolvePath(
+          baseDir,
+          "@typespec",
+          "openapi3",
+          openApiSettings.fileName || "openapi.yaml",
+        );
+        return normalizeSlashes(path.relative(projectDir, openApiPath));
+      }
+      return "";
+    }
+    const openApiPath = await getOpenApiPath();
+    const UseSwaggerUI = openApiPath !== "" && options["use-swaggerui"] === true;
+    let httpPort: number | undefined;
+    let httpsPort: number | undefined;
+
+    if (options["emit-mocks"] !== "none") {
+      getScaffoldingHelpers(emitter, UseSwaggerUI, openApiPath, true);
+    }
+    if (options["emit-mocks"] === "mocks-and-project-files") {
+      httpPort = options["http-port"] || (await getFreePort(5000, 5999));
+      httpsPort = options["https-port"] || (await getFreePort(7000, 7999));
+
+      getProjectHelpers(
+        emitter,
+        options["project-name"] || "ServiceProject",
+        options["use-swaggerui"] || false,
+        httpPort,
+        httpsPort,
+      );
+    }
+
     await emitter.writeOutput();
+    const projectDir = normalizeSlashes(
+      path.relative(process.cwd(), resolvePath(options.emitterOutputDir, "..")),
+    );
+    const traceId = "http-server-csharp";
+
+    context.program.trace(traceId, `Your project was successfully created at "${projectDir}"`);
+    context.program.trace(
+      traceId,
+      `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
+    );
+    if (options["use-swaggerui"] === true && httpsPort) {
+      context.program.trace(
+        traceId,
+        `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
+      );
+    }
+
     if (options["skip-format"] === undefined || options["skip-format"] === false) {
       await execFile("dotnet", [
         "format",

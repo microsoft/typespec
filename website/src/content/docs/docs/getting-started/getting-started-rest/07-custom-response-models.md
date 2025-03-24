@@ -88,7 +88,7 @@ In this example:
 - `PetSuccessResponse` extends `OkResponse` and includes a body with a success message.
 - `PetNoContentResponse` extends `NoContentResponse` for situations where the request succeeded but there is no content to return.
 
-**Note**: Base response models like `OkResponse`, `CreatedResponse`, `BadRequestResponse`, `NotFoundResponse`, and `UnauthorizedResponse` are imported from the TypeSpec [HTTP data types library](../../libraries/http/reference/data-types), which we're importing in our project as `@typespec/http`.
+**Note**: Base response models like `OkResponse`, `CreatedResponse`, `BadRequestResponse`, `NotFoundResponse`, and `UnauthorizedResponse` are imported from the TypeSpec [HTTP data types library](../../../libraries/http/reference/data-types/), which we're importing in our project as `@typespec/http`.
 
 ## Using Custom Response Models in Operations
 
@@ -100,12 +100,10 @@ Now that we have defined our custom response models, let's use them in our API o
 import "@typespec/http";
 import "@typespec/versioning";
 
-using TypeSpec.Http;
-using TypeSpec.Versioning;
+using Http;
+using Versioning;
 
-@service({
-  title: "Pet Store",
-})
+@service(#{ title: "Pet Store" })
 @server("https://example.com", "Single server endpoint")
 @versioned(Versions)
 namespace PetStore;

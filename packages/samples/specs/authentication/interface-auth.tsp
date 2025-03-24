@@ -1,10 +1,8 @@
 import "@typespec/rest";
 
-using TypeSpec.Http;
+using Http;
 
-@service({
-  title: "Authenticated service with interface override",
-})
+@service(#{ title: "Authenticated service with interface override" })
 @useAuth(BearerAuth)
 namespace TypeSpec.InterfaceAuth;
 

@@ -4,7 +4,7 @@ import "@typespec/spector";
 
 using Http;
 using Spector;
-using TypeSpec.Versioning;
+using Versioning;
 
 @doc("Illustrates OASIS repeatability headers")
 @scenarioService("/special-headers/repeatability")
@@ -15,7 +15,7 @@ model RepeatableResponse {
   @statusCode
   statusCode: 204;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @header("Repeatability-Result")
   @doc("Indicates whether the repeatable request was accepted or rejected.")
   repeatabilityResult?: "accepted" | "rejected";

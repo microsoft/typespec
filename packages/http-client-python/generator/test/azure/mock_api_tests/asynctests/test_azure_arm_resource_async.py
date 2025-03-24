@@ -14,7 +14,10 @@ RESOURCE_GROUP_NAME = "test-rg"
 @pytest.fixture
 async def client(credential, authentication_policy):
     async with ResourcesClient(
-        credential, SUBSCRIPTION_ID, "http://localhost:3000", authentication_policy=authentication_policy
+        credential,
+        SUBSCRIPTION_ID,
+        "http://localhost:3000",
+        authentication_policy=authentication_policy,
     ) as client:
         yield client
 
@@ -23,7 +26,10 @@ async def client(credential, authentication_policy):
 async def test_client_signature(credential, authentication_policy):
     # make sure signautre order is correct
     client1 = ResourcesClient(
-        credential, SUBSCRIPTION_ID, "http://localhost:3000", authentication_policy=authentication_policy
+        credential,
+        SUBSCRIPTION_ID,
+        "http://localhost:3000",
+        authentication_policy=authentication_policy,
     )
     # make sure signautre name is correct
     client2 = ResourcesClient(
@@ -36,7 +42,10 @@ async def test_client_signature(credential, authentication_policy):
         # make sure signautre order is correct
         await client.top_level.get(RESOURCE_GROUP_NAME, "top")
         # make sure signautre name is correct
-        await client.top_level.get(resource_group_name=RESOURCE_GROUP_NAME, top_level_tracked_resource_name="top")
+        await client.top_level.get(
+            resource_group_name=RESOURCE_GROUP_NAME,
+            top_level_tracked_resource_name="top",
+        )
 
 
 @pytest.mark.asyncio
@@ -279,4 +288,191 @@ async def test_singleton_list_by_resource_group(client):
         assert result.properties.provisioning_state == "Succeeded"
         assert result.name == "default"
         assert result.type == "Azure.ResourceManager.Resources/singletonTrackedResources"
+        assert result.system_data.created_by == "AzureSDK"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "",
+        "/subscriptions/00000000-0000-0000-0000-000000000000",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
+    ],
+)
+async def test_extensions_resources_begin_create_or_update(client, scope):
+    result = await (
+        await client.extensions_resources.begin_create_or_update(
+            resource_uri=scope,
+            extensions_resource_name="extension",
+            resource=models.ExtensionsResource(properties=models.ExtensionsResourceProperties(description="valid")),
+        )
+    ).result()
+    assert result.id == f"{scope}/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
+    assert result.name == "extension"
+    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
+    assert result.properties.description == "valid"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.system_data.created_by == "AzureSDK"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "",
+        "/subscriptions/00000000-0000-0000-0000-000000000000",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
+    ],
+)
+async def test_extensions_resources_update(client, scope):
+    result = await client.extensions_resources.update(
+        resource_uri=scope,
+        extensions_resource_name="extension",
+        properties=models.ExtensionsResource(properties=models.ExtensionsResourceProperties(description="valid2")),
+    )
+    assert result.id == f"{scope}/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
+    assert result.name == "extension"
+    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
+    assert result.properties.description == "valid2"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.system_data.created_by == "AzureSDK"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "",
+        "/subscriptions/00000000-0000-0000-0000-000000000000",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
+    ],
+)
+async def test_extensions_resources_get(client, scope):
+    result = await client.extensions_resources.get(resource_uri=scope, extensions_resource_name="extension")
+    assert result.id == f"{scope}/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
+    assert result.name == "extension"
+    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
+    assert result.properties.description == "valid"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.system_data.created_by == "AzureSDK"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "",
+        "/subscriptions/00000000-0000-0000-0000-000000000000",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
+    ],
+)
+async def test_extensions_resources_list_by_scope(client, scope):
+    response = client.extensions_resources.list_by_scope(
+        resource_uri=scope,
+    )
+    result = [r async for r in response]
+    for result in result:
+        assert result.id == f"{scope}/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
+        assert result.name == "extension"
+        assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
+        assert result.properties.description == "valid"
+        assert result.properties.provisioning_state == "Succeeded"
+        assert result.system_data.created_by == "AzureSDK"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "",
+        "/subscriptions/00000000-0000-0000-0000-000000000000",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
+    ],
+)
+async def test_extensions_resources_delete(client, scope):
+    await client.extensions_resources.delete(resource_uri=scope, extensions_resource_name="extension")
+
+
+@pytest.mark.asyncio
+async def test_location_resources_create_or_update(client):
+    result = await client.location_resources.create_or_update(
+        location="eastus",
+        location_resource_name="resource",
+        resource=models.LocationResource(properties=models.LocationResourceProperties(description="valid")),
+    )
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Azure.ResourceManager.Resources/locations/eastus/locationResources/resource"
+    )
+    assert result.name == "resource"
+    assert result.type == "Azure.ResourceManager.Resources/locationResources"
+    assert result.properties.description == "valid"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.system_data.created_by == "AzureSDK"
+
+
+@pytest.mark.asyncio
+async def test_location_resources_update(client):
+    result = await client.location_resources.update(
+        location="eastus",
+        location_resource_name="resource",
+        properties=models.LocationResource(properties=models.LocationResourceProperties(description="valid2")),
+    )
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Azure.ResourceManager.Resources/locations/eastus/locationResources/resource"
+    )
+    assert result.name == "resource"
+    assert result.type == "Azure.ResourceManager.Resources/locationResources"
+    assert result.properties.description == "valid2"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.system_data.created_by == "AzureSDK"
+
+
+@pytest.mark.asyncio
+async def test_location_resources_get(client):
+    result = await client.location_resources.get(
+        location="eastus",
+        location_resource_name="resource",
+    )
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Azure.ResourceManager.Resources/locations/eastus/locationResources/resource"
+    )
+    assert result.name == "resource"
+    assert result.type == "Azure.ResourceManager.Resources/locationResources"
+    assert result.properties.description == "valid"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.system_data.created_by == "AzureSDK"
+
+
+@pytest.mark.asyncio
+async def test_location_resources_delete(client):
+    await client.location_resources.delete(
+        location="eastus",
+        location_resource_name="resource",
+    )
+
+
+@pytest.mark.asyncio
+async def test_location_resources_list_by_location(client):
+    response = client.location_resources.list_by_location(
+        location="eastus",
+    )
+    result = [r async for r in response]
+    for result in result:
+        assert (
+            result.id
+            == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Azure.ResourceManager.Resources/locations/eastus/locationResources/resource"
+        )
+        assert result.name == "resource"
+        assert result.type == "Azure.ResourceManager.Resources/locationResources"
+        assert result.properties.description == "valid"
+        assert result.properties.provisioning_state == "Succeeded"
         assert result.system_data.created_by == "AzureSDK"

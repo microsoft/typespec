@@ -25,12 +25,13 @@ function Get-TspCommand {
         [string]$specFile,
         [string]$generationDir,
         [bool]$generateStub = $false,
-        [string]$namespaceOverride = $null,
+        [string]$libraryNameOverride = $null,
         [string]$apiVersion = $null
     )
+    $emitterDir = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
     $command = "npx tsp compile $specFile"
     $command += " --trace @typespec/http-client-csharp"
-    $command += " --emit @typespec/http-client-csharp"
+    $command += " --emit $emitterDir"
     $configFile = Join-Path $generationDir "tspconfig.yaml"
     if (Test-Path $configFile) {
         $command += " --config=$configFile"
@@ -38,16 +39,19 @@ function Get-TspCommand {
     $command += " --option @typespec/http-client-csharp.emitter-output-dir=$generationDir"
     $command += " --option @typespec/http-client-csharp.save-inputs=true"
     if ($generateStub) {
-        $command += " --option @typespec/http-client-csharp.plugin-name=StubLibraryPlugin"
+        $command += " --option @typespec/http-client-csharp.generator-name=StubLibraryGenerator"
     }
 
-    if ($namespaceOverride) {
-        $command += " --option @typespec/http-client-csharp.namespace=$namespaceOverride"
+    if ($libraryNameOverride) {
+        $command += " --option @typespec/http-client-csharp.package-name=$libraryNameOverride"
     }
     
     if ($apiVersion) {
         $command += " --option @typespec/http-client-csharp.api-version=$apiVersion"
     }
+    
+    # Always regenerate the csproj to reflect updates to NewProjectScaffolding 
+    $command += " --option @typespec/http-client-csharp.new-project=true"
 
     return $command
 }
@@ -61,8 +65,8 @@ function Refresh-Build {
     }
 
     # we don't want to build the entire solution because the test projects might not build until after regeneration
-    # generating Microsoft.Generator.CSharp.ClientModel.csproj is enough
-    Invoke "dotnet build $repoRoot/../generator/Microsoft.Generator.CSharp.ClientModel.StubLibrary/src"
+    # generating Microsoft.TypeSpec.Generator.ClientModel.csproj is enough
+    Invoke "dotnet build $repoRoot/../generator/Microsoft.TypeSpec.Generator.ClientModel.StubLibrary/src"
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
@@ -104,14 +108,14 @@ function Generate-Srv-Driven {
     ## get the last two directories of the output directory and add V1/V2 to disambiguate the namespaces
     $namespaceRoot = $(($outputDir.Split([System.IO.Path]::DirectorySeparatorChar)[-2..-1] | `
         ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1) }) -replace '-(\p{L})', { $_.Groups[1].Value.ToUpper() } -replace '\W', '' -join ".")
-    $v1NamespaceOverride = $namespaceRoot + ".V1" 
-    $v2NamespaceOverride = $namespaceRoot + ".V2"
+    $v1LibraryNameOverride = $namespaceRoot + ".V1" 
+    $v2LibraryNameOverride = $namespaceRoot + ".V2"
 
     $v1SpecFilePath = $(Join-Path $specFilePath "old.tsp")
     $v2SpecFilePath = $(Join-Path $specFilePath "main.tsp")
 
-    Invoke (Get-TspCommand $v1SpecFilePath $v1Dir -generateStub $generateStub -namespaceOverride $v1NamespaceOverride)
-    Invoke (Get-TspCommand $v2SpecFilePath $v2Dir -generateStub $generateStub -namespaceOverride $v2NamespaceOverride)
+    Invoke (Get-TspCommand $v1SpecFilePath $v1Dir -generateStub $generateStub -libraryNameOverride $v1LibraryNameOverride)
+    Invoke (Get-TspCommand $v2SpecFilePath $v2Dir -generateStub $generateStub -libraryNameOverride $v2LibraryNameOverride)
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
@@ -140,19 +144,19 @@ function Generate-Versioning {
     ## get the last two directories of the output directory and add V1/V2 to disambiguate the namespaces
     $namespaceRoot = $(($outputFolders[-2..-1] | `
                            ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1) }) -join ".")
-    $v1NamespaceOverride = $namespaceRoot + ".V1" 
-    $v2NamespaceOverride = $namespaceRoot + ".V2"
-      
-    Invoke (Get-TspCommand $specFilePath $v1Dir -generateStub $generateStub -apiVersion "v1" -namespaceOverride $v1NamespaceOverride)
-    Invoke (Get-TspCommand $specFilePath $v2Dir -generateStub $generateStub -apiVersion "v2" -namespaceOverride $v2NamespaceOverride)
+    $v1LibraryNameOverride = $namespaceRoot + ".V1" 
+    $v2LibraryNameOverride = $namespaceRoot + ".V2"
+
+    Invoke (Get-TspCommand $specFilePath $v1Dir -generateStub $generateStub -apiVersion "v1" -libraryNameOverride $v1LibraryNameOverride)
+    Invoke (Get-TspCommand $specFilePath $v2Dir -generateStub $generateStub -apiVersion "v2" -libraryNameOverride $v2LibraryNameOverride)
     
     if ($outputFolders.Contains("removed")) {
         $v2PreviewDir = $(Join-Path $outputDir "v2Preview")
         if ($createOutputDirIfNotExist -and -not (Test-Path $v2PreviewDir)) {
             New-Item -ItemType Directory -Path $v2PreviewDir | Out-Null
         }
-        $v2PreviewNamespaceOverride = $namespaceRoot + ".V2Preview"
-        Invoke (Get-TspCommand $specFilePath $v2PreviewDir -generateStub $generateStub -apiVersion "v2preview" -namespaceOverride $v2PreviewNamespaceOverride)
+        $v2PreviewLibraryNameOverride = $namespaceRoot + ".V2Preview"
+        Invoke (Get-TspCommand $specFilePath $v2PreviewDir -generateStub $generateStub -apiVersion "v2preview" -libraryNameOverride $v2PreviewLibraryNameOverride)
     }
 
     # exit if the generation failed

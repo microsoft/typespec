@@ -132,7 +132,7 @@ worksFor(["3.1.0"], ({ oapiForModel, openApiFor }) => {
     it("keep nullable Record<T> inline", async () => {
       await expectInCircularReference("Record<Test>", {
         anyOf: [
-          { type: "object", additionalProperties: { $ref: "#/components/schemas/Test" } },
+          { type: "object", unevaluatedProperties: { $ref: "#/components/schemas/Test" } },
           { type: "null" },
         ],
       });

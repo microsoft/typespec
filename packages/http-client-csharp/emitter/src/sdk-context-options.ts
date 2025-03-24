@@ -7,6 +7,11 @@ export let defaultSDKContextOptions: CreateSdkContextOptions = {
   additionalDecorators: [],
 };
 
+/**
+ * Sets the SDK context options to be used by the CSharp emitter.
+ * @param options - The SDK context options.
+ * @beta
+ */
 export function setSDKContextOptions(options: CreateSdkContextOptions) {
   defaultSDKContextOptions = {
     versioning: options.versioning ?? defaultSDKContextOptions.versioning,

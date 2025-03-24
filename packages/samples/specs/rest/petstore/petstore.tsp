@@ -1,14 +1,12 @@
 import "@typespec/rest";
 import "@typespec/openapi";
 
-@service({
-  title: "Pet Store Service",
-})
+@service(#{ title: "Pet Store Service" })
 namespace PetStore;
 
-using TypeSpec.Http;
-using TypeSpec.Rest;
-using TypeSpec.Rest.Resource;
+using Http;
+using Rest;
+using Rest.Resource;
 
 @error
 model PetStoreError {

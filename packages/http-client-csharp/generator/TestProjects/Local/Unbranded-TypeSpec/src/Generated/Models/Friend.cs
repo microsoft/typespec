@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec.Models.Custom
 {
     /// <summary> this is not a friendly model but with a friendly name. </summary>
     public partial class Friend

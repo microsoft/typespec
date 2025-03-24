@@ -1,5 +1,35 @@
 # Change Log - @typespec/bundler
 
+## 0.3.0
+
+### Breaking Changes
+
+- [#5977](https://github.com/microsoft/typespec/pull/5977) Minimum node version is now 20
+
+### Bump dependencies
+
+- [#6266](https://github.com/microsoft/typespec/pull/6266) Update dependencies
+
+### Bug Fixes
+
+- [#6302](https://github.com/microsoft/typespec/pull/6302) Bundler respect `import` exports
+
+
+## 0.2.1
+
+No changes, version bump only.
+
+## 0.2.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5831](https://github.com/microsoft/typespec/pull/5831) Bundler now includes some node polyfills in library rollup builds
+
+
 ## 0.1.11
 
 No changes, version bump only.

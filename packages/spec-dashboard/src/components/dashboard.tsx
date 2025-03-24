@@ -1,4 +1,4 @@
-import { Card, CardHeader, Text, tokens } from "@fluentui/react-components";
+import { Card, CardHeader, Text } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { CoverageSummary } from "../apis.js";
 import { DashboardTable } from "./dashboard-table.js";
@@ -23,16 +23,6 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({ coverageSummaries
 
   return (
     <div>
-      <div
-        css={{
-          display: "flex",
-          gap: 50,
-          backgroundColor: tokens.colorBrandBackground,
-          color: tokens.colorNeutralForegroundInverted,
-        }}
-      >
-        <h1 style={{ fontSize: 20, padding: "0 5px" }}>Spector Coverage Dashboard</h1>
-      </div>
       <div css={{ display: "flex" }}>{specsCardTable}</div>
       <div css={{ height: 30 }}></div>
       {summaryTables}

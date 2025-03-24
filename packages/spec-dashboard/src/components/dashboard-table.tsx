@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { Popover, PopoverSurface, PopoverTrigger } from "@fluentui/react-components";
+import { Popover, PopoverSurface, PopoverTrigger, tokens } from "@fluentui/react-components";
 import { CodeBlock16Filled, Print16Filled } from "@fluentui/react-icons";
 import { ScenarioData, ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent, useCallback, useMemo, useState } from "react";
@@ -179,7 +179,7 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ covera
 const TableStyles = css({
   borderCollapse: "collapse",
   "& tr:nth-of-type(2n)": {
-    backgroundColor: Colors.bgSubtle,
+    backgroundColor: tokens.colorNeutralBackground3,
   },
   "& td, & th": {
     border: `1px solid ${Colors.borderDefault}`,
@@ -187,7 +187,7 @@ const TableStyles = css({
   },
   "& th": {
     padding: "6px 13px",
-    backgroundColor: Colors.bgSubtle,
+    backgroundColor: tokens.colorNeutralBackground1,
   },
 });
 

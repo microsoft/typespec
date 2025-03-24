@@ -12,6 +12,7 @@ import com.azure.core.credential.TokenCredential;
 import com.azure.core.util.logging.LogLevel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -143,15 +144,17 @@ public class ClientBuilderTrait {
         httpClientBuilderTraitMethods.add(httpClientMethod);
 
         // httpLogOptions
+        String httpLogTraitMethodAndParameterName = CodeNamer.toCamelCase(ClassType.HTTP_LOG_OPTIONS.getName());
         ServiceClientProperty httpLogOptionsProperty
             = new ServiceClientProperty("The logging configuration for HTTP " + "requests and responses.",
-                ClassType.HTTP_LOG_OPTIONS, "httpLogOptions", false, null);
+                ClassType.HTTP_LOG_OPTIONS, httpLogTraitMethodAndParameterName, false, null);
         Consumer<JavaBlock> httpLogOptionsMethodImpl = function -> {
-            function.line(String.format("this.%1$s = %2$s;", "httpLogOptions", "httpLogOptions"));
+            function.line(String.format("this.%1$s = %1$s;", httpLogTraitMethodAndParameterName));
             function.methodReturn("this");
         };
-        ClientBuilderTraitMethod httpLogOptionsMethod = createTraitMethod("httpLogOptions", "httpLogOptions",
-            ClassType.HTTP_LOG_OPTIONS, httpLogOptionsProperty, "{@inheritDoc}", httpLogOptionsMethodImpl);
+        ClientBuilderTraitMethod httpLogOptionsMethod
+            = createTraitMethod(httpLogTraitMethodAndParameterName, httpLogTraitMethodAndParameterName,
+                ClassType.HTTP_LOG_OPTIONS, httpLogOptionsProperty, "{@inheritDoc}", httpLogOptionsMethodImpl);
         importPackages.add(ClassType.HTTP_LOG_OPTIONS.getFullName());
 
         httpClientBuilderTraitMethods.add(httpLogOptionsMethod);

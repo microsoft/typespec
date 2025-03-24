@@ -43,8 +43,8 @@ tsp-spector server start ./path/to/scenarios # Takes the same arguments as serve
 ### Stop running server
 
 ```bash
-tsp-spector server stop # Stop at the default port
-tsp-spector server stop --port  1234 # If started the server at another port
+tsp-spector server stop             # Stop at the default port
+tsp-spector server stop --port 1234 # If started the server at another port
 ```
 
 ### Validate and merge coverage
@@ -72,13 +72,13 @@ Upload the coverage. Upload from the `main` branch. DO NOT upload on PR this WIL
 tsp-spector upload-coverage --generatorName typescript --version=0.1.0
 
 # Specify Coverage file
-tsp-spector upload-coverage --generatorName typescript --version=0.1.0  --coverageFile ./path/to/spector-final-coverage.json
+tsp-spector upload-coverage --generatorName typescript --version=0.1.0 --coverageFile ./path/to/spector-final-coverage.json
 ```
 
 Options:
 
 - `--storageAccountName`: Name of the storage account to publish coverage. Use `typespec` for Spector/Azure Spector dashboard.
-- `--generatorName`: Name of the generator. Must be one of `"@typespec/http-client-python", "@typespec/http-client-csharp", "@azure-tools/typespec-ts-rlc", "@azure-tools/typespec-ts-modular", "@typespec/http-client-java"`.
+- `--generatorName`: Name of the generator. Must be one of `"@typespec/http-client-python", "@typespec/http-client-csharp", "@azure-tools/typespec-ts-rlc", "@azure-tools/typespec-ts-modular", "@typespec/http-client-js", "@typespec/http-client-java"`.
 - `--generatorVersion`: Version of the generator
 - `--coverageFile`: Path to the coverage file
 
@@ -90,7 +90,7 @@ Add the following step
 
 ```yaml
 - task: AzureCLI@2
-  displayName: Upload scenario manifest
+  displayName: Upload scenario coverage
   inputs:
     azureSubscription: "Typespec Storage"
     scriptType: "bash"

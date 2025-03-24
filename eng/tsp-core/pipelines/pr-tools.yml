@@ -96,13 +96,13 @@ extends:
                   GH_TOKEN: $(azuresdk-github-pat)
                   VSCODE_DOWNLOAD_URL: $(vscodeUrl)
 
-          - job: change_comment
-            displayName: Describe changes on PR
-            condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), false))
-            steps:
-              - checkout: self
+          # - job: change_comment
+          #   displayName: Describe changes on PR
+          #   condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), false))
+          #   steps:
+          #     - checkout: self
 
-              - script: npx -p @chronus/github-pr-commenter@0.5.0 chronus-github-pr-commenter
-                displayName: Make comment about changes
-                env:
-                  GITHUB_TOKEN: $(azuresdk-github-pat)
+          #     - script: npx -p @chronus/github-pr-commenter@0.5.0 chronus-github-pr-commenter
+          #       displayName: Make comment about changes
+          #       env:
+          #         GITHUB_TOKEN: $(azuresdk-github-pat)

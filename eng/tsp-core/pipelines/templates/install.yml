@@ -2,7 +2,12 @@
 parameters:
   - name: nodeVersion
     type: string
-    default: 20.x
+    default: 22.x
+
+  - name: useDotNet
+    type: string
+    default: false
+
   - name: pnpmStorePath
     type: string
     default: $(Pipeline.Workspace)/.pnpm-store
@@ -13,11 +18,11 @@ steps:
     retryCountOnTaskFailure: 3
     inputs:
       versionSpec: ${{ parameters.nodeVersion }}
-
-  - task: UseDotNet@2
-    displayName: Install .NET
-    inputs:
-      version: 8.0.x
+  - ${{ if parameters.useDotNet }}:
+      - task: UseDotNet@2
+        displayName: Install .NET
+        inputs:
+          version: 8.0.x
 
   - task: Cache@2
     inputs:
@@ -25,27 +30,17 @@ steps:
       path: ${{ parameters.pnpmStorePath }}
     displayName: Cache pnpm store
 
-  - script: |
-      corepack enable
-      corepack prepare pnpm --activate
+  - script: npm install -g pnpm # Pnpm manage-package-manager-versions will respect packageManager field
     displayName: Install pnpm
   - script: pnpm config set store-dir ${{ parameters.pnpmStorePath }}
     displayName: Setup pnpm cache dir
-
-  - script: |
-      echo "Node:"
-      node -v
-      echo "Pnpm:"
-      pnpm -v
-      echo "Dotnet:"
-      dotnet --version
-    displayName: "Log tool versions used"
 
   # purge before install to ensure a clean state between retries
   - script: pnpm install
     displayName: Install JavaScript Dependencies
     retryCountOnTaskFailure: 3
 
-  - script: dotnet restore
-    displayName: Restore .NET Dependencies
-    workingDirectory: packages/typespec-vs
+  - ${{ if parameters.useDotNet }}:
+      - script: dotnet restore
+        displayName: Restore .NET Dependencies
+        workingDirectory: packages/typespec-vs

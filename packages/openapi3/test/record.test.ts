@@ -2,7 +2,7 @@ import { deepStrictEqual, ok } from "assert";
 import { it } from "vitest";
 import { worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
+worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, objectSchemaIndexer }) => {
   it("defines record inline", async () => {
     const res = await oapiForModel(
       "Pet",
@@ -15,7 +15,7 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
     ok(res.schemas.Pet, "expected definition named Pet");
     deepStrictEqual(res.schemas.Pet.properties.foodScores, {
       type: "object",
-      additionalProperties: { type: "integer", format: "int32" },
+      [objectSchemaIndexer]: { type: "integer", format: "int32" },
     });
   });
 
@@ -33,11 +33,11 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
     ok(res.schemas.Pet, "expected definition named Pet");
     deepStrictEqual(res.schemas.FoodScores, {
       type: "object",
-      additionalProperties: { type: "integer", format: "int32" },
+      [objectSchemaIndexer]: { type: "integer", format: "int32" },
     });
   });
 
-  it("specify additionalProperties when `...Record<T>`", async () => {
+  it(`specify ${objectSchemaIndexer} when "...Record<T>"`, async () => {
     const res = await oapiForModel(
       "Person",
       `
@@ -48,12 +48,12 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
     deepStrictEqual(res.schemas.Person, {
       type: "object",
       properties: { age: { type: "integer", format: "int32" } },
-      additionalProperties: { type: "string" },
+      [objectSchemaIndexer]: { type: "string" },
       required: ["age"],
     });
   });
 
-  it("specify additionalProperties of anyOf when multiple `...Record<T>`", async () => {
+  it(`specify ${objectSchemaIndexer} of anyOf when multiple "...Record<T>"`, async () => {
     const res = await oapiForModel(
       "Person",
       `
@@ -64,7 +64,7 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
     deepStrictEqual(res.schemas.Person, {
       type: "object",
       properties: { age: { type: "integer", format: "int32" } },
-      additionalProperties: { anyOf: [{ type: "string" }, { type: "boolean" }] },
+      [objectSchemaIndexer]: { anyOf: [{ type: "string" }, { type: "boolean" }] },
       required: ["age"],
     });
   });
