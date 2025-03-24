@@ -194,7 +194,7 @@
       },
       {
         "command": "typespec.showOpenApi3",
-        "title": "Show OpenAPI3 Documentation",
+        "title": "Preview API documentation",
         "category": "TypeSpec"
       }
     ],
