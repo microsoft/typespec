@@ -26,7 +26,14 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   const options = sdkContext.emitContext.options;
   options["models-mode"] = sdkContext.emitContext.options["models-mode"] ?? "dpg";
   if (!options["package-name"]) {
-    options["package-name"] = getRootNamespace(sdkContext).replace(/\./g, "-");
+    const namespace = getRootNamespace(sdkContext);
+    const packageName = namespace.replace(/\./g, "-");
+    reportDiagnostic(sdkContext.program, {
+      code: "no-package-name",
+      target: NoTarget,
+      format: { namespace, packageName },
+    });
+    options["package-name"] = packageName;
   }
   if (options.flavor !== "azure") {
     // if they pass in a flavor other than azure, we want to ignore the value
@@ -37,9 +44,6 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   }
   if (!options.flavor && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
     options.flavor = "azure";
-  }
-  if (options["enable-typespec-namespace"] === undefined) {
-    options["enable-typespec-namespace"] = options.flavor !== "azure";
   }
 }
 

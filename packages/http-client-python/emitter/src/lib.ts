@@ -17,7 +17,6 @@ export interface PythonEmitterOptions extends SdkEmitterOptions {
   "company-name"?: string;
   "generate-test"?: boolean;
   flavor?: "azure";
-  "enable-typespec-namespace"?: boolean;
   "use-pyodide"?: boolean;
 }
 
@@ -93,12 +92,6 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       description:
         "Whether to generate test files, for basic testing of your generated sdks. Defaults to `false`.",
     },
-    "enable-typespec-namespace": {
-      type: "boolean",
-      nullable: true,
-      description:
-        "Whether the generated package namespace will respec the typespec namespace. Defaults to `true`, which is the suggested value. Use `false` to continue with legacy handling of namespace following `package-name`.",
-    },
     ...SdkEmitterOptionsSchema.properties,
   },
   required: [],
@@ -122,6 +115,12 @@ const libDef = {
       },
     },
     // warning
+    "no-package-name": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`No package-name configured in tspconfig.yaml and will infer package-name '${"packageName"}' from namespace '${"namespace"}'.`,
+      },
+    },
     "no-valid-client": {
       severity: "warning",
       messages: {
