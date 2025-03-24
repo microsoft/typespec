@@ -189,7 +189,7 @@
       },
       {
         "command": "typespec.importFromOpenApi3",
-        "title": "Import TypeSpec from OpenApi3",
+        "title": "Import TypeSpec from OpenAPI 3",
         "category": "TypeSpec"
       },
       {
