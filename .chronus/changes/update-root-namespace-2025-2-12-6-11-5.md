@@ -1,8 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: feature
+changeKind: fix
 packages:
-  - "@typespec/http-server-csharp"
+  - "@typespec/http-client-python"
 ---
 
-Scaffolding updates for rc
+Always respect namespace from TCGC

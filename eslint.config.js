@@ -1,8 +1,8 @@
 // @ts-check
 import eslint from "@eslint/js";
+import vitest from "@vitest/eslint-plugin";
 import reactHooks from "eslint-plugin-react-hooks";
 import unicorn from "eslint-plugin-unicorn";
-import vitest from "eslint-plugin-vitest";
 import tsEslint from "typescript-eslint";
 
 /** Config that will apply to all files */

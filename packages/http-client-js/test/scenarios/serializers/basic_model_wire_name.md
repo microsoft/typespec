@@ -12,7 +12,7 @@ op foo(): Foo;
 
 ## TypeScript
 
-Should generate a type for type with name `Foo` in the `src/models/models.ts` file along with a serializer named `jsonFooToTransportTransform` and a deserializer named `jsonFooToApplicationTransform` in `src/models/serializers.ts`.
+Should generate a type for type with name `Foo` in the `src/models/models.ts` file along with a serializer named `jsonFooToTransportTransform` and a deserializer named `jsonFooToApplicationTransform` in `src/models/internal/serializers.ts`.
 The generated model should have property names using camelCasing. Serializer should return these properties with the same name defined in the spec while the deserializer
 should return these properties with the same name as the generated model (camelCase)
 
@@ -23,7 +23,7 @@ export interface Foo {
 }
 ```
 
-```ts src/models/serializers.ts function jsonFooToTransportTransform
+```ts src/models/internal/serializers.ts function jsonFooToTransportTransform
 export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
@@ -35,7 +35,7 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
 }
 ```
 
-```ts src/models/serializers.ts function jsonFooToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonFooToApplicationTransform
 export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;

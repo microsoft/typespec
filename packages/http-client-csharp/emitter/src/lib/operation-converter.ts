@@ -41,6 +41,7 @@ import { ResponseLocation } from "../type/response-location.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
+import { getClientNamespaceString } from "./utils.js";
 
 export function fromSdkServiceMethod(
   sdkContext: CSharpEmitterContext,
@@ -67,7 +68,7 @@ export function fromSdkServiceMethod(
     resourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
         .name ??
-      getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
+      getOperationGroupName(sdkContext, method.operation, getClientNamespaceString(sdkContext)!),
     deprecated: getDeprecated(sdkContext.program, method.__raw!),
     summary: method.summary,
     doc: method.doc,
