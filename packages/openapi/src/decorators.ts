@@ -4,6 +4,7 @@ import {
   getDoc,
   getService,
   getSummary,
+  isType,
   Model,
   Namespace,
   Operation,
@@ -56,6 +57,15 @@ export const $extension: ExtensionDecorator = (
   extensionName: string,
   value: unknown,
 ) => {
+  if (value && isType(value as any)) {
+    reportDiagnostic(context.program, {
+      code: "invalid-extension-value",
+      format: {
+        kind: (value as Type).kind,
+      },
+      target: context.getArgumentTarget(1)!,
+    });
+  }
   setExtension(context.program, entity, extensionName as ExtensionKey, value);
 };
 
