@@ -106,9 +106,105 @@ model PlainData<Data> {
   ...Data;
 }
 
+/**
+ * A file in an HTTP request, response, or multipart payload.
+ *
+ * Files have a special meaning that the HTTP library understands. When the body of an HTTP request, response,
+ * or multipart payload is _effectively_ an instance of `TypeSpec.Http.File` or any type that extends it, the
+ * operation is treated as a file upload or download.
+ *
+ * When using file bodies, the fields of the file model are defined to come from particular locations by default:
+ *
+ * - `contentType`: The `Content-Type` header of the request, response, or multipart payload (CANNOT be overridden or changed).
+ * - `contents`: The body of the request, response, or multipart payload (CANNOT be overridden or changed).
+ * - `filename`: The `filename` parameter value of the `Content-Disposition` header of the response or multipart payload
+ *   (MAY be overridden or changed).
+ *
+ * A File may be used as a normal structured JSON object in a request or response, if the request specifies an explicit
+ * `Content-Type` header. In this case, the entire File model is serialized as if it were any other model. In a JSON payload,
+ * it will have a structure like:
+ *
+ * ```
+ * {
+ *   "contentType": <string?>,
+ *   "filename": <string?>,
+ *   "contents": <string, base64>
+ * }
+ * ```
+ *
+ * The `contentType` _within_ the file defines what media types the data inside the file can be, but if the specification
+ * defines a `Content-Type` for the payload as HTTP metadata, that `Content-Type` metadata defines _how the file is
+ * serialized_. See the examples below for more information.
+ *
+ * NOTE: The `filename` and `contentType` fields are optional. Furthermore, the default location of `filename`
+ * (`Content-Disposition: <disposition>; filename=<filename>`) is only valid in HTTP responses and multipart payloads. If
+ * you wish to send the `filename` in a request, you must use HTTP metadata decorators to describe the location of the
+ * `filename` field. You can combine the metadata decorators with `@visibility` to control when the `filename` location
+ * is overridden, as shown in the examples below.
+ *
+ * @template ContentType The allowed media (MIME) types of the file contents.
+ * @template Contents The type of the file contents. This can be `string` or `bytes` or any scalar that extends them.
+ *
+ * @example
+ * ```tsp
+ * // Download a file
+ * @get op download(): File;
+ *
+ * // Upload a file
+ * @post op upload(@bodyRoot file: File): void;
+ * ```
+ *
+ * @example
+ * ```tsp
+ * // Declare a custom type of text file
+ * model SpecFile extends File<"application/json" | "application/yaml", string> {
+ *   // Provide a header that contains the name of the file when created or updated
+ *   @header("x-filename")
+ *   @visibility(Lifecycle.Create, Lifecycle.Update)
+ *   filename: string;
+ * }
+ *
+ * @get op downloadSpec(@path name: string): SpecFile;
+ *
+ * @post op uploadSpec(@bodyRoot spec: SpecFile): void;
+ * ```
+ *
+ * @example
+ * ```tsp
+ * // Declare a custom type of binary file
+ * model ImageFile extends File {
+ *   contentType: "image/png" | "image/jpeg";
+ *   @header("x-filename")
+ *   @visibility(Lifecycle.Create, Lifecycle.Update)
+ *   filename: string;
+ * }
+ *
+ * @get op downloadImage(@path name: string): ImageFile;
+ *
+ * @post op uploadImage(@bodyRoot image: ImageFile): void;
+ * ```
+ *
+ * @example
+ * ```tsp
+ * // Use a File as a structured JSON object. The HTTP library will warn you that the File will be serialized as JSON,
+ * // so you should suppress the warning if it's really what you want instead of a binary file upload/download.
+ *
+ * // The response body is a JSON object like `{"contentType":<string?>,"filename":<string?>,"contents":<string>}`
+ * @get op downloadTextFileJson(): {
+ *   @header contentType: "application/json",
+ *   @body file: File<"text/plain", string>,
+ * };
+ *
+ * // The request body is a JSON object like `{"contentType":<string?>,"filename":<string?>,"contents":<base64>}`
+ * @post op uploadBinaryFileJson(
+ *   @header contentType: "application/json",
+ *   @body file: File<"image/png", bytes>,
+ * ): void;
+ *
+ */
 @Private.httpFile
-model File<Contents extends bytes | string = bytes> {
-  contentType?: string;
+model File<ContentType extends string = string, Contents extends bytes | string = bytes> {
+  contentType?: ContentType;
   filename?: string;
   contents: Contents;
 }
