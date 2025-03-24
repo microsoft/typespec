@@ -14,7 +14,7 @@ param(
 );
 
 # filter out 32 bit + ARM
-if ([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture -ne "X64") {
+if (-not ((Get-CimInstance Win32_ComputerSystem)).SystemType -match "x64-based") {
   Write-Output "Install Failed:"
   Write-Output "TypeSpec for Windows is currently only available for x86 64-bit Windows.`n"
   return 1
