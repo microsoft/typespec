@@ -864,6 +864,12 @@ importers:
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
+      '@typespec/http-specs':
+        specifier: workspace:^
+        version: link:../http-specs
+      '@typespec/internal-build-utils':
+        specifier: workspace:^
+        version: link:../internal-build-utils
       '@typespec/library-linter':
         specifier: workspace:^
         version: link:../library-linter
@@ -873,6 +879,9 @@ importers:
       '@typespec/rest':
         specifier: workspace:^
         version: link:../rest
+      '@typespec/spector':
+        specifier: workspace:^
+        version: link:../spector
       '@typespec/tspd':
         specifier: workspace:^
         version: link:../tspd
@@ -19020,7 +19029,7 @@ snapshots:
       '@yarnpkg/plugin-version': 4.0.5(@types/react@19.0.10)(@yarnpkg/cli@4.7.0(@types/react@19.0.10)(@yarnpkg/core@4.2.1(typanion@3.14.0)))(@yarnpkg/core@4.2.1(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.1(@yarnpkg/core@4.2.1(typanion@3.14.0))(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-workspace-tools': 4.1.3(@yarnpkg/cli@4.7.0(@types/react@19.0.10)(@yarnpkg/core@4.2.1(typanion@3.14.0)))(@yarnpkg/core@4.2.1(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.1(@yarnpkg/core@4.2.1(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/shell': 4.1.2(typanion@3.14.0)
-      ci-info: 4.1.0
+      ci-info: 4.2.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       semver: 7.7.1
       tslib: 2.8.1
@@ -19129,7 +19138,7 @@ snapshots:
       '@yarnpkg/fslib': 3.1.2
       '@yarnpkg/parsers': 3.0.3
       '@yarnpkg/plugin-git': 3.1.1(@yarnpkg/core@4.2.1(typanion@3.14.0))(typanion@3.14.0)
-      ci-info: 4.1.0
+      ci-info: 4.2.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       enquirer: 2.4.1
       lodash: 4.17.21

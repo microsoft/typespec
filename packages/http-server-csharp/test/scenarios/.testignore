@@ -1,3 +1,4 @@
+# Following scenarios are skipped. If any custom mock is needed, create matching folder structure and place the mock file there.
 routes/main.tsp
 special-words/main.tsp
 authentication/api-key/main.tsp

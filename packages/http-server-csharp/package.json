@@ -75,6 +75,7 @@
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
+    "@typespec/http-specs": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/openapi": "workspace:^",

@@ -80,20 +80,6 @@ async function compileSpec(file, options) {
     if (spinner) spinner.text = `Creating directory: ${outputDir}`;
     await mkdir(outputDir, { recursive: true });
 
-    // Compile the spec and generate openapi for swagger
-    // if (spinner) spinner.text = `Generating swagger: ${relativePath}`;
-    // await execa("npx", [
-    //   "tsp",
-    //   "compile",
-    //   fullPath,
-    //   "--emit",
-    //   resolve(import.meta.dirname, "../../../openapi3"),
-    //   "--config",
-    //   tspConfig,
-    //   "--output-dir",
-    //   join(outputDir, "generated"),
-    // ]);
-
     // Compile the spec and generate server code
     if (spinner) spinner.text = `Generating csharp server code: ${relativePath}`;
     await execa("npx", [
@@ -267,16 +253,6 @@ async function main() {
       interactive: argv.interactive,
       build: argv.build,
     });
-
-    // for (const relativePath of paths) {
-    //   const fullPath = resolve(specDir, relativePath);
-    //   await compileSpec({ fullPath, relativePath }, {
-    //     interactive: argv.interactive,
-    //     build: argv.build,
-    //   });
-    // }
-
-    console.log(pc.green("All specs processed."));
   } catch (error) {
     console.error(pc.red(`❌ Fatal Error: ${error.message}`));
     exitCode = 1; // ✅ Ensure graceful failure handling
