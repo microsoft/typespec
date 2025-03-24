@@ -31,4 +31,4 @@ extern dec Interface(target: Model);
  *  ... Person;
  * }
  */
-extern dec compose(target: Model, ...implements: Model[]);
+extern dec compose(target: Model, ...interfaces: Model[]);

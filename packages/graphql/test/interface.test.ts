@@ -2,7 +2,7 @@ import type { Interface, Model } from "@typespec/compiler";
 import {
   expectDiagnosticEmpty,
   expectDiagnostics,
-  expectIdenticalTypes,
+  expectTypeEquals,
 } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { getComposition, isInterface } from "../src/lib/interface.js";
@@ -39,7 +39,7 @@ describe("@compose", () => {
     const composition = getComposition(program, TestModel);
     expect(composition).toBeDefined();
     expect(composition).toHaveLength(1);
-    expectIdenticalTypes(composition![0], AnInterface);
+    expectTypeEquals(composition![0], AnInterface);
   });
 
   it("Can compose multiple interfaces", async () => {
@@ -62,8 +62,8 @@ describe("@compose", () => {
     const composition = getComposition(program, TestModel);
     expect(composition).toBeDefined();
     expect(composition).toHaveLength(2);
-    expectIdenticalTypes(composition![0], FirstInterface);
-    expectIdenticalTypes(composition![1], SecondInterface);
+    expectTypeEquals(composition![0], FirstInterface);
+    expectTypeEquals(composition![1], SecondInterface);
   });
 
   it("Can spread properties from the interface", async () => {
@@ -169,7 +169,7 @@ describe("@compose", () => {
     const composition = getComposition(program, AnInterface);
     expect(composition).toBeDefined();
     expect(composition).toHaveLength(1);
-    expectIdenticalTypes(composition![0], AnotherInterface);
+    expectTypeEquals(composition![0], AnotherInterface);
   });
 
   it("Does not allow an interface to implement itself", async () => {

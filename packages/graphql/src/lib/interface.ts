@@ -4,7 +4,6 @@ import {
   type Model,
   type ModelProperty,
   type Program,
-  validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
   walkPropertiesInherited,
 } from "@typespec/compiler";
@@ -129,7 +128,6 @@ function validateImplementsInterfacesProperties(
 }
 
 export const $Interface: DecoratorFunction = (context: DecoratorContext, target: Model) => {
-  validateDecoratorTarget(context, target, "@Interface", "Model"); // TODO: Is this needed? https://github.com/Azure/cadl-azure/issues/1022
   validateDecoratorUniqueOnNode(context, target, $Interface);
   setInterface(context.program, target as Interface);
 };
@@ -139,7 +137,6 @@ export const $compose: DecoratorFunction = (
   target: Model,
   ...interfaces: Interface[]
 ) => {
-  validateDecoratorTarget(context, target, "@compose", "Model"); // TODO: Is this needed? https://github.com/Azure/cadl-azure/issues/1022
   validateImplementedsAreInterfaces(context, interfaces);
   validateNoCircularImplementation(context, target, interfaces);
   validateImplementsInterfacesProperties(context, target, interfaces);
