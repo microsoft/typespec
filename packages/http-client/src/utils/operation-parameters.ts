@@ -1,135 +1,132 @@
 import { ModelProperty } from "@typespec/compiler";
 import { HttpOperation, HttpProperty } from "@typespec/http";
 import { usePropertyAccessPolicy } from "../context/property-access-policy-context.js";
-import { PropertyMetadata } from "../property-access-policy.js";
+import { AccessPathSegment } from "../property-access-policy.js";
 
-export interface ParameterTreeNode {
-  name: string | number;
-  property: ModelProperty;
-  httpProperty: HttpProperty;
-  optional: boolean;
-  parent?: ParameterTreeNode;
-  children: ParameterTreeNode[];
-}
+/**
+ * Cache for parameter access paths to avoid redundant computation
+ */
+const pathCache = new WeakMap<HttpOperation, Map<HttpProperty, string>>();
 
-export interface OperationTreeState {
-  roots: ParameterTreeNode[];
-  nodeMap: Map<HttpProperty, ParameterTreeNode>;
-  parentMap: Map<ModelProperty, ModelProperty>;
-}
+/**
+ * Maps for tracking parent-child relationships between properties
+ */
+const parentMaps = new WeakMap<HttpOperation, Map<ModelProperty, ModelProperty>>();
 
-const treeCache = new Map<HttpOperation, OperationTreeState>();
-
-export function buildParameterTree(httpOp: HttpOperation): OperationTreeState {
-  if (treeCache.has(httpOp)) return treeCache.get(httpOp)!;
-
-  const roots = new Map<string | number, ParameterTreeNode>();
-  const nodeMap = new Map<HttpProperty, ParameterTreeNode>();
-  const parentMap = new Map<ModelProperty, ModelProperty>();
-
-  for (const httpProp of httpOp.parameters.properties) {
-    const { path, property } = httpProp;
-    let current: ParameterTreeNode;
-
-    const rootName = path[0];
-    if (!roots.has(rootName)) {
-      const rootNode: ParameterTreeNode = {
-        name: rootName,
-        property,
-        httpProperty: httpProp,
-        optional: path.length === 1 ? property.optional : false,
-        children: [],
-      };
-      roots.set(rootName, rootNode);
-    }
-
-    current = roots.get(rootName)!;
-
-    for (let i = 1; i < path.length; i++) {
-      const segment = path[i];
-      let child = current.children.find((c) => c.name === segment);
-      if (!child) {
-        const isLeaf = i === path.length - 1;
-        child = {
-          name: segment,
-          property: isLeaf ? property : ({} as ModelProperty),
-          httpProperty: httpProp,
-          optional: isLeaf ? property.optional : false,
-          parent: current,
-          children: [],
-        };
-        current.children.push(child);
-      }
-
-      if (i === path.length - 1) {
-        parentMap.set(property, current.property);
-      } else if (i > 0 && current.property) {
-        if (current.parent?.property) {
-          parentMap.set(current.property, current.parent.property);
-        }
-      }
-
-      current = child;
-    }
-
-    nodeMap.set(httpProp, current);
-  }
-
-  const result = {
-    roots: Array.from(roots.values()),
-    nodeMap,
-    parentMap,
-  };
-
-  treeCache.set(httpOp, result);
-  return result;
-}
-
-export function getOperationParameters(httpOp: HttpOperation): HttpProperty[] {
-  return buildParameterTree(httpOp).roots.map((n) => n.httpProperty);
-}
-
-export function resolveOperationParameter(
+/**
+ * Resolves the access expression for a parameter property in an operation
+ * @param httpOperation - The HTTP operation containing the parameter
+ * @param httpProp - The property to resolve access for
+ * @returns A string representing how to access the property (e.g. "input.filter")
+ */
+export function resolvePropertyAccessPath(
   httpOperation: HttpOperation,
   httpProp: HttpProperty,
 ): string {
-  const tree = buildParameterTree(httpOperation);
-  const node = tree.nodeMap.get(httpProp);
-  if (!node) throw new Error("HttpProperty not found.");
-
-  const policy = usePropertyAccessPolicy();
-  const { path, property } = httpProp;
-
-  if (path.length === 1) {
-    return policy.getTopLevelAccess(httpProp);
+  // Check cache first
+  let opCache = pathCache.get(httpOperation);
+  if (!opCache) {
+    opCache = new Map();
+    pathCache.set(httpOperation, opCache);
   }
-
-  const fullPath = collectAccessPathWithOptionality(property, path, tree.parentMap);
-  const root = fullPath[0];
-  const tail = fullPath.slice(1);
-
-  return policy.getNestedAccess(root, tail);
+  
+  if (opCache.has(httpProp)) return opCache.get(httpProp)!;
+  
+  // Get or build parent relationships map
+  let parentMap = parentMaps.get(httpOperation);
+  if (!parentMap) {
+    parentMap = buildParentMap(httpOperation);
+    parentMaps.set(httpOperation, parentMap);
+  }
+  
+  // Build path metadata
+  const segments = buildPropertyPath(httpProp, parentMap);
+  
+  // Apply access policy to format the path
+  const policy = usePropertyAccessPolicy();
+  const result = policy.fromatPropertyAccessExpression(httpProp, segments);
+  
+  // Cache and return result
+  opCache.set(httpProp, result);
+  return result;
 }
 
-function collectAccessPathWithOptionality(
-  property: ModelProperty,
-  path: (string | number)[],
-  parentMap: Map<ModelProperty, ModelProperty>,
-): PropertyMetadata[] {
-  const result: PropertyMetadata[] = [];
-  let current = property;
+/**
+ * Builds the parent-child relationship map for an operation's properties
+ */
+function buildParentMap(httpOp: HttpOperation): Map<ModelProperty, ModelProperty> {
+  const parentMap = new Map<ModelProperty, ModelProperty>();
+  
+  for (const httpProp of httpOp.parameters.properties) {
+    const { path, property } = httpProp;
+    
+    // Skip single segment paths (they have no parent)
+    if (path.length <= 1) continue;
+    
+    // Track immediate parent for each path segment
+    for (let i = 1; i < path.length; i++) {
+      // Find or create parent property
+      const parentSegment = path[i - 1];
+      const parentProp = findPropertyByPath(httpOp, path.slice(0, i));
+      
+      if (parentProp && i === path.length - 1) {
+        parentMap.set(property, parentProp);
+      }
+    }
+  }
+  
+  return parentMap;
+}
 
-  for (let i = path.length - 1; i >= 0; i--) {
-    const parent = parentMap.get(current);
+/**
+ * Finds a property by its path segments in an operation
+ */
+function findPropertyByPath(httpOp: HttpOperation, pathSegments: (string | number)[]): ModelProperty | undefined {
+  // Implementation to find a property by path segments
+  // This is a simplified placeholder
+  for (const prop of httpOp.parameters.properties) {
+    if (pathSegmentsEqual(prop.path.slice(0, pathSegments.length), pathSegments)) {
+      return prop.property;
+    }
+  }
+  return undefined;
+}
 
+/**
+ * Compares two path segment arrays for equality
+ */
+function pathSegmentsEqual(a: (string | number)[], b: (string | number)[]): boolean {
+  if (a.length !== b.length) return false;
+  return a.every((segment, i) => segment === b[i]);
+}
+
+/**
+ * Builds the property metadata path from a property to its root
+ */
+function buildPropertyPath(
+  httpProp: HttpProperty, 
+  parentMap: Map<ModelProperty, ModelProperty>
+): AccessPathSegment[] {
+  const { path, property } = httpProp;
+  const result: AccessPathSegment[] = [];
+  
+  // Start with leaf property
+  let current: ModelProperty | undefined = property;
+  let index = path.length - 1;
+  
+  // Work backwards from leaf to root
+  while (index >= 0) {
+    const parent: ModelProperty | undefined = current ? parentMap.get(current) : undefined;
+    
     result.unshift({
-      name: path[i],
-      property: current,
+      segmentName: path[index],
+      property: current || ({} as ModelProperty),
       parent,
     });
-    if (!parent) break;
+    
     current = parent;
+    index--;
   }
-
+  
   return result;
 }

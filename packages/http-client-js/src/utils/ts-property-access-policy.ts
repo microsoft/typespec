@@ -1,38 +1,49 @@
 import { useTSNamePolicy } from "@alloy-js/typescript";
-import { PropertyAccessPolicy } from "@typespec/http-client";
+import {PropertyAccessPolicy, AccessPathSegment } from "@typespec/http-client";
+import { HttpProperty } from "@typespec/http";
 import { getDefaultValue } from "./parameters.jsx";
 
+/**
+ * TypeScript-specific property access policy that handles optional chaining
+ * and proper formatting of property names
+ */
 export const TypeScriptPropertyAccessPolicy: PropertyAccessPolicy = {
-  getTopLevelAccess(httpProperty) {
-    const id = formatAccess(httpProperty.property.name);
-    const isOptional =
-      httpProperty.property.optional || getDefaultValue(httpProperty.property) !== undefined;
-    return isOptional ? `options?.${id}` : id;
-  },
-
-  getNestedAccess(root, path) {
-    const name = root.name;
-    let result =
-      root.property.optional || getDefaultValue(root.property) !== undefined
-        ? `options?.${formatAccess(name)}`
-        : formatAccess(name);
-
-    for (const segment of path) {
-      const isParentOptional = segment.parent?.optional ?? false;
-      const access = formatAccess(segment.name);
-      if (typeof segment.name === "number") {
-        result += `[${segment.name}]`; // Always bracket for numbers
+  fromatPropertyAccessExpression(httpProperty: HttpProperty, metadata: AccessPathSegment[]): string {
+    if (metadata.length === 0) return "";
+    
+    const namePolicy = useTSNamePolicy();
+    let result = "";
+    
+    // Process each segment
+    for (let i = 0; i < metadata.length; i++) {
+      const {segmentName, property} = metadata[i];
+      const isFirst = i === 0;
+      const formattedName = typeof segmentName === "number" 
+        ? `[${segmentName}]` 
+        : namePolicy.getName(segmentName, "object-member-data");
+      
+      // Handle first segment
+      if (isFirst) {
+        const hasDefault = getDefaultValue(httpProperty.property) !== undefined;
+        result = property.optional || hasDefault
+          ? `options?.${formattedName}`
+          : formattedName;
+        continue;
+      }
+      
+      // Handle subsequent segments
+      const prevSegment = metadata[i - 1];
+      if (prevSegment.property.optional) {
+        result += typeof segmentName === "number" 
+          ? `?.[${segmentName}]` 
+          : `?.${formattedName}`;
       } else {
-        result += isParentOptional ? `?.${access}` : `.${access}`;
+        result += typeof segmentName === "number" 
+          ? `[${segmentName}]` 
+          : `.${formattedName}`;
       }
     }
-
+    
     return result;
-  },
+  }
 };
-
-function formatAccess(name: string | number): string {
-  const namePolicy = useTSNamePolicy();
-  const propertyName = namePolicy.getName(name as string, "object-member-data");
-  return typeof name === "number" ? `[${name}]` : propertyName;
-}

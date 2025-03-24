@@ -1,12 +1,24 @@
 import { ModelProperty } from "@typespec/compiler";
 import { HttpProperty } from "@typespec/http";
 
-export interface PropertyMetadata {
-  name: string | number;
+/**
+ * Metadata for a property in an access path
+ */
+export interface AccessPathSegment {
+  segmentName: string | number;
   property: ModelProperty;
   parent?: ModelProperty;
 }
+
+/**
+ * Policy that determines how property access strings are formatted
+ * for code generation
+ */
 export interface PropertyAccessPolicy {
-  getTopLevelAccess(property: HttpProperty): string;
-  getNestedAccess(root: PropertyMetadata, metadata: PropertyMetadata[]): string;
+  /**
+   * Builds an access path expression for a property
+   * @param property - The HTTP property to build access for
+   * @param metadata - Path segment metadata in order from root to leaf
+   */
+  fromatPropertyAccessExpression(property: HttpProperty, metadata: AccessPathSegment[]): string;
 }

@@ -33,7 +33,7 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
         const parameter = httpProperty.property;
 
         const defaultValue = getDefaultValue(httpProperty);
-        const paramItemRef: ay.Children = $.httpOperation.resolveParameterAccess(
+        const paramItemRef: ay.Children = $.httpOperation.formatParameterAccessExpression(
           props.httpOperation,
           httpProperty,
         );
