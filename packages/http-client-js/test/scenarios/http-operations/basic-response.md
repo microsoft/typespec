@@ -68,7 +68,7 @@ interface Widgets {
 
 This function converts the received JSON response into a `Widget` instance.
 
-```ts src/models/serializers.ts function jsonWidgetToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonWidgetToApplicationTransform
 export function jsonWidgetToApplicationTransform(input_?: any): Widget {
   if (!input_) {
     return input_ as any;

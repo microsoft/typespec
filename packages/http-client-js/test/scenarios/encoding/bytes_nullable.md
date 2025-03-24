@@ -46,7 +46,7 @@ export async function get(
 
 Should decode as uint8array the nullableProperty
 
-```ts src/models/serializers.ts function jsonModelWithBytesToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonModelWithBytesToApplicationTransform
 export function jsonModelWithBytesToApplicationTransform(input_?: any): ModelWithBytes {
   if (!input_) {
     return input_ as any;
@@ -126,7 +126,7 @@ export async function post(
 
 Should encode as base64 the nullableProperty
 
-```ts src/models/serializers.ts function jsonModelWithBytesToTransportTransform
+```ts src/models/internal/serializers.ts function jsonModelWithBytesToTransportTransform
 export function jsonModelWithBytesToTransportTransform(input_?: ModelWithBytes | null): any {
   if (!input_) {
     return input_ as any;

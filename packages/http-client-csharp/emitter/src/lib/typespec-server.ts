@@ -29,7 +29,7 @@ export function resolveServers(
     for (const [name, prop] of server.parameters) {
       const isEndpoint: boolean = endpoint === `{${name}}`;
       let defaultValue: InputConstant | undefined = undefined;
-      const value = prop.default ? getDefaultValue(prop.default) : "";
+      const value = prop.defaultValue ? getDefaultValue(prop.defaultValue) : "";
       const inputType: InputType = isEndpoint
         ? {
             kind: "url",
@@ -40,28 +40,27 @@ export function resolveServers(
 
       if (value) {
         defaultValue = {
-          Type: inputType,
-          Value: value,
+          type: inputType,
+          value: value,
         };
       }
       const variable: InputParameter = {
-        Name: name,
-        NameInRequest: name,
-        Summary: getSummary(sdkContext.program, prop),
-        Doc: getDoc(sdkContext.program, prop),
-        Type: inputType,
-        Location: RequestLocation.Uri,
-        IsApiVersion: name.toLowerCase() === "apiversion" || name.toLowerCase() === "api-version",
-        IsResourceParameter: false,
-        IsContentType: false,
-        IsRequired: true,
-        IsEndpoint: isEndpoint,
-        SkipUrlEncoding:
+        name: name,
+        nameInRequest: name,
+        summary: getSummary(sdkContext.program, prop),
+        doc: getDoc(sdkContext.program, prop),
+        type: inputType,
+        location: RequestLocation.Uri,
+        isApiVersion: name.toLowerCase() === "apiversion" || name.toLowerCase() === "api-version",
+        isContentType: false,
+        isRequired: true,
+        isEndpoint: isEndpoint,
+        skipUrlEncoding:
           // TODO: update this when https://github.com/Azure/typespec-azure/issues/1022 is resolved
           getExtensions(sdkContext.program, prop).get("x-ms-skip-url-encoding") === true,
-        Explode: false,
-        Kind: InputOperationParameterKind.Client,
-        DefaultValue: defaultValue,
+        explode: false,
+        kind: InputOperationParameterKind.Client,
+        defaultValue: defaultValue,
       };
 
       parameters.push(variable);
@@ -69,30 +68,29 @@ export function resolveServers(
     /* add default server. */
     if (server.url && parameters.length === 0) {
       const variable: InputParameter = {
-        Name: "host",
-        NameInRequest: "host",
-        Doc: server.description,
-        Type: {
+        name: "host",
+        nameInRequest: "host",
+        doc: server.description,
+        type: {
           kind: "string",
           name: "string",
           crossLanguageDefinitionId: "TypeSpec.string",
         },
-        Location: RequestLocation.Uri,
-        IsApiVersion: false,
-        IsResourceParameter: false,
-        IsContentType: false,
-        IsRequired: true,
-        IsEndpoint: true,
-        SkipUrlEncoding: false,
-        Explode: false,
-        Kind: InputOperationParameterKind.Client,
-        DefaultValue: {
-          Type: {
+        location: RequestLocation.Uri,
+        isApiVersion: false,
+        isContentType: false,
+        isRequired: true,
+        isEndpoint: true,
+        skipUrlEncoding: false,
+        explode: false,
+        kind: InputOperationParameterKind.Client,
+        defaultValue: {
+          type: {
             kind: "string",
             name: "string",
             crossLanguageDefinitionId: "TypeSpec.string",
           },
-          Value: server.url,
+          value: server.url,
         } as InputConstant,
       };
       url = `{host}`;

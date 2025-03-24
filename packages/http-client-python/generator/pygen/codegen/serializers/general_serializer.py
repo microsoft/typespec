@@ -28,7 +28,11 @@ class GeneralSerializer(BaseSerializer):
 
     def serialize_package_file(self, template_name: str, **kwargs: Any) -> str:
         template = self.env.get_template(template_name)
-        package_parts = (self.code_model.options["package_name"] or "").split("-")[:-1]
+        package_parts = (
+            self.code_model.namespace.split(".")[:-1]
+            if self.code_model.is_tsp
+            else (self.code_model.options["package_name"] or "").split("-")[:-1]
+        )
         token_credential = any(
             c for c in self.code_model.clients if isinstance(getattr(c.credential, "type", None), TokenCredentialType)
         )
@@ -44,7 +48,6 @@ class GeneralSerializer(BaseSerializer):
             "pkgutil_names": [".".join(package_parts[: i + 1]) for i in range(len(package_parts))],
             "init_names": ["/".join(package_parts[: i + 1]) + "/__init__.py" for i in range(len(package_parts))],
             "client_name": self.code_model.clients[0].name,
-            "namespace": self.code_model.namespace,
         }
         params.update(self.code_model.options)
         params.update(kwargs)

@@ -1,5 +1,4 @@
 import { spawn } from "child_process";
-import fetch from "node-fetch";
 import { resolve } from "path";
 import { MockApiApp } from "../app/app.js";
 import { AdminUrls } from "../constants.js";

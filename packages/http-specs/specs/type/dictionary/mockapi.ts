@@ -18,7 +18,7 @@ function createServerTests(uri: string, data: any) {
       uri,
       method: "put",
       request: {
-        body: data,
+        body: json(data),
       },
       response: {
         status: 204,

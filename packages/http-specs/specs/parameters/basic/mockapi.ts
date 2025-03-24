@@ -1,4 +1,4 @@
-import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 function createServerTests(uri: string) {
@@ -6,9 +6,9 @@ function createServerTests(uri: string) {
     uri,
     method: "put",
     request: {
-      body: {
+      body: json({
         name: "foo",
-      },
+      }),
     },
     response: {
       status: 204,

@@ -3,6 +3,8 @@
 
 package resiliency.servicedriven;
 
+import com.azure.core.http.policy.HttpLogDetailLevel;
+import com.azure.core.http.policy.HttpLogOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +24,7 @@ public class ServiceDrivenTests {
         = new ResiliencyServiceDrivenClientBuilder().endpoint("http://localhost:3000")
             .serviceDeploymentVersion("v2")
             .serviceVersion(ServiceDrivenServiceVersion.V1)
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
             .buildClient();
 
     private final ResiliencyServiceDrivenClient client2v2

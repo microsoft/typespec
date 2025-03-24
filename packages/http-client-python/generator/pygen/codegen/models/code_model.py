@@ -145,12 +145,8 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             return result
         return f"{result}{module_name}" if result.endswith(".") else f"{result}.{module_name}"
 
-    @property
-    def need_unique_model_alias(self) -> bool:
-        return self.has_subnamespace and self.options["enable_typespec_namespace"]
-
     def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
-        if not self.need_unique_model_alias:
+        if not self.has_subnamespace:
             return "_models"
         relative_path = self.get_relative_import_path(
             serialize_namespace, self.get_imported_namespace_for_model(imported_namespace)
@@ -408,3 +404,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     @staticmethod
     def has_non_json_models(models: List[ModelType]) -> bool:
         return any(m for m in models if m.base != "json")
+
+    @property
+    def is_tsp(self) -> bool:
+        return self.options.get("tsp_file") is not None
