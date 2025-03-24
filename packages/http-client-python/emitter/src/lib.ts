@@ -87,11 +87,6 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       description:
         "Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.",
     },
-    flavor: {
-      type: "string",
-      nullable: true,
-      description: "The flavor of the SDK.",
-    },
     "generate-test": {
       type: "boolean",
       nullable: true,

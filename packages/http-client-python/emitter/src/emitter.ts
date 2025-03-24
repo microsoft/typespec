@@ -28,6 +28,13 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   if (!options["package-name"]) {
     options["package-name"] = getRootNamespace(sdkContext).replace(/\./g, "-");
   }
+  if (options.flavor !== "azure") {
+    // if they pass in a flavor other than azure, we want to ignore the value
+    options.flavor = undefined;
+  }
+  if (options.flavor === undefined && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
+    options.flavor = "azure";
+  }
   if (!options.flavor && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
     options.flavor = "azure";
   }
