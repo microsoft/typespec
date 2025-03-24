@@ -439,13 +439,18 @@ namespace TypeSpec.Helpers
                 if (element == null) return null;
                 return CacheAndReturn(type, Array.CreateInstance(element, 0));
             }
-            if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+            if (type.IsGenericType)
             {
                 var elementType = type.GetGenericArguments()[0];
                 if (elementType == null) return null;
-                var listType = typeof(List<>).MakeGenericType(elementType);
-        
-                return CacheAndReturn(type, Activator.CreateInstance(listType));
+                
+                if (type.GetGenericTypeDefinition() == typeof(IEnumerable<>)){
+                    return CacheAndReturn(type, Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType)));
+                }
+                if (type.GetGenericTypeDefinition() == typeof(ISet<>))
+                {
+                    return CacheAndReturn(type, Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType)));
+                }
             }
             if (type.IsClass)
             {
