@@ -1,0 +1,23 @@
+{
+  "name": "consumer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@azure-tools/typespec-azure-core": ">=0.53.0 <1.0.0 || ~0.54.0-0",
+    "@azure-tools/typespec-client-generator-core": ">=0.53.0 <1.0.0 || ~0.54.0-0",
+    "@typespec/compiler": ">=0.67.0 <1.0.0 || ~0.68.0-0",
+    "@typespec/http": ">=0.67.0 <1.0.0 || ~0.68.0-0",
+    "@typespec/http-client-csharp": "file:../typespec-http-client-csharp-1.0.0.tgz",
+    "@typespec/openapi": ">=0.67.0 <1.0.0 || ~0.68.0-0",
+    "@typespec/rest": ">=0.67.0 <1.0.0 || ~0.68.0-0",
+    "@typespec/versioning": ">=0.67.0 <1.0.0 || ~0.68.0-0",
+    "logging-plugin": "file:../plugins/logging"
+  }
+}
