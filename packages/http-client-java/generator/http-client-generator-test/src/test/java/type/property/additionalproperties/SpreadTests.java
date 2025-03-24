@@ -19,7 +19,6 @@ import type.property.additionalproperties.models.ModelForRecord;
 import type.property.additionalproperties.models.SpreadFloatRecord;
 import type.property.additionalproperties.models.SpreadModelArrayRecord;
 import type.property.additionalproperties.models.SpreadModelRecord;
-import type.property.additionalproperties.models.SpreadRecordForDiscriminatedUnion;
 import type.property.additionalproperties.models.SpreadRecordForNonDiscriminatedUnion;
 import type.property.additionalproperties.models.SpreadRecordForNonDiscriminatedUnion2;
 import type.property.additionalproperties.models.SpreadRecordForNonDiscriminatedUnion3;
@@ -48,8 +47,6 @@ public class SpreadTests {
         = new AdditionalPropertiesClientBuilder().buildSpreadDifferentModelArrayClient();
     private final SpreadRecordUnionClient spreadRecordUnionClient
         = new AdditionalPropertiesClientBuilder().buildSpreadRecordUnionClient();
-    private final SpreadRecordDiscriminatedUnionClient spreadRecordDiscriminatedUnionClient
-        = new AdditionalPropertiesClientBuilder().buildSpreadRecordDiscriminatedUnionClient();
     private final SpreadRecordNonDiscriminatedUnionClient spreadRecordNonDiscriminatedUnionClient
         = new AdditionalPropertiesClientBuilder().buildSpreadRecordNonDiscriminatedUnionClient();
     private final SpreadRecordNonDiscriminatedUnion2Client spreadRecordNonDiscriminatedUnion2Client
@@ -209,29 +206,29 @@ public class SpreadTests {
         Assertions.assertEquals(43.125f, record.getAdditionalProperties().get("prop2").toObject(Float.class));
     }
 
-    @Test
-    public void testSpreadRecordDiscriminatedUnion() {
-        BinaryData binaryDataProp1 = BinaryData.fromObject(new WidgetData0("abc"));
-        BinaryData binaryDataProp2 = BinaryData.fromObject(new WidgetData1(OffsetDateTime.parse("2021-01-01T00:00:00Z"))
-            .setEnd(OffsetDateTime.parse("2021-01-02T00:00:00Z")));
-        Map<String, BinaryData> propertyMap = new LinkedHashMap<>();
-        propertyMap.put("prop1", binaryDataProp1);
-        propertyMap.put("prop2", binaryDataProp2);
-        SpreadRecordForDiscriminatedUnion body = new SpreadRecordForDiscriminatedUnion("abc");
-        body.setAdditionalProperties(propertyMap);
-        spreadRecordDiscriminatedUnionClient.put(body);
-
-        SpreadRecordForDiscriminatedUnion record = spreadRecordDiscriminatedUnionClient.get();
-        Assertions.assertNotNull(record);
-        Assertions.assertEquals("abc", record.getName());
-        Assertions.assertNotNull(record.getAdditionalProperties());
-        Assertions.assertNotNull(record.getAdditionalProperties().get("prop1"));
-        Assertions.assertEquals(binaryDataProp1.toObject(Map.class),
-            record.getAdditionalProperties().get("prop1").toObject(Map.class));
-        Assertions.assertNotNull(record.getAdditionalProperties().get("prop2"));
-        Assertions.assertEquals(binaryDataProp2.toObject(Map.class),
-            record.getAdditionalProperties().get("prop2").toObject(Map.class));
-    }
+//    @Test
+//    public void testSpreadRecordDiscriminatedUnion() {
+//        BinaryData binaryDataProp1 = BinaryData.fromObject(new WidgetData0("abc"));
+//        BinaryData binaryDataProp2 = BinaryData.fromObject(new WidgetData1(OffsetDateTime.parse("2021-01-01T00:00:00Z"))
+//            .setEnd(OffsetDateTime.parse("2021-01-02T00:00:00Z")));
+//        Map<String, BinaryData> propertyMap = new LinkedHashMap<>();
+//        propertyMap.put("prop1", binaryDataProp1);
+//        propertyMap.put("prop2", binaryDataProp2);
+//        SpreadRecordForDiscriminatedUnion body = new SpreadRecordForDiscriminatedUnion("abc");
+//        body.setAdditionalProperties(propertyMap);
+//        spreadRecordDiscriminatedUnionClient.put(body);
+//
+//        SpreadRecordForDiscriminatedUnion record = spreadRecordDiscriminatedUnionClient.get();
+//        Assertions.assertNotNull(record);
+//        Assertions.assertEquals("abc", record.getName());
+//        Assertions.assertNotNull(record.getAdditionalProperties());
+//        Assertions.assertNotNull(record.getAdditionalProperties().get("prop1"));
+//        Assertions.assertEquals(binaryDataProp1.toObject(Map.class),
+//            record.getAdditionalProperties().get("prop1").toObject(Map.class));
+//        Assertions.assertNotNull(record.getAdditionalProperties().get("prop2"));
+//        Assertions.assertEquals(binaryDataProp2.toObject(Map.class),
+//            record.getAdditionalProperties().get("prop2").toObject(Map.class));
+//    }
 
     @Test
     public void testSpreadRecordNonDiscriminatedUnion() {

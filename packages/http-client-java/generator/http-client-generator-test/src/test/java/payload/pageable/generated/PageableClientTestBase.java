@@ -13,22 +13,35 @@ import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
 import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
-import payload.pageable.PageableClient;
 import payload.pageable.PageableClientBuilder;
+import payload.pageable.ServerDrivenPaginationClient;
+import payload.pageable.ServerDrivenPaginationContinuationTokenClient;
 
 class PageableClientTestBase extends TestProxyTestBase {
-    protected PageableClient pageableClient;
+    protected ServerDrivenPaginationClient serverDrivenPaginationClient;
+
+    protected ServerDrivenPaginationContinuationTokenClient serverDrivenPaginationContinuationTokenClient;
 
     @Override
     protected void beforeTest() {
-        PageableClientBuilder pageableClientbuilder = new PageableClientBuilder()
+        PageableClientBuilder serverDrivenPaginationClientbuilder = new PageableClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
-            pageableClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+            serverDrivenPaginationClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
-        pageableClient = pageableClientbuilder.buildClient();
+        serverDrivenPaginationClient = serverDrivenPaginationClientbuilder.buildServerDrivenPaginationClient();
+
+        PageableClientBuilder serverDrivenPaginationContinuationTokenClientbuilder = new PageableClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            serverDrivenPaginationContinuationTokenClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        serverDrivenPaginationContinuationTokenClient
+            = serverDrivenPaginationContinuationTokenClientbuilder.buildServerDrivenPaginationContinuationTokenClient();
 
     }
 }

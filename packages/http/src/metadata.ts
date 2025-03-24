@@ -18,7 +18,6 @@ import { TwoLevelMap } from "@typespec/compiler/utils";
 import {
   getOperationVerb,
   getPatchOptions,
-  includeInapplicableMetadataInPayload,
   isBody,
   isBodyIgnore,
   isBodyRoot,
@@ -35,6 +34,7 @@ import { HttpVerb, OperationParameterOptions } from "./types.js";
 // Used in @link JsDoc tag.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { PatchOptions } from "../generated-defs/TypeSpec.Http.js";
+import { includeInapplicableMetadataInPayload } from "./private.decorators.js";
 
 /**
  * Flags enum representation of well-known visibilities that are used in
@@ -69,29 +69,13 @@ export enum Visibility {
   Patch = 1 << 21,
 
   /**
-   * Additional flag to indicate that legacy parameter visibility behavior
-   * should be used. This disables effective optionality for the body of
-   * PATCH operations, and considers only properties that do not have _explicit_
-   * visibility visible. This flag is activated by default when an operation
-   * uses `@parameterVisibility` without arguments, and should not be enabled
-   * in any other circumstances.
-   *
-   * Never use this flag. It is used internally by the HTTP core.
-   *
-   * @deprecated This flag will be removed in TypeSpec 1.0-rc.
-   *
-   * @internal
-   */
-  LegacyParameterVisibility = 1 << 22,
-
-  /**
    * Additional flags to indicate the treatment of properties in specific contexts.
    *
    * Never use these flags. They are used internally by the HTTP core.
    *
    * @internal
    */
-  Synthetic = Visibility.Item | Visibility.Patch | Visibility.LegacyParameterVisibility,
+  Synthetic = Visibility.Item | Visibility.Patch,
 }
 
 const visibilityToArrayMap: Map<Visibility, string[]> = new Map();
@@ -300,29 +284,6 @@ function getDefaultVisibilityForVerb(verb: HttpVerb): Visibility {
 }
 
 /**
- * Determines the visibility to use for a request with the given verb.
- *
- * - GET | HEAD => Visibility.Query
- * - POST => Visibility.Create
- * - PATCH => Visibility.Update
- * - PUT => Visibility.Create | Update
- * - DELETE => Visibility.Delete
- * @param verb The HTTP verb for the operation.
- * @deprecated Use `resolveRequestVisibility` instead, or if you only want the default visibility for a verb,
- *   `getDefaultVisibilityForVerb`. This function will be removed in TypeSpec 1.0-rc.
- * @returns The applicable parameter visibility or visibilities for the request.
- */
-export function getRequestVisibility(verb: HttpVerb): Visibility {
-  let visibility = getDefaultVisibilityForVerb(verb);
-  // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
-  // later processes to properly apply it
-  if (verb === "patch") {
-    visibility |= Visibility.Patch;
-  }
-  return visibility;
-}
-
-/**
  * A visibility provider for HTTP operations. Pass this value as a provider to the `getParameterVisibilityFilter` and
  * `getReturnTypeVisibilityFilter` functions in the TypeSpec core to get the applicable parameter and return type
  * visibility filters for an HTTP operation.
@@ -393,10 +354,6 @@ export function HttpVisibilityProvider(
   };
 }
 
-// Hidden internal symbol to mark that parameter visibility was empty. This is used by HTTP
-// to set the SkipEffectiveOptionality flag. This is a hack.
-const parameterVisibilityIsEmpty = Symbol.for("TypeSpec.Visibility.ParameterVisibilityIsEmpty");
-
 /**
  * Returns the applicable parameter visibility or visibilities for the request if `@requestVisibility` was used.
  * Otherwise, returns the default visibility based on the HTTP verb for the operation.
@@ -430,13 +387,6 @@ export function resolveRequestVisibility(
     }
   }
 
-  const isEmptyParameterVisibility = program.stateSet(parameterVisibilityIsEmpty).has(operation);
-
-  if (isEmptyParameterVisibility) {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    visibility |= Visibility.LegacyParameterVisibility;
-  }
-
   return visibility;
 }
 
@@ -458,14 +408,7 @@ export function isMetadata(program: Program, property: ModelProperty) {
  * Determines if the given property is visible with the given visibility.
  */
 export function isVisible(program: Program, property: ModelProperty, visibility: Visibility) {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  if (visibility & Visibility.LegacyParameterVisibility) {
-    // This is a hack that preserves the behavior of `@parameterVisibility()` with no arguments for now.
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    return isVisibleCore(program, property, []);
-  } else {
-    return isVisibleCore(program, property, visibilityToFilter(program, visibility));
-  }
+  return isVisibleCore(program, property, visibilityToFilter(program, visibility));
 }
 
 /**
@@ -543,19 +486,6 @@ function isApplicableMetadataCore(
  */
 export interface MetadataInfo {
   /**
-   * Determines if the given type is a model that becomes empty once
-   * applicable metadata is removed and visibility is applied.
-   *
-   * Note that a model is not considered emptied if it was already empty in
-   * the first place, or has a base model or indexer.
-   *
-   * When the type of a property is emptied by visibility, the property
-   * itself is also removed.
-   * @deprecated This produces inconsistent behaviors and should be avoided.
-   */
-  isEmptied(type: Type | undefined, visibility: Visibility): boolean;
-
-  /**
    * Determines if the given type is transformed by applying the given
    * visibility and removing invisible properties or adding inapplicable
    * metadata properties.
@@ -619,7 +549,6 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   const stateMap = new TwoLevelMap<Type, Visibility, State>();
 
   return {
-    isEmptied,
     isTransformed,
     isPayloadProperty,
     isOptional,
@@ -732,9 +661,8 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     const hasUpdate = (visibility & Visibility.Update) !== 0;
     const isPatch = (visibility & Visibility.Patch) !== 0;
     const isItem = (visibility & Visibility.Item) !== 0;
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const skipEffectiveOptionality = (visibility & Visibility.LegacyParameterVisibility) !== 0;
-    return property.optional || (!skipEffectiveOptionality && hasUpdate && isPatch && !isItem);
+
+    return property.optional || (hasUpdate && isPatch && !isItem);
   }
 
   function isPayloadProperty(

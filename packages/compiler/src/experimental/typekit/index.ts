@@ -1,4 +1,5 @@
-import { compilerAssert, Program } from "../../core/index.js";
+import { compilerAssert } from "../../core/diagnostics.js";
+import type { Program } from "../../core/program.js";
 import { Realm } from "../realm.js";
 import { Typekit, TypekitNamespaceSymbol, TypekitPrototype } from "./define-kit.js";
 

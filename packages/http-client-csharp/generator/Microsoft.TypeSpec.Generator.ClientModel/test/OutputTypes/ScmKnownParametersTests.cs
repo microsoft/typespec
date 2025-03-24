@@ -11,9 +11,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.OutputTypes
         [TestCase]
         public void TestMatchConditionsParameter()
         {
-            MockHelpers.LoadMockPlugin(matchConditionsType: () => typeof(int));
+            MockHelpers.LoadMockGenerator(matchConditionsType: () => typeof(int));
 
-            var result = ScmCodeModelPlugin.Instance.TypeFactory.MatchConditionsType;
+            var result = ScmCodeModelGenerator.Instance.TypeFactory.MatchConditionsType;
             Assert.IsNotNull(result);
             Assert.AreEqual(new CSharpType(typeof(int)), result);
         }

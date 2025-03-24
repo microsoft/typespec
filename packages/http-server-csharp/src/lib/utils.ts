@@ -1,3 +1,4 @@
+import { AssetEmitter, EmitterOutput, StringBuilder, code } from "@typespec/asset-emitter";
 import {
   IntrinsicScalarName,
   IntrinsicType,
@@ -17,13 +18,9 @@ import {
   isTemplateInstance,
   isUnknownType,
   isVoidType,
+  resolveCompilerOptions,
+  resolvePath,
 } from "@typespec/compiler";
-import {
-  AssetEmitter,
-  EmitterOutput,
-  StringBuilder,
-  code,
-} from "@typespec/compiler/emitter-framework";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -43,6 +40,7 @@ import {
 } from "@typespec/http";
 import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
 import { camelCase, pascalCase } from "change-case";
+import { createServer } from "net";
 import { getAttributes } from "./attributes.js";
 import {
   Attribute,
@@ -112,8 +110,6 @@ export function getCSharpType(
       else return { type: standardScalars.get("numeric")!, value: new NumericValue(enumValue) };
     case "Intrinsic":
       return getCSharpTypeForIntrinsic(program, type);
-    case "Object":
-      return { type: UnknownType };
     case "ModelProperty":
       return getCSharpType(program, type.type, namespace);
     case "Scalar":
@@ -173,6 +169,16 @@ export function getCSharpType(
           }),
         };
       }
+      if (isRecord(type))
+        return {
+          type: new CSharpType({
+            name: "JsonObject",
+            namespace: "System.Text.Json.Nodes",
+            isBuiltIn: false,
+            isValueType: false,
+            isClass: false,
+          }),
+        };
       let name: string = type.name;
       if (isTemplateInstance(type)) {
         name = getModelInstantiationName(program, type, name);
@@ -443,20 +449,25 @@ export function formatComment(
 ): string {
   function getNextLine(target: string): string {
     for (let i = lineLength - 1; i > 0; i--) {
-      if ([" ", ".", "?", ",", ";"].includes(target.charAt(i))) {
-        return `/// ${text.substring(0, i).replaceAll("\n", " ")}`;
+      if ([" ", ";"].includes(target.charAt(i))) {
+        return `${target.substring(0, i)}`;
+      }
+    }
+    for (let i = lineLength - 1; i < target.length; i++) {
+      if ([" ", ";"].includes(target.charAt(i))) {
+        return `${target.substring(0, i)}`;
       }
     }
 
-    return `/// ${text.substring(0, lineLength)}`;
+    return `${target.substring(0, lineLength)}`;
   }
-  let remaining: string = text;
+  let remaining: string = text.replaceAll("\n", " ");
   const lines: string[] = [];
   while (remaining.length > lineLength) {
     const currentLine = getNextLine(remaining);
     remaining =
       remaining.length > currentLine.length ? remaining.substring(currentLine.length + 1) : "";
-    lines.push(currentLine);
+    lines.push(`/// ${currentLine}`);
   }
 
   if (remaining.length > 0) lines.push(`/// ${remaining}`);
@@ -550,11 +561,7 @@ export function ensureCSharpIdentifier(
       location = `union ${target.name}`;
       break;
     case "UnionVariant": {
-      if (target.node !== undefined) {
-        const parent = program.checker.getTypeForNode(target.node.parent!);
-        if (parent?.kind === "Union")
-          location = `variant ${String(target.name)} in union ${parent?.name}`;
-      }
+      location = `variant ${String(target.name)} in union ${target.union.name}`;
       break;
     }
   }
@@ -708,6 +715,7 @@ export class HttpMetadata {
     switch (responseType.kind) {
       case "Model":
         if (responseType.indexer && responseType.indexer.key.name !== "string") return responseType;
+        if (isRecord(responseType)) return responseType;
         const bodyProp = new ModelInfo().filterAllProperties(
           program,
           responseType,
@@ -1274,8 +1282,6 @@ export class CSharpOperationHelpers {
           defaultValue: `[${defaults.join(", ")}]`,
           nullableType: csharpType.isNullable,
         };
-      case "Object":
-        return { typeReference: code`object`, defaultValue: undefined, nullableType: false };
       case "Model":
         let modelResult: EmittedTypeInfo;
         const cachedResult = this.#anonymousModels.get(tsType);
@@ -1283,7 +1289,10 @@ export class CSharpOperationHelpers {
           return cachedResult;
         }
         if (isRecord(tsType)) {
-          modelResult = { typeReference: code`JsonObject`, nullableType: false };
+          modelResult = {
+            typeReference: code`System.Text.Json.Nodes.JsonObject`,
+            nullableType: false,
+          };
         } else {
           modelResult = {
             typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
@@ -1442,4 +1451,64 @@ export function coalesceTsTypes(program: Program, types: Type[]): [CSharpType, b
 
 export function isRecord(type: Type): boolean {
   return type.kind === "Model" && type.name === "Record" && type.indexer !== undefined;
+}
+
+export async function getFreePort(minPort: number, maxPort: number, tries: number = 100) {
+  const min = Math.floor(minPort);
+  const max = Math.floor(maxPort);
+  if (tries === 0) return min;
+  const diff = Math.abs(max - min);
+  const port = min + Math.floor(Math.random() * diff);
+  const server = createServer();
+  const free = await checkPort(port);
+  if (free) {
+    return port;
+  }
+  return await getFreePort(min, max, tries--);
+
+  async function checkPort(port: number, timeout: number = 100): Promise<boolean> {
+    return new Promise<boolean>((resolve, _) => {
+      server.on("error", (_) => {
+        server.close();
+        resolve(false);
+      });
+      server.listen(port, async () => {
+        try {
+          setTimeout(() => resolve(true), timeout);
+        } catch (e) {
+          resolve(false);
+        } finally {
+          server.close();
+        }
+      });
+    });
+  }
+}
+
+export interface OpenApiConfig {
+  emitted: boolean;
+  outputDir?: string;
+  fileName?: any;
+  options?: Record<string, unknown> & {
+    "emitter-output-dir"?: string;
+  };
+}
+
+export async function getOpenApiConfig(program: Program): Promise<OpenApiConfig> {
+  const root = program.projectRoot;
+  const [options, _] = await resolveCompilerOptions(program.host, {
+    cwd: root,
+    entrypoint: resolvePath(root, "main.tsp"),
+  });
+  const oaiOptions =
+    options.options !== undefined && Object.keys(options.options).includes("@typespec/openapi3")
+      ? options.options["@typespec/openapi3"]
+      : undefined;
+
+  return {
+    emitted: options.emit !== undefined && options.emit.includes("@typespec/openapi3"),
+    outputDir: oaiOptions?.["emitter-output-dir"],
+    fileName: oaiOptions?.["output-file"],
+    options: oaiOptions,
+  };
 }

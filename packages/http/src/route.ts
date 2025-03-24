@@ -7,7 +7,6 @@ import {
   Operation,
   Program,
   Type,
-  validateDecoratorTarget,
 } from "@typespec/compiler";
 import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
@@ -156,26 +155,7 @@ function getUriTemplateAndParameters(
   ];
 }
 
-/**
- * @deprecated DO NOT USE. For internal use only as a workaround.
- * @param program Program
- * @param target Target namespace
- * @param sourceInterface Interface that should be included in namespace.
- */
-export function includeInterfaceRoutesInNamespace(
-  program: Program,
-  target: Namespace,
-  sourceInterface: string,
-) {
-  let array = program.stateMap(HttpStateKeys.externalInterfaces).get(target);
-  if (array === undefined) {
-    array = [];
-    program.stateMap(HttpStateKeys.externalInterfaces).set(target, array);
-  }
-
-  array.push(sourceInterface);
-}
-
+/** @experimental */
 export function DefaultRouteProducer(
   program: Program,
   operation: Operation,
@@ -254,7 +234,9 @@ function addOperationTemplateToUriTemplate(uriTemplate: string, params: HttpOper
 }
 
 function escapeUriTemplateParamName(name: string) {
-  return name.replaceAll(":", "%3A");
+  return encodeURIComponent(name).replace(/[:-]/g, function (c) {
+    return "%" + c.charCodeAt(0).toString(16).toUpperCase();
+  });
 }
 
 export function setRouteProducer(
@@ -270,12 +252,6 @@ export function getRouteProducer(program: Program, operation: Operation): RouteP
 }
 
 export function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
-  if (
-    !validateDecoratorTarget(context, entity, "@route", ["Namespace", "Interface", "Operation"])
-  ) {
-    return;
-  }
-
   const state = context.program.stateMap(HttpStateKeys.routes);
 
   if (state.has(entity) && entity.kind === "Namespace") {

@@ -50,10 +50,8 @@ export const $scenarioService: ScenarioServiceDecorator = (context, target, rout
     kind: "Model",
     properties,
     decorators: [],
-    projections: [],
     name: "Service",
     derivedModels: [],
-    projectionsByName: [],
   } as any);
   context.call($server, target, "http://localhost:3000", "TestServer endpoint");
   context.call($route, target, route);

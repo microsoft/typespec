@@ -4,9 +4,9 @@ import "@typespec/openapi3";
 
 @service(#{ title: "Widget Service" })
 namespace DemoService;
-using TypeSpec.Rest;
-using TypeSpec.Http;
-using TypeSpec.OpenAPI;
+using Rest;
+using Http;
+using OpenAPI;
 
 model WidgetBase {
   @key id: string;

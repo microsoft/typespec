@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         private ExtensibleEnumSerializationProvider[] CreateExtensibleEnumSerializations(InputEnumType inputEnumType, TypeProvider typeProvider)
         {
             // if the underlying type is string, we don't need to generate serialization methods as we use ToString
-            if (ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType == typeof(string))
+            if (ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputEnumType)?.UnderlyingEnumType == typeof(string))
             {
                 return [];
             }
@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
             client = CreateClientCore(inputClient);
 
-            foreach (var visitor in ScmCodeModelPlugin.Instance.Visitors)
+            foreach (var visitor in ScmCodeModelGenerator.Instance.Visitors)
             {
                 if (visitor is ScmLibraryVisitor scmVisitor)
                 {
@@ -115,7 +115,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         internal MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
         {
             MethodProviderCollection? methods = new ScmMethodProviderCollection(operation, enclosingType);
-            var visitors = ScmCodeModelPlugin.Instance.Visitors;
+            var visitors = ScmCodeModelGenerator.Instance.Visitors;
 
             foreach (var visitor in visitors)
             {

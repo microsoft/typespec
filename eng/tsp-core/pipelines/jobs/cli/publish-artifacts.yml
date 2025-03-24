@@ -92,4 +92,5 @@ jobs:
                     --account-name "typespec" \
                     --container-name dist \
                     --name "latest.txt" \
+                    --overwrite \
                     --file "./latest.txt"

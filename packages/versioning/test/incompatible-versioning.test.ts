@@ -20,29 +20,8 @@ describe("versioning: incompatible use of decorators", () => {
       wrapper: (code) => `
       import "@typespec/versioning";
       ${imports.map((i) => `import "${i}";`).join("\n")}
-      using TypeSpec.Versioning;
+      using Versioning;
       ${code}`,
-    });
-  });
-
-  it("emit diagnostic when @service(#{version: 'X'}) is used with @versioned", async () => {
-    const diagnostics = await runner.diagnose(`
-    #suppress "deprecated" "For test"
-    @versioned(Versions)
-    @service(#{
-      title: "Widget Service",
-      version: "v3"
-    })
-    namespace DemoService;
-
-    enum Versions {
-      v1,
-      v2,
-    }
-    `);
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/versioning/no-service-fixed-version",
-      severity: "error",
     });
   });
 
@@ -95,7 +74,7 @@ describe("versioning: validate incompatible references", () => {
       wrapper: (code) => `
       import "@typespec/versioning";
       ${imports.map((i) => `import "${i}";`).join("\n")}
-      using TypeSpec.Versioning;
+      using Versioning;
 
       @versioned(Versions)
       namespace TestService {

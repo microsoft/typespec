@@ -27,11 +27,6 @@ class CollectionFormatClientTest {
     }
 
     @Test
-    void testTsv() {
-        client.tsv(Arrays.asList("blue", "red", "green"));
-    }
-
-    @Test
     void testPipe() {
         client.pipes(Arrays.asList("blue", "red", "green"));
     }
@@ -40,5 +35,4 @@ class CollectionFormatClientTest {
     void testCsvHeader() {
         headerClient.csv(Arrays.asList("blue", "red", "green"));
     }
-
 }

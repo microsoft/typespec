@@ -70,12 +70,12 @@ export class MockApiServer {
     this.app.use(bodyParser.text({ type: "text/plain" }));
     this.app.use(
       bodyParser.raw({
-        type: ["application/octet-stream", "image/png"],
+        type: ["application/octet-stream", "image/png", "application/jsonl"],
         limit: "10mb",
         verify: rawBinaryBodySaver,
       }),
     );
-    this.app.use(multer().any());
+    this.app.use(multer().any() as any);
   }
 
   public use(route: string, ...handlers: RequestHandler[]): void {

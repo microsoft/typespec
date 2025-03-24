@@ -1,6 +1,8 @@
+vi.resetModules();
+
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createCSharpSdkContext,
@@ -27,11 +29,11 @@ describe("Test GetInputType for scalar", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
-      (p) => p.Name === "location",
+    const inputParamArray = root.clients[0].operations[0].parameters.filter(
+      (p) => p.name === "location",
     );
     strictEqual(1, inputParamArray.length);
-    const type = inputParamArray[0].Type;
+    const type = inputParamArray[0].type;
     strictEqual(type.kind, "string");
     strictEqual(type.name, "azureLocation");
     strictEqual(type.crossLanguageDefinitionId, "Azure.Core.azureLocation");

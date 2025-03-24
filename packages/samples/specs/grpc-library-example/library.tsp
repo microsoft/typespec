@@ -6,7 +6,7 @@
 import "@typespec/rest";
 import "@typespec/openapi";
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "Grpc Library sample" })
 namespace GrpcLibrarySample;

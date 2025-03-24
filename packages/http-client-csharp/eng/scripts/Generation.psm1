@@ -28,9 +28,10 @@ function Get-TspCommand {
         [string]$libraryNameOverride = $null,
         [string]$apiVersion = $null
     )
+    $emitterDir = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
     $command = "npx tsp compile $specFile"
     $command += " --trace @typespec/http-client-csharp"
-    $command += " --emit @typespec/http-client-csharp"
+    $command += " --emit $emitterDir"
     $configFile = Join-Path $generationDir "tspconfig.yaml"
     if (Test-Path $configFile) {
         $command += " --config=$configFile"
@@ -38,7 +39,7 @@ function Get-TspCommand {
     $command += " --option @typespec/http-client-csharp.emitter-output-dir=$generationDir"
     $command += " --option @typespec/http-client-csharp.save-inputs=true"
     if ($generateStub) {
-        $command += " --option @typespec/http-client-csharp.plugin-name=StubLibraryPlugin"
+        $command += " --option @typespec/http-client-csharp.generator-name=StubLibraryGenerator"
     }
 
     if ($libraryNameOverride) {
@@ -48,6 +49,9 @@ function Get-TspCommand {
     if ($apiVersion) {
         $command += " --option @typespec/http-client-csharp.api-version=$apiVersion"
     }
+    
+    # Always regenerate the csproj to reflect updates to NewProjectScaffolding 
+    $command += " --option @typespec/http-client-csharp.new-project=true"
 
     return $command
 }

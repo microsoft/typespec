@@ -1,4 +1,5 @@
 {
   "output-folder": ".",
-  "package-name": "Response.StatusCodeRange"
+  "package-name": "Response.StatusCodeRange",
+  "unreferenced-types-handling": "keepAll"
 }

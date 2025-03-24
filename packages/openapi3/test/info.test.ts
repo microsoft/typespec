@@ -15,21 +15,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     strictEqual(res.info.title, "My Service");
   });
 
-  it("set the service version with @service", async () => {
-    const res = await openApiFor(
-      `
-      #suppress "deprecated" "For test"
-      @service(#{
-        version: "1.2.3-test"
-      })
-      namespace Foo {
-        op test(): string;
-      }
-      `,
-    );
-    strictEqual(res.info.version, "1.2.3-test");
-  });
-
   it("set the service description with @doc", async () => {
     const res = await openApiFor(
       `

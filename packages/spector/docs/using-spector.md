@@ -78,7 +78,7 @@ tsp-spector upload-coverage --generatorName typescript --version=0.1.0 --coverag
 Options:
 
 - `--storageAccountName`: Name of the storage account to publish coverage. Use `typespec` for Spector/Azure Spector dashboard.
-- `--generatorName`: Name of the generator. Must be one of `"@typespec/http-client-python", "@typespec/http-client-csharp", "@azure-tools/typespec-ts-rlc", "@azure-tools/typespec-ts-modular", "@typespec/http-client-java"`.
+- `--generatorName`: Name of the generator. Must be one of `"@typespec/http-client-python", "@typespec/http-client-csharp", "@azure-tools/typespec-ts-rlc", "@azure-tools/typespec-ts-modular", "@typespec/http-client-js", "@typespec/http-client-java"`.
 - `--generatorVersion`: Version of the generator
 - `--coverageFile`: Path to the coverage file
 

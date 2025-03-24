@@ -17,7 +17,7 @@ Scenarios.Type_Scalar_String_put = passOnSuccess({
   uri: "/type/scalar/string",
   method: `put`,
   request: {
-    body: "test",
+    body: json("test"),
     headers: {
       "Content-Type": "text/plain",
     },
@@ -43,7 +43,7 @@ Scenarios.Type_Scalar_Boolean_put = passOnSuccess({
   uri: "/type/scalar/boolean",
   method: `put`,
   request: {
-    body: true,
+    body: json(true),
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     },
@@ -68,7 +68,7 @@ Scenarios.Type_Scalar_Unknown_put = passOnSuccess({
   uri: "/type/scalar/unknown",
   method: `put`,
   request: {
-    body: "test",
+    body: json("test"),
     headers: {
       "Content-Type": "text/plain",
     },
@@ -103,7 +103,7 @@ Scenarios.Type_Scalar_DecimalType_requestBody = passOnSuccess({
   uri: "/type/scalar/decimal/resquest_body",
   method: `put`,
   request: {
-    body: 0.33333,
+    body: json(0.33333),
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     },
@@ -117,7 +117,7 @@ Scenarios.Type_Scalar_Decimal128Type_requestBody = passOnSuccess({
   uri: "/type/scalar/decimal128/resquest_body",
   method: `put`,
   request: {
-    body: 0.33333,
+    body: json(0.33333),
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     },
@@ -131,7 +131,7 @@ Scenarios.Type_Scalar_DecimalType_requestParameter = passOnSuccess({
   uri: "/type/scalar/decimal/request_parameter",
   method: `get`,
   request: {
-    params: { value: "0.33333" },
+    query: { value: "0.33333" },
   },
   response: {
     status: 204,
@@ -142,7 +142,7 @@ Scenarios.Type_Scalar_Decimal128Type_requestParameter = passOnSuccess({
   uri: "/type/scalar/decimal128/request_parameter",
   method: `get`,
   request: {
-    params: { value: "0.33333" },
+    query: { value: "0.33333" },
   },
   response: {
     status: 204,
@@ -173,7 +173,7 @@ Scenarios.Type_Scalar_DecimalVerify_verify = passOnSuccess({
   uri: "/type/scalar/decimal/verify",
   method: `post`,
   request: {
-    body: 0.3,
+    body: json(0.3),
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     },
@@ -187,7 +187,7 @@ Scenarios.Type_Scalar_Decimal128Verify_verify = passOnSuccess({
   uri: "/type/scalar/decimal128/verify",
   method: `post`,
   request: {
-    body: 0.3,
+    body: json(0.3),
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     },

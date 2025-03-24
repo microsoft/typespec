@@ -1,16 +1,9 @@
 import { getSymNode } from "../core/binder.js";
-import {
-  compilerAssert,
-  DocContent,
-  getDocData,
-  isType,
-  Node,
-  Program,
-  Sym,
-  SyntaxKind,
-  TemplateDeclarationNode,
-  Type,
-} from "../core/index.js";
+import { compilerAssert } from "../core/diagnostics.js";
+import { getDocData } from "../core/intrinsic-type-state.js";
+import { Program } from "../core/program.js";
+import { isType } from "../core/type-utils.js";
+import { DocContent, Node, Sym, SyntaxKind, TemplateDeclarationNode, Type } from "../core/types.js";
 import { getSymbolSignature } from "./type-signature.js";
 
 /**

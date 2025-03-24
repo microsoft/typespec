@@ -52,7 +52,7 @@ public final class UnknownsImpl {
 
         @HttpRequestInformation(method = HttpMethod.PUT, path = "/type/scalar/unknown", expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> putSync(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
+        Response<Void> putSync(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
             @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
     }
 

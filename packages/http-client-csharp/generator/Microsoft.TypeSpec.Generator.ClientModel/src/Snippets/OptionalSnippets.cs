@@ -32,8 +32,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             }
 
             var changeTrackingType = collection.Type.Arguments.Count == 1
-                ? ScmCodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(collection.Type.Arguments)
-                : ScmCodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(collection.Type.Arguments);
+                ? ScmCodeModelGenerator.Instance.TypeFactory.ListInitializationType.MakeGenericType(collection.Type.Arguments)
+                : ScmCodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(collection.Type.Arguments);
             return collection.NullCoalesce(New.Instance(changeTrackingType));
         }
     }

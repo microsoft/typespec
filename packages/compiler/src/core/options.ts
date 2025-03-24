@@ -16,11 +16,6 @@ export interface CompilerOptions {
   config?: string;
 
   /**
-   * @deprecated use outputDir.
-   */
-  outputPath?: string;
-
-  /**
    * List or path to emitters to use.
    */
   emit?: string[];
@@ -37,13 +32,6 @@ export interface CompilerOptions {
   options?: Record<string, EmitterOptions>;
 
   /**
-   * @deprecated use {@link emit} and {@link options} instead.
-   *
-   * Will be removed in March 2022 sprint.
-   */
-  emitters?: Record<string, EmitterOptions>;
-
-  /**
    * Suppress all `deprecated` warnings.
    */
   ignoreDeprecated?: boolean;
@@ -51,7 +39,18 @@ export interface CompilerOptions {
   nodeModules?: string[];
 
   nostdlib?: boolean;
+
+  /**
+   * Do not run emitters. Same as setting `emit: []`
+   * If both `emit` and `noEmit` are set, `noEmit` takes precedence.
+   */
   noEmit?: boolean;
+
+  /**
+   * Runs emitters but do not write any output.
+   * Only runs emitters supporting this functionality
+   */
+  dryRun?: boolean;
   additionalImports?: string[];
   warningAsError?: boolean;
 
