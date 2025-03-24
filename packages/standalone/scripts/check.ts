@@ -10,6 +10,9 @@ await main();
 
 async function main() {
   await commandRuns();
+  if (process.argv.includes("--smoke-only")) {
+    return;
+  }
   await installWorks();
 }
 
