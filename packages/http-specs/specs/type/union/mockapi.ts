@@ -20,9 +20,9 @@ function createPostServerTests(url: string, value: unknown) {
     uri: url,
     method: `post`,
     request: {
-      body: {
+      body: json({
         prop: value,
-      },
+      }),
     },
     response: {
       status: 204,

@@ -1,5 +1,6 @@
 import {
   MockRequest,
+  multipart,
   passOnSuccess,
   ScenarioMockApi,
   ValidationError,
@@ -185,11 +186,7 @@ Scenarios.Payload_MultiPart_FormData_basic = passOnSuccess({
   uri: "/multipart/form-data/mixed-parts",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    body: { id: 123 },
-    files: [files[0]],
+    body: multipart({ parts: { id: 123 }, files: [files[0]] }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkId, checkProfileImage]),
@@ -199,11 +196,10 @@ Scenarios.Payload_MultiPart_FormData_fileArrayAndBasic = passOnSuccess({
   uri: "/multipart/form-data/complex-parts",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    body: { id: 123, address: { city: "X" } },
-    files: [files[0], files[1], files[1]],
+    body: multipart({
+      parts: { id: 123, address: { city: "X" } },
+      files: [files[0], files[1], files[1]],
+    }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkId, checkAddress, checkAllFiles]),
@@ -213,11 +209,7 @@ Scenarios.Payload_MultiPart_FormData_jsonPart = passOnSuccess({
   uri: "/multipart/form-data/json-part",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    body: { address: { city: "X" } },
-    files: [files[0]],
+    body: multipart({ parts: { address: { city: "X" } }, files: [files[0]] }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkAddress, checkProfileImage]),
@@ -227,11 +219,7 @@ Scenarios.Payload_MultiPart_FormData_binaryArrayParts = passOnSuccess({
   uri: "/multipart/form-data/binary-array-parts",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    body: { id: 123 },
-    files: [files[1], files[1]],
+    body: multipart({ parts: { id: 123 }, files: [files[1], files[1]] }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkId, checkPictures]),
@@ -245,10 +233,9 @@ Scenarios.Payload_MultiPart_FormData_multiBinaryParts = withServiceKeys([
     uri: "/multipart/form-data/multi-binary-parts",
     method: "post",
     request: {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      files: [files[0]],
+      body: multipart({
+        files: [files[0]],
+      }),
     },
     response: { status: 204 },
     handler: createMultiBinaryPartsHandler,
@@ -258,10 +245,9 @@ Scenarios.Payload_MultiPart_FormData_multiBinaryParts = withServiceKeys([
     uri: "/multipart/form-data/multi-binary-parts",
     method: "post",
     request: {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      files: [files[0], { ...files[1], fieldname: "picture" }],
+      body: multipart({
+        files: [files[0], { ...files[1], fieldname: "picture" }],
+      }),
     },
     response: { status: 204 },
     handler: createMultiBinaryPartsHandler,
@@ -272,11 +258,10 @@ Scenarios.Payload_MultiPart_FormData_checkFileNameAndContentType = passOnSuccess
   uri: "/multipart/form-data/check-filename-and-content-type",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    body: { id: 123 },
-    files: [{ ...files[0], mimetype: "image/jpg", originalname: "hello.jpg" }],
+    body: multipart({
+      parts: { id: 123 },
+      files: [{ ...files[0], mimetype: "image/jpg", originalname: "hello.jpg" }],
+    }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkId, checkFileNameAndContentType]),
@@ -286,10 +271,9 @@ Scenarios.Payload_MultiPart_FormData_anonymousModel = passOnSuccess({
   uri: "/multipart/form-data/anonymous-model",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    files: [files[0]],
+    body: multipart({
+      files: [files[0]],
+    }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkProfileImage]),
@@ -299,10 +283,9 @@ Scenarios.Payload_MultiPart_FormData_HttpParts_ContentType_imageJpegContentType 
   uri: "/multipart/form-data/check-filename-and-specific-content-type-with-httppart",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    files: [{ ...files[0], mimetype: "image/jpg", originalname: "hello.jpg" }],
+    body: multipart({
+      files: [{ ...files[0], mimetype: "image/jpg", originalname: "hello.jpg" }],
+    }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkFileNameAndContentType]),
@@ -312,10 +295,9 @@ Scenarios.Payload_MultiPart_FormData_HttpParts_ContentType_requiredContentType =
   uri: "/multipart/form-data/check-filename-and-required-content-type-with-httppart",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    files: [files[0]],
+    body: multipart({
+      files: [files[0]],
+    }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkProfileImage]),
@@ -325,10 +307,9 @@ Scenarios.Payload_MultiPart_FormData_HttpParts_ContentType_optionalContentType =
   uri: "/multipart/form-data/file-with-http-part-optional-content-type",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    files: [files[0]],
+    body: multipart({
+      files: [files[0]],
+    }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkOptionalContentType]),
@@ -338,11 +319,14 @@ Scenarios.Payload_MultiPart_FormData_HttpParts_jsonArrayAndFileArray = passOnSuc
   uri: "/multipart/form-data/complex-parts-with-httppart",
   method: "post",
   request: {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    body: { id: 123, address: { city: "X" }, previousAddresses: [{ city: "Y" }, { city: "Z" }] },
-    files: [files[0], files[1], files[1]],
+    body: multipart({
+      parts: {
+        id: 123,
+        address: { city: "X" },
+        previousAddresses: [{ city: "Y" }, { city: "Z" }],
+      },
+      files: [files[0], files[1], files[1]],
+    }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) =>
@@ -353,10 +337,9 @@ Scenarios.Payload_MultiPart_FormData_HttpParts_NonString_float = passOnSuccess({
   uri: "/multipart/form-data/non-string-float",
   method: "post",
   request: {
-    body: { temperature: 0.5 },
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+    body: multipart({
+      parts: { temperature: 0.5 },
+    }),
   },
   response: { status: 204 },
   handler: (req: MockRequest) => createHandler(req, [checkFloat]),

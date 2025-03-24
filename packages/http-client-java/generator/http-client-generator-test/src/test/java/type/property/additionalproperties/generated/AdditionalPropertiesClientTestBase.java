@@ -40,7 +40,6 @@ import type.property.additionalproperties.SpreadDifferentStringClient;
 import type.property.additionalproperties.SpreadFloatClient;
 import type.property.additionalproperties.SpreadModelArrayClient;
 import type.property.additionalproperties.SpreadModelClient;
-import type.property.additionalproperties.SpreadRecordDiscriminatedUnionClient;
 import type.property.additionalproperties.SpreadRecordNonDiscriminatedUnion2Client;
 import type.property.additionalproperties.SpreadRecordNonDiscriminatedUnion3Client;
 import type.property.additionalproperties.SpreadRecordNonDiscriminatedUnionClient;
@@ -103,8 +102,6 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
     protected MultipleSpreadClient multipleSpreadClient;
 
     protected SpreadRecordUnionClient spreadRecordUnionClient;
-
-    protected SpreadRecordDiscriminatedUnionClient spreadRecordDiscriminatedUnionClient;
 
     protected SpreadRecordNonDiscriminatedUnionClient spreadRecordNonDiscriminatedUnionClient;
 
@@ -376,17 +373,6 @@ class AdditionalPropertiesClientTestBase extends TestProxyTestBase {
             spreadRecordUnionClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         spreadRecordUnionClient = spreadRecordUnionClientbuilder.buildSpreadRecordUnionClient();
-
-        AdditionalPropertiesClientBuilder spreadRecordDiscriminatedUnionClientbuilder
-            = new AdditionalPropertiesClientBuilder()
-                .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
-                .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
-        if (getTestMode() == TestMode.RECORD) {
-            spreadRecordDiscriminatedUnionClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
-        }
-        spreadRecordDiscriminatedUnionClient
-            = spreadRecordDiscriminatedUnionClientbuilder.buildSpreadRecordDiscriminatedUnionClient();
 
         AdditionalPropertiesClientBuilder spreadRecordNonDiscriminatedUnionClientbuilder
             = new AdditionalPropertiesClientBuilder()

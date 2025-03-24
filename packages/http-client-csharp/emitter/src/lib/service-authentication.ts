@@ -96,14 +96,14 @@ function processAuthType(
     case "http": {
       const schemeOrApiKeyPrefix = scheme.scheme;
       switch (schemeOrApiKeyPrefix) {
-        case "basic":
+        case "Basic":
           sdkContext.logger.reportDiagnostic({
             code: "unsupported-auth",
             format: { message: `${schemeOrApiKeyPrefix} auth method is currently not supported.` },
             target: credentialType.__raw ?? NoTarget,
           });
           return undefined;
-        case "bearer":
+        case "Bearer":
           return {
             apiKey: {
               name: "Authorization",

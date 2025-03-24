@@ -6,9 +6,9 @@ Scenarios.Versioning_MadeOptional_test = passOnSuccess({
   uri: `/versioning/made-optional/api-version:v2/test`,
   method: `post`,
   request: {
-    body: {
+    body: json({
       prop: "foo",
-    },
+    }),
   },
   response: {
     status: 200,

@@ -8,7 +8,7 @@ Scenarios.Type_Model_Inheritance_NotDiscriminated_postValid = passOnSuccess({
   uri: "/type/model/inheritance/not-discriminated/valid",
   method: "post",
   request: {
-    body: inheritanceValidBody,
+    body: json(inheritanceValidBody),
   },
   response: {
     status: 204,
@@ -29,7 +29,7 @@ Scenarios.Type_Model_Inheritance_NotDiscriminated_putValid = passOnSuccess({
   uri: "/type/model/inheritance/not-discriminated/valid",
   method: "put",
   request: {
-    body: inheritanceValidBody,
+    body: json(inheritanceValidBody),
   },
   response: {
     status: 200,

@@ -1,16 +1,10 @@
 vi.resetModules();
 
-// Ensure that the mock is applied before the import of the module containing the execAsync function.
-vi.mock("../../src/lib/utils.js", () => ({
-  execAsync: vi.fn(),
-}));
-
 import { EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { statSync } from "fs";
-import { afterAll, beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { $onEmit, _validateDotNetSdk } from "../../src/emitter.js";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { execAsync, execCSharpGenerator } from "../../src/lib/utils.js";
 import { CSharpEmitterOptions } from "../../src/options.js";
 import { CodeModel } from "../../src/type/code-model.js";
@@ -18,70 +12,76 @@ import {
   createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
+  getCreateSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
 describe("$onEmit tests", () => {
-  afterAll(() => {
-    vi.restoreAllMocks();
-  });
-
-  vi.mock("@typespec/compiler", async (importOriginal) => {
-    const actual = await importOriginal<typeof import("@typespec/compiler")>();
-
-    return {
-      ...actual,
-      resolvePath: vi.fn().mockImplementation((...args) => {
-        return "C:/mocked/path";
-      }),
-    };
-  });
-  vi.mock("@azure-tools/typespec-client-generator-core", () => ({
-    createSdkContext: vi.fn().mockImplementation(async (...args) => {
+  let program: Program;
+  let $onEmit: (arg0: EmitContext<CSharpEmitterOptions>) => any;
+  beforeEach(async () => {
+    // Reset the dynamically imported module to ensure a clean state
+    vi.resetModules();
+    vi.clearAllMocks();
+    vi.mock("fs", async (importOriginal) => {
+      const actualFs = await importOriginal<typeof import("fs")>();
       return {
-        sdkPackage: {},
-        emitContext: args[0],
-        program: args[0].program,
-        diagnostics: [],
+        ...actualFs,
+        statSync: vi.fn(),
       };
-    }),
-  }));
+    });
 
-  vi.mock("../../src/lib/utils.js", () => ({
-    execCSharpGenerator: vi.fn(),
-    execAsync: vi.fn(),
-  }));
+    vi.mock("@typespec/compiler", async (importOriginal) => {
+      const actual = await importOriginal<typeof import("@typespec/compiler")>();
 
-  vi.mock("../../src/lib/client-model-builder.js", () => ({
-    createModel: vi.fn().mockReturnValue({ Name: "TestNamespace" }),
-  }));
-
-  const program = {
-    compilerOptions: { noEmit: false },
-    hasError: () => false,
-    host: {
-      writeFile: vi.fn(),
-      rm: vi.fn(),
-    },
-    tracer: {
-      sub: vi.fn().mockReturnValue({
-        trace: vi.fn(),
+      return {
+        ...actual,
+        resolvePath: vi.fn().mockImplementation((...args) => {
+          return "C:/mocked/path";
+        }),
+      };
+    });
+    vi.mock("@azure-tools/typespec-client-generator-core", () => ({
+      createSdkContext: vi.fn().mockImplementation(async (...args) => {
+        return {
+          sdkPackage: {},
+          emitContext: args[0],
+          program: args[0].program,
+          diagnostics: [],
+        };
       }),
+    }));
+
+    vi.mock("../../src/lib/utils.js", () => ({
+      execCSharpGenerator: vi.fn(),
+      execAsync: vi.fn(),
+    }));
+
+    vi.mock("../../src/lib/client-model-builder.js", () => ({
+      createModel: vi.fn().mockReturnValue({ Name: "TestNamespace" }),
+    }));
+
+    program = {
+      compilerOptions: { noEmit: false },
+      hasError: () => false,
+      host: {
+        writeFile: vi.fn(),
+        rm: vi.fn(),
+      },
+      tracer: {
+        sub: vi.fn().mockReturnValue({
+          trace: vi.fn(),
+        }),
+        trace: vi.fn(),
+      },
       trace: vi.fn(),
-    },
-    trace: vi.fn(),
-    stateMap: vi.fn(),
-    reportDiagnostics: vi.fn(),
-  } as unknown as Program;
+      stateMap: vi.fn(),
+      reportDiagnostics: vi.fn(),
+    } as unknown as Program;
 
-  vi.mock("fs", async (importOriginal) => {
-    const actualFs = await importOriginal<typeof import("fs")>();
-
-    return {
-      ...actualFs,
-      existsSync: vi.fn(),
-      statSync: vi.fn(),
-    };
+    // dynamically import the module to get the $onEmit function
+    // we avoid importing it at the top to allow mocking of dependencies
+    $onEmit = (await import("../../src/emitter.js")).$onEmit;
   });
 
   it("should apply the update-code-model callback just once", async () => {
@@ -94,7 +94,27 @@ describe("$onEmit tests", () => {
     expect(updateCallback).toHaveBeenCalledTimes(1);
   });
 
-  it("should set newProject to true if .csproj file DOES NOT exist", async () => {
+  it("should apply sdk-context-options", async () => {
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    const additionalDecorators = ["Decorator1", "Decorator2"];
+    context.options["sdk-context-options"] = {
+      versioning: {
+        previewStringRegex: /$/,
+      },
+      additionalDecorators: additionalDecorators,
+    };
+    await $onEmit(context);
+    const createSdkContext = await getCreateSdkContext();
+    expect(createSdkContext).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.any(String),
+      expect.objectContaining({
+        additionalDecorators: additionalDecorators,
+      }),
+    );
+  });
+
+  it("should set newProject to TRUE if .csproj file DOES NOT exist", async () => {
     vi.mocked(statSync).mockImplementation(() => {
       throw new Error("File not found");
     });
@@ -111,7 +131,7 @@ describe("$onEmit tests", () => {
     });
   });
 
-  it("should set newProject to false if .csproj file DOES exist", async () => {
+  it("should set newProject to FALSE if .csproj file DOES exist", async () => {
     vi.mocked(statSync).mockReturnValue({ isFile: () => true } as any);
 
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
@@ -125,14 +145,48 @@ describe("$onEmit tests", () => {
       debug: false,
     });
   });
+
+  it("should set newProject to TRUE if passed in options", async () => {
+    vi.mocked(statSync).mockReturnValue({ isFile: () => true } as any);
+
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
+      "new-project": true,
+    });
+    await $onEmit(context);
+    expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
+      generatorPath: expect.any(String),
+      outputFolder: expect.any(String),
+      generatorName: "ScmCodeModelGenerator",
+      newProject: true, // Ensure this is passed as true
+      debug: false,
+    });
+  });
+
+  it("should set newProject to FALSE if passed in options", async () => {
+    vi.mocked(statSync).mockReturnValue({ isFile: () => true } as any);
+
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
+      "new-project": false,
+    });
+    await $onEmit(context);
+    expect(execCSharpGenerator).toHaveBeenCalledWith(expect.anything(), {
+      generatorPath: expect.any(String),
+      outputFolder: expect.any(String),
+      generatorName: "ScmCodeModelGenerator",
+      newProject: false, // Ensure this is passed as true
+      debug: false,
+    });
+  });
 });
 
 describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
   let program: Program;
   const minVersion = 8;
+  let _validateDotNetSdk: (arg0: any, arg1: number) => Promise<boolean>;
 
   beforeEach(async () => {
+    vi.resetModules();
     runner = await createEmitterTestHost();
     program = await typeSpecCompile(
       `
@@ -146,6 +200,14 @@ describe("Test _validateDotNetSdk", () => {
     );
     // Restore all mocks before each test
     vi.restoreAllMocks();
+    vi.mock("../../src/lib/utils.js", () => ({
+      execCSharpGenerator: vi.fn(),
+      execAsync: vi.fn(),
+    }));
+
+    // dynamically import the module to get the $onEmit function
+    // we avoid importing it at the top to allow mocking of dependencies
+    _validateDotNetSdk = (await import("../../src/emitter.js"))._validateDotNetSdk;
   });
 
   it("should return false and report diagnostic when dotnet SDK is not installed.", async () => {
