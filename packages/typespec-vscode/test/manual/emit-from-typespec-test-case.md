@@ -187,7 +187,7 @@ emit:
 
        **Validate**: There should be a prompt `Here are libraries to install or update`, and confirm to install the required libraries.
 
-       ![alt text](./images/GenerateOpenAPI_ConfirmTypeSpecEmitters.png)
+       ![alt text](./images/EmitOpenAPI_ConfirmTypeSpecEmitters.png)
 
      - If already installed, it will be skipped.
 
