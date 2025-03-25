@@ -2011,7 +2011,6 @@ describe("emit correct code for `@error` models", () => {
       "NotDefinedError.cs",
       [
         "public partial class NotDefinedError : HttpResponseException {",
-        "public NotDefinedError() : base(400) { }",
         "public NotDefinedError(int statusCode) : base(statusCode) { }",
       ],
     );
@@ -2035,6 +2034,39 @@ describe("emit correct code for `@error` models", () => {
       ],
     );
   });
+  it("emits first value when `@statusCode` is defined with an union reference", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: statusCodes;
+        }
+
+        union statusCodes {
+          400,
+          404,
+        }
+      `,
+      "Error.cs",
+      ["public partial class Error : HttpResponseException {", "public Error() : base(400) { }"],
+    );
+  });
+  it("emits first value when `@statusCode` is defined with an union", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200 | 202;
+        }
+      `,
+      "Error.cs",
+      ["public partial class Error : HttpResponseException {", "public Error() : base(200) { }"],
+    );
+  });
   it("emits error models when they inherit the `@error` decorator and resolves all the inheritance correctly", async () => {
     await compileAndValidateMultiple(
       runner,
@@ -2051,8 +2083,19 @@ describe("emit correct code for `@error` models", () => {
         }
       `,
       [
-        ["ApiError.cs", ["public partial class ApiError : HttpResponseException {"]],
-        ["Error.cs", [" public partial class Error : ApiError {"]],
+        [
+          "ApiError.cs",
+          [
+            "public partial class ApiError : HttpResponseException {",
+            "public ApiError(int statusCode) : base(statusCode) { }",
+            "public string Code { get; set; }",
+            "public string Message { get; set; }",
+          ],
+        ],
+        [
+          "Error.cs",
+          [" public partial class Error : ApiError {", "public Error() : base(500) { }"],
+        ],
       ],
     );
   });

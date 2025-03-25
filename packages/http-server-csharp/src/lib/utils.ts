@@ -601,11 +601,17 @@ export function getModelExceptionConstructor(
 
     if (!statusCodeProperty) return undefined;
 
-    if (statusCodeProperty.type.kind === "Number") {
-      return statusCodeProperty.type.value;
+    const { type } = statusCodeProperty;
+    switch (type.kind) {
+      case "Union": {
+        const firstVariant = type.variants.values().next().value;
+        return firstVariant?.type.kind === "Number" ? firstVariant.type.value : undefined;
+      }
+      case "Number":
+        return type.value;
+      default:
+        return getMinValue(program, statusCodeProperty) ?? undefined;
     }
-
-    return getMinValue(program, statusCodeProperty) ?? undefined;
   }
 
   if (!isErrorModel(program, model)) {
@@ -613,12 +619,10 @@ export function getModelExceptionConstructor(
   }
 
   const definedStatusCode = getDefinedStatusCode();
-  const defaultStatusCode = 400;
 
   return definedStatusCode
     ? `public ${className}() : base(${definedStatusCode}) { }`
-    : `public ${className}() : base(${defaultStatusCode}) { }
-       public ${className}(int statusCode) : base(statusCode) { }`;
+    : `public ${className}(int statusCode) : base(statusCode) { }`;
 }
 
 export function getModelDeclarationName(

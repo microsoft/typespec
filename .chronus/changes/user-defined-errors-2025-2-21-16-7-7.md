@@ -36,10 +36,20 @@ model NotFoundError{
 In this case, 500 will be returned:
 
 ```tsp
-model Standard4XXResponse extends ApiError {
+model Standard5XXResponse {
   @minValue(500)
   @maxValue(599)
   @statusCode
   statusCode: int32;
+}
+```
+
+### If `@statusCode` is defined as a union, the first value will be returned
+In this case, 402 will be returned:
+
+```tsp
+model Standard4XXResponse {
+  @statusCode
+  statusCode: 400 | 402;
 }
 ```
