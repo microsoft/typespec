@@ -183,6 +183,12 @@ export function createCompileService({
         const emitterName = err.info.metadata.name;
         const [yamlScript] = parseYaml(await serverHost.compilerHost.readFile(configFilePath));
         const target = getLocationInYamlScript(yamlScript, ["emit", emitterName], "key");
+        if(target.pos===0) {
+          log({
+            level: "debug",
+            message: `Unexpected situation, can't find emitter '${emitterName}' in config file '${configFilePath}'`,
+          });
+        }
         uri = fileService.getURL(configFilePath);
         const lineAndChar = target.file.getLineAndCharacterOfPosition(target.pos);
         range = Range.create(
