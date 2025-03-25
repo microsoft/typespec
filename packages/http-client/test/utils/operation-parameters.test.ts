@@ -97,11 +97,13 @@ it("should resolve member access with a simple query parameter structure", async
   expect(filterParam).toBeDefined();
   expect(orderByParam).toBeDefined();
   const filterAccess = $.httpOperation.formatParameterAccessExpression(httpOperation, filterParam!);
-  const orderByAccess = $.httpOperation.formatParameterAccessExpression(httpOperation, orderByParam!);
+  const orderByAccess = $.httpOperation.formatParameterAccessExpression(
+    httpOperation,
+    orderByParam!,
+  );
   expect(filterAccess).toEqual("input.filter");
   expect(orderByAccess).toEqual("input.orderBy");
 });
-
 
 it("should resolve member access with nested query parameters", async () => {
   const { nestedQuery } = testOperations;
@@ -127,9 +129,7 @@ it("should resolve member access with nested query parameters", async () => {
   expect(headerAccess).toEqual("input.basic.name");
 });
 
-
 it("should resolve member access with array query parameters", async () => {
-
   const { arrayQuery } = testOperations;
   const httpOperation = $.httpOperation.get(arrayQuery);
   const queryParams = httpOperation.parameters.properties.filter((p) =>
@@ -167,6 +167,9 @@ it("should resolve member access with optional nested query parameters", async (
   expect(queryParams).toHaveLength(1);
   const optionalParam = queryParams.find((p) => p.property.name === "value");
   expect(optionalParam).toBeDefined();
-  const optionalAccess = $.httpOperation.formatParameterAccessExpression(httpOperation, optionalParam!);
+  const optionalAccess = $.httpOperation.formatParameterAccessExpression(
+    httpOperation,
+    optionalParam!,
+  );
   expect(optionalAccess).toEqual("input.optional.nested.value");
 });

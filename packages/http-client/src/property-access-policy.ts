@@ -20,5 +20,5 @@ export interface PropertyAccessPolicy {
    * @param property - The HTTP property to build access for
    * @param metadata - Path segment metadata in order from root to leaf
    */
-  fromatPropertyAccessExpression(property: HttpProperty, metadata: AccessPathSegment[]): string;
+  fromatPropertyAccessExpression(metadata: AccessPathSegment[]): string;
 }

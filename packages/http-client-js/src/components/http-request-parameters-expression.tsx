@@ -26,7 +26,6 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
     return <ts.ObjectExpression />;
   }
 
-  const optionsParamRef = props.optionsParameter ?? "options";
   const members = (
     <ay.For each={props.parameters} line comma>
       {(httpProperty) => {

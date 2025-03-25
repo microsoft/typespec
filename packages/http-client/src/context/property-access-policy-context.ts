@@ -8,11 +8,10 @@ export function usePropertyAccessPolicy() {
   return useContext(PropertyAccessPolicyContext)!;
 }
 
-
 function defaultPropertyAccessPolicy(): PropertyAccessPolicy {
   return {
-    fromatPropertyAccessExpression(_property, metadata) {
-      return metadata.map(({segmentName}) => segmentName).join(".");
+    fromatPropertyAccessExpression(metadata) {
+      return metadata.map(({ segmentName }) => segmentName).join(".");
     },
   };
 }
