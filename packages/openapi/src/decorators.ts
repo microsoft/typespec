@@ -1,5 +1,6 @@
 import {
   $service,
+  compilerAssert,
   DecoratorContext,
   getDoc,
   getService,
@@ -57,15 +58,11 @@ export const $extension: ExtensionDecorator = (
   extensionName: string,
   value: unknown,
 ) => {
-  if (value && isType(value as any)) {
-    reportDiagnostic(context.program, {
-      code: "invalid-extension-value",
-      format: {
-        kind: (value as Type).kind,
-      },
-      target: context.getArgumentTarget(1)!,
-    });
-  }
+  compilerAssert(
+    !value || !isType(value as any),
+    "OpenAPI extension value must be a value but was a type",
+    context.getArgumentTarget(1),
+  );
   setExtension(context.program, entity, extensionName as ExtensionKey, value);
 };
 

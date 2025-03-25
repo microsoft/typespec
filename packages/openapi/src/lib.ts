@@ -34,12 +34,6 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`@tagMetadata must be used on the service namespace. Did you mean to annotate '${"namespace"}'  with '@service'?`,
       },
     },
-    "invalid-extension-value": {
-      severity: "error",
-      messages: {
-        default: paramMessage`OpenAPI extension value must be a value but was type '${"kind"}'`,
-      },
-    },
   },
   state: {
     tagsMetadata: { description: "State for the @tagMetadata decorator." },

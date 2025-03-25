@@ -1,9 +1,8 @@
-import { DecoratorContext, Namespace, Type } from "@typespec/compiler";
+import { Namespace } from "@typespec/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import {
-  $extension,
   getExtensions,
   getExternalDocs,
   getInfo,
@@ -11,7 +10,7 @@ import {
   resolveInfo,
   setInfo,
 } from "../src/decorators.js";
-import { createOpenAPITestRunner, createOpenAPITestRunnerWithDecorators } from "./test-host.js";
+import { createOpenAPITestRunner } from "./test-host.js";
 
 describe("openapi: decorators", () => {
   let runner: BasicTestRunner;
@@ -120,30 +119,6 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-      });
-    });
-
-    // TODO: remove once https://github.com/microsoft/typespec/issues/6077 is resolved
-    it("disallows types when called via JavaScript", async () => {
-      const runner = await createOpenAPITestRunnerWithDecorators({
-        $customExtension(context: DecoratorContext, target: Type, key: string, value: unknown) {
-          $extension(context, target, key, value);
-        },
-      });
-      const diagnostics = await runner.diagnose(
-        `
-        extern dec customExtension(target: unknown, key: valueof string, value: unknown | valueof unknown);
-        
-        @customExtension("x-works", #{ foo: "bar" })
-        @customExtension("x-fails", { foo: "bar" })
-        model Foo {}
-      `,
-        {},
-      );
-
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/openapi/invalid-extension-value",
-        message: "OpenAPI extension value must be a value but was type 'Model'",
       });
     });
   });
