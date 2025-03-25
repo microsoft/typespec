@@ -62,7 +62,7 @@ async function getPackages(
     if (project.manifest.private) {
       continue;
     }
-    const packagePath = join(workspaceRoot, project.dir);
+    const packagePath = join(workspaceRoot, project.rootDir);
     paths[project.manifest.name!] = {
       path: packagePath,
       version: project.manifest.version!,

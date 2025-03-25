@@ -67,7 +67,7 @@ export async function bundleAndUploadPackages({
   const existingIndex = await uploader.getIndex(indexName, indexVersion);
   const importMap: Record<string, string> = { ...existingIndex?.imports };
   for (const project of projects) {
-    const bundle = await createTypeSpecBundle(resolve(repoRoot, project.dir));
+    const bundle = await createTypeSpecBundle(resolve(repoRoot, project.rootDir));
     const manifest = bundle.manifest;
     const result = await uploader.upload(bundle);
     if (result.status === "uploaded") {
