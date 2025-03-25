@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator
             new CodeGenSerializationAttributeDefinition()
         ];
 
-        public virtual void Configure()
+        protected internal virtual void Configure()
         {
             foreach (var type in CustomCodeAttributeProviders)
             {
