@@ -63,11 +63,11 @@ class OperationGroup(BaseModel):
             operation_group.has_non_abstract_operations for operation_group in self.operation_groups
         )
 
-    @property
-    def base_class(self) -> str:
+    def base_class(self, async_mode: bool) -> str:
+        pipeline_client = f"{'Async' if async_mode else ''}PipelineClient"
         base_classes: List[str] = []
         if self.is_mixin:
-            base_classes.append("ClientMixinABC")
+            base_classes.append(f"ClientMixinABC[{pipeline_client}, {self.client.name}Configuration]")
         return ", ".join(base_classes)
 
     def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
@@ -150,21 +150,19 @@ class OperationGroup(BaseModel):
             f"{self.client.name}Configuration",
             ImportType.LOCAL,
         )
-        pipeline_client = f"{'Async' if async_mode else ''}PipelineClient"
         file_import.add_submodule_import(
             "" if self.code_model.is_azure_flavor else "runtime",
-            pipeline_client,
+            f"{'Async' if async_mode else ''}PipelineClient",
             ImportType.SDKCORE,
         )
         if self.is_mixin:
             file_import.add_submodule_import(
                 # XxxMixinABC is always defined in _vendor of client namespace
                 self.code_model.get_relative_import_path(
-                    f"{self.code_model.namespace}._vendor.utils",
                     self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
-                    module_name="_vendor.utils",
+                    f"{self.code_model.namespace}._vendor.utils",
                 ),
-                f"ClientMixinABC[{pipeline_client}, {self.client.name}Configuration]",
+                "ClientMixinABC",
                 ImportType.LOCAL,
             )
         else:

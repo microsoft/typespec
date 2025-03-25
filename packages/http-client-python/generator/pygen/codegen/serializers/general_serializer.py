@@ -105,6 +105,8 @@ class GeneralSerializer(BaseSerializer):
                 msrest_import_type=MsrestImportType.SerializerDeserializer,
                 typing_section=TypingSection.TYPING,
             )
+            file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB)
+            file_import.add_submodule_import("typing", "Generic", ImportType.STDLIB)
         if self.code_model.need_vendored_etag(self.client_namespace):
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
             file_import.add_submodule_import(
