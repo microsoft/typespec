@@ -264,7 +264,7 @@ function resolveExplicitBodyProperty(
         }
 
         resolvedBody ??= isFile
-          ? diagnostics.pipe(getFileBody(file))
+          ? diagnostics.pipe(getFileBody(file, item.property))
           : {
               bodyKind: "single",
               ...diagnostics.pipe(
@@ -527,7 +527,10 @@ function resolvePart(
   return diagnostics.wrap(undefined);
 }
 
-function getFileBody(file: HttpFileModel): DiagnosticResult<HttpOperationFileBody> {
+function getFileBody(
+  file: HttpFileModel,
+  property?: ModelProperty,
+): DiagnosticResult<HttpOperationFileBody> {
   const [contentTypes, diagnostics] = getContentTypes(file.contentType);
 
   const isText = isOrExtendsString(file.contents.type);
@@ -541,6 +544,7 @@ function getFileBody(file: HttpFileModel): DiagnosticResult<HttpOperationFileBod
       isText,
       contentTypeProperty: file.contentType,
       contentTypes,
+      property,
     },
     diagnostics,
   ];

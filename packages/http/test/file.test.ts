@@ -115,12 +115,13 @@ it("allows contents that extend string", async () => {
   expectDiagnosticEmpty(diagnostics);
 
   strictEqual(requestBody?.bodyKind, "file");
-  strictEqual(requestBody?.property, undefined);
-  deepStrictEqual(requestBody?.contentTypes, ["*/*"]);
-  strictEqual(requestBody?.isText, true);
+  ok(requestBody.property);
+  strictEqual(requestBody.property.name, "file");
+  deepStrictEqual(requestBody.contentTypes, ["*/*"]);
+  strictEqual(requestBody.isText, true);
 
   strictEqual(responseBody?.bodyKind, "file");
-  strictEqual(responseBody?.property, undefined);
+  strictEqual(responseBody.property, undefined);
   deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
   strictEqual(responseBody?.isText, true);
 });
@@ -149,7 +150,8 @@ it("allows contents that extend bytes", async () => {
   expectDiagnosticEmpty(diagnostics);
 
   strictEqual(requestBody?.bodyKind, "file");
-  strictEqual(requestBody?.property, undefined);
+  ok(requestBody.property);
+  strictEqual(requestBody.property.name, "file");
   deepStrictEqual(requestBody?.contentTypes, ["*/*"]);
   strictEqual(requestBody?.isText, false);
 
@@ -221,11 +223,13 @@ it("explicit bodyRoot upload and download", async () => {
     `);
 
   strictEqual(requestBody?.bodyKind, "file");
-  strictEqual(requestBody?.property, undefined);
+  ok(requestBody.property);
+  strictEqual(requestBody.property.name, "file");
   deepStrictEqual(requestBody?.contentTypes, ["*/*"]);
 
   strictEqual(responseBody?.bodyKind, "file");
-  strictEqual(responseBody?.property, undefined);
+  ok(responseBody.property);
+  strictEqual(responseBody.property.name, "file");
   deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
 });
 
@@ -244,11 +248,13 @@ it("explicit body upload and download", async () => {
     `);
 
   strictEqual(requestBody?.bodyKind, "file");
-  strictEqual(requestBody?.property, undefined);
+  ok(requestBody.property);
+  strictEqual(requestBody.property.name, "file");
   deepStrictEqual(requestBody?.contentTypes, ["*/*"]);
 
   strictEqual(responseBody?.bodyKind, "file");
-  strictEqual(responseBody?.property, undefined);
+  ok(responseBody.property);
+  strictEqual(responseBody.property.name, "file");
   deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
 });
 
@@ -339,7 +345,8 @@ describe("multipart", () => {
     strictEqual(multipartRequestBody?.parts.length, 1);
     const requestPartBody = multipartRequestBody?.parts[0].body;
     strictEqual(requestPartBody.bodyKind, "file");
-    strictEqual(requestPartBody.property, undefined);
+    ok(requestPartBody.property);
+    strictEqual(requestPartBody.property.name, "file");
     deepStrictEqual(requestPartBody.contentTypes, ["*/*"]);
 
     strictEqual(multipartResponseBody?.bodyKind, "multipart");
@@ -348,7 +355,8 @@ describe("multipart", () => {
     strictEqual(multipartResponseBody?.parts.length, 1);
     const responsePartBody = multipartResponseBody?.parts[0].body;
     strictEqual(responsePartBody.bodyKind, "file");
-    strictEqual(responsePartBody.property, undefined);
+    ok(responsePartBody.property);
+    strictEqual(responsePartBody.property.name, "file");
     deepStrictEqual(responsePartBody.contentTypes, ["*/*"]);
   });
 
@@ -372,7 +380,8 @@ describe("multipart", () => {
     strictEqual(multipartRequestBody?.parts.length, 1);
     const requestPartBody = multipartRequestBody?.parts[0].body;
     strictEqual(requestPartBody.bodyKind, "file");
-    strictEqual(requestPartBody.property, undefined);
+    ok(requestPartBody.property);
+    strictEqual(requestPartBody.property.name, "file");
     deepStrictEqual(requestPartBody.contentTypes, ["*/*"]);
 
     strictEqual(multipartResponseBody?.bodyKind, "multipart");
@@ -381,7 +390,8 @@ describe("multipart", () => {
     strictEqual(multipartResponseBody?.parts.length, 1);
     const responsePartBody = multipartResponseBody?.parts[0].body;
     strictEqual(responsePartBody.bodyKind, "file");
-    strictEqual(responsePartBody.property, undefined);
+    ok(responsePartBody.property);
+    strictEqual(responsePartBody.property.name, "file");
     deepStrictEqual(responsePartBody.contentTypes, ["*/*"]);
   });
 });
@@ -438,14 +448,16 @@ describe("custom file model", () => {
       `);
 
     strictEqual(requestBody?.bodyKind, "file");
-    strictEqual(requestBody?.property, undefined);
-    deepStrictEqual(requestBody?.contentTypes, ["application/json", "application/yaml"]);
-    ok(requestBody?.isText);
+    ok(requestBody.property);
+    strictEqual(requestBody.property.name, "file");
+    deepStrictEqual(requestBody.contentTypes, ["application/json", "application/yaml"]);
+    ok(requestBody.isText);
 
     strictEqual(responseBody?.bodyKind, "file");
-    strictEqual(responseBody?.property, undefined);
-    deepStrictEqual(responseBody?.contentTypes, ["application/json", "application/yaml"]);
-    ok(responseBody?.isText);
+    ok(responseBody.property);
+    strictEqual(responseBody.property.name, "file");
+    deepStrictEqual(responseBody.contentTypes, ["application/json", "application/yaml"]);
+    ok(responseBody.isText);
   });
 
   it("explicit bodyRoot upload and download", async () => {
@@ -464,12 +476,14 @@ describe("custom file model", () => {
       `);
 
     strictEqual(requestBody?.bodyKind, "file");
-    strictEqual(requestBody?.property, undefined);
+    ok(requestBody.property);
+    strictEqual(requestBody.property.name, "file");
     deepStrictEqual(requestBody?.contentTypes, ["application/json", "application/yaml"]);
     ok(requestBody?.isText);
 
     strictEqual(responseBody?.bodyKind, "file");
-    strictEqual(responseBody?.property, undefined);
+    ok(responseBody.property);
+    strictEqual(responseBody.property.name, "file");
     deepStrictEqual(responseBody?.contentTypes, ["application/json", "application/yaml"]);
     ok(responseBody?.isText);
   });
@@ -477,7 +491,7 @@ describe("custom file model", () => {
   it("allows interior metadata using bodyRoot", async () => {
     const { operations, runner, diagnostics } = await compileOperationsFull(`
         ${makeFileModel("x-filename")}
-        op example(@bodyRoot file: SpecFile): { @bodyRoot file: SpecFile };
+        op example(@bodyRoot specFile: SpecFile): { @bodyRoot specFile: SpecFile };
       `);
 
     strictEqual(diagnostics.length, 0);
@@ -494,7 +508,8 @@ describe("custom file model", () => {
     ] = operations;
 
     strictEqual(requestBody?.bodyKind, "file");
-    strictEqual(requestBody?.property, undefined);
+    ok(requestBody.property);
+    strictEqual(requestBody.property.name, "specFile");
     deepStrictEqual(requestBody?.contentTypes, ["application/json", "application/yaml"]);
     ok(requestBody?.isText);
     const requestXFilename = requestParameters.find(
@@ -504,7 +519,8 @@ describe("custom file model", () => {
     ok(isHeader(runner.program, requestBody.type.properties.get("filename")!));
 
     strictEqual(responseBody?.bodyKind, "file");
-    strictEqual(responseBody?.property, undefined);
+    ok(responseBody.property);
+    strictEqual(responseBody.property.name, "specFile");
     deepStrictEqual(responseBody?.contentTypes, ["application/json", "application/yaml"]);
     ok(responseBody?.isText);
     const responseXFilename = responseProperties.find(
@@ -598,13 +614,13 @@ describe("structured files", () => {
         code: "@typespec/http/http-file-structured",
         severity: "warning",
         message:
-          "HTTP File body is treated as a structured model and serialized to 'application/json' because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
+          "HTTP File body is serialized as a structured model in 'application/json' instead of being treated as the contents of a file, because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
       },
       {
         code: "@typespec/http/http-file-structured",
         severity: "warning",
         message:
-          "HTTP File body is treated as a structured model and serialized to 'application/json' because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
+          "HTTP File body is serialized as a structured model in 'application/json' instead of being treated as the contents of a file, because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
       },
     ]);
 

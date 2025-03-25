@@ -552,9 +552,6 @@ export interface HttpOperationFileBody extends HttpOperationBodyBase {
    * The `contents` property.
    */
   readonly contents: ModelProperty & { type: Scalar };
-
-  /** Never set on `HttpOperationFileBody`. */
-  readonly property?: undefined;
 }
 
 export interface HttpStatusCodeRange {
