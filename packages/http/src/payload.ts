@@ -390,7 +390,7 @@ function resolveMultiPartBodyFromModel(
   const diagnostics = createDiagnosticCollector();
   const parts: HttpOperationPart[] = [];
   for (const item of type.properties.values()) {
-    const part = diagnostics.pipe(resolvePartOrParts(program, item.type, visibility));
+    const part = diagnostics.pipe(resolvePartOrParts(program, item.type, visibility, item));
     if (part) {
       parts.push({ ...part, name: part.name ?? item.name, optional: item.optional });
     }
@@ -470,15 +470,16 @@ function resolvePartOrParts(
   program: Program,
   type: Type,
   visibility: Visibility,
+  property?: ModelProperty,
 ): DiagnosticResult<HttpOperationPart | undefined> {
   if (type.kind === "Model" && isArrayModelType(program, type)) {
-    const [part, diagnostics] = resolvePart(program, type.indexer.value, visibility);
+    const [part, diagnostics] = resolvePart(program, type.indexer.value, visibility, property);
     if (part) {
       return [{ ...part, multi: true }, diagnostics];
     }
     return [part, diagnostics];
   } else {
-    return resolvePart(program, type, visibility);
+    return resolvePart(program, type, visibility, property);
   }
 }
 
@@ -486,6 +487,7 @@ function resolvePart(
   program: Program,
   type: Type,
   visibility: Visibility,
+  property?: ModelProperty,
 ): DiagnosticResult<HttpOperationPart | undefined> {
   const diagnostics = createDiagnosticCollector();
   const part = getHttpPart(program, type);
@@ -514,6 +516,7 @@ function resolvePart(
 
     return diagnostics.wrap({
       multi: false,
+      property,
       name: part.options.name,
       body,
       optional: false,

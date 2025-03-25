@@ -1,5 +1,6 @@
 import { fail, match, strictEqual } from "assert";
-import { formatDiagnostic, getSourceLocation } from "../core/diagnostics.js";
+import { getSourceLocation } from "../core/diagnostics.js";
+import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { NoTarget, type Diagnostic } from "../core/types.js";
 import { isArray } from "../utils/misc.js";
 import { resolveVirtualPath } from "./test-utils.js";

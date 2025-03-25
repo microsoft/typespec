@@ -496,6 +496,8 @@ export type HttpOperationMultipartPartBody = HttpOperationBody | HttpOperationFi
 
 /** Represent an part in a multipart body. */
 export interface HttpOperationPart {
+  /** Property that defined the part if the model form is used. */
+  readonly property?: ModelProperty;
   /** Part name */
   readonly name?: string;
   /** If the part is optional */
