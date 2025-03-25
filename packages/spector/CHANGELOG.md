@@ -1,5 +1,23 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.10
+
+### Features
+
+- [#6565](https://github.com/microsoft/typespec/pull/6565) Make handling of request body and response body consistent
+- [#6543](https://github.com/microsoft/typespec/pull/6543) Rename `server-test` command to `knock`
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6527](https://github.com/microsoft/typespec/pull/6527) Don't throw for scenarios that expect error response
+- [#6562](https://github.com/microsoft/typespec/pull/6562) Updates `tsp-spector knock` to exit with a failure if no scenarios are executed
+- [#6543](https://github.com/microsoft/typespec/pull/6543) Add new `--filter` option to `knock` command
+
+
 ## 0.1.0-alpha.9
 
 ### Features
