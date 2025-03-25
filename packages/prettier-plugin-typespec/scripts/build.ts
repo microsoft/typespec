@@ -7,5 +7,6 @@ await build({
   platform: "node",
   target: "node22",
   format: "esm",
+  sourcemap: true,
   external: ["prettier", "fs/promises", "ajv", "yaml"],
 });
