@@ -2,8 +2,7 @@
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
 changeKind: feature
 packages:
-  - "@typespec/spector"
-  - "@typespec/spec-api"
+  - "@typespec/prettier-plugin-typespec"
 ---
 
-Make handling of request body and response body consistent
+Migrate to ESM. This shouldn't be breaking as we didn't support prettier < 3.

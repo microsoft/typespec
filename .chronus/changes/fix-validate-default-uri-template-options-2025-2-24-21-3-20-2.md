@@ -1,8 +1,6 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: fix
+changeKind: internal
 packages:
-  - "@typespec/spector"
+  - "@typespec/openapi3"
 ---
-
-Add new `--filter` option to `knock` command 

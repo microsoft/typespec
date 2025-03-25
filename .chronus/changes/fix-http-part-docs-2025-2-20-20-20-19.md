@@ -1,6 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: internal
+changeKind: feature
 packages:
-  - "@typespec/http-specs"
+  - "@typespec/http"
 ---
+
+[API] Expose `property?` on `HttpOperationPart`

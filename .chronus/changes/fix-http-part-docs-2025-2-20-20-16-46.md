@@ -1,9 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: internal
+changeKind: fix
 packages:
-  - "@typespec/spec-api"
-  - "@typespec/spector"
+  - "@typespec/openapi3"
 ---
 
-Fix regression with spector
+Fix missing application of description on multipart properties
