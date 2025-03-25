@@ -18,7 +18,7 @@ import { parseArgs } from "node:util";
 if (process.env.TYPESPEC_CLI_PASSTHROUGH === "1") {
   process.argv.shift(); // We receive ["tsp", "tsp", "entrypoint"] and we want to match ["node", "entrypoint"]
   process.execArgv = [];
-  import(process.argv[1]).catch((e) => {
+  import(pathToFileURL(process.argv[1]).href).catch((e) => {
     // eslint-disable-next-line no-console
     console.log(e);
     process.exit(1);
