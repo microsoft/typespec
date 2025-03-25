@@ -73,8 +73,8 @@ export type ContainsDecorator = (
 ) => void;
 
 /**
- * Specify that the array must contain at least some number of the types provided
- * by the contains decorator.
+ * Used in conjunction with the `@contains` decorator,
+ * specifies that the array must contain at least a certain number of the types provided by the `@contains` decorator.
  *
  * @param value The minimum number of instances the array must contain
  */
@@ -85,8 +85,8 @@ export type MinContainsDecorator = (
 ) => void;
 
 /**
- * Specify that the array must contain at most some number of the types provided
- * by the contains decorator.
+ * Used in conjunction with the `@contains` decorator,
+ * specifies that the array must contain at most a certain number of the types provided by the `@contains` decorator.
  *
  * @param value The maximum number of instances the array must contain
  */
@@ -184,7 +184,7 @@ export type ContentSchemaDecorator = (
  * - The value is a scalar value (e.g. string, number, boolean, etc.)
  * - The value is wrapped in the `Json<Data>` template
  * - The value is provided using the value syntax (e.g. `#{}`, `#[]`)
- 
+ *
  * For example, `@extension("x-schema", { x: "value" })` will emit a JSON schema value for `x-schema`,
  * whereas `@extension("x-schema", #{x: "value"})` and `@extension("x-schema", Json<{x: "value"}>)`
  * will emit the raw JSON code `{x: "value"}`.
