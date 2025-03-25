@@ -1,5 +1,4 @@
 import { useTSNamePolicy } from "@alloy-js/typescript";
-import { HttpProperty } from "@typespec/http";
 import { AccessPathSegment, PropertyAccessPolicy } from "@typespec/http-client";
 import { getDefaultValue } from "./parameters.jsx";
 
@@ -8,9 +7,7 @@ import { getDefaultValue } from "./parameters.jsx";
  * and proper formatting of property names
  */
 export const TypeScriptPropertyAccessPolicy: PropertyAccessPolicy = {
-  fromatPropertyAccessExpression(
-    metadata: AccessPathSegment[],
-  ): string {
+  fromatPropertyAccessExpression(metadata: AccessPathSegment[]): string {
     if (metadata.length === 0) return "";
 
     const namePolicy = useTSNamePolicy();

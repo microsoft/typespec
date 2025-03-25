@@ -25,9 +25,7 @@ it("should format a simple property access", () => {
     { property: httpProperty.property, segmentName: "testProperty" },
   ];
 
-  const result = TypeScriptPropertyAccessPolicy.fromatPropertyAccessExpression(
-    segments,
-  );
+  const result = TypeScriptPropertyAccessPolicy.fromatPropertyAccessExpression(segments);
   expect(result).toBe("testProperty");
 });
 
@@ -62,21 +60,13 @@ it("should format a nested property access", () => {
     } as Model,
   } as ModelProperty;
 
-  const httpProperty: HttpProperty = {
-    kind: "query",
-    path: ["input", "foo", "filter"],
-    property: filterProperty,
-  } as HttpProperty;
-
   const segments: AccessPathSegment[] = [
     { property: inputProperty, segmentName: "input", parent: undefined },
     { property: fooProperty, segmentName: "foo", parent: inputProperty },
     { property: filterProperty, segmentName: "filter", parent: fooProperty },
   ];
 
-  const result = TypeScriptPropertyAccessPolicy.fromatPropertyAccessExpression(
-    segments,
-  );
+  const result = TypeScriptPropertyAccessPolicy.fromatPropertyAccessExpression(segments);
   expect(result).toBe("input.foo.filter");
 });
 
@@ -111,21 +101,13 @@ it("should format a nested property access with an optional parent", () => {
     } as Model,
   } as ModelProperty;
 
-  const httpProperty: HttpProperty = {
-    kind: "query",
-    path: ["input", "foo", "filter"],
-    property: filterProperty,
-  } as HttpProperty;
-
   const segments: AccessPathSegment[] = [
     { property: inputProperty, segmentName: "input", parent: undefined },
     { property: fooProperty, segmentName: "foo", parent: inputProperty },
     { property: filterProperty, segmentName: "filter", parent: fooProperty },
   ];
 
-  const result = TypeScriptPropertyAccessPolicy.fromatPropertyAccessExpression(
-    segments,
-  );
+  const result = TypeScriptPropertyAccessPolicy.fromatPropertyAccessExpression(segments);
   expect(result).toBe("input.foo?.filter");
 });
 
@@ -160,20 +142,12 @@ it("should format a nested property access with an optional top level parameter"
     } as Model,
   } as ModelProperty;
 
-  const httpProperty: HttpProperty = {
-    kind: "query",
-    path: ["input", "foo", "filter"],
-    property: filterProperty,
-  } as HttpProperty;
-
   const segments: AccessPathSegment[] = [
     { property: inputProperty, segmentName: "input", parent: undefined },
     { property: fooProperty, segmentName: "foo", parent: inputProperty },
     { property: filterProperty, segmentName: "filter", parent: fooProperty },
   ];
 
-  const result = TypeScriptPropertyAccessPolicy.fromatPropertyAccessExpression(
-    segments,
-  );
+  const result = TypeScriptPropertyAccessPolicy.fromatPropertyAccessExpression(segments);
   expect(result).toBe("options?.input?.foo?.filter");
 });

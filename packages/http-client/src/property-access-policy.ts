@@ -1,5 +1,4 @@
 import { ModelProperty } from "@typespec/compiler";
-import { HttpProperty } from "@typespec/http";
 
 /**
  * Metadata for a property in an access path
