@@ -41,7 +41,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
                 addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                    clientMethod.getValidateExpressions(), settings);
+                    clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
                 addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
                 applyParameterTransformations(function, clientMethod, settings);
                 convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
@@ -126,7 +126,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
         } else {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
                 addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                    clientMethod.getValidateExpressions(), settings);
+                    clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
                 addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
                 applyParameterTransformations(function, clientMethod, settings);
                 convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
@@ -248,7 +248,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
         typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());

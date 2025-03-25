@@ -68,10 +68,11 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param expressionsToCheck Expressions to validate as non-null.
      * @param validateExpressions Expressions to validate with a custom validation (key is the expression, value is the
      * validation).
+     * @param clientMethodType type of the client method
      * @param settings AutoRest generation settings, used to determine if validations should be added.
      */
     protected static void addValidations(JavaBlock function, List<String> expressionsToCheck,
-        Map<String, String> validateExpressions, JavaSettings settings) {
+        Map<String, String> validateExpressions, ClientMethodType clientMethodType, JavaSettings settings) {
         if (!settings.isClientSideValidations()) {
             return;
         }
@@ -90,7 +91,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             // 2. Assumes that the client method returns a reactive response.
             // 3. Assumes that the reactive response is a Mono.
             JavaIfBlock nullCheck = function.ifBlock(expressionToCheck + " == null", ifBlock -> {
-                if (JavaSettings.getInstance().isSyncStackEnabled()) {
+                if (JavaSettings.getInstance().isSyncStackEnabled() && clientMethodType.isSync()) {
                     if (settings.isUseClientLogger()) {
                         ifBlock.line("throw LOGGER.atError().log(" + exceptionExpression + ");");
                     } else {
@@ -820,7 +821,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
 
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
@@ -1034,7 +1035,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         typeBlock.publicMethod(clientMethod.getDeclaration(), function -> {
             ProxyMethodParameter parameter = restAPIMethod.getParameters().get(0);
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             function.methodReturn("service." + restAPIMethod.getName() + "(" + parameter.getName() + ")");
         });
     }
@@ -1196,7 +1197,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
 
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
@@ -1317,7 +1318,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
 
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
@@ -1499,7 +1500,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
 
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
