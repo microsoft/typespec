@@ -58,49 +58,22 @@ This document provides a proposal for a generated convenience layer to remove so
 
 ## System ClientModel Updates
 
-### File Part Types
+### File Part Type
 
-To support generating a convenience layer for file parts described in a TypeSpec request, new convenience model types can be added to the System.ClientModel library, to be consumed by generated clients. These new types can serve as the common types for file parts within a request model.
+To support generating a convenience layer for file parts described in a TypeSpec request, new convenience model type can be added to the System.ClientModel library, to be consumed by generated clients. This new type can serve as the common type for file parts within a request.
 
 ```csharp
-public partial class MultiPartFileWithOptionalMetadata
+public partial class FileBinaryContent : System.ClientModel.BinaryContent
 {
-    public MultiPartFileWithOptionalMetadata(System.BinaryData contents) { }
-    public MultiPartFileWithOptionalMetadata(System.IO.Stream contents) { }
-    public System.BinaryData? Contents { get { throw null; } }
+    public FileBinaryContent(System.BinaryData data) { }
+    public FileBinaryContent(System.IO.Stream stream) { }
+    public FileBinaryContent(string path) { }
     public string ContentType { get { throw null; } set { } }
-    public System.IO.Stream? File { get { throw null; } }
     public string? Filename { get { throw null; } set { } }
-}
-
-public partial class MultiPartFileWithRequiredContentType
-{
-    public MultiPartFileWithRequiredContentType(System.BinaryData contents, string contentType) { }
-    public MultiPartFileWithRequiredContentType(System.IO.Stream contents, string contentType) { }
-    public System.BinaryData? Contents { get { throw null; } }
-    public string ContentType { get { throw null; } }
-    public System.IO.Stream? File { get { throw null; } }
-    public string? Filename { get { throw null; } set { } }
-}
-
-public partial class MultiPartFileWithRequiredFilename
-{
-    public MultiPartFileWithRequiredFilename(System.BinaryData contents, string filename) { }
-    public MultiPartFileWithRequiredFilename(System.IO.Stream contents, string filename) { }
-    public System.BinaryData? Contents { get { throw null; } }
-    public string ContentType { get { throw null; } set { } }
-    public System.IO.Stream? File { get { throw null; } }
-    public string Filename { get { throw null; } }
-}
-
-public partial class MultiPartFileWithRequiredMetadata
-{
-    public MultiPartFileWithRequiredMetadata(System.BinaryData contents, string filename, string contentType) { }
-    public MultiPartFileWithRequiredMetadata(System.IO.Stream contents, string filename, string contentType) { }
-    public System.BinaryData? Contents { get { throw null; } }
-    public string ContentType { get { throw null; } }
-    public System.IO.Stream? File { get { throw null; } }
-    public string Filename { get { throw null; } }
+    public override void Dispose() { }
+    public override bool TryComputeLength(out long length) { throw null; }
+    public override void WriteTo(System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { }
+    public override System.Threading.Tasks.Task WriteToAsync(System.IO.Stream stream, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
 }
 ```
 
@@ -140,35 +113,18 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     internal HttpContent HttpContent => _multipartContent;
 
     // CUSTOM: Add filepart to the multipart content.
-    public void Add(string name, MultiPartFileWithOptionalMetadata file)
+    public void Add(string name, FileBinaryContent fileContent)
     {
-        Argument.AssertNotNull(file, nameof(file));
+        Argument.AssertNotNullOrEmpty(name, nameof(name));
+        Argument.AssertNotNull(fileContent, nameof(fileContent));
 
-        AddFilePart(name, file.File, file.Contents, file.Filename, file.ContentType);
-    }
+        HttpContent content = new HttpContentAdapter(fileContent);
+        if (fileContent.ContentType != null)
+        {
+            content.Headers.ContentType = MediaTypeHeaderValue.Parse(fileContent.ContentType);
+        }
 
-    // CUSTOM: Add filepart to the multipart content.
-    public void Add(string name, MultiPartFileWithRequiredContentType file)
-    {
-        Argument.AssertNotNull(file, nameof(file));
-
-        AddFilePart(name, file.File, file.Contents, file.Filename, file.ContentType);
-    }
-
-    // CUSTOM: Add filepart to the multipart content.
-    public void Add(string name, MultiPartFileWithRequiredFilename file)
-    {
-        Argument.AssertNotNull(file, nameof(file));
-
-        AddFilePart(name, file.File, file.Contents, file.Filename, file.ContentType);
-    }
-
-    // CUSTOM: Add filepart to the multipart content.
-    public void Add(string name, MultiPartFileWithRequiredMetadata file)
-    {
-        Argument.AssertNotNull(file, nameof(file));
-
-        AddFilePart(name, file.File, file.Contents, file.Filename, file.ContentType);
+        Add(content, name, fileContent.Filename);
     }
 
     // CUSTOM: Add IPersistableModel part to the multipart content.
@@ -313,39 +269,6 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
         Add(byteArrayContent, name, fileName);
     }
 
-    // CUSTOM: Add helper method to reduce code duplication.
-    private void AddFilePart(string name, Stream fileStream, BinaryData contents, string filename = default, string contentType = default)
-    {
-        Argument.AssertNotNullOrEmpty(name, nameof(name));
-
-        if (fileStream != null)
-        {
-            Add(name, fileStream, filename, contentType);
-        }
-        else if (contents != null)
-        {
-            Add(name, contents, filename, contentType);
-        }
-        else
-        {
-            throw new InvalidOperationException("File contents are not set.");
-        }
-    }
-
-    // CUSTOM: Make private
-    private void Add(string name, Stream stream, string fileName = default, string contentType = default)
-    {
-        Argument.AssertNotNull(stream, nameof(stream));
-        Argument.AssertNotNullOrEmpty(name, nameof(name));
-
-        StreamContent content = new(stream);
-        if (contentType is not null)
-        {
-            content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
-        }
-        Add(content, name, fileName);
-    }
-
     private void Add(HttpContent content, string name, string fileName = default)
     {
         Argument.AssertNotNull(content, nameof(content));
@@ -420,8 +343,6 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
 #if NET5_0_OR_GREATER
         _multipartContent.CopyTo(stream, default, cancellationToken);
 #else
-        // TODO: polyfill sync-over-async for netstandard2.0 for Azure clients.
-        // Tracked by https://github.com/Azure/azure-sdk-for-net/issues/42674
         _multipartContent.CopyToAsync(stream).GetAwaiter().GetResult();
 #endif
     }
@@ -438,6 +359,32 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     public override void Dispose()
     {
         _multipartContent.Dispose();
+    }
+
+    private sealed class HttpContentAdapter : HttpContent
+    {
+        private readonly BinaryContent _content;
+
+        public HttpContentAdapter(BinaryContent content)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            _content = content;
+        }
+
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
+            => await _content.WriteToAsync(stream).ConfigureAwait(false);
+
+        protected override bool TryComputeLength(out long length)
+            => _content.TryComputeLength(out length);
+
+#if NET6_0_OR_GREATER
+            protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+                => await _content!.WriteToAsync(stream, cancellationToken).ConfigureAwait(false);
+
+            protected override void SerializeToStream(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+                => _content.WriteTo(stream, cancellationToken);
+#endif
     }
 }
 ```
@@ -464,22 +411,6 @@ model Dog {
 op uploadDog(
   @header contentType: "multipart/form-data",
   @multipartBody body: Dog,
-): NoContentResponse;
-```
-
-#### The same operation can also be expressed using the `@body` decorator and a "bytes" type for the file part
-
-```tsp
-model Dog {
-  id: string;
-  profileImage: bytes;
-}
-
-@post
-@route("/dogs")
-op uploadDog(
-  @header contentType: "multipart/form-data",
-  @body body: Dog,
 ): NoContentResponse;
 ```
 
@@ -532,19 +463,51 @@ public virtual ClientResult UploadDog(Dog body, CancellationToken cancellationTo
 <summary>Dog.cs</summary>
 
 ```c#
-public partial class Dog
+public partial class Dog  : IDisposable
 {
-     public Dog(string id, MultiPartFileWithOptionalMetadata profileImage)
-     {
-         Argument.AssertNotNull(id, nameof(id));
-         Argument.AssertNotNull(profileImage, nameof(profileImage));
+    public Dog(string id, string profileImagePath)
+    {
+        Argument.AssertNotNull(id, nameof(id));
+        Argument.AssertNotNull(profileImagePath, nameof(profileImagePath));
 
-         Id = id;
-         ProfileImage = profileImage;
-     }
+        Id = id;
+        ProfileImage = new(profileImagePath);
 
-     public string Id { get; }
-     public MultiPartFileWithOptionalMetadata ProfileImage { get; }
+    }
+    public Dog(string id, Stream profileImage)
+    {
+        Argument.AssertNotNull(id, nameof(id));
+        Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+        Id = id;
+        ProfileImage = new(profileImage);
+    }
+
+    public Dog(string id, BinaryData profileImage)
+    {
+        Argument.AssertNotNull(id, nameof(id));
+        Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+        Id = id;
+        ProfileImage = new(profileImage);
+    }
+
+    public Dog(string id, FileBinaryContent profileImage)
+    {
+        Argument.AssertNotNull(id, nameof(id));
+        Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+        Id = id;
+        ProfileImage = profileImage;
+    }
+
+    public string Id { get; }
+    public FileBinaryContent ProfileImage { get; }
+
+    public void Dispose()
+    {
+        ProfileImage?.Dispose();
+    }
 }
 ```
 
@@ -642,9 +605,7 @@ public partial class Dog : IPersistableModel<Dog>
 ```csharp
 PetStoreClient client = new PetStoreClient();
 
-await using FileStream imageStream = File.OpenRead("C:\\myDog.jpg");
-Dog dog = new Dog("123", new MultiPartFileWithOptionalMetadata(imageStream));
-
+using Dog dog = new Dog("123", "C:\\myDog.jpg");
 ClientResult response = await client.UploadDogAsync(dog);
 ```
 
@@ -655,14 +616,11 @@ ClientResult response = await client.UploadDogAsync(dog);
 
 ```csharp
 PetStoreClient client = new PetStoreClient();
-
-await using FileStream imageStream = File.OpenRead("C:\\myDog.jpg");
-Dog dog = new Dog("123", new MultiPartFileWithOptionalMetadata(imageStream));
+using Dog dog = new Dog("123", "C:\\myDog.jpg");
 // get the multipart content type, which includes the boundary
 string contentType = ModelReaderWriter.Write(dog, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
-using BinaryContent content = dog;
 
- ClientResult response = await client.UploadDogAsync(content, contentType);
+ClientResult response = await client.UploadDogAsync(dog, contentType);
 ```
 
 </details>
@@ -741,19 +699,57 @@ public virtual async Task<ClientResult> UploadCatAsync(Cat body, CancellationTok
 <summary>Cat.cs</summary>
 
 ```c#
-public partial class Cat
+public partial class Cat : IDisposable
 {
-    public Cat(string id, MultiPartFileWithRequiredMetadata profileImage)
+    public Cat(string id, string filename, string contentType, string profileImagePath)
     {
-        Argument.AssertNotNull(id, nameof(id));
+        Argument.AssertNotNullOrEmpty(id, nameof(id));
+        Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+        Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
+        Argument.AssertNotNullOrEmpty(profileImagePath, nameof(profileImagePath));
+
+        ProfileImage = new(profileImagePath)
+        {
+            ContentType = contentType,
+            Filename = filename,
+        };
+
+    }
+    public Cat(string id, string filename, string contentType, Stream profileImage)
+    {
+        Argument.AssertNotNullOrEmpty(id, nameof(id));
+        Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+        Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
         Argument.AssertNotNull(profileImage, nameof(profileImage));
 
-        Id = id;
-        ProfileImage = profileImage;
+        ProfileImage = new(profileImage)
+        {
+            ContentType = contentType,
+            Filename = filename,
+        };
+    }
+
+    public Cat(string id, string filename, string contentType, BinaryData profileImage)
+    {
+        Argument.AssertNotNullOrEmpty(id, nameof(id));
+        Argument.AssertNotNullOrEmpty(filename, nameof(filename));
+        Argument.AssertNotNullOrEmpty(contentType, nameof(contentType));
+        Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+        ProfileImage = new(profileImage)
+        {
+            ContentType = contentType,
+            Filename = filename,
+        };
     }
 
     public string Id { get; }
-    public MultiPartFileWithRequiredMetadata ProfileImage { get; }
+    public FileBinaryContent ProfileImage { get; }
+
+    public void Dispose()
+    {
+        ProfileImage?.Dispose();
+    }
 }
 ```
 
@@ -848,12 +844,10 @@ public partial class Cat : IPersistableModel<Cat>
 <summary>Convenience Example Usage</summary>
 
 ```csharp
-PetStoreClient client = new PetStoreClient();
+ PetStoreClient client = new PetStoreClient();
 
-await using FileStream imageStream = File.OpenRead("C:\\myCat.jpg");
-Cat cat = new Cat("123", new MultiPartFileWithRequiredMetadata(imageStream, "myCat.jpg", "image/jpeg"));
-
-ClientResult response = await client.UploadCatAsync(cat);
+ using Cat cat = new Cat("123", "myCat.jpg", "image/jpeg", "C:\\myCat.jpg");
+ ClientResult response = await client.UploadCatAsync(cat);
 ```
 
 </details>
@@ -862,15 +856,12 @@ ClientResult response = await client.UploadCatAsync(cat);
 <summary>Protocol Example Usage</summary>
 
 ```csharp
-PetStoreClient client = new PetStoreClient();
+ PetStoreClient client = new PetStoreClient();
 
-await using FileStream imageStream = File.OpenRead("C:\\myCat.jpg");
-Cat cat = new Cat("123", new MultiPartFileWithRequiredMetadata(imageStream, "myCat.jpg", "image/jpeg"));
-// get the multipart content type, which includes the boundary
-string contentType = ModelReaderWriter.Write(cat, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
-using BinaryContent content = cat;
-
- ClientResult response = await client.UploadCatAsync(content, contentType);
+ using Cat cat = new("123", "myCat.jpg", "image/jpeg", "C:\\myCat.jpg");
+ // get the multipart content type, which includes the boundary
+ string contentType = ModelReaderWriter.Write(cat, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
+ ClientResult response = await client.UploadCatAsync(cat, contentType);
 ```
 
 </details>
@@ -898,29 +889,6 @@ model PetDetails {
 op uploadPetDetails(
     @header contentType: "multipart/form-data",
     @multipartBody body: PetDetails,
-): NoContentResponse;
-```
-
-#### The same operation can also be expressed using the `@body` decorator and a "bytes" type for the file part
-
-```tsp
-model Address {
-  city: string;
-}
-
-model PetDetails {
-  id: string;
-  ownerName: string;
-  petName: string;
-  address: Address;
-  profileImage: bytes;
-}
-
-@post
-@route("/pet/details")
-op uploadPetDetails(
-    @header contentType: "multipart/form-data",
-    @body body: PetDetails,
 ): NoContentResponse;
 ```
 
@@ -992,13 +960,58 @@ public partial class Address
 <summary>PetDetails.cs</summary>
 
 ```c#
-public partial class PetDetails
+public partial class PetDetails : IDisposable
 {
-    public PetDetails(string id, string ownerName, string petName, Address address, MultiPartFileWithOptionalMetadata profileImage)
+    public PetDetails(string id, string ownerName, string petName, Address address, string profileImagePath)
     {
-        Argument.AssertNotNull(id, nameof(id));
-        Argument.AssertNotNull(ownerName, nameof(ownerName));
-        Argument.AssertNotNull(petName, nameof(petName));
+        Argument.AssertNotNullOrEmpty(id, nameof(id));
+        Argument.AssertNotNullOrEmpty(ownerName, nameof(ownerName));
+        Argument.AssertNotNullOrEmpty(petName, nameof(petName));
+        Argument.AssertNotNull(address, nameof(address));
+        Argument.AssertNotNull(profileImagePath, nameof(profileImagePath));
+
+        Id = id;
+        OwnerName = ownerName;
+        PetName = petName;
+        Address = address;
+        ProfileImage = new(profileImagePath);
+
+    }
+    public PetDetails(string id, string ownerName, string petName, Address address, Stream profileImage)
+    {
+        Argument.AssertNotNullOrEmpty(id, nameof(id));
+        Argument.AssertNotNullOrEmpty(ownerName, nameof(ownerName));
+        Argument.AssertNotNullOrEmpty(petName, nameof(petName));
+        Argument.AssertNotNull(address, nameof(address));
+        Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+        Id = id;
+        OwnerName = ownerName;
+        PetName = petName;
+        Address = address;
+        ProfileImage = new(profileImage);
+    }
+
+    public PetDetails(string id, string ownerName, string petName, Address address, BinaryData profileImage)
+    {
+        Argument.AssertNotNullOrEmpty(id, nameof(id));
+        Argument.AssertNotNullOrEmpty(ownerName, nameof(ownerName));
+        Argument.AssertNotNullOrEmpty(petName, nameof(petName));
+        Argument.AssertNotNull(address, nameof(address));
+        Argument.AssertNotNull(profileImage, nameof(profileImage));
+
+        Id = id;
+        OwnerName = ownerName;
+        PetName = petName;
+        Address = address;
+        ProfileImage = new(profileImage);
+    }
+
+    public PetDetails(string id, string ownerName, string petName, Address address, FileBinaryContent profileImage)
+    {
+        Argument.AssertNotNullOrEmpty(id, nameof(id));
+        Argument.AssertNotNullOrEmpty(ownerName, nameof(ownerName));
+        Argument.AssertNotNullOrEmpty(petName, nameof(petName));
         Argument.AssertNotNull(address, nameof(address));
         Argument.AssertNotNull(profileImage, nameof(profileImage));
 
@@ -1013,7 +1026,12 @@ public partial class PetDetails
     public string OwnerName { get; }
     public string PetName { get; }
     public Address Address { get; }
-    public MultiPartFileWithOptionalMetadata ProfileImage { get; }
+    public FileBinaryContent ProfileImage { get; }
+
+    public void Dispose()
+    {
+        ProfileImage?.Dispose();
+    }
 }
 ```
 
@@ -1113,13 +1131,12 @@ public partial class PetDetails : IPersistableModel<PetDetails>
 ```csharp
 PetStoreClient client = new PetStoreClient();
 
-await using FileStream profileImageStream = File.OpenRead("C:\\winston.jpg");
-PetDetails petDetails = new PetDetails(
+using PetDetails petDetails = new PetDetails(
     "123",
     "John Doe",
     "Winston",
     new Address("123 Main St."),
-    new MultiPartFileWithOptionalMetadata(profileImageStream));
+    "C:\\winston.jpg");
 
 var response = await client.UploadPetDetailsAsync(petDetails);
 ```
@@ -1132,18 +1149,16 @@ var response = await client.UploadPetDetailsAsync(petDetails);
 ```csharp
 PetStoreClient client = new PetStoreClient();
 
-await using FileStream profileImageStream = File.OpenRead("C:\\winston.jpg");
-PetDetails petDetails = new PetDetails(
-   "123",
-   "John Doe",
-   "Winston",
-   new Address("123 Main St."),
-   new MultiPartFileWithOptionalMetadata(profileImageStream));
+using PetDetails petDetails = new PetDetails(
+    "123",
+    "John Doe",
+    "Winston",
+    new Address("123 Main St."),
+    "C:\\winston.jpg");
+
 // get the multipart content type, which includes the boundary
 string contentType = ModelReaderWriter.Write(petDetails, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
-using BinaryContent content = petDetails;
-
-ClientResult response = await client.UploadPetDetailsAsync(content, contentType);
+ClientResult response = await client.UploadCatAsync(petDetails, contentType);
 ```
 
 </details>
