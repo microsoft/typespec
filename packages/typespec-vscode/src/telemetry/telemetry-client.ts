@@ -43,6 +43,7 @@ export class TelemetryClient {
       );
       this._client = undefined;
     } else {
+      // has to convert the TelemetryReporter to any, otherwise it will report error: This expression is not constructable.
       this._client = new (TelemetryReporter as any)(key);
     }
   }
