@@ -1,6 +1,6 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "node:assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { isHeader } from "../src/decorators.js";
 import { compileOperationsFull, getOperations } from "./test-host.js";
 
@@ -121,7 +121,7 @@ it("allows contents that extend string", async () => {
   strictEqual(requestBody.isText, true);
 
   strictEqual(responseBody?.bodyKind, "file");
-  strictEqual(responseBody.property, undefined);
+  expect(responseBody.property).toStrictEqual(undefined);
   deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
   strictEqual(responseBody?.isText, true);
 });
@@ -156,7 +156,7 @@ it("allows contents that extend bytes", async () => {
   strictEqual(requestBody?.isText, false);
 
   strictEqual(responseBody?.bodyKind, "file");
-  strictEqual(responseBody?.property, undefined);
+  expect(responseBody?.property).toStrictEqual(undefined);
   deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
   strictEqual(responseBody?.isText, false);
 });
@@ -200,11 +200,11 @@ it("exact payload upload and download", async () => {
     `);
 
   strictEqual(requestBody?.bodyKind, "file");
-  strictEqual(requestBody?.property, undefined);
+  expect(requestBody?.property).toStrictEqual(undefined);
   deepStrictEqual(requestBody?.contentTypes, ["*/*"]);
 
   strictEqual(responseBody?.bodyKind, "file");
-  strictEqual(responseBody?.property, undefined);
+  expect(responseBody?.property).toStrictEqual(undefined);
   deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
 });
 
@@ -279,7 +279,7 @@ describe("multipart", () => {
     strictEqual(multipartRequestBody?.parts.length, 1);
     const requestPartBody = multipartRequestBody?.parts[0].body;
     strictEqual(requestPartBody.bodyKind, "file");
-    strictEqual(requestPartBody.property, undefined);
+    expect(requestPartBody.property).toStrictEqual(undefined);
     deepStrictEqual(requestPartBody.contentTypes, ["*/*"]);
 
     strictEqual(multipartResponseBody?.bodyKind, "multipart");
@@ -288,7 +288,7 @@ describe("multipart", () => {
     strictEqual(multipartResponseBody?.parts.length, 1);
     const responsePartBody = multipartResponseBody?.parts[0].body;
     strictEqual(responsePartBody.bodyKind, "file");
-    strictEqual(responsePartBody.property, undefined);
+    expect(responsePartBody.property).toStrictEqual(undefined);
     deepStrictEqual(responsePartBody.contentTypes, ["*/*"]);
   });
 
@@ -312,7 +312,7 @@ describe("multipart", () => {
     strictEqual(multipartRequestBody?.parts.length, 1);
     const requestPartBody = multipartRequestBody?.parts[0].body;
     strictEqual(requestPartBody.bodyKind, "file");
-    strictEqual(requestPartBody.property, undefined);
+    expect(requestPartBody.property).toStrictEqual(undefined);
     deepStrictEqual(requestPartBody.contentTypes, ["*/*"]);
 
     strictEqual(multipartResponseBody?.bodyKind, "multipart");
@@ -321,7 +321,7 @@ describe("multipart", () => {
     strictEqual(multipartResponseBody?.parts.length, 1);
     const responsePartBody = multipartResponseBody?.parts[0].body;
     strictEqual(responsePartBody.bodyKind, "file");
-    strictEqual(responsePartBody.property, undefined);
+    expect(responsePartBody.property).toStrictEqual(undefined);
     deepStrictEqual(responsePartBody.contentTypes, ["*/*"]);
   });
 
@@ -422,12 +422,12 @@ describe("custom file model", () => {
       `);
 
     strictEqual(requestBody?.bodyKind, "file");
-    strictEqual(requestBody?.property, undefined);
+    expect(requestBody?.property).toStrictEqual(undefined);
     deepStrictEqual(requestBody?.contentTypes, ["application/json", "application/yaml"]);
     ok(requestBody?.isText);
 
     strictEqual(responseBody?.bodyKind, "file");
-    strictEqual(responseBody?.property, undefined);
+    expect(responseBody?.property).toStrictEqual(undefined);
     deepStrictEqual(responseBody?.contentTypes, ["application/json", "application/yaml"]);
     ok(responseBody?.isText);
   });
@@ -558,7 +558,7 @@ describe("custom file model", () => {
       strictEqual(multipartRequestBody?.parts.length, 1);
       const requestPartBody = multipartRequestBody?.parts[0].body;
       strictEqual(requestPartBody.bodyKind, "file");
-      strictEqual(requestPartBody.property, undefined);
+      expect(requestPartBody.property).toStrictEqual(undefined);
       deepStrictEqual(requestPartBody.contentTypes, ["application/json", "application/yaml"]);
       ok(requestPartBody.isText);
       const requestXFilename = multipartRequestBody?.parts[0].headers.find(
@@ -573,7 +573,7 @@ describe("custom file model", () => {
       strictEqual(multipartResponseBody?.parts.length, 1);
       const responsePartBody = multipartResponseBody?.parts[0].body;
       strictEqual(responsePartBody.bodyKind, "file");
-      strictEqual(responsePartBody.property, undefined);
+      expect(responsePartBody.property).toStrictEqual(undefined);
       deepStrictEqual(responsePartBody.contentTypes, ["application/json", "application/yaml"]);
       ok(responsePartBody.isText);
       const responseXFilename = multipartResponseBody?.parts[0].headers.find(
@@ -656,12 +656,12 @@ describe("structured files", () => {
     expectDiagnosticEmpty(diagnostics);
 
     strictEqual(requestBody?.bodyKind, "single");
-    strictEqual(requestBody?.property, undefined);
+    expect(requestBody?.property).toStrictEqual(undefined);
     strictEqual(requestBody?.contentTypes.length, 1);
     strictEqual(requestBody?.contentTypes[0], "application/json");
 
     strictEqual(responseBody?.bodyKind, "single");
-    strictEqual(responseBody?.property, undefined);
+    expect(responseBody?.property).toStrictEqual(undefined);
     strictEqual(responseBody?.contentTypes.length, 1);
     strictEqual(responseBody?.contentTypes[0], "application/json");
   });
