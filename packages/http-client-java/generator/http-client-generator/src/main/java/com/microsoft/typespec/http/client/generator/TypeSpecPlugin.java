@@ -291,7 +291,6 @@ public class TypeSpecPlugin extends Javagen {
 
         if (options.getFlavor() != null && !"azure".equalsIgnoreCase(options.getFlavor())) {
             SETTINGS_MAP.put("sdk-integration", false);
-            SETTINGS_MAP.put("license-header", "SMALL_TYPESPEC");
 
             SETTINGS_MAP.put("sync-methods", "sync-only");
             SETTINGS_MAP.put("enable-page-size", false);
@@ -301,6 +300,8 @@ public class TypeSpecPlugin extends Javagen {
 
             if (options.getLicenseHeader() != null) {
                 SETTINGS_MAP.put("license-header", options.getLicenseHeader());
+            } else {
+                SETTINGS_MAP.remove("license-header");
             }
         }
 
