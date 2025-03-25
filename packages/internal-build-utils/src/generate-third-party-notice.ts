@@ -3,8 +3,6 @@ import { basename, dirname, join, resolve } from "path";
 
 const skipDirs = new Set(["node_modules", "dist-dev", "test"]);
 
-const monorepoName = "@typespec/monorepo";
-
 export async function generateThirdPartyNotice() {
   const root = resolve("./");
   const rootName = basename(root);
