@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { readFileSync } from "fs";
 import { globby } from "globby";
-import { dirname, join, resolve } from "path";
+import { dirname, join, resolve } from "pathe";
 import { describe, expect, it } from "vitest";
 import { Server, getIgnoreList } from "./helpers.js"; // Import the custom Server class
 import { runScenario } from "./spector.js"; // Import the runScenario function

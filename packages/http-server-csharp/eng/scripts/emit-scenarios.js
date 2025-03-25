@@ -6,7 +6,7 @@ import { globby } from "globby";
 import inquirer from "inquirer";
 import ora from "ora";
 import pLimit from "p-limit";
-import { basename, dirname, join, resolve } from "path";
+import { basename, dirname, join, resolve } from "pathe";
 import pc from "picocolors";
 import { fileURLToPath } from "url";
 import yargs from "yargs";
@@ -104,8 +104,8 @@ async function compileSpec(file, options) {
       `service-port-https=${(portNumber + 500).toString()}`,
     ]);
 
-    if (spinner) spinner.text = `Formatting with Prettier: ${relativePath}`;
-    await execa("npx", ["prettier", outputDir, "--write"]);
+    if (spinner) spinner.text = `Formatting with dotnet: ${relativePath}`;
+    await execa("dotnet", ["format"], { cwd: outputDir });
 
     if (build) {
       if (spinner) spinner.text = `Building project: ${relativePath}`;
