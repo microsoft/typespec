@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 0.67.2
+
+### Bug Fixes
+
+- [#6648](https://github.com/microsoft/typespec/pull/6648) Fix `tsp install` broken in standalone CLI
+
+
 ## 0.67.0
 
 ### Breaking Changes
