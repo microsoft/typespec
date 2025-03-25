@@ -3,6 +3,8 @@ import { basename, dirname, join, resolve } from "path";
 
 const skipDirs = new Set(["node_modules", "dist-dev", "test"]);
 
+const monorepoName = "@typespec/monorepo";
+
 export async function generateThirdPartyNotice() {
   const root = resolve("./");
   const rootName = basename(root);
@@ -59,12 +61,12 @@ async function findThirdPartyPackages() {
       if (!packages.has(packageRoot)) {
         let pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
 
-        if (!pkg.name) {
+        while (!pkg.name) {
           packageRoot = await getPackageRoot(packageRoot);
-          while (!pkg.name && packageRoot) {
-            pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
-            packageRoot = await getPackageRoot(packageRoot);
+          if (!packageRoot) {
+            break;
           }
+          pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
         }
         if (!pkg.name || pkg.name === rootName || /microsoft/i.test(JSON.stringify(pkg.author))) {
           continue;
@@ -73,6 +75,8 @@ async function findThirdPartyPackages() {
       }
     }
   }
+
+  console.log(`Found ${packages.size} third-party packages`, [...packages.keys()]);
 
   return packages;
 }

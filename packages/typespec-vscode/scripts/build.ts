@@ -1,4 +1,4 @@
-import { build } from "esbuild";
+import { context } from "esbuild";
 import { cp } from "fs/promises";
 
 // Copy swagger-ui files to dist
@@ -10,28 +10,30 @@ await cp(
 );
 
 // Build the extension
-await build({
+const nodeContext = await context({
   entryPoints: ["src/extension.ts"],
   bundle: true,
   outfile: "dist/src/extension.cjs",
   platform: "node",
   target: "node22",
   format: "cjs",
+  sourcemap: true,
   external: ["vscode"],
 });
 
 // Build the web extension
-await build({
+const webContext = await context({
   entryPoints: ["src/web/extension.ts"],
   bundle: true,
   outfile: "dist/src/web/extension.js",
   platform: "browser",
   format: "cjs",
+  sourcemap: true,
   external: ["vscode"],
 });
 
 // Build the web test suite
-await build({
+const webTestContext = await context({
   entryPoints: ["test/web/suite.ts"],
   bundle: true,
   outfile: "dist/test/web/suite.js",
@@ -39,3 +41,20 @@ await build({
   format: "cjs",
   external: ["vscode"],
 });
+
+if (process.argv.includes("--watch")) {
+  console.log("Watching for changes...");
+  // Watch the extension
+  await Promise.all([nodeContext.watch(), webContext.watch(), webTestContext.watch()]);
+} else {
+  console.log("Building...");
+
+  // Watch the extension
+  await nodeContext.rebuild();
+  await webContext.rebuild();
+  await webTestContext.rebuild();
+
+  nodeContext.dispose();
+  webContext.dispose();
+  webTestContext.dispose();
+}
