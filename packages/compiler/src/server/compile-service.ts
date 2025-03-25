@@ -7,10 +7,11 @@ import {
 } from "../config/config-loader.js";
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
-import { compilerAssert, formatDiagnostic } from "../core/diagnostics.js";
+import { compilerAssert } from "../core/diagnostics.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
+import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
