@@ -1548,27 +1548,15 @@ importers:
         specifier: ~3.5.3
         version: 3.5.3
     devDependencies:
-      '@rollup/plugin-commonjs':
-        specifier: ~28.0.3
-        version: 28.0.3(rollup@4.36.0)
-      '@rollup/plugin-json':
-        specifier: ~6.1.0
-        version: 6.1.0(rollup@4.36.0)
-      '@rollup/plugin-node-resolve':
-        specifier: ~16.0.1
-        version: 16.0.1(rollup@4.36.0)
-      '@rollup/plugin-replace':
-        specifier: ~6.0.2
-        version: 6.0.2(rollup@4.36.0)
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
       '@typespec/internal-build-utils':
         specifier: workspace:^
         version: link:../internal-build-utils
-      rollup:
-        specifier: ~4.36.0
-        version: 4.36.0
+      esbuild:
+        specifier: ^0.25.1
+        version: 0.25.1
       vitest:
         specifier: ^3.0.9
         version: 3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jsdom@25.0.1)(tsx@4.19.3)(yaml@2.7.0)
@@ -5379,15 +5367,6 @@ packages:
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.78.0||^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-
-  '@rollup/plugin-replace@6.0.2':
-    resolution: {integrity: sha512-7QaYCf8bqF04dOy7w/eHmJeNExxTYwvKAmlSAH/EaWWUzbT0h5sbF6bktFoX/0F/0qwng5/dWFMyf3gzaM8DsQ==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -16911,13 +16890,6 @@ snapshots:
       deepmerge: 4.3.1
       is-module: 1.0.0
       resolve: 1.22.10
-    optionalDependencies:
-      rollup: 4.36.0
-
-  '@rollup/plugin-replace@6.0.2(rollup@4.36.0)':
-    dependencies:
-      '@rollup/pluginutils': 5.1.4(rollup@4.36.0)
-      magic-string: 0.30.17
     optionalDependencies:
       rollup: 4.36.0
 
