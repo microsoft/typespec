@@ -7,11 +7,11 @@ export class Server {
   constructor(private workDir: string) {}
 
   async start(): Promise<void> {
-    console.log(`Starting server in ${this.workDir}...`);
+    console.log(`Starting ASP.NET server in ${this.workDir}...`);
 
-    this.process = spawn("dotnet", ["run"], {
+    this.process = spawn("dotnet", ["run", "--launch-profile", "http"], {
       cwd: this.workDir,
-      stdio: "inherit",
+      stdio: "ignore", // Disable stdio output
     });
 
     // Wait for server to initialize
@@ -26,7 +26,7 @@ export class Server {
 
   stop(): void {
     if (this.process && !this.process.killed) {
-      console.log(`Stopping server with PID: ${this.process.pid}...`);
+      console.log(`Stopping ASP.NET server with PID: ${this.process.pid}...`);
       this.process.kill("SIGTERM"); // Gracefully terminate
     }
   }

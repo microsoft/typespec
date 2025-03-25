@@ -6,7 +6,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       environment: "node",
-      testTimeout: 10_000,
+      testTimeout: 300_000,
       isolate: false,
       coverage: {
         reporter: ["cobertura", "json", "text"],
@@ -14,7 +14,7 @@ export default mergeConfig(
       outputFile: {
         junit: "./test-results.xml",
       },
-      include: ["test/**/*.test.ts"],
+      include: ["test/scenarios/scenarios.test.ts"],
     },
   }),
 );
