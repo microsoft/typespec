@@ -196,7 +196,7 @@ const sidebar: SidebarItem[] = [
             "Python",
             false,
             [],
-             "preview",
+            "preview",
           ),
           createLibraryReferenceStructure("emitters/clients/http-client-java", "Java", false, []),
           createLibraryReferenceStructure(
