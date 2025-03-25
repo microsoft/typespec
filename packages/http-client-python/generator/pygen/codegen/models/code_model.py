@@ -415,7 +415,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             license_header = self.yaml_data.get("licenseInfo", {}).get("header", "")
         else:
             # typespec azure case without custom license and swagger case
-            license_header = self.options.get("header-text", DEFAULT_HEADER_TEXT)
+            license_header = self.options.get("header_text", DEFAULT_HEADER_TEXT)
         if license_header:
             license_header = license_header.replace("\n", "\n# ")
             license_header = (

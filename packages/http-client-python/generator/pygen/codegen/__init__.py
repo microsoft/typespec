@@ -150,6 +150,11 @@ class OptionsRetriever:
     def package_version(self) -> Optional[str]:
         return str(self.options.get("package-version", ""))
 
+    
+    @property
+    def header_text(self) -> Optional[str]:
+        return self.options.get("header-text")
+
 
 class CodeGenerator(Plugin):
     def __init__(self, *args, **kwargs: Any) -> None:
@@ -268,7 +273,7 @@ class CodeGenerator(Plugin):
         flags = [
             "azure_arm",
             "head_as_boolean",
-            "license_header",
+            "header_text",
             "keep_version_file",
             "no_async",
             "no_namespace_folders",
