@@ -1,0 +1,18 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    // cross-env TEST_MODE=playback npm run integration-test:node
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Run unit test",
+        "request": "launch",
+        "runtimeArgs": ["npm", "run", "test:scenarios"],
+        "runtimeExecutable": "npx",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "pwa-node",
+        "outFiles": ["${workspaceFolder}/*/dist/**/*.js", "${workspaceFolder}/*/dist-dev/**/*.js"]
+      }
+    ]
+  }
