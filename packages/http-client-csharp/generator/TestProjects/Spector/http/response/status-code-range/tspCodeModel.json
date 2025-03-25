@@ -212,54 +212,22 @@
    "name": "StatusCodeRangeClient",
    "namespace": "Response.StatusCodeRange",
    "doc": "Test for range of status code.",
-   "parameters": [
-    {
-     "$id": "31",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "32",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "33",
-      "type": {
-       "$id": "34",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
    "operations": [
     {
-     "$id": "35",
+     "$id": "31",
      "name": "errorResponseStatusCodeInRange",
      "resourceName": "StatusCodeRange",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "36",
+       "$id": "32",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "37",
+        "$id": "33",
         "kind": "constant",
         "valueType": {
-         "$id": "38",
+         "$id": "34",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -281,7 +249,7 @@
      ],
      "responses": [
       {
-       "$id": "39",
+       "$id": "35",
        "statusCodes": [
         204
        ],
@@ -299,20 +267,20 @@
      "decorators": []
     },
     {
-     "$id": "40",
+     "$id": "36",
      "name": "errorResponseStatusCode404",
      "resourceName": "StatusCodeRange",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "41",
+       "$id": "37",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "42",
+        "$id": "38",
         "kind": "constant",
         "valueType": {
-         "$id": "43",
+         "$id": "39",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -334,7 +302,7 @@
      ],
      "responses": [
       {
-       "$id": "44",
+       "$id": "40",
        "statusCodes": [
         204
        ],
@@ -352,9 +320,41 @@
      "decorators": []
     }
    ],
-   "apiVersions": [],
+   "parameters": [
+    {
+     "$id": "41",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "42",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "43",
+      "type": {
+       "$id": "44",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "value": "http://localhost:3000"
+     }
+    }
+   ],
+   "decorators": [],
    "crossLanguageDefinitionId": "Response.StatusCodeRange",
-   "decorators": []
+   "apiVersions": []
   }
  ]
 }

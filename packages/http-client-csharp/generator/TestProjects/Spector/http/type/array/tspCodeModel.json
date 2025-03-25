@@ -80,6 +80,7 @@
    "name": "ArrayClient",
    "namespace": "Type.Array",
    "doc": "Illustrates various types of arrays.",
+   "operations": [],
    "parameters": [
     {
      "$id": "12",
@@ -112,10 +113,9 @@
      }
     }
    ],
-   "operations": [],
-   "apiVersions": [],
-   "crossLanguageDefinitionId": "Type.Array",
    "decorators": [],
+   "crossLanguageDefinitionId": "Type.Array",
+   "apiVersions": [],
    "children": [
     {
      "$id": "16",
@@ -123,54 +123,22 @@
      "name": "Int32Value",
      "namespace": "Type.Array",
      "doc": "Array of int32 values",
-     "parameters": [
-      {
-       "$id": "17",
-       "name": "endpoint",
-       "nameInRequest": "endpoint",
-       "doc": "Service host",
-       "type": {
-        "$id": "18",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "location": "Uri",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isRequired": true,
-       "isEndpoint": true,
-       "skipUrlEncoding": false,
-       "explode": false,
-       "kind": "Client",
-       "defaultValue": {
-        "$id": "19",
-        "type": {
-         "$id": "20",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "value": "http://localhost:3000"
-       }
-      }
-     ],
      "operations": [
       {
-       "$id": "21",
+       "$id": "17",
        "name": "get",
        "resourceName": "Int32Value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "22",
+         "$id": "18",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "23",
+          "$id": "19",
           "kind": "constant",
           "valueType": {
-           "$id": "24",
+           "$id": "20",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -192,16 +160,16 @@
        ],
        "responses": [
         {
-         "$id": "25",
+         "$id": "21",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "26",
+          "$id": "22",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "27",
+           "$id": "23",
            "kind": "int32",
            "name": "int32",
            "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -227,21 +195,21 @@
        "decorators": []
       },
       {
-       "$id": "28",
+       "$id": "24",
        "name": "put",
        "resourceName": "Int32Value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "29",
+         "$id": "25",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "30",
+          "$id": "26",
           "kind": "constant",
           "valueType": {
-           "$id": "31",
+           "$id": "27",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -261,15 +229,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "32",
+         "$id": "28",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "33",
+          "$id": "29",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "34",
+           "$id": "30",
            "kind": "int32",
            "name": "int32",
            "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -291,7 +259,7 @@
        ],
        "responses": [
         {
-         "$id": "35",
+         "$id": "31",
          "statusCodes": [
           204
          ],
@@ -312,27 +280,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.Int32Value",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "36",
-     "kind": "client",
-     "name": "Int64Value",
-     "namespace": "Type.Array",
-     "doc": "Array of int64 values",
      "parameters": [
       {
-       "$id": "37",
+       "$id": "32",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "38",
+        "$id": "33",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -346,9 +301,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "39",
+        "$id": "34",
         "type": {
-         "$id": "40",
+         "$id": "35",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -357,22 +312,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.Int32Value",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "36",
+     "kind": "client",
+     "name": "Int64Value",
+     "namespace": "Type.Array",
+     "doc": "Array of int64 values",
      "operations": [
       {
-       "$id": "41",
+       "$id": "37",
        "name": "get",
        "resourceName": "Int64Value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "42",
+         "$id": "38",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "43",
+          "$id": "39",
           "kind": "constant",
           "valueType": {
-           "$id": "44",
+           "$id": "40",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -394,16 +362,16 @@
        ],
        "responses": [
         {
-         "$id": "45",
+         "$id": "41",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "46",
+          "$id": "42",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "47",
+           "$id": "43",
            "kind": "int64",
            "name": "int64",
            "crossLanguageDefinitionId": "TypeSpec.int64",
@@ -429,21 +397,21 @@
        "decorators": []
       },
       {
-       "$id": "48",
+       "$id": "44",
        "name": "put",
        "resourceName": "Int64Value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "49",
+         "$id": "45",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "50",
+          "$id": "46",
           "kind": "constant",
           "valueType": {
-           "$id": "51",
+           "$id": "47",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -463,15 +431,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "52",
+         "$id": "48",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "53",
+          "$id": "49",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "54",
+           "$id": "50",
            "kind": "int64",
            "name": "int64",
            "crossLanguageDefinitionId": "TypeSpec.int64",
@@ -493,7 +461,7 @@
        ],
        "responses": [
         {
-         "$id": "55",
+         "$id": "51",
          "statusCodes": [
           204
          ],
@@ -514,27 +482,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.Int64Value",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "56",
-     "kind": "client",
-     "name": "BooleanValue",
-     "namespace": "Type.Array",
-     "doc": "Array of boolean values",
      "parameters": [
       {
-       "$id": "57",
+       "$id": "52",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "58",
+        "$id": "53",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -548,9 +503,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "59",
+        "$id": "54",
         "type": {
-         "$id": "60",
+         "$id": "55",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -559,22 +514,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.Int64Value",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "56",
+     "kind": "client",
+     "name": "BooleanValue",
+     "namespace": "Type.Array",
+     "doc": "Array of boolean values",
      "operations": [
       {
-       "$id": "61",
+       "$id": "57",
        "name": "get",
        "resourceName": "BooleanValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "62",
+         "$id": "58",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "63",
+          "$id": "59",
           "kind": "constant",
           "valueType": {
-           "$id": "64",
+           "$id": "60",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -596,16 +564,16 @@
        ],
        "responses": [
         {
-         "$id": "65",
+         "$id": "61",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "66",
+          "$id": "62",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "67",
+           "$id": "63",
            "kind": "boolean",
            "name": "boolean",
            "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -631,21 +599,21 @@
        "decorators": []
       },
       {
-       "$id": "68",
+       "$id": "64",
        "name": "put",
        "resourceName": "BooleanValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "69",
+         "$id": "65",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "70",
+          "$id": "66",
           "kind": "constant",
           "valueType": {
-           "$id": "71",
+           "$id": "67",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -665,15 +633,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "72",
+         "$id": "68",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "73",
+          "$id": "69",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "74",
+           "$id": "70",
            "kind": "boolean",
            "name": "boolean",
            "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -695,7 +663,7 @@
        ],
        "responses": [
         {
-         "$id": "75",
+         "$id": "71",
          "statusCodes": [
           204
          ],
@@ -716,27 +684,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.BooleanValue",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "76",
-     "kind": "client",
-     "name": "StringValue",
-     "namespace": "Type.Array",
-     "doc": "Array of string values",
      "parameters": [
       {
-       "$id": "77",
+       "$id": "72",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "78",
+        "$id": "73",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -750,9 +705,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "79",
+        "$id": "74",
         "type": {
-         "$id": "80",
+         "$id": "75",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -761,22 +716,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.BooleanValue",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "76",
+     "kind": "client",
+     "name": "StringValue",
+     "namespace": "Type.Array",
+     "doc": "Array of string values",
      "operations": [
       {
-       "$id": "81",
+       "$id": "77",
        "name": "get",
        "resourceName": "StringValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "82",
+         "$id": "78",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "83",
+          "$id": "79",
           "kind": "constant",
           "valueType": {
-           "$id": "84",
+           "$id": "80",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -798,16 +766,16 @@
        ],
        "responses": [
         {
-         "$id": "85",
+         "$id": "81",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "86",
+          "$id": "82",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "87",
+           "$id": "83",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -833,21 +801,21 @@
        "decorators": []
       },
       {
-       "$id": "88",
+       "$id": "84",
        "name": "put",
        "resourceName": "StringValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "89",
+         "$id": "85",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "90",
+          "$id": "86",
           "kind": "constant",
           "valueType": {
-           "$id": "91",
+           "$id": "87",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -867,15 +835,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "92",
+         "$id": "88",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "93",
+          "$id": "89",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "94",
+           "$id": "90",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -897,7 +865,7 @@
        ],
        "responses": [
         {
-         "$id": "95",
+         "$id": "91",
          "statusCodes": [
           204
          ],
@@ -918,27 +886,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.StringValue",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "96",
-     "kind": "client",
-     "name": "Float32Value",
-     "namespace": "Type.Array",
-     "doc": "Array of float values",
      "parameters": [
       {
-       "$id": "97",
+       "$id": "92",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "98",
+        "$id": "93",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -952,9 +907,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "99",
+        "$id": "94",
         "type": {
-         "$id": "100",
+         "$id": "95",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -963,22 +918,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.StringValue",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "96",
+     "kind": "client",
+     "name": "Float32Value",
+     "namespace": "Type.Array",
+     "doc": "Array of float values",
      "operations": [
       {
-       "$id": "101",
+       "$id": "97",
        "name": "get",
        "resourceName": "Float32Value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "102",
+         "$id": "98",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "103",
+          "$id": "99",
           "kind": "constant",
           "valueType": {
-           "$id": "104",
+           "$id": "100",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1000,16 +968,16 @@
        ],
        "responses": [
         {
-         "$id": "105",
+         "$id": "101",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "106",
+          "$id": "102",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "107",
+           "$id": "103",
            "kind": "float32",
            "name": "float32",
            "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -1035,21 +1003,21 @@
        "decorators": []
       },
       {
-       "$id": "108",
+       "$id": "104",
        "name": "put",
        "resourceName": "Float32Value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "109",
+         "$id": "105",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "110",
+          "$id": "106",
           "kind": "constant",
           "valueType": {
-           "$id": "111",
+           "$id": "107",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1069,15 +1037,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "112",
+         "$id": "108",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "113",
+          "$id": "109",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "114",
+           "$id": "110",
            "kind": "float32",
            "name": "float32",
            "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -1099,7 +1067,7 @@
        ],
        "responses": [
         {
-         "$id": "115",
+         "$id": "111",
          "statusCodes": [
           204
          ],
@@ -1120,27 +1088,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.Float32Value",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "116",
-     "kind": "client",
-     "name": "DatetimeValue",
-     "namespace": "Type.Array",
-     "doc": "Array of datetime values",
      "parameters": [
       {
-       "$id": "117",
+       "$id": "112",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "118",
+        "$id": "113",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1154,9 +1109,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "119",
+        "$id": "114",
         "type": {
-         "$id": "120",
+         "$id": "115",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1165,22 +1120,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.Float32Value",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "116",
+     "kind": "client",
+     "name": "DatetimeValue",
+     "namespace": "Type.Array",
+     "doc": "Array of datetime values",
      "operations": [
       {
-       "$id": "121",
+       "$id": "117",
        "name": "get",
        "resourceName": "DatetimeValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "122",
+         "$id": "118",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "123",
+          "$id": "119",
           "kind": "constant",
           "valueType": {
-           "$id": "124",
+           "$id": "120",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1202,21 +1170,21 @@
        ],
        "responses": [
         {
-         "$id": "125",
+         "$id": "121",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "126",
+          "$id": "122",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "127",
+           "$id": "123",
            "kind": "utcDateTime",
            "name": "utcDateTime",
            "encode": "rfc3339",
            "wireType": {
-            "$id": "128",
+            "$id": "124",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1245,21 +1213,21 @@
        "decorators": []
       },
       {
-       "$id": "129",
+       "$id": "125",
        "name": "put",
        "resourceName": "DatetimeValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "130",
+         "$id": "126",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "131",
+          "$id": "127",
           "kind": "constant",
           "valueType": {
-           "$id": "132",
+           "$id": "128",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1279,20 +1247,20 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "133",
+         "$id": "129",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "134",
+          "$id": "130",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "135",
+           "$id": "131",
            "kind": "utcDateTime",
            "name": "utcDateTime",
            "encode": "rfc3339",
            "wireType": {
-            "$id": "136",
+            "$id": "132",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1317,7 +1285,7 @@
        ],
        "responses": [
         {
-         "$id": "137",
+         "$id": "133",
          "statusCodes": [
           204
          ],
@@ -1338,27 +1306,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.DatetimeValue",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "138",
-     "kind": "client",
-     "name": "DurationValue",
-     "namespace": "Type.Array",
-     "doc": "Array of duration values",
      "parameters": [
       {
-       "$id": "139",
+       "$id": "134",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "140",
+        "$id": "135",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1372,9 +1327,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "141",
+        "$id": "136",
         "type": {
-         "$id": "142",
+         "$id": "137",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1383,22 +1338,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.DatetimeValue",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "138",
+     "kind": "client",
+     "name": "DurationValue",
+     "namespace": "Type.Array",
+     "doc": "Array of duration values",
      "operations": [
       {
-       "$id": "143",
+       "$id": "139",
        "name": "get",
        "resourceName": "DurationValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "144",
+         "$id": "140",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "145",
+          "$id": "141",
           "kind": "constant",
           "valueType": {
-           "$id": "146",
+           "$id": "142",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1420,21 +1388,21 @@
        ],
        "responses": [
         {
-         "$id": "147",
+         "$id": "143",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "148",
+          "$id": "144",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "149",
+           "$id": "145",
            "kind": "duration",
            "name": "duration",
            "encode": "ISO8601",
            "wireType": {
-            "$id": "150",
+            "$id": "146",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1463,21 +1431,21 @@
        "decorators": []
       },
       {
-       "$id": "151",
+       "$id": "147",
        "name": "put",
        "resourceName": "DurationValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "152",
+         "$id": "148",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "153",
+          "$id": "149",
           "kind": "constant",
           "valueType": {
-           "$id": "154",
+           "$id": "150",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1497,20 +1465,20 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "155",
+         "$id": "151",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "156",
+          "$id": "152",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "157",
+           "$id": "153",
            "kind": "duration",
            "name": "duration",
            "encode": "ISO8601",
            "wireType": {
-            "$id": "158",
+            "$id": "154",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1535,7 +1503,7 @@
        ],
        "responses": [
         {
-         "$id": "159",
+         "$id": "155",
          "statusCodes": [
           204
          ],
@@ -1556,27 +1524,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.DurationValue",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "160",
-     "kind": "client",
-     "name": "UnknownValue",
-     "namespace": "Type.Array",
-     "doc": "Array of unknown values",
      "parameters": [
       {
-       "$id": "161",
+       "$id": "156",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "162",
+        "$id": "157",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1590,9 +1545,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "163",
+        "$id": "158",
         "type": {
-         "$id": "164",
+         "$id": "159",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1601,22 +1556,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.DurationValue",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "160",
+     "kind": "client",
+     "name": "UnknownValue",
+     "namespace": "Type.Array",
+     "doc": "Array of unknown values",
      "operations": [
       {
-       "$id": "165",
+       "$id": "161",
        "name": "get",
        "resourceName": "UnknownValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "166",
+         "$id": "162",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "167",
+          "$id": "163",
           "kind": "constant",
           "valueType": {
-           "$id": "168",
+           "$id": "164",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1638,16 +1606,16 @@
        ],
        "responses": [
         {
-         "$id": "169",
+         "$id": "165",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "170",
+          "$id": "166",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "171",
+           "$id": "167",
            "kind": "unknown",
            "name": "unknown",
            "crossLanguageDefinitionId": "",
@@ -1673,21 +1641,21 @@
        "decorators": []
       },
       {
-       "$id": "172",
+       "$id": "168",
        "name": "put",
        "resourceName": "UnknownValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "173",
+         "$id": "169",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "174",
+          "$id": "170",
           "kind": "constant",
           "valueType": {
-           "$id": "175",
+           "$id": "171",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1707,15 +1675,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "176",
+         "$id": "172",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "177",
+          "$id": "173",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "178",
+           "$id": "174",
            "kind": "unknown",
            "name": "unknown",
            "crossLanguageDefinitionId": "",
@@ -1737,7 +1705,7 @@
        ],
        "responses": [
         {
-         "$id": "179",
+         "$id": "175",
          "statusCodes": [
           204
          ],
@@ -1758,27 +1726,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.UnknownValue",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "180",
-     "kind": "client",
-     "name": "ModelValue",
-     "namespace": "Type.Array",
-     "doc": "Array of model values",
      "parameters": [
       {
-       "$id": "181",
+       "$id": "176",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "182",
+        "$id": "177",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1792,9 +1747,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "183",
+        "$id": "178",
         "type": {
-         "$id": "184",
+         "$id": "179",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1803,22 +1758,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.UnknownValue",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "180",
+     "kind": "client",
+     "name": "ModelValue",
+     "namespace": "Type.Array",
+     "doc": "Array of model values",
      "operations": [
       {
-       "$id": "185",
+       "$id": "181",
        "name": "get",
        "resourceName": "ModelValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "186",
+         "$id": "182",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "187",
+          "$id": "183",
           "kind": "constant",
           "valueType": {
-           "$id": "188",
+           "$id": "184",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1840,12 +1808,12 @@
        ],
        "responses": [
         {
-         "$id": "189",
+         "$id": "185",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "190",
+          "$id": "186",
           "kind": "array",
           "name": "ArrayInnerModel",
           "valueType": {
@@ -1871,21 +1839,21 @@
        "decorators": []
       },
       {
-       "$id": "191",
+       "$id": "187",
        "name": "put",
        "resourceName": "ModelValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "192",
+         "$id": "188",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "193",
+          "$id": "189",
           "kind": "constant",
           "valueType": {
-           "$id": "194",
+           "$id": "190",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1905,11 +1873,11 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "195",
+         "$id": "191",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "196",
+          "$id": "192",
           "kind": "array",
           "name": "ArrayInnerModel",
           "valueType": {
@@ -1931,7 +1899,7 @@
        ],
        "responses": [
         {
-         "$id": "197",
+         "$id": "193",
          "statusCodes": [
           204
          ],
@@ -1952,27 +1920,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.ModelValue",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "198",
-     "kind": "client",
-     "name": "NullableFloatValue",
-     "namespace": "Type.Array",
-     "doc": "Array of nullable float values",
      "parameters": [
       {
-       "$id": "199",
+       "$id": "194",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "200",
+        "$id": "195",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1986,9 +1941,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "201",
+        "$id": "196",
         "type": {
-         "$id": "202",
+         "$id": "197",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1997,22 +1952,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.ModelValue",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "198",
+     "kind": "client",
+     "name": "NullableFloatValue",
+     "namespace": "Type.Array",
+     "doc": "Array of nullable float values",
      "operations": [
       {
-       "$id": "203",
+       "$id": "199",
        "name": "get",
        "resourceName": "NullableFloatValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "204",
+         "$id": "200",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "205",
+          "$id": "201",
           "kind": "constant",
           "valueType": {
-           "$id": "206",
+           "$id": "202",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2034,19 +2002,19 @@
        ],
        "responses": [
         {
-         "$id": "207",
+         "$id": "203",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "208",
+          "$id": "204",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "209",
+           "$id": "205",
            "kind": "nullable",
            "type": {
-            "$id": "210",
+            "$id": "206",
             "kind": "float32",
             "name": "float32",
             "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -2074,21 +2042,21 @@
        "decorators": []
       },
       {
-       "$id": "211",
+       "$id": "207",
        "name": "put",
        "resourceName": "NullableFloatValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "212",
+         "$id": "208",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "213",
+          "$id": "209",
           "kind": "constant",
           "valueType": {
-           "$id": "214",
+           "$id": "210",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2108,15 +2076,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "215",
+         "$id": "211",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "216",
+          "$id": "212",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$ref": "209"
+           "$ref": "205"
           },
           "crossLanguageDefinitionId": "TypeSpec.Array",
           "decorators": []
@@ -2134,7 +2102,7 @@
        ],
        "responses": [
         {
-         "$id": "217",
+         "$id": "213",
          "statusCodes": [
           204
          ],
@@ -2155,27 +2123,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.NullableFloatValue",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "218",
-     "kind": "client",
-     "name": "NullableInt32Value",
-     "namespace": "Type.Array",
-     "doc": "Array of nullable int32 values",
      "parameters": [
       {
-       "$id": "219",
+       "$id": "214",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "220",
+        "$id": "215",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2189,9 +2144,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "221",
+        "$id": "216",
         "type": {
-         "$id": "222",
+         "$id": "217",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2200,22 +2155,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.NullableFloatValue",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "218",
+     "kind": "client",
+     "name": "NullableInt32Value",
+     "namespace": "Type.Array",
+     "doc": "Array of nullable int32 values",
      "operations": [
       {
-       "$id": "223",
+       "$id": "219",
        "name": "get",
        "resourceName": "NullableInt32Value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "224",
+         "$id": "220",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "225",
+          "$id": "221",
           "kind": "constant",
           "valueType": {
-           "$id": "226",
+           "$id": "222",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2237,19 +2205,19 @@
        ],
        "responses": [
         {
-         "$id": "227",
+         "$id": "223",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "228",
+          "$id": "224",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "229",
+           "$id": "225",
            "kind": "nullable",
            "type": {
-            "$id": "230",
+            "$id": "226",
             "kind": "int32",
             "name": "int32",
             "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -2277,21 +2245,21 @@
        "decorators": []
       },
       {
-       "$id": "231",
+       "$id": "227",
        "name": "put",
        "resourceName": "NullableInt32Value",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "232",
+         "$id": "228",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "233",
+          "$id": "229",
           "kind": "constant",
           "valueType": {
-           "$id": "234",
+           "$id": "230",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2311,15 +2279,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "235",
+         "$id": "231",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "236",
+          "$id": "232",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$ref": "229"
+           "$ref": "225"
           },
           "crossLanguageDefinitionId": "TypeSpec.Array",
           "decorators": []
@@ -2337,7 +2305,7 @@
        ],
        "responses": [
         {
-         "$id": "237",
+         "$id": "233",
          "statusCodes": [
           204
          ],
@@ -2358,27 +2326,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.NullableInt32Value",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "238",
-     "kind": "client",
-     "name": "NullableBooleanValue",
-     "namespace": "Type.Array",
-     "doc": "Array of nullable boolean values",
      "parameters": [
       {
-       "$id": "239",
+       "$id": "234",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "240",
+        "$id": "235",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2392,9 +2347,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "241",
+        "$id": "236",
         "type": {
-         "$id": "242",
+         "$id": "237",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2403,22 +2358,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.NullableInt32Value",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "238",
+     "kind": "client",
+     "name": "NullableBooleanValue",
+     "namespace": "Type.Array",
+     "doc": "Array of nullable boolean values",
      "operations": [
       {
-       "$id": "243",
+       "$id": "239",
        "name": "get",
        "resourceName": "NullableBooleanValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "244",
+         "$id": "240",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "245",
+          "$id": "241",
           "kind": "constant",
           "valueType": {
-           "$id": "246",
+           "$id": "242",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2440,19 +2408,19 @@
        ],
        "responses": [
         {
-         "$id": "247",
+         "$id": "243",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "248",
+          "$id": "244",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "249",
+           "$id": "245",
            "kind": "nullable",
            "type": {
-            "$id": "250",
+            "$id": "246",
             "kind": "boolean",
             "name": "boolean",
             "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -2480,21 +2448,21 @@
        "decorators": []
       },
       {
-       "$id": "251",
+       "$id": "247",
        "name": "put",
        "resourceName": "NullableBooleanValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "252",
+         "$id": "248",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "253",
+          "$id": "249",
           "kind": "constant",
           "valueType": {
-           "$id": "254",
+           "$id": "250",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2514,15 +2482,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "255",
+         "$id": "251",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "256",
+          "$id": "252",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$ref": "249"
+           "$ref": "245"
           },
           "crossLanguageDefinitionId": "TypeSpec.Array",
           "decorators": []
@@ -2540,7 +2508,7 @@
        ],
        "responses": [
         {
-         "$id": "257",
+         "$id": "253",
          "statusCodes": [
           204
          ],
@@ -2561,27 +2529,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.NullableBooleanValue",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "258",
-     "kind": "client",
-     "name": "NullableStringValue",
-     "namespace": "Type.Array",
-     "doc": "Array of nullable string values",
      "parameters": [
       {
-       "$id": "259",
+       "$id": "254",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "260",
+        "$id": "255",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2595,9 +2550,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "261",
+        "$id": "256",
         "type": {
-         "$id": "262",
+         "$id": "257",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2606,22 +2561,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.NullableBooleanValue",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "258",
+     "kind": "client",
+     "name": "NullableStringValue",
+     "namespace": "Type.Array",
+     "doc": "Array of nullable string values",
      "operations": [
       {
-       "$id": "263",
+       "$id": "259",
        "name": "get",
        "resourceName": "NullableStringValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "264",
+         "$id": "260",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "265",
+          "$id": "261",
           "kind": "constant",
           "valueType": {
-           "$id": "266",
+           "$id": "262",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2643,19 +2611,19 @@
        ],
        "responses": [
         {
-         "$id": "267",
+         "$id": "263",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "268",
+          "$id": "264",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "269",
+           "$id": "265",
            "kind": "nullable",
            "type": {
-            "$id": "270",
+            "$id": "266",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2683,21 +2651,21 @@
        "decorators": []
       },
       {
-       "$id": "271",
+       "$id": "267",
        "name": "put",
        "resourceName": "NullableStringValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "272",
+         "$id": "268",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "273",
+          "$id": "269",
           "kind": "constant",
           "valueType": {
-           "$id": "274",
+           "$id": "270",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2717,15 +2685,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "275",
+         "$id": "271",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "276",
+          "$id": "272",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$ref": "269"
+           "$ref": "265"
           },
           "crossLanguageDefinitionId": "TypeSpec.Array",
           "decorators": []
@@ -2743,7 +2711,7 @@
        ],
        "responses": [
         {
-         "$id": "277",
+         "$id": "273",
          "statusCodes": [
           204
          ],
@@ -2764,27 +2732,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.NullableStringValue",
-     "decorators": [],
-     "parent": {
-      "$ref": "11"
-     }
-    },
-    {
-     "$id": "278",
-     "kind": "client",
-     "name": "NullableModelValue",
-     "namespace": "Type.Array",
-     "doc": "Array of nullable model values",
      "parameters": [
       {
-       "$id": "279",
+       "$id": "274",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "280",
+        "$id": "275",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2798,9 +2753,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "281",
+        "$id": "276",
         "type": {
-         "$id": "282",
+         "$id": "277",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2809,22 +2764,35 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.NullableStringValue",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "11"
+     }
+    },
+    {
+     "$id": "278",
+     "kind": "client",
+     "name": "NullableModelValue",
+     "namespace": "Type.Array",
+     "doc": "Array of nullable model values",
      "operations": [
       {
-       "$id": "283",
+       "$id": "279",
        "name": "get",
        "resourceName": "NullableModelValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "284",
+         "$id": "280",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "285",
+          "$id": "281",
           "kind": "constant",
           "valueType": {
-           "$id": "286",
+           "$id": "282",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2846,16 +2814,16 @@
        ],
        "responses": [
         {
-         "$id": "287",
+         "$id": "283",
          "statusCodes": [
           200
          ],
          "bodyType": {
-          "$id": "288",
+          "$id": "284",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "289",
+           "$id": "285",
            "kind": "nullable",
            "type": {
             "$ref": "2"
@@ -2882,21 +2850,21 @@
        "decorators": []
       },
       {
-       "$id": "290",
+       "$id": "286",
        "name": "put",
        "resourceName": "NullableModelValue",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "291",
+         "$id": "287",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "292",
+          "$id": "288",
           "kind": "constant",
           "valueType": {
-           "$id": "293",
+           "$id": "289",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2916,15 +2884,15 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "294",
+         "$id": "290",
          "name": "body",
          "nameInRequest": "body",
          "type": {
-          "$id": "295",
+          "$id": "291",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$ref": "289"
+           "$ref": "285"
           },
           "crossLanguageDefinitionId": "TypeSpec.Array",
           "decorators": []
@@ -2942,7 +2910,7 @@
        ],
        "responses": [
         {
-         "$id": "296",
+         "$id": "292",
          "statusCodes": [
           204
          ],
@@ -2963,9 +2931,41 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Type.Array.NullableModelValue",
+     "parameters": [
+      {
+       "$id": "293",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "294",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "295",
+        "type": {
+         "$id": "296",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
      "decorators": [],
+     "crossLanguageDefinitionId": "Type.Array.NullableModelValue",
+     "apiVersions": [],
      "parent": {
       "$ref": "11"
      }

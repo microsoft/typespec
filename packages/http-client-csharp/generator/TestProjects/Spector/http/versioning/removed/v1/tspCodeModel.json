@@ -500,63 +500,24 @@
    "name": "RemovedClient",
    "namespace": "Versioning.Removed",
    "doc": "Test for the `@removed` decorator.",
-   "parameters": [
-    {
-     "$id": "65",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Need to be set as 'http://localhost:3000' in client.",
-     "type": {
-      "$id": "66",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    },
-    {
-     "$id": "67",
-     "name": "version",
-     "nameInRequest": "version",
-     "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
-     "type": {
-      "$ref": "18"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": false,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    }
-   ],
    "operations": [
     {
-     "$id": "68",
+     "$id": "65",
      "name": "v1",
      "resourceName": "Removed",
      "doc": "This operation should not be generated with latest version's signature.",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "69",
+       "$id": "66",
        "name": "contentType",
        "nameInRequest": "Content-Type",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$id": "70",
+        "$id": "67",
         "kind": "constant",
         "valueType": {
-         "$id": "71",
+         "$id": "68",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -576,14 +537,14 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "72",
+       "$id": "69",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "73",
+        "$id": "70",
         "kind": "constant",
         "valueType": {
-         "$id": "74",
+         "$id": "71",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -603,7 +564,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "75",
+       "$id": "72",
        "name": "body",
        "nameInRequest": "body",
        "type": {
@@ -622,7 +583,7 @@
      ],
      "responses": [
       {
-       "$id": "76",
+       "$id": "73",
        "statusCodes": [
         200
        ],
@@ -649,17 +610,17 @@
      "decorators": []
     },
     {
-     "$id": "77",
+     "$id": "74",
      "name": "v2",
      "resourceName": "Removed",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "78",
+       "$id": "75",
        "name": "param",
        "nameInRequest": "param",
        "type": {
-        "$id": "79",
+        "$id": "76",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -676,15 +637,15 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "80",
+       "$id": "77",
        "name": "contentType",
        "nameInRequest": "Content-Type",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$id": "81",
+        "$id": "78",
         "kind": "constant",
         "valueType": {
-         "$id": "82",
+         "$id": "79",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -704,14 +665,14 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "83",
+       "$id": "80",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "84",
+        "$id": "81",
         "kind": "constant",
         "valueType": {
-         "$id": "85",
+         "$id": "82",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -731,7 +692,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "86",
+       "$id": "83",
        "name": "body",
        "nameInRequest": "body",
        "type": {
@@ -750,7 +711,7 @@
      ],
      "responses": [
       {
-       "$id": "87",
+       "$id": "84",
        "statusCodes": [
         200
        ],
@@ -777,22 +738,22 @@
      "decorators": []
     },
     {
-     "$id": "88",
+     "$id": "85",
      "name": "modelV3",
      "resourceName": "Removed",
      "doc": "This operation will pass different paths and different request bodies based on different versions.",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "89",
+       "$id": "86",
        "name": "contentType",
        "nameInRequest": "Content-Type",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$id": "90",
+        "$id": "87",
         "kind": "constant",
         "valueType": {
-         "$id": "91",
+         "$id": "88",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -812,14 +773,14 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "92",
+       "$id": "89",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "93",
+        "$id": "90",
         "kind": "constant",
         "valueType": {
-         "$id": "94",
+         "$id": "91",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -839,7 +800,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "95",
+       "$id": "92",
        "name": "body",
        "nameInRequest": "body",
        "type": {
@@ -858,7 +819,7 @@
      ],
      "responses": [
       {
-       "$id": "96",
+       "$id": "93",
        "statusCodes": [
         200
        ],
@@ -885,11 +846,50 @@
      "decorators": []
     }
    ],
+   "parameters": [
+    {
+     "$id": "94",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Need to be set as 'http://localhost:3000' in client.",
+     "type": {
+      "$id": "95",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    },
+    {
+     "$id": "96",
+     "name": "version",
+     "nameInRequest": "version",
+     "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
+     "type": {
+      "$ref": "18"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": false,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    }
+   ],
+   "decorators": [],
+   "crossLanguageDefinitionId": "Versioning.Removed",
    "apiVersions": [
     "v1"
    ],
-   "crossLanguageDefinitionId": "Versioning.Removed",
-   "decorators": [],
    "children": [
     {
      "$id": "97",
@@ -897,62 +897,23 @@
      "name": "InterfaceV1",
      "namespace": "Versioning.Removed",
      "doc": "This operation group should not be generated with latest version.",
-     "parameters": [
-      {
-       "$id": "98",
-       "name": "endpoint",
-       "nameInRequest": "endpoint",
-       "doc": "Need to be set as 'http://localhost:3000' in client.",
-       "type": {
-        "$id": "99",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "location": "Uri",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isRequired": true,
-       "isEndpoint": true,
-       "skipUrlEncoding": false,
-       "explode": false,
-       "kind": "Client"
-      },
-      {
-       "$id": "100",
-       "name": "version",
-       "nameInRequest": "version",
-       "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
-       "type": {
-        "$ref": "18"
-       },
-       "location": "Uri",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isRequired": true,
-       "isEndpoint": false,
-       "skipUrlEncoding": false,
-       "explode": false,
-       "kind": "Client"
-      }
-     ],
      "operations": [
       {
-       "$id": "101",
+       "$id": "98",
        "name": "v1InInterface",
        "resourceName": "InterfaceV1",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "102",
+         "$id": "99",
          "name": "contentType",
          "nameInRequest": "Content-Type",
          "doc": "Body parameter's content type. Known values are application/json",
          "type": {
-          "$id": "103",
+          "$id": "100",
           "kind": "constant",
           "valueType": {
-           "$id": "104",
+           "$id": "101",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -972,14 +933,14 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "105",
+         "$id": "102",
          "name": "accept",
          "nameInRequest": "Accept",
          "type": {
-          "$id": "106",
+          "$id": "103",
           "kind": "constant",
           "valueType": {
-           "$id": "107",
+           "$id": "104",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -999,7 +960,7 @@
          "skipUrlEncoding": false
         },
         {
-         "$id": "108",
+         "$id": "105",
          "name": "body",
          "nameInRequest": "body",
          "type": {
@@ -1018,7 +979,7 @@
        ],
        "responses": [
         {
-         "$id": "109",
+         "$id": "106",
          "statusCodes": [
           200
          ],
@@ -1045,11 +1006,50 @@
        "decorators": []
       }
      ],
+     "parameters": [
+      {
+       "$id": "107",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Need to be set as 'http://localhost:3000' in client.",
+       "type": {
+        "$id": "108",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
+      },
+      {
+       "$id": "109",
+       "name": "version",
+       "nameInRequest": "version",
+       "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
+       "type": {
+        "$ref": "18"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": false,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
+      }
+     ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Versioning.Removed.InterfaceV1",
      "apiVersions": [
       "v1"
      ],
-     "crossLanguageDefinitionId": "Versioning.Removed.InterfaceV1",
-     "decorators": [],
      "parent": {
       "$ref": "64"
      }

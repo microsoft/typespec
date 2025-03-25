@@ -11,38 +11,16 @@
    "name": "NotVersionedClient",
    "namespace": "Server.Versions.NotVersioned",
    "doc": "Illustrates not-versioned server.",
-   "parameters": [
-    {
-     "$id": "3",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Need to be set as 'http://localhost:3000' in client.",
-     "type": {
-      "$id": "4",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    }
-   ],
    "operations": [
     {
-     "$id": "5",
+     "$id": "3",
      "name": "withoutApiVersion",
      "resourceName": "NotVersioned",
      "accessibility": "public",
      "parameters": [],
      "responses": [
       {
-       "$id": "6",
+       "$id": "4",
        "statusCodes": [
         200
        ],
@@ -60,17 +38,17 @@
      "decorators": []
     },
     {
-     "$id": "7",
+     "$id": "5",
      "name": "withQueryApiVersion",
      "resourceName": "NotVersioned",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "8",
+       "$id": "6",
        "name": "apiVersion",
        "nameInRequest": "api-version",
        "type": {
-        "$id": "9",
+        "$id": "7",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -89,7 +67,7 @@
      ],
      "responses": [
       {
-       "$id": "10",
+       "$id": "8",
        "statusCodes": [
         200
        ],
@@ -107,17 +85,17 @@
      "decorators": []
     },
     {
-     "$id": "11",
+     "$id": "9",
      "name": "withPathApiVersion",
      "resourceName": "NotVersioned",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "12",
+       "$id": "10",
        "name": "apiVersion",
        "nameInRequest": "apiVersion",
        "type": {
-        "$id": "13",
+        "$id": "11",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -136,7 +114,7 @@
      ],
      "responses": [
       {
-       "$id": "14",
+       "$id": "12",
        "statusCodes": [
         200
        ],
@@ -154,9 +132,31 @@
      "decorators": []
     }
    ],
-   "apiVersions": [],
+   "parameters": [
+    {
+     "$id": "13",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Need to be set as 'http://localhost:3000' in client.",
+     "type": {
+      "$id": "14",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    }
+   ],
+   "decorators": [],
    "crossLanguageDefinitionId": "Server.Versions.NotVersioned",
-   "decorators": []
+   "apiVersions": []
   }
  ]
 }

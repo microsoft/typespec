@@ -136,58 +136,19 @@
    "name": "MadeOptionalClient",
    "namespace": "Versioning.MadeOptional",
    "doc": "Test for the `@madeOptional` decorator.",
-   "parameters": [
-    {
-     "$id": "18",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Need to be set as 'http://localhost:3000' in client.",
-     "type": {
-      "$id": "19",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    },
-    {
-     "$id": "20",
-     "name": "version",
-     "nameInRequest": "version",
-     "doc": "Need to be set as 'v1' or 'v2' in client.",
-     "type": {
-      "$ref": "2"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": false,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    }
-   ],
    "operations": [
     {
-     "$id": "21",
+     "$id": "18",
      "name": "test",
      "resourceName": "MadeOptional",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "22",
+       "$id": "19",
        "name": "param",
        "nameInRequest": "param",
        "type": {
-        "$id": "23",
+        "$id": "20",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -204,15 +165,15 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "24",
+       "$id": "21",
        "name": "contentType",
        "nameInRequest": "Content-Type",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$id": "25",
+        "$id": "22",
         "kind": "constant",
         "valueType": {
-         "$id": "26",
+         "$id": "23",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -232,14 +193,14 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "27",
+       "$id": "24",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "28",
+        "$id": "25",
         "kind": "constant",
         "valueType": {
-         "$id": "29",
+         "$id": "26",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -259,7 +220,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "30",
+       "$id": "27",
        "name": "body",
        "nameInRequest": "body",
        "type": {
@@ -278,7 +239,7 @@
      ],
      "responses": [
       {
-       "$id": "31",
+       "$id": "28",
        "statusCodes": [
         200
        ],
@@ -305,12 +266,51 @@
      "decorators": []
     }
    ],
+   "parameters": [
+    {
+     "$id": "29",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Need to be set as 'http://localhost:3000' in client.",
+     "type": {
+      "$id": "30",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    },
+    {
+     "$id": "31",
+     "name": "version",
+     "nameInRequest": "version",
+     "doc": "Need to be set as 'v1' or 'v2' in client.",
+     "type": {
+      "$ref": "2"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": false,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    }
+   ],
+   "decorators": [],
+   "crossLanguageDefinitionId": "Versioning.MadeOptional",
    "apiVersions": [
     "v1",
     "v2"
-   ],
-   "crossLanguageDefinitionId": "Versioning.MadeOptional",
-   "decorators": []
+   ]
   }
  ]
 }

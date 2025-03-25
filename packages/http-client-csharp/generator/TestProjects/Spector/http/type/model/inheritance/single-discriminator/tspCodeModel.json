@@ -493,54 +493,22 @@
    "name": "SingleDiscriminatorClient",
    "namespace": "Type.Model.Inheritance.SingleDiscriminator",
    "doc": "Illustrates inheritance with single discriminator.",
-   "parameters": [
-    {
-     "$id": "65",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "66",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "67",
-      "type": {
-       "$id": "68",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
    "operations": [
     {
-     "$id": "69",
+     "$id": "65",
      "name": "getModel",
      "resourceName": "SingleDiscriminator",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "70",
+       "$id": "66",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "71",
+        "$id": "67",
         "kind": "constant",
         "valueType": {
-         "$id": "72",
+         "$id": "68",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -562,7 +530,7 @@
      ],
      "responses": [
       {
-       "$id": "73",
+       "$id": "69",
        "statusCodes": [
         200
        ],
@@ -586,21 +554,21 @@
      "decorators": []
     },
     {
-     "$id": "74",
+     "$id": "70",
      "name": "putModel",
      "resourceName": "SingleDiscriminator",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "75",
+       "$id": "71",
        "name": "contentType",
        "nameInRequest": "Content-Type",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$id": "76",
+        "$id": "72",
         "kind": "constant",
         "valueType": {
-         "$id": "77",
+         "$id": "73",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -620,7 +588,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "78",
+       "$id": "74",
        "name": "input",
        "nameInRequest": "input",
        "type": {
@@ -639,7 +607,7 @@
      ],
      "responses": [
       {
-       "$id": "79",
+       "$id": "75",
        "statusCodes": [
         204
        ],
@@ -660,20 +628,20 @@
      "decorators": []
     },
     {
-     "$id": "80",
+     "$id": "76",
      "name": "getRecursiveModel",
      "resourceName": "SingleDiscriminator",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "81",
+       "$id": "77",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "82",
+        "$id": "78",
         "kind": "constant",
         "valueType": {
-         "$id": "83",
+         "$id": "79",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -695,7 +663,7 @@
      ],
      "responses": [
       {
-       "$id": "84",
+       "$id": "80",
        "statusCodes": [
         200
        ],
@@ -719,21 +687,21 @@
      "decorators": []
     },
     {
-     "$id": "85",
+     "$id": "81",
      "name": "putRecursiveModel",
      "resourceName": "SingleDiscriminator",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "86",
+       "$id": "82",
        "name": "contentType",
        "nameInRequest": "Content-Type",
        "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$id": "87",
+        "$id": "83",
         "kind": "constant",
         "valueType": {
-         "$id": "88",
+         "$id": "84",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -753,7 +721,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "89",
+       "$id": "85",
        "name": "input",
        "nameInRequest": "input",
        "type": {
@@ -772,7 +740,7 @@
      ],
      "responses": [
       {
-       "$id": "90",
+       "$id": "86",
        "statusCodes": [
         204
        ],
@@ -793,20 +761,20 @@
      "decorators": []
     },
     {
-     "$id": "91",
+     "$id": "87",
      "name": "getMissingDiscriminator",
      "resourceName": "SingleDiscriminator",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "92",
+       "$id": "88",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "93",
+        "$id": "89",
         "kind": "constant",
         "valueType": {
-         "$id": "94",
+         "$id": "90",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -828,7 +796,7 @@
      ],
      "responses": [
       {
-       "$id": "95",
+       "$id": "91",
        "statusCodes": [
         200
        ],
@@ -852,20 +820,20 @@
      "decorators": []
     },
     {
-     "$id": "96",
+     "$id": "92",
      "name": "getWrongDiscriminator",
      "resourceName": "SingleDiscriminator",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "97",
+       "$id": "93",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "98",
+        "$id": "94",
         "kind": "constant",
         "valueType": {
-         "$id": "99",
+         "$id": "95",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -887,7 +855,7 @@
      ],
      "responses": [
       {
-       "$id": "100",
+       "$id": "96",
        "statusCodes": [
         200
        ],
@@ -911,20 +879,20 @@
      "decorators": []
     },
     {
-     "$id": "101",
+     "$id": "97",
      "name": "getLegacyModel",
      "resourceName": "SingleDiscriminator",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "102",
+       "$id": "98",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "103",
+        "$id": "99",
         "kind": "constant",
         "valueType": {
-         "$id": "104",
+         "$id": "100",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -946,7 +914,7 @@
      ],
      "responses": [
       {
-       "$id": "105",
+       "$id": "101",
        "statusCodes": [
         200
        ],
@@ -970,9 +938,41 @@
      "decorators": []
     }
    ],
-   "apiVersions": [],
+   "parameters": [
+    {
+     "$id": "102",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "103",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "104",
+      "type": {
+       "$id": "105",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "value": "http://localhost:3000"
+     }
+    }
+   ],
+   "decorators": [],
    "crossLanguageDefinitionId": "Type.Model.Inheritance.SingleDiscriminator",
-   "decorators": []
+   "apiVersions": []
   }
  ]
 }

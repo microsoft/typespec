@@ -11,6 +11,7 @@
    "name": "CollectionFormatClient",
    "namespace": "Parameters.CollectionFormat",
    "doc": "Test for collectionFormat.",
+   "operations": [],
    "parameters": [
     {
      "$id": "3",
@@ -43,66 +44,33 @@
      }
     }
    ],
-   "operations": [],
-   "apiVersions": [],
-   "crossLanguageDefinitionId": "Parameters.CollectionFormat",
    "decorators": [],
+   "crossLanguageDefinitionId": "Parameters.CollectionFormat",
+   "apiVersions": [],
    "children": [
     {
      "$id": "7",
      "kind": "client",
      "name": "Query",
      "namespace": "Parameters.CollectionFormat.Query",
-     "parameters": [
-      {
-       "$id": "8",
-       "name": "endpoint",
-       "nameInRequest": "endpoint",
-       "doc": "Service host",
-       "type": {
-        "$id": "9",
-        "kind": "url",
-        "name": "url",
-        "crossLanguageDefinitionId": "TypeSpec.url"
-       },
-       "location": "Uri",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isRequired": true,
-       "isEndpoint": true,
-       "skipUrlEncoding": false,
-       "explode": false,
-       "kind": "Client",
-       "defaultValue": {
-        "$id": "10",
-        "type": {
-         "$id": "11",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string"
-        },
-        "value": "http://localhost:3000"
-       }
-      }
-     ],
      "operations": [
       {
-       "$id": "12",
+       "$id": "8",
        "name": "multi",
        "resourceName": "Query",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "13",
+         "$id": "9",
          "name": "colors",
          "nameInRequest": "colors",
          "doc": "Possible values for colors are [blue,red,green]",
          "type": {
-          "$id": "14",
+          "$id": "10",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "15",
+           "$id": "11",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -124,7 +92,7 @@
        ],
        "responses": [
         {
-         "$id": "16",
+         "$id": "12",
          "statusCodes": [
           204
          ],
@@ -142,22 +110,22 @@
        "decorators": []
       },
       {
-       "$id": "17",
+       "$id": "13",
        "name": "ssv",
        "resourceName": "Query",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "18",
+         "$id": "14",
          "name": "colors",
          "nameInRequest": "colors",
          "doc": "Possible values for colors are [blue,red,green]",
          "type": {
-          "$id": "19",
+          "$id": "15",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "20",
+           "$id": "16",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -180,7 +148,7 @@
        ],
        "responses": [
         {
-         "$id": "21",
+         "$id": "17",
          "statusCodes": [
           204
          ],
@@ -198,22 +166,22 @@
        "decorators": []
       },
       {
-       "$id": "22",
+       "$id": "18",
        "name": "pipes",
        "resourceName": "Query",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "23",
+         "$id": "19",
          "name": "colors",
          "nameInRequest": "colors",
          "doc": "Possible values for colors are [blue,red,green]",
          "type": {
-          "$id": "24",
+          "$id": "20",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "25",
+           "$id": "21",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -236,7 +204,7 @@
        ],
        "responses": [
         {
-         "$id": "26",
+         "$id": "22",
          "statusCodes": [
           204
          ],
@@ -254,22 +222,22 @@
        "decorators": []
       },
       {
-       "$id": "27",
+       "$id": "23",
        "name": "csv",
        "resourceName": "Query",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "28",
+         "$id": "24",
          "name": "colors",
          "nameInRequest": "colors",
          "doc": "Possible values for colors are [blue,red,green]",
          "type": {
-          "$id": "29",
+          "$id": "25",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "30",
+           "$id": "26",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -292,7 +260,7 @@
        ],
        "responses": [
         {
-         "$id": "31",
+         "$id": "27",
          "statusCodes": [
           204
          ],
@@ -310,26 +278,14 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query",
-     "decorators": [],
-     "parent": {
-      "$ref": "2"
-     }
-    },
-    {
-     "$id": "32",
-     "kind": "client",
-     "name": "Header",
-     "namespace": "Parameters.CollectionFormat.Header",
      "parameters": [
       {
-       "$id": "33",
+       "$id": "28",
        "name": "endpoint",
        "nameInRequest": "endpoint",
        "doc": "Service host",
        "type": {
-        "$id": "34",
+        "$id": "29",
         "kind": "url",
         "name": "url",
         "crossLanguageDefinitionId": "TypeSpec.url"
@@ -343,9 +299,9 @@
        "explode": false,
        "kind": "Client",
        "defaultValue": {
-        "$id": "35",
+        "$id": "30",
         "type": {
-         "$id": "36",
+         "$id": "31",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string"
@@ -354,24 +310,36 @@
        }
       }
      ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Parameters.CollectionFormat.Query",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "2"
+     }
+    },
+    {
+     "$id": "32",
+     "kind": "client",
+     "name": "Header",
+     "namespace": "Parameters.CollectionFormat.Header",
      "operations": [
       {
-       "$id": "37",
+       "$id": "33",
        "name": "csv",
        "resourceName": "Header",
        "accessibility": "public",
        "parameters": [
         {
-         "$id": "38",
+         "$id": "34",
          "name": "colors",
          "nameInRequest": "colors",
          "doc": "Possible values for colors are [blue,red,green]",
          "type": {
-          "$id": "39",
+          "$id": "35",
           "kind": "array",
           "name": "Array",
           "valueType": {
-           "$id": "40",
+           "$id": "36",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -394,7 +362,7 @@
        ],
        "responses": [
         {
-         "$id": "41",
+         "$id": "37",
          "statusCodes": [
           204
          ],
@@ -412,9 +380,41 @@
        "decorators": []
       }
      ],
-     "apiVersions": [],
-     "crossLanguageDefinitionId": "Parameters.CollectionFormat.Header",
+     "parameters": [
+      {
+       "$id": "38",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "39",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "40",
+        "type": {
+         "$id": "41",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
      "decorators": [],
+     "crossLanguageDefinitionId": "Parameters.CollectionFormat.Header",
+     "apiVersions": [],
      "parent": {
       "$ref": "2"
      }

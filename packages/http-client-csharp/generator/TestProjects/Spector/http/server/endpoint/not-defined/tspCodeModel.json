@@ -11,38 +11,16 @@
    "name": "NotDefinedClient",
    "namespace": "Server.Endpoint.NotDefined",
    "doc": "Illustrates server doesn't define endpoint. Client should automatically add an endpoint to let user pass in.",
-   "parameters": [
-    {
-     "$id": "3",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "4",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    }
-   ],
    "operations": [
     {
-     "$id": "5",
+     "$id": "3",
      "name": "valid",
      "resourceName": "NotDefined",
      "accessibility": "public",
      "parameters": [],
      "responses": [
       {
-       "$id": "6",
+       "$id": "4",
        "statusCodes": [
         200
        ],
@@ -60,9 +38,31 @@
      "decorators": []
     }
    ],
-   "apiVersions": [],
+   "parameters": [
+    {
+     "$id": "5",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "6",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    }
+   ],
+   "decorators": [],
    "crossLanguageDefinitionId": "Server.Endpoint.NotDefined",
-   "decorators": []
+   "apiVersions": []
   }
  ]
 }

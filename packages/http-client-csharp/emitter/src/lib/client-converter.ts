@@ -53,13 +53,13 @@ function fromSdkClient(
     namespace: client.namespace,
     doc: client.doc,
     summary: client.summary,
-    parameters: clientParameters,
     operations: client.methods
       .filter((m) => m.kind !== "clientaccessor")
       .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions)),
-    apiVersions: client.apiVersions,
-    crossLanguageDefinitionId: client.crossLanguageDefinitionId,
+    parameters: clientParameters,
     decorators: client.decorators,
+    crossLanguageDefinitionId: client.crossLanguageDefinitionId,
+    apiVersions: client.apiVersions,
     parent: undefined,
     children: undefined,
   };

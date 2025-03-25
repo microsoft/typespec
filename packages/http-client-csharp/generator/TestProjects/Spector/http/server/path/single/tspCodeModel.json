@@ -11,38 +11,16 @@
    "name": "SingleClient",
    "namespace": "Server.Path.Single",
    "doc": "Illustrates server with a single path parameter @server",
-   "parameters": [
-    {
-     "$id": "3",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Need to be set as 'http://localhost:3000' in client.",
-     "type": {
-      "$id": "4",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    }
-   ],
    "operations": [
     {
-     "$id": "5",
+     "$id": "3",
      "name": "myOp",
      "resourceName": "Single",
      "accessibility": "public",
      "parameters": [],
      "responses": [
       {
-       "$id": "6",
+       "$id": "4",
        "statusCodes": [
         200
        ],
@@ -60,9 +38,31 @@
      "decorators": []
     }
    ],
-   "apiVersions": [],
+   "parameters": [
+    {
+     "$id": "5",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Need to be set as 'http://localhost:3000' in client.",
+     "type": {
+      "$id": "6",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    }
+   ],
+   "decorators": [],
    "crossLanguageDefinitionId": "Server.Path.Single",
-   "decorators": []
+   "apiVersions": []
   }
  ]
 }

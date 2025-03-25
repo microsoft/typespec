@@ -53,83 +53,9 @@
    "name": "ResiliencyServiceDrivenClient",
    "namespace": "Resiliency.ServiceDriven",
    "doc": "Test that we can grow up a service spec and service deployment into a multi-versioned service with full client support.",
-   "parameters": [
-    {
-     "$id": "7",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Need to be set as 'http://localhost:3000' in client.",
-     "type": {
-      "$id": "8",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    },
-    {
-     "$id": "9",
-     "name": "serviceDeploymentVersion",
-     "nameInRequest": "serviceDeploymentVersion",
-     "doc": "Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'.",
-     "type": {
-      "$id": "10",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": false,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client"
-    },
-    {
-     "$id": "11",
-     "name": "apiVersion",
-     "nameInRequest": "apiVersion",
-     "doc": "Pass in 'v1'. This represents the API version of the service. Will grow up in the next deployment to be both 'v1' and 'v2'",
-     "type": {
-      "$id": "12",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "location": "Uri",
-     "isApiVersion": true,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": false,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "13",
-      "type": {
-       "$id": "14",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "v1"
-     }
-    }
-   ],
    "operations": [
     {
-     "$id": "15",
+     "$id": "7",
      "name": "fromNone",
      "resourceName": "AddOptionalParam",
      "doc": "Test that currently accepts no parameters, will be updated in next spec to accept a new optional parameter as well",
@@ -137,7 +63,7 @@
      "parameters": [],
      "responses": [
       {
-       "$id": "16",
+       "$id": "8",
        "statusCodes": [
         204
        ],
@@ -155,19 +81,19 @@
      "decorators": []
     },
     {
-     "$id": "17",
+     "$id": "9",
      "name": "fromOneRequired",
      "resourceName": "AddOptionalParam",
      "doc": "Test that currently accepts one required parameter, will be updated in next spec to accept a new optional parameter as well",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "18",
+       "$id": "10",
        "name": "parameter",
        "nameInRequest": "parameter",
        "doc": "I am a required parameter",
        "type": {
-        "$id": "19",
+        "$id": "11",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -186,7 +112,7 @@
      ],
      "responses": [
       {
-       "$id": "20",
+       "$id": "12",
        "statusCodes": [
         204
        ],
@@ -204,19 +130,19 @@
      "decorators": []
     },
     {
-     "$id": "21",
+     "$id": "13",
      "name": "fromOneOptional",
      "resourceName": "AddOptionalParam",
      "doc": "Test that currently accepts one optional parameter, will be updated in next spec to accept a new optional parameter as well",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "22",
+       "$id": "14",
        "name": "parameter",
        "nameInRequest": "parameter",
        "doc": "I am an optional parameter",
        "type": {
-        "$id": "23",
+        "$id": "15",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -235,7 +161,7 @@
      ],
      "responses": [
       {
-       "$id": "24",
+       "$id": "16",
        "statusCodes": [
         204
        ],
@@ -253,11 +179,85 @@
      "decorators": []
     }
    ],
+   "parameters": [
+    {
+     "$id": "17",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Need to be set as 'http://localhost:3000' in client.",
+     "type": {
+      "$id": "18",
+      "kind": "url",
+      "name": "url",
+      "crossLanguageDefinitionId": "TypeSpec.url"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    },
+    {
+     "$id": "19",
+     "name": "serviceDeploymentVersion",
+     "nameInRequest": "serviceDeploymentVersion",
+     "doc": "Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'.",
+     "type": {
+      "$id": "20",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": false,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    },
+    {
+     "$id": "21",
+     "name": "apiVersion",
+     "nameInRequest": "apiVersion",
+     "doc": "Pass in 'v1'. This represents the API version of the service. Will grow up in the next deployment to be both 'v1' and 'v2'",
+     "type": {
+      "$id": "22",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "location": "Uri",
+     "isApiVersion": true,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": false,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "23",
+      "type": {
+       "$id": "24",
+       "kind": "string",
+       "name": "string",
+       "crossLanguageDefinitionId": "TypeSpec.string"
+      },
+      "value": "v1"
+     }
+    }
+   ],
+   "decorators": [],
+   "crossLanguageDefinitionId": "Resiliency.ServiceDriven",
    "apiVersions": [
     "v1"
-   ],
-   "crossLanguageDefinitionId": "Resiliency.ServiceDriven",
-   "decorators": []
+   ]
   }
  ]
 }
