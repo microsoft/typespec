@@ -39,6 +39,7 @@ It should generate a client for the Global Namespace with a single operation `fo
 ```ts src/client.ts class Client
 export class Client {
   #context: ClientContext;
+
   constructor(endpoint: string, options?: ClientOptions) {
     this.#context = createClientContext(endpoint, options);
   }

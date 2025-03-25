@@ -64,6 +64,7 @@ export interface SendOptions extends OperationOptions {}
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
+
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
@@ -73,7 +74,7 @@ export class TestClient {
 }
 ```
 
-```ts src/models/serializers.ts function jsonEnumsOnlyCasesToTransportTransform
+```ts src/models/internal/serializers.ts function jsonEnumsOnlyCasesToTransportTransform
 export function jsonEnumsOnlyCasesToTransportTransform(input_?: EnumsOnlyCases | null): any {
   if (!input_) {
     return input_ as any;

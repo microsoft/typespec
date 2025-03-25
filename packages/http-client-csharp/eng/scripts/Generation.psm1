@@ -49,6 +49,9 @@ function Get-TspCommand {
     if ($apiVersion) {
         $command += " --option @typespec/http-client-csharp.api-version=$apiVersion"
     }
+    
+    # Always regenerate the csproj to reflect updates to NewProjectScaffolding 
+    $command += " --option @typespec/http-client-csharp.new-project=true"
 
     return $command
 }
