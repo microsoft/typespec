@@ -41,6 +41,7 @@
     "./ast": {
       "import": "./dist/src/ast/index.js"
     },
+   
     "./experimental": {
       "types": "./dist/src/experimental/index.d.ts",
       "default": "./dist/src/experimental/index.js"
@@ -52,6 +53,9 @@
     "./internals": {
       "types": "./dist/src/internals/index.d.ts",
       "import": "./dist/src/internals/index.js"
+    },
+    "./internals/prettier-formatter": {
+      "import": "./dist/src/internals/prettier-formatter.js"
     }
   },
   "browser": {
