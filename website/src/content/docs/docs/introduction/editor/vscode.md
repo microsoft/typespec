@@ -89,4 +89,4 @@ The extension for Visual Studio Code collects usage data and sends it to Microso
 | EmitterVersion      | string |  |
 | CompilerVersion     | string |  |
 | CompilerLocation    | string | "global-compiler" for example |
-| Error               | string | TypeSpec compiler errors |
+| Error               | string | tsp compiling errors |
