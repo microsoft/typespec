@@ -410,12 +410,12 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     @property
     def license_header(self) -> str:
-        if self.yaml_data.get("license"):
+        if self.yaml_data.get("licenseInfo") or not self.is_azure_flavor:
             # typespec unbranded case and azure case with custom license
-            license_header = self.yaml_data["license"].get("header", "")
+            license_header = self.yaml_data.get("licenseInfo", {}).get("header", "")
         else:
             # typespec azure case without custom license and swagger case
-            license_header = self.options.get("header-text", DEFAULT_HEADER_TEXT)
+            license_header = self.options.get("header_text", DEFAULT_HEADER_TEXT)
         if license_header:
             license_header = license_header.replace("\n", "\n# ")
             license_header = (
@@ -426,17 +426,17 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     @property
     def license_description(self) -> str:
-        if self.yaml_data.get("license"):
+        if self.yaml_data.get("licenseInfo") or not self.is_azure_flavor:
             # typespec unbranded case and azure case with custom license
-            return self.yaml_data.get("license", {}).get("description", "")
+            return self.yaml_data.get("licenseInfo", {}).get("description", "")
         # typespec azure case without custom license and swagger case
         return DEFAULT_LICENSE_DESCRIPTION
 
     @property
     def company_name(self) -> str:
-        if self.yaml_data.get("license"):
+        if self.yaml_data.get("licenseInfo") or not self.is_azure_flavor:
             # typespec unbranded case and azure case with custom license
-            return self.yaml_data.get("license", {}).get("company", "")
+            return self.yaml_data.get("licenseInfo", {}).get("company", "")
         else:
             # typespec azure case without custom license and swagger case
             return "Microsoft Corporation"
