@@ -9,7 +9,7 @@ Values cannot be used as types, and types cannot be used as values, they are com
 
 ## Value kinds
 
-There are four kinds of values: objects, arrays, scalars. and null. These values can be created with object values, array values, scalar values and initializers, and the null literal respectively. Additionally, values can result from referencing enum members and union variants.
+There are four kinds of values: objects, arrays, scalars, and null. These values can be created with object values, array values, scalar values and initializers, and the null literal respectively. Additionally, values can result from referencing enum members and union variants.
 
 ### Object values
 
@@ -125,7 +125,7 @@ const stringValue: string = "hello";
 // typeof stringValue returns `string`.
 
 const oneValue = 1;
-// typeof stringValue returns `1`
+// typeof oneValue returns `1`
 
 const stringOrOneValue: string | 1 = 1;
 // typeof stringOrOneValue returns `string | 1`
