@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import * as ef from "@typespec/emitter-framework/typescript";
-import { HttpOperationBody } from "@typespec/http";
+import { HttpOperationBody, HttpOperationFileBody } from "@typespec/http";
 import { ClientOperation } from "@typespec/http-client";
 import { JsonTransform } from "./json/json-transform.jsx";
 export interface TransformDeclarationProps {
@@ -62,6 +62,8 @@ function TransformToTransportDeclaration(props: TransformToTransportDeclarationP
   if (!requestPayload || !requestPayload.property) {
     return;
   }
+
+  if (requestPayload.bodyKind === "file") return;
 
   const namePolicy = ts.useTSNamePolicy();
   const name = namePolicy.getName(`${props.operation.name}_payload_to_transport`, "function");
