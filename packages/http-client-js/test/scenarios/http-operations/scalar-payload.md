@@ -50,7 +50,7 @@ export async function create(
 
 The correct serializer function is created, since this is a number payload, no additional serialization is needed.
 
-```ts src/models/serializers.ts function createPayloadToTransport
+```ts src/models/internal/serializers.ts function createPayloadToTransport
 export function createPayloadToTransport(payload: number) {
   return payload!;
 }

@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
         [ImportingConstructor]
         public StubLibraryGenerator(GeneratorContext context) : base(context) { }
 
-        public override void Configure()
+        protected override void Configure()
         {
             base.Configure();
             AddVisitor(new StubLibraryVisitor());

@@ -25,7 +25,7 @@ function createQueryServerTests(
     uri,
     method: "get",
     request: {
-      params: data,
+      query: data,
     },
     response: {
       status: 204,
@@ -73,7 +73,7 @@ function createPropertyServerTests(uri: string, data: any, value: any) {
     uri,
     method: "post",
     request: {
-      body: data,
+      body: json(data),
     },
     response: {
       status: 200,
@@ -154,23 +154,23 @@ Scenarios.Encode_Bytes_Header_base64urlArray = createHeaderServerTests(
 function createRequestBodyServerTests(
   uri: string,
   data: any,
-  headersData: any,
-  value: any,
   contentType: string = "application/json",
 ) {
   return passOnSuccess({
     uri,
     method: "post",
     request: {
-      body: data,
-      headers: headersData,
+      body: {
+        contentType: contentType,
+        rawContent: data,
+      },
     },
     response: {
       status: 204,
     },
     handler(req: MockRequest) {
       req.expect.containsHeader("content-type", contentType);
-      req.expect.rawBodyEquals(value);
+      req.expect.rawBodyEquals(data);
       return {
         status: 204,
       };
@@ -181,44 +181,24 @@ function createRequestBodyServerTests(
 Scenarios.Encode_Bytes_RequestBody_default = createRequestBodyServerTests(
   "/encode/bytes/body/request/default",
   pngFile,
-  {
-    "Content-Type": "application/octet-stream",
-  },
-  pngFile,
   "application/octet-stream",
 );
 Scenarios.Encode_Bytes_RequestBody_base64 = createRequestBodyServerTests(
   "/encode/bytes/body/request/base64",
   '"dGVzdA=="',
-  {
-    "Content-Type": "application/json",
-  },
-  '"dGVzdA=="',
 );
 Scenarios.Encode_Bytes_RequestBody_base64url = createRequestBodyServerTests(
   "/encode/bytes/body/request/base64url",
-  '"dGVzdA"',
-  {
-    "Content-Type": "application/json",
-  },
   '"dGVzdA"',
 );
 
 Scenarios.Encode_Bytes_RequestBody_customContentType = createRequestBodyServerTests(
   "/encode/bytes/body/request/custom-content-type",
   pngFile,
-  {
-    "Content-Type": "image/png",
-  },
-  pngFile,
   "image/png",
 );
 Scenarios.Encode_Bytes_RequestBody_octetStream = createRequestBodyServerTests(
   "/encode/bytes/body/request/octet-stream",
-  pngFile,
-  {
-    "Content-Type": "application/octet-stream",
-  },
   pngFile,
   "application/octet-stream",
 );

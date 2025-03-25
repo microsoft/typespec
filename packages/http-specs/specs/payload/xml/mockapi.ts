@@ -139,10 +139,7 @@ function createServerTests(uri: string, data?: any) {
       uri,
       method: "put",
       request: {
-        body: data,
-        headers: {
-          "content-type": "application/xml",
-        },
+        body: xml(data),
       },
       handler: (req: MockRequest) => {
         req.expect.containsHeader("content-type", "application/xml");

@@ -35,7 +35,7 @@ export interface Foo {
 
 The generated transformation functions iterate over `int32[]` values, but since **no actual transformation occurs**, this code could be **optimized away**.
 
-```ts src/models/serializers.ts function jsonArrayInt32ToTransportTransform
+```ts src/models/internal/serializers.ts function jsonArrayInt32ToTransportTransform
 export function jsonArrayInt32ToTransportTransform(items_?: Array<number> | null): any {
   if (!items_) {
     return items_ as any;
@@ -55,7 +55,7 @@ export function jsonArrayInt32ToTransportTransform(items_?: Array<number> | null
 
 Uses `jsonArrayInt32ToTransportTransform` for `myValues`, though this could be optimized by **directly passing the array** instead of applying a redundant transformation function.
 
-```ts src/models/serializers.ts function jsonFooToTransportTransform
+```ts src/models/internal/serializers.ts function jsonFooToTransportTransform
 export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
@@ -92,7 +92,7 @@ export async function foo(client: ClientContext, options?: FooOptions): Promise<
 
 Again, the transformation logic is redundant for primitive types. Instead of generating a function, the deserializer could **use the array directly**.
 
-```ts src/models/serializers.ts function jsonArrayInt32ToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonArrayInt32ToApplicationTransform
 export function jsonArrayInt32ToApplicationTransform(items_?: any): Array<number> {
   if (!items_) {
     return items_ as any;
@@ -112,7 +112,7 @@ export function jsonArrayInt32ToApplicationTransform(items_?: any): Array<number
 
 Uses the same unnecessary transformation for `myValues`. Optimizing the pipeline could **eliminate this step** for primitive arrays.
 
-```ts src/models/serializers.ts function jsonFooToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonFooToApplicationTransform
 export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;
@@ -164,7 +164,7 @@ export interface Bar {
 
 Uses `jsonArrayBarToTransportTransform` to serialize each `Bar` instance inside `myValues`, ensuring proper transformation of complex objects.
 
-```ts src/models/serializers.ts function jsonFooToTransportTransform
+```ts src/models/internal/serializers.ts function jsonFooToTransportTransform
 export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
@@ -179,7 +179,7 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
 
 Similarly, the deserializer converts each `Bar` instance in `myValues` back into an application model using `jsonArrayBarToApplicationTransform`.
 
-```ts src/models/serializers.ts function jsonFooToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonFooToApplicationTransform
 export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;

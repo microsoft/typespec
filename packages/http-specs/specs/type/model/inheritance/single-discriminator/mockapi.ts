@@ -40,7 +40,7 @@ Scenarios.Type_Model_Inheritance_SingleDiscriminator_putModel = passOnSuccess({
   uri: "/type/model/inheritance/single-discriminator/model",
   method: "put",
   request: {
-    body: validPolymorphicBody,
+    body: json(validPolymorphicBody),
   },
   response: {
     status: 204,
@@ -62,7 +62,7 @@ Scenarios.Type_Model_Inheritance_SingleDiscriminator_putRecursiveModel = passOnS
   uri: "/type/model/inheritance/single-discriminator/recursivemodel",
   method: "put",
   request: {
-    body: validRecursiveBody,
+    body: json(validRecursiveBody),
   },
   response: {
     status: 204,

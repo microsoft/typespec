@@ -1199,7 +1199,7 @@
        "$id": "118",
        "name": "contentType",
        "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
+       "doc": "Body parameter's content type. Known values are application/octet-stream",
        "type": {
         "$id": "119",
         "kind": "constant",
@@ -1210,7 +1210,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "application/octet-stream",
         "decorators": []
        },
        "location": "Header",
@@ -1231,7 +1231,6 @@
         "$id": "122",
         "kind": "bytes",
         "name": "bytes",
-        "encode": "base64",
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
@@ -1260,7 +1259,7 @@
      "uri": "{endpoint}",
      "path": "/encode/bytes/body/request/default",
      "requestMediaTypes": [
-      "application/json"
+      "application/octet-stream"
      ],
      "bufferResponse": true,
      "generateProtocolMethod": true,
@@ -1432,7 +1431,6 @@
        "$id": "139",
        "name": "contentType",
        "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
        "type": {
         "$id": "140",
         "kind": "constant",
@@ -1511,7 +1509,6 @@
        "$id": "146",
        "name": "contentType",
        "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
        "type": {
         "$id": "147",
         "kind": "constant",
@@ -1642,7 +1639,7 @@
          "crossLanguageDefinitionId": "TypeSpec.string",
          "decorators": []
         },
-        "value": "application/json",
+        "value": "application/octet-stream",
         "decorators": []
        },
        "location": "Header",
@@ -1666,14 +1663,13 @@
         "$id": "162",
         "kind": "bytes",
         "name": "bytes",
-        "encode": "base64",
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
        "headers": [],
        "isErrorResponse": false,
        "contentTypes": [
-        "application/json"
+        "application/octet-stream"
        ]
       }
      ],
@@ -1898,7 +1894,26 @@
         "crossLanguageDefinitionId": "TypeSpec.bytes",
         "decorators": []
        },
-       "headers": [],
+       "headers": [
+        {
+         "$id": "187",
+         "name": "contentType",
+         "nameInResponse": "content-type",
+         "type": {
+          "$id": "188",
+          "kind": "constant",
+          "valueType": {
+           "$id": "189",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         }
+        }
+       ],
        "isErrorResponse": false,
        "contentTypes": [
         "application/json"
@@ -1915,20 +1930,20 @@
      "decorators": []
     },
     {
-     "$id": "187",
+     "$id": "190",
      "name": "base64url",
      "resourceName": "ResponseBody",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "188",
+       "$id": "191",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "189",
+        "$id": "192",
         "kind": "constant",
         "valueType": {
-         "$id": "190",
+         "$id": "193",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1950,18 +1965,18 @@
      ],
      "responses": [
       {
-       "$id": "191",
+       "$id": "194",
        "statusCodes": [
         200
        ],
        "bodyType": {
-        "$id": "192",
+        "$id": "195",
         "kind": "bytes",
         "name": "base64urlBytes",
-        "encode": "base64url",
+        "encode": "base64",
         "crossLanguageDefinitionId": "Encode.Bytes.base64urlBytes",
         "baseType": {
-         "$id": "193",
+         "$id": "196",
          "kind": "bytes",
          "name": "bytes",
          "encode": "base64",
@@ -1970,7 +1985,26 @@
         },
         "decorators": []
        },
-       "headers": [],
+       "headers": [
+        {
+         "$id": "197",
+         "name": "contentType",
+         "nameInResponse": "content-type",
+         "type": {
+          "$id": "198",
+          "kind": "constant",
+          "valueType": {
+           "$id": "199",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         }
+        }
+       ],
        "isErrorResponse": false,
        "contentTypes": [
         "application/json"
@@ -1990,12 +2024,12 @@
    "parent": "BytesClient",
    "parameters": [
     {
-     "$id": "194",
+     "$id": "200",
      "name": "endpoint",
      "nameInRequest": "endpoint",
      "doc": "Service host",
      "type": {
-      "$id": "195",
+      "$id": "201",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2009,9 +2043,9 @@
      "explode": false,
      "kind": "Client",
      "defaultValue": {
-      "$id": "196",
+      "$id": "202",
       "type": {
-       "$id": "197",
+       "$id": "203",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

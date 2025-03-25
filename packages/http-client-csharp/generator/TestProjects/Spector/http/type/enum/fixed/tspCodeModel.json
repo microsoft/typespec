@@ -242,7 +242,26 @@
        "bodyType": {
         "$ref": "2"
        },
-       "headers": [],
+       "headers": [
+        {
+         "$id": "29",
+         "name": "contentType",
+         "nameInResponse": "content-type",
+         "type": {
+          "$id": "30",
+          "kind": "constant",
+          "valueType": {
+           "$id": "31",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         }
+        }
+       ],
        "isErrorResponse": false,
        "contentTypes": [
         "application/json"
@@ -259,22 +278,21 @@
      "decorators": []
     },
     {
-     "$id": "29",
+     "$id": "32",
      "name": "putKnownValue",
      "resourceName": "String",
      "doc": "putKnownValue",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "30",
+       "$id": "33",
        "name": "contentType",
        "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$id": "31",
+        "$id": "34",
         "kind": "constant",
         "valueType": {
-         "$id": "32",
+         "$id": "35",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -294,7 +312,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "33",
+       "$id": "36",
        "name": "body",
        "nameInRequest": "body",
        "doc": "_",
@@ -314,7 +332,7 @@
      ],
      "responses": [
       {
-       "$id": "34",
+       "$id": "37",
        "statusCodes": [
         204
        ],
@@ -335,22 +353,21 @@
      "decorators": []
     },
     {
-     "$id": "35",
+     "$id": "38",
      "name": "putUnknownValue",
      "resourceName": "String",
      "doc": "putUnknownValue",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "36",
+       "$id": "39",
        "name": "contentType",
        "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
        "type": {
-        "$id": "37",
+        "$id": "40",
         "kind": "constant",
         "valueType": {
-         "$id": "38",
+         "$id": "41",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -370,7 +387,7 @@
        "skipUrlEncoding": false
       },
       {
-       "$id": "39",
+       "$id": "42",
        "name": "body",
        "nameInRequest": "body",
        "doc": "_",
@@ -390,7 +407,7 @@
      ],
      "responses": [
       {
-       "$id": "40",
+       "$id": "43",
        "statusCodes": [
         204
        ],
@@ -414,12 +431,12 @@
    "parent": "FixedClient",
    "parameters": [
     {
-     "$id": "41",
+     "$id": "44",
      "name": "endpoint",
      "nameInRequest": "endpoint",
      "doc": "Service host",
      "type": {
-      "$id": "42",
+      "$id": "45",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -433,9 +450,9 @@
      "explode": false,
      "kind": "Client",
      "defaultValue": {
-      "$id": "43",
+      "$id": "46",
       "type": {
-       "$id": "44",
+       "$id": "47",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
