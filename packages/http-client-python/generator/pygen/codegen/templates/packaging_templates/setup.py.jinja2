@@ -1,6 +1,8 @@
 # coding=utf-8
-{{ license_header }}
-# coding: utf-8
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
+
 {% if package_mode %}
 
 import os
@@ -32,7 +34,7 @@ with open(os.path.join(package_folder_path, "_version.py"), "r") as fd:
 
 if not version:
     raise RuntimeError("Cannot find version information")
-{% set description = "\"" + code_model.options["company_name"] + " {} Client Library for Python\".format(PACKAGE_PPRINT_NAME)" %}
+{% set description = "\"" + code_model.company_name + " {} Client Library for Python\".format(PACKAGE_PPRINT_NAME)" %}
 {% set author_email = "azpysdkhelp@microsoft.com" %}
 {% set url = "https://github.com/Azure/azure-sdk-for-python/tree/main/sdk" %}
 {% else %}
@@ -52,7 +54,7 @@ setup(
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
     license="MIT License",
-    author="{{ code_model.options["company_name"] }} Corporation",
+    author="{{ code_model.company_name }} Corporation",
     {% endif %}
     {% if code_model.is_azure_flavor %}
     author_email="{{ author_email }}",

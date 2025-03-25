@@ -13,7 +13,7 @@ from .. import Plugin
 from ..utils import parse_args
 from .models.code_model import CodeModel
 from .serializers import JinjaSerializer
-from ._utils import DEFAULT_HEADER_TEXT, VALID_PACKAGE_MODE, TYPESPEC_PACKAGE_MODE
+from ._utils import VALID_PACKAGE_MODE, TYPESPEC_PACKAGE_MODE
 
 
 def _default_pprint(package_name: str) -> str:
@@ -52,24 +52,6 @@ class OptionsRetriever:
     def __getattr__(self, prop: str) -> Any:
         key = prop.replace("_", "-")
         return self.options.get(key, self.OPTIONS_TO_DEFAULT.get(key))
-
-    @property
-    def company_name(self) -> str:
-        return self.options.get("company-name", "Microsoft" if self.is_azure_flavor else "")
-
-    @property
-    def license_header(self) -> str:
-        license_header = self.options.get(
-            "header-text",
-            (DEFAULT_HEADER_TEXT.format(company_name=self.company_name) if self.company_name else ""),
-        )
-        if license_header:
-            license_header = license_header.replace("\n", "\n# ")
-            license_header = (
-                "# --------------------------------------------------------------------------\n# " + license_header
-            )
-            license_header += "\n# --------------------------------------------------------------------------"
-        return license_header
 
     @property
     def show_operations(self) -> bool:
@@ -314,7 +296,6 @@ class CodeGenerator(Plugin):
             "default_api_version",
             "from_typespec",
             "flavor",
-            "company_name",
             "emit_cross_language_definition_file",
         ]
         return {f: getattr(self.options_retriever, f) for f in flags}
