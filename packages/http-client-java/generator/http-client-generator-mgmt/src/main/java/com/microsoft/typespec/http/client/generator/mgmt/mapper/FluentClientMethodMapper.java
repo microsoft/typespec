@@ -112,13 +112,14 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
                 && methodOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM) {
                 // SimpleAsync with maximum overload is covered by SimpleAsyncRestResponse
                 visibility = NOT_GENERATE;
-            } else if (((methodType.name().contains("Sync")))) {
+            } else if (methodType.isSync()
+                && !hasContextParameter
+                && (methodOverloadType.value() & MethodOverloadType.OVERLOAD_MINIMUM.value())
+                    != MethodOverloadType.OVERLOAD_MINIMUM.value()) {
                 if (syncStack && methodType == ClientMethodType.LongRunningBeginSync) {
                     // In sync-stack, LongRunningSync calls LongRunningBeginSync for implementation.
                     visibility = NOT_VISIBLE;
-                } else if ((methodOverloadType.value() & MethodOverloadType.OVERLOAD_MINIMUM.value())
-                    != MethodOverloadType.OVERLOAD_MINIMUM.value()
-                    && !hasContextParameter) {
+                } else {
                     // sync method has both minimum overload and maximum overload + Context parameter, but not maximum
                     // overload without Context parameter
                     visibility = NOT_GENERATE;
