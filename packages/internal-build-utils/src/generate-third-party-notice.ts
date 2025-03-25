@@ -74,8 +74,6 @@ async function findThirdPartyPackages() {
     }
   }
 
-  console.log(`Found ${packages.size} third-party packages`, [...packages.keys()]);
-
   return packages;
 }
 
