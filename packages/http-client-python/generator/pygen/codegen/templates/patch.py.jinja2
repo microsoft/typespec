@@ -1,5 +1,5 @@
 # coding=utf-8
-{% if code_model.company_name %}
+{% if not code_model.is_azure_flavor %}
 {{ code_model.license_header }}
 {% else %}
 # --------------------------------------------------------------------------
