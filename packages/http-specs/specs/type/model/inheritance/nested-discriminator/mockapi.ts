@@ -78,7 +78,7 @@ Scenarios.Type_Model_Inheritance_NestedDiscriminator_putModel = passOnSuccess({
   uri: "/type/model/inheritance/nested-discriminator/model",
   method: "put",
   request: {
-    body: validPolymorphicBody,
+    body: json(validPolymorphicBody),
   },
   response: {
     status: 204,
@@ -100,7 +100,7 @@ Scenarios.Type_Model_Inheritance_NestedDiscriminator_putRecursiveModel = passOnS
   uri: "/type/model/inheritance/nested-discriminator/recursivemodel",
   method: "put",
   request: {
-    body: validRecursiveBody,
+    body: json(validRecursiveBody),
   },
   response: {
     status: 204,

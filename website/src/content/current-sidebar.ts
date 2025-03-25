@@ -58,7 +58,6 @@ const sidebar: SidebarItem[] = [
         label: "Configuration",
         items: ["handbook/configuration/configuration", "handbook/configuration/tracing"],
       },
-      "handbook/releases",
       "handbook/faq",
     ],
   },
@@ -147,6 +146,19 @@ const sidebar: SidebarItem[] = [
           createLibraryReferenceStructure(
             "emitters/clients/http-client-js",
             "Javascript",
+            false,
+            [],
+          ),
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-python",
+            "Python",
+            false,
+            [],
+          ),
+          createLibraryReferenceStructure("emitters/clients/http-client-java", "Java", false, []),
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-csharp",
+            "CSharp",
             false,
             [],
           ),

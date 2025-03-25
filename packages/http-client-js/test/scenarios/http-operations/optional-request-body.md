@@ -38,7 +38,7 @@ export async function set(client: TestClientContext, options?: SetOptions): Prom
 
 ## Transform
 
-```ts src/models/serializers.ts function jsonBodyModelToTransportTransform
+```ts src/models/internal/serializers.ts function jsonBodyModelToTransportTransform
 export function jsonBodyModelToTransportTransform(input_?: BodyModel | null): any {
   if (!input_) {
     return input_ as any;

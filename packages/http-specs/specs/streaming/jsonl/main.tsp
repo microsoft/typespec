@@ -2,8 +2,8 @@ import "@typespec/http";
 import "@typespec/http/streams";
 import "@typespec/spector";
 
-using TypeSpec.Http;
-using TypeSpec.Http.Streams;
+using Http;
+using Http.Streams;
 using Spector;
 
 @doc("Test of jsonl streaming.")

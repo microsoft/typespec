@@ -70,7 +70,6 @@ import type.property.additionalproperties.implementation.AdditionalPropertiesCli
         ExtendsDifferentSpreadModelArrayClient.class,
         MultipleSpreadClient.class,
         SpreadRecordUnionClient.class,
-        SpreadRecordDiscriminatedUnionClient.class,
         SpreadRecordNonDiscriminatedUnionClient.class,
         SpreadRecordNonDiscriminatedUnion2Client.class,
         SpreadRecordNonDiscriminatedUnion3Client.class,
@@ -102,7 +101,6 @@ import type.property.additionalproperties.implementation.AdditionalPropertiesCli
         ExtendsDifferentSpreadModelArrayAsyncClient.class,
         MultipleSpreadAsyncClient.class,
         SpreadRecordUnionAsyncClient.class,
-        SpreadRecordDiscriminatedUnionAsyncClient.class,
         SpreadRecordNonDiscriminatedUnionAsyncClient.class,
         SpreadRecordNonDiscriminatedUnion2AsyncClient.class,
         SpreadRecordNonDiscriminatedUnion3AsyncClient.class })
@@ -611,16 +609,6 @@ public final class AdditionalPropertiesClientBuilder implements HttpTrait<Additi
     }
 
     /**
-     * Builds an instance of SpreadRecordDiscriminatedUnionAsyncClient class.
-     * 
-     * @return an instance of SpreadRecordDiscriminatedUnionAsyncClient.
-     */
-    @Generated
-    public SpreadRecordDiscriminatedUnionAsyncClient buildSpreadRecordDiscriminatedUnionAsyncClient() {
-        return new SpreadRecordDiscriminatedUnionAsyncClient(buildInnerClient().getSpreadRecordDiscriminatedUnions());
-    }
-
-    /**
      * Builds an instance of SpreadRecordNonDiscriminatedUnionAsyncClient class.
      * 
      * @return an instance of SpreadRecordNonDiscriminatedUnionAsyncClient.
@@ -931,16 +919,6 @@ public final class AdditionalPropertiesClientBuilder implements HttpTrait<Additi
     @Generated
     public SpreadRecordUnionClient buildSpreadRecordUnionClient() {
         return new SpreadRecordUnionClient(buildInnerClient().getSpreadRecordUnions());
-    }
-
-    /**
-     * Builds an instance of SpreadRecordDiscriminatedUnionClient class.
-     * 
-     * @return an instance of SpreadRecordDiscriminatedUnionClient.
-     */
-    @Generated
-    public SpreadRecordDiscriminatedUnionClient buildSpreadRecordDiscriminatedUnionClient() {
-        return new SpreadRecordDiscriminatedUnionClient(buildInnerClient().getSpreadRecordDiscriminatedUnions());
     }
 
     /**

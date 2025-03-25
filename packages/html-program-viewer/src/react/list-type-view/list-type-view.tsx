@@ -1,5 +1,5 @@
 import { Card, CardHeader, Text } from "@fluentui/react-components";
-import { List, ListItem } from "@fluentui/react-list-preview";
+import { List, ListItem } from "@fluentui/react-list";
 import { useCallback } from "react";
 import type { TreeNavigator, TypeGraphListNode, TypeGraphNode } from "../use-tree-navigation.js";
 import style from "./list-type-view.module.css";

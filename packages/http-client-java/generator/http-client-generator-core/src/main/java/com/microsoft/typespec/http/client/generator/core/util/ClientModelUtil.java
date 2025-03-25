@@ -320,21 +320,33 @@ public class ClientModelUtil {
     }
 
     public static String getClientDefaultValueOrConstantValue(Parameter parameter) {
-        String clientDefaultValueOrConstantValue = parameter.getClientDefaultValue();
-        if (clientDefaultValueOrConstantValue == null) {
-            if (parameter.getSchema() != null && parameter.getSchema() instanceof ConstantSchema) {
-                ConstantSchema constantSchema = (ConstantSchema) parameter.getSchema();
-                if (constantSchema.getValue() != null) {
-                    clientDefaultValueOrConstantValue = constantSchema.getValue().getValue().toString();
-                }
+        if (parameter.getClientDefaultValue() != null) {
+            return parameter.getClientDefaultValue();
+        }
+        if (parameter.getSchema() != null && parameter.getSchema() instanceof ConstantSchema) {
+            final ConstantSchema constantSchema = (ConstantSchema) parameter.getSchema();
+            if (constantSchema.getValue() != null) {
+                return constantSchema.getValue().getValue().toString();
             }
         }
-        return clientDefaultValueOrConstantValue;
+        return null;
+    }
+
+    public static List<OperationGroup> getAllOperationGroups(CodeModel codeModel) {
+        List<OperationGroup> allOperationGroups;
+        if (!CoreUtils.isNullOrEmpty(codeModel.getClients())) {
+            allOperationGroups = codeModel.getClients()
+                .stream()
+                .flatMap(client -> client.getOperationGroups().stream())
+                .collect(Collectors.toList());
+        } else {
+            allOperationGroups = codeModel.getOperationGroups();
+        }
+        return allOperationGroups;
     }
 
     private static String getFirstApiVersionFromOperation(CodeModel codeModel) {
-        return codeModel.getOperationGroups()
-            .stream()
+        return getAllOperationGroups(codeModel).stream()
             .flatMap(og -> og.getOperations().stream())
             .filter(o -> o.getApiVersions() != null)
             .flatMap(o -> o.getApiVersions().stream())

@@ -2,7 +2,7 @@ import "@typespec/rest";
 import "@typespec/openapi";
 /* cspell:disable */
 
-using TypeSpec.Http;
+using Http;
 
 @service(#{ title: "sample" })
 namespace Sample;
