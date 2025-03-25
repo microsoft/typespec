@@ -70,10 +70,9 @@
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
     "@typespec/versioning": "workspace:^",
-    "@typespec/library-linter": ">=0.67.0 <1.0.0 || ~0.68.0-0",
-    "@typespec/rest": ">=0.67.0 <1.0.0 || ~0.68.0-0",
-    "@typespec/tspd": ">=0.67.0 <1.0.0 || ~0.68.0-0",
-    "@typespec/xml": ">=0.67.0 <1.0.0 || ~0.68.0-0"
+    "@typespec/rest": "workspace:^",
+    "@typespec/tspd": "workspace:^",
+    "@typespec/xml": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@typespec/json-schema": {
