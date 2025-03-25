@@ -55,9 +55,9 @@ op uploadFileInPieces(
 
 it("does not allow instances that improperly provide contents argument", async () => {
   const { diagnostics } = await compileOperationsFull(`
-      model BadFile1 extends Http.File<string | bytes> {}
+      model BadFile1 extends Http.File<Contents = string | bytes> {}
 
-      model BadFile2 extends Http.File<"asdf"> {}
+      model BadFile2 extends Http.File<Contents = "asdf"> {}
     `);
 
   expectDiagnostics(diagnostics, [
@@ -71,9 +71,92 @@ it("does not allow instances that improperly provide contents argument", async (
       code: "@typespec/http/http-file-contents-not-scalar",
       severity: "error",
       message:
-        "The 'contents' property of the file model must be a scalar type that extends 'string' or 'bytes'. Found '<value>'.",
+        "The 'contents' property of the file model must be a scalar type that extends 'string' or 'bytes'. Found '\"asdf\"'.",
     },
   ]);
+});
+
+it("correctly attaches diagnostic to raw string argument", async () => {
+  const { diagnostics } = await compileOperationsFull(`
+      model BadFile1 extends Http.File<"application/json", "asdf"> {}
+    `);
+
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http/http-file-contents-not-scalar",
+      severity: "error",
+      message:
+        "The 'contents' property of the file model must be a scalar type that extends 'string' or 'bytes'. Found '\"asdf\"'.",
+    },
+  ]);
+});
+
+it("allows contents that extend string", async () => {
+  const {
+    operations: [
+      {
+        parameters: { body: requestBody },
+        responses: [
+          {
+            responses: [{ body: responseBody }],
+          },
+        ],
+      },
+    ],
+    diagnostics,
+  } = await compileOperationsFull(`
+    scalar guid extends string;
+
+    model GoodFile extends Http.File<Contents = guid> {}
+
+    op uploadFile(@body file: GoodFile): GoodFile;
+  `);
+
+  expectDiagnosticEmpty(diagnostics);
+
+  strictEqual(requestBody?.bodyKind, "file");
+  strictEqual(requestBody?.property, undefined);
+  deepStrictEqual(requestBody?.contentTypes, ["*/*"]);
+  strictEqual(requestBody?.isText, true);
+
+  strictEqual(responseBody?.bodyKind, "file");
+  strictEqual(responseBody?.property, undefined);
+  deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
+  strictEqual(responseBody?.isText, true);
+});
+
+it("allows contents that extend bytes", async () => {
+  const {
+    operations: [
+      {
+        parameters: { body: requestBody },
+        responses: [
+          {
+            responses: [{ body: responseBody }],
+          },
+        ],
+      },
+    ],
+    diagnostics,
+  } = await compileOperationsFull(`
+    scalar message extends bytes;
+
+    model GoodFile extends Http.File<Contents = message> {}
+
+    op uploadFile(@body file: GoodFile): GoodFile;
+  `);
+
+  expectDiagnosticEmpty(diagnostics);
+
+  strictEqual(requestBody?.bodyKind, "file");
+  strictEqual(requestBody?.property, undefined);
+  deepStrictEqual(requestBody?.contentTypes, ["*/*"]);
+  strictEqual(requestBody?.isText, false);
+
+  strictEqual(responseBody?.bodyKind, "file");
+  strictEqual(responseBody?.property, undefined);
+  deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
+  strictEqual(responseBody?.isText, false);
 });
 
 it("exact payload upload and download", async () => {
