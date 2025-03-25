@@ -38,7 +38,9 @@ export interface BundleAndUploadPackagesOptions {
 export async function getPackageVersion(repoRoot: string, pkgName: string) {
   const projects = await findWorkspacePackagesNoCheck(repoRoot);
 
-  const project = projects.find((x) => x.manifest.name === pkgName);
+  const project = projects
+    .filter((x) => x.manifest.name && x.manifest.version)
+    .find((x) => x.manifest.name === pkgName);
   if (project === undefined) {
     throw new Error(
       `Cannot get version for package: "${pkgName}", pnpm couldn't find a package with that name in the workspace`,
