@@ -22,7 +22,7 @@ Set the base URI for any schemas emitted from types within this namespace.
 
 | Name    | Type             | Description                                                              |
 | ------- | ---------------- | ------------------------------------------------------------------------ |
-| baseUri | `valueof string` | the base URI. Schema IDs inside this namespace are relative to this URI. |
+| baseUri | `valueof string` | The base URI. Schema IDs inside this namespace are relative to this URI. |
 
 ### `@contains` {#@TypeSpec.JsonSchema.contains}
 
@@ -77,7 +77,7 @@ Specify the content type of content stored in a string.
 
 | Name  | Type             | Description                           |
 | ----- | ---------------- | ------------------------------------- |
-| value | `valueof string` | the media type of the string contents |
+| value | `valueof string` | The media type of the string contents |
 
 ### `@contentSchema` {#@TypeSpec.JsonSchema.contentSchema}
 
@@ -96,11 +96,11 @@ media type and encoding.
 
 | Name  | Type      | Description                       |
 | ----- | --------- | --------------------------------- |
-| value | `unknown` | the schema of the string contents |
+| value | `unknown` | The schema of the string contents |
 
 ### `@extension` {#@TypeSpec.JsonSchema.extension}
 
-Specify a custom property to add to the emitted schema. Useful for adding custom keywords
+Specify a custom property to add to the emitted schema. This is useful for adding custom keywords
 and other vendor-specific extensions. Scalar values need to be specified using `typeof` to be converted to a schema.
 
 For example, `@extension("x-schema", typeof "foo")` will emit a JSON schema value for `x-schema`,
@@ -108,9 +108,9 @@ whereas `@extension("x-schema", "foo")` will emit the raw code `"foo"`.
 
 The value will be treated as a raw value if any of the following are true:
 
-1. The value is a scalar value (e.g. string, number, boolean, etc.)
-2. The value is wrapped in the `Json<Data>` template
-3. The value is provided using the value syntax (e.g. `#{}`, `#[]`)
+- The value is a scalar value (e.g. string, number, boolean, etc.)
+- The value is wrapped in the `Json<Data>` template
+- The value is provided using the value syntax (e.g. `#{}`, `#[]`)
 
 For example, `@extension("x-schema", { x: "value" })` will emit a JSON schema value for `x-schema`,
 whereas `@extension("x-schema", #{x: "value"})` and `@extension("x-schema", Json<{x: "value"}>)`
@@ -128,8 +128,8 @@ will emit the raw JSON code `{x: "value"}`.
 
 | Name  | Type                           | Description                                                   |
 | ----- | ------------------------------ | ------------------------------------------------------------- |
-| key   | `valueof string`               | the name of the keyword of vendor extension, e.g. `x-custom`. |
-| value | `unknown` \| `valueof unknown` | the value of the keyword.                                     |
+| key   | `valueof string`               | The name of the keyword of vendor extension, e.g. `x-custom`. |
+| value | `unknown` \| `valueof unknown` | The value of the keyword.                                     |
 
 ### `@id` {#@TypeSpec.JsonSchema.id}
 
@@ -150,7 +150,7 @@ By default, the id will be constructed based on the declaration's name.
 
 | Name | Type             | Description                                     |
 | ---- | ---------------- | ----------------------------------------------- |
-| id   | `valueof string` | the id of the JSON schema for this declaration. |
+| id   | `valueof string` | The id of the JSON schema for this declaration. |
 
 ### `@jsonSchema` {#@TypeSpec.JsonSchema.jsonSchema}
 
@@ -176,8 +176,8 @@ you can provide the id.
 
 ### `@maxContains` {#@TypeSpec.JsonSchema.maxContains}
 
-Specify that the array must contain at most some number of the types provided
-by the contains decorator.
+Used in conjunction with the `@contains` decorator,
+specifies that the array must contain at most a certain number of the types provided by the `@contains` decorator.
 
 ```typespec
 @TypeSpec.JsonSchema.maxContains(value: valueof int32)
@@ -213,8 +213,8 @@ Specify the maximum number of properties this object can have.
 
 ### `@minContains` {#@TypeSpec.JsonSchema.minContains}
 
-Specify that the array must contain at least some number of the types provided
-by the contains decorator.
+Used in conjunction with the `@contains` decorator,
+specifies that the array must contain at least a certain number of the types provided by the `@contains` decorator.
 
 ```typespec
 @TypeSpec.JsonSchema.minContains(value: valueof int32)
@@ -298,7 +298,7 @@ Specify that the target array must begin with the provided types.
 
 | Name  | Type        | Description                                                                 |
 | ----- | ----------- | --------------------------------------------------------------------------- |
-| value | `unknown[]` | a tuple containing the types that must be present at the start of the array |
+| value | `unknown[]` | A tuple containing the types that must be present at the start of the array |
 
 ### `@uniqueItems` {#@TypeSpec.JsonSchema.uniqueItems}
 
