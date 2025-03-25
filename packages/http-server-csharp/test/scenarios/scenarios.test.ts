@@ -3,19 +3,24 @@ import { readFileSync } from "fs";
 import { globby } from "globby";
 import { dirname, join, resolve } from "path";
 import { describe, expect, it } from "vitest";
-import { Server } from "./helpers.js"; // Import the custom Server class
+import { Server, getIgnoreList } from "./helpers.js"; // Import the custom Server class
 import { runScenario } from "./spector.js"; // Import the runScenario function
 
 const testRoot = __dirname; // Root folder for test cases
 const generatedRoot = join(testRoot, "generated"); // Root folder for generated services
+const ignoreList = await getIgnoreList(join(testRoot, ".testignore"));
+
 // Get all unique service directories
-const services = Array.from(
+const allGeneratedServices = Array.from(
   new Set(
     (await globby("**/ServiceProject.csproj", { cwd: generatedRoot })).map((service) =>
       dirname(service),
     ),
   ),
 );
+
+// Filter out ignored services
+const services = allGeneratedServices.filter((item) => !ignoreList.includes(`${item}/main.tsp`));
 
 describe("http-specs csharp server tests", () => {
   services.forEach((service) => {
