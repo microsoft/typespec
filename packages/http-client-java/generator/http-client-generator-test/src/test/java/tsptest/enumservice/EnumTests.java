@@ -77,7 +77,7 @@ public class EnumTests {
         Mockito
             .when(impl.setIntEnumArrayWithResponseAsync(enumArrayArgumentCaptor.capture(),
                 requestOptionsArgumentCaptor.capture()))
-            .thenReturn(Mono.just(new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromString("\"OK\""))));
+            .thenReturn(Mono.just(new SimpleResponse<>(null, 200, new HttpHeaders(), null)));
 
         EnumServiceAsyncClient client = new EnumServiceAsyncClient(impl);
 
@@ -112,7 +112,7 @@ public class EnumTests {
         Mockito
             .when(impl.setStringEnumMultiWithResponseAsync(enumArrayArgumentCaptor.capture(),
                 requestOptionsArgumentCaptor.capture()))
-            .thenReturn(Mono.just(new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromString("\"OK\""))));
+            .thenReturn(Mono.just(new SimpleResponse<>(null, 200, new HttpHeaders(), null)));
 
         EnumServiceAsyncClient client = new EnumServiceAsyncClient(impl);
 

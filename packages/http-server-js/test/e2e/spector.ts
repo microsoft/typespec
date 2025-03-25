@@ -22,7 +22,6 @@ export async function runScenario(
         baseUrl,
       ],
       {
-        shell: true,
         cwd: CWD,
       },
     );

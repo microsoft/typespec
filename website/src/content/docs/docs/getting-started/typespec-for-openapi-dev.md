@@ -821,7 +821,7 @@ in favor of explicit `content-type` and `accept` header properties in request an
 Use the `@useAuth` decorator from the `@typespec/rest" library
 
 ```typespec
-using TypeSpec.Http;
+using Http;
 @useAuth(OAuth2Auth<["read", "write"]>)
 namespace MyService;
 ```

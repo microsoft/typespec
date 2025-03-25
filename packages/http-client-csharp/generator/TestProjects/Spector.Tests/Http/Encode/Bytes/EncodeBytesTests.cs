@@ -124,7 +124,7 @@ namespace TestProjects.Spector.Tests.Http.Encode.Bytes
         [SpectorTest]
         public Task RequestBodyDefault() => Test(async (host) =>
         {
-            BinaryData data = new BinaryData($"\"{Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("test"))}\"");
+            BinaryData data = new BinaryData(File.ReadAllBytes(SamplePngPath));
             ClientResult result = await new BytesClient(host, null).GetRequestBodyClient().DefaultAsync(data);
             Assert.AreEqual(204, result.GetRawResponse().Status);
         });
@@ -164,16 +164,17 @@ namespace TestProjects.Spector.Tests.Http.Encode.Bytes
         [SpectorTest]
         public Task ResponseBodyDefault() => Test(async (host) =>
         {
-            var response = await new BytesClient(host, null).GetResponseBodyClient().DefaultAsync();
-            CollectionAssert.AreEqual(BinaryData.FromObjectAsJson("dGVzdA==").ToArray(), response.Value.ToArray());
+            BinaryData data = new BinaryData(File.ReadAllBytes(SamplePngPath));
+            BinaryData result = await new BytesClient(host, null).GetResponseBodyClient().DefaultAsync();
+            BinaryDataAssert.AreEqual(data, result);
         });
 
         [SpectorTest]
         public Task ResponseBodyOctetStream() => Test(async (host) =>
         {
             BinaryData data = new BinaryData(File.ReadAllBytes(SamplePngPath));
-            var response = await new BytesClient(host, null).GetResponseBodyClient().OctetStreamAsync();
-            CollectionAssert.AreEqual(data.ToArray(), response.Value.ToArray());
+            BinaryData result = await new BytesClient(host, null).GetResponseBodyClient().OctetStreamAsync();
+            BinaryDataAssert.AreEqual(data, result);
         });
 
         [SpectorTest]

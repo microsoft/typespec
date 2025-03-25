@@ -22,7 +22,7 @@ Scenarios.Type_Model_Inheritance_Recursive_put = passOnSuccess({
   uri: "/type/model/inheritance/recursive",
   method: "put",
   request: {
-    body: body,
+    body: json(body),
   },
   response: {
     status: 204,

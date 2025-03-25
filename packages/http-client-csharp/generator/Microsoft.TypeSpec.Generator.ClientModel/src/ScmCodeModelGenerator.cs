@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             _instance = this;
         }
 
-        public override void Configure()
+        protected override void Configure()
         {
             base.Configure();
             AddVisitor(new DefaultScmLibraryVisitor());
