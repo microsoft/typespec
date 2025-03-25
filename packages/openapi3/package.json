@@ -83,6 +83,9 @@
     },
     "@typespec/versioning": {
       "optional": true
+    },
+    "@typespec/tspd": {
+      "optional": true
     }
   },
   "devDependencies": {
