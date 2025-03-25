@@ -2292,6 +2292,9 @@ importers:
       c8:
         specifier: ^10.1.3
         version: 10.1.3
+      esbuild:
+        specifier: ^0.25.1
+        version: 0.25.1
       mocha:
         specifier: ^11.1.0
         version: 11.1.0
