@@ -214,22 +214,19 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<Response<ChildExtensionResourceInner>> getWithResponseAsync(String resourceUri,
         String topLevelArmResourceName, String childExtensionResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         if (childExtensionResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter childExtensionResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -254,22 +251,19 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<Response<ChildExtensionResourceInner>> getWithResponseAsync(String resourceUri,
         String topLevelArmResourceName, String childExtensionResourceName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         if (childExtensionResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter childExtensionResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -368,26 +362,22 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceUri,
         String topLevelArmResourceName, String childExtensionResourceName, ChildExtensionResourceInner resource) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         if (childExtensionResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter childExtensionResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -419,26 +409,22 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         String topLevelArmResourceName, String childExtensionResourceName, ChildExtensionResourceInner resource,
         Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         if (childExtensionResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter childExtensionResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -729,26 +715,22 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<Response<ChildExtensionResourceInner>> updateWithResponseAsync(String resourceUri,
         String topLevelArmResourceName, String childExtensionResourceName, ChildExtensionResourceUpdate properties) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         if (childExtensionResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter childExtensionResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -779,26 +761,22 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
         String topLevelArmResourceName, String childExtensionResourceName, ChildExtensionResourceUpdate properties,
         Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         if (childExtensionResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter childExtensionResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -908,22 +886,19 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         if (childExtensionResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter childExtensionResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -948,22 +923,19 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         if (childExtensionResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter childExtensionResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter childExtensionResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -1211,17 +1183,15 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<PagedResponse<ChildExtensionResourceInner>>
         listByTopLevelArmResourceSinglePageAsync(String resourceUri, String topLevelArmResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -1248,17 +1218,15 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<PagedResponse<ChildExtensionResourceInner>>
         listByTopLevelArmResourceSinglePageAsync(String resourceUri, String topLevelArmResourceName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (topLevelArmResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelArmResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -1425,13 +1393,11 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<PagedResponse<ChildExtensionResourceInner>>
         listByTopLevelArmResourceNextSinglePageAsync(String nextLink) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -1457,13 +1423,11 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     private Mono<PagedResponse<ChildExtensionResourceInner>>
         listByTopLevelArmResourceNextSinglePageAsync(String nextLink, Context context) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);

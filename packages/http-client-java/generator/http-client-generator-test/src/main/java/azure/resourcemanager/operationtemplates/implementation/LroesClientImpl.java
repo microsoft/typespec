@@ -139,26 +139,22 @@ public final class LroesClientImpl implements LroesClient {
     private Mono<Response<Flux<ByteBuffer>>> createOrReplaceWithResponseAsync(String resourceGroupName,
         String orderName, OrderInner resource) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (orderName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -187,26 +183,22 @@ public final class LroesClientImpl implements LroesClient {
     private Mono<Response<Flux<ByteBuffer>>> createOrReplaceWithResponseAsync(String resourceGroupName,
         String orderName, OrderInner resource, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (orderName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -479,25 +471,22 @@ public final class LroesClientImpl implements LroesClient {
     private Mono<Response<Flux<ByteBuffer>>> exportWithResponseAsync(String resourceGroupName, String orderName,
         ExportRequest body) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (orderName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
         }
         if (body == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter body is required and cannot be null."));
         } else {
             body.validate();
         }
@@ -525,25 +514,22 @@ public final class LroesClientImpl implements LroesClient {
     private Mono<Response<Flux<ByteBuffer>>> exportWithResponseAsync(String resourceGroupName, String orderName,
         ExportRequest body, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (orderName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
         }
         if (body == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter body is required and cannot be null."));
         } else {
             body.validate();
         }
@@ -801,22 +787,19 @@ public final class LroesClientImpl implements LroesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName, String orderName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (orderName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -840,22 +823,19 @@ public final class LroesClientImpl implements LroesClient {
     private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName, String orderName,
         Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (orderName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter orderName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);

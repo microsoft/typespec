@@ -185,22 +185,19 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<LocationResourceInner>> getWithResponseAsync(String location, String locationResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         if (locationResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -224,22 +221,19 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     private Mono<Response<LocationResourceInner>> getWithResponseAsync(String location, String locationResourceName,
         Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         if (locationResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -330,26 +324,22 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     private Mono<Response<LocationResourceInner>> createOrUpdateWithResponseAsync(String location,
         String locationResourceName, LocationResourceInner resource) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         if (locationResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -379,26 +369,22 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     private Mono<Response<LocationResourceInner>> createOrUpdateWithResponseAsync(String location,
         String locationResourceName, LocationResourceInner resource, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         if (locationResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -507,26 +493,22 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     private Mono<Response<LocationResourceInner>> updateWithResponseAsync(String location, String locationResourceName,
         LocationResourceInner properties) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         if (locationResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -554,26 +536,22 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     private Mono<Response<LocationResourceInner>> updateWithResponseAsync(String location, String locationResourceName,
         LocationResourceInner properties, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         if (locationResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -679,22 +657,19 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> deleteWithResponseAsync(String location, String locationResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         if (locationResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -718,22 +693,19 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     private Mono<Response<Void>> deleteWithResponseAsync(String location, String locationResourceName,
         Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         if (locationResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter locationResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -819,18 +791,15 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<LocationResourceInner>> listByLocationSinglePageAsync(String location) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -855,18 +824,15 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<LocationResourceInner>> listByLocationSinglePageAsync(String location, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -1017,13 +983,11 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<LocationResourceInner>> listByLocationNextSinglePageAsync(String nextLink) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -1048,13 +1012,11 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
     private Mono<PagedResponse<LocationResourceInner>> listByLocationNextSinglePageAsync(String nextLink,
         Context context) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);

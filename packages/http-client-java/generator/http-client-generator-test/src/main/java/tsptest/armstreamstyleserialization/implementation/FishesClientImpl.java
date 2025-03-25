@@ -114,9 +114,8 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FishInner>> getModelWithResponseAsync() {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.getModel(this.client.getEndpoint(), accept, context))
@@ -136,9 +135,8 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FishInner>> getModelWithResponseAsync(Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -204,12 +202,11 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FishInner>> putModelWithResponseAsync(FishInner fish) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (fish == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter fish is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter fish is required and cannot be null."));
         } else {
             fish.validate();
         }
@@ -234,12 +231,11 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FishInner>> putModelWithResponseAsync(FishInner fish, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (fish == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter fish is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter fish is required and cannot be null."));
         } else {
             fish.validate();
         }
@@ -317,9 +313,8 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<OutputOnlyModelInner>> getOutputOnlyModelWithResponseAsync() {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.getOutputOnlyModel(this.client.getEndpoint(), accept, context))
@@ -339,9 +334,8 @@ public final class FishesClientImpl implements FishesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<OutputOnlyModelInner>> getOutputOnlyModelWithResponseAsync(Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);

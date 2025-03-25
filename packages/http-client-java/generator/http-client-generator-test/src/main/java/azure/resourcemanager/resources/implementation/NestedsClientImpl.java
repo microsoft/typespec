@@ -214,27 +214,24 @@ public final class NestedsClientImpl implements NestedsClient {
     private Mono<Response<NestedProxyResourceInner>> getWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, String nextedProxyResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (nextedProxyResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -260,27 +257,24 @@ public final class NestedsClientImpl implements NestedsClient {
     private Mono<Response<NestedProxyResourceInner>> getWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, String nextedProxyResourceName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (nextedProxyResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -384,31 +378,27 @@ public final class NestedsClientImpl implements NestedsClient {
     private Mono<Response<Flux<ByteBuffer>>> createOrReplaceWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, String nextedProxyResourceName, NestedProxyResourceInner resource) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (nextedProxyResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -440,31 +430,27 @@ public final class NestedsClientImpl implements NestedsClient {
         String topLevelTrackedResourceName, String nextedProxyResourceName, NestedProxyResourceInner resource,
         Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (nextedProxyResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -768,31 +754,27 @@ public final class NestedsClientImpl implements NestedsClient {
     private Mono<Response<Flux<ByteBuffer>>> updateWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, String nextedProxyResourceName, NestedProxyResourceInner properties) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (nextedProxyResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -824,31 +806,27 @@ public final class NestedsClientImpl implements NestedsClient {
         String topLevelTrackedResourceName, String nextedProxyResourceName, NestedProxyResourceInner properties,
         Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (nextedProxyResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -1149,27 +1127,24 @@ public final class NestedsClientImpl implements NestedsClient {
     private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, String nextedProxyResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (nextedProxyResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -1195,27 +1170,24 @@ public final class NestedsClientImpl implements NestedsClient {
     private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, String nextedProxyResourceName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (nextedProxyResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter nextedProxyResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -1475,23 +1447,20 @@ public final class NestedsClientImpl implements NestedsClient {
     private Mono<PagedResponse<NestedProxyResourceInner>>
         listByTopLevelTrackedResourceSinglePageAsync(String resourceGroupName, String topLevelTrackedResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -1519,23 +1488,20 @@ public final class NestedsClientImpl implements NestedsClient {
     private Mono<PagedResponse<NestedProxyResourceInner>> listByTopLevelTrackedResourceSinglePageAsync(
         String resourceGroupName, String topLevelTrackedResourceName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -1715,13 +1681,11 @@ public final class NestedsClientImpl implements NestedsClient {
     private Mono<PagedResponse<NestedProxyResourceInner>>
         listByTopLevelTrackedResourceNextSinglePageAsync(String nextLink) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil.withContext(
@@ -1746,13 +1710,11 @@ public final class NestedsClientImpl implements NestedsClient {
     private Mono<PagedResponse<NestedProxyResourceInner>>
         listByTopLevelTrackedResourceNextSinglePageAsync(String nextLink, Context context) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);

@@ -201,17 +201,15 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     private Mono<Response<ExtensionsResourceInner>> getWithResponseAsync(String resourceUri,
         String extensionsResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -235,17 +233,15 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     private Mono<Response<ExtensionsResourceInner>> getWithResponseAsync(String resourceUri,
         String extensionsResourceName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -332,21 +328,18 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceUri,
         String extensionsResourceName, ExtensionsResourceInner resource) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -375,21 +368,18 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceUri,
         String extensionsResourceName, ExtensionsResourceInner resource, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -658,21 +648,18 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     private Mono<Response<ExtensionsResourceInner>> updateWithResponseAsync(String resourceUri,
         String extensionsResourceName, ExtensionsResourceInner properties) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -701,21 +688,18 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     private Mono<Response<ExtensionsResourceInner>> updateWithResponseAsync(String resourceUri,
         String extensionsResourceName, ExtensionsResourceInner properties, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -816,17 +800,15 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> deleteWithResponseAsync(String resourceUri, String extensionsResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -850,17 +832,15 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     private Mono<Response<Void>> deleteWithResponseAsync(String resourceUri, String extensionsResourceName,
         Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -941,13 +921,11 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<ExtensionsResourceInner>> listByScopeSinglePageAsync(String resourceUri) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -973,13 +951,11 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     private Mono<PagedResponse<ExtensionsResourceInner>> listByScopeSinglePageAsync(String resourceUri,
         Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -1118,13 +1094,11 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<ExtensionsResourceInner>> listByScopeNextSinglePageAsync(String nextLink) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -1149,13 +1123,11 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     private Mono<PagedResponse<ExtensionsResourceInner>> listByScopeNextSinglePageAsync(String nextLink,
         Context context) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);

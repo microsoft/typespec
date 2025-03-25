@@ -256,23 +256,20 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<Response<TopLevelTrackedResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -296,23 +293,20 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<Response<TopLevelTrackedResourceInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -407,27 +401,23 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<Response<Flux<ByteBuffer>>> createOrReplaceWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, TopLevelTrackedResourceInner resource) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -457,27 +447,23 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<Response<Flux<ByteBuffer>>> createOrReplaceWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, TopLevelTrackedResourceInner resource, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -766,27 +752,23 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<Response<Flux<ByteBuffer>>> updateWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, TopLevelTrackedResourceInner properties) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -816,27 +798,23 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<Response<Flux<ByteBuffer>>> updateWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, TopLevelTrackedResourceInner properties, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -1120,23 +1098,20 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -1160,23 +1135,20 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -1408,18 +1380,16 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<PagedResponse<TopLevelTrackedResourceInner>>
         listByResourceGroupSinglePageAsync(String resourceGroupName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -1445,18 +1415,16 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<PagedResponse<TopLevelTrackedResourceInner>>
         listByResourceGroupSinglePageAsync(String resourceGroupName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -1609,14 +1577,12 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelTrackedResourceInner>> listSinglePageAsync() {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -1640,14 +1606,12 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelTrackedResourceInner>> listSinglePageAsync(Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -1785,26 +1749,23 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<Response<Void>> actionSyncWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, NotificationDetails body) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (body == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter body is required and cannot be null."));
         } else {
             body.validate();
         }
@@ -1833,26 +1794,23 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<Response<Void>> actionSyncWithResponseAsync(String resourceGroupName,
         String topLevelTrackedResourceName, NotificationDetails body, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (topLevelTrackedResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter topLevelTrackedResourceName is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter topLevelTrackedResourceName is required and cannot be null."));
         }
         if (body == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter body is required and cannot be null."));
         } else {
             body.validate();
         }
@@ -1956,13 +1914,11 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelTrackedResourceInner>> listByResourceGroupNextSinglePageAsync(String nextLink) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -1988,13 +1944,11 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<PagedResponse<TopLevelTrackedResourceInner>> listByResourceGroupNextSinglePageAsync(String nextLink,
         Context context) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);
@@ -2072,13 +2026,11 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<TopLevelTrackedResourceInner>> listBySubscriptionNextSinglePageAsync(String nextLink) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -2104,13 +2056,11 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
     private Mono<PagedResponse<TopLevelTrackedResourceInner>> listBySubscriptionNextSinglePageAsync(String nextLink,
         Context context) {
         if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
         }
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);

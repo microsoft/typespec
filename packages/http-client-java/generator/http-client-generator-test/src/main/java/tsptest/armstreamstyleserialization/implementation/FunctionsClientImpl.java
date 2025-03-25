@@ -83,13 +83,11 @@ public final class FunctionsClientImpl implements FunctionsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FunctionInner>> createFunctionWithResponseAsync(FunctionInner function) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (function == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter function is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter function is required and cannot be null."));
         } else {
             function.validate();
         }
@@ -114,13 +112,11 @@ public final class FunctionsClientImpl implements FunctionsClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FunctionInner>> createFunctionWithResponseAsync(FunctionInner function, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (function == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter function is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter function is required and cannot be null."));
         } else {
             function.validate();
         }

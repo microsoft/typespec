@@ -96,23 +96,20 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
     private Mono<Response<ManagedMaintenanceWindowStatusInner>> getByResourceGroupWithResponseAsync(
         String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (managedMaintenanceWindowStatusContentName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -138,23 +135,20 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
     private Mono<Response<ManagedMaintenanceWindowStatusInner>> getByResourceGroupWithResponseAsync(
         String resourceGroupName, String managedMaintenanceWindowStatusContentName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (managedMaintenanceWindowStatusContentName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);

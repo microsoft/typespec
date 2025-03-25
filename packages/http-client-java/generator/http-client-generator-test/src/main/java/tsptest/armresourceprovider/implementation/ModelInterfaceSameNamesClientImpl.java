@@ -93,23 +93,20 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
     private Mono<Response<ModelInterfaceSameNameInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String modelInterfaceDifferentNameName) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (modelInterfaceDifferentNameName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter modelInterfaceDifferentNameName is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter modelInterfaceDifferentNameName is required and cannot be null."));
         }
         final String accept = "application/json";
         return FluxUtil
@@ -133,23 +130,20 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
     private Mono<Response<ModelInterfaceSameNameInner>> getByResourceGroupWithResponseAsync(String resourceGroupName,
         String modelInterfaceDifferentNameName, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            return Mono
+                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (modelInterfaceDifferentNameName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter modelInterfaceDifferentNameName is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter modelInterfaceDifferentNameName is required and cannot be null."));
         }
         final String accept = "application/json";
         context = this.client.mergeContext(context);

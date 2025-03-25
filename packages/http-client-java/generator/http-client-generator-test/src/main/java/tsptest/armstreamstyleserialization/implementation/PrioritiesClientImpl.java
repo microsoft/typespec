@@ -84,13 +84,11 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Priority>> setPriorityWithResponseAsync(Priority priority) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (priority == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter priority is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter priority is required and cannot be null."));
         }
         final String accept = "text/plain";
         return FluxUtil
@@ -111,13 +109,11 @@ public final class PrioritiesClientImpl implements PrioritiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Priority>> setPriorityWithResponseAsync(Priority priority, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (priority == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter priority is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter priority is required and cannot be null."));
         }
         final String accept = "text/plain";
         context = this.client.mergeContext(context);

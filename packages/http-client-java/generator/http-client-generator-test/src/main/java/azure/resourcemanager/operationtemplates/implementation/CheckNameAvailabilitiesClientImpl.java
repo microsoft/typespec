@@ -107,17 +107,15 @@ public final class CheckNameAvailabilitiesClientImpl implements CheckNameAvailab
     private Mono<Response<CheckNameAvailabilityResponseInner>>
         checkGlobalWithResponseAsync(CheckNameAvailabilityRequest body) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (body == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter body is required and cannot be null."));
         } else {
             body.validate();
         }
@@ -143,17 +141,15 @@ public final class CheckNameAvailabilitiesClientImpl implements CheckNameAvailab
     private Mono<Response<CheckNameAvailabilityResponseInner>>
         checkGlobalWithResponseAsync(CheckNameAvailabilityRequest body, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (body == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter body is required and cannot be null."));
         } else {
             body.validate();
         }
@@ -240,21 +236,18 @@ public final class CheckNameAvailabilitiesClientImpl implements CheckNameAvailab
     private Mono<Response<CheckNameAvailabilityResponseInner>> checkLocalWithResponseAsync(String location,
         CheckNameAvailabilityRequest body) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         if (body == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter body is required and cannot be null."));
         } else {
             body.validate();
         }
@@ -281,21 +274,18 @@ public final class CheckNameAvailabilitiesClientImpl implements CheckNameAvailab
     private Mono<Response<CheckNameAvailabilityResponseInner>> checkLocalWithResponseAsync(String location,
         CheckNameAvailabilityRequest body, Context context) {
         if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException(
+                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (location == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter location is required and cannot be null."));
         }
         if (body == null) {
-            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+            return Mono.error(new IllegalArgumentException("Parameter body is required and cannot be null."));
         } else {
             body.validate();
         }
