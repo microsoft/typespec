@@ -1,9 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: internal
+changeKind: fix
 packages:
-  - "@typespec/spec-api"
-  - "@typespec/spector"
+  - "@typespec/http-client-python"
 ---
 
-Fix regression with spector
+Always respect namespace from TCGC
