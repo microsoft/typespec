@@ -67,7 +67,7 @@ class OperationGroup(BaseModel):
     def base_class(self) -> str:
         base_classes: List[str] = []
         if self.is_mixin:
-            base_classes.append(f"{self.client.name}MixinABC")
+            base_classes.append("ClientMixinABC")
         return ", ".join(base_classes)
 
     def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
@@ -141,32 +141,33 @@ class OperationGroup(BaseModel):
                 ImportType.LOCAL,
                 alias="_models",
             )
+        file_import.add_submodule_import(
+            self.code_model.get_relative_import_path(
+                serialize_namespace,
+                self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
+                module_name="_configuration",
+            ),
+            f"{self.client.name}Configuration",
+            ImportType.LOCAL,
+        )
+        pipeline_client = f"{'Async' if async_mode else ''}PipelineClient"
+        file_import.add_submodule_import(
+            "" if self.code_model.is_azure_flavor else "runtime",
+            pipeline_client,
+            ImportType.SDKCORE,
+        )
         if self.is_mixin:
             file_import.add_submodule_import(
                 # XxxMixinABC is always defined in _vendor of client namespace
                 self.code_model.get_relative_import_path(
-                    serialize_namespace,
+                    f"{self.code_model.namespace}._vendor.utils",
                     self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
                     module_name="_vendor.utils",
                 ),
-                f"{self.client.name}MixinABC",
+                f"ClientMixinABC[{pipeline_client}, {self.client.name}Configuration]",
                 ImportType.LOCAL,
             )
         else:
-            file_import.add_submodule_import(
-                "" if self.code_model.is_azure_flavor else "runtime",
-                f"{'Async' if async_mode else ''}PipelineClient",
-                ImportType.SDKCORE,
-            )
-            file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(
-                    serialize_namespace,
-                    self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
-                    module_name="_configuration",
-                ),
-                f"{self.client.name}Configuration",
-                ImportType.LOCAL,
-            )
             file_import.add_msrest_import(
                 serialize_namespace=kwargs.get("serialize_namespace", self.code_model.namespace),
                 msrest_import_type=MsrestImportType.Serializer,

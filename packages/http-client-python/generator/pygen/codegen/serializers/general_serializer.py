@@ -94,30 +94,17 @@ class GeneralSerializer(BaseSerializer):
 
         # configure imports
         file_import = FileImport(self.code_model)
-        if self.code_model.need_vendored_mixin(self.client_namespace):
+        if self.code_model.need_vendored_mixin:
             file_import.add_submodule_import(
                 "abc",
                 "ABC",
                 ImportType.STDLIB,
-            )
-            file_import.add_submodule_import(
-                "" if self.code_model.is_azure_flavor else "runtime",
-                f"{'Async' if self.async_mode else ''}PipelineClient",
-                ImportType.SDKCORE,
-                TypingSection.TYPING,
             )
             file_import.add_msrest_import(
                 serialize_namespace=f"{self.serialize_namespace}._vendor",
                 msrest_import_type=MsrestImportType.SerializerDeserializer,
                 typing_section=TypingSection.TYPING,
             )
-            for client in clients:
-                if client.has_mixin:
-                    file_import.add_submodule_import(
-                        ".._configuration",
-                        f"{client.name}Configuration",
-                        ImportType.LOCAL,
-                    )
         if self.code_model.need_vendored_etag(self.client_namespace):
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
             file_import.add_submodule_import(

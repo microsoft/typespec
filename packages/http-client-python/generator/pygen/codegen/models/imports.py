@@ -273,7 +273,7 @@ class FileImport:
                     self.add_submodule_import("msrest", "Deserializer", ImportType.THIRDPARTY, typing_section)
         else:
             # _serialization.py is always in root namespace
-            imported_namespace = self.code_model.namespace
+            imported_namespace = f"{self.code_model.namespace}._vendor"
             if self.code_model.options["multiapi"]:
                 # for multiapi, the namespace is azure.mgmt.xxx.v20XX_XX_XX while _serialization.py is in azure.mgmt.xxx
                 imported_namespace = get_parent_namespace(imported_namespace)
