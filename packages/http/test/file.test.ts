@@ -159,6 +159,30 @@ it("allows contents that extend bytes", async () => {
   strictEqual(responseBody?.isText, false);
 });
 
+it("does not allow instances that improperly provide ContentType argument", async () => {
+  const { diagnostics } = await compileOperationsFull(`
+    scalar myString extends string;
+    model BadFile1 extends Http.File<ContentType = myString> {}
+
+    model BadFile2 extends Http.File<ContentType = "asdf" | string> {}
+  `);
+
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http/http-file-content-type-not-string",
+      severity: "error",
+      message:
+        "The 'contentType' property of the file model must be 'TypeSpec.string', a string literal, or a union of string literals. Found 'TestService.myString'.",
+    },
+    {
+      code: "@typespec/http/http-file-content-type-not-string",
+      severity: "error",
+      message:
+        "The 'contentType' property of the file model must be 'TypeSpec.string', a string literal, or a union of string literals. Found '\"asdf\" | string'.",
+    },
+  ]);
+});
+
 it("exact payload upload and download", async () => {
   const [
     {

@@ -166,6 +166,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`HTTP File body is serialized as a structured model in '${"contentTypes"}' instead of being treated as the contents of a file, because an explicit Content-Type header is defined. Override the \`contentType\` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.`,
       },
     },
+    "http-file-content-type-not-string": {
+      severity: "error",
+      messages: {
+        default: paramMessage`The 'contentType' property of the file model must be 'TypeSpec.string', a string literal, or a union of string literals. Found '${"type"}'.`,
+      },
+    },
     "http-file-contents-not-scalar": {
       severity: "error",
       messages: {

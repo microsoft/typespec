@@ -50,19 +50,52 @@ export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity
 };
 
 export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: Model) => {
-  if (target.properties.get("contents")?.type.kind !== "Scalar") {
-    const [_contentType, contents] = target.templateMapper!.args;
+  const [contentTypeArg, contentsArg] = target.templateMapper!.args;
+  const mapper = target.templateMapper as { source: { node: Node } } | undefined;
 
-    const mapper = target.templateMapper as { source: { node: Node } } | undefined;
+  // Validate the `ContentType` type is `TypeSpec.string`, a string literal, or a union of string literals
+  const contentType = target.properties.get("contentType")!.type;
 
-    const contentsDiagnosticTarget =
-      getTemplateArgumentTarget("Contents", 1) ?? (contents as DiagnosticTarget);
+  if (
+    !(
+      (
+        contentType.kind === "String" || // is string literal
+        context.program.checker.isStdType(contentType, "string") || // is TypeSpec.string
+        (contentType.kind === "Union" &&
+          [...contentType.variants.values()].every((v) => v.type.kind === "String"))
+      ) // is union of string literals
+    )
+  ) {
+    const contentTypeDiagnosticTarget =
+      getTemplateArgumentTarget(mapper?.source, "ContentType", 0) ??
+      (contentTypeArg as DiagnosticTarget);
 
     const typeName =
-      contents.entityKind === "Type"
-        ? getTypeName(contents, { printable: true })
-        : contents.type.kind === "String"
-          ? `"${contents.type.value}"`
+      contentTypeArg.entityKind === "Type"
+        ? getTypeName(contentTypeArg, { printable: true })
+        : contentTypeArg.type.kind === "String"
+          ? `"${contentTypeArg.type.value}"`
+          : "<unknown>";
+
+    reportDiagnostic(context.program, {
+      code: "http-file-content-type-not-string",
+      format: { type: typeName },
+      target: contentTypeDiagnosticTarget ?? NoTarget,
+    });
+  }
+
+  // Validate the `Contents` type is a scalar
+  const contents = target.properties.get("contents")!.type;
+
+  if (contents.kind !== "Scalar") {
+    const contentsDiagnosticTarget =
+      getTemplateArgumentTarget(mapper?.source, "Contents", 1) ?? (contentsArg as DiagnosticTarget);
+
+    const typeName =
+      contentsArg.entityKind === "Type"
+        ? getTypeName(contentsArg, { printable: true })
+        : contentsArg.type.kind === "String"
+          ? `"${contentsArg.type.value}"`
           : "<unknown>";
 
     reportDiagnostic(context.program, {
@@ -70,33 +103,34 @@ export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: 
       format: { type: typeName },
       target: contentsDiagnosticTarget ?? NoTarget,
     });
-
-    function getTemplateArgumentTarget(
-      name: string,
-      argumentPosition?: number,
-    ): DiagnosticTarget | undefined {
-      if (mapper?.source.node.kind === SyntaxKind.TypeReference) {
-        const argument = mapper.source.node.arguments.find((n) => n.name?.sv === name);
-
-        if (argument) return argument;
-
-        const templateNode = target.templateNode as TemplateableNode | undefined;
-
-        const position =
-          templateNode?.templateParameters
-            .map((n, idx) => [idx, n] as const)
-            .find(([_, n]) => n.id.sv)?.[0] ?? argumentPosition;
-
-        if (position === undefined) return undefined;
-
-        return mapper.source.node.arguments[position];
-      }
-
-      return undefined;
-    }
   }
 
   context.program.stateSet(HttpStateKeys.file).add(target);
+
+  function getTemplateArgumentTarget(
+    source: { node: Node } | undefined,
+    name: string,
+    argumentPosition?: number,
+  ): DiagnosticTarget | undefined {
+    if (source?.node.kind === SyntaxKind.TypeReference) {
+      const argument = source.node.arguments.find((n) => n.name?.sv === name);
+
+      if (argument) return argument;
+
+      const templateNode = target.templateNode as TemplateableNode | undefined;
+
+      const position =
+        templateNode?.templateParameters
+          .map((n, idx) => [idx, n] as const)
+          .find(([_, n]) => n.id.sv)?.[0] ?? argumentPosition;
+
+      if (position === undefined) return undefined;
+
+      return source.node.arguments[position];
+    }
+
+    return undefined;
+  }
 };
 
 /**
