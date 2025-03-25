@@ -42,7 +42,7 @@ export interface Dog {
 
 ## Serializer
 
-```ts src/models/serializers.ts function jsonDogToTransportTransform
+```ts src/models/internal/serializers.ts function jsonDogToTransportTransform
 export function jsonDogToTransportTransform(input_?: Dog | null): any {
   if (!input_) {
     return input_ as any;
@@ -58,7 +58,7 @@ export function jsonDogToTransportTransform(input_?: Dog | null): any {
 
 ## Deserializer
 
-```ts src/models/serializers.ts function jsonDogToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonDogToApplicationTransform
 export function jsonDogToApplicationTransform(input_?: any): Dog {
   if (!input_) {
     return input_ as any;

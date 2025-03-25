@@ -1,4 +1,5 @@
-import { NoTarget, Type } from "@typespec/compiler";
+import { listAllServiceNamespaces } from "@azure-tools/typespec-client-generator-core";
+import { getNamespaceFullName, Namespace, NoTarget, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 import { CSharpEmitterContext } from "../sdk-context.js";
 
@@ -127,4 +128,27 @@ export async function execAsync(
       });
     });
   });
+}
+
+export function getClientNamespaceString(context: CSharpEmitterContext): string | undefined {
+  return getClientNamespaceStringHelper(
+    context.emitContext.options["package-name"],
+    listAllServiceNamespaces(context)[0],
+  );
+}
+
+export function getClientNamespaceStringHelper(
+  packageName?: string,
+  namespace?: Namespace,
+): string | undefined {
+  if (packageName) {
+    packageName = packageName
+      .replace(/-/g, ".")
+      .replace(/\.([a-z])?/g, (match: string) => match.toUpperCase());
+    return packageName.charAt(0).toUpperCase() + packageName.slice(1);
+  }
+  if (namespace) {
+    return getNamespaceFullName(namespace);
+  }
+  return undefined;
 }

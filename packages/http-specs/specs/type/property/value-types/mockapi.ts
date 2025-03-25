@@ -18,7 +18,7 @@ function createServerTests(url: string, data: unknown) {
       uri: url,
       method: `put`,
       request: {
-        body: data,
+        body: json(data),
       },
       response: {
         status: 204,
@@ -166,9 +166,9 @@ Scenarios.Type_Property_ValueTypes_Never_put = passOnSuccess({
   uri: `/type/property/value-types/never`,
   method: `put`,
   request: {
-    body: {
+    body: json({
       property: undefined,
-    },
+    }),
   },
   response: {
     status: 204,

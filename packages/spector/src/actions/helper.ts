@@ -1,116 +1,84 @@
-import { HttpMethod, ServiceRequestFile } from "@typespec/spec-api";
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import FormData from "form-data";
-
-// Don't throw for errors as some scenarios are expected to return 4xx and 5xx errors
-axios.defaults.validateStatus = () => true;
+import { HttpMethod, MockBody, MockMultipartBody } from "@typespec/spec-api";
 
 export interface ServiceRequest {
-  endPoint: string;
-  options?: {
-    requestBody?: any;
-    files?: ServiceRequestFile[];
-    config?: AxiosRequestConfig<any> | undefined;
-  };
+  method: HttpMethod;
+  url: string;
+  body?: MockBody | MockMultipartBody;
+  headers?: Record<string, unknown>;
+  query?: Record<string, unknown>;
+  pathParams?: Record<string, unknown>;
 }
 
-function checkAndAddFormDataIfRequired(request: ServiceRequest) {
-  if (request.options?.config?.headers?.["Content-Type"] === "multipart/form-data") {
-    const formData = new FormData();
-    if (request.options?.requestBody) {
-      for (const key in request.options.requestBody) {
-        formData.append(key, JSON.stringify(request.options.requestBody[key]));
+function renderMultipartRequest(body: MockMultipartBody) {
+  const formData = new FormData();
+  if (body.parts) {
+    for (const key in body.parts) {
+      formData.append(key, JSON.stringify(body.parts[key]));
+    }
+  }
+  if (body.files) {
+    body.files.forEach((file) => {
+      formData.append(
+        `${file.fieldname}`,
+        new Blob([file.buffer], { type: file.mimetype }),
+        file.originalname,
+      );
+    });
+  }
+
+  return formData;
+}
+
+function resolveUrl(request: ServiceRequest) {
+  let endpoint = request.url;
+
+  if (request.pathParams) {
+    for (const [key, value] of Object.entries(request.pathParams)) {
+      endpoint = endpoint.replaceAll(`:${key}`, String(value));
+    }
+  }
+
+  endpoint = endpoint.replaceAll("[:]", ":");
+
+  if (request.query) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(request.query)) {
+      if (Array.isArray(value)) {
+        for (const v of value) {
+          query.append(key, v);
+        }
+      } else {
+        query.append(key, value as any);
       }
     }
-    if (request.options.files) {
-      request.options.files.forEach((file) => {
-        formData.append(`${file.fieldname}`, file.buffer, {
-          filename: file.originalname,
-          contentType: file.mimetype,
-        });
-      });
+    endpoint = `${endpoint}?${query.toString()}`;
+  }
+  return endpoint;
+}
+
+export async function makeServiceCall(request: ServiceRequest): Promise<Response> {
+  const url = resolveUrl(request);
+  let body;
+  let headers = request.headers as Record<string, string>;
+  if (request.body) {
+    if ("kind" in request.body) {
+      const formData = renderMultipartRequest(request.body);
+      body = formData;
+    } else {
+      body = request.body.rawContent;
+      headers = {
+        ...headers,
+        ...(request.body?.contentType && {
+          "Content-Type": request.body.contentType,
+        }),
+      };
     }
-    request.options.requestBody = formData;
-    request.options.config = {
-      ...request.options.config,
-      headers: formData.getHeaders(),
-    };
   }
-}
-
-function checkAndUpdateEndpoint(request: ServiceRequest) {
-  if (request.options?.config?.params) {
-    for (const key in request.options.config.params) {
-      request.endPoint = request.endPoint.replace(`:${key}`, request.options.config.params[key]);
-    }
-  }
-  request.endPoint = request.endPoint.replace(/\[:\]/g, ":");
-}
-
-export async function makeServiceCall(
-  serviceCallType: HttpMethod,
-  request: ServiceRequest,
-): Promise<AxiosResponse<any, any>> {
-  checkAndUpdateEndpoint(request);
-  checkAndAddFormDataIfRequired(request);
-  if (serviceCallType === "put") {
-    return await makePutCall(request);
-  }
-  if (serviceCallType === "post") {
-    return await makePostCall(request);
-  }
-  if (serviceCallType === "get") {
-    return await makeGetCall(request);
-  }
-  if (serviceCallType === "delete") {
-    return await makeDeleteCall(request);
-  }
-  if (serviceCallType === "head") {
-    return await makeHeadCall(request);
-  }
-  return await makePatchCall(request);
-}
-
-export async function makePutCall(request: ServiceRequest): Promise<AxiosResponse<any, any>> {
-  const response = await axios.put(
-    request.endPoint,
-    request.options?.requestBody,
-    request.options?.config,
-  );
-  return response;
-}
-
-export async function makePostCall(request: ServiceRequest): Promise<AxiosResponse<any, any>> {
-  const response = await axios.post(
-    request.endPoint,
-    request.options?.requestBody,
-    request.options?.config,
-  );
-  return response;
-}
-
-export async function makeGetCall(request: ServiceRequest): Promise<AxiosResponse<any, any>> {
-  const response = await axios.get(request.endPoint, request.options?.config);
-  return response;
-}
-
-export async function makePatchCall(request: ServiceRequest): Promise<AxiosResponse<any, any>> {
-  const response = await axios.patch(
-    request.endPoint,
-    request.options?.requestBody,
-    request.options?.config,
-  );
-  return response;
-}
-
-export async function makeDeleteCall(request: ServiceRequest): Promise<AxiosResponse<any, any>> {
-  const response = await axios.delete(request.endPoint, request.options?.config);
-  return response;
-}
-
-export async function makeHeadCall(request: ServiceRequest): Promise<AxiosResponse<any, any>> {
-  const response = await axios.head(request.endPoint, request.options?.config);
-  return response;
+  return await fetch(url, {
+    method: request.method.toUpperCase(),
+    body,
+    headers,
+  });
 }
 
 type EncodingType = "utf-8" | "base64" | "base64url" | "hex";

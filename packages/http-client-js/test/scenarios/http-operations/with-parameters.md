@@ -68,6 +68,7 @@ It should generate the client class with the read operation that calls the opera
 ```ts src/demoServiceClient.ts class WidgetsClient
 export class WidgetsClient {
   #context: WidgetsClientContext;
+
   constructor(endpoint: string, options?: WidgetsClientOptions) {
     this.#context = createWidgetsClientContext(endpoint, options);
   }
