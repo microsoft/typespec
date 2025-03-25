@@ -59,7 +59,7 @@ async function getPackages(
 ): Promise<Record<string, { path: string; version: string }>> {
   const paths: Record<string, { path: string; version: string }> = {};
   for (const project of await findWorkspacePackagesNoCheck(workspaceRoot)) {
-    if (project.manifest.private) {
+    if (project.manifest.private || !project.manifest.name || !project.manifest.version) {
       continue;
     }
     const packagePath = join(workspaceRoot, project.rootDir);
