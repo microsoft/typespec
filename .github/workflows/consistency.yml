@@ -15,7 +15,13 @@ jobs:
   check-changes:
     name: Check Changes
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: |
+      github.event_name == 'pull_request' && 
+      !startsWith(github.head_ref, 'publish/') &&
+      !startsWith(github.head_ref, 'dependabot/') &&
+      !startsWith(github.head_ref, 'backmerge/') &&
+      !startsWith(github.head_ref, 'fix/') &&
+      !startsWith(github.head_ref, 'revert-')
     env:
       # We are doing this instead of moving it above in if so the job always run and succeed even if the condition is not met
       run: >-
