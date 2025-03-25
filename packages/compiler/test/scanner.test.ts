@@ -3,7 +3,8 @@ import { readFile } from "fs/promises";
 import { URL } from "url";
 import { describe, it } from "vitest";
 import { isIdentifierContinue, isIdentifierStart } from "../src/core/charcode.js";
-import { DiagnosticHandler, formatDiagnostic } from "../src/core/diagnostics.js";
+import { DiagnosticHandler } from "../src/core/diagnostics.js";
+import { formatDiagnostic } from "../src/core/logger/console-sink.js";
 import {
   KeywordLimit,
   Keywords,
