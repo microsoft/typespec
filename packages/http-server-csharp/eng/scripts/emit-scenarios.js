@@ -9,8 +9,7 @@ import pLimit from "p-limit";
 import { basename, dirname, join, resolve } from "pathe";
 import pc from "picocolors";
 import { fileURLToPath } from "url";
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
+import { parseArgs } from "util";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,26 +21,18 @@ const reportFilePath = join(logDirRoot, "report.txt");
 const testScenarioPath = join(basePath, "test", "scenarios");
 const ignoreFilePath = join(testScenarioPath, ".testignore");
 
-const argv = yargs(hideBin(process.argv))
-  .option("input", {
-    alias: "i",
-    type: "string",
-    description: "Input spec folder",
-    default: join(basePath, "..", "http-specs", "specs"),
-  })
-  .option("build", {
-    type: "boolean",
-    describe: "Build the generated projects",
-    default: true,
-  })
-  .option("interactive", {
-    type: "boolean",
-    describe: "Enable interactive mode",
-    default: false,
-  })
-  .help().argv;
+// Use `parseArgs` to parse command-line arguments
+const argv = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    input: { type: "string", default: join(basePath, "..", "http-specs", "specs") },
+    build: { type: "boolean", default: true },
+    interactive: { type: "boolean", default: false },
+  },
+  strict: false, // Allow unknown arguments
+});
 
-const specDir = resolve(argv.input);
+const specDir = resolve(argv.values.input);
 
 // Initialize the port number
 let portNumber = 65000;
@@ -259,8 +250,8 @@ async function main() {
     const paths = specsList.filter((item) => !ignoreList.includes(item));
 
     await processFiles(paths, {
-      interactive: argv.interactive,
-      build: argv.build,
+      interactive: argv.values.interactive,
+      build: argv.values.build,
     });
   } catch (error) {
     console.error(pc.red(`❌ Fatal Error: ${error.message}`));

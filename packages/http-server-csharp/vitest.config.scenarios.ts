@@ -14,7 +14,7 @@ export default mergeConfig(
       outputFile: {
         junit: "./test-results.xml",
       },
-      include: ["test/scenarios/scenarios.test.ts"],
+      include: ["test/scenarios/scenarios.test.e2e.ts"],
     },
   }),
 );
