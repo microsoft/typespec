@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { NodeChronusHost, loadChronusWorkspace } from "@chronus/chronus";
 import { readChangeDescriptions } from "@chronus/chronus/change";
-import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
+import { findWorkspacePackagesNoCheck } from "@pnpm/workspace.find-packages";
 import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { parse } from "semver";

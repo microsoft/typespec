@@ -1,5 +1,5 @@
 import { AzureCliCredential } from "@azure/identity";
-import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
+import { findWorkspacePackagesNoCheck } from "@pnpm/workspace.find-packages";
 import { createTypeSpecBundle } from "@typespec/bundler";
 import { resolve } from "path";
 import { join as joinUnix } from "path/posix";
