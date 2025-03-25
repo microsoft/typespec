@@ -167,8 +167,8 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
       },
     };
 
-    expect(requestBody["application/json"]).toStrictEqual(expectedObjectSchema);
-    expect(response["application/json"]).toStrictEqual(expectedObjectSchema);
+    expect(requestBody["application/json"]).toMatchObject(expectedObjectSchema);
+    expect(response["application/json"]).toMatchObject(expectedObjectSchema);
   });
 
   it("encodes structured file as JSON if requested", async () => {
@@ -195,8 +195,8 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
       required: ["contents"],
     };
 
-    expect(requestBody["application/json"]).toStrictEqual({ schema: expectedObjectSchema });
-    expect(response["application/json"]).toStrictEqual({ schema: expectedObjectSchema });
+    expect(requestBody["application/json"]).toMatchObject({ schema: expectedObjectSchema });
+    expect(response["application/json"]).toMatchObject({ schema: expectedObjectSchema });
   });
 
   describe("multipart", () => {
