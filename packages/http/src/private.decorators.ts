@@ -1,14 +1,17 @@
 import {
   DecoratorContext,
+  DiagnosticTarget,
   Model,
   ModelProperty,
   Namespace,
+  NoTarget,
   Program,
   Type,
   getEffectiveModelType,
   getProperty,
   getTypeName,
 } from "@typespec/compiler";
+import { Node, SyntaxKind, TemplateableNode } from "@typespec/compiler/ast";
 import {
   HttpFileDecorator,
   HttpPartDecorator,
@@ -48,18 +51,49 @@ export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity
 
 export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: Model) => {
   if (target.properties.get("contents")?.type.kind !== "Scalar") {
-    const diagnosticTarget = target.templateMapper!.args[0];
+    const [_contentType, contents] = target.templateMapper!.args;
+
+    const mapper = target.templateMapper as { source: { node: Node } } | undefined;
+
+    const contentsDiagnosticTarget =
+      getTemplateArgumentTarget("Contents", 1) ?? (contents as DiagnosticTarget);
 
     const typeName =
-      diagnosticTarget.entityKind === "Type"
-        ? getTypeName(diagnosticTarget, { printable: true })
-        : "<value>";
+      contents.entityKind === "Type"
+        ? getTypeName(contents, { printable: true })
+        : contents.type.kind === "String"
+          ? `"${contents.type.value}"`
+          : "<unknown>";
 
     reportDiagnostic(context.program, {
       code: "http-file-contents-not-scalar",
       format: { type: typeName },
-      target: diagnosticTarget,
+      target: contentsDiagnosticTarget ?? NoTarget,
     });
+
+    function getTemplateArgumentTarget(
+      name: string,
+      argumentPosition?: number,
+    ): DiagnosticTarget | undefined {
+      if (mapper?.source.node.kind === SyntaxKind.TypeReference) {
+        const argument = mapper.source.node.arguments.find((n) => n.name?.sv === name);
+
+        if (argument) return argument;
+
+        const templateNode = target.templateNode as TemplateableNode | undefined;
+
+        const position =
+          templateNode?.templateParameters
+            .map((n, idx) => [idx, n] as const)
+            .find(([_, n]) => n.id.sv)?.[0] ?? argumentPosition;
+
+        if (position === undefined) return undefined;
+
+        return mapper.source.node.arguments[position];
+      }
+
+      return undefined;
+    }
   }
 
   context.program.stateSet(HttpStateKeys.file).add(target);
@@ -97,10 +131,14 @@ export interface HttpFileModel {
   readonly contents: HttpOperationFileBody["contents"];
 }
 
-export function getHttpFileModel(program: Program, type: Type): HttpFileModel | undefined {
+export function getHttpFileModel(
+  program: Program,
+  type: Type,
+  filter?: (property: ModelProperty) => boolean,
+): HttpFileModel | undefined {
   if (type.kind !== "Model") return undefined;
 
-  const effectiveType = getEffectiveModelType(program, type);
+  const effectiveType = getEffectiveModelType(program, type, filter);
 
   if (!isOrExtendsHttpFile(program, effectiveType)) {
     return undefined;
