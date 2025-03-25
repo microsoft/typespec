@@ -4,6 +4,7 @@ import {
   Model,
   ModelProperty,
   Program,
+  Scalar,
   StringTemplate,
   Tuple,
   Type,
@@ -529,18 +530,35 @@ function resolvePart(
 function getFileBody(file: HttpFileModel): DiagnosticResult<HttpOperationFileBody> {
   const [contentTypes, diagnostics] = getContentTypes(file.contentType);
 
+  const isText = isOrExtendsString(file.contents.type);
+
   return [
     {
       bodyKind: "file",
       type: file.type,
       contents: file.contents,
       filename: file.filename,
-      isText: file.contents.type.name === "string",
+      isText,
       contentTypeProperty: file.contentType,
       contentTypes,
     },
     diagnostics,
   ];
+
+  function isOrExtendsString(type: Scalar): boolean {
+    return isString(type) || (!!type.baseScalar && isOrExtendsString(type.baseScalar));
+
+    function isString(type: Scalar): boolean {
+      return (
+        type.name === "string" &&
+        !!type.namespace &&
+        type.namespace.name === "TypeSpec" &&
+        !!type.namespace.namespace &&
+        type.namespace.namespace.name === "" &&
+        !type.namespace.namespace.namespace
+      );
+    }
+  }
 }
 
 function getDefaultContentTypeForKind(type: Type): string {
