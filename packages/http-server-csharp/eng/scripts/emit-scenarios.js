@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { execa } from "execa";
+import { run } from "@typespec/internal-build-utils";
 import { copy, pathExists } from "fs-extra";
 import { mkdir, readFile, rm, writeFile } from "fs/promises";
 import { globby } from "globby";
@@ -79,28 +79,51 @@ async function compileSpec(file, options) {
 
     // Compile the spec and generate server code
     if (spinner) spinner.text = `Generating csharp server code: ${relativePath}`;
-    await execa("npx", [
-      "tsp",
-      "compile",
-      fullPath,
-      "--emit",
-      resolve(import.meta.dirname, "../.."),
-      "--config",
-      tspConfig,
-      "--output-dir",
-      join(outputDir, "generated"),
-      "--arg",
-      `service-port-http=${portNumber.toString()}`,
-      "--arg",
-      `service-port-https=${(portNumber + 500).toString()}`,
-    ]);
+    await run(
+      "npx",
+      [
+        "tsp",
+        "compile",
+        fullPath,
+        "--emit",
+        resolve(import.meta.dirname, "../.."),
+        "--config",
+        tspConfig,
+        "--output-dir",
+        join(outputDir, "generated"),
+        "--arg",
+        `service-port-http=${portNumber.toString()}`,
+        "--arg",
+        `service-port-https=${(portNumber + 500).toString()}`,
+      ],
+      {
+        stdio: "ignore",
+        silent: true,
+      },
+    );
 
     if (spinner) spinner.text = `Formatting with dotnet: ${relativePath}`;
-    await execa("dotnet", ["format"], { cwd: outputDir });
+    await run(
+      "dotnet",
+      ["format"],
+      { cwd: outputDir },
+      {
+        stdio: "ignore",
+        silent: true,
+      },
+    );
 
     if (build) {
       if (spinner) spinner.text = `Building project: ${relativePath}`;
-      await execa("dotnet", ["build"], { cwd: outputDir });
+      await run(
+        "dotnet",
+        ["build"],
+        { cwd: outputDir },
+        {
+          stdio: "ignore",
+          silent: true,
+        },
+      );
     }
 
     if (await pathExists(patchFileDir)) {
