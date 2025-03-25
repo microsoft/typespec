@@ -8,8 +8,11 @@ The TypeSpec extension for Visual Studio Code enhances the development of TypeSp
 - Code autocompletion and formatting
 - Live diagnostics and quick fixes
 - Refactoring tools (rename, go-to definition, etc.)
-- Seamless project setup and emitter configuration
-- Generate code from TypeSpec
+- Seamless project setup and emitter configuration _new_
+- Import TypeSpec from existing OpenAPI 3 definitions _new_
+- Emit code from TypeSpec _new_
+- Preview API documentation _new_
+
 
 ## Prerequisites
 
