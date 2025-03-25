@@ -104,7 +104,7 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
   },
 };
 
-const $lib = createTypeSpecLibrary({
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/http-client-csharp",
   diagnostics: diags,
   emitter: {
