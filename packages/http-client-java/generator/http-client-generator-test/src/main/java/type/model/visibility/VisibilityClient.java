@@ -45,7 +45,6 @@ public final class VisibilityClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -63,7 +62,6 @@ public final class VisibilityClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -75,6 +73,7 @@ public final class VisibilityClient {
      * }
      * </pre>
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -85,8 +84,8 @@ public final class VisibilityClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> getModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.getModelWithResponse(input, requestOptions);
+    public Response<BinaryData> getModelWithResponse(int queryProp, BinaryData input, RequestOptions requestOptions) {
+        return this.serviceClient.getModelWithResponse(queryProp, input, requestOptions);
     }
 
     /**
@@ -97,7 +96,6 @@ public final class VisibilityClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -109,6 +107,7 @@ public final class VisibilityClient {
      * }
      * </pre>
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -119,8 +118,8 @@ public final class VisibilityClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> headModelWithResponse(BinaryData input, RequestOptions requestOptions) {
-        return this.serviceClient.headModelWithResponse(input, requestOptions);
+    public Response<Void> headModelWithResponse(int queryProp, BinaryData input, RequestOptions requestOptions) {
+        return this.serviceClient.headModelWithResponse(queryProp, input, requestOptions);
     }
 
     /**
@@ -131,7 +130,6 @@ public final class VisibilityClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -165,7 +163,6 @@ public final class VisibilityClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -199,7 +196,6 @@ public final class VisibilityClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -233,7 +229,6 @@ public final class VisibilityClient {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -308,6 +303,7 @@ public final class VisibilityClient {
     /**
      * The getModel operation.
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -319,16 +315,17 @@ public final class VisibilityClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public VisibilityModel getModel(VisibilityModel input) {
+    public VisibilityModel getModel(int queryProp, VisibilityModel input) {
         // Generated convenience method for getModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getModelWithResponse(BinaryData.fromObject(input), requestOptions).getValue()
+        return getModelWithResponse(queryProp, BinaryData.fromObject(input), requestOptions).getValue()
             .toObject(VisibilityModel.class);
     }
 
     /**
      * The headModel operation.
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -339,10 +336,10 @@ public final class VisibilityClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void headModel(VisibilityModel input) {
+    public void headModel(int queryProp, VisibilityModel input) {
         // Generated convenience method for headModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        headModelWithResponse(BinaryData.fromObject(input), requestOptions).getValue();
+        headModelWithResponse(queryProp, BinaryData.fromObject(input), requestOptions).getValue();
     }
 
     /**

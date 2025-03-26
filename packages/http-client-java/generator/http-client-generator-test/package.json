@@ -12,10 +12,10 @@
     "spector-stop": "tsp-spector server stop"
   },
   "dependencies": {
-    "@typespec/http-specs": "0.1.0-alpha.15",
-    "@typespec/spec-api": "0.1.0-alpha.2",
-    "@typespec/spector": "0.1.0-alpha.9",
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.10",
+    "@typespec/spector": "0.1.0-alpha.10",
+    "@typespec/spec-api": "0.1.0-alpha.3",
+    "@typespec/http-specs": "0.1.0-alpha.16",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.12",
     "@typespec/http-client-java": "file:../../typespec-http-client-java-0.2.0.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
