@@ -24,7 +24,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalDocumentation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -33,9 +32,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodTransformationDetail;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
@@ -53,7 +51,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -213,7 +210,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 List<ClientMethodParameter> parameters = new ArrayList<>();
                 List<String> requiredParameterExpressions = new ArrayList<>();
                 Map<String, String> validateExpressions = new HashMap<>();
-                List<MethodTransformationDetail> methodTransformationDetails = new ArrayList<>();
+                ParametersTransformationProcessor transformationProcessor
+                    = new ParametersTransformationProcessor(isProtocolMethod);
 
                 List<Parameter> codeModelParameters = getCodeModelParameters(request, isProtocolMethod);
 
@@ -283,30 +281,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                             validateExpressions.put(expression, validation);
                         }
                     }
-
-                    // Transformations
-                    if ((parameter.getOriginalParameter() != null || parameter.getGroupedBy() != null)
-                        && !(parameter.getSchema() instanceof ConstantSchema)
-                        && !isProtocolMethod) {
-
-                        processParameterTransformations(methodTransformationDetails, originalParameters, parameter,
-                            clientMethodParameter, isProtocolMethod);
-                    }
+                    transformationProcessor.addParameter(clientMethodParameter, parameter);
                 }
 
-                // handle the case that the flattened parameter is model with all its properties read-only
-                // in this case, it is not original parameter from any other parameters
-                for (Parameter parameter : request.getParameters()
-                    .stream()
-                    // flattened proxy parameter
-                    .filter(p -> p.isFlattened() && p.getProtocol() != null && p.getProtocol().getHttp() != null)
-                    // but not original parameter from any other parameters
-                    .filter(p -> !originalParameters.contains(p))
-                    .collect(Collectors.toList())) {
-                    ClientMethodParameter outParameter = Mappers.getClientParameterMapper().map(parameter);
-                    methodTransformationDetails.add(new MethodTransformationDetail(outParameter, new ArrayList<>()));
-                }
-
+                final List<ParameterTransformationDetails> parameterTransformationDetails
+                    = transformationProcessor.process(request);
                 final MethodOverloadType defaultOverloadType = hasNonRequiredParameters(parameters)
                     ? MethodOverloadType.OVERLOAD_MAXIMUM
                     : MethodOverloadType.OVERLOAD_MINIMUM_MAXIMUM;
@@ -324,7 +303,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 builder.parameters(parameters)
                     .requiredNullableParameterExpressions(requiredParameterExpressions)
                     .validateExpressions(validateExpressions)
-                    .methodTransformationDetails(methodTransformationDetails)
+                    .parameterTransformationDetails(parameterTransformationDetails)
                     .methodVisibilityInWrapperClient(methodVisibilityInWrapperClient)
                     .methodPageDetails(null);
 
@@ -555,58 +534,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .filter(m -> m.getMethodVisibility() != NOT_GENERATE)
             .distinct()
             .collect(Collectors.toList());
-    }
-
-    private void processParameterTransformations(List<MethodTransformationDetail> methodTransformationDetails,
-        Set<Parameter> originalParameters, Parameter parameter, ClientMethodParameter clientMethodParameter,
-        boolean isProtocolMethod) {
-
-        ClientMethodParameter outParameter;
-        if (parameter.getOriginalParameter() != null) {
-            originalParameters.add(parameter.getOriginalParameter());
-            outParameter = Mappers.getClientParameterMapper().map(parameter.getOriginalParameter());
-        } else {
-            outParameter = clientMethodParameter;
-        }
-        MethodTransformationDetail detail = methodTransformationDetails.stream()
-            .filter(d -> outParameter.getName().equals(d.getOutParameter().getName()))
-            .findFirst()
-            .orElse(null);
-        if (detail == null) {
-            detail = new MethodTransformationDetail(outParameter, new ArrayList<>());
-            methodTransformationDetails.add(detail);
-        }
-        ParameterMapping mapping = new ParameterMapping();
-        if (parameter.getGroupedBy() != null) {
-            mapping
-                .setInputParameter(Mappers.getClientParameterMapper().map(parameter.getGroupedBy(), isProtocolMethod));
-            ClientModel groupModel = Mappers.getModelMapper().map((ObjectSchema) parameter.getGroupedBy().getSchema());
-            Optional<ClientModelProperty> inputProperty = groupModel.getProperties()
-                .stream()
-                .filter(p -> parameter.getLanguage().getJava().getName().equals(p.getName()))
-                .findFirst();
-            if (inputProperty.isEmpty()) {
-                /*
-                 * try again, find by serializedName, as a fallback
-                 *
-                 * The reason is that for parameter of reserved name, on parameter it would be renamed to "#Parameter",
-                 * but on property it would be renamed to "#Property".
-                 * Transformer.java have handled above case, but we don't know if there is any other case.
-                 */
-                inputProperty = groupModel.getProperties()
-                    .stream()
-                    .filter(p -> parameter.getLanguage().getDefault().getSerializedName().equals(p.getSerializedName()))
-                    .findFirst();
-            }
-            mapping.setInputParameterProperty(inputProperty.get());
-        } else {
-            mapping.setInputParameter(clientMethodParameter);
-        }
-        if (parameter.getOriginalParameter() != null) {
-            mapping.setOutputParameterProperty(Mappers.getModelPropertyMapper().map(parameter.getTargetProperty()));
-            mapping.setOutputParameterPropertyName(parameter.getTargetProperty().getLanguage().getJava().getName());
-        }
-        detail.getParameterMappings().add(mapping);
     }
 
     private ReturnTypeHolder getReturnTypes(Operation operation, boolean isProtocolMethod, JavaSettings settings,

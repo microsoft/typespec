@@ -20,10 +20,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodTransformationDetail;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
@@ -235,7 +235,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      */
     protected static void applyParameterTransformations(JavaBlock function, ClientMethod clientMethod,
         JavaSettings settings) {
-        for (MethodTransformationDetail transformation : clientMethod.getMethodTransformationDetails()) {
+        for (ParameterTransformationDetails transformation : clientMethod.getParameterTransformationDetails()) {
             if (transformation.getParameterMappings().isEmpty()) {
                 // the case that this flattened parameter is not original parameter from any other parameters
                 ClientMethodParameter outParameter = transformation.getOutParameter();
@@ -251,15 +251,15 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
             String nullCheck = transformation.getParameterMappings()
                 .stream()
-                .filter(m -> !m.getInputParameter().isRequired())
+                .filter(m -> !m.getInParameter().isRequired())
                 .map(m -> {
-                    ClientMethodParameter parameter = m.getInputParameter();
+                    ClientMethodParameter parameter = m.getInParameter();
 
                     String parameterName;
                     if (!parameter.isFromClient()) {
                         parameterName = parameter.getName();
                     } else {
-                        parameterName = m.getInputParameterProperty().getName();
+                        parameterName = m.getInParameterProperty().getName();
                     }
 
                     return parameterName + " != null";
@@ -289,8 +289,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             if (generatedCompositeType
                 && transformation.getParameterMappings()
                     .stream()
-                    .anyMatch(m -> m.getOutputParameterPropertyName() != null
-                        && !m.getOutputParameterPropertyName().isEmpty())) {
+                    .anyMatch(
+                        m -> m.getOutParameterPropertyName() != null && !m.getOutParameterPropertyName().isEmpty())) {
                 String transformationOutputParameterModelCompositeTypeName
                     = transformationOutputParameterModelType.toString();
 
@@ -301,21 +301,21 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
             for (ParameterMapping mapping : transformation.getParameterMappings()) {
                 String inputPath;
-                if (mapping.getInputParameterProperty() != null) {
-                    inputPath = mapping.getInputParameter().getName() + "."
-                        + CodeNamer.getModelNamer().modelPropertyGetterName(mapping.getInputParameterProperty()) + "()";
+                if (mapping.getInParameterProperty() != null) {
+                    inputPath = mapping.getInParameter().getName() + "."
+                        + CodeNamer.getModelNamer().modelPropertyGetterName(mapping.getInParameterProperty()) + "()";
                 } else {
-                    inputPath = mapping.getInputParameter().getName();
+                    inputPath = mapping.getInParameter().getName();
                 }
 
-                if (clientMethod.getOnlyRequiredParameters() && !mapping.getInputParameter().isRequired()) {
+                if (clientMethod.getOnlyRequiredParameters() && !mapping.getInParameter().isRequired()) {
                     inputPath = "null";
                 }
 
                 String getMapping;
-                if (mapping.getOutputParameterPropertyName() != null) {
+                if (mapping.getOutParameterPropertyName() != null) {
                     getMapping = String.format(".%s(%s)",
-                        CodeNamer.getModelNamer().modelPropertySetterName(mapping.getOutputParameterPropertyName()),
+                        CodeNamer.getModelNamer().modelPropertySetterName(mapping.getOutParameterPropertyName()),
                         inputPath);
                 } else {
                     getMapping = " = " + inputPath;
@@ -1417,7 +1417,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         Map<String, ClientMethodParameter> nameToParameter = clientMethod.getParameters()
             .stream()
             .collect(Collectors.toMap(ClientMethodParameter::getName, Function.identity()));
-        Set<String> parametersWithTransformations = clientMethod.getMethodTransformationDetails()
+        Set<String> parametersWithTransformations = clientMethod.getParameterTransformationDetails()
             .stream()
             .map(transform -> transform.getOutParameter().getName())
             .collect(Collectors.toSet());
