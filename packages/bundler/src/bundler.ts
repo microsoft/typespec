@@ -1,5 +1,6 @@
 import { compile, joinPaths, NodeHost, normalizePath, resolvePath } from "@typespec/compiler";
 import { BuildOptions, BuildResult, context, Plugin } from "esbuild";
+import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, join, resolve } from "path";
 import { relativeTo } from "./utils.js";
@@ -162,6 +163,15 @@ async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugin
           namespace: "virtual",
         };
       });
+      build.onResolve({ filter: /.*/ }, (args) => {
+        if (
+          definition.packageJson.peerDependencies &&
+          Object.keys(definition.packageJson.peerDependencies).some((x) => args.path.startsWith(x))
+        ) {
+          return { path: args.path, external: true };
+        }
+        return null;
+      });
 
       build.onLoad({ filter: /^virtual:/, namespace: "virtual" }, async (args) => {
         return {
@@ -181,7 +191,17 @@ async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugin
     outdir: "out",
     platform: "browser",
     format: "esm",
-    plugins: [virtualPlugin, ...plugins],
+    target: "es2024",
+    plugins: [
+      virtualPlugin,
+      nodeModulesPolyfillPlugin({
+        globals: {
+          process: true,
+          Buffer: true,
+        },
+      }),
+      ...plugins,
+    ],
   });
 }
 
@@ -195,8 +215,8 @@ function resolveTypeSpecBundle(
     files: result.outputFiles!.map((file) => {
       const entry = definition.exports[basename(file.path)];
       return {
-        filename: basename(file.path),
-        content: new TextDecoder().decode(file.contents),
+        filename: file.path.split("/out/")[1],
+        content: file.text,
         export: entry ? getExportEntryPoint(entry) : undefined,
       };
     }),
