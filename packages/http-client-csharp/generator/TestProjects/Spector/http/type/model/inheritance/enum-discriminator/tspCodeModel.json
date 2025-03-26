@@ -327,6 +327,7 @@
  "clients": [
   {
    "$id": "40",
+   "kind": "client",
    "name": "EnumDiscriminatorClient",
    "namespace": "Type.Model.Inheritance.EnumDiscriminator",
    "doc": "Illustrates inheritance with enum discriminator.",
@@ -877,7 +878,8 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator"
+   "crossLanguageDefinitionId": "Type.Model.Inheritance.EnumDiscriminator",
+   "apiVersions": []
   }
  ]
 }

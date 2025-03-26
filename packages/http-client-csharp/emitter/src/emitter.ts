@@ -73,6 +73,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       logger: logger,
       __typeCache: {
         crossLanguageDefinitionIds: new Map(),
+        clients: new Map(),
         types: new Map(),
         models: new Map(),
         enums: new Map(),
