@@ -230,7 +230,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             }";
 
             MockHelpers.LoadMockGenerator(configuration: mockJson);
-            var licenseInfo = CodeModelGenerator.Instance.Configuration.LicenceInfo;
+            var licenseInfo = CodeModelGenerator.Instance.Configuration.LicenseInfo;
             Assert.IsNotNull(licenseInfo);
             Assert.AreEqual("This is a test header.", licenseInfo!.Header);
             Assert.AreEqual("MIT", licenseInfo.Name);
@@ -249,7 +249,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             }";
 
             MockHelpers.LoadMockGenerator(configuration: mockJson);
-            var licenseInfo = CodeModelGenerator.Instance.Configuration.LicenceInfo;
+            var licenseInfo = CodeModelGenerator.Instance.Configuration.LicenseInfo;
             Assert.IsNull(licenseInfo);
         }
 

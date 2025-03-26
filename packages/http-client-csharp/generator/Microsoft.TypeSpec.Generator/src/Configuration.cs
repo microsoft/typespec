@@ -44,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator
             PackageName = packageName;
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
-            LicenceInfo = licenseInfo;
+            LicenseInfo = licenseInfo;
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <summary>
         /// Gets the license information for the generated library.
         /// </summary>
-        public LicenseInfo? LicenceInfo { get; }
+        public LicenseInfo? LicenseInfo { get; }
 
         internal static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.RemoveOrInternalize;
 
