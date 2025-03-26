@@ -137,6 +137,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (root.TryGetProperty("license", out JsonElement licenseElement))
             {
+                // All license properties are required. They are defaulted to empty string.
                 string name = licenseElement.GetProperty("name").GetString()!;
                 string company = licenseElement.GetProperty("company").GetString()!;
                 string link = licenseElement.GetProperty("link").GetString()!;
