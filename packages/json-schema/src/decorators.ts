@@ -6,7 +6,6 @@ import {
   type Namespace,
   type Program,
   type Scalar,
-  serializeValueAsJson,
   setTypeSpecNamespace,
   type Tuple,
   type Type,
@@ -293,11 +292,11 @@ export function setExtension(program: Program, target: Type, key: string, value:
     // Handle enum members and other TypeSpec types to avoid circular references
     if (value.kind === "EnumMember") {
       extensions.push({ key, value: value.value ?? value.name });
-    } else if (value.kind === "StringLiteral") {
+    } else if (value.kind === "String") {
       extensions.push({ key, value: value.value });
-    } else if (value.kind === "NumericLiteral") {
+    } else if (value.kind === "Number") {
       extensions.push({ key, value: value.value });
-    } else if (value.kind === "BooleanLiteral") {
+    } else if (value.kind === "Boolean") {
       extensions.push({ key, value: value.value });
     } else {
       // For other TypeSpec types, preserve the original value
