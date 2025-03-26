@@ -16,9 +16,5 @@ model Thing { id: string }
 
 The test expects a TypeScript operation that treats the model Thing as bytes.
 
-```ts src/models/models.ts interface Foo
-export interface Foo {
-  name: string;
-  age: number;
-}
+```ts src/api/widgetsClient/widgetsClientOperations.ts function get
 ```

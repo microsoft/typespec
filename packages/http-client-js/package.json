@@ -50,7 +50,8 @@
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
-    "@typespec/rest": "workspace:^"
+    "@typespec/rest": "workspace:^",
+    "@typespec/streams": "workspace:^"
   },
   "dependencies": {
     "@alloy-js/core": "^0.6.0",
