@@ -32,7 +32,7 @@ async function createEmitterTestRunner(
   const host = await createTestHost({ libraries });
 
   return createTestWrapper(host, {
-    autoImports: options.autoImports ?? ["@typespec/http", "@typespec/rest"],
+    autoImports: options.autoImports ?? ["@typespec/http", "@typespec/rest", "@typespec/streams"],
     autoUsings: options.autoUsings ?? ["TypeSpec.Http", "TypeSpec.Rest"],
     compilerOptions: options.compilerOptions ?? {
       noEmit: false,
