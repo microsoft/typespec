@@ -13,7 +13,7 @@ public class BinaryDataUtils {
         Assertions.assertEquals(left.size(), right.size());
         for (String key : left.keySet()) {
             BinaryData leftValue = left.get(key);
-            BinaryData rightVfalue = right.get(key);
+            BinaryData rightValue = right.get(key);
             Assertions.assertArrayEquals(leftValue.toBytes(), rightValue.toBytes());
         }
     }
