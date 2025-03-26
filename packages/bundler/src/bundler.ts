@@ -164,23 +164,9 @@ async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugin
       });
 
       build.onLoad({ filter: /^virtual:/, namespace: "virtual" }, async (args) => {
-        if (definition.packageJson.name === "@typespec/openapi") {
-          console.log("Transforming", args.path);
-          console.log(
-            (
-              await build.esbuild.transform(content, {
-                loader: "js",
-              })
-            ).code.slice(0, 300),
-          );
-        }
         return {
-          contents: (
-            await build.esbuild.transform(content, {
-              loader: "js",
-            })
-          ).code,
-          loader: "js",
+          contents: content,
+          resolveDir: libraryPath,
         };
       });
     },
@@ -191,9 +177,10 @@ async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugin
       index: "virtual:entry.js",
       ...extraEntry,
     },
+    bundle: true,
     outdir: "out",
     platform: "browser",
-    target: "es2020",
+    format: "esm",
     plugins: [virtualPlugin, ...plugins],
   });
 }
