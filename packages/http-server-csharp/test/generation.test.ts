@@ -2081,7 +2081,7 @@ describe("emit correct code for `@error` models", () => {
       ],
     );
   });
-  it("emit error constructor with paramerters ordered by requiered followed by optional/default", async () => {
+  it("emit error constructor with parameters ordered by required followed by optional/default", async () => {
     await compileAndValidateSingleModel(
       runner,
       `
@@ -2136,7 +2136,7 @@ describe("emit correct code for `@error` models", () => {
       ],
     );
   });
-  it("emit error costructor properties and defined in body", async () => {
+  it("emit error constructor properties and defined in body", async () => {
     await compileAndValidateSingleModel(
       runner,
       `
