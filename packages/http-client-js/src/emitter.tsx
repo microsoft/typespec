@@ -18,11 +18,12 @@ import { JsClientEmitterOptions } from "./lib.js";
  */
 export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
   const packageName = context.options["package-name"] ?? "test-package";
+  const packageVersion = context.options["package-version"] ?? "0.0.1";
   const output = (
     <Output>
       <ts.PackageDirectory
         name={packageName}
-        version="1.0.0"
+        version={packageVersion}
         path="."
         scripts={{ build: "tsc" }}
         devDependencies={{ "@types/node": "~18.19.75" }}

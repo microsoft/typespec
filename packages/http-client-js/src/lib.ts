@@ -1,19 +1,13 @@
 import { createTypeSpecLibrary, JSONSchemaType } from "@typespec/compiler";
+import { ClientEmitterOptions, ClientEmitterOptionsSchema } from "@typespec/http-client";
 
-export interface JsClientEmitterOptions {
-  "package-name"?: string;
-}
+export interface JsClientEmitterOptions extends ClientEmitterOptions {}
 
 const EmitterOptionsSchema: JSONSchemaType<JsClientEmitterOptions> = {
   type: "object",
   additionalProperties: true,
   properties: {
-    "package-name": {
-      type: "string",
-      nullable: true,
-      default: "test-package",
-      description: "Name of the package as it will be in package.json",
-    },
+    ...ClientEmitterOptionsSchema.properties,
   },
   required: [],
 };
