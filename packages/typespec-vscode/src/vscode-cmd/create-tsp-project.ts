@@ -118,6 +118,9 @@ export async function createTypeSpecProject(
                 showPopup: true,
               },
             );
+            telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+              error: "No templates loaded from compiler or config",
+            });
             tel.lastStep = "Load templates";
             return ResultCode.Fail;
           }
@@ -194,6 +197,10 @@ export async function createTypeSpecProject(
                 showPopup: true,
               },
             );
+            telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+              error:
+                "initProject failed: \n" + inspect(initResult.details ?? "no detail error got"),
+            });
             tel.lastStep = "Initialize project";
             return ResultCode.Fail;
           }

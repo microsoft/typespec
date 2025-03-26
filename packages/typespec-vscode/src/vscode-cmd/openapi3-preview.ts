@@ -4,6 +4,7 @@ import * as semver from "semver";
 import * as vscode from "vscode";
 import logger from "../log/logger.js";
 import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
+import telemetryClient from "../telemetry/telemetry-client.js";
 import { OperationTelemetryEvent } from "../telemetry/telemetry-event.js";
 import { TspLanguageClient } from "../tsp-language-client.js";
 import { ResultCode } from "../types.js";
@@ -28,6 +29,9 @@ export async function showOpenApi3(
         showPopup: true,
       },
     );
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "Invalid file selected (not endsWith .tsp)",
+    });
     tel.lastStep = "Check selected file";
     return ResultCode.Fail;
   }
@@ -39,6 +43,9 @@ export async function showOpenApi3(
     logger.error(`No 'main.tsp' file can be determined from '${selectedFile}' in workspace.`, [], {
       showOutput: true,
       showPopup: true,
+    });
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "Can't get entrypoint tsp file",
     });
     tel.lastStep = "Get entrypoint file";
     return ResultCode.Fail;
@@ -83,6 +90,10 @@ async function loadOpenApi3PreviewPanel(
       showOutput: true,
       showPopup: true,
     });
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "Compiler version is not supported",
+      compilerVersion: compilerVersion ?? "<0.64.0",
+    });
     tel.lastStep = "Check compiler version";
     return ResultCode.Fail;
   }
@@ -104,6 +115,9 @@ async function loadOpenApi3PreviewPanel(
           showPopup: true,
         },
       );
+      telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+        error: "Unexpected Error: Can't find output folder for preview",
+      });
       tel.lastStep = "Get output folder";
       return ResultCode.Fail;
     }
@@ -161,6 +175,9 @@ async function loadOpenApi3PreviewPanel(
 
     const filePath = await getOpenApi3OutputFilePath(true);
     if (filePath === undefined) {
+      telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+        error: "Failed to get generated OpenAPI3 file",
+      });
       tel.lastStep = "Get OpenAPI3 output";
       return ResultCode.Fail;
     }

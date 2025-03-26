@@ -18,6 +18,7 @@
 # Python
 ######################
 /packages/http-client-python/                @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel
+/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel
 
 ######################
 # JavaScript

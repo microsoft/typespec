@@ -68,6 +68,16 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     });
   });
 
+  it("doc of property is carried to the description field", async () => {
+    const res = await openApiFor(
+      `
+    op upload(@header contentType: "multipart/form-data", @multipartBody _: { /** My doc */ name: HttpPart<string> }): void;
+    `,
+    );
+    const schema = res.paths["/"].post.requestBody.content["multipart/form-data"].schema;
+    expect(schema.properties.name.description).toEqual("My doc");
+  });
+
   describe("legacy implicit form", () => {
     it("add MultiPart suffix to model name", async () => {
       const res = await openApiFor(
