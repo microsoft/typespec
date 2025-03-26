@@ -29,7 +29,7 @@ export interface Foo {
 
 This function should correctly transform a Foo instance into a transport-friendly format, ensuring all properties are properly mapped.
 
-```ts src/models/serializers.ts function jsonFooToTransportTransform
+```ts src/models/internal/serializers.ts function jsonFooToTransportTransform
 export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
@@ -45,7 +45,7 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
 
 This function should correctly reconstruct a Foo instance from a transport-friendly representation, ensuring all properties are properly mapped back.
 
-```ts src/models/serializers.ts function jsonFooToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonFooToApplicationTransform
 export function jsonFooToApplicationTransform(input_?: any): Foo {
   if (!input_) {
     return input_ as any;
@@ -82,7 +82,7 @@ op foo(): Foo | Bar;
 
 This function should transform Foo into a transport-friendly format while ensuring that the bar property is serialized using the jsonBarToTransportTransform function.
 
-```ts src/models/serializers.ts function jsonFooToTransportTransform
+```ts src/models/internal/serializers.ts function jsonFooToTransportTransform
 export function jsonFooToTransportTransform(input_?: Foo | null): any {
   if (!input_) {
     return input_ as any;
@@ -99,7 +99,7 @@ export function jsonFooToTransportTransform(input_?: Foo | null): any {
 
 This function should transform a Bar instance into its transport format, correctly mapping its properties.
 
-```ts src/models/serializers.ts function jsonBarToTransportTransform
+```ts src/models/internal/serializers.ts function jsonBarToTransportTransform
 export function jsonBarToTransportTransform(input_?: Bar | null): any {
   if (!input_) {
     return input_ as any;

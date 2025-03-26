@@ -129,6 +129,7 @@ function getOperationParametersForVerb(
       case "cookie":
       case "header":
         parameters.push({
+          type: item.kind as any, // TODO: why is this not passing
           ...item.options,
           param: item.property,
         });

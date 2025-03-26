@@ -320,16 +320,16 @@ public class ClientModelUtil {
     }
 
     public static String getClientDefaultValueOrConstantValue(Parameter parameter) {
-        String clientDefaultValueOrConstantValue = parameter.getClientDefaultValue();
-        if (clientDefaultValueOrConstantValue == null) {
-            if (parameter.getSchema() != null && parameter.getSchema() instanceof ConstantSchema) {
-                ConstantSchema constantSchema = (ConstantSchema) parameter.getSchema();
-                if (constantSchema.getValue() != null) {
-                    clientDefaultValueOrConstantValue = constantSchema.getValue().getValue().toString();
-                }
+        if (parameter.getClientDefaultValue() != null) {
+            return parameter.getClientDefaultValue();
+        }
+        if (parameter.getSchema() != null && parameter.getSchema() instanceof ConstantSchema) {
+            final ConstantSchema constantSchema = (ConstantSchema) parameter.getSchema();
+            if (constantSchema.getValue() != null) {
+                return constantSchema.getValue().getValue().toString();
             }
         }
-        return clientDefaultValueOrConstantValue;
+        return null;
     }
 
     public static List<OperationGroup> getAllOperationGroups(CodeModel codeModel) {

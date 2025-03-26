@@ -84,7 +84,7 @@ public final class Decimal128VerifiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> verify(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
         @Post("/type/scalar/decimal128/verify")
@@ -94,7 +94,7 @@ public final class Decimal128VerifiesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> verifySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData body,
+            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
     }
 

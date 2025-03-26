@@ -1,5 +1,24 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.16
+
+### Bug Fixes
+
+- [#6565](https://github.com/microsoft/typespec/pull/6565) Fix specs to handle body correctly with new spector change
+- [#6533](https://github.com/microsoft/typespec/pull/6533) Update outdated multipart cases
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+
+## 0.1.0-alpha.15
+
+### Bug Fixes
+
+- [#6521](https://github.com/microsoft/typespec/pull/6528) Add explicit `application/json` content type for some test cases to avoid wrong content type inferred from http lib.
+
+
 ## 0.1.0-alpha.14
 
 ### Bug Fixes

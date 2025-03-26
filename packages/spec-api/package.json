@@ -1,9 +1,13 @@
 {
   "name": "@typespec/spec-api",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Spec api to implement mock api",
-  "main": "dist/index.js",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json",
@@ -24,31 +28,20 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "body-parser": "^1.20.3",
     "deep-equal": "^2.2.0",
     "express": "^4.21.2",
-    "express-promise-router": "^4.1.1",
-    "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.1",
-    "picocolors": "~1.1.1",
-    "prettier": "~3.5.3",
-    "winston": "^3.17.0",
-    "xml2js": "^0.6.2",
-    "yargs": "~17.7.2"
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "@types/body-parser": "^1.19.2",
     "@types/deep-equal": "^1.0.1",
-    "@types/express": "^5.0.0",
-    "@types/morgan": "^1.9.4",
+    "@types/express": "^5.0.1",
     "@types/multer": "^1.4.10",
-    "@types/node": "~22.13.9",
+    "@types/node": "~22.13.11",
     "@types/xml2js": "^0.4.11",
-    "@types/yargs": "~17.0.33",
-    "@vitest/coverage-v8": "^3.0.7",
-    "@vitest/ui": "^3.0.7",
+    "@vitest/coverage-v8": "^3.0.9",
+    "@vitest/ui": "^3.0.9",
     "rimraf": "~6.0.1",
     "typescript": "~5.8.2",
-    "vitest": "^3.0.7"
+    "vitest": "^3.0.9"
   }
 }

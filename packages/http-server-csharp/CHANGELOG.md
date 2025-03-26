@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.12
+
+### Features
+
+- [#6507](https://github.com/microsoft/typespec/pull/6507) Scaffolding updates for rc
+
+
 ## 0.58.0-alpha.11
 
 ### Breaking Changes

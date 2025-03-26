@@ -111,7 +111,7 @@ public final class ReturnTypeChangedFromClientImpl {
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
         Response<String> testSync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") BinaryData body, RequestOptions requestOptions);
     }
 
