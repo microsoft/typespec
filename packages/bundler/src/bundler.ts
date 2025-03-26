@@ -192,16 +192,7 @@ async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugin
     platform: "browser",
     format: "esm",
     target: "es2024",
-    plugins: [
-      virtualPlugin,
-      nodeModulesPolyfillPlugin({
-        globals: {
-          process: true,
-          Buffer: true,
-        },
-      }),
-      ...plugins,
-    ],
+    plugins: [virtualPlugin, nodeModulesPolyfillPlugin({}), ...plugins],
   });
 }
 
