@@ -132,6 +132,7 @@
  "clients": [
   {
    "$id": "17",
+   "kind": "client",
    "name": "TypeChangedFromClient",
    "namespace": "Versioning.TypeChangedFrom",
    "doc": "Test for the `@typeChangedFrom` decorator.",
@@ -305,7 +306,11 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Versioning.TypeChangedFrom"
+   "crossLanguageDefinitionId": "Versioning.TypeChangedFrom",
+   "apiVersions": [
+    "v1",
+    "v2"
+   ]
   }
  ]
 }
