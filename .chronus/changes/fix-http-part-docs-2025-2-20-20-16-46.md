@@ -2,7 +2,7 @@
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
 changeKind: fix
 packages:
-  - "@typespec/http-client-python"
+  - "@typespec/openapi3"
 ---
 
-Always respect namespace from TCGC
+Fix missing application of description on multipart properties

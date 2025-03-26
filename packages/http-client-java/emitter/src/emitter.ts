@@ -59,6 +59,9 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       options["output-dir"] = getNormalizedAbsolutePath(outputPath, undefined);
 
       options.arm = codeModel.arm;
+      if (codeModel.info?.license?.extensions?.header) {
+        options["license-header"] = codeModel.info.license.extensions.header;
+      }
 
       const codeModelFileName = resolvePath(outputPath, "./code-model.yaml");
 

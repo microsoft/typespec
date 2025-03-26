@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
+import { inspect } from "util";
 import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import { Document, isScalar, isSeq } from "yaml";
@@ -152,6 +153,9 @@ async function doEmit(
       [],
       { showOutput: false, showPopup: true },
     );
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "no main tsp file found in the project.",
+    });
     tel.lastStep = "Check main tsp file for emitting";
     return ResultCode.Fail;
   }
@@ -300,11 +304,17 @@ async function doEmit(
           try {
             const npmInstallResult = await npmUtil.npmInstallPackages(installPackages, undefined);
             if (npmInstallResult.exitCode !== 0) {
+              telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+                error: `npm install failed: ${inspect(npmInstallResult)}`,
+              });
               return false;
             } else {
               return true;
             }
           } catch (err: any) {
+            telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+              error: `npm install failed: ${inspect(err)}`,
+            });
             return false;
           }
         },
@@ -331,6 +341,9 @@ async function doEmit(
         showPopup: true,
       },
     );
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "Cannot find TypeSpec CLI.",
+    });
     tel.lastStep = "Resolve TypeSpec CLI";
     return ResultCode.Fail;
   }
@@ -444,6 +457,9 @@ async function doEmit(
             showOutput: true,
             showPopup: true,
           });
+          telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+            emitResult: `Emitting code failed: ${inspect(compileResult)}`,
+          });
           return ResultCode.Fail;
         } else {
           logger.info(`Emitting ${codeInfoStr}...Succeeded`, [], {
@@ -467,6 +483,9 @@ async function doEmit(
             showPopup: true,
           });
         }
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          emitResult: `Emitting code failed: ${inspect(err)}`,
+        });
         return ResultCode.Fail;
       }
     },
