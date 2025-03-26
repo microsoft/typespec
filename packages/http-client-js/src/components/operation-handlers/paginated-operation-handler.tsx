@@ -24,7 +24,7 @@ export const PaginatedOperationHandler: OperationHandler = {
   handle(httpOperation: HttpOperation): Children {
     const clientLibrary = cl.useClientLibrary();
     const client = clientLibrary.getClientForOperation(httpOperation);
-  
+
     if (!client) {
       reportDiagnostic($.program, {
         code: "client-not-found",
@@ -34,40 +34,47 @@ export const PaginatedOperationHandler: OperationHandler = {
     }
     const internalOperationRefkey = ay.refkey(httpOperation.operation, "internal");
     const pagingOperation = $.operation.getPagingOperation(httpOperation.operation)!;
-    
+
     // build response keys
     const responseRefkey = ay.refkey(httpOperation, "http-response");
     const _pageSettings = pagingOperation?.input;
     console.log(_pageSettings);
     const operationRefkey = ay.refkey(httpOperation.operation);
+    // Question here: how to get the refkey for the response type? 
+    // const responseType = getPageResponseTypeRefkey(httpOperation).key;
+    // const pageSettingType = getPageSettingsTypeRefkey(httpOperation).key;
     // build paging return type
-     const namePolicy = ts.useTSNamePolicy();
-    const returnType = `PagedAsyncIterableIterator<Foo,${namePolicy.getName(httpOperation.operation.name + "PageResponse", "interface")}, ${namePolicy.getName(httpOperation.operation.name + "PageSettings", "interface")}>`;
-     const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
-     const signatureParams: Record<string, ts.ParameterDescriptor | ay.Children> = {
-    client: { type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
-    ...getOperationParameters(httpOperation),
-  };
+    const namePolicy = ts.useTSNamePolicy();
+    // page response type
+    const responseType = namePolicy.getName(httpOperation.operation.name + "PageResponse", "interface");
+    // page settings type
+    const pageSettingType = namePolicy.getName(httpOperation.operation.name + "PageSettings", "interface");
+    const returnType = `PagedAsyncIterableIterator<Foo,${responseType}, ${pageSettingType}>`;
+    const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
+    const signatureParams: Record<string, ts.ParameterDescriptor | ay.Children> = {
+      client: { type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
+      ...getOperationParameters(httpOperation),
+    };
     return (
       <ay.List>
         <OperationOptionsDeclaration operation={httpOperation} />
         <PageSettingsDeclaration operation={httpOperation} pagingOperation={pagingOperation} />
         <PageResponseDeclaration operation={httpOperation} pagingOperation={pagingOperation} />
-        <FunctionDeclaration 
-          export 
-          async 
-          name={httpOperation.operation.name} 
+        <FunctionDeclaration
+          export
+          async
+          name={httpOperation.operation.name}
           returnType={returnType}
           refkey={operationRefkey}
           parametersMode="replace"
           parameters={signatureParams}
         >
-        <ay.List hardline>
-          <HttpRequest httpOperation={httpOperation} responseRefkey={responseRefkey} />
-          <HttpResponse httpOperation={httpOperation} responseRefkey={responseRefkey} />
-        </ay.List>
+          <ay.List hardline>
+            <HttpRequest httpOperation={httpOperation} responseRefkey={responseRefkey} />
+            <HttpResponse httpOperation={httpOperation} responseRefkey={responseRefkey} />
+          </ay.List>
         </FunctionDeclaration>
-        <ClientOperation internal httpOperation={httpOperation} refkey={internalOperationRefkey}/>
+        <ClientOperation internal httpOperation={httpOperation} refkey={internalOperationRefkey} />
       </ay.List>
     );
   }
