@@ -98,7 +98,6 @@ function emitLroPagingMethod<TServiceOperation extends SdkServiceOperation>(
   }
 }
 
-
 function emitMethodParameter(
   context: PythonSdkContext,
   parameter: SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter,
