@@ -40,7 +40,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@pnpm/find-workspace-packages": "^6.0.9",
+    "@pnpm/workspace.find-packages": "^1000.0.17",
     "cross-spawn": "^7.0.6",
     "cspell": "^8.17.5",
     "semver": "^7.7.1",

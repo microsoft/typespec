@@ -1,4 +1,3 @@
-import { formatLog } from "./logger/console-sink.js";
 import type { Program } from "./program.js";
 import { createSourceFile } from "./source-file.js";
 import {
@@ -33,26 +32,8 @@ export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSi
   }
 }
 
-export interface FormatDiagnosticOptions {
-  readonly pretty?: boolean;
-  readonly pathRelativeTo?: string;
-}
-
-export function formatDiagnostic(diagnostic: Diagnostic, options: FormatDiagnosticOptions = {}) {
-  return formatLog(
-    {
-      code: diagnostic.code,
-      level: diagnostic.severity,
-      message: diagnostic.message,
-      url: diagnostic.url,
-      sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
-      related: getRelatedLocations(diagnostic),
-    },
-    { pretty: options?.pretty ?? false, pathRelativeTo: options?.pathRelativeTo },
-  );
-}
-
-function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocation[] {
+/** @internal */
+export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocation[] {
   return getDiagnosticTemplateInstantitationTrace(diagnostic.target).map((x) => {
     return {
       message: "occurred while instantiating template",
