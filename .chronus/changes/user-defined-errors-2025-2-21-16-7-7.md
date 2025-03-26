@@ -4,11 +4,6 @@ packages:
   - "@typespec/http-server-csharp"
 ---
 
----
-changeKind: feature
-packages:
-  - "@typespec/http-server-csharp"
----
 
 This feature introduces changes to how error models (those using the `@error` decorator) are handled. Error models will now be represented as classes that extend exceptions, and when one of these custom-defined exceptions is thrown, it will produce HTTP errors as a result.
 
