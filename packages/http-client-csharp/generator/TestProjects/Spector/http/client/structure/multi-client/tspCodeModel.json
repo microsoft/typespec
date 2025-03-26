@@ -113,6 +113,7 @@
  "clients": [
   {
    "$id": "14",
+   "kind": "client",
    "name": "ClientAClient",
    "namespace": "Client.Structure.MultiClient",
    "operations": [
@@ -232,10 +233,12 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Client.Structure.MultiClient.ClientA"
+   "crossLanguageDefinitionId": "Client.Structure.MultiClient.ClientA",
+   "apiVersions": []
   },
   {
    "$id": "24",
+   "kind": "client",
    "name": "ClientBClient",
    "namespace": "Client.Structure.MultiClient",
    "operations": [
@@ -355,7 +358,8 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Client.Structure.MultiClient.ClientB"
+   "crossLanguageDefinitionId": "Client.Structure.MultiClient.ClientB",
+   "apiVersions": []
   }
  ]
 }
