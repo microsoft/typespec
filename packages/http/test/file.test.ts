@@ -211,7 +211,7 @@ it("exact payload upload and download", async () => {
 it("intersect payload upload and download", async () => {
   const [
     {
-      parameters: { parameters: requestParameters, body: requestBody },
+      parameters: { body: requestBody },
       responses: [
         {
           responses: [{ body: responseBody }],
@@ -219,14 +219,12 @@ it("intersect payload upload and download", async () => {
       ],
     },
   ] = await getOperations(`
-      op example(...Http.File, @header xFoo: string): Http.File & OkResponse;
+      op example(...Http.File): Http.File & OkResponse;
     `);
 
   strictEqual(requestBody?.bodyKind, "file");
   expect(requestBody?.property).toStrictEqual(undefined);
   deepStrictEqual(requestBody?.contentTypes, ["*/*"]);
-  const requestXFoo = requestParameters.find((p) => p.type === "header" && p.name === "x-foo");
-  ok(requestXFoo);
 
   strictEqual(responseBody?.bodyKind, "file");
   expect(responseBody?.property).toStrictEqual(undefined);
@@ -493,7 +491,7 @@ describe("custom file model", () => {
   it("intersected payload upload and download", async () => {
     const [
       {
-        parameters: { parameters: requestParameters, body: requestBody },
+        parameters: { body: requestBody },
         responses: [
           {
             responses: [{ body: responseBody }],
@@ -502,15 +500,13 @@ describe("custom file model", () => {
       },
     ] = await getOperations(`
         ${makeFileModel()}
-        op example(...SpecFile, @header xFoo: string): SpecFile &  OkResponse;
+        op example(...SpecFile): SpecFile & OkResponse;
       `);
 
     strictEqual(requestBody?.bodyKind, "file");
     expect(requestBody?.property).toStrictEqual(undefined);
     deepStrictEqual(requestBody?.contentTypes, ["application/json", "application/yaml"]);
     ok(requestBody?.isText);
-    const requestXFoo = requestParameters.find((p) => p.type === "header" && p.name === "x-foo");
-    ok(requestXFoo);
 
     strictEqual(responseBody?.bodyKind, "file");
     expect(responseBody?.property).toStrictEqual(undefined);
@@ -827,24 +823,6 @@ describe("structured files", () => {
           "HTTP File body is serialized as a structured model instead of being treated as the contents of a file because it is a variant of a union. Declare a separate operation using `@sharedRoute` that has only the File model as the body type to treat it as a file, or suppress this warning if you intend to serialize the File as a model.",
       },
     ]);
-  });
-
-  it("does not recognize a File in an intersection as a file body", async () => {
-    const {
-      operations: [
-        {
-          responses: [
-            {
-              responses: [{ body: responseBody }],
-            },
-          ],
-        },
-      ],
-    } = await compileOperationsFull(`
-      op example(): Http.File & OkResponse;
-    `);
-
-    strictEqual(responseBody?.bodyKind, "single");
   });
 
   it("does not recognize composite spreads as a file body", async () => {

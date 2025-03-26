@@ -49,7 +49,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
   it("supports Http.File when intersected", async () => {
     const rawBinarySchema = getRawBinarySchema("*/*");
     const result = await openApiFor(
-      "op example(...Http.File, @header xFoo: string): Http.File & Http.OkResponse & { @header xBar: string; };",
+      "op example(...Http.File): Http.File & Http.OkResponse & { @header xBar: string; };",
     );
 
     const operation = result.paths["/"].post;
@@ -57,12 +57,6 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
     const response = operation.responses["200"];
 
     // Verify headers are correctly extracted.
-    expect(operation.parameters[0]).toStrictEqual({
-      in: "header",
-      name: "x-foo",
-      schema: { type: "string" },
-      required: true,
-    });
     expect(response.headers).toStrictEqual({
       "x-bar": { schema: { type: "string" }, required: true },
     });

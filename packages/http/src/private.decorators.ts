@@ -145,32 +145,33 @@ export function isOrExtendsHttpFile(program: Program, type: Type) {
     return false;
   }
 
-  // The `contents` property is required for a model to be considered an `Http.File`.
-  // Check if the model, or its base models, have a `contents` property,
-  // then check if the `contents` property is sourced from an `Http.File`.
-  let contentsProperty: ModelProperty | undefined = type.properties.get("contents");
-  let currentModel = type;
-  while (!contentsProperty && currentModel.baseModel) {
-    currentModel = currentModel.baseModel;
-    contentsProperty = currentModel.properties.get("contents");
-  }
-
-  if (!contentsProperty) {
-    return false;
-  }
-
-  return isSourcedFromHttpFile(program, contentsProperty);
-}
-
-function isSourcedFromHttpFile(program: Program, property: ModelProperty) {
-  const isFile = property.model ? isHttpFile(program, property.model) : false;
-
-  if (isFile) {
+  if (modelIsHttpFile(program, type)) {
     return true;
   }
 
-  if (property.sourceProperty) {
-    return isSourcedFromHttpFile(program, property.sourceProperty);
+  if (!type.sourceModels.length) {
+    return false;
+  }
+
+  for (const sourceModel of type.sourceModels) {
+    if (sourceModel.usage !== "intersection") continue;
+
+    if (modelIsHttpFile(program, sourceModel.model)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function modelIsHttpFile(program: Program, model: Model) {
+  let currentModel: Model | undefined = model;
+  while (currentModel) {
+    if (isHttpFile(program, currentModel)) {
+      return true;
+    }
+
+    currentModel = currentModel.baseModel;
   }
   return false;
 }
@@ -198,6 +199,11 @@ export function getHttpFileModel(
   const contentType = getProperty(type, "contentType")!;
   const filename = getProperty(type, "filename")!;
   const contents = getProperty(type, "contents")! as HttpFileModel["contents"];
+
+  // All properties are required for an `Http.File` model
+  if (!contentType || !filename || !contents) {
+    return undefined;
+  }
 
   return { contents, contentType, filename, type };
 }
