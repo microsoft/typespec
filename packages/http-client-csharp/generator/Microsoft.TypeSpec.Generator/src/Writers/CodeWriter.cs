@@ -874,7 +874,7 @@ namespace Microsoft.TypeSpec.Generator
                 .ThenBy(ns => ns, StringComparer.Ordinal);
             if (header)
             {
-                string licenseString = CodeModelGenerator.Instance.LicenseString;
+                string licenseString = CodeModelGenerator.Instance.LicenseHeader;
                 if (!string.IsNullOrEmpty(licenseString))
                 {
                     builder.Append(licenseString);

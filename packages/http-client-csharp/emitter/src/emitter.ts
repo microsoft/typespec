@@ -100,6 +100,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         "unreferenced-types-handling": options["unreferenced-types-handling"],
         "disable-xml-docs":
           options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
+        license: sdkContext.license,
       };
 
       //emit configuration.json
