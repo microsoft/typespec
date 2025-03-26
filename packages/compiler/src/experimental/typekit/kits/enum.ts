@@ -4,6 +4,7 @@ import { type UnionKit } from "./union.js";
 
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
+import { reportTypekitDiagnostic } from "../lib.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
 /**
@@ -95,8 +96,13 @@ defineKit<TypekitExtension>({
 
     createFromUnion(type) {
       if (!type.name) {
-        throw new Error("Cannot create an enum from an anonymous union.");
+        reportTypekitDiagnostic(this.program, {
+          code: "enum-from-anonymous-union",
+          target: type,
+        });
       }
+
+      const name = type.name ?? "AnonymousEnum";
 
       const enumMembers: EnumMember[] = [];
       for (const variant of type.variants.values()) {
@@ -104,12 +110,16 @@ defineKit<TypekitExtension>({
           (variant.name && typeof variant.name === "symbol") ||
           (!this.literal.isString(variant.type) && !this.literal.isNumeric(variant.type))
         ) {
+          reportTypekitDiagnostic(this.program, {
+            code: "union-variant-not-convertible-to-enum",
+            target: type,
+          });
           continue;
         }
         enumMembers.push(this.enumMember.create({ name: variant.name, value: variant.type.value }));
       }
 
-      return this.enum.create({ name: type.name, members: enumMembers });
+      return this.enum.create({ name, members: enumMembers });
     },
   },
 });

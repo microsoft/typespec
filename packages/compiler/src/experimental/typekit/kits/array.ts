@@ -1,6 +1,7 @@
 import { isArrayModelType } from "../../../core/type-utils.js";
 import { Model, Type } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
+import { reportTypekitDiagnostic } from "../lib.js";
 
 /**
  * @experimental
@@ -38,7 +39,12 @@ defineKit<TypekitExtension>({
     },
     getElementType(type) {
       if (!this.array.is(type)) {
-        throw new Error("Type is not an array.");
+        reportTypekitDiagnostic(this.program, {
+          code: "model-not-array",
+          target: type,
+          format: { arrayTypekit: "$.array.getElementType(type)" },
+        });
+        return type;
       }
       return type.indexer!.value;
     },
