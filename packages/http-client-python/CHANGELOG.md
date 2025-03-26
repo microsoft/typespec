@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.8.2
+
+### Bug Fixes
+
+- [#5649](https://github.com/microsoft/typespec/pull/5649) Always respect namespace from TCGC
+
+
 ## 0.8.1
 
 ### Other Changes

@@ -10,6 +10,8 @@ namespace _Type.Property.AdditionalProperties
     {
         public WidgetData1(DateTimeOffset start) => throw null;
 
+        public WidgetData1Kind Kind => throw null;
+
         public DateTimeOffset Start
         {
             get => throw null;

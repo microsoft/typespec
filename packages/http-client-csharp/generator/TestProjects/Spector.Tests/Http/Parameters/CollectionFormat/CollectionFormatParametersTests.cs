@@ -43,14 +43,6 @@ namespace TestProjects.Spector.Tests.Http.Parameters.CollectionFormat
         });
 
         [SpectorTest]
-        public Task QueryTsv() => Test(async (host) =>
-        {
-            List<string> colors = ["blue", "red", "green"];
-            var response = await new CollectionFormatClient(host, null).GetQueryClient().TsvAsync(colors);
-            Assert.AreEqual(204, response.GetRawResponse().Status);
-        });
-
-        [SpectorTest]
         public Task QueryPipes() => Test(async (host) =>
         {
             List<string> colors = ["blue", "red", "green"];

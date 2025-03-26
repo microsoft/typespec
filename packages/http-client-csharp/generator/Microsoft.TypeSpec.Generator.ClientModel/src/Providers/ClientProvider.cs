@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -36,6 +36,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly InputClient _inputClient;
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
+        /// <summary>
+        /// This field is not one of the fields in this client, but the field in my parent client to get myself.
+        /// </summary>
         private readonly FieldProvider? _clientCachingField;
 
         private readonly ApiKeyFields? _apiKeyAuthFields;
@@ -597,19 +600,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<ClientProvider> GetSubClients()
         {
-            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients;
-            var subClients = new List<ClientProvider>(inputClients.Count);
+            var subClients = new List<ClientProvider>(_inputClient.Children.Count);
 
-            foreach (var client in inputClients)
+            foreach (var client in _inputClient.Children)
             {
-                // add direct child clients
-                if (client.Parent != null && client.Parent == _inputClient.Key)
+                var subClient = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+                if (subClient != null)
                 {
-                    var subClient = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
-                    if (subClient != null)
-                    {
-                        subClients.Add(subClient);
-                    }
+                    subClients.Add(subClient);
                 }
             }
 

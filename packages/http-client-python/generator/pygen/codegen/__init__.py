@@ -40,7 +40,6 @@ class OptionsRetriever:
         "generate-test": False,
         "from-typespec": False,
         "emit-cross-language-definition-file": False,
-        "enable-typespec-namespace": False,
     }
 
     @property
@@ -317,7 +316,6 @@ class CodeGenerator(Plugin):
             "flavor",
             "company_name",
             "emit_cross_language_definition_file",
-            "enable_typespec_namespace",
         ]
         return {f: getattr(self.options_retriever, f) for f in flags}
 

@@ -578,7 +578,7 @@ function createOAPIEmitter(
       const reference = sharedParams[0];
 
       const inAllOps = ops.length === sharedParams.length;
-      const sameLocations = sharedParams.every((p) => p.options.type === reference.options.type);
+      const sameLocations = sharedParams.every((p) => p.kind === reference.kind);
       const sameOptionality = sharedParams.every(
         (p) => p.property.optional === reference.property.optional,
       );
@@ -1168,6 +1168,14 @@ function createOAPIEmitter(
           items: schema,
         };
       }
+
+      if (part.property) {
+        const doc = getDoc(program, part.property);
+        if (doc) {
+          schema = { ...schema, description: doc };
+        }
+      }
+
       properties[partName] = schema;
 
       const encoding = resolveEncodingForMultipartPart(part, visibility, schema);
@@ -1260,7 +1268,7 @@ function createOAPIEmitter(
   ): OpenAPI3Parameter {
     const param: OpenAPI3Parameter = {
       name: httpProperty.options.name,
-      in: httpProperty.options.type,
+      in: httpProperty.kind,
       ...getOpenAPIParameterBase(httpProperty.property, visibility),
     } as any;
 

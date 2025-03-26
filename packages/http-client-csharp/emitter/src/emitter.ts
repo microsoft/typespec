@@ -68,11 +68,12 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       ...(await createSdkContext(
         context,
         "@typespec/http-client-csharp",
-        defaultSDKContextOptions,
+        options["sdk-context-options"] ?? defaultSDKContextOptions,
       )),
       logger: logger,
       __typeCache: {
         crossLanguageDefinitionIds: new Map(),
+        clients: new Map(),
         types: new Map(),
         models: new Map(),
         enums: new Map(),

@@ -275,9 +275,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            InputClient subClient = InputFactory.Client("custom", parent: inputClient.Name);
+            InputClient subClient = InputFactory.Client("custom", parent: inputClient);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                clients: () => [inputClient, subClient],
+                clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // Find the sub-client provider
@@ -302,9 +302,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            InputClient subClient = InputFactory.Client("dog", operations: [], parameters: [], parent: inputClient.Name);
+            InputClient subClient = InputFactory.Client("dog", operations: [], parameters: [], parent: inputClient);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                clients: () => [inputClient, subClient],
+                clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             // find the parent client provider

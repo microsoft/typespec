@@ -98,7 +98,7 @@ const recordNonDiscriminatedUnion3Body = {
     end: "2021-01-02T00:00:00Z",
   },
 };
-function createServerTests(url: string, value: any) {
+function createServerTests(url: string, value: unknown) {
   return {
     get: passOnSuccess({
       uri: url,
@@ -114,7 +114,7 @@ function createServerTests(url: string, value: any) {
       uri: url,
       method: `put`,
       request: {
-        body: value,
+        body: json(value),
       },
       response: {
         status: 204,
