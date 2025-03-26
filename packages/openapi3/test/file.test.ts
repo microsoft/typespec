@@ -121,6 +121,39 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
     },
   );
 
+  it("supports extended Http.File $contents contents (intersection)", async () => {
+    const jsonRawBinarySchema = getRawBinarySchema("application/json");
+    const yamlRawBinarySchema = getRawBinarySchema("application/yaml");
+
+    const result = await openApiFor(`
+       model SpecFile extends Http.File<Contents = bytes> {
+        contentType: "application/json" | "application/yaml";
+        filename: string;
+      }
+      op example(...SpecFile, @header xFoo: string): SpecFile & OkResponse & { @header xBar: string; };
+    `);
+
+    const operation = result.paths["/"].post;
+    const requestBody = operation.requestBody.content;
+    const response = operation.responses["200"];
+
+    // Verify headers are correctly extracted.
+    expect(operation.parameters[0]).toStrictEqual({
+      in: "header",
+      name: "x-foo",
+      schema: { type: "string" },
+      required: true,
+    });
+    expect(response.headers).toStrictEqual({
+      "x-bar": { schema: { type: "string" }, required: true },
+    });
+
+    expect(requestBody["application/json"]).toStrictEqual({ schema: jsonRawBinarySchema });
+    expect(requestBody["application/yaml"]).toStrictEqual({ schema: yamlRawBinarySchema });
+    expect(response.content["application/json"]).toStrictEqual({ schema: jsonRawBinarySchema });
+    expect(response.content["application/yaml"]).toStrictEqual({ schema: yamlRawBinarySchema });
+  });
+
   it("allows interior metadata using @bodyRoot on extended Http.File", async () => {
     const result = await openApiFor(`
         model SpecFile extends Http.File {
