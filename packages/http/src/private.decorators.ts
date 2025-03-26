@@ -145,16 +145,33 @@ export function isOrExtendsHttpFile(program: Program, type: Type) {
     return false;
   }
 
-  let current: Model | undefined = type;
-
-  while (current) {
-    if (isHttpFile(program, current)) {
-      return true;
-    }
-
-    current = current.baseModel;
+  // The `contents` property is required for a model to be considered an `Http.File`.
+  // Check if the model, or its base models, have a `contents` property,
+  // then check if the `contents` property is sourced from an `Http.File`.
+  let contentsProperty: ModelProperty | undefined = type.properties.get("contents");
+  let currentModel = type;
+  while (!contentsProperty && currentModel.baseModel) {
+    currentModel = currentModel.baseModel;
+    contentsProperty = currentModel.properties.get("contents");
   }
 
+  if (!contentsProperty) {
+    return false;
+  }
+
+  return isSourcedFromHttpFile(program, contentsProperty);
+}
+
+function isSourcedFromHttpFile(program: Program, property: ModelProperty) {
+  const isHttp = property.model ? isHttpFile(program, property.model) : undefined;
+
+  if (isHttp) {
+    return true;
+  }
+
+  if (property.sourceProperty) {
+    return isSourcedFromHttpFile(program, property.sourceProperty);
+  }
   return false;
 }
 

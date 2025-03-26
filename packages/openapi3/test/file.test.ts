@@ -46,6 +46,32 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
     expect(response["*/*"]).toStrictEqual({ schema: rawBinarySchema });
   });
 
+  it("supports Http.File when intersected", async () => {
+    const rawBinarySchema = getRawBinarySchema("*/*");
+    const result = await openApiFor(
+      "op example(...Http.File, @header xFoo: string): Http.File & Http.OkResponse & { @header xBar: string; };",
+    );
+
+    const operation = result.paths["/"].post;
+    const requestBody = operation.requestBody.content;
+    const response = operation.responses["200"];
+
+    // Verify headers are correctly extracted.
+    expect(operation.parameters[0]).toStrictEqual({
+      in: "header",
+      name: "x-foo",
+      schema: { type: "string" },
+      required: true,
+    });
+    expect(response.headers).toStrictEqual({
+      "x-bar": { schema: { type: "string" }, required: true },
+    });
+
+    // Verify bodies are still raw binary (File)
+    expect(requestBody["*/*"]).toStrictEqual({ schema: rawBinarySchema });
+    expect(response.content["*/*"]).toStrictEqual({ schema: rawBinarySchema });
+  });
+
   it.each([
     { name: "explicit", tsOperation: "op example(...SpecFile): SpecFile;", contents: "string" },
     { name: "explicit", tsOperation: "op example(...SpecFile): SpecFile;", contents: "bytes" },
@@ -254,6 +280,51 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
       });
     });
 
+    it("form-data upload and download (intersection)", async () => {
+      const result = await openApiFor(
+        "op example(@multipartBody fields: { file: HttpPart<File & { @header xFoo: string }> }): { @multipartBody fields: { file: HttpPart<File & { @header xBar: string }> } };",
+      );
+
+      // `contentMediaType` is omitted for Open API 3.1 because `contentType` is specified in `encoding`.
+      const rawBinarySchema = getRawBinarySchema();
+
+      const operation = result.paths["/"].post;
+      const requestBody = operation.requestBody.content;
+      const response = operation.responses["200"].content;
+
+      expect(requestBody["multipart/form-data"].schema).toStrictEqual({
+        type: "object",
+        properties: {
+          file: rawBinarySchema,
+        },
+        required: ["file"],
+      });
+      expect(requestBody["multipart/form-data"].encoding).toStrictEqual({
+        file: {
+          contentType: "*/*",
+          headers: {
+            "x-foo": { schema: { type: "string" }, required: true },
+          },
+        },
+      });
+
+      expect(response["multipart/form-data"].schema).toStrictEqual({
+        type: "object",
+        properties: {
+          file: rawBinarySchema,
+        },
+        required: ["file"],
+      });
+      expect(response["multipart/form-data"].encoding).toStrictEqual({
+        file: {
+          contentType: "*/*",
+          headers: {
+            "x-bar": { schema: { type: "string" }, required: true },
+          },
+        },
+      });
+    });
+
     it.each([
       {
         name: "exact",
@@ -337,5 +408,56 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
         });
       },
     );
+
+    it("supports extended Http.File $contents contents (intersection)", async () => {
+      const result = await openApiFor(`
+        model SpecFile extends Http.File<Contents = bytes> {
+          contentType: "application/json" | "application/yaml";
+          @header("x-filename") filename: string;
+        }
+        op example(@multipartBody fields: { file: HttpPart<SpecFile & { @header xFoo: string }> }): { @multipartBody fields: { file: HttpPart<SpecFile & { @header xBar: string }> }};  
+      `);
+
+      // `contentMediaType` is omitted for Open API 3.1 because `contentType` is specified in `encoding`.
+      const rawBinarySchema = getRawBinarySchema();
+
+      const operation = result.paths["/"].post;
+      const requestBody = operation.requestBody.content;
+      const response = operation.responses["200"].content;
+
+      expect(requestBody["multipart/form-data"].schema).toStrictEqual({
+        type: "object",
+        properties: {
+          file: rawBinarySchema,
+        },
+        required: ["file"],
+      });
+      expect(requestBody["multipart/form-data"].encoding).toStrictEqual({
+        file: {
+          contentType: "application/json, application/yaml",
+          headers: {
+            "x-filename": { schema: { type: "string" }, required: true },
+            "x-foo": { schema: { type: "string" }, required: true },
+          },
+        },
+      });
+
+      expect(response["multipart/form-data"].schema).toStrictEqual({
+        type: "object",
+        properties: {
+          file: rawBinarySchema,
+        },
+        required: ["file"],
+      });
+      expect(response["multipart/form-data"].encoding).toStrictEqual({
+        file: {
+          contentType: "application/json, application/yaml",
+          headers: {
+            "x-filename": { schema: { type: "string" }, required: true },
+            "x-bar": { schema: { type: "string" }, required: true },
+          },
+        },
+      });
+    });
   });
 });
