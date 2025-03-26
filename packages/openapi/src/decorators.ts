@@ -39,6 +39,7 @@ export const $operationId: OperationIdDecorator = (
   entity: Operation,
   opId: string,
 ) => {
+  console.log("Op id4", opId);
   context.program.stateMap(operationIdsKey).set(entity, opId);
 };
 
