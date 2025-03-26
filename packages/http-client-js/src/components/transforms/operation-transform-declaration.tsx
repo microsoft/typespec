@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import * as ef from "@typespec/emitter-framework/typescript";
-import { HttpOperationBody, HttpOperationFileBody } from "@typespec/http";
+import { HttpOperationBody } from "@typespec/http";
 import { ClientOperation } from "@typespec/http-client";
 import { JsonTransform } from "./json/json-transform.jsx";
 export interface TransformDeclarationProps {
