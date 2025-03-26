@@ -52,7 +52,14 @@ const builtInTemplates: Record<string, InitTemplate> = {
         options: {
           "emitter-output-dir": "{output-dir}/server/aspnet",
         },
-        message: `run "npx hscs scaffold . --use-swaggerui --overwrite" to produce a runnable ASP.Net service project\n If you do not have npm installed run "tsp compile . --option @typespec/http-server-csharp.emit-mocks=mocks-and-project-files --option @typespec/http-server-csharp.use-swaggerui=true --option @typespec/http-server-csharp.overwrite=true ==trace http-server-csharp"`,
+        message: `To create an executable service project for your TypeSpec, run:
+         "npx hscs scaffold . --use-swaggerui --overwrite"
+
+         If you do not have npm installed run:
+          "tsp compile . --option @typespec/http-server-csharp.emit-mocks=mocks-and-project-files --option @typespec/http-server-csharp.use-swaggerui=true --option @typespec/http-server-csharp.overwrite=true --trace http-server-csharp"
+          
+         Generated ASP.Net services require dotnet 9:
+         https://dotnet.microsoft.com/download `,
       },
       "@typespec/http-server-js": {
         label: "JavaScript server stubs",
