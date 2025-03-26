@@ -51,7 +51,7 @@ function Get-TspCommand {
         $command += " --option @typespec/http-client-csharp.api-version=$apiVersion"
     }
     
-    # Default regenerate the csproj to reflect updates to NewProjectScaffolding 
+    # Regenerate the csproj to reflect updates to NewProjectScaffolding, emitter default is to set new-project=false
     if ($isNewProject) {
         $command += " --option @typespec/http-client-csharp.regenerate-csproj=true"
     }
