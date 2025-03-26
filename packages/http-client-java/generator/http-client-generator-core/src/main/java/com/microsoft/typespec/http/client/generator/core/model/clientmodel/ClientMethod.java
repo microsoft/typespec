@@ -511,12 +511,11 @@ public class ClientMethod {
                 ClassType.BINARY_DATA.addImportsTo(imports, false);
                 ClassType.HTTP_REQUEST.addImportsTo(imports, false);
             }
-
             // sync-stack, lro (+ pageable)
-            boolean isLroPageable = (type == ClientMethodType.PagingSyncSinglePage
-                && proxyMethod != null
-                && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()));
             if (settings.isSyncStackEnabled() && settings.isFluent()) {
+                boolean isLroPageable = (type == ClientMethodType.PagingSyncSinglePage
+                    && proxyMethod != null
+                    && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()));
                 if (type == ClientMethodType.LongRunningBeginSync || isLroPageable) {
                     ClassType.SYNC_POLLER_FACTORY.addImportsTo(imports, false);
                 }
