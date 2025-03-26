@@ -1,14 +1,27 @@
-# Handle multiple auth schemas
+# Handles oauth2 authentication scheme
 
-This test validates that the emitter can generate the correct client signature when more than one schema is used.
+This test validates that the emitter can handle a basic authentication scheme correctly, including the client signature and its initialization
 
 ## Typespec
 
-The spec contains 2 Schemas Bearer and ApiKey
+The spec contains a simple service with a Bearer authentication scheme
 
 ```tsp
-@service(#{ title: "Test Service" })
-@useAuth(BearerAuth | ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">)
+@service({
+  title: "Test Service",
+})
+@useAuth(
+  OAuth2Auth<
+    [
+      {
+        type: OAuth2FlowType.clientCredentials,
+        tokenUrl: "https://api.example.com/oauth2/authorize",
+        refreshUrl: "https://api.example.com/oauth2/refresh",
+      }
+    ],
+    ["read"]
+  >
+)
 namespace Test;
 
 @route("/valid")
@@ -20,15 +33,14 @@ op valid(): NoContentResponse;
 
 ### Client
 
-The client signature should include a positional parameter for credential of type KeyCredential. Internally both translate to the same type KeyCredential.
-TODO: Revisit if we need additional types since it will be difficult at runtime to differentiate
+The client signature should include a positional parameter for credential of type KeyCredential. A basic auth token is a key credential that gets put into the Authorization header
 
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
   constructor(
     endpoint: string,
-    credential: BearerTokenCredential | ApiKeyCredential,
+    credential: OAuth2TokenCredential<ClientCredentialsFlow>,
     options?: TestClientOptions,
   ) {
     this.#context = createTestClientContext(endpoint, credential, options);
@@ -46,7 +58,7 @@ The client context should setup the pipeline to use the credential in the Author
 ```ts src/api/testClientContext.ts function createTestClientContext
 export function createTestClientContext(
   endpoint: string,
-  credential: BearerTokenCredential | ApiKeyCredential,
+  credential: OAuth2TokenCredential<ClientCredentialsFlow>,
   options?: TestClientOptions,
 ): TestClientContext {
   const params: Record<string, any> = {
@@ -64,13 +76,15 @@ export function createTestClientContext(
     credential,
     authSchemes: [
       {
-        kind: "http",
-        scheme: "bearer",
-      },
-      {
-        kind: "apiKey",
-        apiKeyLocation: "header",
-        name: "X-API-KEY",
+        kind: "oauth2",
+        flows: [
+          {
+            kind: "clientCredentials",
+            tokenUrl: "https://api.example.com/oauth2/authorize",
+            refreshUrl: "https://api.example.com/oauth2/refresh",
+            scopes: ["read"],
+          },
+        ],
       },
     ],
   });
