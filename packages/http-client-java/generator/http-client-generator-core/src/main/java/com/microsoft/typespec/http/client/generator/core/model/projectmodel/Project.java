@@ -46,6 +46,8 @@ public class Project {
     protected String groupId = AZURE_GROUP_ID;
     protected String artifactId;
     protected String version = "1.0.0-beta.1";
+    protected String licenseName;
+    protected String licenseUrl;
     protected final List<String> pomDependencyIdentifiers = new ArrayList<>();
     protected String sdkRepositoryPath;
 
@@ -366,6 +368,19 @@ public class Project {
 
     public boolean isGenerateSamples() {
         return JavaSettings.getInstance().isGenerateSamples();
+    }
+
+    public void setLicenseInfo(String name, String url) {
+        this.licenseName = name;
+        this.licenseUrl = url;
+    }
+
+    public String getLicenseName() {
+        return licenseName;
+    }
+
+    public String getLicenseUrl() {
+        return licenseUrl;
     }
 
     static List<String> findPomDependencies(Path pomPath) {

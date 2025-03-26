@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.67.1",
+  "version": "0.67.2",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -52,6 +52,9 @@
     "./internals": {
       "types": "./dist/src/internals/index.d.ts",
       "import": "./dist/src/internals/index.js"
+    },
+    "./internals/prettier-formatter": {
+      "import": "./dist/src/internals/prettier-formatter.js"
     }
   },
   "browser": {
