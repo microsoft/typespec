@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@typespec/http-specs": "0.1.0-alpha.15",
+    "@typespec/spec-api": "0.1.0-alpha.2",
+    "@typespec/spector": "0.1.0-alpha.9",
     "@typespec/http-client-java": "file:../../typespec-http-client-java-0.2.0.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
