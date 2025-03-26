@@ -1,6 +1,31 @@
-import assert from "assert";
 import { describe, it } from "vitest";
-import { compileWithEnumExtension, expectDiagnosticEmpty } from "./utils.js";
+import { expectDiagnosticEmpty } from "./utils.js";
+import type { Diagnostic, Program } from "@typespec/compiler";
+import { createTestHost } from "@typespec/compiler/testing";
+import { JsonSchemaTestLibrary } from "../src/testing/index.js";
+
+export async function compileWithEnumExtension(code: string): Promise<{program: Program, diagnostics: readonly Diagnostic[]}> {
+  const host = await createTestHost({
+    libraries: [JsonSchemaTestLibrary],
+  });
+
+  const fullCode = `
+    import "@typespec/json-schema"; 
+    using JsonSchema; 
+    ${code}
+  `;
+
+  host.addTypeSpecFile("main.tsp", fullCode);
+  await host.compileAndDiagnose("main.tsp", {
+    noEmit: true,
+  });
+
+  // At this point diagnostics should be properly populated
+  return {
+    program: host.program,
+    diagnostics: host.program.diagnostics
+  };
+}
 
 describe("json-schema: circular references", () => {
   it("can use enum values in @extension decorator without circular reference errors", async () => {

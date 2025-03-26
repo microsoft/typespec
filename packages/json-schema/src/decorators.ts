@@ -11,9 +11,6 @@ import {
   type Type,
   typespecTypeToJson,
   type Union,
-  type BooleanLiteral,
-  type NumericLiteral,
-  type StringLiteral,
   type EnumMember,
 } from "@typespec/compiler";
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
@@ -39,18 +36,6 @@ import { JsonSchemaStateKeys } from "./lib.js";
 import { createDataDecorator } from "./utils.js";
 
 // Helper functions for type checking
-function isStringLiteral(type: Type): type is StringLiteral {
-  return type.kind === "String";
-}
-
-function isNumericLiteral(type: Type): type is NumericLiteral {
-  return type.kind === "Number";
-}
-
-function isBooleanLiteral(type: Type): type is BooleanLiteral {
-  return type.kind === "Boolean";
-}
-
 function isEnumMember(type: Type): type is EnumMember {
   return type.kind === "EnumMember";
 }
@@ -309,22 +294,12 @@ export function setExtension(program: Program, target: Type, key: string, value:
       key,
       value: typespecTypeToJson(value.properties.get("value")!.type, target)[0],
     });
-  } else if (typeof value === "object" && value !== null && "entityKind" in value && value.entityKind === "Type") {
-    // Handle enum members and other TypeSpec types to avoid circular references
-    const typeValue = value as Type; // Type assertion since we've verified entityKind === "Type"
-    if (isEnumMember(typeValue)) {
-      extensions.push({ key, value: typeValue.value ?? typeValue.name });
-    } else if (isStringLiteral(typeValue)) {
-      extensions.push({ key, value: typeValue.value });
-    } else if (isNumericLiteral(typeValue)) {
-      extensions.push({ key, value: typeValue.value });
-    } else if (isBooleanLiteral(typeValue)) {
-      extensions.push({ key, value: typeValue.value });
-    } else {
-      // For other TypeSpec types, preserve the original value
-      extensions.push({ key, value });
-    }
+  } else if (typeof value === "object" && value !== null && "entityKind" in value && value.entityKind === "Type" && isEnumMember(value as Type)) {
+    // Special handling just for enum members to avoid circular references
+    const enumMember = value as EnumMember;
+    extensions.push({ key, value: enumMember.value ?? enumMember.name });
   } else {
+    // For all other values, preserve as is
     extensions.push({ key, value });
   }
 }
