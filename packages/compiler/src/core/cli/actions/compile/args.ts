@@ -129,10 +129,14 @@ function resolveCliOptions(args: CompileCliArgs): [
       if (i === optionKeyParts.length - 1) {
         current[part] = optionParts[1];
       } else {
-        current[part] = {};
+        if (!current[part]) {
+          current[part] = {};
+        }
         current = current[part];
       }
     }
   }
+
+  console.log("args options", options.description);
   return [{ options, miscOptions }, diagnostics];
 }

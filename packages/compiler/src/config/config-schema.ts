@@ -40,6 +40,7 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
           default: { type: "string" },
         },
         required: ["default"],
+        additionalProperties: false,
       },
     },
 
