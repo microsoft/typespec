@@ -269,9 +269,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 ["application/json"]);
         }
 
-        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null, string? crossLanguageDefinitionId = null)
+        private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
+
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null)
         {
-            return new InputClient(
+            // when this client has parent, we add the constructed client into the `children` list of the parent
+            var clientChildren = new List<InputClient>();
+            var client = new InputClient(
                 name,
                 clientNamespace,
                 crossLanguageDefinitionId ?? $"{clientNamespace}.{name}",
@@ -279,7 +283,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 doc ?? $"{name} description",
                 operations is null ? [] : [.. operations],
                 parameters is null ? [] : [.. parameters],
-                parent);
+                parent,
+                clientChildren);
+            _childClientsCache[client] = clientChildren;
+            // when we have a parent, we need to find the children list of this parent client and update accordingly.
+            if (parent != null && _childClientsCache.TryGetValue(parent, out var children))
+            {
+                children.Add(client);
+            }
+            return client;
         }
     }
 }

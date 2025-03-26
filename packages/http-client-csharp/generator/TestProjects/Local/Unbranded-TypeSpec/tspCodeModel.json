@@ -2408,6 +2408,7 @@
  "clients": [
   {
    "$id": "308",
+   "kind": "client",
    "name": "UnbrandedTypeSpecClient",
    "namespace": "UnbrandedTypeSpec",
    "doc": "This is a sample typespec project.",
@@ -4502,7 +4503,11 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "UnbrandedTypeSpec"
+   "crossLanguageDefinitionId": "UnbrandedTypeSpec",
+   "apiVersions": [
+    "2024-07-16-preview",
+    "2024-08-16-preview"
+   ]
   }
  ],
  "auth": {
