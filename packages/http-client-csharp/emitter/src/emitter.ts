@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, SdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import {
+  createSdkContext,
+  SdkContext,
+  UsageFlags,
+} from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -147,12 +151,17 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   }
 }
 
-export function createConfiguration(options:CSharpEmitterOptions, namespace: string, sdkContext: SdkContext): Configuration {
+export function createConfiguration(
+  options: CSharpEmitterOptions,
+  namespace: string,
+  sdkContext: SdkContext,
+): Configuration {
   return {
     "output-folder": ".",
     "package-name": options["package-name"] ?? namespace,
     "unreferenced-types-handling": options["unreferenced-types-handling"],
-    "disable-xml-docs": options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
+    "disable-xml-docs":
+      options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
     license: sdkContext.sdkPackage.licenseInfo,
   };
 }

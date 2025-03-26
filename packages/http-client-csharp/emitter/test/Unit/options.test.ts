@@ -1,63 +1,70 @@
 vi.resetModules();
 
 import { EmitContext, Program } from "@typespec/compiler";
-import { CSharpEmitterOptions } from "../../src/options.js";
-import { beforeEach, describe, it, vi } from "vitest";
-import { createCSharpSdkContext, createEmitterContext, createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
-import { createConfiguration } from "../../src/emitter.js";
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it, vi } from "vitest";
+import { createConfiguration } from "../../src/emitter.js";
+import { CSharpEmitterOptions } from "../../src/options.js";
+import {
+  createCSharpSdkContext,
+  createEmitterContext,
+  createEmitterTestHost,
+  typeSpecCompile,
+} from "./utils/test-util.js";
 
 describe("Test license info", () => {
-    let program: Program;
-  
-    beforeEach(async () => { 
-      let runner = await createEmitterTestHost();
-      program = await typeSpecCompile(
-        `
-        `,
-        runner
-      );
-    });
-    
-    it("should set licenseInfo into config", async () => {
-      vi.spyOn(JSON, "stringify").mockImplementation(() => "mocked JSON");
-      const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
-        license: {
-          name: "Foo license",
-          company: "Microsoft",
-          link: "https://example.com",
-          header: "Foo License",
-          description: "license description"
-        }
-      });
-      const sdkContext = await createCSharpSdkContext(context);
-      const config = createConfiguration(context.options, "namespace", sdkContext);
-      ok(config.license);
-      strictEqual(config.license.name, "Foo license"); 
-      strictEqual(config.license.company, "Microsoft");
-      strictEqual(config.license.link, "https://example.com");
-      strictEqual(config.license.header, "Foo License");
-      strictEqual(config.license.description, "license description");
-    });
+  let program: Program;
 
-    it("should set use known description for known license names", async () => {
-      vi.spyOn(JSON, "stringify").mockImplementation(() => "mocked JSON");
-      const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
-        license: {
-          name: "MIT License",
-          company: "Microsoft",
-          link: "https://example.com",
-          header: "MIT License"
-        }
-      });
-      const sdkContext = await createCSharpSdkContext(context);
-      const config = createConfiguration(context.options, "namespace", sdkContext);
-      ok(config.license);
-      strictEqual(config.license.name, "MIT License"); 
-      strictEqual(config.license.company, "Microsoft");
-      strictEqual(config.license.link, "https://example.com");
-      strictEqual(config.license.header, "MIT License");
-      strictEqual(config.license.description, `Copyright (c) Microsoft
+  beforeEach(async () => {
+    const runner = await createEmitterTestHost();
+    program = await typeSpecCompile(
+      `
+        `,
+      runner,
+    );
+  });
+
+  it("should set licenseInfo into config", async () => {
+    vi.spyOn(JSON, "stringify").mockImplementation(() => "mocked JSON");
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
+      license: {
+        name: "Foo license",
+        company: "Microsoft",
+        link: "https://example.com",
+        header: "Foo License",
+        description: "license description",
+      },
+    });
+    const sdkContext = await createCSharpSdkContext(context);
+    const config = createConfiguration(context.options, "namespace", sdkContext);
+    ok(config.license);
+    strictEqual(config.license.name, "Foo license");
+    strictEqual(config.license.company, "Microsoft");
+    strictEqual(config.license.link, "https://example.com");
+    strictEqual(config.license.header, "Foo License");
+    strictEqual(config.license.description, "license description");
+  });
+
+  it("should set use known description for known license names", async () => {
+    vi.spyOn(JSON, "stringify").mockImplementation(() => "mocked JSON");
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
+      license: {
+        name: "MIT License",
+        company: "Microsoft",
+        link: "https://example.com",
+        header: "MIT License",
+      },
+    });
+    const sdkContext = await createCSharpSdkContext(context);
+    const config = createConfiguration(context.options, "namespace", sdkContext);
+    ok(config.license);
+    strictEqual(config.license.name, "MIT License");
+    strictEqual(config.license.company, "Microsoft");
+    strictEqual(config.license.link, "https://example.com");
+    strictEqual(config.license.header, "MIT License");
+    strictEqual(
+      config.license.description,
+      `Copyright (c) Microsoft
 
 
 
@@ -94,27 +101,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 
 THE SOFTWARE.
-`);
-    });
-
-    it("should use description from options for known license", async () => {
-      vi.spyOn(JSON, "stringify").mockImplementation(() => "mocked JSON");
-      const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
-        license: {
-          name: "MIT License",
-          company: "Microsoft",
-          link: "https://example.com",
-          header: "MIT License",
-          description: "custom description"
-        }
-      });
-      const sdkContext = await createCSharpSdkContext(context);
-      const config = createConfiguration(context.options, "namespace", sdkContext);
-      ok(config.license);
-      strictEqual(config.license.name, "MIT License"); 
-      strictEqual(config.license.company, "Microsoft");
-      strictEqual(config.license.link, "https://example.com");
-      strictEqual(config.license.header, "MIT License");
-      strictEqual(config.license.description, "custom description");
-    });
+`,
+    );
   });
+
+  it("should use description from options for known license", async () => {
+    vi.spyOn(JSON, "stringify").mockImplementation(() => "mocked JSON");
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
+      license: {
+        name: "MIT License",
+        company: "Microsoft",
+        link: "https://example.com",
+        header: "MIT License",
+        description: "custom description",
+      },
+    });
+    const sdkContext = await createCSharpSdkContext(context);
+    const config = createConfiguration(context.options, "namespace", sdkContext);
+    ok(config.license);
+    strictEqual(config.license.name, "MIT License");
+    strictEqual(config.license.company, "Microsoft");
+    strictEqual(config.license.link, "https://example.com");
+    strictEqual(config.license.header, "MIT License");
+    strictEqual(config.license.description, "custom description");
+  });
+});

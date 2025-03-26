@@ -110,7 +110,7 @@ export function createEmitterContext(
       "generate-protocol-methods": true,
       "generate-convenience-methods": true,
       "package-name": undefined,
-      "license": undefined
+      license: undefined,
     },
   } as EmitContext<CSharpEmitterOptions>;
 }
