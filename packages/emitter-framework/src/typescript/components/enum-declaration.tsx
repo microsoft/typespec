@@ -3,6 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { reportDiagnostic } from "../../lib.js";
+import { reportTypescriptDiagnostic } from "../lib.js";
 
 export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   name?: string;
@@ -10,18 +11,22 @@ export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "nam
 }
 
 export function EnumDeclaration(props: EnumDeclarationProps) {
+  if (!props.type.name || props.type.name === "") {
+    reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
+  }
+
   let type: Enum;
+
   if ($.union.is(props.type)) {
     if (!$.union.isValidEnum(props.type)) {
-      throw new Error("The provided union type cannot be represented as an enum");
+      reportTypescriptDiagnostic($.program, {
+        code: "invalid-enum-type",
+        target: props.type,
+      });
     }
     type = $.enum.createFromUnion(props.type);
   } else {
     type = props.type;
-  }
-
-  if (!props.type.name || props.type.name === "") {
-    reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
 
   const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name!, "enum");

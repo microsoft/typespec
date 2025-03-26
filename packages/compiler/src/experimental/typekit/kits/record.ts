@@ -1,6 +1,7 @@
 import { isRecordModelType } from "../../../core/type-utils.js";
 import { Model, Type } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
+import { reportTypekitDiagnostic } from "../lib.js";
 
 /**
  * RecordKit provides utilities for working with Record Model types.
@@ -43,7 +44,12 @@ defineKit<TypekitExtension>({
     },
     getElementType(type) {
       if (!this.record.is(type)) {
-        throw new Error("Type is not a record.");
+        reportTypekitDiagnostic(this.program, {
+          code: "model-not-record",
+          target: type,
+          format: { recordTypekit: "$.record.getElementType(type)" },
+        });
+        return type;
       }
       return type.indexer!.value;
     },

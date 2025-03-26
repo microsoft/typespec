@@ -65,12 +65,6 @@ export const $lib = createTypeSpecLibrary({
       description:
         "Key credential in query or cookie is not implemented. Falling back to not sending auth details with the requests",
     },
-    "unsupported-nondiscriminated-union": {
-      severity: "warning",
-      messages: {
-        default: "Unsupported non-discriminated union, skipping deserializer",
-      },
-    },
     "no-name-type": {
       severity: "warning",
       messages: {
@@ -105,6 +99,12 @@ export const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: "Unexpected non-scalar type when trying to extract Scalar data",
+      },
+    },
+    "unknown-scalar": {
+      severity: "error",
+      messages: {
+        default: "Unknown scalar type",
       },
     },
   },

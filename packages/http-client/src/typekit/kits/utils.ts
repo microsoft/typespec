@@ -30,18 +30,10 @@ export function getUsage(type: Type): UsageFlags {
   return UsageFlags.Input | UsageFlags.Output;
 }
 
-export function getName(type: Type): string {
-  switch (type.kind) {
-    case "Model":
-    case "ModelProperty":
-    case "Enum":
-    case "Operation":
-    case "Namespace":
-    case "Interface":
-      return type.name;
-    default:
-      throw new Error(
-        "You shouldn't add getName as a type kit to an object with no name property.",
-      );
-  }
+type TypeWithName = Type & {
+  name: string;
+};
+
+export function getName(type: TypeWithName): string {
+  return type.name;
 }

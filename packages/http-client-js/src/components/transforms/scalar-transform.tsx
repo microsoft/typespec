@@ -273,7 +273,6 @@ const scalarTests: { key: keyof typeof scalarTransformerMap; test: ScalarTest }[
  *
  * @param type - The scalar type to check.
  * @returns The corresponding key from the scalarTransformerMap.
- * @throws Error if the scalar type is unknown.
  */
 function getScalarTransformKey(type: Scalar): keyof typeof scalarTransformerMap {
   for (const { key, test } of scalarTests) {
@@ -281,7 +280,15 @@ function getScalarTransformKey(type: Scalar): keyof typeof scalarTransformerMap 
       return key;
     }
   }
-  throw new Error(`Unknown scalar type: ${type}`);
+
+  reportDiagnostic($.program, {
+    code: "unknown-scalar",
+    target: type,
+    message: `Unknown scalar type: ${type.name}`,
+  });
+
+  return "string";
+  // This return is unreachable.
 }
 
 function passthroughTransformer(itemRef: Refkey | Children) {

@@ -19,7 +19,6 @@ export function TypeExpression(props: TypeExpressionProps) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
     return <Reference refkey={refkey(type)} />;
-    //throw new Error("Reference not implemented");
   }
 
   // TODO: Make sure this is an exhaustive switch, including EnumMember and such

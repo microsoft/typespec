@@ -24,13 +24,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
 
   const refkey = props.refkey ?? getRefkey(props.type);
 
-  let name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
-
-  // TODO: This should probably be a broader check in alloy to guard\
-  // any identifier.
-  if (reservedFunctionKeywords.has(name)) {
-    name = `${name}_`;
-  }
+  const name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
 
   const returnType = props.returnType ?? <TypeExpression type={getReturnType(props.type)} />;
   const allParameters = buildParameterDescriptors(props.type.parameters, {
@@ -84,49 +78,3 @@ function isTypedFunctionParametersProps(
 ): props is TypedFunctionParametersProps {
   return "type" in props;
 }
-
-const reservedFunctionKeywords = new Set([
-  "break",
-  "case",
-  "catch",
-  "class",
-  "const",
-  "continue",
-  "debugger",
-  "default",
-  "delete",
-  "do",
-  "else",
-  "enum",
-  "export",
-  "extends",
-  "finally",
-  "for",
-  "function",
-  "if",
-  "import",
-  "in",
-  "instanceof",
-  "new",
-  "return",
-  "super",
-  "switch",
-  "this",
-  "throw",
-  "try",
-  "typeof",
-  "var",
-  "void",
-  "while",
-  "with",
-  "yield",
-  "let",
-  "static",
-  "implements",
-  "interface",
-  "package",
-  "private",
-  "protected",
-  "public",
-  "await",
-]);
