@@ -371,13 +371,13 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics if property is optional but is not expected in the route", async () => {
+    it("emit diagnostics if property is optional but not using path expansion in the route", async () => {
       const diagnostics = await runner.diagnose(`
         @route("/{myPath}") op test(@path myPath?: string): string;
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@typespec/http/optional-path-param",
+        code: "@typespec/http/optional-needs-path-expansion",
       });
     });
 

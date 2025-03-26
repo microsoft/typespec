@@ -87,7 +87,7 @@ export function resolvePathAndParameters(
     if (parameter?.type === "path" && parameter.param.optional && routeParam.operator !== "/") {
       diagnostics.add(
         createDiagnostic({
-          code: "optional-path-param",
+          code: "optional-needs-path-expansion",
           format: { paramName: parameter.param.name },
           target: parameter.param,
         }),

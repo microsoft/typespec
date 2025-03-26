@@ -209,7 +209,7 @@ export const $path: PathDecorator = (
   setPathOptions(context.program, entity, {
     explode: userOptions.explode,
     allowReserved: userOptions.allowReserved,
-    style: entity.optional ? "path" : userOptions.style,
+    style: userOptions.style,
     name: paramName,
   });
 };

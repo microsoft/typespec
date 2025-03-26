@@ -73,6 +73,16 @@ function getOperationParametersForVerb(
           isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === param.name);
 
         if (!uriParam) {
+          if (param.optional){
+            return {
+              type: "path",
+              name: param.name,
+              explode: false,
+              allowReserved: false,
+              style: operatorToStyle["/"]
+            };
+          }
+          
           return undefined;
         }
 

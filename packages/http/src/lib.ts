@@ -28,10 +28,10 @@ export const $lib = createTypeSpecLibrary({
       },
     },
 
-    "optional-path-param": {
+    "optional-needs-path-expansion": {
       severity: "error",
       messages: {
-        default: paramMessage`Optional path parameter '${"paramName"}' must be declared with a leading '/' inside '{}' in the route path. For example, use '{/${"paramName"}}' instead of '{${"paramName"}}'.`,
+        default: paramMessage`Optional path parameter '${"paramName"}' must be declared with a leading '/' in the corresponding route path variable. For example, use '{/${"paramName"}}' instead of '{${"paramName"}}'.`,
       },
     },
     "missing-server-param": {
