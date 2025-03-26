@@ -23,12 +23,12 @@ export const PreDefinedEmitterPickItems: Record<string, vscode.QuickPickItem> = 
     detail: "Emitting OpenAPI3 Document from TypeSpec files.",
   },
   client: {
-    label: "<PREVIEW> Client Code",
+    label: "Client Code",
     detail:
       "Emitting Client Code from TypeSpec files. Supported languages are .NET, Python, Java, JavaScript.",
   },
   server: {
-    label: "<PREVIEW> Server Stub",
+    label: "Server Stub",
     detail: "Emitting Server Stub from TypeSpec files. Supported languages are .NET, JavaScript.",
   },
 };
