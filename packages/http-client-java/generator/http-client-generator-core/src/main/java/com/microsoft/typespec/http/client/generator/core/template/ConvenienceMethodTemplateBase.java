@@ -24,9 +24,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodTransformationDetail;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
@@ -112,8 +112,8 @@ abstract class ConvenienceMethodTemplateBase {
         methodBlock.line("RequestOptions requestOptions = new RequestOptions();");
 
         // parameter transformation
-        if (!CoreUtils.isNullOrEmpty(convenienceMethod.getMethodTransformationDetails())) {
-            convenienceMethod.getMethodTransformationDetails()
+        if (!CoreUtils.isNullOrEmpty(convenienceMethod.getParameterTransformationDetails())) {
+            convenienceMethod.getParameterTransformationDetails()
                 .forEach(d -> writeParameterTransformation(d, convenienceMethod, protocolMethod, methodBlock,
                     parametersMap));
         }
@@ -233,19 +233,20 @@ abstract class ConvenienceMethodTemplateBase {
 
     abstract void writeThrowException(ClientMethodType methodType, String exceptionExpression, JavaBlock methodBlock);
 
-    private static boolean isGroupByTransformation(MethodTransformationDetail detail) {
+    private static boolean isGroupByTransformation(ParameterTransformationDetails detail) {
         return !CoreUtils.isNullOrEmpty(detail.getParameterMappings())
-            && detail.getParameterMappings().iterator().next().getOutputParameterPropertyName() == null;
+            && detail.getParameterMappings().iterator().next().getOutParameterPropertyName() == null;
     }
 
-    private static void writeParameterTransformation(MethodTransformationDetail detail, ClientMethod convenienceMethod,
-        ClientMethod protocolMethod, JavaBlock methodBlock, Map<MethodParameter, MethodParameter> parametersMap) {
+    private static void writeParameterTransformation(ParameterTransformationDetails detail,
+        ClientMethod convenienceMethod, ClientMethod protocolMethod, JavaBlock methodBlock,
+        Map<MethodParameter, MethodParameter> parametersMap) {
 
         if (isGroupByTransformation(detail)) {
             // grouping
 
             ParameterMapping mapping = detail.getParameterMappings().iterator().next();
-            ClientMethodParameter sourceParameter = mapping.getInputParameter();
+            ClientMethodParameter sourceParameter = mapping.getInParameter();
 
             boolean sourceParameterInMethod = false;
             for (MethodParameter parameter : parametersMap.keySet()) {
@@ -266,7 +267,7 @@ abstract class ConvenienceMethodTemplateBase {
 
                 methodBlock.line(String.format(assignmentExpression, detail.getOutParameter().getClientType(),
                     detail.getOutParameter().getName(), sourceParameter.getName(),
-                    CodeNamer.getModelNamer().modelPropertyGetterName(mapping.getInputParameterProperty())));
+                    CodeNamer.getModelNamer().modelPropertyGetterName(mapping.getInParameterProperty())));
 
                 if (detail.getOutParameter().getRequestParameterLocation() != null) {
                     ClientMethodParameter clientMethodParameter = detail.getOutParameter();
@@ -296,14 +297,14 @@ abstract class ConvenienceMethodTemplateBase {
                 String targetParameterName = targetParameter.getName();
                 String targetParameterObjectName = targetParameterName + "Obj";
                 for (ParameterMapping mapping : detail.getParameterMappings()) {
-                    String parameterName = mapping.getInputParameter().getName();
+                    String parameterName = mapping.getInParameter().getName();
 
                     String inputPath = parameterName;
-                    boolean propertyRequired = mapping.getInputParameter().isRequired();
-                    if (mapping.getInputParameterProperty() != null) {
-                        inputPath = String.format("%s.%s()", mapping.getInputParameter().getName(),
-                            CodeNamer.getModelNamer().modelPropertyGetterName(mapping.getInputParameterProperty()));
-                        propertyRequired = mapping.getInputParameterProperty().isRequired();
+                    boolean propertyRequired = mapping.getInParameter().isRequired();
+                    if (mapping.getInParameterProperty() != null) {
+                        inputPath = String.format("%s.%s()", mapping.getInParameter().getName(),
+                            CodeNamer.getModelNamer().modelPropertyGetterName(mapping.getInParameterProperty()));
+                        propertyRequired = mapping.getInParameterProperty().isRequired();
                     }
                     if (propertyRequired) {
                         // required
@@ -314,7 +315,7 @@ abstract class ConvenienceMethodTemplateBase {
                             ctorExpression.append(inputPath);
                         } else {
                             setterExpression.append(".")
-                                .append(mapping.getOutputParameterProperty().getSetterName())
+                                .append(mapping.getOutParameterProperty().getSetterName())
                                 .append("(")
                                 .append(inputPath)
                                 .append(")");
@@ -322,7 +323,7 @@ abstract class ConvenienceMethodTemplateBase {
                     } else if (!convenienceMethod.getOnlyRequiredParameters()) {
                         // optional
                         setterExpression.append(".")
-                            .append(mapping.getOutputParameterProperty().getSetterName())
+                            .append(mapping.getOutParameterProperty().getSetterName())
                             .append("(")
                             .append(inputPath)
                             .append(")");
