@@ -5,7 +5,7 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { getOperationVerb } from "./decorators.js";
+import { getOperationVerb, getPathOptions } from "./decorators.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
@@ -73,16 +73,17 @@ function getOperationParametersForVerb(
           isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === param.name);
 
         if (!uriParam) {
-          if (param.optional){
+          const pathOptions = getPathOptions(program, param);
+          if (pathOptions && param.optional) {
             return {
               type: "path",
-              name: param.name,
+              name: pathOptions.name,
               explode: false,
               allowReserved: false,
-              style: operatorToStyle["/"]
+              style: operatorToStyle["/"],
             };
           }
-          
+
           return undefined;
         }
 
