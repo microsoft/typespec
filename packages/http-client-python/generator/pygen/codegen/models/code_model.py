@@ -437,6 +437,5 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         if self.yaml_data.get("licenseInfo") or not self.is_azure_flavor:
             # typespec unbranded case and azure case with custom license
             return self.yaml_data.get("licenseInfo", {}).get("company", "")
-        else:
-            # typespec azure case without custom license and swagger case
-            return "Microsoft Corporation"
+        # typespec azure case without custom license and swagger case
+        return "Microsoft Corporation"
