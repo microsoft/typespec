@@ -163,9 +163,9 @@ export function isOrExtendsHttpFile(program: Program, type: Type) {
 }
 
 function isSourcedFromHttpFile(program: Program, property: ModelProperty) {
-  const isHttp = property.model ? isHttpFile(program, property.model) : undefined;
+  const isFile = property.model ? isHttpFile(program, property.model) : false;
 
-  if (isHttp) {
+  if (isFile) {
     return true;
   }
 
