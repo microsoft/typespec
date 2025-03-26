@@ -1,0 +1,315 @@
+#!/usr/bin/env node
+/* eslint-disable no-console */
+import { run } from "@typespec/internal-build-utils";
+import pkg from "fs-extra";
+import { copyFile, mkdir, rm } from "fs/promises";
+import { globby } from "globby";
+import inquirer from "inquirer";
+import ora from "ora";
+import pLimit from "p-limit";
+import { basename, dirname, join, resolve } from "path";
+import pc from "picocolors";
+import { fileURLToPath } from "url";
+import { hideBin } from "yargs/helpers";
+import yargs from "yargs/yargs";
+
+const { pathExists, stat, readFile, writeFile } = pkg;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const projectRoot = join(__dirname, "../..");
+const tspConfig = join(__dirname, "tspconfig.yaml");
+
+const basePath = join(projectRoot, "node_modules", "@typespec", "http-specs", "specs");
+const ignoreFilePath = join(projectRoot, ".testignore");
+const logDirRoot = join(projectRoot, "temp", "emit-e2e-logs");
+const reportFilePath = join(logDirRoot, "report.txt");
+
+// Remove the log directory if it exists.
+async function clearLogDirectory() {
+  if (await pathExists(logDirRoot)) {
+    await rm(logDirRoot, { recursive: true, force: true });
+  }
+}
+
+// Parse command-line arguments.
+const argv = yargs(hideBin(process.argv))
+  .option("interactive", {
+    type: "boolean",
+    describe: "Enable interactive mode",
+    default: false,
+  })
+  .positional("paths", {
+    describe: "Optional list of specific file or directory paths to process (relative to basePath)",
+    type: "string",
+    array: true,
+    default: [],
+  })
+  .option("build", {
+    type: "boolean",
+    describe: "Build the generated projects",
+    default: false,
+  })
+  .help().argv;
+
+// Read and parse the ignore file.
+async function getIgnoreList() {
+  try {
+    const content = await readFile(ignoreFilePath, "utf8");
+    return content
+      .split(/\r?\n/)
+      .filter((line) => line.trim() && !line.startsWith("#"))
+      .map((line) => line.trim());
+  } catch {
+    console.warn(pc.yellow("No ignore file found."));
+    return [];
+  }
+}
+
+// Recursively process paths (files or directories relative to basePath).
+async function processPaths(paths, ignoreList) {
+  const results = [];
+  for (const relativePath of paths) {
+    const fullPath = resolve(basePath, relativePath);
+
+    if (!(await pathExists(fullPath))) {
+      console.warn(pc.yellow(`Path not found: ${relativePath}`));
+      continue;
+    }
+
+    const stats = await stat(fullPath);
+    if (stats.isFile() && fullPath.endsWith("main.tsp")) {
+      if (ignoreList.some((ignore) => relativePath.startsWith(ignore))) continue;
+      results.push({ fullPath, relativePath });
+    } else if (stats.isDirectory()) {
+      const patterns = ["**/main.tsp"];
+      const discoveredPaths = await globby(patterns, { cwd: fullPath });
+      const validFiles = discoveredPaths
+        .map((p) => ({
+          fullPath: join(fullPath, p),
+          relativePath: join(relativePath, p),
+        }))
+        .filter((file) => !ignoreList.some((ignore) => file.relativePath.startsWith(ignore)));
+      results.push(...validFiles);
+    } else {
+      console.warn(pc.yellow(`Skipping unsupported path: ${relativePath}`));
+    }
+  }
+
+  // Deduplicate.
+  const filesByDir = new Map();
+  for (const file of results) {
+    const dir = dirname(file.relativePath);
+    const existing = filesByDir.get(dir);
+    if (!existing) {
+      filesByDir.set(dir, file);
+    }
+  }
+  return Array.from(filesByDir.values());
+}
+
+// Run a shell command silently.
+async function runCommand(command, args, options = {}) {
+  // Remove clutter by not printing anything; capture output by setting stdio to 'pipe'.
+  return await run(command, args, {
+    stdio: "pipe",
+    env: { NODE_ENV: "test", ...process.env },
+    silent: true,
+    ...options,
+  });
+}
+
+// Process a single file.
+async function processFile(file, options) {
+  const { fullPath, relativePath } = file;
+  const { build, interactive } = options;
+  const outputDir = join("test", "e2e", "generated", dirname(relativePath));
+  const specCopyPath = join(outputDir, "spec.tsp");
+  const logDir = join(projectRoot, "temp", "emit-e2e-logs", dirname(relativePath));
+
+  let spinner;
+  if (interactive) {
+    spinner = ora({ text: `Processing: ${relativePath}`, color: "cyan" }).start();
+  }
+
+  try {
+    if (await pathExists(outputDir)) {
+      if (spinner) spinner.text = `Clearing directory: ${outputDir}`;
+      await rm(outputDir, { recursive: true, force: true });
+    }
+    if (spinner) spinner.text = `Creating directory: ${outputDir}`;
+    await mkdir(outputDir, { recursive: true });
+
+    if (spinner) spinner.text = `Copying spec to: ${specCopyPath}`;
+    await copyFile(fullPath, specCopyPath);
+
+    if (spinner) spinner.text = `Compiling: ${relativePath}`;
+    await runCommand("npx", [
+      "tsp",
+      "compile",
+      fullPath,
+      "--emit",
+      resolve(import.meta.dirname, "../.."),
+      "--config",
+      tspConfig,
+      "--output-dir",
+      outputDir,
+    ]);
+
+    if (spinner) spinner.text = `Formatting with Prettier: ${relativePath}`;
+    await runCommand("npx", ["prettier", outputDir, "--write"]);
+
+    if (build) {
+      if (spinner) spinner.text = `Building project: ${relativePath}`;
+      await runCommand("npm", ["run", "build"], { cwd: outputDir });
+    }
+
+    if (spinner) {
+      spinner.succeed(`Finished processing: ${relativePath}`);
+    }
+    return { status: "succeeded", relativePath };
+  } catch (error) {
+    if (spinner) {
+      spinner.fail(`Failed processing: ${relativePath}`);
+    }
+    const errorDetails = error.stdout || error.stderr || error.message;
+
+    // Write error details to a log file.
+    await mkdir(logDir, { recursive: true });
+    const logFilePath = join(logDir, `${basename(relativePath, ".tsp")}-error.log`);
+    await writeFile(logFilePath, errorDetails, "utf8");
+
+    if (interactive) {
+      const { action } = await inquirer.prompt([
+        {
+          type: "list",
+          name: "action",
+          message: `Processing failed for ${relativePath}. What would you like to do?`,
+          choices: [
+            { name: "Retry", value: "retry" },
+            { name: "Skip to next file", value: "next" },
+            { name: "Abort processing", value: "abort" },
+          ],
+        },
+      ]);
+
+      if (action === "retry") {
+        if (spinner) spinner.start(`Retrying: ${relativePath}`);
+        return await processFile(file, options);
+      } else if (action === "next") {
+        console.log(pc.yellow(`Skipping: ${relativePath}`));
+      } else if (action === "abort") {
+        console.log(pc.red("Aborting processing."));
+        throw new Error("Processing aborted by user");
+      }
+    }
+    return { status: "failed", relativePath, errorDetails };
+  }
+}
+
+// Process all files.
+async function processFiles(files, options) {
+  const { interactive } = options;
+  const succeeded = [];
+  const failed = [];
+
+  if (interactive) {
+    // Sequential processing so each spinner is visible.
+    for (const file of files) {
+      try {
+        const result = await processFile(file, options);
+        if (result.status === "succeeded") {
+          succeeded.push(result.relativePath);
+        } else {
+          failed.push({ relativePath: result.relativePath, errorDetails: result.errorDetails });
+        }
+      } catch (err) {
+        break;
+      }
+    }
+  } else {
+    // Global progress spinner.
+    const total = files.length;
+    let completed = 0;
+    const globalSpinner = ora({ text: `Processing 0/${total} files...`, color: "cyan" }).start();
+    const limit = pLimit(4);
+    const tasks = files.map((file) =>
+      limit(() =>
+        processFile(file, options).then((result) => {
+          completed++;
+          globalSpinner.text = `Processing ${completed}/${total} files...`;
+          return result;
+        }),
+      ),
+    );
+    const results = await Promise.all(tasks);
+    globalSpinner.succeed(`Processed ${total} files`);
+    for (const result of results) {
+      if (result.status === "succeeded") {
+        succeeded.push(result.relativePath);
+      } else {
+        failed.push({ relativePath: result.relativePath, errorDetails: result.errorDetails });
+      }
+    }
+  }
+
+  console.log(pc.bold(pc.green("\nProcessing Complete:")));
+  console.log(pc.green(`Succeeded: ${succeeded.length}`));
+  console.log(pc.red(`Failed: ${failed.length}`));
+
+  if (failed.length > 0) {
+    console.log(pc.red("\nFailed Specs:"));
+    failed.forEach((f) => {
+      console.log(pc.red(`  - ${f.relativePath}`));
+    });
+    console.log(pc.blue(`\nLogs available at: ${logDirRoot}`));
+  }
+
+  // Ensure the log directory exists before writing the report.
+  await mkdir(logDirRoot, { recursive: true });
+  const report = [
+    "Succeeded Files:",
+    ...succeeded.map((f) => `  - ${f}`),
+    "Failed Files:",
+    ...failed.map((f) => `  - ${f.relativePath}\n    Error: ${f.errorDetails}`),
+  ].join("\n");
+  await writeFile(reportFilePath, report, "utf8");
+  console.log(pc.blue(`Report written to: ${reportFilePath}`));
+}
+// Main execution function
+async function main() {
+  const startTime = process.hrtime.bigint(); // ✅ High precision time tracking
+  let exitCode = 0; // ✅ Track success/failure
+
+  try {
+    await clearLogDirectory(); // ✅ Clear logs at the start
+
+    const ignoreList = await getIgnoreList();
+    const paths = argv._.length
+      ? await processPaths(argv._, ignoreList)
+      : await processPaths(["."], ignoreList);
+
+    if (paths.length === 0) {
+      console.log(pc.yellow("⚠️ No files to process."));
+      return;
+    }
+
+    await processFiles(paths, {
+      interactive: argv.interactive,
+      build: argv.build,
+    });
+  } catch (error) {
+    console.error(pc.red(`❌ Fatal Error: ${error.message}`));
+    exitCode = 1; // ✅ Ensure graceful failure handling
+  } finally {
+    // ✅ Always log execution time before exit
+    const endTime = process.hrtime.bigint();
+    const duration = Number(endTime - startTime) / 1e9; // Convert nanoseconds to seconds
+    console.log(pc.blue(`⏱️ Total execution time: ${duration.toFixed(2)} seconds`));
+
+    process.exit(exitCode); // ✅ Ensures proper exit handling
+  }
+}
+
+await main();
