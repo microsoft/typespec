@@ -14,7 +14,9 @@ import { reportDiagnostic } from "../../lib.js";
 import { getClientcontextDeclarationRef } from "../client-context/client-context-declaration.jsx";
 import { getOperationParameters } from "../operation-parameters.jsx";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
-import { PageResponseDeclaration } from "./paging/page-response.jsx";
+import { getPageResponseTypeRefkey, PageResponseDeclaration } from "./paging/page-response.jsx";
+import { getPagedAsyncIterableIteratorRefkey } from "../static-helpers/paging-helper.jsx";
+import { getPageItemTypeName } from "./paging/page-item.jsx";
 
 export const PaginatedOperationHandler: OperationHandler = {
   canHandle(httpOperation: HttpOperation): boolean {
@@ -34,22 +36,9 @@ export const PaginatedOperationHandler: OperationHandler = {
     }
     const internalOperationRefkey = ay.refkey(httpOperation.operation, "internal");
     const pagingOperation = $.operation.getPagingOperation(httpOperation.operation)!;
-
-    // build response keys
     const responseRefkey = ay.refkey(httpOperation, "http-response");
-    const _pageSettings = pagingOperation?.input;
-    console.log(_pageSettings);
     const operationRefkey = ay.refkey(httpOperation.operation);
-    // Question here: how to get the refkey for the response type? 
-    // const responseType = getPageResponseTypeRefkey(httpOperation).key;
-    // const pageSettingType = getPageSettingsTypeRefkey(httpOperation).key;
-    // build paging return type
-    const namePolicy = ts.useTSNamePolicy();
-    // page response type
-    const responseType = namePolicy.getName(httpOperation.operation.name + "PageResponse", "interface");
-    // page settings type
-    const pageSettingType = namePolicy.getName(httpOperation.operation.name + "PageSettings", "interface");
-    const returnType = `PagedAsyncIterableIterator<Foo,${responseType}, ${pageSettingType}>`;
+    const returnType = ay.code`${getPagedAsyncIterableIteratorRefkey()}<${getPageItemTypeName(pagingOperation)},${getPageResponseTypeRefkey(httpOperation)},${getPageSettingsTypeRefkey(httpOperation)}>`;
     const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
     const signatureParams: Record<string, ts.ParameterDescriptor | ay.Children> = {
       client: { type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
@@ -62,7 +51,6 @@ export const PaginatedOperationHandler: OperationHandler = {
         <PageResponseDeclaration operation={httpOperation} pagingOperation={pagingOperation} />
         <FunctionDeclaration
           export
-          async
           name={httpOperation.operation.name}
           returnType={returnType}
           refkey={operationRefkey}
@@ -74,7 +62,6 @@ export const PaginatedOperationHandler: OperationHandler = {
             <HttpResponse httpOperation={httpOperation} responseRefkey={responseRefkey} />
           </ay.List>
         </FunctionDeclaration>
-        <ClientOperation internal httpOperation={httpOperation} refkey={internalOperationRefkey} />
       </ay.List>
     );
   }

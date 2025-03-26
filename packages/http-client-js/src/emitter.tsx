@@ -11,6 +11,7 @@ import { Interfaces } from "./components/static-helpers/interfaces.jsx";
 import { MultipartHelpers } from "./components/static-helpers/multipart-helpers.jsx";
 import { RestError } from "./components/static-helpers/rest-error.jsx";
 import { JsClientEmitterOptions } from "./lib.js";
+import { PagingHelpers } from "./components/static-helpers/paging-helper.jsx";
 
 /**
  * Main function to handle the emission process.
@@ -39,6 +40,7 @@ export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
             <OperationsDirectory />
           </ay.SourceDirectory>
           <ay.SourceDirectory path="helpers">
+            <PagingHelpers />
             <Interfaces />
             <MultipartHelpers />
             <ts.SourceFile path="error.ts">

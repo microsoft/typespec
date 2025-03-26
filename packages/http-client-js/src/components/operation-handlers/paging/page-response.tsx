@@ -2,7 +2,7 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import * as ef from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
-import { PagingOperation } from "@typespec/compiler";
+import { PagingOperation, PagingProperty } from "@typespec/compiler";
 export interface PageResponseProps {
   operation: HttpOperation;
   pagingOperation: PagingOperation;
@@ -14,17 +14,15 @@ export function getPageResponseTypeRefkey(operation: HttpOperation) {
 export function PageResponseDeclaration(props: PageResponseProps) {
   const namePolicy = ts.useTSNamePolicy();
   const interfaceName = namePolicy.getName(props.operation.operation.name + "PageResponse", "interface");
-  const definedSettings = props.pagingOperation.output;
-  const settings = [];
-  if(definedSettings.continuationToken) {
-    settings.push(definedSettings.continuationToken);
-  }
-  if(definedSettings.pageItems) {
-    settings.push(definedSettings.pageItems);
-  }
-
-  if(definedSettings.nextLink) {
-    settings.push(definedSettings.nextLink);
+  const definedResponses = props.pagingOperation.output;
+  // Only accept these respose items
+  const acceptedColumns = ["continuationToken", "pageItems", "nextLink","prevLink", "firstLink", "lastLink"];
+  const responseProperties: PagingProperty[] = [];
+  for(const key in definedResponses) {
+    const property = definedResponses[key as keyof typeof definedResponses];
+    if(acceptedColumns.includes(key) && !!property) {
+      responseProperties.push(property);
+    } 
   }
    
   return (
@@ -33,11 +31,11 @@ export function PageResponseDeclaration(props: PageResponseProps) {
       name={interfaceName}
       refkey={getPageResponseTypeRefkey(props.operation)}
     >
-      <ay.For each={settings} line>
+      <ay.For each={responseProperties} line>
         {(parameter) => (
           <ts.InterfaceMember
             name={parameter.property.name}
-            optional
+            optional={parameter.property.optional}
             type={<ef.TypeExpression type={parameter.property.type} />}
           />
         )}

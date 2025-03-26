@@ -22,7 +22,7 @@ op link(): {
 ## Operation
 
 ```ts src/api/testClientOperations.ts function link
-export async function link() {
+export function link(client: TestClientContext, options?: LinkOptions,): PagedAsyncIterableIterator<Pet, LinkPageResponse, LinkPageSettings> {
   // Implementation for paginated operation
   const path = parse("/link").expand({});
   // ... rest of implementation
@@ -51,7 +51,7 @@ Page responses and will be used as output for byPage function.
 
 ```ts src/api/testClientOperations.ts interface LinkPageResponse
 export interface LinkPageResponse {
-  pets?: Array<Pet>;
+  pets: Array<Pet>;
   next?: string;
 }
 ```
