@@ -614,13 +614,13 @@ describe("structured files", () => {
         code: "@typespec/http/http-file-structured",
         severity: "warning",
         message:
-          "HTTP File body is serialized as a structured model in 'application/json' instead of being treated as the contents of a file, because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
+          "HTTP File body is serialized as a structured model in 'application/json' instead of being treated as the contents of a file because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
       },
       {
         code: "@typespec/http/http-file-structured",
         severity: "warning",
         message:
-          "HTTP File body is serialized as a structured model in 'application/json' instead of being treated as the contents of a file, because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
+          "HTTP File body is serialized as a structured model in 'application/json' instead of being treated as the contents of a file because an explicit Content-Type header is defined. Override the `contentType` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.",
       },
     ]);
 
@@ -664,5 +664,85 @@ describe("structured files", () => {
     expect(responseBody?.property).toStrictEqual(undefined);
     strictEqual(responseBody?.contentTypes.length, 1);
     strictEqual(responseBody?.contentTypes[0], "application/json");
+  });
+
+  it("does not recognize a File in a union as a file body", async () => {
+    const { diagnostics } = await compileOperationsFull(`
+      op example(@body file: Http.File | string): void;
+    `);
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/http/http-file-structured",
+        severity: "warning",
+        message:
+          "HTTP File body is serialized as a structured model instead of being treated as the contents of a file because it is a variant of a union. Declare a separate operation using `@sharedRoute` that has only the File model as the body type to treat it as a file, or suppress this warning if you intend to serialize the File as a model.",
+      },
+    ]);
+  });
+
+  it("does not recognize a File in an intersection as a file body", async () => {
+    const {
+      operations: [
+        {
+          responses: [
+            {
+              responses: [{ body: responseBody }],
+            },
+          ],
+        },
+      ],
+    } = await compileOperationsFull(`
+      op example(): Http.File & OkResponse;
+    `);
+
+    strictEqual(responseBody?.bodyKind, "single");
+  });
+
+  it("does not recognize composite spreads as a file body", async () => {
+    const {
+      operations: [
+        {
+          responses: [
+            {
+              responses: [{ body: responseBody }],
+            },
+          ],
+        },
+      ],
+    } = await compileOperationsFull(`
+      op example(): { ...Http.File, ...OkResponse };
+    `);
+
+    strictEqual(responseBody?.bodyKind, "single");
+  });
+
+  it("does not recognize spread with other properties as a file body", async () => {
+    const {
+      operations: [
+        {
+          parameters: { body: requestBody },
+          responses: [
+            {
+              responses: [{ body: responseBody }],
+            },
+          ],
+        },
+      ],
+    } = await compileOperationsFull(`
+      op example(
+        @path id: string,
+        @query type: string,
+        @header clientRequestId: string,
+        ...Http.File
+      ): {
+        @header requestId: string,
+        ...Http.File
+      };
+    `);
+
+    strictEqual(requestBody?.bodyKind, "single");
+
+    strictEqual(responseBody?.bodyKind, "single");
   });
 });

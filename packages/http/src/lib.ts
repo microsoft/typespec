@@ -163,7 +163,9 @@ export const $lib = createTypeSpecLibrary({
     "http-file-structured": {
       severity: "warning",
       messages: {
-        default: paramMessage`HTTP File body is serialized as a structured model in '${"contentTypes"}' instead of being treated as the contents of a file, because an explicit Content-Type header is defined. Override the \`contentType\` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.`,
+        default: paramMessage`HTTP File body is serialized as a structured model in '${"contentTypes"}' instead of being treated as the contents of a file because an explicit Content-Type header is defined. Override the \`contentType\` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.`,
+        union:
+          "HTTP File body is serialized as a structured model instead of being treated as the contents of a file because it is a variant of a union. Declare a separate operation using `@sharedRoute` that has only the File model as the body type to treat it as a file, or suppress this warning if you intend to serialize the File as a model.",
       },
     },
     "http-file-content-type-not-string": {

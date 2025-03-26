@@ -16,6 +16,7 @@ import {
   isArrayModelType,
   navigateType,
 } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes } from "./content-types.js";
 import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
@@ -260,6 +261,20 @@ function resolveExplicitBodyProperty(
               contentTypes: contentTypes!.join(", "),
             },
             target: contentTypeProperty.property,
+          });
+        }
+
+        if (
+          item.property.type.kind === "Union" &&
+          [...item.property.type.variants.values()].some((v) => getHttpFileModel(program, v.type))
+        ) {
+          reportDiagnostic(program, {
+            code: "http-file-structured",
+            messageId: "union",
+            target:
+              item.property.node.kind === SyntaxKind.ModelProperty
+                ? item.property.node.value
+                : item.property.node,
           });
         }
 
