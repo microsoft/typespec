@@ -252,6 +252,42 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
     expect(response["application/json"]).toMatchObject({ schema: expectedObjectSchema });
   });
 
+  it.each([
+    {
+      name: "spread",
+      tsOperation: `op example(...Http.File, foo: string): { ...Http.File, foo: string };`,
+    },
+    {
+      name: "intersect",
+      tsOperation: `op example(...Http.File, foo: string): Http.File & { foo: string };`,
+    },
+  ])(
+    "does not recognize File when sibling non-metadata fields present ($name)",
+    async ({ tsOperation }) => {
+      const result = await openApiFor(tsOperation);
+
+      const encodedBinarySchema = getEncodedBinarySchema();
+
+      const operation = result.paths["/"].post;
+      const requestBody = operation.requestBody.content;
+      const response = operation.responses["200"].content;
+
+      const expectedObjectSchema = {
+        type: "object",
+        properties: {
+          contentType: { type: "string" },
+          contents: encodedBinarySchema,
+          filename: { type: "string" },
+          foo: { type: "string" },
+        },
+        required: ["contents", "foo"],
+      };
+
+      expect(requestBody["application/json"]).toMatchObject({ schema: expectedObjectSchema });
+      expect(response["application/json"]).toMatchObject({ schema: expectedObjectSchema });
+    },
+  );
+
   describe("multipart", () => {
     it.each([
       {
@@ -306,6 +342,47 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version }) => {
         },
       });
     });
+
+    it.each([
+      {
+        name: "spread",
+        tsOperation: `op example(@multipartBody fields: { file: HttpPart<{...File,  foo: string }> }): { @multipartBody fields: { file: HttpPart<{...File, foo: string }> } };`,
+      },
+      {
+        name: "intersect",
+        tsOperation: `op example(@multipartBody fields: { file: HttpPart<File & { foo: string }> }): { @multipartBody fields: { file: HttpPart<File & { foo: string }> } };`,
+      },
+    ])(
+      "does not recognize File when sibling non-metadata fields present ($name)",
+      async ({ tsOperation }) => {
+        const result = await openApiFor(tsOperation);
+
+        const encodedBinarySchema = getEncodedBinarySchema();
+
+        const operation = result.paths["/"].post;
+        const requestBody = operation.requestBody.content;
+        const response = operation.responses["200"].content;
+
+        const expectedObjectSchema = {
+          type: "object",
+          properties: {
+            file: {
+              type: "object",
+              properties: {
+                contentType: { type: "string" },
+                contents: encodedBinarySchema,
+                filename: { type: "string" },
+                foo: { type: "string" },
+              },
+              required: ["contents", "foo"],
+            },
+          },
+        };
+
+        expect(requestBody["multipart/form-data"].schema).toMatchObject(expectedObjectSchema);
+        expect(response["multipart/form-data"].schema).toMatchObject(expectedObjectSchema);
+      },
+    );
 
     it("form-data upload and download (intersection)", async () => {
       const result = await openApiFor(

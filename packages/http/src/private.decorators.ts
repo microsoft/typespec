@@ -145,34 +145,16 @@ export function isOrExtendsHttpFile(program: Program, type: Type) {
     return false;
   }
 
-  if (modelIsHttpFile(program, type)) {
-    return true;
-  }
+  let current: Model | undefined = type;
 
-  if (!type.sourceModels.length) {
-    return false;
-  }
-
-  for (const sourceModel of type.sourceModels) {
-    if (sourceModel.usage !== "intersection") continue;
-
-    if (modelIsHttpFile(program, sourceModel.model)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-function modelIsHttpFile(program: Program, model: Model) {
-  let currentModel: Model | undefined = model;
-  while (currentModel) {
-    if (isHttpFile(program, currentModel)) {
+  while (current) {
+    if (isHttpFile(program, current)) {
       return true;
     }
 
-    currentModel = currentModel.baseModel;
+    current = current.baseModel;
   }
+
   return false;
 }
 
