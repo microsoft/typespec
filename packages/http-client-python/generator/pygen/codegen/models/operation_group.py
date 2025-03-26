@@ -63,11 +63,11 @@ class OperationGroup(BaseModel):
             operation_group.has_non_abstract_operations for operation_group in self.operation_groups
         )
 
-    @property
-    def base_class(self) -> str:
+    def base_class(self, async_mode: bool) -> str:
+        pipeline_client = f"{'Async' if async_mode else ''}PipelineClient"
         base_classes: List[str] = []
         if self.is_mixin:
-            base_classes.append(f"{self.client.name}MixinABC")
+            base_classes.append(f"ClientMixinABC[{pipeline_client}, {self.client.name}Configuration]")
         return ", ".join(base_classes)
 
     def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
@@ -141,32 +141,31 @@ class OperationGroup(BaseModel):
                 ImportType.LOCAL,
                 alias="_models",
             )
+        file_import.add_submodule_import(
+            self.code_model.get_relative_import_path(
+                serialize_namespace,
+                self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
+                module_name="_configuration",
+            ),
+            f"{self.client.name}Configuration",
+            ImportType.LOCAL,
+        )
+        file_import.add_submodule_import(
+            "" if self.code_model.is_azure_flavor else "runtime",
+            f"{'Async' if async_mode else ''}PipelineClient",
+            ImportType.SDKCORE,
+        )
         if self.is_mixin:
             file_import.add_submodule_import(
                 # XxxMixinABC is always defined in _vendor of client namespace
                 self.code_model.get_relative_import_path(
-                    serialize_namespace,
                     self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
-                    module_name="_vendor",
+                    f"{self.code_model.namespace}._vendor.utils",
                 ),
-                f"{self.client.name}MixinABC",
+                "ClientMixinABC",
                 ImportType.LOCAL,
             )
         else:
-            file_import.add_submodule_import(
-                "" if self.code_model.is_azure_flavor else "runtime",
-                f"{'Async' if async_mode else ''}PipelineClient",
-                ImportType.SDKCORE,
-            )
-            file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(
-                    serialize_namespace,
-                    self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
-                    module_name="_configuration",
-                ),
-                f"{self.client.name}Configuration",
-                ImportType.LOCAL,
-            )
             file_import.add_msrest_import(
                 serialize_namespace=kwargs.get("serialize_namespace", self.code_model.namespace),
                 msrest_import_type=MsrestImportType.Serializer,
@@ -183,7 +182,7 @@ class OperationGroup(BaseModel):
                 self.code_model.get_relative_import_path(
                     serialize_namespace,
                     self.code_model.get_imported_namespace_for_client(self.code_model.namespace, async_mode),
-                    module_name="_vendor",
+                    module_name="_vendor.utils",
                 ),
                 "raise_if_not_implemented",
                 ImportType.LOCAL,

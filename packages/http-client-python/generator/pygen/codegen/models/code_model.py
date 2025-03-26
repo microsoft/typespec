@@ -241,13 +241,15 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         """
         return client_namespace == self.namespace
 
-    def need_vendored_code(self, async_mode: bool, client_namespace: str) -> bool:
-        """Whether we need to vendor code in the _vendor.py in specific namespace"""
+    def need_vendor_folder(self, async_mode: bool, client_namespace: str) -> bool:
+        return self.need_vendor_utils(async_mode, client_namespace)
+
+    def need_vendor_utils(self, async_mode: bool, client_namespace: str) -> bool:
         return (
             self.need_vendored_form_data(async_mode, client_namespace)
             or self.need_vendored_etag(client_namespace)
             or self.need_vendored_abstract(client_namespace)
-            or self.need_vendored_mixin(client_namespace)
+            or self.need_vendored_mixin
         )
 
     def need_vendored_form_data(self, async_mode: bool, client_namespace: str) -> bool:
@@ -264,8 +266,9 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def need_vendored_abstract(self, client_namespace: str) -> bool:
         return self.is_top_namespace(client_namespace) and self.has_abstract_operations
 
-    def need_vendored_mixin(self, client_namespace: str) -> bool:
-        return self.has_mixin(client_namespace)
+    @property
+    def need_vendored_mixin(self) -> bool:
+        return any(c_n for c_n in self.client_namespace_types.keys() if self.has_mixin(c_n))
 
     def has_mixin(self, client_namespace: str) -> bool:
         return any(c for c in self.get_clients(client_namespace) if c.has_mixin)

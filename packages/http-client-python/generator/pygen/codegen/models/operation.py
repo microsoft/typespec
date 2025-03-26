@@ -391,7 +391,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 ImportType.SDKCORE,
             )
             if not async_mode:
-                relative_path = self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor")
+                relative_path = self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor.utils")
                 file_import.add_submodule_import(
                     relative_path,
                     "prep_if_match",
