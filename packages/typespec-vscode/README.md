@@ -54,8 +54,8 @@ Other necessary installations will be prompted within the extension as needed.
 The extension allows emitting various outputs from TypeSpec:
 
 - **OpenAPI Specification**
-- **Server SDKs** _preview_: Emit server stubs for different back-end frameworks.
-- **Client SDKs** _preview_: Emit client code for multiple languages, including:
+- **Server SDKs**: Emit server stubs for different back-end frameworks.
+- **Client SDKs**: Emit client code for multiple languages, including:
   - .NET (C#)
   - Python
   - Java
