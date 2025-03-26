@@ -42,7 +42,7 @@ public final class RequestBodyClient {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * BinaryData
      * }
      * </pre>
      * 
@@ -169,10 +169,10 @@ public final class RequestBodyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void defaultMethod(byte[] value) {
+    public void defaultMethod(BinaryData value) {
         // Generated convenience method for defaultMethodWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        defaultMethodWithResponse(BinaryData.fromObject(value), requestOptions).getValue();
+        defaultMethodWithResponse(value, requestOptions).getValue();
     }
 
     /**

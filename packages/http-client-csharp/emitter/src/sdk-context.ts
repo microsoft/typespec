@@ -12,9 +12,8 @@ import {
 import { Type } from "@typespec/compiler";
 import { Logger } from "./lib/logger.js";
 import { CSharpEmitterOptions } from "./options.js";
-import { InputClient } from "./type/input-client.js";
 import { InputParameter } from "./type/input-parameter.js";
-import { InputEnumType, InputModelProperty, InputModelType, InputType } from "./type/input-type.js";
+import { InputEnumType, InputClient, InputModelProperty, InputModelType, InputType } from "./type/input-type.js";
 import { OperationResponse } from "./type/operation-response.js";
 
 /**

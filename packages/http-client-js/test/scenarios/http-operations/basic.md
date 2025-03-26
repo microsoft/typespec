@@ -32,6 +32,7 @@ import {
 
 export class TestClient {
   #context: TestClientContext;
+
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
@@ -57,7 +58,7 @@ export interface Widget {
 
 A serializer function, `jsonWidgetToTransportTransform`, is generated to transform the `Widget` model into its transport format. It converts TypeScript-friendly property names (`totalWeight`) back to their wire format (`total_weight`).
 
-```ts src/models/serializers.ts function jsonWidgetToTransportTransform
+```ts src/models/internal/serializers.ts function jsonWidgetToTransportTransform
 export function jsonWidgetToTransportTransform(input_?: Widget | null): any {
   if (!input_) {
     return input_ as any;

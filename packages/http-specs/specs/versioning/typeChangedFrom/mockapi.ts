@@ -6,13 +6,13 @@ Scenarios.Versioning_TypeChangedFrom_test = passOnSuccess({
   uri: `/versioning/type-changed-from/api-version:v2/test`,
   method: `post`,
   request: {
-    params: {
+    query: {
       param: "baz",
     },
-    body: {
+    body: json({
       prop: "foo",
       changedProp: "bar",
-    },
+    }),
   },
   response: {
     status: 200,

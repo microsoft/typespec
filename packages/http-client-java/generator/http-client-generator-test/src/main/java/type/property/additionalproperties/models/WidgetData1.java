@@ -21,6 +21,12 @@ import java.time.format.DateTimeFormatter;
 @Fluent
 public final class WidgetData1 implements JsonSerializable<WidgetData1> {
     /*
+     * The kind property.
+     */
+    @Generated
+    private final String kind = "kind1";
+
+    /*
      * The start property.
      */
     @Generated
@@ -40,6 +46,16 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
     @Generated
     public WidgetData1(OffsetDateTime start) {
         this.start = start;
+    }
+
+    /**
+     * Get the kind property: The kind property.
+     * 
+     * @return the kind value.
+     */
+    @Generated
+    public String getKind() {
+        return this.kind;
     }
 
     /**
@@ -81,6 +97,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
+        jsonWriter.writeStringField("kind", this.kind);
         jsonWriter.writeStringField("start",
             this.start == null ? null : DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(this.start));
         jsonWriter.writeStringField("end",

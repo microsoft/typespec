@@ -6,7 +6,7 @@ Scenarios.Versioning_ReturnTypeChangedFrom_test = passOnSuccess({
   uri: `/versioning/return-type-changed-from/api-version:v2/test`,
   method: `post`,
   request: {
-    body: "test",
+    body: json("test"),
     headers: {
       "Content-Type": "text/plain",
     },

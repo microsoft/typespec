@@ -208,6 +208,7 @@
  "clients": [
   {
    "$id": "30",
+   "kind": "client",
    "name": "StatusCodeRangeClient",
    "namespace": "Response.StatusCodeRange",
    "doc": "Test for range of status code.",
@@ -250,26 +251,10 @@
       {
        "$id": "35",
        "statusCodes": [
-        200
+        204
        ],
-       "bodyType": {
-        "$id": "36",
-        "kind": "constant",
-        "valueType": {
-         "$id": "37",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "value": 204,
-        "decorators": []
-       },
        "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
+       "isErrorResponse": false
       }
      ],
      "httpMethod": "GET",
@@ -282,20 +267,20 @@
      "decorators": []
     },
     {
-     "$id": "38",
+     "$id": "36",
      "name": "errorResponseStatusCode404",
      "resourceName": "StatusCodeRange",
      "accessibility": "public",
      "parameters": [
       {
-       "$id": "39",
+       "$id": "37",
        "name": "accept",
        "nameInRequest": "Accept",
        "type": {
-        "$id": "40",
+        "$id": "38",
         "kind": "constant",
         "valueType": {
-         "$id": "41",
+         "$id": "39",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -317,28 +302,12 @@
      ],
      "responses": [
       {
-       "$id": "42",
+       "$id": "40",
        "statusCodes": [
-        200
+        204
        ],
-       "bodyType": {
-        "$id": "43",
-        "kind": "constant",
-        "valueType": {
-         "$id": "44",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "value": 204,
-        "decorators": []
-       },
        "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
+       "isErrorResponse": false
       }
      ],
      "httpMethod": "GET",
@@ -353,12 +322,12 @@
    ],
    "parameters": [
     {
-     "$id": "45",
+     "$id": "41",
      "name": "endpoint",
      "nameInRequest": "endpoint",
      "doc": "Service host",
      "type": {
-      "$id": "46",
+      "$id": "42",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -372,9 +341,9 @@
      "explode": false,
      "kind": "Client",
      "defaultValue": {
-      "$id": "47",
+      "$id": "43",
       "type": {
-       "$id": "48",
+       "$id": "44",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -384,7 +353,8 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Response.StatusCodeRange"
+   "crossLanguageDefinitionId": "Response.StatusCodeRange",
+   "apiVersions": []
   }
  ]
 }

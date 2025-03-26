@@ -1,8 +1,8 @@
 // @ts-check
 import eslint from "@eslint/js";
+import vitest from "@vitest/eslint-plugin";
 import reactHooks from "eslint-plugin-react-hooks";
 import unicorn from "eslint-plugin-unicorn";
-import vitest from "eslint-plugin-vitest";
 import tsEslint from "typescript-eslint";
 
 /** Config that will apply to all files */
@@ -150,6 +150,7 @@ export default tsEslint.config(
       "packages/compiler/templates/**/*", // Ignore the templates which might have invalid code and not follow exactly our rules.
       "packages/http-client-js/test/e2e/generated", // Ignore the generated http client
       "packages/http-client-js/sample/output/**/*", // Ignore the generated http client
+      "packages/http-server-js/test/e2e/generated", // Ignore the generated http server
       "**/venv/**/*", // Ignore python virtual env
       "**/.vscode-test-web/**/*", // Ignore VSCode test web project
       "packages/typespec-vscode/swagger-ui/swagger-ui*", // Ignore swagger-ui-dist files

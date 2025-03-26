@@ -68,7 +68,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       ...(await createSdkContext(
         context,
         "@typespec/http-client-csharp",
-        defaultSDKContextOptions,
+        options["sdk-context-options"] ?? defaultSDKContextOptions,
       )),
       logger: logger,
       __typeCache: new SdkTypeCache(),
