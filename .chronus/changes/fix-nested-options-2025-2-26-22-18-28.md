@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Fix passing nested emitter options with `--option` works.
+Fix passing nested emitter options with `--option`
