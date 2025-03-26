@@ -1,5 +1,5 @@
 import { createAssetEmitter } from "@typespec/asset-emitter";
-import type { Diagnostic } from "@typespec/compiler";
+import type { Diagnostic, Program } from "@typespec/compiler";
 import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { parse } from "yaml";
 import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";
@@ -85,4 +85,23 @@ export async function emitSchema(
   const [schemas, diagnostics] = await emitSchemaWithDiagnostics(code, options, testOptions);
   expectDiagnosticEmpty(diagnostics);
   return schemas;
+}
+
+export async function compileWithEnumExtension(code: string): Promise<{program: Program, diagnostics: Diagnostic[]}> {
+  const host = await createTestHost({
+    libraries: [JsonSchemaTestLibrary],
+  });
+  
+  const fullCode = `
+    import "@typespec/json-schema"; 
+    using JsonSchema; 
+    ${code}
+  `;
+  
+  host.addTypeSpecFile("main.tsp", fullCode);
+  const result = await host.compile("main.tsp", {
+    noEmit: true,
+  });
+  
+  return { program: result.program, diagnostics: result.diagnostics ?? [] };
 }
