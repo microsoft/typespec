@@ -56,7 +56,7 @@ class BearerTokenCredentialPolicyType(_CredentialPolicyBaseType):
 
     def call(self, async_mode: bool) -> str:
         policy_name = f"{'Async' if async_mode else ''}BearerTokenCredentialPolicy"
-        auth_flows = f"auth_flows={self.flows}, " if not self.code_model.is_azure_flavor and self.flows else ""
+        auth_flows = f"auth_flows={self.flows}, " if self.flows else ""
         return f"policies.{policy_name}(self.credential, *self.credential_scopes, {auth_flows}**kwargs)"
 
     @classmethod
