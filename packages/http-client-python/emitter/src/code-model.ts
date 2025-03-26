@@ -1,5 +1,4 @@
 import {
-  SdkApiVersionParameter,
   SdkBasicServiceMethod,
   SdkClientType,
   SdkCredentialParameter,
