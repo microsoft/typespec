@@ -8,6 +8,7 @@ import {
   StringTemplate,
   Tuple,
   Type,
+  Union,
   createDiagnosticCollector,
   filterModelProperties,
   getDiscriminator,
@@ -275,10 +276,7 @@ function resolveExplicitBodyProperty(
           });
         }
 
-        if (
-          item.property.type.kind === "Union" &&
-          [...item.property.type.variants.values()].some((v) => getHttpFileModel(program, v.type))
-        ) {
+        if (item.property.type.kind === "Union" && unionContainsFile(program, item.property.type)) {
           reportDiagnostic(program, {
             code: "http-file-structured",
             messageId: "union",
@@ -321,6 +319,27 @@ function resolveExplicitBodyProperty(
   }
 
   return diagnostics.wrap(resolvedBody);
+}
+
+function unionContainsFile(program: Program, u: Union): boolean {
+  return unionContainsFileWorker(u);
+
+  function unionContainsFileWorker(u: Union, visited = new Set()): boolean {
+    if (visited.has(u)) return false;
+
+    visited.add(u);
+
+    for (const { type } of u.variants.values()) {
+      if (
+        !!getHttpFileModel(program, type) ||
+        (type.kind === "Union" && unionContainsFileWorker(type, visited))
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 
 /** Validate a property marked with `@body` */

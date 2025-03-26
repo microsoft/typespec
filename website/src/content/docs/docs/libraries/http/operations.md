@@ -233,6 +233,10 @@ namespace Pets {
 
 `@typespec/http` provides a special model [`TypeSpec.Http.File`](../http/reference/data-types.md#file-typespechttpfile) for handling file uploads and downloads in HTTP operations. When working with files, emitters need to implement special handling due to their binary nature.
 
+For more information about HTTP file bodies and how to configure them, see [the documentation on Files][http-files].
+
+[http-files][./files.md]
+
 ### Basic File Handling
 
 When the model `Http.File` (or any model that extends `Http.File`) is the _exact_ body of an HTTP request, emitters **must** treat this model with special care:
