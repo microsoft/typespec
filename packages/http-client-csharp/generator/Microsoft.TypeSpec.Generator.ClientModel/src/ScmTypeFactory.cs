@@ -25,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;
 
         public virtual IHttpResponseApi HttpResponseApi => PipelineResponseProvider.Instance;
+        public virtual IHttpResponseHeadersApi HttpResponseHeadersApi => PipelineResponseHeadersProvider.Instance;
 
         public virtual IHttpMessageApi HttpMessageApi => PipelineMessageProvider.Instance;
 
@@ -107,21 +108,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         /// <summary>
         /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
         /// </summary>
-        /// <param name="operation">The <see cref="InputOperation"/> to convert.</param>
+        /// <param name="serviceMethod>The <see cref="InputServiceMethod"/> to convert.</param>
         /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
         /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
         /// associated with the input operation, or <c>null</c> if no methods are constructed.
         /// </returns>
-        internal MethodProviderCollection? CreateMethods(InputOperation operation, TypeProvider enclosingType)
+        internal MethodProviderCollection? CreateMethods(InputServiceMethod serviceMethod, TypeProvider enclosingType)
         {
-            MethodProviderCollection? methods = new ScmMethodProviderCollection(operation, enclosingType);
+            MethodProviderCollection? methods = new ScmMethodProviderCollection(serviceMethod, enclosingType);
             var visitors = ScmCodeModelGenerator.Instance.Visitors;
 
             foreach (var visitor in visitors)
             {
                 if (visitor is ScmLibraryVisitor scmVisitor)
                 {
-                    methods = scmVisitor.Visit(operation, enclosingType, methods);
+                    methods = scmVisitor.Visit(serviceMethod, enclosingType, methods);
                 }
             }
             return methods;

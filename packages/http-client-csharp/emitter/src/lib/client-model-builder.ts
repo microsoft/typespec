@@ -9,6 +9,7 @@ import { fromSdkClients } from "./client-converter.js";
 import { navigateModels } from "./model.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { getClientNamespaceString } from "./utils.js";
+import { InputServiceMethod } from "../type/input-service-method.js";
 
 /**
  * Creates the code model from the SDK context.

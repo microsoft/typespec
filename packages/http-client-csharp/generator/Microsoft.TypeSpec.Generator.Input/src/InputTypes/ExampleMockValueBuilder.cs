@@ -207,7 +207,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                         continue;
 
                     // skip if this property does not have json
-                    if (property.SerializationOptions.Json is not { } json)
+                    if (property.SerializationOptions?.Json is not { } json)
                         continue;
 
                     // this means a property is defined both on the base and derived type, we skip other occurrences only keep the first

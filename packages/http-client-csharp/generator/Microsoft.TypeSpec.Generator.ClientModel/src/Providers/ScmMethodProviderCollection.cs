@@ -34,14 +34,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ClientProvider Client { get; }
 
-        public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
-            : base(operation, enclosingType)
+        public ScmMethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
+            : base(serviceMethod, enclosingType)
         {
-            _cleanOperationName = operation.Name.ToCleanName();
+            _cleanOperationName = serviceMethod.Operation.Name.ToCleanName();
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
-            _isPaging = operation.Paging != null;
-            _paging = operation.Paging;
+            _isPaging = serviceMethod.Operation.Paging != null;
+            _paging = serviceMethod.Operation.Paging;
         }
 
         protected override IReadOnlyList<MethodProvider> BuildMethods()
@@ -86,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodModifier,
                 GetResponseType(Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
-                [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken]);
+                [.. ConvenienceMethodParameters.Where(p => p.SourceModel == null), ScmKnownParameters.CancellationToken]);
 
             MethodBodyStatement[] methodBody;
             TypeProvider? collection = null;
@@ -126,7 +126,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             declarations = new Dictionary<string, ValueExpression>();
             foreach (var parameter in convenienceMethodParameters)
             {
-                if (parameter.SpreadSource is not null)
+                if (parameter.SpreadSource != null)
                     continue;
 
                 if (parameter.Location == ParameterLocation.Body)
@@ -334,6 +334,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
             bool addedSpreadSource = false;
+            var bodyParameter = convenienceMethodParameters.FirstOrDefault(p => p.Location == ParameterLocation.Body);
 
             foreach (var param in convenienceMethodParameters)
             {
@@ -343,6 +344,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         conversions.Add(declarations["spread"]);
                         addedSpreadSource = true;
+                    }
+                }
+                else if (param.SourceModel != null && bodyParameter?.Type.Equals(param.SourceModel.Type) == true)
+                {
+                    // The parameter was declared inside the body. Find the corresponding property for the parameter
+                    var p = param.SourceModel.CanonicalView.Properties
+                        .FirstOrDefault(prop => prop.WireInfo?.SerializedName == param.WireInfo.SerializedName);
+                    if (p != null)
+                    {
+                        conversions.Add(bodyParameter.Property(p.Name));
                     }
                 }
                 else if (param.Location == ParameterLocation.Body)

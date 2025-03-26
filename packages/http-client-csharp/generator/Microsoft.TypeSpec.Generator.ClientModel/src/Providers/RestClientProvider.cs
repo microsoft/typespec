@@ -73,8 +73,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             List<MethodProvider> methods = new List<MethodProvider>();
 
-            foreach (var operation in _inputClient.Operations)
+            foreach (var serviceMethod in _inputClient.Methods)
             {
+                var operation = serviceMethod.Operation;
                 var method = BuildCreateRequestMethod(operation);
                 methods.Add(method);
                 MethodCache[operation] = method;
@@ -157,8 +158,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Contains a mapping of classifier status codes to their corresponding pipeline message classifier property
             Dictionary<List<int>, PropertyProvider> classifiers = new(new StatusCodesComparer());
 
-            foreach (var inputOperation in _inputClient.Operations)
+            foreach (var inputServiceMethod in _inputClient.Methods)
             {
+                var inputOperation = inputServiceMethod.Operation;
                 var statusCodes = GetSuccessStatusCodes(inputOperation);
                 if (statusCodes.Count > 0 && !classifiers.ContainsKey(statusCodes))
                 {
@@ -461,7 +463,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // convert the property to a parameter
                 var inputParameter = new InputParameter(
                     property.Name,
-                    property.SerializationOptions.Json?.Name ?? property.Name,
+                    property.SerializationOptions?.Json?.Name ?? property.Name,
                     property.Summary,
                     property.Doc,
                     property.Type,
@@ -474,6 +476,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     false,
                     false,
                     false,
+                    null,
                     null,
                     null);
 

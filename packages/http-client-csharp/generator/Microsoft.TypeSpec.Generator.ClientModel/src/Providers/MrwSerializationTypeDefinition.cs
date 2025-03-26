@@ -37,6 +37,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
+        private readonly ParameterProvider _responseHeadersDeserializationParameter =
+          new("responseHeaders", $"The response headers.", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseHeadersApi.HttpResponseHeadersType, Default);
         private readonly ParameterProvider _jsonElementDeserializationParam =
             new("element", $"The JSON element to deserialize", typeof(JsonElement));
         private readonly ParameterProvider _dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
@@ -53,6 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly FieldProvider? _rawDataField;
         private readonly PropertyProvider? _additionalBinaryDataProperty;
         private readonly bool _isStruct;
+        private readonly bool _hasResponseHeaders;
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
@@ -77,6 +80,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
+            _hasResponseHeaders = _inputModel.Usage.HasFlag(InputModelTypeUsage.Output)
+                && _model.CanonicalView.Properties.Any(p => p.WireInfo?.Location.HasFlag(PropertyLocation.Header) == true);
         }
 
         protected override string BuildNamespace() => _model.Type.Namespace;
@@ -182,8 +187,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 typeof(JsonDocument),
                 JsonDocumentSnippets.Parse(response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>()),
                 out var docVariable);
+            var deserializationMethodCall = _hasResponseHeaders
+                ? _model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire, response.Property(nameof(HttpResponseApi.Headers)))
+                : _model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire);
             // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
-            var deserialize = Return(_model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
+            var deserialize = Return(deserializationMethodCall);
             var methodBody = new MethodBodyStatement[]
             {
                 responseDeclaration,
@@ -440,10 +448,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var methodName = $"Deserialize{_model.Name}";
             var signatureModifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
 
+            ParameterProvider[] methodParameters = _hasResponseHeaders
+                ? [_jsonElementDeserializationParam, _serializationOptionsParameter, _responseHeadersDeserializationParameter]
+                : [_jsonElementDeserializationParam, _serializationOptionsParameter];
+
             // internal static T DeserializeT(JsonElement element, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
+              new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, methodParameters),
               _inputModel.DiscriminatedSubtypes.Count > 0 ? BuildDiscriminatedModelDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
@@ -607,6 +619,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildDeserializePropertiesStatements(prop.As<JsonProperty>())
             };
 
+            // Deserialize any response headers if applicable
+            IfStatement? ifResponseHeadersNotNull = null;
+            if (_hasResponseHeaders)
+            {
+                ifResponseHeadersNotNull = new IfStatement(_responseHeadersDeserializationParameter.NotEqual(Null))
+                {
+                    BuildDeserializeResponseHeadersStatements()
+                };
+            }
+
             var valueKindEqualsNullReturn = _isStruct ? Return(Default) : Return(Null);
 
             return
@@ -614,8 +636,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { valueKindEqualsNullReturn },
                 GetPropertyVariableDeclarations(),
                 deserializePropertiesForEachStatement,
+                ifResponseHeadersNotNull ?? MethodBodyStatement.Empty,
                 Return(New.Instance(_model.Type, GetSerializationCtorParameterValues()))
             ];
+        }
+
+        private MethodBodyStatement BuildDeserializeResponseHeadersStatements()
+        {
+            var parameters = SerializationConstructor.Signature.Parameters;
+            var deserializeHeadersStatements = new List<MethodBodyStatement>();
+
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                var parameter = parameters[i];
+                if (parameter.Property != null || parameter.Field != null)
+                {
+                    var wireInfo = parameter.Property?.WireInfo ?? parameter.Field?.WireInfo;
+
+                    if (wireInfo?.Location != PropertyLocation.Header)
+                    {
+                        continue;
+                    }
+                    var propertySerializationName = wireInfo.SerializedName;
+                    var propertyExpression = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
+                    if (propertyExpression == null)
+                    {
+                        continue;
+                    }
+
+                    var tryGetValueStatement = new IfStatement(_responseHeadersDeserializationParameter
+                        .ToApi<HttpResponseHeadersApi>()
+                        .TryGetHeader(propertySerializationName, out var headerValue))
+                    {
+                        // Deserialize the header value
+                        propertyExpression.Assign(headerValue!).Terminate(),
+                    };
+                    deserializeHeadersStatements.Add(tryGetValueStatement);
+                }
+                else
+                {
+                    Debug.Assert(parameter.Field != null);
+                }
+            }
+            return deserializeHeadersStatements;
         }
 
         private MethodBodyStatement GetPropertyVariableDeclarations()
@@ -794,8 +857,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     var wireInfo = parameter.Property?.WireInfo ?? parameter.Field?.WireInfo;
 
-                    // By default, we should only deserialize properties with wire info. Those properties without wire info indicate they are not spec properties.
-                    if (wireInfo == null)
+                    // By default, we should only deserialize properties with wire info that are payload properties.
+                    // Those properties without wire info indicate they are not spec properties.
+                    if (wireInfo?.Location != PropertyLocation.Body)
                     {
                         continue;
                     }
@@ -1369,10 +1433,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement[] CreateWritePropertiesStatements()
         {
             List<MethodBodyStatement> propertyStatements = new();
+
+            // we should only write those properties with wire info and are payload properties.
+            // Those properties without wireinfo indicate they are not spec properties.
             foreach (var property in _model.CanonicalView.Properties)
             {
-                // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
-                if (property.WireInfo == null)
+                if (property.WireInfo?.Location != PropertyLocation.Body)
                 {
                     continue;
                 }
@@ -1382,8 +1448,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var field in _model.CanonicalView.Fields)
             {
-                // we should only write those properties with a wire info. Those properties without wireinfo indicate they are not spec properties.
-                if (field.WireInfo == null)
+                if (field.WireInfo?.Location != PropertyLocation.Body)
                 {
                     continue;
                 }

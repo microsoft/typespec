@@ -9,7 +9,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 {
     public abstract class ScmLibraryVisitor : LibraryVisitor
     {
-        protected internal virtual MethodProviderCollection? Visit(InputOperation operation,
+        protected internal virtual MethodProviderCollection? Visit(InputServiceMethod serviceMethod,
             TypeProvider enclosingType,
             MethodProviderCollection? methodProviderCollection)
         {

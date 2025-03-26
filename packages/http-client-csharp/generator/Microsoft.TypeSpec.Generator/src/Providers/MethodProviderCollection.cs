@@ -13,12 +13,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class MethodProviderCollection : IReadOnlyList<MethodProvider>
     {
         private IReadOnlyList<MethodProvider>? _cSharpMethods;
+        protected InputServiceMethod ServiceMethod { get; }
         protected InputOperation Operation { get; private init; }
         protected TypeProvider EnclosingType { get; private init; }
 
-        public MethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
+        public MethodProviderCollection(InputServiceMethod serviceMethod, TypeProvider enclosingType)
         {
-            Operation = operation;
+            ServiceMethod = serviceMethod;
+            Operation = serviceMethod.Operation;
             EnclosingType = enclosingType;
         }
 
