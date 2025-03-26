@@ -141,16 +141,25 @@ async function resolveLocalCompilerInWorkspaces(): Promise<string | undefined> {
     if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
       return undefined;
     }
+    const FIRST_WORKSPACE_INDEX = 0;
+    const SECOND_WORKSPACE_INDEX = 1;
     // Try to resolve compiler from the first workspace folder directly which should work in most cases
-    const firstWorkspaceFolder = workspace.workspaceFolders[0].uri.fsPath;
+    const firstWorkspaceFolder = workspace.workspaceFolders[FIRST_WORKSPACE_INDEX].uri.fsPath;
     const path = await resolveLocalCompiler(firstWorkspaceFolder);
     if (path) {
       return path;
     }
     // Fallback to search the whole workspaces which will trigger more heavy operations
-    const pkgJsonFiles = await workspace.findFiles("**/package.json", "**/node_modules/**");
-    for (const pkgJsonFile of pkgJsonFiles) {
-      const folder = getDirectoryPath(pkgJsonFile.fsPath);
+    const folders = (await workspace.findFiles("**/package.json", "**/node_modules/**")).map(
+      (uri) => getDirectoryPath(uri.fsPath),
+    );
+    const otherWorkspaceFolder = workspace.workspaceFolders
+      .slice(SECOND_WORKSPACE_INDEX)
+      .map((wf) => wf.uri.fsPath);
+    folders.push(...otherWorkspaceFolder);
+    const uniqueFolders = new Set(folders);
+
+    for (const folder of uniqueFolders) {
       logger.debug(`Try to resolve compiler from folder: ${folder}`);
       const path = await resolveLocalCompiler(folder);
       if (path) {
