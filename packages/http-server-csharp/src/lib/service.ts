@@ -32,6 +32,7 @@ import {
   Type,
   Union,
   getDoc,
+  getMinValue,
   getNamespaceFullName,
   getService,
   isErrorModel,
@@ -46,8 +47,10 @@ import { createRekeyableMap } from "@typespec/compiler/utils";
 import {
   HttpOperation,
   HttpOperationResponse,
+  getHeaderFieldName,
   getHttpOperation,
   getHttpPart,
+  isHeader,
   isStatusCode,
 } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
@@ -82,6 +85,7 @@ import {
   CSharpOperationHelpers,
   EmittedTypeInfo,
   HttpMetadata,
+  ModelInfo,
   UnknownType,
   coalesceTypes,
   coalesceUnionTypes,
@@ -99,7 +103,6 @@ import {
   getHttpDeclParameters,
   getModelAttributes,
   getModelDeclarationName,
-  getModelExceptionConstructor,
   getModelInstantiationName,
   getOpenApiConfig,
   getOperationVerbDecorator,
@@ -273,14 +276,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const baseModelRef = model.baseModel
         ? code`: ${this.emitter.emitTypeReference(model.baseModel)}`
         : "";
-      const baseClass = baseModelRef || (isErrorType ? ": HttpResponseException" : "");
+      const baseClass = baseModelRef || (isErrorType ? ": HttpServiceException" : "");
 
       const namespace = this.emitter.getContext().namespace;
       const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const doc = getDoc(this.emitter.getProgram(), model);
       const attributes = getModelAttributes(this.emitter.getProgram(), model, className);
       const exceptionConstructor = isErrorType
-        ? getModelExceptionConstructor(this.emitter.getProgram(), model, className)
+        ? this.getModelExceptionConstructor(this.emitter.getProgram(), model, className)
         : "";
 
       this.#metadateMap.set(model, new CSharpType({ name: className, namespace: namespace }));
@@ -292,13 +295,90 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       namespace ${namespace} {
 
       ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public partial class ${className} ${baseClass} {
-      ${exceptionConstructor}
-      ${this.emitter.emitModelProperties(model)}
+      ${exceptionConstructor ? `${exceptionConstructor}\n` : ""}${this.emitter.emitModelProperties(model)}
     }
    } `,
       );
 
       return decl;
+    }
+
+    getModelExceptionConstructor(program: Program, model: Model, className: string): string {
+      function getDefinedStatusCode() {
+        const statusCodeProperty = new ModelInfo().filterAllProperties(program, model, (p) =>
+          isStatusCode(program, p),
+        );
+
+        if (!statusCodeProperty) return undefined;
+
+        const { type } = statusCodeProperty;
+        switch (type.kind) {
+          case "Union": {
+            const firstVariant = type.variants.values().next().value;
+            return firstVariant?.type.kind === "Number" ? firstVariant.type.value : undefined;
+          }
+          case "Number":
+            return type.value;
+          default:
+            return getMinValue(program, statusCodeProperty) ?? undefined;
+        }
+      }
+
+      if (!isErrorModel(program, model)) {
+        return "";
+      }
+
+      const definedStatusCode = getDefinedStatusCode();
+      const constructor = this.getExceptionConstructorData(program, model);
+
+      return `public ${className}(${constructor.properties}) : base(${definedStatusCode ? definedStatusCode : "default"}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
+        { ${constructor.body ? `\n${constructor.body}` : ""}\n\t}`;
+    }
+
+    getExceptionConstructorData(program: Program, model: Model) {
+      const allProperties = new ModelInfo().getAllProperties(program, model) ?? [];
+      const sortedProperties = allProperties
+        .filter((p) => !isStatusCode(program, p))
+        .sort((a, b) => {
+          if (!a.optional && !a.defaultValue && (b.optional || b.defaultValue)) return -1;
+          if (!b.optional && !b.defaultValue && (a.optional || a.defaultValue)) return 1;
+          return 0;
+        });
+
+      const properties: string[] = [];
+      const body: string[] = [];
+      const header: string[] = [];
+      const value: string[] = [];
+      for (const prop of sortedProperties!) {
+        let propertyName = ensureCSharpIdentifier(program, prop, prop.name);
+        if (model.name === propertyName) {
+          propertyName = `${propertyName}Prop`;
+        }
+        const { defaultValue: typeDefault } = this.#findPropertyType(prop);
+        const defaultValue = prop.defaultValue
+          ? code`${JSON.stringify(serializeValueAsJson(program, prop.defaultValue, prop))}`
+          : typeDefault;
+
+        const type = getCSharpType(program, prop.type);
+        properties.push(
+          `${type?.type.name} ${prop.name}${defaultValue ? ` = ${defaultValue}` : `${prop.optional ? " = default" : ""}`}`,
+        );
+        body.push(`\t\t${propertyName} = ${prop.name};`);
+
+        if (isHeader(program, prop)) {
+          const headerName = getHeaderFieldName(program, prop);
+          header.push(`{"${headerName}", ${prop.name}}`);
+        } else {
+          value.push(`${prop.name} = ${prop.name}`);
+        }
+      }
+
+      return {
+        properties: properties.join(", "),
+        body: body.join("\n"),
+        header: header.join(", "),
+        value: value.join(","),
+      };
     }
 
     modelDeclarationContext(model: Model, name: string): Context {

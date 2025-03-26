@@ -13,7 +13,6 @@ import {
   Type,
   Union,
   getFriendlyName,
-  getMinValue,
   isErrorModel,
   isNullType,
   isNumericType,
@@ -587,42 +586,6 @@ export function getModelAttributes(
   cSharpName?: string,
 ): Attribute[] {
   return getAttributes(program, entity, cSharpName);
-}
-
-export function getModelExceptionConstructor(
-  program: Program,
-  model: Model,
-  className: string,
-): string {
-  function getDefinedStatusCode() {
-    const statusCodeProperty = new ModelInfo().filterAllProperties(program, model, (p) =>
-      isStatusCode(program, p),
-    );
-
-    if (!statusCodeProperty) return undefined;
-
-    const { type } = statusCodeProperty;
-    switch (type.kind) {
-      case "Union": {
-        const firstVariant = type.variants.values().next().value;
-        return firstVariant?.type.kind === "Number" ? firstVariant.type.value : undefined;
-      }
-      case "Number":
-        return type.value;
-      default:
-        return getMinValue(program, statusCodeProperty) ?? undefined;
-    }
-  }
-
-  if (!isErrorModel(program, model)) {
-    return "";
-  }
-
-  const definedStatusCode = getDefinedStatusCode();
-
-  return definedStatusCode
-    ? `public ${className}() : base(${definedStatusCode}) { }`
-    : `public ${className}(int statusCode) : base(statusCode) { }`;
 }
 
 export function getModelDeclarationName(

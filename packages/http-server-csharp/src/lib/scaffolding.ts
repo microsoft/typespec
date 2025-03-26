@@ -225,7 +225,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
 {
-  options.Filters.Add<HttpResponseExceptionFilter>();
+  options.Filters.Add<HttpServiceExceptionFilter>();
 });
 builder.Services.AddEndpointsApiExplorer();
 ${useSwagger ? "builder.Services.AddSwaggerGen();" : ""}

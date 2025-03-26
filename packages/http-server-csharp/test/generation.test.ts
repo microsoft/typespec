@@ -1978,8 +1978,9 @@ describe("emit correct code for `@error` models", () => {
       `,
       "NotFoundError.cs",
       [
-        "public partial class NotFoundError : HttpResponseException {",
-        "public NotFoundError() : base(404) { }",
+        "public partial class NotFoundError : HttpServiceException {",
+        `public NotFoundError(string code = "not-found") : base(404,`,
+        "value: new{code = code}) ",
       ],
     );
   });
@@ -1994,24 +1995,8 @@ describe("emit correct code for `@error` models", () => {
       `,
       "NotFoundError.cs",
       [
-        "public partial class NotFoundError : HttpResponseException {",
-        "public NotFoundError() : base(404) { }",
-      ],
-    );
-  });
-  it("emits default value when `@statusCode` property is not present and provides constructor to set status code", async () => {
-    await compileAndValidateSingleModel(
-      runner,
-      `
-        @error
-        model NotDefinedError {
-          code: string;
-        }
-      `,
-      "NotDefinedError.cs",
-      [
-        "public partial class NotDefinedError : HttpResponseException {",
-        "public NotDefinedError(int statusCode) : base(statusCode) { }",
+        "public partial class NotFoundError : HttpServiceException {",
+        "public NotFoundError() : base(404)",
       ],
     );
   });
@@ -2029,8 +2014,8 @@ describe("emit correct code for `@error` models", () => {
       `,
       "ErrorInRange.cs",
       [
-        "public partial class ErrorInRange : HttpResponseException {",
-        "public ErrorInRange() : base(500) { }",
+        "public partial class ErrorInRange : HttpServiceException {",
+        "public ErrorInRange() : base(500)",
       ],
     );
   });
@@ -2050,7 +2035,7 @@ describe("emit correct code for `@error` models", () => {
         }
       `,
       "Error.cs",
-      ["public partial class Error : HttpResponseException {", "public Error() : base(400) { }"],
+      ["public partial class Error : HttpServiceException {", "public Error() : base(400)"],
     );
   });
   it("emits first value when `@statusCode` is defined with an union", async () => {
@@ -2064,7 +2049,7 @@ describe("emit correct code for `@error` models", () => {
         }
       `,
       "Error.cs",
-      ["public partial class Error : HttpResponseException {", "public Error() : base(200) { }"],
+      ["public partial class Error : HttpServiceException {", "public Error() : base(200)"],
     );
   });
   it("emits error models when they inherit the `@error` decorator and resolves all the inheritance correctly", async () => {
@@ -2086,16 +2071,88 @@ describe("emit correct code for `@error` models", () => {
         [
           "ApiError.cs",
           [
-            "public partial class ApiError : HttpResponseException {",
-            "public ApiError(int statusCode) : base(statusCode) { }",
+            "public partial class ApiError : HttpServiceException {",
+            "public ApiError(string code, string message) : base(default,",
             "public string Code { get; set; }",
             "public string Message { get; set; }",
           ],
         ],
-        [
-          "Error.cs",
-          [" public partial class Error : ApiError {", "public Error() : base(500) { }"],
-        ],
+        ["Error.cs", ["public partial class Error : ApiError {", "public Error() : base(500)"]],
+      ],
+    );
+  });
+  it("emit error constructor with paramerters ordered by requiered followed by optional/default", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200;
+          optionalMessage?: string;
+          code: string;
+          defined: string = "default message";
+          message: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message, string optionalMessage = default, string defined = "default message") : base(200,`,
+      ],
+    );
+  });
+  it("emit error with headers", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode statusCode: 200;
+          @header("x-ms-error-code") code: string;
+          @header customHeader: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string customHeader) : base(200,`,
+        ` headers: new(){{"x-ms-error-code", code}, {"custom-header", customHeader}})`,
+      ],
+    );
+  });
+  it("emit error constructor with value/regular properties", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          code: string;
+          message: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message) : base(default,`,
+        `value: new{code = code,message = message}) `,
+      ],
+    );
+  });
+  it("emit error costructor properties and defined in body", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200;
+          code: string;
+          message: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message) : base(200,`,
+        `Code = code;`,
+        `Message = message;`,
       ],
     );
   });

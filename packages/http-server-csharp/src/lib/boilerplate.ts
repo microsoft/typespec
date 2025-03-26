@@ -68,9 +68,9 @@ export function getSerializationSourceFiles(
       getContents: getJsonProvider,
     }),
     new LibrarySourceFile({
-      filename: "HttpResponseException.cs",
+      filename: "HttpServiceException.cs",
       emitter: emitter,
-      getContents: getHttpResponseException,
+      getContents: getHttpServiceException,
     }),
   );
   return sourceFiles;
@@ -701,7 +701,7 @@ namespace TypeSpec.Helpers
 `;
 }
 
-function getHttpResponseException(): string {
+function getHttpServiceException(): string {
   return `${GeneratedFileHeaderWithNullable}
 
   using Microsoft.AspNetCore.Mvc;
@@ -712,25 +712,27 @@ function getHttpResponseException(): string {
     /// <summary>
     /// Represents an HTTP response exception with a status code and optional value.
     /// </summary>
-    public class HttpResponseException : Exception
+    public class HttpServiceException : Exception
     {
       /// <summary>
-      /// Initializes a new instance of the HttpResponseException class.
+      /// Initializes a new instance of the HttpServiceException class.
       /// </summary>
       /// <param name="statusCode">The HTTP status code.</param>
       /// <param name="value">The optional value to include in the response.</param>
-      public HttpResponseException(int statusCode, object? value = null) =>
-          (StatusCode, Value) = (statusCode, value);
+      public HttpServiceException(int statusCode, object? value = null, Dictionary<string, string>? headers = null) =>
+          (StatusCode, Value, Headers) = (statusCode, value, headers ?? new Dictionary<string, string>());
 
       public int StatusCode { get; }
 
       public object? Value { get; }
+
+      public Dictionary<string, string> Headers { get; } 
     }
 
     /// <summary>
-    /// An action filter that handles HttpResponseException and converts it to an HTTP response.
+    /// An action filter that handles HttpServiceException and converts it to an HTTP response.
     /// </summary>
-    public class HttpResponseExceptionFilter : IActionFilter, IOrderedFilter
+    public class HttpServiceExceptionFilter : IActionFilter, IOrderedFilter
     {
       public int Order => int.MaxValue - 10;
 
@@ -738,11 +740,16 @@ function getHttpResponseException(): string {
 
       public void OnActionExecuted(ActionExecutedContext context)
       {
-        if (context.Exception is HttpResponseException httpResponseException)
+        if (context.Exception is HttpServiceException httpServiceException)
         {
-            context.Result = new ObjectResult(httpResponseException.Value)
+            foreach (var header in httpServiceException.Headers)
             {
-                StatusCode = httpResponseException.StatusCode
+                context.HttpContext.Response.Headers.Append(header.Key, header.Value.ToString());
+            }
+
+            context.Result = new ObjectResult(httpServiceException.Value)
+            {
+                StatusCode = httpServiceException.StatusCode
             };
 
             context.ExceptionHandled = true;
