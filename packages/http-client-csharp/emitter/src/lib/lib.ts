@@ -7,7 +7,7 @@ import {
   DiagnosticMessages,
   paramMessage,
 } from "@typespec/compiler";
-import { CSharpEmitterOptionsSchema } from "../options.js";
+import CSharpEmitterOptionsSchema from "../options.js";
 
 export type DiagnosticMessagesMap = {
   [K in keyof typeof diags]: (typeof diags)[K]["messages"];

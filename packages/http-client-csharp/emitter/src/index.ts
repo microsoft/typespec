@@ -9,7 +9,7 @@ export { LoggerLevel } from "./lib/logger-level.js";
 export { Logger } from "./lib/logger.js";
 export {
   CSharpEmitterOptions,
-  CSharpEmitterOptionsSchema,
+  default as CSharpEmitterOptionsSchema,
   defaultOptions,
   resolveOptions,
 } from "./options.js";

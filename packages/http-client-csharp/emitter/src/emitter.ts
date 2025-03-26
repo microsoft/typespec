@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, SdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -95,14 +95,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       await writeCodeModel(sdkContext, root, outputFolder);
 
       const namespace = root.name;
-      const configurations: Configuration = {
-        "output-folder": ".",
-        "package-name": options["package-name"] ?? namespace,
-        "unreferenced-types-handling": options["unreferenced-types-handling"],
-        "disable-xml-docs":
-          options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
-        license: sdkContext.license,
-      };
+      const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
       //emit configuration.json
       await program.host.writeFile(
@@ -152,6 +145,16 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       }
     }
   }
+}
+
+export function createConfiguration(options:CSharpEmitterOptions, namespace: string, sdkContext: SdkContext): Configuration {
+  return {
+    "output-folder": ".",
+    "package-name": options["package-name"] ?? namespace,
+    "unreferenced-types-handling": options["unreferenced-types-handling"],
+    "disable-xml-docs": options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
+    license: sdkContext.sdkPackage.licenseInfo,
+  };
 }
 
 /**
