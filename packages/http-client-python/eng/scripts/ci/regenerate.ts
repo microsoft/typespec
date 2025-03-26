@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import { exec as execCallback, execFile } from "child_process";
+import chalk from "chalk";
+import { execFile } from "child_process";
 import { promises, rmSync } from "fs";
 import { dirname, join, relative, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -19,9 +20,6 @@ const argv = parseArgs({
     pyodide: { type: "boolean" },
   },
 });
-
-// Promisify the exec function
-const exec = promisify(execCallback);
 
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
@@ -222,20 +220,15 @@ async function executeCommand(tspCommand: TspCommand): Promise<void> {
   try {
     rmSync(tspCommand.outputDir, { recursive: true, force: true });
   } catch (error) {
-    console.error(`rm error: ${error}`);
+    console.error(chalk.red(`rm error: ${error}`));
   }
+  const execFileAsync = promisify(execFile);
   try {
-    console.log(`exec: ${tspCommand.command}`);
-    execFile("tsp", tspCommand.command, (error, stdout, stderr) => {
-      if (error) {
-        throw error;
-      }
-      if (stdout) console.log(stdout);
-      if (stderr) console.error(stderr);
-    });
-  } catch (error) {
-    console.error(`exec error: ${error}`);
-    throw error;
+    await execFileAsync("tsp", tspCommand.command);
+    console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
+  } catch (err) {
+    console.error(chalk.red(`exec error: ${err}`));
+    throw err;
   }
 }
 
@@ -415,7 +408,7 @@ const start = performance.now();
 regenerate(argv.values)
   .then(() =>
     console.log(
-      `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
+      chalk.green(`Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`),
     ),
   )
-  .catch((error) => console.error(`Regeneration failed: ${error.message}`));
+  .catch((error) => console.error(chalk.red(`Regeneration failed: ${error.message}`)));

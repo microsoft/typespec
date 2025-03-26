@@ -5,7 +5,7 @@ import { existsSync } from "fs";
 import { dirname, join, resolve } from "path";
 import process from "process";
 import { fileURLToPath } from "url";
-import { parseArgs } from "util";
+import { parseArgs, promisify } from "util";
 
 const argv = parseArgs({
   args: process.argv.slice(2),
@@ -17,20 +17,15 @@ const argv = parseArgs({
 });
 
 // execute the command
-export function executeCommand(command: string, args: string[]) {
-  execFile(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(chalk.red(`Error executing ${command}(stdout): ${stdout}`));
-      console.error(chalk.red(`Error executing ${command}{stderr}: ${stderr}`));
-      process.exit(1);
-    }
-    if (stderr) {
-      // Process stderr output
-      console.log(chalk.yellow(`${command}:\n${stderr}`));
-      return;
-    }
+export async function executeCommand(command: string, args: string[]) {
+  const execFileAsync = promisify(execFile);
+  try {
+    await execFileAsync(command, args);
     console.log(chalk.green(`${command} passed`));
-  });
+  } catch (err) {
+    console.error(chalk.red(`Error executing ${command}: ${err}`));
+    process.exit(1);
+  }
 }
 
 // Function to run a command and log the output
