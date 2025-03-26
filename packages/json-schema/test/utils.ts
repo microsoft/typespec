@@ -1,10 +1,13 @@
 import { createAssetEmitter } from "@typespec/asset-emitter";
 import type { Diagnostic, Program } from "@typespec/compiler";
-import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
+import { createTestHost, expectDiagnosticEmpty as expectEmpty } from "@typespec/compiler/testing";
 import { parse } from "yaml";
 import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";
 import type { JSONSchemaEmitterOptions } from "../src/lib.js";
 import { JsonSchemaTestLibrary } from "../src/testing/index.js";
+
+// Re-export for use in tests
+export { expectEmpty as expectDiagnosticEmpty };
 
 export async function getHostForTspFile(contents: string, decorators?: Record<string, any>) {
   const host = await createTestHost({
@@ -83,11 +86,11 @@ export async function emitSchema(
   } = { emitNamespace: true },
 ) {
   const [schemas, diagnostics] = await emitSchemaWithDiagnostics(code, options, testOptions);
-  expectDiagnosticEmpty(diagnostics);
+  expectEmpty(diagnostics);
   return schemas;
 }
 
-export async function compileWithEnumExtension(code: string): Promise<{program: Program, diagnostics: Diagnostic[]}> {
+export async function compileWithEnumExtension(code: string): Promise<{program: Program, diagnostics: readonly Diagnostic[]}> {
   const host = await createTestHost({
     libraries: [JsonSchemaTestLibrary],
   });
@@ -99,9 +102,13 @@ export async function compileWithEnumExtension(code: string): Promise<{program: 
   `;
   
   host.addTypeSpecFile("main.tsp", fullCode);
-  const result = await host.compile("main.tsp", {
+  await host.compileAndDiagnose("main.tsp", {
     noEmit: true,
   });
   
-  return { program: result.program, diagnostics: result.diagnostics ?? [] };
+  // At this point diagnostics should be properly populated
+  return { 
+    program: host.program, 
+    diagnostics: host.program.diagnostics
+  };
 }

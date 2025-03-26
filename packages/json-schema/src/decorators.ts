@@ -288,16 +288,17 @@ export function setExtension(program: Program, target: Type, key: string, value:
       key,
       value: typespecTypeToJson(value.properties.get("value")!.type, target)[0],
     });
-  } else if (typeof value === "object" && value !== null && isType(value)) {
+  } else if (typeof value === "object" && value !== null && "entityKind" in value && value.entityKind === "Type") {
     // Handle enum members and other TypeSpec types to avoid circular references
-    if (value.kind === "EnumMember") {
-      extensions.push({ key, value: value.value ?? value.name });
-    } else if (value.kind === "String") {
-      extensions.push({ key, value: value.value });
-    } else if (value.kind === "Number") {
-      extensions.push({ key, value: value.value });
-    } else if (value.kind === "Boolean") {
-      extensions.push({ key, value: value.value });
+    const typeValue = value as Type; // Type assertion since we've verified entityKind === "Type"
+    if (typeValue.kind === "EnumMember") {
+      extensions.push({ key, value: (typeValue as any).value ?? (typeValue as any).name });
+    } else if (typeValue.kind === "String") {
+      extensions.push({ key, value: (typeValue as any).value });
+    } else if (typeValue.kind === "Number") {
+      extensions.push({ key, value: (typeValue as any).value });
+    } else if (typeValue.kind === "Boolean") {
+      extensions.push({ key, value: (typeValue as any).value });
     } else {
       // For other TypeSpec types, preserve the original value
       extensions.push({ key, value });
