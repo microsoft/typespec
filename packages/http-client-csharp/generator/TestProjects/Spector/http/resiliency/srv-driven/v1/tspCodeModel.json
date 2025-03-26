@@ -49,6 +49,7 @@
  "clients": [
   {
    "$id": "6",
+   "kind": "client",
    "name": "ResiliencyServiceDrivenClient",
    "namespace": "Resiliency.ServiceDriven",
    "doc": "Test that we can grow up a service spec and service deployment into a multi-versioned service with full client support.",
@@ -253,7 +254,10 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Resiliency.ServiceDriven"
+   "crossLanguageDefinitionId": "Resiliency.ServiceDriven",
+   "apiVersions": [
+    "v1"
+   ]
   }
  ]
 }

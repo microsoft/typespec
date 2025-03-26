@@ -146,6 +146,7 @@
  "clients": [
   {
    "$id": "18",
+   "kind": "client",
    "name": "AddedClient",
    "namespace": "Versioning.Added",
    "doc": "Test for the `@added` decorator.",
@@ -298,7 +299,10 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Versioning.Added"
+   "crossLanguageDefinitionId": "Versioning.Added",
+   "apiVersions": [
+    "v1"
+   ]
   }
  ]
 }
