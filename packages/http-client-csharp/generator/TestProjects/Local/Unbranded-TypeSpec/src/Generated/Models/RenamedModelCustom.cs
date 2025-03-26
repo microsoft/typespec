@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace UnbrandedTypeSpec.Models.Custom
+namespace UnbrandedTypeSpec
 {
     /// <summary> this is a model with a client name. </summary>
     public partial class RenamedModelCustom

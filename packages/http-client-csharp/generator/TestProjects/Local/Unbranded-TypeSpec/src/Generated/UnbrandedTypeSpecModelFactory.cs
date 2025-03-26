@@ -142,7 +142,7 @@ namespace UnbrandedTypeSpec
 
         /// <summary> this is a model with a client name. </summary>
         /// <param name="name"> name of the ModelWithClientName. </param>
-        /// <returns> A new <see cref="Models.Custom.RenamedModelCustom"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.RenamedModelCustom"/> instance for mocking. </returns>
         public static RenamedModelCustom RenamedModelCustom(string name = default)
         {
 
