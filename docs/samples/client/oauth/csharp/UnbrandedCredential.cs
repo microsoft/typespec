@@ -1,64 +1,39 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// Demonstrates creating a client with an unbranded authentication token provider.
 using System;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Azure.Core;
-using Azure.Core.TestFramework;
-using Azure.Identity;
-using Azure.Core.Experimental.Models;
-using NUnit.Framework;
 
-namespace UnbrandedCredential
+namespace UnbrandedTypeSpec
 {
-    public class UnbrandedCredentialSamples : SamplesBase<MonitorQueryTestEnvironment>
+    /// <summary>
+    /// Demonstrates creating a client with an unbranded authentication token provider.
+    /// </summary>
+    public partial class UnbrandedTypeSpecClient
     {
-        [Test]
-        public async Task UnbrandedApiKeyCredential()
-        {
-            #region Snippet:CreateClientWithApiKeyCredential
-            public FooClient(Uri uri, ApiKeyCredential credential)
-            {
-                var options = new ClientPipelineOptions();
-                options.Transport = new MockPipelineTransport("foo", m => new MockPipelineResponse(200));
-                ClientPipeline pipeline = ClientPipeline.Create(options,
-                perCallPolicies: ReadOnlySpan<PipelinePolicy>.Empty,
-                perTryPolicies: [ApiKeyAuthenticationPolicy.CreateBasicAuthorizationPolicy(credential)],
-                beforeTransportPolicies: ReadOnlySpan<PipelinePolicy>.Empty);
-                _pipeline = pipeline;
-            }
-            #endregion
-        }
-
-        [Test]
-        public async Task UnbrandedAuthenticationTokenProvider()
-        {
-            #region Snippet:CreateClientWithAuthenticationTokenProvider
-            // Generated from the TypeSpec spec for use in FooClient
-            private readonly Dictionary<string, object>[] flows = [
-                new Dictionary<string, object> {
+        private readonly Dictionary<string, object>[] flows = [
+            new Dictionary<string, object> {
                     { GetTokenOptions.ScopesPropertyName, new string[] { "baselineScope" } },
                     { GetTokenOptions.TokenUrlPropertyName , "https://myauthserver.com/token"},
                     { GetTokenOptions.RefreshUrlPropertyName, "https://myauthserver.com/refresh"}
                 }
-            ];
+        ];
 
-            public FooClient(Uri uri, AuthenticationTokenProvider credential)
-            {
-                var options = new ClientPipelineOptions();
-                options.Transport = new MockPipelineTransport("foo",
-                m =>
-                {
-                    return new MockPipelineResponse(200);
-                });
-                ClientPipeline pipeline = ClientPipeline.Create(options,
-                perCallPolicies: ReadOnlySpan<PipelinePolicy>.Empty,
-                perTryPolicies: [new OAuth2BearerTokenAuthenticationPolicy(credential, flows)],
-                beforeTransportPolicies: ReadOnlySpan<PipelinePolicy>.Empty);
-                _pipeline = pipeline;
-            }
-            #endregion
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnbrandedTypeSpecClient"/> class.
+        /// </summary>
+        /// <param name="uri">The URI of the service.</param>
+        /// <param name="credential">The authentication token provider.</param>
+        public UnbrandedTypeSpecClient(Uri uri, AuthenticationTokenProvider credential)
+        {
+            var options = new ClientPipelineOptions();
+            Pipeline = ClientPipeline.Create(options,
+            perCallPolicies: ReadOnlySpan<PipelinePolicy>.Empty,
+            perTryPolicies: [new OAuth2BearerTokenAuthenticationPolicy(credential, flows)],
+            beforeTransportPolicies: ReadOnlySpan<PipelinePolicy>.Empty);
         }
     }
 }
