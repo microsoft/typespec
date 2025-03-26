@@ -209,7 +209,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     enumDeclarationContext(en: Enum): Context {
       const enumName = ensureCSharpIdentifier(this.emitter.getProgram(), en, en.name);
-      const enumFile = this.emitter.createSourceFile(`models/${enumName}.cs`);
+      const enumFile = this.emitter.createSourceFile(`generated/models/${enumName}.cs`);
       enumFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const enumNamespace = `${this.#getOrSetBaseNamespace(en)}.Models`;
       return this.#createEnumContext(enumNamespace, enumFile, enumName);
@@ -295,7 +295,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     modelDeclarationContext(model: Model, name: string): Context {
       if (this.#isMultipartModel(model)) return {};
       const modelName = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
-      const modelFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
+      const modelFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
       return this.#createModelContext(modelNamespace, modelFile, modelName);
@@ -308,7 +308,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         model,
         model.name,
       );
-      const sourceFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
+      const sourceFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
       const context = this.#createModelContext(modelNamespace, sourceFile, model.name);
@@ -485,7 +485,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     interfaceDeclarationContext(iface: Interface, name: string): Context {
       // set up interfaces file for declaration
       const ifaceName: string = `I${ensureCSharpIdentifier(this.emitter.getProgram(), iface, name, NameCasingType.Class)}`;
-      const sourceFile = this.emitter.createSourceFile(`operations/${ifaceName}.cs`);
+      const sourceFile = this.emitter.createSourceFile(`generated/operations/${ifaceName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Interface;
       const ifaceNamespace = this.#getOrSetBaseNamespace(iface);
       const modelNamespace = `${ifaceNamespace}.Models`;
@@ -834,7 +834,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           union,
           union.name || "Union",
         );
-        const unionFile = this.emitter.createSourceFile(`models/${unionName}.cs`);
+        const unionFile = this.emitter.createSourceFile(`generated/models/${unionName}.cs`);
         unionFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
         const unionNamespace = `${this.#getOrSetBaseNamespace(union)}.Models`;
         return {
@@ -928,7 +928,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       let context: ControllerContext | undefined = controllers.get(name);
       if (context !== undefined) return context;
       const sourceFile: SourceFile<string> = this.emitter.createSourceFile(
-        `controllers/${name}Controller.cs`,
+        `generated/controllers/${name}Controller.cs`,
       );
 
       const namespace = this.#getOrSetBaseNamespace(operation);
@@ -1239,7 +1239,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
   processNameSpace(context.program, ns);
   if (!doNotEmit) {
-    await ensureCleanDirectory(context.program, options.emitterOutputDir);
+    const outputDir = options.emitterOutputDir;
+    const generatedDir = path.join(outputDir, "generated");
+    await ensureCleanDirectory(context.program, generatedDir);
 
     function normalizeSlashes(path: string) {
       return path.replaceAll("\\", "/");
@@ -1248,7 +1250,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     async function getOpenApiPath(): Promise<string> {
       if (options["openapi-path"]) return options["openapi-path"];
       const openApiSettings = await getOpenApiConfig(context.program);
-      const projectDir = resolvePath(context.program.projectRoot, options.emitterOutputDir, "..");
+      const projectDir = resolvePath(context.program.projectRoot, outputDir);
       if (openApiSettings.outputDir) {
         const openApiPath = resolvePath(
           openApiSettings.outputDir,
@@ -1292,9 +1294,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     await emitter.writeOutput();
-    const projectDir = normalizeSlashes(
-      path.relative(process.cwd(), resolvePath(options.emitterOutputDir, "..")),
-    );
+    const projectDir = normalizeSlashes(path.relative(process.cwd(), resolvePath(outputDir)));
     const traceId = "http-server-csharp";
 
     context.program.trace(traceId, `Your project was successfully created at "${projectDir}"`);
@@ -1313,7 +1313,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       await execFile("dotnet", [
         "format",
         "whitespace",
-        emitter.getOptions().emitterOutputDir,
+        outputDir,
         "--include-generated",
         "--folder",
       ]);
