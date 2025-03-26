@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import chalk from "chalk";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { existsSync } from "fs";
 import { dirname, join, resolve } from "path";
 import process from "process";
@@ -17,8 +17,8 @@ const argv = parseArgs({
 });
 
 // execute the command
-export function executeCommand(command: string, prettyName: string) {
-  exec(command, (error, stdout, stderr) => {
+export function executeCommand(command: string, args: string[]) {
+  execFile(command, (error, stdout, stderr) => {
     if (error) {
       console.error(chalk.red(`Error executing ${command}(stdout): ${stdout}`));
       console.error(chalk.red(`Error executing ${command}{stderr}: ${stderr}`));
@@ -29,12 +29,12 @@ export function executeCommand(command: string, prettyName: string) {
       console.log(chalk.yellow(`${command}:\n${stderr}`));
       return;
     }
-    console.log(chalk.green(`${prettyName} passed`));
+    console.log(chalk.green(`${command} passed`));
   });
 }
 
 // Function to run a command and log the output
-export function runCommand(command: string, prettyName: string) {
+export function runCommand(command: string, args: string[]) {
   let pythonPath = argv.values.pythonPath
     ? resolve(argv.values.pythonPath)
     : join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "venv/");
@@ -46,5 +46,5 @@ export function runCommand(command: string, prettyName: string) {
     throw new Error(pythonPath);
   }
   command = `${pythonPath} -m ${command}`;
-  executeCommand(command, prettyName);
+  executeCommand(command, args);
 }
