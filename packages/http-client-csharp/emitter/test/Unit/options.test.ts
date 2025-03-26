@@ -44,7 +44,7 @@ describe("Test license info", () => {
     strictEqual(config.license.description, "license description");
   });
 
-  it("should set use known description for known license names", async () => {
+  it("should use known description for known license names", async () => {
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
       license: {
         name: "MIT License",
