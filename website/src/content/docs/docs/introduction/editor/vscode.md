@@ -85,8 +85,8 @@ The extension for Visual Studio Code collects usage data and sends it to Microso
 | Telemetry name    | Type         | Example         |
 | ---------------    | ----------------- | ---------------- |
 | ActivityId          | string |  |
-| EmitterName         | string | "@typespec/http-server-csharp" for example |
+| EmitterName         | string | known emitters like [this](https://typespec.io/docs/emitters/openapi3/reference/) |
 | EmitterVersion      | string |  |
 | CompilerVersion     | string |  |
-| CompilerLocation    | string | "global-compiler" for example |
+| CompilerLocation    | string | "global-compiler", "local-compiler", etc. It is not to store the actual path of compiler being installed.|
 | Error               | string | tsp compiling errors |
