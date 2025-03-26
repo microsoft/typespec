@@ -49,6 +49,7 @@
  "clients": [
   {
    "$id": "6",
+   "kind": "client",
    "name": "MultipleClient",
    "namespace": "Server.Path.Multiple",
    "operations": [
@@ -175,7 +176,10 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Server.Path.Multiple"
+   "crossLanguageDefinitionId": "Server.Path.Multiple",
+   "apiVersions": [
+    "v1.0"
+   ]
   }
  ]
 }
