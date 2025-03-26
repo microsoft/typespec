@@ -25,7 +25,6 @@ describe("Test license info", () => {
   });
 
   it("should set licenseInfo into config", async () => {
-    vi.spyOn(JSON, "stringify").mockImplementation(() => "mocked JSON");
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
       license: {
         name: "Foo license",
@@ -46,7 +45,6 @@ describe("Test license info", () => {
   });
 
   it("should set use known description for known license names", async () => {
-    vi.spyOn(JSON, "stringify").mockImplementation(() => "mocked JSON");
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
       license: {
         name: "MIT License",
@@ -106,7 +104,6 @@ THE SOFTWARE.
   });
 
   it("should use description from options for known license", async () => {
-    vi.spyOn(JSON, "stringify").mockImplementation(() => "mocked JSON");
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program, {
       license: {
         name: "MIT License",
