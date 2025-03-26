@@ -202,6 +202,7 @@ model PlainData<Data> {
  * ): void;
  *
  */
+@summary("A file in an HTTP request, response, or multipart payload.")
 @Private.httpFile
 model File<ContentType extends string = string, Contents extends bytes | string = bytes> {
   /**
@@ -214,6 +215,7 @@ model File<ContentType extends string = string, Contents extends bytes | string 
    * it will be for file bodies. It may be different if the file is serialized as a JSON object. It always refers to the
    * _contents_ of the file, and not necessarily the way the file itself is transmitted or serialized.
    */
+  @summary("The allowed media (MIME) types of the file contents.")
   contentType?: ContentType;
 
   /**
@@ -227,6 +229,7 @@ model File<ContentType extends string = string, Contents extends bytes | string 
    * you must extend the `File` model and override the `filename` property with a different location defined by HTTP metadata
    * decorators.
    */
+  @summary("The name of the file, if any.")
   filename?: string;
 
   /**
@@ -235,6 +238,7 @@ model File<ContentType extends string = string, Contents extends bytes | string 
    * In file bodies, this value comes from the body of the request, response, or multipart payload. In JSON bodies,
    * this value is serialized as a field in the response.
    */
+  @summary("The contents of the file.")
   contents: Contents;
 }
 

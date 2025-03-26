@@ -432,6 +432,45 @@ describe("custom file model", () => {
     ok(responseBody?.isText);
   });
 
+  it("exact payload upload and download with header", async () => {
+    const {
+      operations: [
+        {
+          parameters: { parameters: requestParameters, body: requestBody },
+          responses: [
+            {
+              responses: [{ properties: responseProperties, body: responseBody }],
+            },
+          ],
+        },
+      ],
+      runner,
+    } = await compileOperationsFull(`
+        ${makeFileModel("x-filename")}
+        op example(...SpecFile): SpecFile;
+      `);
+
+    strictEqual(requestBody?.bodyKind, "file");
+    expect(requestBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(requestBody?.contentTypes, ["application/json", "application/yaml"]);
+    ok(requestBody?.isText);
+    const requestXFilename = requestParameters.find(
+      (p) => p.type === "header" && p.name === "x-filename",
+    );
+    ok(requestXFilename);
+    ok(isHeader(runner.program, requestBody.type.properties.get("filename")!));
+
+    strictEqual(responseBody?.bodyKind, "file");
+    expect(responseBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(responseBody?.contentTypes, ["application/json", "application/yaml"]);
+    ok(responseBody?.isText);
+    const responseXFilename = responseProperties.find(
+      (p) => p.kind === "header" && p.options.name === "x-filename",
+    );
+    ok(responseXFilename);
+    ok(isHeader(runner.program, responseBody.type.properties.get("filename")!));
+  });
+
   it("explicit body upload and download", async () => {
     const [
       {
@@ -676,7 +715,7 @@ describe("structured files", () => {
         code: "@typespec/http/http-file-structured",
         severity: "warning",
         message:
-          "HTTP File body is serialized as a structured model instead of being treated as the contents of a file because it is a variant of a union. Declare a separate operation using `@sharedRoute` that has only the File model as the body type to treat it as a file, or suppress this warning if you intend to serialize the File as a model.",
+          "An HTTP File in a union is serialized as a structured model instead of being treated as the contents of a file. Declare a separate operation using `@sharedRoute` that has only the File model as the body type to treat it as a file, or suppress this warning if you intend to serialize the File as a model.",
       },
     ]);
   });
