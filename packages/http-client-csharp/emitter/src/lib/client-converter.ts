@@ -64,7 +64,7 @@ function fromSdkClient(
     children: undefined,
   };
 
-  updateSdkClientTypeReferences(sdkContext, client, inputClient);
+  sdkContext.__typeCache.updateSdkClientReferences(client, inputClient);
 
   // fill parent
   if (client.parent) {

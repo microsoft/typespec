@@ -11,7 +11,6 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 import fs, { statSync } from "fs";
-import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import {
@@ -26,8 +25,8 @@ import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { CSharpEmitterContext, SdkTypeCache } from "./sdk-context.js";
-import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
+import { writeCodeModel, writeConfiguration } from "./code-model-writer.js";
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -98,10 +97,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       };
 
       //emit configuration.json
-      await program.host.writeFile(
-        resolvePath(outputFolder, configurationFileName),
-        prettierOutput(JSON.stringify(configurations, null, 2)),
-      );
+      await writeConfiguration(sdkContext, configurations, outputFolder);
 
       const csProjFile = resolvePath(
         outputFolder,
@@ -145,24 +141,6 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       }
     }
   }
-}
-
-/**
- * Write the code model to the output folder.
- * @param context - The CSharp emitter context
- * @param codeModel - The code model
- * @param outputFolder - The output folder
- * @beta
- */
-export async function writeCodeModel(
-  context: CSharpEmitterContext,
-  codeModel: CodeModel,
-  outputFolder: string,
-) {
-  await context.program.host.writeFile(
-    resolvePath(outputFolder, tspOutputFileName),
-    prettierOutput(stringifyRefs(codeModel, transformJSONProperties, 1, PreserveType.Objects)),
-  );
 }
 
 /** check the dotnet sdk installation.
@@ -226,37 +204,6 @@ function validateDotNetSdkVersionCore(
     sdkContext.logger.error("Cannot get the installed .NET SDK version.");
     return false;
   }
-}
-
-function transformJSONProperties(this: any, key: string, value: any): any {
-  // convertUsageNumbersToStrings
-  if (this["kind"] === "model" || this["kind"] === "enum") {
-    if (key === "usage" && typeof value === "number") {
-      if (value === 0) {
-        return "None";
-      }
-      const result: string[] = [];
-      for (const prop in UsageFlags) {
-        if (!isNaN(Number(prop))) {
-          if ((value & Number(prop)) !== 0) {
-            result.push(UsageFlags[prop]);
-          }
-        }
-      }
-      return result.join(",");
-    }
-  }
-
-  // skip __raw if there is one
-  if (key === "__raw") {
-    return undefined;
-  }
-
-  return value;
-}
-
-function prettierOutput(output: string) {
-  return output + "\n";
 }
 
 function checkFile(pkgPath: string) {

@@ -59,7 +59,7 @@ export class SdkTypeCache {
 
   updateSdkResponseReferences(sdkResponse: SdkHttpResponse, response: OperationResponse) {
     this.responses.set(sdkResponse, response);
-    // this.crossLanguageDefinitionIds.set(sdkResponse.crossLanguageDefinitionId, sdkResponse.__raw); // TODO: issue tracking https://github.com/Azure/typespec-azure/issues/2350
+    // the response of an operation is not something defined in the typespec concept therefore it does not have crossLanguageDefinitionId
   }
 
   updateSdkTypeReferences(sdkType: SdkType, inputType: InputType) {
