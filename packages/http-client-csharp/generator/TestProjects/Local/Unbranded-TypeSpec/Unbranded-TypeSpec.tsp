@@ -2,9 +2,6 @@ import "@typespec/rest";
 import "@typespec/http";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
-import "@typespec/json-schema";
-
-using JsonSchema;
 
 @versioned(Versions)
 @service(#{ title: "hello world" })
