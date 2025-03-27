@@ -302,7 +302,7 @@ async function shendEmitterTelemetryData(activityId: string) {
   for (const uri of uris) {
     const doc = await vscode.workspace.openTextDocument(uri);
     const yaml = tryParseYaml(doc.getText());
-    if (!yaml) {
+    if (yaml) {
       const emitTarget = yaml.contents.get("emit");
       emitTarget.items.map((item: any) => {
         const emitterName = item.value;
