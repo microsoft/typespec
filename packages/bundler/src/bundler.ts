@@ -188,6 +188,7 @@ async function createEsBuildContext(definition: TypeSpecBundleDefinition, plugin
       ...extraEntry,
     },
     bundle: true,
+    splitting: true,
     outdir: "out",
     platform: "browser",
     format: "esm",
