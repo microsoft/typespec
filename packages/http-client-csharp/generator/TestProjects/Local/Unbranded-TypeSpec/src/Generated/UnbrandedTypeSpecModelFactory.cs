@@ -159,5 +159,15 @@ namespace UnbrandedTypeSpec
 
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
         }
+
+        /// <summary> The PageThing. </summary>
+        /// <param name="items"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.PageThing"/> instance for mocking. </returns>
+        public static PageThing PageThing(IEnumerable<Thing> items = default)
+        {
+            items ??= new ChangeTrackingList<Thing>();
+
+            return new PageThing(items?.ToList(), additionalBinaryDataProperties: null);
+        }
     }
 }
