@@ -182,6 +182,11 @@ export function getHttpFileModel(
   const filename = getProperty(type, "filename")!;
   const contents = getProperty(type, "contents")! as HttpFileModel["contents"];
 
+  // All properties are required for an `Http.File` model
+  if (!contentType || !filename || !contents) {
+    return undefined;
+  }
+
   return { contents, contentType, filename, type };
 }
 

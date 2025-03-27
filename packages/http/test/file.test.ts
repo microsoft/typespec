@@ -208,6 +208,68 @@ it("exact payload upload and download", async () => {
   deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
 });
 
+it("intersect payload download", async () => {
+  const [
+    {
+      parameters: { body: requestBody },
+      responses: [
+        {
+          responses: [{ body: responseBody }],
+        },
+      ],
+    },
+  ] = await getOperations(`
+      op example(...Http.File): Http.File & OkResponse;
+    `);
+
+  strictEqual(requestBody?.bodyKind, "file");
+  expect(requestBody?.property).toStrictEqual(undefined);
+  deepStrictEqual(requestBody?.contentTypes, ["*/*"]);
+
+  strictEqual(responseBody?.bodyKind, "file");
+  expect(responseBody?.property).toStrictEqual(undefined);
+  deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
+});
+
+it("composite spread payload upload and download", async () => {
+  const [
+    {
+      parameters: { parameters: requestParameters, body: requestBody },
+      responses: [
+        {
+          responses: [{ body: responseBody, headers: responseHeaders }],
+        },
+      ],
+    },
+  ] = await getOperations(`
+      op example(
+        @path id: string,
+        @query type: string,
+        @header clientRequestId: string,
+        ...Http.File
+      ): { @header xId: string, ...Http.File, ...OkResponse };
+    `);
+
+  strictEqual(requestBody?.bodyKind, "file");
+  expect(requestBody?.property).toStrictEqual(undefined);
+  deepStrictEqual(requestBody?.contentTypes, ["*/*"]);
+  const requestId = requestParameters.find((p) => p.type === "path" && p.name === "id");
+  ok(requestId);
+  const requestType = requestParameters.find((p) => p.type === "query" && p.name === "type");
+  ok(requestType);
+  const requestClientRequestId = requestParameters.find(
+    (p) => p.type === "header" && p.name === "client-request-id",
+  );
+  ok(requestClientRequestId);
+
+  strictEqual(responseBody?.bodyKind, "file");
+  expect(responseBody?.property).toStrictEqual(undefined);
+  deepStrictEqual(responseBody?.contentTypes, ["*/*"]);
+  ok(responseHeaders);
+  const responseXId = responseHeaders["x-id"];
+  ok(responseXId);
+});
+
 it("explicit bodyRoot upload and download", async () => {
   const [
     {
@@ -290,6 +352,80 @@ describe("multipart", () => {
     strictEqual(responsePartBody.bodyKind, "file");
     expect(responsePartBody.property).toStrictEqual(undefined);
     deepStrictEqual(responsePartBody.contentTypes, ["*/*"]);
+  });
+
+  it("intersected payload form-data upload and download", async () => {
+    const [
+      {
+        parameters: { body: multipartRequestBody },
+        responses: [
+          {
+            responses: [{ body: multipartResponseBody }],
+          },
+        ],
+      },
+    ] = await getOperations(`
+        op example(@multipartBody fields: { file: HttpPart<Http.File & { @header xFoo: string }> }) : { @multipartBody fields: { file: HttpPart<Http.File & { @header xBar: string }>}};
+      `);
+
+    strictEqual(multipartRequestBody?.bodyKind, "multipart");
+    ok(multipartRequestBody?.property);
+    deepStrictEqual(multipartRequestBody?.contentTypes, ["multipart/form-data"]);
+    strictEqual(multipartRequestBody?.parts.length, 1);
+    const requestPartBody = multipartRequestBody?.parts[0].body;
+    strictEqual(requestPartBody.bodyKind, "file");
+    const requestPartHeaders = multipartRequestBody?.parts[0].headers;
+    strictEqual(requestPartHeaders.length, 1);
+    strictEqual(requestPartHeaders[0].kind, "header");
+    expect(requestPartHeaders[0].options.name).toStrictEqual("x-foo");
+    expect(requestPartBody.property).toStrictEqual(undefined);
+    deepStrictEqual(requestPartBody.contentTypes, ["*/*"]);
+
+    strictEqual(multipartResponseBody?.bodyKind, "multipart");
+    ok(multipartResponseBody?.property);
+    deepStrictEqual(multipartResponseBody?.contentTypes, ["multipart/form-data"]);
+    strictEqual(multipartResponseBody?.parts.length, 1);
+    const responsePartBody = multipartResponseBody?.parts[0].body;
+    strictEqual(responsePartBody.bodyKind, "file");
+    const responsePartHeaders = multipartResponseBody?.parts[0].headers;
+    strictEqual(responsePartHeaders.length, 1);
+    strictEqual(responsePartHeaders[0].kind, "header");
+    expect(responsePartHeaders[0].options.name).toStrictEqual("x-bar");
+    expect(responsePartBody.property).toStrictEqual(undefined);
+    deepStrictEqual(responsePartBody.contentTypes, ["*/*"]);
+  });
+
+  it("does not recognize intersection payload form-data upload and download", async () => {
+    const [
+      {
+        parameters: { body: multipartRequestBody },
+        responses: [
+          {
+            responses: [{ body: multipartResponseBody }],
+          },
+        ],
+      },
+    ] = await getOperations(`
+        op example(@multipartBody fields: { file: HttpPart<Http.File & { xFoo: string }> }) : { @multipartBody fields: { file: HttpPart<Http.File & { xBar: string }>}};
+      `);
+
+    strictEqual(multipartRequestBody?.bodyKind, "multipart");
+    ok(multipartRequestBody?.property);
+    deepStrictEqual(multipartRequestBody?.contentTypes, ["multipart/form-data"]);
+    strictEqual(multipartRequestBody?.parts.length, 1);
+    const requestPartBody = multipartRequestBody?.parts[0].body;
+    strictEqual(requestPartBody.bodyKind, "single");
+    expect(requestPartBody.property).toStrictEqual(undefined);
+    deepStrictEqual(requestPartBody.contentTypes, ["application/json"]);
+
+    strictEqual(multipartResponseBody?.bodyKind, "multipart");
+    ok(multipartResponseBody?.property);
+    deepStrictEqual(multipartResponseBody?.contentTypes, ["multipart/form-data"]);
+    strictEqual(multipartResponseBody?.parts.length, 1);
+    const responsePartBody = multipartResponseBody?.parts[0].body;
+    strictEqual(responsePartBody.bodyKind, "single");
+    expect(responsePartBody.property).toStrictEqual(undefined);
+    deepStrictEqual(responsePartBody.contentTypes, ["application/json"]);
   });
 
   it("exact payload form-data upload and download with spread", async () => {
@@ -471,6 +607,32 @@ describe("custom file model", () => {
     ok(isHeader(runner.program, responseBody.type.properties.get("filename")!));
   });
 
+  it("intersected payload upload and download", async () => {
+    const [
+      {
+        parameters: { body: requestBody },
+        responses: [
+          {
+            responses: [{ body: responseBody }],
+          },
+        ],
+      },
+    ] = await getOperations(`
+        ${makeFileModel()}
+        op example(...SpecFile): SpecFile & OkResponse;
+      `);
+
+    strictEqual(requestBody?.bodyKind, "file");
+    expect(requestBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(requestBody?.contentTypes, ["application/json", "application/yaml"]);
+    ok(requestBody?.isText);
+
+    strictEqual(responseBody?.bodyKind, "file");
+    expect(responseBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(responseBody?.contentTypes, ["application/json", "application/yaml"]);
+    ok(responseBody?.isText);
+  });
+
   it("explicit body upload and download", async () => {
     const [
       {
@@ -621,6 +783,68 @@ describe("custom file model", () => {
       ok(responseXFilename);
       ok(isHeader(runner.program, responsePartBody.type.properties.get("filename")!));
     });
+
+    it("intersect payload form-data upload and download", async () => {
+      const {
+        operations: [
+          {
+            parameters: { body: multipartRequestBody },
+            responses: [
+              {
+                responses: [{ body: multipartResponseBody }],
+              },
+            ],
+          },
+        ],
+        diagnostics,
+        runner,
+      } = await compileOperationsFull(`
+          ${makeFileModel("x-filename")}
+          op example(@multipartBody fields: { file: HttpPart<SpecFile & { @header xFoo: string }> }) : { @multipartBody fields: { file: HttpPart<SpecFile & { @header xBar: string }>};};
+        `);
+
+      strictEqual(diagnostics.length, 0);
+
+      strictEqual(multipartRequestBody?.bodyKind, "multipart");
+      ok(multipartRequestBody?.property);
+      deepStrictEqual(multipartRequestBody?.contentTypes, ["multipart/form-data"]);
+      strictEqual(multipartRequestBody?.parts.length, 1);
+      const requestPartBody = multipartRequestBody?.parts[0].body;
+      strictEqual(requestPartBody.bodyKind, "file");
+      expect(requestPartBody.property).toStrictEqual(undefined);
+      deepStrictEqual(requestPartBody.contentTypes, ["application/json", "application/yaml"]);
+      ok(requestPartBody.isText);
+      const requestXFilename = multipartRequestBody?.parts[0].headers.find(
+        (p) => p.options.name === "x-filename",
+      );
+      ok(requestXFilename);
+      ok(isHeader(runner.program, requestPartBody.type.properties.get("filename")!));
+      const requestXFoo = multipartRequestBody?.parts[0].headers.find(
+        (p) => p.options.name === "x-foo",
+      );
+      ok(requestXFoo);
+      ok(isHeader(runner.program, requestPartBody.type.properties.get("xFoo")!));
+
+      strictEqual(multipartResponseBody?.bodyKind, "multipart");
+      ok(multipartResponseBody?.property);
+      deepStrictEqual(multipartResponseBody?.contentTypes, ["multipart/form-data"]);
+      strictEqual(multipartResponseBody?.parts.length, 1);
+      const responsePartBody = multipartResponseBody?.parts[0].body;
+      strictEqual(responsePartBody.bodyKind, "file");
+      expect(responsePartBody.property).toStrictEqual(undefined);
+      deepStrictEqual(responsePartBody.contentTypes, ["application/json", "application/yaml"]);
+      ok(responsePartBody.isText);
+      const responseXFilename = multipartResponseBody?.parts[0].headers.find(
+        (p) => p.options.name === "x-filename",
+      );
+      ok(responseXFilename);
+      ok(isHeader(runner.program, responsePartBody.type.properties.get("filename")!));
+      const responseXBar = multipartResponseBody?.parts[0].headers.find(
+        (p) => p.options.name === "x-bar",
+      );
+      ok(responseXBar);
+      ok(isHeader(runner.program, responsePartBody.type.properties.get("xBar")!));
+    });
   });
 });
 
@@ -720,7 +944,7 @@ describe("structured files", () => {
     ]);
   });
 
-  it("does not recognize a File in an intersection as a file body", async () => {
+  it("does not recognize intersection with non-metadata fields as a file body", async () => {
     const {
       operations: [
         {
@@ -732,13 +956,13 @@ describe("structured files", () => {
         },
       ],
     } = await compileOperationsFull(`
-      op example(): Http.File & OkResponse;
+      op example(): Http.File & { foo: string };
     `);
 
     strictEqual(responseBody?.bodyKind, "single");
   });
 
-  it("does not recognize composite spreads as a file body", async () => {
+  it("does not recognize model spread with File Props as a file body", async () => {
     const {
       operations: [
         {
@@ -750,13 +974,14 @@ describe("structured files", () => {
         },
       ],
     } = await compileOperationsFull(`
-      op example(): { ...Http.File, ...OkResponse };
+      model FakeFile { ...Http.File };
+      op example(): FakeFile;
     `);
 
     strictEqual(responseBody?.bodyKind, "single");
   });
 
-  it("does not recognize spread with other properties as a file body", async () => {
+  it("does not recognize spread with other non-metadata properties as a file body", async () => {
     const {
       operations: [
         {
@@ -770,12 +995,10 @@ describe("structured files", () => {
       ],
     } = await compileOperationsFull(`
       op example(
-        @path id: string,
-        @query type: string,
-        @header clientRequestId: string,
+        foo: string;
         ...Http.File
       ): {
-        @header requestId: string,
+        foo: string;
         ...Http.File
       };
     `);
