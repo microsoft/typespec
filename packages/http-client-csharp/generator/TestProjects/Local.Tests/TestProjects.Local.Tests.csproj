@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <Folder Include="Projects\Unbranded-TypeSpec\src\Custom\" />
+    <Folder Include="Projects\Unbranded-TypeSpec\src\Generated\Models\" />
   </ItemGroup>
 
 </Project>

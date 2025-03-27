@@ -2,6 +2,9 @@ import "@typespec/rest";
 import "@typespec/http";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
+import "@typespec/json-schema";
+
+using JsonSchema;
 
 @versioned(Versions)
 @service(#{ title: "hello world" })
@@ -91,6 +94,7 @@ union StringExtensibleEnum {
 }
 
 @doc("A model with a few properties of literal types")
+@jsonSchema
 model Thing {
   @doc("name of the Thing")
   name: string;
@@ -410,3 +414,13 @@ op ListWithContinuationTokenHeaderResponse(@query @continuationToken token?: str
 
   @header @continuationToken nextToken?: string;
 };
+
+model Page<T> {
+  @pageItems items: T[];
+}
+
+@route("list/nopaging")
+@doc("List things without paging")
+@convenientAPI(true)
+@list
+op ListWithoutPaging(): Page<Thing>;
