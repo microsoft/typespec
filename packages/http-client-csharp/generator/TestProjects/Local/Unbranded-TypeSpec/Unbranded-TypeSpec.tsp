@@ -91,7 +91,6 @@ union StringExtensibleEnum {
 }
 
 @doc("A model with a few properties of literal types")
-@jsonSchema
 model Thing {
   @doc("name of the Thing")
   name: string;
