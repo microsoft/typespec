@@ -33,7 +33,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformationDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
@@ -284,7 +284,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     transformationProcessor.addParameter(clientMethodParameter, parameter);
                 }
 
-                final List<ParameterTransformationDetails> parameterTransformationDetails
+                final List<ParameterTransformation> parameterTransformationDetails
                     = transformationProcessor.process(request);
                 final MethodOverloadType defaultOverloadType = hasNonRequiredParameters(parameters)
                     ? MethodOverloadType.OVERLOAD_MAXIMUM

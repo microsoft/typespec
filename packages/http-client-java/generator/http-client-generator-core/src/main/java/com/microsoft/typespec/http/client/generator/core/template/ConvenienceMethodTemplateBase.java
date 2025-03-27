@@ -26,7 +26,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformationDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
@@ -233,19 +233,18 @@ abstract class ConvenienceMethodTemplateBase {
 
     abstract void writeThrowException(ClientMethodType methodType, String exceptionExpression, JavaBlock methodBlock);
 
-    private static boolean isGroupByTransformation(ParameterTransformationDetails detail) {
-        return !CoreUtils.isNullOrEmpty(detail.getParameterMappings())
-            && detail.getParameterMappings().iterator().next().getOutParameterPropertyName() == null;
+    private static boolean isGroupByTransformation(ParameterTransformation detail) {
+        return !CoreUtils.isNullOrEmpty(detail.getMappings())
+            && detail.getMappings().iterator().next().getOutParameterPropertyName() == null;
     }
 
-    private static void writeParameterTransformation(ParameterTransformationDetails detail,
-        ClientMethod convenienceMethod, ClientMethod protocolMethod, JavaBlock methodBlock,
-        Map<MethodParameter, MethodParameter> parametersMap) {
+    private static void writeParameterTransformation(ParameterTransformation detail, ClientMethod convenienceMethod,
+        ClientMethod protocolMethod, JavaBlock methodBlock, Map<MethodParameter, MethodParameter> parametersMap) {
 
         if (isGroupByTransformation(detail)) {
             // grouping
 
-            ParameterMapping mapping = detail.getParameterMappings().iterator().next();
+            ParameterMapping mapping = detail.getMappings().iterator().next();
             ClientMethodParameter sourceParameter = mapping.getInParameter();
 
             boolean sourceParameterInMethod = false;
@@ -296,7 +295,7 @@ abstract class ConvenienceMethodTemplateBase {
                 StringBuilder setterExpression = new StringBuilder();
                 String targetParameterName = targetParameter.getName();
                 String targetParameterObjectName = targetParameterName + "Obj";
-                for (ParameterMapping mapping : detail.getParameterMappings()) {
+                for (ParameterMapping mapping : detail.getMappings()) {
                     String parameterName = mapping.getInParameter().getName();
 
                     String inputPath = parameterName;

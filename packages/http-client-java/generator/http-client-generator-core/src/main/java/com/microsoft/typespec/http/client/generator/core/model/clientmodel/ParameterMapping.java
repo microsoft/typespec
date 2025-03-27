@@ -23,7 +23,7 @@ public final class ParameterMapping {
     }
 
     /**
-     * gets description of an "input parameter" that SDK Method takes.
+     * Gets the description of an "input parameter" that SDK Method takes.
      *
      * @return the in parameter.
      */
@@ -32,7 +32,7 @@ public final class ParameterMapping {
     }
 
     /**
-     * gets the property within the "input parameter" model ({@link #getInParameter()}). When calling service,
+     * Gets the property within the "input parameter" model ({@link #getInParameter()}). When calling service,
      * this property's value is read from the "input parameter" model and transmitted. A non-null value from this
      * getter indicates spec requested a flattening transformation (group-by) of the SDK Method input to its
      * properties for the purpose of wire call.
@@ -44,7 +44,7 @@ public final class ParameterMapping {
     }
 
     /**
-     * gets description of the "output parameter" that is transmitted to the service.
+     * Gets description of the "output parameter" that is transmitted to the service.
      *
      * @return the out parameter.
      */
@@ -55,7 +55,7 @@ public final class ParameterMapping {
     /**
      * Gets description of the property within the "output parameter" model ({@link #getOutParameter()}), where its
      * value is populated from an SDK Method argument. A non-null value from this indicates spec requested the
-     * body argument spreading transformation.
+     * spreading transformation of operation parameter to SDK method arguments.
      * <p>
      * E.g, spec has 'op add(...User): void' and the SDK method will look like 'void add(String name, int age)',
      * i.e., properties of the 'User' model ("output parameter") are spread into the SDK method arguments.

@@ -11,7 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformationDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +47,7 @@ public final class ParametersTransformationProcessor {
         parameters.add(new ParametersTuple(clientMethodParameter, parameter));
     }
 
-    List<ParameterTransformationDetails> process(Request request) {
+    List<ParameterTransformation> process(Request request) {
         final List<Transformation> transformations = new ArrayList<>(this.parameters.size());
 
         for (ParametersTuple t : parameters) {
@@ -66,7 +66,7 @@ public final class ParametersTransformationProcessor {
         }
 
         return transformations.stream()
-            .map(Transformation::toTransformationDetails)
+            .map(Transformation::toImmutable)
             .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
     }
 
@@ -191,7 +191,7 @@ public final class ParametersTransformationProcessor {
     }
 
     /**
-     * A private carrier type to hold transformation details.
+     * A private mutable carrier type to hold transformation details.
      */
     private static final class Transformation {
         private final ClientMethodParameter key;
@@ -206,18 +206,18 @@ public final class ParametersTransformationProcessor {
         }
 
         /**
-         * Obtain an immutable {@link ParameterTransformationDetails} version of this transformation.
+         * Obtain an immutable {@link ParameterTransformation} version of this transformation.
          *
          * @return the transformation details.
          */
-        private ParameterTransformationDetails toTransformationDetails() {
-            return new ParameterTransformationDetails(key, this.mappings);
+        private ParameterTransformation toImmutable() {
+            return new ParameterTransformation(key, CollectionUtil.toImmutableList(this.mappings));
         }
 
         /**
          * Inspects the list of transformations to see if a transformation already exists for the given key,
-         * if it does, add mapping to it, otherwise create a new transformation, add it to the list
-         * and add mapping to it.
+         * if it does, add {@code mapping} to it, otherwise create a new transformation, add it to the list
+         * and add {@code mapping} to it.
          *
          * @param transformations the list of transformations.
          * @param key the key parameter to get or add a transformation for.
@@ -244,6 +244,19 @@ public final class ParametersTransformationProcessor {
             final Transformation transformation = new Transformation(key);
             transformations.add(transformation);
             return transformation;
+        }
+    }
+
+    /**
+     * A tuple of parameters to be processed as a unit by the {@link #process(Request)} method.
+     */
+    private static final class ParametersTuple {
+        final ClientMethodParameter clientMethodParameter;
+        final Parameter parameter;
+
+        ParametersTuple(ClientMethodParameter clientMethodParameter, Parameter parameter) {
+            this.clientMethodParameter = clientMethodParameter;
+            this.parameter = parameter;
         }
     }
 
@@ -289,16 +302,6 @@ public final class ParametersTransformationProcessor {
             this.parameter = Objects.requireNonNull(parameter, "parameter cannot be null");
             this.parameterProperty = parameterProperty;
             this.parameterPropertyName = parameterPropertyName;
-        }
-    }
-
-    private static final class ParametersTuple {
-        final ClientMethodParameter clientMethodParameter;
-        final Parameter parameter;
-
-        ParametersTuple(ClientMethodParameter clientMethodParameter, Parameter parameter) {
-            this.clientMethodParameter = clientMethodParameter;
-            this.parameter = parameter;
         }
     }
 }

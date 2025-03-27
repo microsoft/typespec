@@ -23,7 +23,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformationDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
@@ -235,8 +235,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      */
     protected static void applyParameterTransformations(JavaBlock function, ClientMethod clientMethod,
         JavaSettings settings) {
-        for (ParameterTransformationDetails transformation : clientMethod.getParameterTransformationDetails()) {
-            if (transformation.getParameterMappings().isEmpty()) {
+        for (ParameterTransformation transformation : clientMethod.getParameterTransformationDetails()) {
+            if (transformation.getMappings().isEmpty()) {
                 // the case that this flattened parameter is not original parameter from any other parameters
                 ClientMethodParameter outParameter = transformation.getOutParameter();
                 if (outParameter.isRequired() && outParameter.getClientType() instanceof ClassType) {
@@ -249,10 +249,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 break;
             }
 
-            String nullCheck = transformation.getParameterMappings()
-                .stream()
-                .filter(m -> !m.getInParameter().isRequired())
-                .map(m -> {
+            String nullCheck
+                = transformation.getMappings().stream().filter(m -> !m.getInParameter().isRequired()).map(m -> {
                     ClientMethodParameter parameter = m.getInParameter();
 
                     String parameterName;
@@ -263,8 +261,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     }
 
                     return parameterName + " != null";
-                })
-                .collect(Collectors.joining(" || "));
+                }).collect(Collectors.joining(" || "));
 
             boolean conditionalAssignment = !nullCheck.isEmpty()
                 && !transformation.getOutParameter().isRequired()
@@ -287,7 +284,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .startsWith(settings.getPackage());
             }
             if (generatedCompositeType
-                && transformation.getParameterMappings()
+                && transformation.getMappings()
                     .stream()
                     .anyMatch(
                         m -> m.getOutParameterPropertyName() != null && !m.getOutParameterPropertyName().isEmpty())) {
@@ -299,7 +296,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     outParameterName, transformationOutputParameterModelCompositeTypeName);
             }
 
-            for (ParameterMapping mapping : transformation.getParameterMappings()) {
+            for (ParameterMapping mapping : transformation.getMappings()) {
                 String inputPath;
                 if (mapping.getInParameterProperty() != null) {
                     inputPath = mapping.getInParameter().getName() + "."

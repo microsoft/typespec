@@ -91,7 +91,7 @@ public class ClientMethod {
     /**
      * The parameter transformations before calling ProxyMethod.
      */
-    private final List<ParameterTransformationDetails> parameterTransformationDetails;
+    private final List<ParameterTransformation> parameterTransformationDetails;
 
     private final JavaVisibility methodVisibility;
 
@@ -133,7 +133,7 @@ public class ClientMethod {
         ProxyMethod proxyMethod, Map<String, String> validateExpressions, String clientReference,
         List<String> requiredNullableParameterExpressions, boolean isGroupedParameterRequired,
         String groupedParameterTypeName, MethodPageDetails methodPageDetails,
-        List<ParameterTransformationDetails> parameterTransformationDetails, JavaVisibility methodVisibility,
+        List<ParameterTransformation> parameterTransformationDetails, JavaVisibility methodVisibility,
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
         MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation,
         String crossLanguageDefinitionId, boolean hasWithContextOverload) {
@@ -299,7 +299,7 @@ public class ClientMethod {
         return methodPageDetails;
     }
 
-    public final List<ParameterTransformationDetails> getParameterTransformationDetails() {
+    public final List<ParameterTransformation> getParameterTransformationDetails() {
         return parameterTransformationDetails;
     }
 
@@ -563,7 +563,7 @@ public class ClientMethod {
         protected boolean isGroupedParameterRequired;
         protected String groupedParameterTypeName;
         protected MethodPageDetails methodPageDetails;
-        protected List<ParameterTransformationDetails> parameterTransformationDetails;
+        protected List<ParameterTransformation> parameterTransformationDetails;
         protected JavaVisibility methodVisibility = JavaVisibility.Public;
         protected JavaVisibility methodVisibilityInWrapperClient = JavaVisibility.Public;
         protected ImplementationDetails implementationDetails;
@@ -733,8 +733,7 @@ public class ClientMethod {
          * @param parameterTransformationDetails the parameter transformations before calling ProxyMethod
          * @return the Builder itself
          */
-        public Builder
-            parameterTransformationDetails(List<ParameterTransformationDetails> parameterTransformationDetails) {
+        public Builder parameterTransformationDetails(List<ParameterTransformation> parameterTransformationDetails) {
             this.parameterTransformationDetails = parameterTransformationDetails;
             return this;
         }
