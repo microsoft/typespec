@@ -2,6 +2,7 @@
 // sort-imports-ignore
 import "./pre-extension-activate.js";
 
+import { createHash } from "crypto";
 import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
@@ -22,7 +23,8 @@ import {
   ResultCode,
   SettingName,
 } from "./types.js";
-import { isWhitespaceStringOrUndefined } from "./utils.js";
+import { TraverseTspConfigFileInWorkspace } from "./typespec-utils.js";
+import { isWhitespaceStringOrUndefined, tryParseYaml } from "./utils.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
 import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
@@ -36,6 +38,16 @@ let client: TspLanguageClient | undefined;
  */
 const outputChannel = new TypeSpecLogOutputChannel("TypeSpec");
 logger.registerLogListener("extension-log", new ExtensionLogListener(outputChannel));
+
+const emitterWhiteList = [
+  "@typespec/openapi3",
+  "@typespec/http-client-csharp",
+  "@typespec/http-client-java",
+  "@typespec/http-client-js",
+  "@typespec/http-client-python",
+  "@typespec/http-server-csharp",
+  "@typespec/http-server-js",
+];
 
 export async function activate(context: ExtensionContext) {
   const stateManager = new ExtensionStateManager(context);
@@ -207,6 +219,7 @@ export async function activate(context: ExtensionContext) {
         await telemetryClient.doOperationWithTelemetry(
           TelemetryEventName.StartExtension,
           async (tel: OperationTelemetryEvent) => {
+            await shendEmitterTelemetryData(tel.activityId);
             return await recreateLSPClient(context, tel.activityId);
           },
         );
@@ -274,4 +287,30 @@ function showStartUpMessages(stateManager: ExtensionStateManager) {
     }
     stateManager.cleanUpStartUpMessage(workspaceFolder.uri.fsPath);
   });
+}
+
+async function shendEmitterTelemetryData(activityId: string) {
+  const uris = await TraverseTspConfigFileInWorkspace();
+  if (uris.length === 0) {
+    logger.debug(
+      "No tspconfig.yaml file found in workspace.Therefore, it is impossible to send telemetry data of emitter",
+    );
+    return;
+  }
+
+  for (const uri of uris) {
+    const doc = await vscode.workspace.openTextDocument(uri);
+    const yaml = tryParseYaml(doc.getText());
+    if (!yaml) {
+      const emitTarget = yaml.contents.get("emit");
+      emitTarget.items.map((item: any) => {
+        const emitterName = item.value;
+        telemetryClient.logOperationDetailTelemetry(activityId, {
+          emitterName: emitterWhiteList.includes(emitterName)
+            ? emitterName.replace(/[/|@]/g, "#")
+            : createHash("sha256").update(emitterName).digest("hex"),
+        });
+      });
+    }
+  }
 }
