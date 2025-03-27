@@ -5,7 +5,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public sealed class InputLiteralType : InputType
     {
-        public InputLiteralType(InputType valueType, object value) : base("Literal")
+        public InputLiteralType(string name, InputType valueType, object value) : base(name)
         {
             ValueType = valueType;
             Value = value;

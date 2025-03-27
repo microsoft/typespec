@@ -27,7 +27,7 @@ import {
   InputDictionaryType,
   InputDurationType,
   InputEnumType,
-  InputEnumTypeValue,
+  InputEnumValueType as InputEnumValueType,
   InputLiteralType,
   InputModelProperty,
   InputModelType,
@@ -35,12 +35,10 @@ import {
   InputType,
   InputUnionType,
 } from "../type/input-type.js";
-import { LiteralTypeContext } from "../type/literal-type-context.js";
 
 export function fromSdkType(
   sdkContext: CSharpEmitterContext,
   sdkType: SdkType,
-  literalTypeContext?: LiteralTypeContext,
 ): InputType {
   if (sdkContext.__typeCache.types.has(sdkType)) {
     return sdkContext.__typeCache.types.get(sdkType)!;
@@ -63,7 +61,7 @@ export function fromSdkType(
       retVar = fromSdkEnumType(sdkContext, sdkType);
       break;
     case "enumvalue":
-      retVar = fromSdkEnumValueTypeToConstantType(sdkContext, sdkType, literalTypeContext);
+      retVar = fromSdkEnumValueType(sdkContext, sdkType);
       break;
     case "dict":
       retVar = fromSdkDictionaryType(sdkContext, sdkType);
@@ -72,7 +70,7 @@ export function fromSdkType(
       retVar = fromSdkArrayType(sdkContext, sdkType);
       break;
     case "constant":
-      retVar = fromSdkConstantType(sdkContext, sdkType, literalTypeContext);
+      retVar = fromSdkConstantType(sdkContext, sdkType);
       break;
     case "union":
       retVar = fromUnionType(sdkContext, sdkType);
@@ -162,11 +160,7 @@ export function fromSdkModelType(
       if (property.kind !== "property") {
         continue;
       }
-      const ourProperty = fromSdkModelProperty(sdkContext, property, {
-        modelName: modelTypeName,
-        usage: modelType.usage,
-        namespace: modelType.namespace,
-      } as LiteralTypeContext);
+      const ourProperty = fromSdkModelProperty(sdkContext, property);
       propertiesDict.set(property, ourProperty);
     }
 
@@ -195,7 +189,6 @@ export function fromSdkModelType(
   function fromSdkModelProperty(
     sdkContext: CSharpEmitterContext,
     property: SdkBodyModelPropertyType,
-    literalTypeContext: LiteralTypeContext,
   ): InputModelProperty {
     let targetType = property.type;
     if (targetType.kind === "model") {
@@ -203,19 +196,15 @@ export function fromSdkModelType(
       if (body) targetType = body.type;
     }
 
-    const serializedName = property.serializedName;
-    literalTypeContext.propertyName = serializedName;
-
     const modelProperty: InputModelProperty = {
       kind: property.kind,
       name: property.name,
-      serializedName: serializedName,
+      serializedName: property.serializedName,
       summary: property.summary,
       doc: property.doc,
       type: fromSdkType(
         sdkContext,
         targetType,
-        property.discriminator ? undefined : literalTypeContext,
       ),
       optional: property.optional,
       readOnly: isReadOnly(property),
@@ -238,7 +227,7 @@ export function fromSdkEnumType(
   const enumName = enumType.name;
   let inputEnumType = sdkContext.__typeCache.enums.get(enumName);
   if (!inputEnumType) {
-    const values: InputEnumTypeValue[] = [];
+    const values: InputEnumValueType[] = [];
     inputEnumType = {
       kind: "enum",
       name: enumName,
@@ -344,75 +333,20 @@ function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): I
 function fromSdkConstantType(
   sdkContext: CSharpEmitterContext,
   constantType: SdkConstantType,
-  literalTypeContext?: LiteralTypeContext,
 ): InputLiteralType {
   return {
     kind: constantType.kind,
-    valueType:
-      constantType.valueType.kind === "boolean" || literalTypeContext === undefined
-        ? fromSdkBuiltInType(sdkContext, constantType.valueType)
-        : convertConstantToEnum(sdkContext, constantType, literalTypeContext),
+    name: constantType.name,
+    valueType: fromSdkBuiltInType(sdkContext, constantType.valueType),
     value: constantType.value,
     decorators: constantType.decorators,
-  };
-
-  function convertConstantToEnum(
-    sdkContext: CSharpEmitterContext,
-    constantType: SdkConstantType,
-    literalTypeContext: LiteralTypeContext,
-  ) {
-    const enumName = `${literalTypeContext.modelName}_${literalTypeContext.propertyName}`;
-    const enumValueName = constantType.value === null ? "Null" : constantType.value.toString();
-    const values: InputEnumTypeValue[] = [];
-    const enumType: InputEnumType = {
-      kind: "enum",
-      name: enumName,
-      valueType: fromSdkBuiltInType(sdkContext, constantType.valueType),
-      values: values,
-      crossLanguageDefinitionId: "",
-      access: undefined,
-      namespace: literalTypeContext.namespace,
-      doc: `The ${enumName}`,
-      isFixed: false,
-      isFlags: false,
-      usage: literalTypeContext.usage,
-      decorators: constantType.decorators,
-    };
-
-    updateTypeCache(sdkContext, enumName, enumType);
-
-    values.push({
-      kind: "enumvalue",
-      name: enumValueName,
-      value: constantType.value as string | number,
-      doc: enumValueName,
-      valueType: enumType.valueType,
-      enumType: enumType,
-    });
-    return enumType;
-  }
-}
-
-function fromSdkEnumValueTypeToConstantType(
-  sdkContext: CSharpEmitterContext,
-  enumValueType: SdkEnumValueType,
-  literalTypeContext?: LiteralTypeContext,
-): InputLiteralType {
-  return {
-    kind: "constant",
-    valueType:
-      enumValueType.valueType.kind === "boolean" || literalTypeContext === undefined
-        ? fromSdkBuiltInType(sdkContext, enumValueType.valueType)
-        : fromSdkEnumType(sdkContext, enumValueType.enumType),
-    value: enumValueType.value,
-    decorators: enumValueType.decorators,
   };
 }
 
 function fromSdkEnumValueType(
   sdkContext: CSharpEmitterContext,
   enumValueType: SdkEnumValueType,
-): InputEnumTypeValue {
+): InputEnumValueType {
   return {
     kind: "enumvalue",
     name: enumValueType.name,

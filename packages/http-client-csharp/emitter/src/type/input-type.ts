@@ -45,6 +45,7 @@ export type InputType =
   | InputUnionType
   | InputModelType
   | InputEnumType
+  | InputEnumValueType
   | InputArrayType
   | InputDictionaryType
   | InputNullableType;
@@ -59,7 +60,8 @@ export interface InputPrimitiveType extends InputTypeBase {
 
 export interface InputLiteralType extends InputTypeBase {
   kind: "constant";
-  valueType: InputPrimitiveType | InputEnumType; // this has to be inconsistent because currently we have possibility of having an enum underlying the literal type
+  name: string;
+  valueType: InputPrimitiveType;
   value: string | number | boolean | null;
 }
 
@@ -143,7 +145,7 @@ export interface InputEnumType extends InputTypeBase {
   name: string;
   crossLanguageDefinitionId: string;
   valueType: InputPrimitiveType;
-  values: InputEnumTypeValue[];
+  values: InputEnumValueType[];
   isFixed: boolean;
   isFlags: boolean;
   usage: UsageFlags;
@@ -151,7 +153,7 @@ export interface InputEnumType extends InputTypeBase {
   namespace: string;
 }
 
-export interface InputEnumTypeValue extends InputTypeBase {
+export interface InputEnumValueType extends InputTypeBase {
   kind: "enumvalue";
   name: string;
   value: string | number;

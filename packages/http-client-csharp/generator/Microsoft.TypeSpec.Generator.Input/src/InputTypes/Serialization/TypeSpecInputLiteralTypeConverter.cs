@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
+                    || reader.TryReadString("name", ref name)
                     || reader.TryReadComplexType("value", options, ref rawValue)
                     || reader.TryReadComplexType("valueType", options, ref valueType)
                     || reader.TryReadComplexType("decorators", options, ref decorators);
@@ -42,6 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
+            name = name ?? string.Empty;
             valueType = valueType ?? throw new JsonException("InputLiteralType must have type");
 
             if (rawValue == null)
@@ -65,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 _ => throw new JsonException($"Not supported literal type {valueKind}.")
             };
 
-            var literalType = new InputLiteralType(valueType, value)
+            var literalType = new InputLiteralType(name, valueType, value)
             {
                 Decorators = decorators ?? []
             };
