@@ -899,7 +899,7 @@ importers:
         version: 14.1.0
       inquirer:
         specifier: ^12.5.0
-        version: 12.5.0(@types/node@22.13.11)
+        version: 12.5.0(@types/node@22.13.13)
       ora:
         specifier: ^8.1.1
         version: 8.2.0
