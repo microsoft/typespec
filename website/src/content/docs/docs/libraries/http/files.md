@@ -27,7 +27,7 @@ An operation payload (request, response, or multipart part) has a file body if:
 - The type of the body is _effectively_ a model that is or extends `Http.File` **AND**
 - there is no explicit declaration of a `Content-Type` header (see [_`File` with an explicit `Content-Type` header_ below for reasoning and more information](#file-with-an-explicit-content-type-header)).
 
-By "effectively a model that is or extends `Http.File`," we mean cases where an explicit body property is provided and its type is or extends `Http.File` as well as cases where `Http.File` alone is spread into a request or response payload. The following sections contain examples of using `Http.File` in various contexts to define operations that have file bodies.
+By "effectively a model that is or extends `Http.File`," we mean cases where an explicit body property is provided and its type is or extends `Http.File` as well as cases where `Http.File` is spread into a request or response payload and the only non-metadata properties in the payload are properties of `File` (see [_When a model is effectively a `File`_](#when-a-model-is-effectively-a-file) below for a more precise description with examples). The following sections contain examples of using `Http.File` in various contexts to define operations that have file bodies.
 
 ### Downloading a file
 
@@ -135,7 +135,105 @@ op multipartUpload(
 ): void;
 ```
 
-For more information about the handling of multipart payloads in `@typespec/http`, see [Multipart](./multipart.md);
+For more information about the handling of multipart payloads in `@typespec/http`, see [Multipart](./multipart.md).
+
+### When a model is _effectively_ a `File`
+
+In the above sections, we used the idea of "effective" files. In the context of an HTTP operation, a model is _effectively_ a file if it has _all_ of the properties of `Http.File` (true properties of `Http.File` from a spread or intersection, not just properties that have the same shape as a `File`) **AND** after removing all of the _applicable_ metadata properties, it has _only_ properties of `Http.File`.
+
+- A property of `Http.File` means a property that is actually sourced from the `Http.File` model, e.g. through spreading `File` into another model or using `model is` syntax.
+- _Applicable metadata_ means an HTTP metadata decorator that _applies_ in context. For example, `@path` is applicable in requests, but not response or multipart payloads. `@statusCode` is applicable in responses, but not request or multipart payloads.
+
+The following table shows which metadata annotations are applicable in which contexts:
+
+| **Metadata** | **`@header`** | **`@query`** | **`@statusCode`** | **`@path`** |
+| ------------ | ------------- | ------------ | ----------------- | ----------- |
+| Request      | ✅            | ✅           | ❌                | ✅          |
+| Response     | ✅            | ❌           | ✅                | ❌          |
+| Multipart    | ✅            | ❌           | ❌                | ❌          |
+
+#### Examples that are effectively a `File`
+
+```typespec
+// The parameters of this operation are effectively a file because the @header parameter
+// is not considered when checking if the request is a file
+op uploadFileWithHeader(@header("x-request-id") requestId: string, ...Http.File): void;
+
+model CommonParameters {
+  @query("api-version") apiVersion: string;
+  @header("x-request-id") requestId: string;
+}
+
+// The parameters of this operation are effectively a file because the common parameters
+// are all applicable metadata and not considered when checking if the request is a file
+op uploadFileWithCommonParams(...CommonParameters, ...File): void;
+
+// The response has a file body because the `@statusCode` property is not considered when
+// checking if the response is a file
+op downloadFileWithStatusCode(@path name: string): {
+  @statusCode _: 200;
+  ...File;
+};
+
+// The response has a file body because the `OkResponse` model only has response-applicable
+// metadata that is not considered when checking if the response is a file
+op downloadFileWithIntersection(@path name: string): OkResponse & File;
+
+model OpenAPIFile extends File<"application/json" | "application/yaml", string> {
+  @path filename: string;
+}
+
+// The response and request have file bodies because the common parameters are all
+// applicable metadata in the request, and the `OkResponse` model only contains
+// applicable metadata for the response.
+op uploadAndDownload(...CommonParameters, ...OpenAPIFile): OkResponse & OpenAPIFile;
+
+model FileData {
+  @header("x-created") created: utcDateTime;
+  ...File;
+}
+
+// The request has a file body because the `created` header is applicable metadata for
+// responses, and the rest of `FileData` is the properties of `File`.
+op upload(@bodyRoot file: FileData): OkResponse;
+
+// The response has a file body because the `OkResponse` model only contains applicable
+// metadata for the response, and the `created` header is also applicable in the response.
+// The properties that are left over are the properties of `File`.
+op download(): OkResponse & FileData;
+```
+
+#### Examples that are _not_ effectively a `File`
+
+```typespec
+// The request does not have a file body because the `userId` parameter is a body property,
+// so this will cause the `File` to be serialized as JSON in the request.
+op uploadFileWithExtraParam(userId: string, ...File): void;
+
+model FileData {
+  @query created: utcDateTime;
+  ...File;
+}
+
+// The response does not have a file body because `@query` metadata is not applicable
+// in responses, so the `created` property is placed in the body and the whole `FileData`
+// model is serialized as JSON.
+op download(): FileData;
+
+model OpenAPIFile extends File<"application/json" | "application/yaml", string> {
+  @path filename: string;
+}
+
+model OpenAPIFileResponse {
+  @statusCode statusCode: 200;
+  ...SpecFile;
+}
+
+// The request does not have a file body because the `statusCode` property is not
+// applicable metadata for requests, so the request body would be serialized as a JSON
+// object. The same model _would_ create a file body in a response, though.
+op upload(@bodyRoot data: OpenAPIFileResponse): void;
+```
 
 ## Creating custom `File` models
 
@@ -203,7 +301,7 @@ Textual files provide an extra contractual guarantee that the contents of the fi
 
 ## `Http.File` as a structured model
 
-In other cases, when `Http.File` is not the body of a request or response, it is treated as a structured model just like any other ordinary model. The TypeSpec HTTP library will generally warn you in cases where the `File` _looks like_ it might indicate a file body, but does not because of the library's rules.
+In other cases, when `Http.File` is not _itself_ the body of a request or response, it is treated as a structured model just like any other ordinary model. The TypeSpec HTTP library will generally warn you in cases where the `File` _looks like_ it might indicate a file body, but does not because of the library's rules.
 
 ### `File` properties inside other models
 
@@ -241,7 +339,7 @@ If `File` is a variant of a union in an exact body, it is _not_ treated as a fil
 op uploadFileOrString(@path id: string, @body data: File | string): void;
 ```
 
-The above operation accepts _either_ a `text/plain` string _or_ a JSON-encoded `File` object body, not a file body. To declare a single operation that accepts either a `text/plain` string _or_ a file body, declare two separate operations using `@sharedRoute`:
+The above operation accepts _either_ a `text/plain` string _or_ a JSON-serialized `File` object body, not a file body. To declare a single operation that accepts either a `text/plain` string _or_ a file body, declare two separate operations using `@sharedRoute`:
 
 ```typespec
 @sharedRoute
@@ -251,7 +349,7 @@ op uploadFile(@path id: string, @body data: File): void;
 op uploadString(@path id: string, @body data: string): void;
 ```
 
-`File` can be in a union in an HTTP response and still create a file body, but only if the union is itself the return type and not in an explicit body property. The HTTP library recognizes the variants of a union that is returned from an operation as individual and separate responses, and it is allowed to have a response type that is a `File` alongside other non-file responses, but if a single response has a type that is a union that contains file, the same warning as above will appear and the `File` will be treated as a structured model.
+`File` can be in a union in an HTTP response and still create a file body, but only if the union is itself the return type and not in an explicit body property. The HTTP library recognizes the variants of a union that is returned from an operation as individual and separate responses, and it is allowed to have a response type that is a `File` alongside other non-file responses, but if a single response has a type that is a union that contains file, the same warning as above will appear and the `File` will be treated as a structured model:
 
 ```typespec
 // This is allowed and creates a file body, as `File` and `string` are considered separate responses, so
@@ -266,61 +364,6 @@ op downloadFileOrString(): File | string;
 op downloadFileOrString(): {
   @bodyRoot data: File | string;
 };
-```
-
-### `File` in intersections and composite spreads
-
-An HTTP request or response is only _effectively_ a `File` (and therefore has a file body) if it has _all_ the properties of `File` and no other properties. Attempting to intersect a `File` or spread a `File` into a request, response, or multipart payload that includes other properties will not create a file body. For example:
-
-```typespec
-// Not a file body. The fields of `File` will be serialized as JSON in the response body.
-op getFileInIntersection(): {
-  @bodyRoot data: OkResponse & Http.File;
-};
-
-// Not a file body. The fields of `File` will be serialized as JSON in the response body.
-op getFileInCompositeSpread(): {
-  @statusCode _: 200;
-  ...Http.File;
-};
-
-// Not a file body. The fields of `File` will be serialized as JSON in the request body.
-op postFileInIntersection(
-  @bodyRoot data: {
-    @path id: string;
-  } & Http.File,
-): void;
-
-// Not a file body. The fields of `File` will be serialized as JSON in the request body.
-op postFileInCompositeSpread(@path id: string, ...Http.File): void;
-```
-
-For the body to be recognized as a file body, ensure that the `File` is exactly the body or is the only thing spread into the body:
-
-```typespec
-op getFile(): {
-  @statusCode _: 200;
-  @bodyRoot file: Http.File;
-};
-
-op postFile(@path id: string, @bodyRoot file: Http.File): void;
-
-// Also a file body. Spread is allowed and recognized as a file body as long as `File` is the
-// only source of properties in the model.
-
-op getFile(): {
-  @statusCode _: 200;
-  @bodyRoot file: {
-    ...Http.File;
-  };
-};
-
-op postFile(
-  @path id: string,
-  @bodyRoot file: {
-    ...Http.File;
-  },
-): void;
 ```
 
 ### `File` with an explicit `Content-Type` header
@@ -367,4 +410,4 @@ File bodies require special handling to account for the special nature of files.
 - The `filename` should come from the `Content-Disposition` header of the response or multipart payload (there is no `filename` in requests by default), but be aware that spec authors may override this location using HTTP property metadata decorators like `@query` or `@header`.
 - The `isText` field of the `HttpOperationFileBody` will be `true` if the file is contractually guaranteed to only contain text (i.e. if the `contents` property has a type that is or extends `TypeSpec.string`). Textual files are a subset of binary files, with the guarantee that the contents are plain text that can be converted to a `string`. See [_Textual files_](#textual-files) above.
 
-See [the reference documentation of `HttpPayloadBody`](./reference/js-api/type-aliases/HttpPayloadBody.md) and [`HttpOperationFileBody`](./reference/js-api/interfaces/HttpOperationFileBody.md) for more information
+See [the reference documentation of `HttpPayloadBody`](./reference/js-api/type-aliases/HttpPayloadBody.md) and [`HttpOperationFileBody`](./reference/js-api/interfaces/HttpOperationFileBody.md) for more information.
