@@ -302,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return response.Content().ToObjectFromJson(responseBodyType);
+                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
                 }
             }
             if (responseBodyType.IsDictionary)
@@ -313,7 +313,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return response.Content().ToObjectFromJson(responseBodyType);
+                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
                 }
             }
             if (responseBodyType.Equals(typeof(string)) && Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
@@ -579,7 +579,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var returnType = response == null || responseBodyType == null
                 ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType
-                : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType.OutputType);
+                : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
 
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
