@@ -1,13 +1,69 @@
 import { createTypeSpecLibrary, JSONSchemaType } from "@typespec/compiler";
-import { ClientEmitterOptions, ClientEmitterOptionsSchema } from "@typespec/http-client";
 
-export interface JsClientEmitterOptions extends ClientEmitterOptions {}
+export interface JsClientEmitterOptions {
+  "package-version"?: string;
+  "package-name"?: string;
+  license?: {
+    name: string;
+    company?: string;
+    link?: string;
+    header?: string;
+    description?: string;
+  };
+}
 
 const EmitterOptionsSchema: JSONSchemaType<JsClientEmitterOptions> = {
   type: "object",
-  additionalProperties: true,
+  additionalProperties: false,
   properties: {
-    ...ClientEmitterOptionsSchema.properties,
+    "package-version": {
+      type: "string",
+      nullable: true,
+      default: "0.0.1",
+      description: "The version of the package.",
+    },
+    "package-name": {
+      type: "string",
+      nullable: true,
+      default: "test-package",
+      description: "Name of the package.",
+    },
+    license: {
+      type: "object",
+      additionalProperties: false,
+      nullable: true,
+      required: ["name"],
+      properties: {
+        name: {
+          type: "string",
+          nullable: false,
+          description:
+            "License name. The config is required. Predefined license are: MIT License, Apache License 2.0, BSD 3-Clause License, MPL 2.0, GPL-3.0, LGPL-3.0. For other license, you need to configure all the other license config manually.",
+        },
+        company: {
+          type: "string",
+          nullable: true,
+          description: "License company name. It will be used in copyright sentences.",
+        },
+        link: {
+          type: "string",
+          nullable: true,
+          description: "License link.",
+        },
+        header: {
+          type: "string",
+          nullable: true,
+          description:
+            "License header. It will be used in the header comment of generated client code.",
+        },
+        description: {
+          type: "string",
+          nullable: true,
+          description: "License description. The full license text.",
+        },
+      },
+      description: "License information for the generated client code.",
+    },
   },
   required: [],
 };
