@@ -164,7 +164,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("succeeds if config is valid", () => {
-      deepStrictEqual(validate({ emitters: { openapi: {} } }), []);
+      deepStrictEqual(validate({ options: { openapi: {} } }), []);
     });
   });
 });
