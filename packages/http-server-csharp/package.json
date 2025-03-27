@@ -20,7 +20,7 @@
   ],
   "type": "module",
   "bin": {
-    "hscs": "./cmd/hscs.js"
+    "hscs-scaffold": "./cmd/hscs-scaffold.js"
   },
   "main": "dist/src/lib/index.js",
   "exports": {
