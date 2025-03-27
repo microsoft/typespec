@@ -1,0 +1,16 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "type.enumnamespace.extensible.DaysOfWeekExtensibleEnum": "Type.Enum.Extensible.DaysOfWeekExtensibleEnum",
+    "type.enumnamespace.extensible.ExtensibleClient": "Type.Enum.Extensible.String",
+    "type.enumnamespace.extensible.ExtensibleClient.getKnownValue": "Type.Enum.Extensible.String.getKnownValue",
+    "type.enumnamespace.extensible.ExtensibleClient.getKnownValueWithResponse": "Type.Enum.Extensible.String.getKnownValue",
+    "type.enumnamespace.extensible.ExtensibleClient.getUnknownValue": "Type.Enum.Extensible.String.getUnknownValue",
+    "type.enumnamespace.extensible.ExtensibleClient.getUnknownValueWithResponse": "Type.Enum.Extensible.String.getUnknownValue",
+    "type.enumnamespace.extensible.ExtensibleClient.putKnownValue": "Type.Enum.Extensible.String.putKnownValue",
+    "type.enumnamespace.extensible.ExtensibleClient.putKnownValueWithResponse": "Type.Enum.Extensible.String.putKnownValue",
+    "type.enumnamespace.extensible.ExtensibleClient.putUnknownValue": "Type.Enum.Extensible.String.putUnknownValue",
+    "type.enumnamespace.extensible.ExtensibleClient.putUnknownValueWithResponse": "Type.Enum.Extensible.String.putUnknownValue",
+    "type.enumnamespace.extensible.ExtensibleClientBuilder": "Type.Enum.Extensible"
+  }
+}

@@ -1,6 +1,5 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { ClassDeclaration } from "@alloy-js/typescript";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
 import * as cl from "@typespec/http-client";
@@ -54,19 +53,19 @@ export function ClientClass(props: ClientClassProps) {
   const subClients = props.client.subClients;
   const operations = props.client.operations;
   return (
-    <ClassDeclaration export name={clientName} refkey={clientClassRef}>
-      <ay.StatementList>
+    <ts.ClassDeclaration export name={clientName} refkey={clientClassRef}>
+      <ay.List hardline>
         <ts.ClassField
           name="context"
           jsPrivate
           refkey={contextMemberRef}
           type={contextDeclarationRef}
         />
-        <ay.For each={subClients} hardline joiner=";">
+        <ay.For each={subClients} hardline semicolon>
           {(subClient) => <SubClientClassField client={subClient} />}
         </ay.For>
-        <ClientConstructor client={props.client} />;<br />
-        <ay.For each={operations} hardline joiner=";">
+        <ClientConstructor client={props.client} />
+        <ay.For each={operations} hardline semicolon>
           {(op) => {
             const parameters = getOperationParameters(op.httpOperation);
             const args = Object.keys(parameters).map((p) => p);
@@ -89,8 +88,8 @@ export function ClientClass(props: ClientClassProps) {
             );
           }}
         </ay.For>
-      </ay.StatementList>
-    </ClassDeclaration>
+      </ay.List>
+    </ts.ClassDeclaration>
   );
 }
 

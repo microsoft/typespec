@@ -77,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        public virtual string LicenseString => string.Empty;
+        public string LicenseHeader => Configuration.LicenseInfo?.Header ?? string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
@@ -93,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator
             new CodeGenSerializationAttributeDefinition()
         ];
 
-        public virtual void Configure()
+        protected internal virtual void Configure()
         {
             foreach (var type in CustomCodeAttributeProviders)
             {

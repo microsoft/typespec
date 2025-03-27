@@ -46,7 +46,7 @@
     "payload.multipart.PictureFileDetails": null,
     "payload.multipart.PicturesFileDetails": null,
     "payload.multipart.ProfileImageFileDetails": null,
-    "payload.multipart.formdata.httpparts.nonstring.FloatRequest": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.anonymous",
-    "payload.multipart.implementation.AnonymousModelRequest": "Payload.MultiPart.FormData.anonymousModel.Request.anonymous"
+    "payload.multipart.formdata.AnonymousModelRequest": "Payload.MultiPart.FormData.anonymousModel.Request.anonymous",
+    "payload.multipart.formdata.httpparts.nonstring.FloatRequest": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.anonymous"
   }
 }

@@ -7,6 +7,7 @@ import com.azure.core.util.serializer.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import java.util.Set;
 
 /**
@@ -29,6 +30,50 @@ public class ProxyMethodParameter extends MethodParameter {
         .parameterReference("requestOptions")
         .origin(ParameterSynthesizedOrigin.REQUEST_OPTIONS)
         .build();
+
+    public static final ProxyMethodParameter CONTEXT_PARAMETER
+        = new ProxyMethodParameter.Builder().description("The context to associate with this operation.")
+            .wireType(ClassType.CONTEXT)
+            .clientType(ClassType.CONTEXT)
+            .name("context")
+            .requestParameterLocation(RequestParameterLocation.NONE)
+            .requestParameterName("context")
+            .alreadyEncoded(true)
+            .constant(false)
+            .required(false)
+            .nullable(false)
+            .fromClient(false)
+            .parameterReference("context")
+            .origin(ParameterSynthesizedOrigin.CONTEXT)
+            .build();
+
+    public static final ProxyMethodParameter REPEATABILITY_REQUEST_ID_PARAMETER
+        = new ProxyMethodParameter.Builder().name(MethodUtil.REPEATABILITY_REQUEST_ID_VARIABLE_NAME)
+            .parameterReference(MethodUtil.REPEATABILITY_REQUEST_ID_EXPRESSION)
+            .requestParameterName(MethodUtil.REPEATABILITY_REQUEST_ID_HEADER)
+            .description("Repeatability request ID header")
+            .rawType(ClassType.STRING)
+            .wireType(ClassType.STRING)
+            .clientType(ClassType.STRING)
+            .requestParameterLocation(RequestParameterLocation.HEADER)
+            .required(false)
+            .nullable(true)
+            .fromClient(false)
+            .build();
+
+    public static final ProxyMethodParameter REPEATABILITY_FIRST_SENT_PARAMETER
+        = new ProxyMethodParameter.Builder().name(MethodUtil.REPEATABILITY_FIRST_SENT_VARIABLE_NAME)
+            .parameterReference(MethodUtil.REPEATABILITY_FIRST_SENT_EXPRESSION)
+            .requestParameterName(MethodUtil.REPEATABILITY_FIRST_SENT_HEADER)
+            .description("Repeatability first sent header as HTTP-date")
+            .rawType(ClassType.STRING)
+            .wireType(ClassType.STRING)
+            .clientType(ClassType.STRING)
+            .requestParameterLocation(RequestParameterLocation.HEADER)
+            .required(false)
+            .nullable(true)
+            .fromClient(false)
+            .build();
 
     /**
      * Get the name of this parameter when it is serialized.

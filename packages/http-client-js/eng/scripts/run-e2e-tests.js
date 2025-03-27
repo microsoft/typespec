@@ -47,7 +47,7 @@ const vitestArgs = ["vitest", "run"];
 if (testPath) {
   vitestArgs.push(testPath);
 } else {
-  vitestArgs.push("test/e2e");
+  vitestArgs.push(...["--config", "./vitest.config.e2e.ts"]);
 }
 
 /**

@@ -30,7 +30,7 @@ async function getLogger() {
   return Logger;
 }
 // Dynamically import TCGC context to allow it to be mocked in tests with vi.resetModules
-async function getCreateSdkContext() {
+export async function getCreateSdkContext() {
   const { createSdkContext } = await import("@azure-tools/typespec-client-generator-core");
   return createSdkContext;
 }
@@ -96,19 +96,21 @@ export async function typeSpecCompile(
   return host.program;
 }
 
-export function createEmitterContext(program: Program): EmitContext<CSharpEmitterOptions> {
+export function createEmitterContext(
+  program: Program,
+  options: CSharpEmitterOptions = {},
+): EmitContext<CSharpEmitterOptions> {
   return {
     program: program,
     emitterOutputDir: "./",
-    options: {
-      outputFile: "tspCodeModel.json",
-      logFile: "log.json",
+    options: options ?? {
       "new-project": false,
       "clear-output-folder": false,
       "save-inputs": false,
       "generate-protocol-methods": true,
       "generate-convenience-methods": true,
       "package-name": undefined,
+      license: undefined,
     },
   } as EmitContext<CSharpEmitterOptions>;
 }
@@ -130,6 +132,7 @@ export async function createCSharpSdkContext(
     logger: new Logger(program.program, LoggerLevel.INFO),
     __typeCache: {
       crossLanguageDefinitionIds: new Map(),
+      clients: new Map(),
       types: new Map(),
       models: new Map(),
       enums: new Map(),

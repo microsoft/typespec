@@ -86,6 +86,9 @@ public class PomMapper implements IMapper<Project, Pom> {
                 dependencyIdentifier -> addedDependencyPrefixes.stream().noneMatch(dependencyIdentifier::startsWith))
             .collect(Collectors.toList()));
 
+        pom.setLicenseName(project.getLicenseName());
+        pom.setLicenseUrl(project.getLicenseUrl());
+
         pom.setDependencyIdentifiers(dependencyIdentifiers);
         pom.setRequireCompilerPlugins(true);
         return pom;

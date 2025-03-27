@@ -13,8 +13,7 @@ export {
   validateValueFormat,
   validateXmlBodyEquals,
 } from "./request-validations.js";
-export { json, xml } from "./response-utils.js";
-export { mockapi } from "./routes.js";
+export { json, multipart, xml } from "./response-utils.js";
 export {
   WithKeysScenarioExpect,
   passOnCode,
@@ -26,17 +25,14 @@ export {
   CollectionFormat,
   Fail,
   HttpMethod,
-  KeyedMockApi,
   KeyedMockRequestHandler,
   KeyedMockResponse,
-  MockApi,
   MockApiDefinition,
-  MockApiForHandler,
+  MockBody,
+  MockMultipartBody,
   MockRequestHandler,
   MockResponse,
-  MockResponseBody,
   PassByKeyScenario,
-  PassByServiceKeyScenario,
   PassOnCodeScenario,
   PassOnSuccessScenario,
   RequestExt,

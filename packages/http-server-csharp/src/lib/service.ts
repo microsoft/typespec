@@ -39,6 +39,7 @@ import {
   isNullType,
   isTemplateDeclaration,
   isVoidType,
+  resolvePath,
   serializeValueAsJson,
 } from "@typespec/compiler";
 import { createRekeyableMap } from "@typespec/compiler/utils";
@@ -51,27 +52,30 @@ import {
 } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { execFile } from "child_process";
+import path from "path";
 import { getEncodedNameAttribute } from "./attributes.js";
 import {
   GeneratedFileHeader,
   GeneratedFileHeaderWithNullable,
   getSerializationSourceFiles,
 } from "./boilerplate.js";
+import { getProjectDocs } from "./doc.js";
 import {
   CSharpSourceType,
   CSharpType,
   CSharpTypeMetadata,
   ControllerContext,
-  LibrarySourceFile,
   NameCasingType,
   ResponseInfo,
 } from "./interfaces.js";
 import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
+import { getProjectHelpers } from "./project.js";
 import {
   BusinessLogicImplementation,
   BusinessLogicMethod,
   BusinessLogicRegistrations,
   getBusinessLogicImplementations,
+  getScaffoldingHelpers,
 } from "./scaffolding.js";
 import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
 import {
@@ -91,14 +95,18 @@ import {
   getCSharpType,
   getCSharpTypeForIntrinsic,
   getCSharpTypeForScalar,
+  getFreePort,
   getHttpDeclParameters,
   getModelAttributes,
   getModelDeclarationName,
   getModelInstantiationName,
+  getOpenApiConfig,
   getOperationVerbDecorator,
   isEmptyResponseModel,
   isValueType,
 } from "./utils.js";
+
+type FileExists = (path: string) => Promise<boolean>;
 
 export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>) {
   let _unionCounter: number = 0;
@@ -106,20 +114,23 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const NoResourceContext: string = "RPCOperations";
   const doNotEmit: boolean = context.program.compilerOptions.dryRun || false;
 
+  function getFileWriter(program: Program): FileExists {
+    return async (path: string) =>
+      !!(await program.host.stat(resolvePath(path)).catch((_) => false));
+  }
   class CSharpCodeEmitter extends CodeTypeEmitter {
     #metadateMap: Map<Type, CSharpTypeMetadata> = new Map<Type, CSharpTypeMetadata>();
     #generatedFileHeaderWithNullable: string = GeneratedFileHeaderWithNullable;
     #generatedFileHeader: string = GeneratedFileHeader;
     #sourceTypeKey: string = "sourceType";
-    #libraryFiles: LibrarySourceFile[] = getSerializationSourceFiles(this.emitter);
     #baseNamespace: string | undefined = undefined;
     #emitterOutputType = context.options["output-type"];
     #emitMocks: string | undefined = context.options["emit-mocks"];
     #useSwagger: boolean = context.options["use-swaggerui"] || false;
     #openapiPath: string = context.options["openapi-path"] || "openapi/openapi.yaml";
     #mockRegistrations: BusinessLogicRegistrations = new Map<string, BusinessLogicImplementation>();
-    #mockFiles: LibrarySourceFile[] = [];
     #opHelpers: CSharpOperationHelpers = new CSharpOperationHelpers(this.emitter);
+    #fileExists: FileExists = getFileWriter(this.emitter.getProgram());
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
       return this.emitter.result.declaration(
@@ -198,7 +209,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     enumDeclarationContext(en: Enum): Context {
       const enumName = ensureCSharpIdentifier(this.emitter.getProgram(), en, en.name);
-      const enumFile = this.emitter.createSourceFile(`models/${enumName}.cs`);
+      const enumFile = this.emitter.createSourceFile(`generated/models/${enumName}.cs`);
       enumFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const enumNamespace = `${this.#getOrSetBaseNamespace(en)}.Models`;
       return this.#createEnumContext(enumNamespace, enumFile, enumName);
@@ -284,7 +295,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     modelDeclarationContext(model: Model, name: string): Context {
       if (this.#isMultipartModel(model)) return {};
       const modelName = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
-      const modelFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
+      const modelFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
       return this.#createModelContext(modelNamespace, modelFile, modelName);
@@ -297,7 +308,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         model,
         model.name,
       );
-      const sourceFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
+      const sourceFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
       const context = this.#createModelContext(modelNamespace, sourceFile, model.name);
@@ -474,7 +485,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     interfaceDeclarationContext(iface: Interface, name: string): Context {
       // set up interfaces file for declaration
       const ifaceName: string = `I${ensureCSharpIdentifier(this.emitter.getProgram(), iface, name, NameCasingType.Class)}`;
-      const sourceFile = this.emitter.createSourceFile(`operations/${ifaceName}.cs`);
+      const sourceFile = this.emitter.createSourceFile(`generated/operations/${ifaceName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Interface;
       const ifaceNamespace = this.#getOrSetBaseNamespace(iface);
       const modelNamespace = `${ifaceNamespace}.Models`;
@@ -823,7 +834,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           union,
           union.name || "Union",
         );
-        const unionFile = this.emitter.createSourceFile(`models/${unionName}.cs`);
+        const unionFile = this.emitter.createSourceFile(`generated/models/${unionName}.cs`);
         unionFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
         const unionNamespace = `${this.#getOrSetBaseNamespace(union)}.Models`;
         return {
@@ -917,7 +928,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       let context: ControllerContext | undefined = controllers.get(name);
       if (context !== undefined) return context;
       const sourceFile: SourceFile<string> = this.emitter.createSourceFile(
-        `controllers/${name}Controller.cs`,
+        `generated/controllers/${name}Controller.cs`,
       );
 
       const namespace = this.#getOrSetBaseNamespace(operation);
@@ -978,13 +989,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
-      for (const libFile of this.#libraryFiles) {
-        if (sourceFile === libFile.source) return libFile.emitted;
-      }
-      if (this.#mockFiles.length > 0) {
-        for (const mock of this.#mockFiles) {
-          if (sourceFile === mock.source) return mock.emitted;
-        }
+      if (sourceFile.meta.emitted) {
+        return sourceFile.meta.emitted;
       }
 
       const emittedSourceFile: EmittedSourceFile = {
@@ -1088,12 +1094,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return "";
     }
 
-    writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
-      for (const source of this.#libraryFiles) {
-        sourceFiles.push(source.source);
-      }
+    async writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
+      sourceFiles.push(...getSerializationSourceFiles(this.emitter).flatMap((l) => l.source));
+      sourceFiles.push(
+        ...getProjectDocs(this.emitter, this.#useSwagger, this.#mockRegistrations).flatMap(
+          (l) => l.source,
+        ),
+      );
 
-      if (this.#emitMocks === "all") {
+      if (this.#emitMocks === "mocks-and-project-files" || this.#emitMocks === "mocks-only") {
         if (this.#mockRegistrations.size > 0) {
           const mocks = getBusinessLogicImplementations(
             this.emitter,
@@ -1101,11 +1110,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
             this.#useSwagger,
             this.#openapiPath,
           );
-          this.#mockFiles.push(...mocks);
+
           sourceFiles.push(...mocks.flatMap((l) => l.source));
         }
       }
-
+      async function shouldWrite(source: SourceFile<string>, exists: FileExists): Promise<boolean> {
+        return (
+          !source.meta.conditional || options.overwrite === true || !(await exists(source.path))
+        );
+      }
       const emittedSourceFiles: SourceFile<string>[] = [];
       for (const source of sourceFiles) {
         switch (this.#emitterOutputType) {
@@ -1116,13 +1129,17 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                   // do nothing
                   break;
                 default:
-                  emittedSourceFiles.push(source);
+                  if (await shouldWrite(source, this.#fileExists)) {
+                    emittedSourceFiles.push(source);
+                  }
                   break;
               }
             }
             break;
           default:
-            emittedSourceFiles.push(source);
+            if (await shouldWrite(source, this.#fileExists)) {
+              emittedSourceFiles.push(source);
+            }
             break;
         }
       }
@@ -1219,15 +1236,84 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   );
   const ns = context.program.getGlobalNamespaceType();
   const options = emitter.getOptions();
+
   processNameSpace(context.program, ns);
   if (!doNotEmit) {
-    await ensureCleanDirectory(context.program, options.emitterOutputDir);
+    const outputDir = options.emitterOutputDir;
+    const generatedDir = path.join(outputDir, "generated");
+    await ensureCleanDirectory(context.program, generatedDir);
+
+    function normalizeSlashes(path: string) {
+      return path.replaceAll("\\", "/");
+    }
+
+    async function getOpenApiPath(): Promise<string> {
+      if (options["openapi-path"]) return options["openapi-path"];
+      const openApiSettings = await getOpenApiConfig(context.program);
+      const projectDir = resolvePath(context.program.projectRoot, outputDir);
+      if (openApiSettings.outputDir) {
+        const openApiPath = resolvePath(
+          openApiSettings.outputDir,
+          openApiSettings.fileName || "openapi.yaml",
+        );
+        return normalizeSlashes(path.relative(projectDir, openApiPath));
+      }
+      if (openApiSettings.emitted) {
+        const baseDir =
+          context.program.compilerOptions.outputDir ||
+          resolvePath(context.program.projectRoot, "tsp-output");
+        const openApiPath = resolvePath(
+          baseDir,
+          "@typespec",
+          "openapi3",
+          openApiSettings.fileName || "openapi.yaml",
+        );
+        return normalizeSlashes(path.relative(projectDir, openApiPath));
+      }
+      return "";
+    }
+    const openApiPath = await getOpenApiPath();
+    const UseSwaggerUI = openApiPath !== "" && options["use-swaggerui"] === true;
+    let httpPort: number | undefined;
+    let httpsPort: number | undefined;
+
+    if (options["emit-mocks"] !== "none") {
+      getScaffoldingHelpers(emitter, UseSwaggerUI, openApiPath, true);
+    }
+    if (options["emit-mocks"] === "mocks-and-project-files") {
+      httpPort = options["http-port"] || (await getFreePort(5000, 5999));
+      httpsPort = options["https-port"] || (await getFreePort(7000, 7999));
+
+      getProjectHelpers(
+        emitter,
+        options["project-name"] || "ServiceProject",
+        options["use-swaggerui"] || false,
+        httpPort,
+        httpsPort,
+      );
+    }
+
     await emitter.writeOutput();
+    const projectDir = normalizeSlashes(path.relative(process.cwd(), resolvePath(outputDir)));
+    const traceId = "http-server-csharp";
+
+    context.program.trace(traceId, `Your project was successfully created at "${projectDir}"`);
+    context.program.trace(
+      traceId,
+      `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
+    );
+    if (options["use-swaggerui"] === true && httpsPort) {
+      context.program.trace(
+        traceId,
+        `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
+      );
+    }
+
     if (options["skip-format"] === undefined || options["skip-format"] === false) {
       await execFile("dotnet", [
         "format",
         "whitespace",
-        emitter.getOptions().emitterOutputDir,
+        outputDir,
         "--include-generated",
         "--folder",
       ]);

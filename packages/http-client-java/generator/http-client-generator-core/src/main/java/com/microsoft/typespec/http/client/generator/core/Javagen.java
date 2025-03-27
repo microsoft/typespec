@@ -264,6 +264,10 @@ public class Javagen extends NewPlugin {
                 = ClientModelUtil.getExternalPackageNamesUsedInClient(client.getModels(), codeModel);
             client.getModuleInfo().checkForAdditionalDependencies(externalPackageNames);
             project.checkForAdditionalDependencies(externalPackageNames);
+            if (codeModel.getInfo() != null && codeModel.getInfo().getLicense() != null) {
+                project.setLicenseInfo(codeModel.getInfo().getLicense().getName(),
+                    codeModel.getInfo().getLicense().getUrl());
+            }
 
             // Module-info
             javaPackage.addModuleInfo(client.getModuleInfo());

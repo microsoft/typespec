@@ -59,7 +59,7 @@
     "payload.multipart.FormDataHttpPartsNonStringClient.floatMethodWithResponse": "Payload.MultiPart.FormData.HttpParts.NonString.float",
     "payload.multipart.MultiPartClientBuilder": "Payload.MultiPart",
     "payload.multipart.formdata.httpparts.nonstring.models.FloatRequest": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.anonymous",
-    "payload.multipart.implementation.models.AnonymousModelRequest": "Payload.MultiPart.FormData.anonymousModel.Request.anonymous",
+    "payload.multipart.formdata.models.AnonymousModelRequest": "Payload.MultiPart.FormData.anonymousModel.Request.anonymous",
     "payload.multipart.models.Address": "Payload.MultiPart.Address",
     "payload.multipart.models.BinaryArrayPartsRequest": "Payload.MultiPart.BinaryArrayPartsRequest",
     "payload.multipart.models.ComplexHttpPartsModelRequest": "Payload.MultiPart.ComplexHttpPartsModelRequest",

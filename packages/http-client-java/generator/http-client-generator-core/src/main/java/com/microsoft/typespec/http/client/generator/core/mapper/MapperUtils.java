@@ -20,6 +20,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Imple
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -127,29 +128,34 @@ public final class MapperUtils {
         }
     }
 
-    static IType handleResponseSchema(Operation operation, JavaSettings settings) {
-        Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
-            operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
-        boolean xmlWrapperResponse = responseBodySchema != null
-            && responseBodySchema.getSerialization() != null
-            && responseBodySchema.getSerialization().getXml() != null
-            && responseBodySchema.getSerialization().getXml().isWrapped();
-
-        if (!xmlWrapperResponse) {
-            return SchemaUtil.getOperationResponseType(responseBodySchema, operation, settings);
+    static IType getExpectedResponseBodyType(Operation operation, JavaSettings settings) {
+        final Iterator<Schema> expectedResponseSchemas
+            = operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator();
+        final Schema responseSchema = SchemaUtil.getLowestCommonParent(expectedResponseSchemas);
+        if (!isXmlWrappedSchema(responseSchema)) {
+            return SchemaUtil.getOperationResponseType(responseSchema, operation, settings);
+        } else {
+            return createTypeForXmlWrappedSchema(responseSchema, settings);
         }
+    }
 
-        // XML wrapped response types are tricky as they're defined as ArraySchema but in reality it's a specialized
-        // ObjectSchema.
-        ArraySchema arraySchema = (ArraySchema) responseBodySchema;
-        String className = arraySchema.getElementType().getLanguage().getJava().getName() + "Wrapper";
-        String classPackage = settings.isCustomType(className)
+    private static boolean isXmlWrappedSchema(Schema schema) {
+        return schema != null
+            && schema.getSerialization() != null
+            && schema.getSerialization().getXml() != null
+            && schema.getSerialization().getXml().isWrapped();
+    }
+
+    private static IType createTypeForXmlWrappedSchema(Schema schema, JavaSettings settings) {
+        // Note: XML wrapped response schemas are defined as ArraySchema but in reality it's a specialized ObjectSchema.
+        final ArraySchema arraySchema = (ArraySchema) schema;
+        final String className = arraySchema.getElementType().getLanguage().getJava().getName() + "Wrapper";
+        final String classPackage = settings.isCustomType(className)
             ? settings.getPackage(className)
             : settings.getPackage(settings.getImplementationSubpackage() + ".models");
-
         return new ClassType.Builder().packageName(classPackage)
             .name(className)
-            .extensions(responseBodySchema.getExtensions())
+            .extensions(schema.getExtensions())
             .build();
     }
 

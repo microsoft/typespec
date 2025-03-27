@@ -33,7 +33,7 @@ export async function get(client: TestClientContext, options?: GetOptions): Prom
 }
 ```
 
-```ts src/models/serializers.ts function jsonBytesPropertyToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonBytesPropertyToApplicationTransform
 export function jsonBytesPropertyToApplicationTransform(input_?: any): BytesProperty {
   if (!input_) {
     return input_ as any;

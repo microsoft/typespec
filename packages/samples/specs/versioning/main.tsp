@@ -2,13 +2,13 @@ import "@typespec/versioning";
 import "@typespec/rest";
 import "./library.tsp";
 
-using TypeSpec.Versioning;
-using TypeSpec.Rest;
+using Versioning;
+using Rest;
 
 @service(#{ title: "Pet Store Service" })
 @versioned(Versions)
 namespace VersionedApi;
-using TypeSpec.Http;
+using Http;
 
 enum Versions {
   @useDependency(Library.Versions.`1.0`)

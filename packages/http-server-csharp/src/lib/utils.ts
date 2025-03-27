@@ -18,6 +18,8 @@ import {
   isTemplateInstance,
   isUnknownType,
   isVoidType,
+  resolveCompilerOptions,
+  resolvePath,
 } from "@typespec/compiler";
 import {
   HttpOperation,
@@ -38,6 +40,7 @@ import {
 } from "@typespec/http";
 import { HttpRequestParameterKind } from "@typespec/http/experimental/typekit";
 import { camelCase, pascalCase } from "change-case";
+import { createServer } from "net";
 import { getAttributes } from "./attributes.js";
 import {
   Attribute,
@@ -259,7 +262,7 @@ export function getCSharpTypeForIntrinsic(
   return undefined;
 }
 
-type ExtendedIntrinsicScalarName = IntrinsicScalarName | "unixTimestamp32";
+export type ExtendedIntrinsicScalarName = IntrinsicScalarName | "unixTimestamp32";
 const standardScalars: Map<ExtendedIntrinsicScalarName, CSharpType> = new Map<
   ExtendedIntrinsicScalarName,
   CSharpType
@@ -392,6 +395,7 @@ const standardScalars: Map<ExtendedIntrinsicScalarName, CSharpType> = new Map<
     new CSharpType({ name: "decimal", namespace: "System", isBuiltIn: true, isValueType: true }),
   ],
 ]);
+
 export function getCSharpTypeForStdScalars(
   program: Program,
   scalar: Scalar & { name: ExtendedIntrinsicScalarName },
@@ -1448,4 +1452,64 @@ export function coalesceTsTypes(program: Program, types: Type[]): [CSharpType, b
 
 export function isRecord(type: Type): boolean {
   return type.kind === "Model" && type.name === "Record" && type.indexer !== undefined;
+}
+
+export async function getFreePort(minPort: number, maxPort: number, tries: number = 100) {
+  const min = Math.floor(minPort);
+  const max = Math.floor(maxPort);
+  if (tries === 0) return min;
+  const diff = Math.abs(max - min);
+  const port = min + Math.floor(Math.random() * diff);
+  const server = createServer();
+  const free = await checkPort(port);
+  if (free) {
+    return port;
+  }
+  return await getFreePort(min, max, tries--);
+
+  async function checkPort(port: number, timeout: number = 100): Promise<boolean> {
+    return new Promise<boolean>((resolve, _) => {
+      server.on("error", (_) => {
+        server.close();
+        resolve(false);
+      });
+      server.listen(port, async () => {
+        try {
+          setTimeout(() => resolve(true), timeout);
+        } catch (e) {
+          resolve(false);
+        } finally {
+          server.close();
+        }
+      });
+    });
+  }
+}
+
+export interface OpenApiConfig {
+  emitted: boolean;
+  outputDir?: string;
+  fileName?: any;
+  options?: Record<string, unknown> & {
+    "emitter-output-dir"?: string;
+  };
+}
+
+export async function getOpenApiConfig(program: Program): Promise<OpenApiConfig> {
+  const root = program.projectRoot;
+  const [options, _] = await resolveCompilerOptions(program.host, {
+    cwd: root,
+    entrypoint: resolvePath(root, "main.tsp"),
+  });
+  const oaiOptions =
+    options.options !== undefined && Object.keys(options.options).includes("@typespec/openapi3")
+      ? options.options["@typespec/openapi3"]
+      : undefined;
+
+  return {
+    emitted: options.emit !== undefined && options.emit.includes("@typespec/openapi3"),
+    outputDir: oaiOptions?.["emitter-output-dir"],
+    fileName: oaiOptions?.["output-file"],
+    options: oaiOptions,
+  };
 }

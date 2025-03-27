@@ -28,19 +28,13 @@ $generateScript = {
   # for each test run. We do this by appending a random number to the output directory.
   # Without this, we could have multiple runs trying to write to the same directory which introduces race conditions.
   $tspOptions = "--option ""@typespec/http-client-java.emitter-output-dir={project-root}/tsp-output/$(Get-Random)"""
-  if ($tspFile -match "type[\\/]enum[\\/]extensible[\\/]") {
-    # override namespace for reserved keyword "enum"
-    $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.extensible"""
-  } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
-    # override namespace for reserved keyword "enum"
-    $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.fixed"""
-  }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
   $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"
 
+  # output of "tsp compile" seems trigger powershell error or exit, hence the ">$null 2>&1"
   $timer = [Diagnostics.Stopwatch]::StartNew()
-  $generateOutput = Invoke-Expression $tspCommand
+  Invoke-Expression $tspCommand >$null 2>&1
   $timer.Stop()
 
   $global:ExitCode = $global:ExitCode -bor $LASTEXITCODE
@@ -51,7 +45,6 @@ $generateScript = {
   $tspCommand
   ========================
   FAILED (Time elapsed: $($timer.ToString()))
-  $([String]::Join("`n", $generateOutput))
     "
   } else {
     Write-Host "
@@ -83,8 +76,6 @@ if (Test-Path ./tsp-output) {
 Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
 # remove xml tests, emitter has not supported xml model
 Remove-Item ./specs/payload/xml -Recurse -Force
-# TODO, enable it on 0.67
-Remove-Item ./specs/streaming -Recurse -Force
 
 $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 

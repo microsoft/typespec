@@ -35,7 +35,7 @@ export interface TRex extends Dinosaur {
 
 ## Serializer
 
-```ts src/models/serializers.ts function jsonDinosaurToTransportTransform
+```ts src/models/internal/serializers.ts function jsonDinosaurToTransportTransform
 export function jsonDinosaurToTransportTransform(input_?: Dinosaur | null): any {
   if (!input_) {
     return input_ as any;
@@ -48,7 +48,7 @@ export function jsonDinosaurToTransportTransform(input_?: Dinosaur | null): any 
 }
 ```
 
-```ts src/models/serializers.ts function jsonTRexToTransportTransform
+```ts src/models/internal/serializers.ts function jsonTRexToTransportTransform
 export function jsonTRexToTransportTransform(input_?: TRex | null): any {
   if (!input_) {
     return input_ as any;
@@ -62,7 +62,7 @@ export function jsonTRexToTransportTransform(input_?: TRex | null): any {
 
 ## Deserializer
 
-```ts src/models/serializers.ts function jsonDinosaurToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonDinosaurToApplicationTransform
 export function jsonDinosaurToApplicationTransform(input_?: any): Dinosaur {
   if (!input_) {
     return input_ as any;
@@ -75,7 +75,7 @@ export function jsonDinosaurToApplicationTransform(input_?: any): Dinosaur {
 }
 ```
 
-```ts src/models/serializers.ts function jsonTRexToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonTRexToApplicationTransform
 export function jsonTRexToApplicationTransform(input_?: any): TRex {
   if (!input_) {
     return input_ as any;

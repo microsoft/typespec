@@ -393,3 +393,28 @@ describe("global graph mutation", () => {
     expectTypeEquals(MutatedFoo.parameters.sourceModels[0].model, MutatedSpread);
   });
 });
+
+describe("decorators", () => {
+  // Regression test for https://github.com/microsoft/typespec/issues/6655
+  it("doesn't crash when mutating null value", async () => {
+    const host = await createTestHost();
+    const code = `
+      import "./dec.js";
+      extern dec myDec(target, value: valueof unknown);
+      
+      @myDec(null)
+      @test model Foo {}
+  `;
+    host.addJsFile("dec.js", { $myDec: () => {} });
+    host.addTypeSpecFile("main.tsp", code);
+
+    const { Foo } = (await host.compile("main.tsp")) as { Foo: Model };
+    const mutator: Mutator = {
+      name: "test",
+      Model: {
+        mutate: (_model, clone) => {},
+      },
+    };
+    expect(() => mutateSubgraph(host.program, [mutator], Foo)).not.toThrow();
+  });
+});
