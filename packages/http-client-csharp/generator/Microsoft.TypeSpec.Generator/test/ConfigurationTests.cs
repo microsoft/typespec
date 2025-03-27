@@ -207,10 +207,50 @@ namespace Microsoft.TypeSpec.Generator.Tests
             MockHelpers.LoadMockGenerator(configuration: mockJson);
 
             Assert.IsTrue(CodeModelGenerator.Instance.Configuration.DisableXmlDocs);
+
             FieldProvider field = new(FieldModifiers.Public, typeof(int), "_field", new TestTypeProvider(), $"Field Description");
             using var writer = new CodeWriter();
             writer.WriteField(field);
             Assert.AreEqual("public int _field;\n", writer.ToString(false));
+        }
+
+        [Test]
+        public void CanAddLicenseInfo()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName"",
+                ""license"": {
+                    ""name"": ""MIT"",
+                    ""company"": ""Microsoft"",
+                    ""link"": ""https://mit-license.org"",
+                    ""header"": ""This is a test header."",
+                    ""description"": ""This is a test description.""
+                }
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var licenseInfo = CodeModelGenerator.Instance.Configuration.LicenseInfo;
+            Assert.IsNotNull(licenseInfo);
+            Assert.AreEqual("This is a test header.", licenseInfo!.Header);
+            Assert.AreEqual("MIT", licenseInfo.Name);
+            Assert.AreEqual("Microsoft", licenseInfo.Company);
+            Assert.AreEqual("https://mit-license.org", licenseInfo.Link);
+            Assert.AreEqual("This is a test description.", licenseInfo.Description);
+            Assert.AreEqual("This is a test header.", CodeModelGenerator.Instance.LicenseHeader);
+        }
+
+        [Test]
+        public void LicenseInfoIsNullWhenNotInConfig()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName""
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var licenseInfo = CodeModelGenerator.Instance.Configuration.LicenseInfo;
+            Assert.IsNull(licenseInfo);
         }
 
         public static IEnumerable<TestCaseData> ParseConfigOutputFolderTestCases

@@ -13,7 +13,6 @@ export interface PythonEmitterOptions extends SdkEmitterOptions {
   "packaging-files-config"?: object;
   "package-pprint-name"?: string;
   "head-as-boolean"?: boolean;
-  "company-name"?: string;
   "use-pyodide"?: boolean;
 }
 
@@ -63,12 +62,6 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       type: "boolean",
       nullable: true,
       description: "Whether to return responses from HEAD requests as boolean. Defaults to `true`.",
-    },
-    "company-name": {
-      type: "string",
-      nullable: true,
-      description:
-        "The name of the company. This will be reflected in your license files and documentation.",
     },
     "use-pyodide": {
       type: "boolean",

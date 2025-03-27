@@ -100,7 +100,7 @@ async function main() {
           "@typespec/http-server-csharp.use-swaggerui=true",
         ];
         if (projectDir) {
-          const generatedTargetDir = resolvePath(process.cwd(), projectDir, "generated");
+          const generatedTargetDir = resolvePath(process.cwd(), projectDir);
           const generatedOpenApiDir = resolvePath(process.cwd(), projectDir, "openapi");
           const openApiPath = path
             .relative(projectDir, resolvePath(generatedOpenApiDir, "openapi.yaml"))
