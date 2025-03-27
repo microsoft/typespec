@@ -513,9 +513,9 @@ it("generates standard scalar array  constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[ArrayConstraint( MinItems = 1, MaxItems = 10)]",
+      "[ArrayConstraint<SByte>( MinItems = 1, MaxItems = 10)]",
       "public SByte[] ArrSbyteProp { get; set; }",
-      "[ArrayConstraint( MaxItems = 10)]",
+      "[ArrayConstraint<Byte>( MaxItems = 10)]",
       "public Byte[] ArrByteProp { get; set; }",
     ],
   );
@@ -1423,7 +1423,7 @@ it("Does not overwrite mock files", async () => {
     "emit-mocks": "mocks-and-project-files",
   });
   runner.fs.set(
-    resolveVirtualPath("@typespec", "http-server-csharp", "../", "ServiceProject.csproj"),
+    resolveVirtualPath("@typespec", "http-server-csharp", "ServiceProject.csproj"),
     "ServiceProject\n",
   );
   await compileAndValidateMultiple(runner, multipartSpec, [
@@ -1437,7 +1437,7 @@ it("Does overwrite mock files with overWrite option", async () => {
     overwrite: true,
   });
   runner.fs.set(
-    resolveVirtualPath("@typespec", "http-server-csharp", "../", "ServiceProject.csproj"),
+    resolveVirtualPath("@typespec", "http-server-csharp", "ServiceProject.csproj"),
     "ServiceProject\n",
   );
   await compileAndValidateMultiple(runner, multipartSpec, [
@@ -1457,7 +1457,7 @@ emit:
   - "@typespec/openapi3"
 options:
   "@typespec/openapi3":
-    emitter-output-dir: "{project-root}/generated"
+    emitter-output-dir: "{project-root}/openapi"
     output-file: "openapi.yaml"
 
 `,
@@ -1472,7 +1472,7 @@ options:
         `c.DocumentTitle = "TypeSpec Generated OpenAPI Viewer";`,
         `c.SwaggerEndpoint("/openapi.yaml", "TypeSpec Generated OpenAPI Docs");`,
         `c.RoutePrefix = "swagger";`,
-        `var externalFilePath = "../generated/openapi.yaml"; // Full path to the file outside the project`,
+        `var externalFilePath = "../../openapi/openapi.yaml"; // Full path to the file outside the project`,
       ],
     ],
   ]);

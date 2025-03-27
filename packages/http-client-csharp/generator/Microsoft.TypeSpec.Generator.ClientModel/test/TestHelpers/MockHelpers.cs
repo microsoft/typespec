@@ -73,8 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 inputNsEnums,
                 inputNsModels,
                 inputNsClients,
-                inputAuth!,
-                Array.Empty<string>());
+                inputAuth!);
             var mockInputLibrary = new Mock<InputLibrary>(_configFilePath);
             mockInputLibrary.Setup(p => p.InputNamespace).Returns(mockInputNs.Object);
 
@@ -139,7 +138,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
 
             codeModelInstance!.SetValue(null, mockGeneratorInstance.Object);
             clientModelInstance!.SetValue(null, mockGeneratorInstance.Object);
-            mockGeneratorInstance.Object.Configure();
+
+            var configureMethod = typeof(CodeModelGenerator).GetMethod(
+                "Configure",
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod
+            );
+            configureMethod!.Invoke(mockGeneratorInstance.Object, null);
+
             return mockGeneratorInstance;
         }
     }

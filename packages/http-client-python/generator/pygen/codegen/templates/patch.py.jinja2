@@ -1,7 +1,12 @@
-# ------------------------------------
-# Copyright (c) {{ code_model.options["company_name"] }} Corporation.
-# Licensed under the MIT License.
-# ------------------------------------
+# coding=utf-8
+{% if not code_model.is_azure_flavor %}
+{{ code_model.license_header }}
+{% else %}
+# --------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License. See License.txt in the project root for license information.
+# --------------------------------------------------------------------------
+{% endif %}
 """Customize generated code here.
 
 Follow our quickstart for examples: https://aka.ms/azsdk/python/dpcodegen/python/customize

@@ -264,7 +264,7 @@ export function getCSharpTypeForIntrinsic(
   return undefined;
 }
 
-type ExtendedIntrinsicScalarName = IntrinsicScalarName | "unixTimestamp32";
+export type ExtendedIntrinsicScalarName = IntrinsicScalarName | "unixTimestamp32";
 const standardScalars: Map<ExtendedIntrinsicScalarName, CSharpType> = new Map<
   ExtendedIntrinsicScalarName,
   CSharpType
@@ -397,6 +397,7 @@ const standardScalars: Map<ExtendedIntrinsicScalarName, CSharpType> = new Map<
     new CSharpType({ name: "decimal", namespace: "System", isBuiltIn: true, isValueType: true }),
   ],
 ]);
+
 export function getCSharpTypeForStdScalars(
   program: Program,
   scalar: Scalar & { name: ExtendedIntrinsicScalarName },

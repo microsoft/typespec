@@ -1,3 +1,4 @@
+import { normalizePath } from "@typespec/compiler";
 import { TypeSpecTestLibrary } from "@typespec/compiler/testing";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import minimist from "minimist";
@@ -52,7 +53,8 @@ async function assertGetEmittedFile(
     throw new Error(`Error compiling code:\n ${errors.map((x) => x.message).join("\n")}`);
   }
 
-  const sourceFile = emittedFiles.find((x) => x.path === file);
+  const normalizedTarget = normalizePath(file);
+  const sourceFile = emittedFiles.find((x) => normalizePath(x.path) === normalizedTarget);
 
   if (!sourceFile) {
     throw new Error(

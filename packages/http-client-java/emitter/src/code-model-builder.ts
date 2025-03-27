@@ -18,6 +18,7 @@ import {
   ImplementationLocation,
   KeySecurityScheme,
   Language,
+  License,
   Metadata,
   NumberSchema,
   OAuth2SecurityScheme,
@@ -52,6 +53,7 @@ import {
   SdkDateTimeType,
   SdkDictionaryType,
   SdkDurationType,
+  SdkEmitterOptions,
   SdkEnumType,
   SdkEnumValueType,
   SdkHeaderParameter,
@@ -165,6 +167,9 @@ export interface EmitterOptionsDev {
   "service-name"?: string;
   "service-versions"?: string[]; // consider to remove
 
+  // license
+  license?: SdkEmitterOptions["license"];
+
   // sample and test
   "generate-samples"?: boolean;
   "generate-tests"?: boolean;
@@ -175,7 +180,6 @@ export interface EmitterOptionsDev {
   "custom-types"?: string;
   "custom-types-subpackage"?: string;
   "customization-class"?: string;
-  polling?: any;
 
   // configure
   "skip-special-headers"?: string[];
@@ -186,6 +190,7 @@ export interface EmitterOptionsDev {
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
   "use-object-for-unknown"?: boolean;
+  polling?: any;
 
   // versioning
   "api-version"?: string;
@@ -198,6 +203,7 @@ export interface EmitterOptionsDev {
   // internal use for codegen
   "output-dir": string;
   arm?: boolean;
+  "license-header"?: string;
 }
 
 type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
@@ -286,6 +292,17 @@ export class CodeModelBuilder {
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
     this.program.reportDiagnostics(this.sdkContext.diagnostics);
+
+    // license
+    if (this.sdkContext.sdkPackage.licenseInfo) {
+      this.codeModel.info.license = new License(this.sdkContext.sdkPackage.licenseInfo.name, {
+        url: this.sdkContext.sdkPackage.licenseInfo.link,
+        extensions: {
+          header: this.sdkContext.sdkPackage.licenseInfo.header,
+          company: this.sdkContext.sdkPackage.licenseInfo.company,
+        },
+      });
+    }
 
     // java namespace
     if (this.options.namespace) {
@@ -762,9 +779,8 @@ export class CodeModelBuilder {
   ): SdkClientType<SdkHttpOperation>[] {
     const isRootClient = !client.parent;
     const subClients: SdkClientType<SdkHttpOperation>[] = [];
-    for (const method of client.methods) {
-      if (method.kind === "clientaccessor") {
-        const subClient = method.response;
+    if (client.children) {
+      for (const subClient of client.children) {
         if (!isRootClient) {
           // if it is not root client, append the parent client's name
           subClient.name =

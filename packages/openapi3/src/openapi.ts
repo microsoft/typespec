@@ -578,7 +578,7 @@ function createOAPIEmitter(
       const reference = sharedParams[0];
 
       const inAllOps = ops.length === sharedParams.length;
-      const sameLocations = sharedParams.every((p) => p.options.type === reference.options.type);
+      const sameLocations = sharedParams.every((p) => p.kind === reference.kind);
       const sameOptionality = sharedParams.every(
         (p) => p.property.optional === reference.property.optional,
       );
@@ -1116,7 +1116,7 @@ function createOAPIEmitter(
             body.type,
             visibility,
             body.isExplicit && body.containsMetadataAnnotations,
-            contentType.startsWith("multipart/") ? contentType : undefined,
+            undefined,
           ),
           ...oai3Examples,
         };
@@ -1159,7 +1159,12 @@ function createOAPIEmitter(
             part.body.type,
             visibility,
             part.body.isExplicit && part.body.containsMetadataAnnotations,
-            part.body.type.kind === "Union" ? contentType : undefined,
+            part.body.type.kind === "Union" &&
+              [...part.body.type.variants.values()].some((x) =>
+                isBinaryPayload(x.type, contentType),
+              )
+              ? contentType
+              : undefined,
           );
 
       if (part.multi) {
@@ -1168,6 +1173,14 @@ function createOAPIEmitter(
           items: schema,
         };
       }
+
+      if (part.property) {
+        const doc = getDoc(program, part.property);
+        if (doc) {
+          schema = { ...schema, description: doc };
+        }
+      }
+
       properties[partName] = schema;
 
       const encoding = resolveEncodingForMultipartPart(part, visibility, schema);
@@ -1260,7 +1273,7 @@ function createOAPIEmitter(
   ): OpenAPI3Parameter {
     const param: OpenAPI3Parameter = {
       name: httpProperty.options.name,
-      in: httpProperty.options.type,
+      in: httpProperty.kind,
       ...getOpenAPIParameterBase(httpProperty.property, visibility),
     } as any;
 
@@ -1491,6 +1504,16 @@ function createOAPIEmitter(
         attributes.style = "matrix";
         break;
       case "simple":
+        break;
+      case "path":
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-style",
+            messageId: httpProperty.property.optional ? "optionalPath" : "default",
+            format: { style: httpProperty.options.style, paramType: "path" },
+            target: httpProperty.property,
+          }),
+        );
         break;
       default:
         diagnostics.add(

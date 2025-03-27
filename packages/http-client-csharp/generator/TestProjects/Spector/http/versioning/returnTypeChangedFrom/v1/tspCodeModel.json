@@ -49,6 +49,7 @@
  "clients": [
   {
    "$id": "6",
+   "kind": "client",
    "name": "ReturnTypeChangedFromClient",
    "namespace": "Versioning.ReturnTypeChangedFrom",
    "doc": "Test for the `@returnTypeChangedFrom` decorator.",
@@ -227,7 +228,10 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Versioning.ReturnTypeChangedFrom"
+   "crossLanguageDefinitionId": "Versioning.ReturnTypeChangedFrom",
+   "apiVersions": [
+    "v1"
+   ]
   }
  ]
 }

@@ -21,7 +21,7 @@ The code layout inside the 'generated' folder is as follows:
 
 ## Scaffolding
 
-If you use the scaffolding cli (hscs) or use the `--emit-mocks "all"` option on compilation, a
+If you use the scaffolding cli (hscs) or use the `--emit-mocks "mocks-and-project-files"` option on compilation, a
 fully-functional .Net 9 project will be created with mock implementations of your business
 logic, ready to compile and run.
 
