@@ -397,7 +397,7 @@ namespace UnbrandedTypeSpec
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/list/nopaging", false);
+            uri.AppendPath("/list/noPaging", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);

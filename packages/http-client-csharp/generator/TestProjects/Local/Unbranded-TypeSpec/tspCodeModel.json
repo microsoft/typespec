@@ -4573,7 +4573,7 @@
      ],
      "httpMethod": "GET",
      "uri": "{unbrandedTypeSpecUrl}",
-     "path": "/list/nopaging",
+     "path": "/list/noPaging",
      "bufferResponse": true,
      "paging": {
       "$id": "501",
