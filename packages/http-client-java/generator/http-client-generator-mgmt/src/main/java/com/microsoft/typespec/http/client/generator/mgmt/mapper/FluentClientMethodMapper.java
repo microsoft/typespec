@@ -83,14 +83,16 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
     protected JavaVisibility methodVisibility(ClientMethodType methodType, MethodOverloadType methodOverloadType,
         boolean hasContextParameter, boolean isProtocolMethod) {
 
-        JavaVisibility visibility;
+        boolean syncStack = JavaSettings.getInstance().isSyncStackEnabled();
+
+        JavaVisibility visibility
+            = super.methodVisibility(methodType, methodOverloadType, hasContextParameter, isProtocolMethod);
         if (methodType == ClientMethodType.PagingAsyncSinglePage) {
             // utility methods
             // single page method is not visible, but the method is required for other client methods
             visibility = NOT_VISIBLE;
         } else if (methodType == ClientMethodType.PagingSyncSinglePage) {
-            // wait for sync-stack to decide
-            visibility = NOT_GENERATE;
+            visibility = syncStack ? NOT_VISIBLE : NOT_GENERATE;
         } else if (hasContextParameter
             && (methodType == ClientMethodType.SimpleAsyncRestResponse
                 || methodType == ClientMethodType.PagingAsync
@@ -110,15 +112,18 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
                 && methodOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM) {
                 // SimpleAsync with maximum overload is covered by SimpleAsyncRestResponse
                 visibility = NOT_GENERATE;
-            } else if (((methodType.name().contains("Sync") && !hasContextParameter))
-                && ((methodOverloadType.value() & MethodOverloadType.OVERLOAD_MINIMUM.value())
-                    != MethodOverloadType.OVERLOAD_MINIMUM.value())) {
-                // sync method has both minimum overload and maximum overload + Context parameter, but not maximum
-                // overload without Context parameter
-                visibility = NOT_GENERATE;
-            } else {
-                visibility
-                    = super.methodVisibility(methodType, methodOverloadType, hasContextParameter, isProtocolMethod);
+            } else if (methodType.isSync()
+                && !hasContextParameter
+                && (methodOverloadType.value() & MethodOverloadType.OVERLOAD_MINIMUM.value())
+                    != MethodOverloadType.OVERLOAD_MINIMUM.value()) {
+                if (syncStack && methodType == ClientMethodType.LongRunningBeginSync) {
+                    // In sync-stack, LongRunningSync calls LongRunningBeginSync for implementation.
+                    visibility = NOT_VISIBLE;
+                } else {
+                    // sync method has both minimum overload and maximum overload + Context parameter, but not maximum
+                    // overload without Context parameter
+                    visibility = NOT_GENERATE;
+                }
             }
         }
 

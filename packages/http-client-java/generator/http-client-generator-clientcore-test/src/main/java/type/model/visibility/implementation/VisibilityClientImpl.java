@@ -6,6 +6,7 @@ import io.clientcore.core.http.annotations.BodyParam;
 import io.clientcore.core.http.annotations.HeaderParam;
 import io.clientcore.core.http.annotations.HostParam;
 import io.clientcore.core.http.annotations.HttpRequestInformation;
+import io.clientcore.core.http.annotations.QueryParam;
 import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.exceptions.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
@@ -74,15 +75,16 @@ public final class VisibilityClientImpl {
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/model/visibility", expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
         Response<VisibilityModel> getModelSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData input, RequestOptions requestOptions);
+            @QueryParam("queryProp") int queryProp, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData input,
+            RequestOptions requestOptions);
 
         @HttpRequestInformation(
             method = HttpMethod.HEAD,
             path = "/type/model/visibility",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
-        Response<Void> headModelSync(@HostParam("endpoint") String endpoint,
+        Response<Void> headModelSync(@HostParam("endpoint") String endpoint, @QueryParam("queryProp") int queryProp,
             @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData input,
             RequestOptions requestOptions);
 
@@ -137,7 +139,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -155,7 +156,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -167,15 +167,17 @@ public final class VisibilityClientImpl {
      * }
      * </pre>
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the service returns an error.
      * @return output model with visibility properties.
      */
-    public Response<VisibilityModel> getModelWithResponse(BinaryData input, RequestOptions requestOptions) {
+    public Response<VisibilityModel> getModelWithResponse(int queryProp, BinaryData input,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.getModelSync(this.getEndpoint(), contentType, accept, input, requestOptions);
+        return service.getModelSync(this.getEndpoint(), queryProp, contentType, accept, input, requestOptions);
     }
 
     /**
@@ -186,7 +188,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -198,14 +199,15 @@ public final class VisibilityClientImpl {
      * }
      * </pre>
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the service returns an error.
      * @return the response.
      */
-    public Response<Void> headModelWithResponse(BinaryData input, RequestOptions requestOptions) {
+    public Response<Void> headModelWithResponse(int queryProp, BinaryData input, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        return service.headModelSync(this.getEndpoint(), contentType, input, requestOptions);
+        return service.headModelSync(this.getEndpoint(), queryProp, contentType, input, requestOptions);
     }
 
     /**
@@ -216,7 +218,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -246,7 +247,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -276,7 +276,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -306,7 +305,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]

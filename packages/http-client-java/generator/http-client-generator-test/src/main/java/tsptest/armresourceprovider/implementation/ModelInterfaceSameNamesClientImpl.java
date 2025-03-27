@@ -21,6 +21,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 import tsptest.armresourceprovider.fluent.ModelInterfaceSameNamesClient;
 import tsptest.armresourceprovider.fluent.models.ModelInterfaceSameNameInner;
@@ -62,6 +63,16 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<ModelInterfaceSameNameInner>> getByResourceGroup(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName,
+            @PathParam("modelInterfaceDifferentNameName") String modelInterfaceDifferentNameName,
+            @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/modelInterfaceDifferentNames/{modelInterfaceDifferentNameName}")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<ModelInterfaceSameNameInner> getByResourceGroupSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("modelInterfaceDifferentNameName") String modelInterfaceDifferentNameName,
@@ -171,7 +182,28 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelInterfaceSameNameInner> getByResourceGroupWithResponse(String resourceGroupName,
         String modelInterfaceDifferentNameName, Context context) {
-        return getByResourceGroupWithResponseAsync(resourceGroupName, modelInterfaceDifferentNameName, context).block();
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (modelInterfaceDifferentNameName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter modelInterfaceDifferentNameName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.getByResourceGroupSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, modelInterfaceDifferentNameName, accept, context);
     }
 
     /**
@@ -190,4 +222,6 @@ public final class ModelInterfaceSameNamesClientImpl implements ModelInterfaceSa
         return getByResourceGroupWithResponse(resourceGroupName, modelInterfaceDifferentNameName, Context.NONE)
             .getValue();
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(ModelInterfaceSameNamesClientImpl.class);
 }
