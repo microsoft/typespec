@@ -140,7 +140,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(listMethod);
             var signature = listMethod!.Signature;
 
-            var expectedReturnType = new CSharpType(typeof(ClientResult<>), new CSharpType(typeof(IList<>), modelType!));
+            var expectedReturnType = new CSharpType(typeof(ClientResult<>), new CSharpType(typeof(IReadOnlyList<>), modelType!));
             Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
         }
 
