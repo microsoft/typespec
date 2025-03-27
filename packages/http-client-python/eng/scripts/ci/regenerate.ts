@@ -341,9 +341,6 @@ function addOptions(
     if (flags.debug) {
       options["debug"] = "true";
     }
-    if (flags.flavor === "unbranded") {
-      options["company-name"] = "Unbranded";
-    }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
     const configs = Object.entries(options).flatMap(([k, v]) => {
       return ["--option", `${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${v}`];
