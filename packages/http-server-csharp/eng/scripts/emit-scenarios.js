@@ -90,7 +90,7 @@ async function compileSpec(file, options) {
         "--config",
         tspConfig,
         "--output-dir",
-        join(outputDir, "generated"),
+        outputDir,
         "--arg",
         `service-port-http=${portNumber.toString()}`,
         "--arg",
