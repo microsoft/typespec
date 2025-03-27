@@ -115,18 +115,11 @@ function resolveBody(
 
   const contentTypeProperty = metadata.find((x) => x.kind === "contentType");
 
-  const metadataPropToMetadata = new Map<ModelProperty, HttpProperty>(
-    metadata.map((x) => [x.property, x]),
+  const file = getHttpFileModel(
+    program,
+    requestOrResponseType,
+    createHttpFileModelFilter(metadata),
   );
-
-  const file = getHttpFileModel(program, requestOrResponseType, (property) => {
-    const httpProperty = metadataPropToMetadata.get(property);
-    if (["filename"].includes(property.name)) return true;
-    if (!httpProperty) return true;
-    if (httpProperty.kind !== "bodyProperty") return false;
-
-    return true;
-  });
   if (file !== undefined) {
     if (!contentTypeProperty) {
       // If no content-type property was specified, then this is a _literal_ file.
@@ -261,7 +254,11 @@ function resolveExplicitBodyProperty(
           containsMetadataAnnotations = !valid;
         }
 
-        const file = getHttpFileModel(program, item.property.type);
+        const file = getHttpFileModel(
+          program,
+          item.property.type,
+          createHttpFileModelFilter(metadata),
+        );
 
         const isFile = file !== undefined && !contentTypeProperty;
 
@@ -575,6 +572,31 @@ function resolvePart(
   return diagnostics.wrap(undefined);
 }
 
+/**
+ * Creates a filter function to determine if a property is applicable metadata for the purposes
+ * of effective File model calculation.
+ */
+function createHttpFileModelFilter(metadata: HttpProperty[]): (property: ModelProperty) => boolean {
+  const metadataPropToMetadata = new Map<ModelProperty, HttpProperty>(
+    metadata.map((x) => [x.property, x]),
+  );
+
+  return function isApplicableMetadata(property) {
+    const httpProperty = metadataPropToMetadata.get(property);
+    if (["filename"].includes(property.name)) return true;
+    if (!httpProperty) return true;
+    if (httpProperty.kind !== "bodyProperty") return false;
+
+    return true;
+  };
+}
+
+/**
+ * Gets a file body from an HttpFileModel.
+ *
+ * @param file - the resolved file model
+ * @param property - the property that references the file model, if any
+ */
 function getFileBody(
   file: HttpFileModel,
   property?: ModelProperty,
