@@ -1,0 +1,57 @@
+---
+import { Image } from "astro:assets";
+
+export interface Props {
+  name: string;
+  title: string;
+  avatar: any; // Changed to any to be more permissive with image types
+}
+
+const { name, title, avatar } = Astro.props;
+---
+
+<div class="blog-author">
+  {
+    avatar && (
+      <div class="author-avatar">
+        <Image src={avatar} alt={`${name} headshot`} width={40} height={40} />
+      </div>
+    )
+  }
+  <div class="author-info">
+    <p class="author-name">{name}</p>
+    <p class="author-title">{title}</p>
+  </div>
+</div>
+
+<style>
+  .blog-author {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .author-avatar img {
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .author-name {
+    font-weight: 600;
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--colorNeutralForeground1);
+  }
+
+  .author-title {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--colorNeutralForeground3);
+  }
+</style>

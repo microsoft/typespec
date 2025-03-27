@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import { exec as execCallback } from "child_process";
+import chalk from "chalk";
+import { execFile } from "child_process";
 import { promises, rmSync } from "fs";
 import { dirname, join, relative, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -20,9 +21,6 @@ const argv = parseArgs({
   },
 });
 
-// Promisify the exec function
-const exec = promisify(execCallback);
-
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
@@ -35,7 +33,7 @@ const GENERATED_FOLDER = argv.values.generatedFolder
 
 interface TspCommand {
   outputDir: string;
-  command: string;
+  command: string[];
 }
 
 const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
@@ -222,16 +220,15 @@ async function executeCommand(tspCommand: TspCommand): Promise<void> {
   try {
     rmSync(tspCommand.outputDir, { recursive: true, force: true });
   } catch (error) {
-    console.error(`rm error: ${error}`);
+    console.error(chalk.red(`rm error: ${error}`));
   }
+  const execFileAsync = promisify(execFile);
   try {
-    console.log(`exec: ${tspCommand.command}`);
-    const { stdout, stderr } = await exec(tspCommand.command);
-    if (stdout) console.log(`stdout: ${stdout}`);
-    if (stderr) console.error(`stderr: ${stderr}`);
-  } catch (error) {
-    console.error(`exec error: ${error}`);
-    throw error;
+    await execFileAsync("tsp", tspCommand.command, { shell: true });
+    console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
+  } catch (err) {
+    console.error(chalk.red(`exec error: ${err}`));
+    throw err;
   }
 }
 
@@ -316,7 +313,7 @@ function defaultPackageName(spec: string): string {
 }
 
 interface EmitterConfig {
-  optionsStr: string;
+  options: string[];
   outputDir: string;
 }
 
@@ -344,15 +341,15 @@ function addOptions(
     if (flags.debug) {
       options["debug"] = "true";
     }
-    if (flags.flavor === "unbranded") {
-      options["company-name"] = "Unbranded";
-    }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
     const configs = Object.entries(options).flatMap(([k, v]) => {
-      return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${typeof v === "string" && v.indexOf(" ") > -1 ? `"${v}"` : v}`;
+      return [
+        "--option",
+        `${argv.values.emitterName || "@typespec/http-client-python"}.${k}="${v}"`,
+      ];
     });
     emitterConfigs.push({
-      optionsStr: configs.join(" "),
+      options: configs,
       outputDir: options["emitter-output-dir"],
     });
   }
@@ -362,7 +359,7 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
   return addOptions(spec, GENERATED_FOLDER, flags).map((option) => {
     return {
       outputDir: option.outputDir,
-      command: `tsp compile ${spec} --emit=${toPosix(PLUGIN_DIR)} ${option.optionsStr}`,
+      command: ["compile", spec, "--emit", toPosix(PLUGIN_DIR), ...option.options],
     };
   });
 }
@@ -411,7 +408,9 @@ const start = performance.now();
 regenerate(argv.values)
   .then(() =>
     console.log(
-      `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
+      chalk.green(
+        `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
+      ),
     ),
   )
-  .catch((error) => console.error(`Regeneration failed: ${error.message}`));
+  .catch((error) => console.error(chalk.red(`Regeneration failed: ${error.message}`)));
