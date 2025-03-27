@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +48,7 @@ public final class ParametersTransformationProcessor {
         parameters.add(new ParametersTuple(clientMethodParameter, parameter));
     }
 
-    List<ParameterTransformation> process(Request request) {
+    ParameterTransformations process(Request request) {
         final List<Transformation> transformations = new ArrayList<>(this.parameters.size());
 
         for (ParametersTuple t : parameters) {
@@ -65,9 +66,10 @@ public final class ParametersTransformationProcessor {
             Transformation.create(transformations, outParameter);
         }
 
-        return transformations.stream()
+        final List<ParameterTransformation> list = transformations.stream()
             .map(Transformation::toImmutable)
             .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+        return new ParameterTransformations(list);
     }
 
     private static InMapping processInputMapping(ClientMethodParameter clientMethodParameter, Parameter parameter) {

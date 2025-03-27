@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -11,6 +10,7 @@ import java.util.stream.Stream;
  * A class that holds the transformation details of a parameter.
  *
  * @see ParameterMapping
+ * @see ParameterTransformations
  * @see com.microsoft.typespec.http.client.generator.core.mapper.ParametersTransformationProcessor
  */
 public final class ParameterTransformation {
@@ -58,43 +58,7 @@ public final class ParameterTransformation {
     }
 
     /**
-     * Gets the name of the "output parameter".
-     *
-     * @return the name of the out parameter.
-     */
-    public String getOutParameterName() {
-        return outParameter.getName();
-    }
-
-    /**
-     * Gets the model type of the "output parameter".
-     *
-     * @return the out parameter model type.
-     */
-    public IType getOutParameterClientType() {
-        return outParameter.getClientType();
-    }
-
-    /**
-     * Gets the location of the "output parameter" in the service call request.
-     *
-     * @return the out parameter location.
-     */
-    public RequestParameterLocation getOutParameterLocation() {
-        return outParameter.getRequestParameterLocation();
-    }
-
-    /**
-     * Checks if the out parameter is of type ClassType and is required.
-     *
-     * @return true if the out parameter is of type ClassType and is required, false otherwise.
-     */
-    public boolean isOutParameterClassTypeAndRequired() {
-        return outParameter.isRequired() && outParameter.getClientType() instanceof ClassType;
-    }
-
-    /**
-     * Gets the input parameter mappings where it represents an optional SDK method argument.
+     * Gets the mappings where it represents an optional SDK method argument.
      *
      * @return a stream of optional input parameter mappings.
      */
@@ -113,15 +77,29 @@ public final class ParameterTransformation {
     }
 
     /**
-     * Gets the description of an "input parameter" that SDK Method takes.
+     * Gets the description of the group-by "input parameter" that SDK Method takes.
      *
      * @return the input parameter, or null if there are no mappings.
+     * @throws IllegalStateException if the transformation is not a group-by transformation.
      */
-    public ClientMethodParameter getInParameter() {
-        if (parameterMappings.isEmpty()) {
-            return null;
+    public ClientMethodParameter getGroupByInParameter() {
+        if (!isGroupBy()) {
+            throw new IllegalStateException("Not a group-by transformation.");
         }
         final ParameterMapping mapping = parameterMappings.iterator().next();
         return mapping.getInParameter();
+    }
+
+    /**
+     *
+     * @return
+     * @throws IllegalStateException if the transformation is not a group-by transformation.
+     */
+    public ClientModelProperty getGroupByInParameterProperty() {
+        if (!isGroupBy()) {
+            throw new IllegalStateException("Not a group-by transformation.");
+        }
+        final ParameterMapping mapping = parameterMappings.iterator().next();
+        return mapping.getInParameterProperty();
     }
 }

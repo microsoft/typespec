@@ -16,17 +16,35 @@ import java.util.stream.Stream;
 public final class ParameterTransformations {
     private final List<ParameterTransformation> transformations;
 
-    ParameterTransformations(List<ParameterTransformation> parameterTransformations) {
+    public ParameterTransformations(List<ParameterTransformation> parameterTransformations) {
         this.transformations = parameterTransformations;
     }
 
     /**
-     * Gets a stream of all parameter transformations.
+     * Gets all parameter transformations as a stream.
      *
      * @return the stream of parameter transformations.
      */
-    public Stream<ParameterTransformation> stream() {
+    public Stream<ParameterTransformation> asStream() {
         return transformations.stream();
+    }
+
+    /**
+     * Gets all parameter transformations as an immutable list.
+     *
+     * @return the list of parameter transformations.
+     */
+    public List<ParameterTransformation> asList() {
+        return transformations;
+    }
+
+    /**
+     * Checks if there are no transformations defined.
+     *
+     * @return true if there are no transformations, false otherwise.ß
+     */
+    public boolean isEmpty() {
+        return transformations.isEmpty();
     }
 
     /**
@@ -36,7 +54,7 @@ public final class ParameterTransformations {
      * @return true if there is a transformation for the parameter, false otherwise.
      */
     public boolean hasOutParameter(String name) {
-        return stream().anyMatch(d -> d.getOutParameter().getName().equals(name));
+        return asStream().anyMatch(d -> d.getOutParameter().getName().equals(name));
     }
 
     /**
@@ -48,10 +66,34 @@ public final class ParameterTransformations {
         return transformations.stream().map(d -> d.getOutParameter().getName()).collect(Collectors.toSet());
     }
 
+    public ParameterMapping getInMapping(MethodParameter methodParameter) {
+        if (transformations.isEmpty()) {
+            return null;
+        }
+        return transformations.iterator()
+            .next()
+            .getMappings()
+            .stream()
+            .filter(mapping -> matches(mapping.getInParameter(), methodParameter))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public boolean isGroupingParameter(MethodParameter methodParameter) {
+        if (transformations.isEmpty() || transformations.size() == 1) {
+            return false;
+        }
+        // TODO: anu : simplify this check
+        return transformations.stream().allMatch(t -> !t.getMappings().isEmpty() && t.getOutParameter() != null &&
+        // same name
+            t.getMappings().stream().allMatch(mapping -> matches(mapping.getInParameter(), methodParameter)));
+    }
+
     public boolean isFlattenParameter(MethodParameter methodParameter) {
         if (transformations.size() != 1) {
             return false;
         }
+        // TODO: anu : simplify this check
         return transformations.stream()
             .anyMatch(t -> t.hasMappings()
                 && t.getOutParameter() != null
@@ -59,10 +101,7 @@ public final class ParameterTransformations {
                     .stream()
                     .allMatch(mapping -> mapping.getOutParameterPropertyName() != null
                         && mapping.getInParameterProperty() == null)
-                && t.getMappings()
-                    .stream()
-                    .anyMatch(mapping -> Objects.equals(methodParameter.getClientMethodParameter().getName(),
-                        mapping.getInParameter().getName())));
+                && t.getMappings().stream().anyMatch(mapping -> matches(mapping.getInParameter(), methodParameter)));
     }
 
     public ClientMethodParameter getOutParameterIfInParameterFlattened(MethodParameter inParameter) {
@@ -71,5 +110,9 @@ public final class ParameterTransformations {
         } else {
             return null;
         }
+    }
+
+    private static boolean matches(ClientMethodParameter param0, MethodParameter param1) {
+        return Objects.equals(param0.getName(), param1.getClientMethodParameter().getName());
     }
 }
