@@ -343,7 +343,7 @@ function addOptions(
     }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
     const configs = Object.entries(options).flatMap(([k, v]) => {
-      return ["--option", `${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${v}`];
+      return ["--option", `${argv.values.emitterName || "@typespec/http-client-python"}.${k}="${v}"`];
     });
     emitterConfigs.push({
       options: configs,
