@@ -34,7 +34,6 @@ export const PaginatedOperationHandler: OperationHandler = {
       });
       return;
     }
-    const internalOperationRefkey = ay.refkey(httpOperation.operation, "internal");
     const pagingOperation = $.operation.getPagingOperation(httpOperation.operation)!;
     const responseRefkey = ay.refkey(httpOperation, "http-response");
     const operationRefkey = ay.refkey(httpOperation.operation);
@@ -47,8 +46,11 @@ export const PaginatedOperationHandler: OperationHandler = {
     // TODO: concatentate the function call for send fn
     // TODO: extract the elements
     const itemsPosition = pagingOperation.output.pageItems.property.name;
+    const isNextLink = pagingOperation.output.nextLink !== undefined;
+    const nextTokenProperty = pagingOperation.output.nextLink?.property ?? pagingOperation.output.continuationToken?.property;
     // TODO: extract the next token
-    const nextTokenPosition = pagingOperation.output.nextLink?.property.name ?? pagingOperation.output.continuationToken?.property.name;
+    const nextTokenOutputName = nextTokenProperty?.name;
+    const nextTokenInputName = pagingOperation.input.continuationToken?.property.name;
     return (
       <ay.List>
         <OperationOptionsDeclaration operation={httpOperation} />
@@ -65,14 +67,15 @@ export const PaginatedOperationHandler: OperationHandler = {
           parameters={signatureParams}
         >
           {ay.code`return ${getBuildPagedAsyncIteratorRefkey()}<${getPageItemTypeName(pagingOperation)},${getPageResponseTypeRefkey(httpOperation)},${getPageSettingsTypeRefkey(httpOperation)}>({
-          getPagedResponse: async (nextLink?: string, settings?: ${getPageSettingsTypeRefkey(httpOperation)}) => {
-            if (nextLink) {
-              return await client.pathUnchecked(nextLink).get();
-            }
-            return await ${getHttpRequestSendRefkey(httpOperation)}(client, {
-              ...options,
-              ...settings
-            })
+          getPagedResponse: async (nextToken?: string, settings?: ${getPageSettingsTypeRefkey(httpOperation)}) => {
+             ${isNextLink ? `if (nextToken) {
+              return await client.pathUnchecked(nextToken).get();
+            }` : ``}
+            const _options = { ...options, ...settings};
+            ${nextTokenInputName ? `if (nextToken) {
+              _options.${nextTokenInputName} = nextToken;
+            }` : ``}
+            return await ${getHttpRequestSendRefkey(httpOperation)}(client, _options);
           },
           deserializeRawResponse: async (response) => {
             return await ${getHttpRequestDeserializeRefkey(httpOperation)}(response)
@@ -80,10 +83,10 @@ export const PaginatedOperationHandler: OperationHandler = {
           getElements: (response) => {
             return response.${itemsPosition};
           }
-          ${nextTokenPosition ? `
+          ${nextTokenOutputName ? `
             ,
             getNextToken: (response) => {
-              return response.body["${nextTokenPosition}"];
+              return response.body["${nextTokenOutputName}"];
             }
             `: ``}
           
