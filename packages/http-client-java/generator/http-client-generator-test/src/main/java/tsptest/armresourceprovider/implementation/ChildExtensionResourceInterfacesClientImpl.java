@@ -1355,8 +1355,7 @@ public final class ChildExtensionResourceInterfacesClientImpl implements ChildEx
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChildExtensionResourceInner> listByTopLevelArmResource(String resourceUri,
         String topLevelArmResourceName) {
-        return new PagedIterable<>(
-            () -> listByTopLevelArmResourceSinglePage(resourceUri, topLevelArmResourceName, Context.NONE),
+        return new PagedIterable<>(() -> listByTopLevelArmResourceSinglePage(resourceUri, topLevelArmResourceName),
             nextLink -> listByTopLevelArmResourceNextSinglePage(nextLink));
     }
 

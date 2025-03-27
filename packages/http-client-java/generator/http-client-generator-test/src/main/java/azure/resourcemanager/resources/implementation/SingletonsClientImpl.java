@@ -923,7 +923,7 @@ public final class SingletonsClientImpl implements SingletonsClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<SingletonTrackedResourceInner> listByResourceGroup(String resourceGroupName) {
-        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName, Context.NONE),
+        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName),
             nextLink -> listByResourceGroupNextSinglePage(nextLink));
     }
 

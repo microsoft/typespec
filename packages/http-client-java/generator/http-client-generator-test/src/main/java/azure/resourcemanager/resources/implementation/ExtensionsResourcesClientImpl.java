@@ -1061,7 +1061,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ExtensionsResourceInner> listByScope(String resourceUri) {
-        return new PagedIterable<>(() -> listByScopeSinglePage(resourceUri, Context.NONE),
+        return new PagedIterable<>(() -> listByScopeSinglePage(resourceUri),
             nextLink -> listByScopeNextSinglePage(nextLink));
     }
 

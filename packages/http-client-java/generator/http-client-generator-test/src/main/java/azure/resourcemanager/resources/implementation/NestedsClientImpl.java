@@ -1644,7 +1644,7 @@ public final class NestedsClientImpl implements NestedsClient {
     public PagedIterable<NestedProxyResourceInner> listByTopLevelTrackedResource(String resourceGroupName,
         String topLevelTrackedResourceName) {
         return new PagedIterable<>(
-            () -> listByTopLevelTrackedResourceSinglePage(resourceGroupName, topLevelTrackedResourceName, Context.NONE),
+            () -> listByTopLevelTrackedResourceSinglePage(resourceGroupName, topLevelTrackedResourceName),
             nextLink -> listByTopLevelTrackedResourceNextSinglePage(nextLink));
     }
 

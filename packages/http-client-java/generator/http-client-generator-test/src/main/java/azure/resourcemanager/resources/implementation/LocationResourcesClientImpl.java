@@ -950,7 +950,7 @@ public final class LocationResourcesClientImpl implements LocationResourcesClien
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<LocationResourceInner> listByLocation(String location) {
-        return new PagedIterable<>(() -> listByLocationSinglePage(location, Context.NONE),
+        return new PagedIterable<>(() -> listByLocationSinglePage(location),
             nextLink -> listByLocationNextSinglePage(nextLink));
     }
 

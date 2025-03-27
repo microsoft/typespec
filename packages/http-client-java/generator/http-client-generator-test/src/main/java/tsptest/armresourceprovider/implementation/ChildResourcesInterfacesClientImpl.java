@@ -1464,7 +1464,7 @@ public final class ChildResourcesInterfacesClientImpl implements ChildResourcesI
     public PagedIterable<ChildResourceInner> listByTopLevelArmResource(String resourceGroupName,
         String topLevelArmResourceName) {
         return new PagedIterable<>(
-            () -> listByTopLevelArmResourceSinglePage(resourceGroupName, topLevelArmResourceName, Context.NONE),
+            () -> listByTopLevelArmResourceSinglePage(resourceGroupName, topLevelArmResourceName),
             nextLink -> listByTopLevelArmResourceNextSinglePage(nextLink));
     }
 

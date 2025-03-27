@@ -1356,7 +1356,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> listByResourceGroup(String resourceGroupName) {
-        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName, Context.NONE),
+        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName),
             nextLink -> listByResourceGroupNextSinglePage(nextLink));
     }
 
@@ -1523,8 +1523,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list() {
-        return new PagedIterable<>(() -> listSinglePage(Context.NONE),
-            nextLink -> listBySubscriptionNextSinglePage(nextLink));
+        return new PagedIterable<>(() -> listSinglePage(), nextLink -> listBySubscriptionNextSinglePage(nextLink));
     }
 
     /**

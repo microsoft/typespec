@@ -1545,7 +1545,7 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelTrackedResourceInner> listByResourceGroup(String resourceGroupName) {
-        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName, Context.NONE),
+        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName),
             nextLink -> listByResourceGroupNextSinglePage(nextLink));
     }
 
@@ -1714,8 +1714,7 @@ public final class TopLevelsClientImpl implements TopLevelsClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelTrackedResourceInner> list() {
-        return new PagedIterable<>(() -> listSinglePage(Context.NONE),
-            nextLink -> listBySubscriptionNextSinglePage(nextLink));
+        return new PagedIterable<>(() -> listSinglePage(), nextLink -> listBySubscriptionNextSinglePage(nextLink));
     }
 
     /**

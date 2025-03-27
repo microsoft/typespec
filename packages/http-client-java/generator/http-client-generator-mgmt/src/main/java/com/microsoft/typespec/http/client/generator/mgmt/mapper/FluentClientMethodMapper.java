@@ -93,16 +93,16 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
             visibility = NOT_VISIBLE;
         } else if (methodType == ClientMethodType.PagingSyncSinglePage) {
             visibility = syncStack ? NOT_VISIBLE : NOT_GENERATE;
-        } else if (hasContextParameter
+        } else if (!syncStack && hasContextParameter
             && (methodType == ClientMethodType.SimpleAsyncRestResponse
                 || methodType == ClientMethodType.PagingAsync
                 || methodType == ClientMethodType.LongRunningBeginAsync
                 || methodType == ClientMethodType.LongRunningAsync)) {
             // utility methods
-            // async + Context method is not visible, but the method is required for other client methods
+            // for async-stack, async + Context method is not visible, but the method is required for sync method implementation
             visibility = NOT_VISIBLE;
         } else {
-            if (methodType.name().contains("Async") && hasContextParameter) {
+            if (!methodType.isSync() && hasContextParameter) {
                 // async method has both minimum overload and maximum overload, but no overload with Context parameter
                 visibility = NOT_GENERATE;
             } else if (methodType == ClientMethodType.SimpleSync && hasContextParameter) {

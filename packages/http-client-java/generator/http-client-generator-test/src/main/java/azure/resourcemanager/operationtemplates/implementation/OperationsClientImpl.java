@@ -221,7 +221,7 @@ public final class OperationsClientImpl implements OperationsClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<OperationInner> list() {
-        return new PagedIterable<>(() -> listSinglePage(Context.NONE), nextLink -> listNextSinglePage(nextLink));
+        return new PagedIterable<>(() -> listSinglePage(), nextLink -> listNextSinglePage(nextLink));
     }
 
     /**

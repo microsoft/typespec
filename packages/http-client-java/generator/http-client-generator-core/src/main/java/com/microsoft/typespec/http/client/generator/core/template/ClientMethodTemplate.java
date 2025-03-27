@@ -945,10 +945,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .replace("requestOptions", "requestOptionsForNextPage");
                 String firstPageArgs = clientMethod.getArgumentList();
                 function.indent(() -> {
-                    function.line("%s,",
-                        this.getPagingSinglePageExpression(clientMethod,
-                            clientMethod.getProxyMethod().getPagingSinglePageMethodName(), firstPageArgs,
-                            settings));
+                    function.line("%s,", this.getPagingSinglePageExpression(clientMethod,
+                        clientMethod.getProxyMethod().getPagingSinglePageMethodName(), firstPageArgs, settings));
                     function.line("%s);",
                         this.getPagingNextPageExpression(clientMethod,
                             clientMethod.getMethodPageDetails()
@@ -1529,8 +1527,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param restAPIMethod proxy method
      * @param settings java settings
      */
-    protected void generateLongRunningPlainSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-                                                JavaSettings settings) {
+    protected void generateLongRunningPlainSync(ClientMethod clientMethod, JavaType typeBlock,
+        ProxyMethod restAPIMethod, JavaSettings settings) {
 
     }
 
