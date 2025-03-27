@@ -1,7 +1,7 @@
 import { readFile } from "fs/promises";
 import path from "path";
 import vscode from "vscode";
-import { StartFileName, TspConfigFileName } from "./const.js";
+import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { getDirectoryPath, normalizeSlashes } from "./path-utils.js";
 import { isFile } from "./utils.js";
@@ -47,16 +47,6 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
 export async function TraverseMainTspFileInWorkspace() {
   return vscode.workspace
     .findFiles(`**/${StartFileName}`, "**/node_modules/**")
-    .then((uris) =>
-      uris
-        .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
-        .map((uri) => normalizeSlashes(uri.fsPath)),
-    );
-}
-
-export async function TraverseTspConfigFileInWorkspace() {
-  return vscode.workspace
-    .findFiles(`**/${TspConfigFileName}`, "**/node_modules/**")
     .then((uris) =>
       uris
         .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))

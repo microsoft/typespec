@@ -45,3 +45,13 @@ export function generateActivityId() {
 }
 
 export const emptyActivityId = EmptyGuid;
+
+export const emitterWhiteList = [
+  "@typespec/openapi3",
+  "@typespec/http-client-csharp",
+  "@typespec/http-client-java",
+  "@typespec/http-client-js",
+  "@typespec/http-client-python",
+  "@typespec/http-server-csharp",
+  "@typespec/http-server-js",
+];
