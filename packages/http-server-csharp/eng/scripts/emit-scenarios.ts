@@ -11,6 +11,31 @@ import pc from "picocolors";
 import { fileURLToPath } from "url";
 import { parseArgs } from "util";
 
+interface CompileOptions {
+  build: boolean;
+  interactive: boolean;
+}
+
+interface CompileResult {
+  status: "succeeded" | "failed";
+  relativePath: string;
+  portNumber?: number;
+  errorDetails?: string;
+}
+
+interface FailedCompileResult {
+  relativePath: string;
+  errorDetails: string;
+}
+
+interface CommandLineArgs {
+  values: {
+    input: string;
+    build: boolean;
+    interactive: boolean;
+  };
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const tspConfig = join(__dirname, "tspconfig.yaml");
@@ -30,7 +55,7 @@ const argv = parseArgs({
     interactive: { type: "boolean", default: false },
   },
   strict: false, // Allow unknown arguments
-});
+}) as CommandLineArgs;
 
 const specDir = resolve(argv.values.input);
 
@@ -38,13 +63,17 @@ const specDir = resolve(argv.values.input);
 let portNumber = 65000;
 
 // Remove the log directory if it exists.
-async function clearDirectory(dirRoot) {
+async function clearDirectory(dirRoot: string): Promise<void> {
   if (await pathExists(dirRoot)) {
     await rm(dirRoot, { recursive: true, force: true });
   }
 }
 
-async function copySelectiveFiles(extension, sourceDir, targetDir) {
+async function copySelectiveFiles(
+  extension: string,
+  sourceDir: string,
+  targetDir: string,
+): Promise<void> {
   const files = await globby(extension, { cwd: sourceDir });
   for (const file of files) {
     const src = join(sourceDir, file);
@@ -53,7 +82,7 @@ async function copySelectiveFiles(extension, sourceDir, targetDir) {
   }
 }
 
-async function compileSpec(file, options) {
+async function compileSpec(file: string, options: CompileOptions): Promise<CompileResult> {
   const relativePath = file;
   const fullPath = resolve(specDir, relativePath);
   const { build, interactive } = options;
@@ -86,7 +115,7 @@ async function compileSpec(file, options) {
         "compile",
         fullPath,
         "--emit",
-        resolve(import.meta.dirname, "../.."),
+        resolve(import.meta.dirname as string, "../.."),
         "--config",
         tspConfig,
         "--output-dir",
@@ -103,27 +132,15 @@ async function compileSpec(file, options) {
     );
 
     if (spinner) spinner.text = `Formatting with dotnet: ${relativePath}`;
-    await run(
-      "dotnet",
-      ["format"],
-      { cwd: outputDir },
-      {
-        stdio: "ignore",
-        silent: true,
-      },
-    );
+    await run("dotnet", ["format"], { cwd: outputDir, stdio: "ignore", silent: true });
 
     if (build) {
       if (spinner) spinner.text = `Building project: ${relativePath}`;
-      await run(
-        "dotnet",
-        ["build"],
-        { cwd: outputDir },
-        {
-          stdio: "ignore",
-          silent: true,
-        },
-      );
+      await run("dotnet", ["build"], {
+        cwd: outputDir,
+        stdio: "ignore",
+        silent: true,
+      });
     }
 
     if (await pathExists(patchFileDir)) {
@@ -136,7 +153,7 @@ async function compileSpec(file, options) {
       spinner.succeed(`Finished processing: ${relativePath}`);
     }
     return { status: "succeeded", relativePath, portNumber };
-  } catch (error) {
+  } catch (error: any) {
     if (spinner) {
       spinner.fail(`Failed processing: ${relativePath}`);
     }
@@ -175,20 +192,23 @@ async function compileSpec(file, options) {
   }
 }
 
-async function processFiles(files, options) {
+async function processFiles(files: string[], options: CompileOptions): Promise<void> {
   const { interactive } = options;
-  const succeeded = [];
-  const failed = [];
+  const succeeded: string[] = [];
+  const failed: FailedCompileResult[] = [];
 
   if (interactive) {
     // Sequential processing so each spinner is visible.
     for (const file of files) {
       try {
-        const result = await processFile(file, options);
+        const result = await compileSpec(file, options);
         if (result.status === "succeeded") {
           succeeded.push(result.relativePath);
         } else {
-          failed.push({ relativePath: result.relativePath, errorDetails: result.errorDetails });
+          failed.push({
+            relativePath: result.relativePath,
+            errorDetails: result.errorDetails || "",
+          });
         }
       } catch (err) {
         break;
@@ -215,7 +235,7 @@ async function processFiles(files, options) {
       if (result.status === "succeeded") {
         succeeded.push(result.relativePath);
       } else {
-        failed.push({ relativePath: result.relativePath, errorDetails: result.errorDetails });
+        failed.push({ relativePath: result.relativePath, errorDetails: result.errorDetails || "" });
       }
     }
   }
@@ -245,7 +265,7 @@ async function processFiles(files, options) {
 }
 
 // Read and parse the ignore file.
-async function getIgnoreList() {
+async function getIgnoreList(): Promise<string[]> {
   try {
     const content = await readFile(ignoreFilePath, "utf8");
     return content
@@ -258,7 +278,7 @@ async function getIgnoreList() {
   }
 }
 
-async function main() {
+async function main(): Promise<void> {
   const startTime = process.hrtime.bigint();
   let exitCode = 0;
   try {
@@ -276,7 +296,7 @@ async function main() {
       interactive: argv.values.interactive,
       build: argv.values.build,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error(pc.red(`❌ Fatal Error: ${error.message}`));
     exitCode = 1; // ✅ Ensure graceful failure handling
   } finally {
