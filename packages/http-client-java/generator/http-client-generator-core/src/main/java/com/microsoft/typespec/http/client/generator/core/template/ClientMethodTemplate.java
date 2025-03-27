@@ -68,10 +68,11 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param expressionsToCheck Expressions to validate as non-null.
      * @param validateExpressions Expressions to validate with a custom validation (key is the expression, value is the
      * validation).
+     * @param clientMethodType type of the client method
      * @param settings AutoRest generation settings, used to determine if validations should be added.
      */
     protected static void addValidations(JavaBlock function, List<String> expressionsToCheck,
-        Map<String, String> validateExpressions, JavaSettings settings) {
+        Map<String, String> validateExpressions, ClientMethodType clientMethodType, JavaSettings settings) {
         if (!settings.isClientSideValidations()) {
             return;
         }
@@ -90,7 +91,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             // 2. Assumes that the client method returns a reactive response.
             // 3. Assumes that the reactive response is a Mono.
             JavaIfBlock nullCheck = function.ifBlock(expressionToCheck + " == null", ifBlock -> {
-                if (JavaSettings.getInstance().isSyncStackEnabled()) {
+                if (JavaSettings.getInstance().isSyncStackEnabled() && clientMethodType.isSync()) {
                     if (settings.isUseClientLogger()) {
                         ifBlock.line("throw LOGGER.atError().log(" + exceptionExpression + ");");
                     } else {
@@ -820,7 +821,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
 
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
@@ -834,33 +835,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, requestOptionsLocal, settings);
             function.line(String.format("%s res = %s;", restAPIMethod.getReturnType(), serviceMethodCall));
             if (settings.isBranded()) {
-                function.line("return new PagedResponseBase<>(");
-                function.line("res.getRequest(),");
-                function.line("res.getStatusCode(),");
-                function.line("res.getHeaders(),");
-                if (settings.isDataPlaneClient()) {
-                    function.line("getValues(res.getValue(), \"%s\"),",
-                        clientMethod.getMethodPageDetails().getSerializedItemName());
-                } else {
-                    function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
-                        .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
-                }
-                if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                    if (settings.isDataPlaneClient()) {
-                        function.line("getNextLink(res.getValue(), \"%s\"),",
-                            clientMethod.getMethodPageDetails().getSerializedNextLinkName());
-                    } else {
-                        function.line(nextLinkLine(clientMethod));
-                    }
-                } else {
-                    function.line("null,");
-                }
-
-                if (responseTypeHasDeserializedHeaders(clientMethod.getProxyMethod().getReturnType())) {
-                    function.line("res.getDeserializedHeaders());");
-                } else {
-                    function.line("null);");
-                }
+                pagedSinglePageResponseConversion(restAPIMethod, clientMethod, settings, function);
             } else {
                 function.line("return new PagedResponse<>(");
                 function.line("res.getRequest(),");
@@ -904,6 +879,37 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.line("null,null,null);");
             }
         });
+    }
+
+    protected void pagedSinglePageResponseConversion(ProxyMethod restAPIMethod, ClientMethod clientMethod,
+        JavaSettings settings, JavaBlock function) {
+        function.line("return new PagedResponseBase<>(");
+        function.line("res.getRequest(),");
+        function.line("res.getStatusCode(),");
+        function.line("res.getHeaders(),");
+        if (settings.isDataPlaneClient()) {
+            function.line("getValues(res.getValue(), \"%s\"),",
+                clientMethod.getMethodPageDetails().getSerializedItemName());
+        } else {
+            function.line("res.getValue().%s(),",
+                CodeNamer.getModelNamer().modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
+        }
+        if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
+            if (settings.isDataPlaneClient()) {
+                function.line("getNextLink(res.getValue(), \"%s\"),",
+                    clientMethod.getMethodPageDetails().getSerializedNextLinkName());
+            } else {
+                function.line(nextLinkLine(clientMethod));
+            }
+        } else {
+            function.line("null,");
+        }
+
+        if (responseTypeHasDeserializedHeaders(clientMethod.getProxyMethod().getReturnType())) {
+            function.line("res.getDeserializedHeaders());");
+        } else {
+            function.line("null);");
+        }
     }
 
     private void generatePagingSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
@@ -1029,7 +1035,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         typeBlock.publicMethod(clientMethod.getDeclaration(), function -> {
             ProxyMethodParameter parameter = restAPIMethod.getParameters().get(0);
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             function.methodReturn("service." + restAPIMethod.getName() + "(" + parameter.getName() + ")");
         });
     }
@@ -1191,7 +1197,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
 
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
@@ -1312,7 +1318,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
 
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());
@@ -1363,16 +1369,46 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         });
     }
 
+    /**
+     * Get the expression for nextLink, for variable "res" of type "Response".
+     * 
+     * @param clientMethod the client method to generate implementation
+     * @return nextLink expression
+     */
     protected static String nextLinkLine(ClientMethod clientMethod) {
         return nextLinkLine(clientMethod, "getValue()");
     }
 
+    /**
+     * Get the expression for nextLink, for variable "res" of type "Response".
+     * 
+     * @param clientMethod the client method to generate implementation
+     * @param valueExpression the value expression to get the result value of the "Response"
+     * @return nextLink expression
+     */
     protected static String nextLinkLine(ClientMethod clientMethod, String valueExpression) {
-        return String.format("res.%3$s.%1$s()%2$s,",
-            CodeNamer.getModelNamer().modelPropertyGetterName(clientMethod.getMethodPageDetails().getNextLinkName()),
-            // nextLink could be type URL
-            (clientMethod.getMethodPageDetails().getNextLinkType() == ClassType.URL ? ".toString()" : ""),
-            valueExpression);
+        return nextLinkLine(clientMethod, valueExpression, null);
+    }
+
+    /**
+     * Get the expression for nextLink, for variable "res" of type "Response", or variable with the specified name.
+     * 
+     * @param clientMethod the client method to generate implementation
+     * @param valueExpression the value expression to get the result value of the "Response"
+     * @param result name of the variable if it's not of type "Response"
+     * @return nextLink expression
+     */
+    protected static String nextLinkLine(ClientMethod clientMethod, String valueExpression, String result) {
+        String nextLinkGetter
+            = CodeNamer.getModelNamer().modelPropertyGetterName(clientMethod.getMethodPageDetails().getNextLinkName());
+        // nextLink could be type URL
+        String nextLinkConvert
+            = (clientMethod.getMethodPageDetails().getNextLinkType() == ClassType.URL ? ".toString()" : "");
+        if (result != null) {
+            return String.format("%s.%s%s()", result, nextLinkGetter, nextLinkConvert);
+        } else {
+            return String.format("res.%3$s.%1$s()%2$s,", nextLinkGetter, nextLinkConvert, valueExpression);
+        }
     }
 
     private static boolean responseTypeHasDeserializedHeaders(IType type) {
@@ -1464,7 +1500,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
 
             addValidations(function, clientMethod.getRequiredNullableParameterExpressions(),
-                clientMethod.getValidateExpressions(), settings);
+                clientMethod.getValidateExpressions(), clientMethod.getType(), settings);
             addOptionalAndConstantVariables(function, clientMethod, restAPIMethod.getParameters(), settings);
             applyParameterTransformations(function, clientMethod, settings);
             convertClientTypesToWireTypes(function, clientMethod, restAPIMethod.getParameters());

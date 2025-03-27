@@ -41,7 +41,7 @@ final class ResponseTypeFactory {
         }
 
         if (settings.isFluent()) {
-            if (isLongRunningOperation(operation) && isNotPagingOperation(operation)) {
+            if (isLongRunningOperation(operation) && isNotNextPageOperation(operation)) {
                 // LRO in fluent uses Flux<ByteBuffer> for com.azure.core.management.polling.PollerFactory
                 return mono(GenericType.Response(GenericType.FLUX_BYTE_BUFFER));
             }
@@ -130,7 +130,7 @@ final class ResponseTypeFactory {
         return operation.getExtensions() != null && operation.getExtensions().isXmsLongRunningOperation();
     }
 
-    private static boolean isNotPagingOperation(Operation operation) {
+    private static boolean isNotNextPageOperation(Operation operation) {
         return operation.getExtensions().getXmsPageable() == null
             || operation.getExtensions().getXmsPageable().getNextOperation() != operation;
     }
