@@ -1046,25 +1046,6 @@ describe("structured files", () => {
     strictEqual(responseBody?.bodyKind, "single");
   });
 
-  it("does not recognize model spread with File Props as a file body", async () => {
-    const {
-      operations: [
-        {
-          responses: [
-            {
-              responses: [{ body: responseBody }],
-            },
-          ],
-        },
-      ],
-    } = await compileOperationsFull(`
-      model FakeFile { ...Http.File };
-      op example(): FakeFile;
-    `);
-
-    strictEqual(responseBody?.bodyKind, "single");
-  });
-
   it("does not recognize spread with other non-metadata properties as a file body", async () => {
     const {
       operations: [

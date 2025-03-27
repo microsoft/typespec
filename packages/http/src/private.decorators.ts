@@ -12,6 +12,7 @@ import {
   getEffectiveModelType,
   getProperty,
   getTypeName,
+  walkPropertiesInherited,
 } from "@typespec/compiler";
 import { Node, SyntaxKind, TemplateableNode } from "@typespec/compiler/ast";
 import {
@@ -192,12 +193,6 @@ export function getHttpFileModel(
 ): HttpFileModel | undefined {
   if (type.kind !== "Model") return undefined;
 
-  const effectiveType = getEffectiveModelType(program, type, filter);
-
-  if (!isOrExtendsHttpFile(program, effectiveType)) {
-    return undefined;
-  }
-
   const contentType = getProperty(type, "contentType")!;
   const filename = getProperty(type, "filename")!;
   const contents = getProperty(type, "contents")! as HttpFileModel["contents"];
@@ -207,7 +202,46 @@ export function getHttpFileModel(
     return undefined;
   }
 
+  const effectiveType = getEffectiveModelType(program, type, filter);
+  if (isOrExtendsHttpFile(program, effectiveType)) {
+    return { contents, contentType, filename, type };
+  }
+
+  if (
+    !propertyIsFromHttpFile(program, contentType) ||
+    !propertyIsFromHttpFile(program, filename) ||
+    !propertyIsFromHttpFile(program, contents)
+  ) {
+    return undefined;
+  }
+
+  // Handle tricky spread cases - once metadata is filtered out
+  // there should only be the 3 file properties left
+  const effectiveProperties = new Set(walkPropertiesInherited(type));
+  if (filter) {
+    for (const prop of effectiveProperties) {
+      if (!filter(prop)) {
+        effectiveProperties.delete(prop);
+      }
+    }
+  }
+
+  if (effectiveProperties.size !== 3) {
+    return;
+  }
+
   return { contents, contentType, filename, type };
+}
+
+function propertyIsFromHttpFile(program: Program, property: ModelProperty) {
+  const isFile = property.model ? isOrExtendsHttpFile(program, property.model) : false;
+
+  if (isFile) return true;
+
+  if (property.sourceProperty) {
+    return propertyIsFromHttpFile(program, property.sourceProperty);
+  }
+  return false;
 }
 
 export const $httpPart: HttpPartDecorator = (
