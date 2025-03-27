@@ -3,7 +3,9 @@
 {% set async = "async " if test.async_mode else "" %}
 {% set async_suffix = "_async" if test.async_mode else "" %}
 # coding=utf-8
-{{ code_model.options['license_header'] }}
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
 import pytest
 {{ imports }}
 

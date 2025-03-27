@@ -1,3 +1,4 @@
+import { SdkEmitterOptionsSchema } from "@azure-tools/typespec-client-generator-core";
 import { JSONSchemaType } from "@typespec/compiler";
 
 // typespec-java has another "options.ts" file, with same "export".
@@ -19,6 +20,7 @@ export interface EmitterOptions {
 export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   properties: {
+    license: SdkEmitterOptionsSchema.properties.license,
     "dev-options": {
       type: "object",
       description: "Developer options for http-client-java emitter.",

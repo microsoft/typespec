@@ -291,14 +291,20 @@ public class TypeSpecPlugin extends Javagen {
 
         if (options.getFlavor() != null && !"azure".equalsIgnoreCase(options.getFlavor())) {
             SETTINGS_MAP.put("sdk-integration", false);
-            SETTINGS_MAP.put("license-header", "SMALL_TYPESPEC");
 
             SETTINGS_MAP.put("sync-methods", "sync-only");
             SETTINGS_MAP.put("enable-page-size", false);
             SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", false);
             SETTINGS_MAP.put("generate-samples", false);
             SETTINGS_MAP.put("generate-tests", false);
+
+            if (options.getLicenseHeader() != null) {
+                SETTINGS_MAP.put("license-header", options.getLicenseHeader());
+            } else {
+                SETTINGS_MAP.remove("license-header");
+            }
         }
+
         JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", options.getOutputDir());
         LOGGER.info("Namespace: {}", JavaSettings.getInstance().getPackage());

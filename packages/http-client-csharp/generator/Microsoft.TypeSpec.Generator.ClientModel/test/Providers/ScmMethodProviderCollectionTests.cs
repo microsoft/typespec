@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -105,6 +106,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(lastParameter.Type.Equals(typeof(CancellationToken)));
             Assert.IsFalse(lastParameter.Type.IsNullable);
             Assert.AreEqual(Snippet.Default, lastParameter.DefaultValue);
+        }
+
+        [Test]
+        public void ListMethodWithNoPaging()
+        {
+            MockHelpers.LoadMockGenerator();
+            var paging = new InputOperationPaging(
+                ["items"],
+                null,
+                null);
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var modelType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputModel);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Array(inputModel));
+            var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
+            var inputClient = InputFactory.Client("TestClient", operations: [operation]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            // there should be no CollectionResultDefinition
+            Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t is CollectionResultDefinition));
+
+            var methodCollection = new ScmMethodProviderCollection(inputClient.Operations.First(), client!);
+            Assert.IsNotNull(methodCollection);
+            Assert.AreEqual(4, methodCollection.Count);
+            var listMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "GetCats");
+            Assert.IsNotNull(listMethod);
+            var signature = listMethod!.Signature;
+
+            var expectedReturnType = new CSharpType(typeof(ClientResult<>), new CSharpType(typeof(IReadOnlyList<>), modelType!));
+            Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
         }
 
         public static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases
