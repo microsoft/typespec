@@ -415,8 +415,8 @@ model Page<T> {
   @pageItems items: T[];
 }
 
-@route("list/noPaging")
-@doc("List things without paging")
+@route("list/paging")
+@doc("List things with paging")
 @convenientAPI(true)
 @list
-op ListWithoutPaging(): Page<Thing>;
+op ListWithPaging(): Page<Thing>;
