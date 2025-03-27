@@ -224,7 +224,7 @@ async function executeCommand(tspCommand: TspCommand): Promise<void> {
   }
   const execFileAsync = promisify(execFile);
   try {
-    await execFileAsync("tsp", tspCommand.command);
+    await execFileAsync("tsp", tspCommand.command, { shell: true });
     console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
   } catch (err) {
     console.error(chalk.red(`exec error: ${err}`));
@@ -408,7 +408,9 @@ const start = performance.now();
 regenerate(argv.values)
   .then(() =>
     console.log(
-      chalk.green(`Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`),
+      chalk.green(
+        `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
+      ),
     ),
   )
   .catch((error) => console.error(chalk.red(`Regeneration failed: ${error.message}`)));
