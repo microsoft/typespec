@@ -12,3 +12,16 @@ export async function createOpenAPITestRunner() {
   const host = await createOpenAPITestHost();
   return createTestWrapper(host, { autoUsings: ["TypeSpec.OpenAPI"] });
 }
+
+export async function createOpenAPITestRunnerWithDecorators(decorators: Record<string, any>) {
+  const host = await createOpenAPITestHost();
+  host.addJsFile("dec.js", decorators);
+  return createTestWrapper(host, {
+    wrapper(code) {
+      return `
+      import "./dec.js";
+      using OpenAPI;
+      ${code}`;
+    },
+  });
+}

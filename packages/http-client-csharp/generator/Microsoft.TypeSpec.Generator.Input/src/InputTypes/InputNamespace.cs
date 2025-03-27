@@ -15,7 +15,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             "Enum",
         ];
 
-        public InputNamespace(string name, IReadOnlyList<string> apiVersions, IReadOnlyList<InputEnumType> enums, IReadOnlyList<InputModelType> models, IReadOnlyList<InputClient> clients, InputAuth? auth, IReadOnlyList<string>? invalidNamespaceSegments = null)
+        private readonly List<string> _invalidNamespaceSegments;
+
+        public InputNamespace(string name, IReadOnlyList<string> apiVersions, IReadOnlyList<InputEnumType> enums, IReadOnlyList<InputModelType> models, IReadOnlyList<InputClient> clients, InputAuth? auth)
         {
             Name = name;
             ApiVersions = apiVersions;
@@ -23,9 +25,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             Models = models;
             Clients = clients;
             Auth = auth;
-            InvalidNamespaceSegments = invalidNamespaceSegments != null ?
-                [.._knownInvalidNamespaceSegments, ..invalidNamespaceSegments] :
-                _knownInvalidNamespaceSegments;
+            _invalidNamespaceSegments = [.. _knownInvalidNamespaceSegments];
+            InvalidNamespaceSegments = _invalidNamespaceSegments;
         }
 
         public InputNamespace() : this(name: string.Empty, apiVersions: Array.Empty<string>(), enums: Array.Empty<InputEnumType>(), models: Array.Empty<InputModelType>(), clients: Array.Empty<InputClient>(), auth: new InputAuth()) { }
@@ -37,5 +38,10 @@ namespace Microsoft.TypeSpec.Generator.Input
         public IReadOnlyList<InputClient> Clients { get; init; }
         public InputAuth? Auth { get; init; }
         public IReadOnlyList<string> InvalidNamespaceSegments { get; init; }
+
+        internal void AddInvalidNamespaceSegment(string segment)
+        {
+            _invalidNamespaceSegments.Add(segment);
+        }
     }
 }

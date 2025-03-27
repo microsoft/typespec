@@ -47,6 +47,8 @@ const image = post.data.image && (await resolveBlogImagePath(post.slug, post.dat
   .image {
     margin: auto;
     display: block;
+    height: 360px;
+    width: auto;
   }
 
   :global([data-theme="light"]) .image-container {
