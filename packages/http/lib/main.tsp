@@ -156,12 +156,12 @@ model PlainData<Data> {
  *
  * @example
  * ```tsp
- * // Declare a custom type of text file
+ * // Declare a custom type of text file, where the filename goes in the path
+ * // in requests.
  * model SpecFile extends File<"application/json" | "application/yaml", string> {
  *   // Provide a header that contains the name of the file when created or updated
  *   @header("x-filename")
- *   @visibility(Lifecycle.Create, Lifecycle.Update)
- *   filename: string;
+ *   @path filename: string;
  * }
  *
  * @get op downloadSpec(@path name: string): SpecFile;
@@ -174,9 +174,7 @@ model PlainData<Data> {
  * // Declare a custom type of binary file
  * model ImageFile extends File {
  *   contentType: "image/png" | "image/jpeg";
- *   @header("x-filename")
- *   @visibility(Lifecycle.Create, Lifecycle.Update)
- *   filename: string;
+ *   @path filename: string;
  * }
  *
  * @get op downloadImage(@path name: string): ImageFile;
