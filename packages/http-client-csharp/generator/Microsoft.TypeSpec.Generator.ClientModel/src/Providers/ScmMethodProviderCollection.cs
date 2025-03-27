@@ -579,7 +579,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var returnType = response == null || responseBodyType == null
                 ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType
-                : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
+                : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType.OutputType);
 
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
