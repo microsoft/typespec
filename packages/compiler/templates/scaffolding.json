@@ -49,13 +49,14 @@
         "options": {
           "emitter-output-dir": "{output-dir}/server/aspnet"
         },
-        "message": "To create an executable service project for your TypeSpec, run:\n         \"npx hscs scaffold . --use-swaggerui --overwrite\"\n\n         If you do not have npm installed run:\n          \"tsp compile . --option @typespec/http-server-csharp.emit-mocks=mocks-and-project-files --option @typespec/http-server-csharp.use-swaggerui=true --option @typespec/http-server-csharp.overwrite=true --trace http-server-csharp\"\n          \n         Generated ASP.Net services require dotnet 9:\n         https://dotnet.microsoft.com/download "
+        "message": "\n         \n         Generated ASP.Net services require dotnet 9:\n         https://dotnet.microsoft.com/download \n\n         Create an ASP.Net service project for your TypeSpec:\n         > npx hscs-scaffold . --use-swaggerui --overwrite\n\n         More information on getting started:\n         https://aka.ms/tsp/hscs/start\n         \n         "
       },
       "@typespec/http-server-js": {
         "label": "JavaScript server stubs",
         "options": {
           "emitter-output-dir": "{output-dir}/server/js"
-        }
+        },
+        "message": "   \n\n         Generated JavaScript services require a service runtime:\n         https://nodejs.org/download \n\n         Create a JavaScript service project for your TypeSpec:\n         > npx hsjs-scaffold . --use-swaggerui\n\n         More information on getting started:\n         https://aka.ms/tsp/hsjs/start\n         \n         "
       }
     },
     "files": [
