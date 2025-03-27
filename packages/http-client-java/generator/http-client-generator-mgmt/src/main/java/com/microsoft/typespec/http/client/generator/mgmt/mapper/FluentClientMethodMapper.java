@@ -88,9 +88,16 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
         JavaVisibility visibility
             = super.methodVisibility(methodType, methodOverloadType, hasContextParameter, isProtocolMethod);
         if (methodType == ClientMethodType.PagingAsyncSinglePage) {
-            // utility methods
-            // single page method is not visible, but the method is required for other client methods
-            visibility = NOT_VISIBLE;
+            if (syncStack && hasContextParameter) {
+                // in async-stack, single page method + context is for pagingAsync + context implementation, which
+                // is for pagingSync + context implementation
+                // sync-stack doesn't need it
+                visibility = NOT_GENERATE;
+            } else {
+                // utility methods
+                // in async-stack, single page method is not visible, but the method is required for other client methods
+                visibility = NOT_VISIBLE;
+            }
         } else if (methodType == ClientMethodType.PagingSyncSinglePage) {
             visibility = syncStack ? NOT_VISIBLE : NOT_GENERATE;
         } else if (!syncStack && hasContextParameter
