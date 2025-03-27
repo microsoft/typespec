@@ -49,14 +49,14 @@
         "options": {
           "emitter-output-dir": "{output-dir}/server/aspnet"
         },
-        "message": "\n         \n         Generated ASP.Net services require dotnet 9:\n         https://dotnet.microsoft.com/download \n\n         Create an ASP.Net service project for your TypeSpec:\n         > npx hscs-scaffold . --use-swaggerui --overwrite\n\n         More information on getting started:\n         https://aka.ms/tsp/hscs/start\n         \n         "
+        "message": "\n         \n\t\tGenerated ASP.Net services require dotnet 9:\n\t\thttps://dotnet.microsoft.com/download \n\n\t\tCreate an ASP.Net service project for your TypeSpec:\n\t\t> npx hscs-scaffold . --use-swaggerui --overwrite\n\n\t\tMore information on getting started:\n\t\thttps://aka.ms/tsp/hscs/start\n         \n         "
       },
       "@typespec/http-server-js": {
         "label": "JavaScript server stubs",
         "options": {
           "emitter-output-dir": "{output-dir}/server/js"
         },
-        "message": "   \n\n         Generated JavaScript services require a service runtime:\n         https://nodejs.org/download \n\n         Create a JavaScript service project for your TypeSpec:\n         > npx hsjs-scaffold . --use-swaggerui\n\n         More information on getting started:\n         https://aka.ms/tsp/hsjs/start\n         \n         "
+        "message": "   \n\n\t\tGenerated JavaScript services require a service runtime:\n\t\thttps://nodejs.org/download \n\n\t\tCreate a JavaScript service project for your TypeSpec:\n\t\t> npx hsjs-scaffold . --use-swaggerui\n\n\t\tMore information on getting started:\n\t\thttps://aka.ms/tsp/hsjs/start\n\n         "
       }
     },
     "files": [

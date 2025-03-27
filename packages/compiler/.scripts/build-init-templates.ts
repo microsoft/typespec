@@ -54,14 +54,14 @@ const builtInTemplates: Record<string, InitTemplate> = {
         },
         message: `
          
-         Generated ASP.Net services require dotnet 9:
-         https://dotnet.microsoft.com/download 
+\t\tGenerated ASP.Net services require dotnet 9:
+\t\thttps://dotnet.microsoft.com/download 
 
-         Create an ASP.Net service project for your TypeSpec:
-         > npx hscs-scaffold . --use-swaggerui --overwrite
+\t\tCreate an ASP.Net service project for your TypeSpec:
+\t\t> npx hscs-scaffold . --use-swaggerui --overwrite
 
-         More information on getting started:
-         https://aka.ms/tsp/hscs/start
+\t\tMore information on getting started:
+\t\thttps://aka.ms/tsp/hscs/start
          
          `,
       },
@@ -72,15 +72,15 @@ const builtInTemplates: Record<string, InitTemplate> = {
         },
         message: `   
 
-         Generated JavaScript services require a service runtime:
-         https://nodejs.org/download 
+\t\tGenerated JavaScript services require a service runtime:
+\t\thttps://nodejs.org/download 
 
-         Create a JavaScript service project for your TypeSpec:
-         > npx hsjs-scaffold . --use-swaggerui
+\t\tCreate a JavaScript service project for your TypeSpec:
+\t\t> npx hsjs-scaffold . --use-swaggerui
 
-         More information on getting started:
-         https://aka.ms/tsp/hsjs/start
-         
+\t\tMore information on getting started:
+\t\thttps://aka.ms/tsp/hsjs/start
+
          `
       },
     },
