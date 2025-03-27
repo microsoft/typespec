@@ -29,8 +29,20 @@ options:
 
 ## Emitter options
 
+### `package-version`
+
+**Type:** `string`
+
+The version of the package.
+
 ### `package-name`
 
 **Type:** `string`
 
-Name of the package as it will be in package.json
+Name of the package.
+
+### `license`
+
+**Type:** `object`
+
+License information for the generated client code.

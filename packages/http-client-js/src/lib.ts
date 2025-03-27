@@ -12,7 +12,7 @@ export interface JsClientEmitterOptions {
   };
 }
 
-const EmitterOptionsSchema: JSONSchemaType<JsClientEmitterOptions> = {
+export const EmitterOptionsSchema: JSONSchemaType<JsClientEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
