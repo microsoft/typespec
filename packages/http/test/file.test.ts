@@ -2,56 +2,7 @@ import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/tes
 import { deepStrictEqual, ok, strictEqual } from "node:assert";
 import { describe, expect, it } from "vitest";
 import { isHeader } from "../src/decorators.js";
-import { compileOperationsFull, getOperations } from "./test-host.js";
-
-/*
-
-CASES TO TEST
-
-// `"single"` body: uploads file as a JSON structure { filename: <string>,
-// contentType: <string>, contents: <base64> }
-op uploadFileAsJson(@header contentType: "application/json", @body file: File)
-
-// `"file"` body: Uploads file as a binary data stream. Content-Type has contentType and
-// filename cannot be specified (Content-Disposition is a response-only header)
-op uploadFile(@body file: File);
-op uploadFile(...File);
-
-// `"file"` body: Downloads file as binary data stream. Content-Type has contentType and
-// filename comes from Content-Disposition
-op downloadFile(): { @body file: File };
-op downloadFile(): File;
-
-
-// Declares a custom textual file that can either be "application/json" or "application/yaml"
-model SpecFile extends File<Contents = bytes> {
-  contentType: "application/json" | "application/yaml";
-  // We can put HTTP metadata inside the file model as long as we use it with `@bodyRoot` and not
-  // `@body`      
-  @header("x-filename") filename: string;
-}
-
-// ??? with @header on contentType
-op uploadWeird(@bodyRoot file: SpecFile): void;
-
-// `"file"` body: Uploads spec as a file. Content-Type has contentType, x-filename has filename.
-// isText: true
-op uploadSpec(@bodyRoot spec: SpecFile): void;
-
-// `"single"` body: Uploads spec as a JSON object { contentType: <json or yaml>,
-// filename: <string>, contents: <string> }
-op uploadSpec(@header contentType: "application/json", @body spec: SpecFile): void;
-
-op uploadFileMultipart(@multipartBody fields: { file: HttpPart<SpecFile> }): void;
-
-op uploadFileNested(@body data: { file: File }): void;
-
-op uploadFileInPieces(
-  @header contentType: "application/json" | "application/yaml",
-  // filename?
-  @body contents: bytes,
-}: void;
-*/
+import { compileOperationsFull, diagnoseOperations, getOperations } from "./test-host.js";
 
 it("does not allow instances that improperly provide contents argument", async () => {
   const { diagnostics } = await compileOperationsFull(`
@@ -1140,4 +1091,43 @@ describe("structured files", () => {
 
     strictEqual(responseBody?.bodyKind, "single");
   });
+});
+
+describe("metadata on file properties", () => {
+  type AllowedForFilename = boolean;
+  const annotations: Record<string, AllowedForFilename> = {
+    header: true,
+    cookie: false,
+    query: true,
+    path: true,
+    body: false,
+    bodyRoot: false,
+    multipartBody: false,
+    statusCode: false,
+  };
+
+  for (const propertyOverride of ["contents", "contentType", "filename"] as const) {
+    for (const [metadataDecorator, allowedForFilename] of Object.entries(annotations)) {
+      const isAllowed = propertyOverride === "filename" && allowedForFilename;
+      it(`${isAllowed ? "allows" : "disallows"} @${metadataDecorator} on '${propertyOverride}'`, async () => {
+        const diagnostics = await diagnoseOperations(`
+          model MyFile extends File<Contents = string> {
+            @${metadataDecorator} ${propertyOverride}: string;
+          }
+        `);
+
+        if (isAllowed) {
+          expectDiagnosticEmpty(diagnostics);
+        } else {
+          expectDiagnostics(diagnostics, [
+            {
+              code: "@typespec/http/http-file-disallowed-metadata",
+              severity: "error",
+              message: `File model cannot define HTTP metadata type '${metadataDecorator}' on property '${propertyOverride}'.`,
+            },
+          ]);
+        }
+      });
+    }
+  }
 });
