@@ -137,6 +137,5 @@ function resolveCliOptions(args: CompileCliArgs): [
     }
   }
 
-  console.log("args options", options.description);
   return [{ options, miscOptions }, diagnostics];
 }
