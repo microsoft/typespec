@@ -77,7 +77,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
 
 \tMore information on getting started:
 \thttps://aka.ms/tsp/hsjs/start
-`
+`,
       },
     },
     files: [...(await localDir("rest"))],

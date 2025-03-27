@@ -18,44 +18,46 @@ async function main() {
       "greedy-arrays": false,
       "boolean-negation": false,
     })
-    .command("$0 <path-to-spec> [--output <project-directory>] [--use-swaggerui] [OPTIONS]", "Create an ASP.Net server project",
-      (cmd) => { 
+    .command(
+      "$0 <path-to-spec> [--output <project-directory>] [--use-swaggerui] [OPTIONS]",
+      "Create an ASP.Net server project",
+      (cmd) => {
         return cmd
-    .option("use-swaggerui", {
-      description:
-        "Include generated OpenAPI and a SwaggerUI endpoint in the service project.  THIS OPTION REQUIRES '@typespec/openapi3' as a dependency of your typespec project.",
-      type: "boolean",
-      default: false,
-    })
-    .option("project-name", {
-      description: "The name of the generated project.",
-      type: "string",
-      default: "ServiceProject",
-    })
-    .option("http-port", {
-      description: "The http port for the generated project to use locally",
-      type: "number",
-    })
-    .option("https-port", {
-      description: "The https port for the generated service to listen on locally.",
-      type: "number",
-     })
-    .option("overwrite", {
-      description: "Overwrite existing mock implementations and project files",
-      type: "boolean",
-      default: true,
-    })
-    .option("output", {
-      description: "Path to the directory where the project will be created.",
-      type: "string",
-    })
-    .positional("path-to-spec", {
-      description: "The path to the TypeSpec spec or TypeSpec project directory",
-      type: "string",
-      demandOption: true,
-    });
-  }, async (args) => {
-
+          .option("use-swaggerui", {
+            description:
+              "Include generated OpenAPI and a SwaggerUI endpoint in the service project.  THIS OPTION REQUIRES '@typespec/openapi3' as a dependency of your typespec project.",
+            type: "boolean",
+            default: false,
+          })
+          .option("project-name", {
+            description: "The name of the generated project.",
+            type: "string",
+            default: "ServiceProject",
+          })
+          .option("http-port", {
+            description: "The http port for the generated project to use locally",
+            type: "number",
+          })
+          .option("https-port", {
+            description: "The https port for the generated service to listen on locally.",
+            type: "number",
+          })
+          .option("overwrite", {
+            description: "Overwrite existing mock implementations and project files",
+            type: "boolean",
+            default: true,
+          })
+          .option("output", {
+            description: "Path to the directory where the project will be created.",
+            type: "string",
+          })
+          .positional("path-to-spec", {
+            description: "The path to the TypeSpec spec or TypeSpec project directory",
+            type: "string",
+            demandOption: true,
+          });
+      },
+      async (args) => {
         const projectDir =
           args["output"] !== undefined ? resolvePath(process.cwd(), args["output"]) : undefined;
         const pathToSpec = resolvePath(process.cwd(), args["path-to-spec"]);
@@ -127,10 +129,9 @@ async function main() {
             );
           }
         }
-      },).argv
-    }
-
-
+      },
+    ).argv;
+}
 
 function internalError(error: unknown) {
   // NOTE: An expected error, like one thrown for bad input, shouldn't reach
