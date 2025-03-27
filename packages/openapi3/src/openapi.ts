@@ -1116,7 +1116,7 @@ function createOAPIEmitter(
             body.type,
             visibility,
             body.isExplicit && body.containsMetadataAnnotations,
-            contentType.startsWith("multipart/") ? contentType : undefined,
+            undefined,
           ),
           ...oai3Examples,
         };
@@ -1166,7 +1166,12 @@ function createOAPIEmitter(
                 part.body.type,
                 visibility,
                 part.body.isExplicit && part.body.containsMetadataAnnotations,
-                part.body.type.kind === "Union" ? contentType : undefined,
+                part.body.type.kind === "Union" &&
+                  [...part.body.type.variants.values()].some((x) =>
+                    isBinaryPayload(x.type, contentType),
+                  )
+                  ? contentType
+                  : undefined,
               );
 
       if (part.multi) {
@@ -1506,6 +1511,16 @@ function createOAPIEmitter(
         attributes.style = "matrix";
         break;
       case "simple":
+        break;
+      case "path":
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-style",
+            messageId: httpProperty.property.optional ? "optionalPath" : "default",
+            format: { style: httpProperty.options.style, paramType: "path" },
+            target: httpProperty.property,
+          }),
+        );
         break;
       default:
         diagnostics.add(

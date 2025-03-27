@@ -198,7 +198,6 @@ const sidebar: SidebarItem[] = [
             [],
             "preview",
           ),
-          createLibraryReferenceStructure("emitters/clients/http-client-java", "Java", false, []),
           createLibraryReferenceStructure(
             "emitters/clients/http-client-csharp",
             "CSharp",
