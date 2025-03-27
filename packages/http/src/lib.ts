@@ -28,10 +28,10 @@ export const $lib = createTypeSpecLibrary({
       },
     },
 
-    "optional-path-param": {
+    "optional-needs-path-expansion": {
       severity: "error",
       messages: {
-        default: paramMessage`Path parameter '${"paramName"}' cannot be optional.`,
+        default: paramMessage`Optional path parameter '${"paramName"}' must be declared with a leading '/' in the corresponding route path variable. For example, use '{/${"paramName"}}' instead of '{${"paramName"}}'.`,
       },
     },
     "missing-server-param": {
@@ -133,7 +133,14 @@ export const $lib = createTypeSpecLibrary({
     "multipart-model": {
       severity: "error",
       messages: {
-        default: "Multipart request body must be a model.",
+        default: "Multipart request body must be a model or a tuple of http parts.",
+      },
+    },
+    "no-implicit-multipart": {
+      severity: "error",
+      messages: {
+        default:
+          "Using multipart payloads requires the use of @multipartBody and HttpPart<T> models.",
       },
     },
     "multipart-part": {
