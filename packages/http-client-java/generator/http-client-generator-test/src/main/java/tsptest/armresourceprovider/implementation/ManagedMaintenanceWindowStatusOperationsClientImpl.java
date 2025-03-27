@@ -21,6 +21,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 import tsptest.armresourceprovider.fluent.ManagedMaintenanceWindowStatusOperationsClient;
 import tsptest.armresourceprovider.fluent.models.ManagedMaintenanceWindowStatusInner;
@@ -64,6 +65,16 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<ManagedMaintenanceWindowStatusInner>> getByResourceGroup(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName,
+            @PathParam("managedMaintenanceWindowStatusContentName") String managedMaintenanceWindowStatusContentName,
+            @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Get("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/managedMaintenanceWindowStatusContents/{managedMaintenanceWindowStatusContentName}")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<ManagedMaintenanceWindowStatusInner> getByResourceGroupSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("managedMaintenanceWindowStatusContentName") String managedMaintenanceWindowStatusContentName,
@@ -177,8 +188,29 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ManagedMaintenanceWindowStatusInner> getByResourceGroupWithResponse(String resourceGroupName,
         String managedMaintenanceWindowStatusContentName, Context context) {
-        return getByResourceGroupWithResponseAsync(resourceGroupName, managedMaintenanceWindowStatusContentName,
-            context).block();
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (managedMaintenanceWindowStatusContentName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.getByResourceGroupSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, managedMaintenanceWindowStatusContentName, accept,
+            context);
     }
 
     /**
@@ -197,4 +229,7 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
         return getByResourceGroupWithResponse(resourceGroupName, managedMaintenanceWindowStatusContentName,
             Context.NONE).getValue();
     }
+
+    private static final ClientLogger LOGGER
+        = new ClientLogger(ManagedMaintenanceWindowStatusOperationsClientImpl.class);
 }
