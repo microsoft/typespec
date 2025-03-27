@@ -85,7 +85,7 @@ The extension for Visual Studio Code collects usage data and sends it to Microso
 | Telemetry name    | Type         | Example         |
 | ---------------    | ----------------- | ---------------- |
 | ActivityId          | string |  |
-| EmitterName         | string | name of current emitter from pre-defined emitters for VS Code |
+| EmitterName         | string | The extension will log only names of pre-defined emitters. Unknown emitters from customers will be masked to ensure privacy. |
 | EmitterVersion      | string |  |
 | CompilerVersion     | string |  |
 | CompilerLocation    | string | "global-compiler", "local-compiler", etc. It is not to store the actual path of compiler being installed.|
