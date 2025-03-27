@@ -140,6 +140,10 @@ export function isCookieParam(program: Program, entity: Type): boolean {
   return program.stateMap(HttpStateKeys.cookie).has(entity);
 }
 
+const [getQueryOptions, setQueryOptions] = useStateMap<
+  ModelProperty,
+  QueryOptions & { name: string }
+>(HttpStateKeys.query);
 export const $query: QueryDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
@@ -152,26 +156,44 @@ export const $query: QueryDecorator = (
   const userOptions: QueryOptions =
     typeof queryNameOrOptions === "object" ? queryNameOrOptions : {};
 
-  const options: QueryParameterOptions = {
-    type: "query",
-    explode: userOptions.explode?.valueOf() ?? false,
+  setQueryOptions(context.program, entity, {
+    explode: userOptions.explode,
     name: paramName,
-  };
-
-  context.program.stateMap(HttpStateKeys.query).set(entity, options);
+  });
 };
 
-export function getQueryParamOptions(program: Program, entity: Type): QueryParameterOptions {
-  return program.stateMap(HttpStateKeys.query).get(entity);
+/** @internal */
+export { getQueryOptions };
+/** @internal */
+export function resolveQueryOptionsWithDefaults(
+  options: QueryOptions & { name: string },
+): Required<QueryOptions> {
+  return {
+    explode: options.explode ?? false,
+    name: options.name,
+  };
 }
 
-export function getQueryParamName(program: Program, entity: Type): string {
+export function getQueryParamOptions(
+  program: Program,
+  entity: Type,
+): QueryParameterOptions | undefined {
+  const userOptions = getQueryOptions(program, entity as any);
+  if (!userOptions) return undefined;
+  return { type: "query", ...resolveQueryOptionsWithDefaults(userOptions) };
+}
+
+export function getQueryParamName(program: Program, entity: Type): string | undefined {
   return getQueryParamOptions(program, entity)?.name;
 }
 
 export function isQueryParam(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.query).has(entity);
 }
+
+const [getPathOptions, setPathOptions] = useStateMap<ModelProperty, PathOptions & { name: string }>(
+  HttpStateKeys.path,
+);
 
 export const $path: PathDecorator = (
   context: DecoratorContext,
@@ -184,22 +206,40 @@ export const $path: PathDecorator = (
       : (paramNameOrOptions?.name ?? entity.name);
 
   const userOptions: PathOptions = typeof paramNameOrOptions === "object" ? paramNameOrOptions : {};
-  const options: PathParameterOptions = {
-    type: "path",
-    explode: userOptions.explode ?? false,
-    allowReserved: userOptions.allowReserved ?? false,
-    style: userOptions.style ?? "simple",
+  setPathOptions(context.program, entity, {
+    explode: userOptions.explode,
+    allowReserved: userOptions.allowReserved,
+    style: userOptions.style,
     name: paramName,
-  };
-  context.program.stateMap(HttpStateKeys.path).set(entity, options);
+  });
 };
 
-export function getPathParamOptions(program: Program, entity: Type): PathParameterOptions {
-  return program.stateMap(HttpStateKeys.path).get(entity);
+/** @internal */
+export { getPathOptions };
+
+/** @internal */
+export function resolvePathOptionsWithDefaults(
+  options: PathOptions & { name: string },
+): Required<PathOptions> {
+  return {
+    explode: options.explode ?? false,
+    allowReserved: options.allowReserved ?? false,
+    style: options.style ?? "simple",
+    name: options.name,
+  };
 }
 
-export function getPathParamName(program: Program, entity: Type): string {
-  return getPathParamOptions(program, entity)?.name;
+export function getPathParamOptions(
+  program: Program,
+  entity: Type,
+): PathParameterOptions | undefined {
+  const userOptions = getPathOptions(program, entity as any);
+  if (!userOptions) return undefined;
+  return { type: "path", ...resolvePathOptionsWithDefaults(userOptions) };
+}
+
+export function getPathParamName(program: Program, entity: Type): string | undefined {
+  return getPathOptions(program, entity as any)?.name;
 }
 
 export function isPathParam(program: Program, entity: Type) {
