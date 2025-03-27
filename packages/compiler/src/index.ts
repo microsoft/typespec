@@ -35,7 +35,6 @@ export {
   compilerAssert,
   createDiagnosticCollector,
   defineCodeFix,
-  formatDiagnostic,
   getSourceLocation,
   ignoreDiagnostics,
   logDiagnostics,
@@ -101,11 +100,11 @@ export {
   setTypeSpecNamespace,
 } from "./core/library.js";
 export { resolveLinterDefinition } from "./core/linter.js";
+export { formatDiagnostic } from "./core/logger/console-sink.js";
 export { NodeHost } from "./core/node-host.js";
 export { isNumeric, Numeric } from "./core/numeric.js";
 export type { CompilerOptions } from "./core/options.js";
 export { getPositionBeforeTrivia } from "./core/parser-utils.js";
-export * as TypeSpecPrettierPlugin from "./formatter/index.js";
 export {
   $defaultVisibility,
   $discriminator,

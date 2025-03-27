@@ -9,15 +9,18 @@ import {
   type ModelProperty,
   type Program,
 } from "@typespec/compiler";
+import { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
 import {
   getCookieParamOptions,
   getHeaderFieldOptions,
-  getPathParamOptions,
-  getQueryParamOptions,
+  getPathOptions,
+  getQueryOptions,
   isBody,
   isBodyRoot,
   isMultipartBodyProperty,
   isStatusCode,
+  resolvePathOptionsWithDefaults,
+  resolveQueryOptionsWithDefaults,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
 import { isVisible, Visibility } from "./metadata.js";
@@ -63,11 +66,11 @@ export interface ContentTypeProperty extends HttpPropertyBase {
 
 export interface QueryProperty extends HttpPropertyBase {
   readonly kind: "query";
-  readonly options: QueryParameterOptions;
+  readonly options: Required<QueryOptions>;
 }
 export interface PathProperty extends HttpPropertyBase {
   readonly kind: "path";
-  readonly options: PathParameterOptions;
+  readonly options: Required<PathOptions>;
 }
 export interface StatusCodeProperty extends HttpPropertyBase {
   readonly kind: "statusCode";
@@ -111,8 +114,8 @@ function getHttpProperty(
   const annotations = {
     header: getHeaderFieldOptions(program, property),
     cookie: getCookieParamOptions(program, property),
-    query: getQueryParamOptions(program, property),
-    path: getPathParamOptions(program, property),
+    query: getQueryOptions(program, property),
+    path: getPathOptions(program, property),
     body: isBody(program, property),
     bodyRoot: isBodyRoot(program, property),
     multipartBody: isMultipartBodyProperty(program, property),
@@ -124,9 +127,9 @@ function getHttpProperty(
   if (implicit && defined.length > 0) {
     if (implicit.type === "path" && annotations.path) {
       if (
-        annotations.path.explode ||
-        annotations.path.style !== "simple" ||
-        annotations.path.allowReserved
+        annotations.path.explode !== undefined ||
+        annotations.path.style !== undefined ||
+        annotations.path.allowReserved !== undefined
       ) {
         diagnostics.push(
           createDiagnostic({
@@ -139,7 +142,7 @@ function getHttpProperty(
         );
       }
     } else if (implicit.type === "query" && annotations.query) {
-      if (annotations.query.explode) {
+      if (annotations.query.explode !== undefined) {
         diagnostics.push(
           createDiagnostic({
             code: "use-uri-template",
@@ -193,9 +196,15 @@ function getHttpProperty(
   } else if (annotations.cookie) {
     return createResult({ kind: "cookie", options: annotations.cookie });
   } else if (annotations.query) {
-    return createResult({ kind: "query", options: annotations.query });
+    return createResult({
+      kind: "query",
+      options: resolveQueryOptionsWithDefaults(annotations.query),
+    });
   } else if (annotations.path) {
-    return createResult({ kind: "path", options: annotations.path });
+    return createResult({
+      kind: "path",
+      options: resolvePathOptionsWithDefaults(annotations.path),
+    });
   } else if (annotations.statusCode) {
     return createResult({ kind: "statusCode" });
   } else if (annotations.body) {

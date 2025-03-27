@@ -32,11 +32,13 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
         boolean branded = settings.isBranded();
 
         // copyright
-        xmlFile.blockComment(xmlLineComment -> {
-            xmlLineComment.line(Arrays.stream(settings.getFileHeaderText().split(System.lineSeparator()))
-                .map(line -> " ~ " + line)
-                .collect(Collectors.joining(System.lineSeparator())));
-        });
+        if (!CoreUtils.isNullOrEmpty(settings.getFileHeaderText())) {
+            xmlFile.blockComment(xmlLineComment -> {
+                xmlLineComment.line(Arrays.stream(settings.getFileHeaderText().split(System.lineSeparator()))
+                    .map(line -> " ~ " + line)
+                    .collect(Collectors.joining(System.lineSeparator())));
+            });
+        }
 
         Map<String, String> projectAnnotations = new HashMap<>();
         projectAnnotations.put("xmlns", "http://maven.apache.org/POM/4.0.0");
@@ -102,6 +104,18 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                         developerBlock.tag("name", "Microsoft");
                     });
                 });
+            } else {
+                if (pom.getLicenseName() != null) {
+                    projectBlock.block("licenses", licensesBlock -> {
+                        licensesBlock.block("license", licenseBlock -> {
+                            licenseBlock.tag("name", pom.getLicenseName());
+                            if (pom.getLicenseUrl() != null) {
+                                licenseBlock.tag("url", pom.getLicenseUrl());
+                            }
+                            licenseBlock.tag("distribution", "repo");
+                        });
+                    });
+                }
             }
 
             if (!branded && pom.getRepositories() != null && !pom.getRepositories().isEmpty()) {

@@ -110,6 +110,7 @@ export function createEmitterContext(
       "generate-protocol-methods": true,
       "generate-convenience-methods": true,
       "package-name": undefined,
+      license: undefined,
     },
   } as EmitContext<CSharpEmitterOptions>;
 }
@@ -131,6 +132,7 @@ export async function createCSharpSdkContext(
     logger: new Logger(program.program, LoggerLevel.INFO),
     __typeCache: {
       crossLanguageDefinitionIds: new Map(),
+      clients: new Map(),
       types: new Map(),
       models: new Map(),
       enums: new Map(),
