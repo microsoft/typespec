@@ -1413,10 +1413,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         Map<String, ClientMethodParameter> nameToParameter = clientMethod.getParameters()
             .stream()
             .collect(Collectors.toMap(ClientMethodParameter::getName, Function.identity()));
-        Set<String> parametersWithTransformations = clientMethod.getParameterTransformations()
-            .asStream()
-            .map(transform -> transform.getOutParameter().getName())
-            .collect(Collectors.toSet());
+        Set<String> parametersWithTransformations = clientMethod.getParameterTransformations().getOutParameterNames();
 
         boolean firstParameter = true;
         for (String proxyMethodArgument : clientMethod.getProxyMethodArguments(settings)) {

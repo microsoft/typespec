@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * A type to process and collect the details of transformations applied to parameters.
+ * A type to process and collect the details of transformations applied to operation parameters.
  */
 public final class ParametersTransformationProcessor {
     private final boolean isProtocolMethod;
@@ -119,6 +119,7 @@ public final class ParametersTransformationProcessor {
                 final String serializedName = parameter.getLanguage().getDefault().getSerializedName();
                 final Optional<ClientModelProperty> opt1
                     = findProperty(groupByModel, p -> serializedName.equals(p.getSerializedName()));
+                assert opt1.isPresent();
                 inParameterProperty = opt1.get();
             }
             return new InMapping(inParameter, inParameterProperty);
@@ -162,7 +163,7 @@ public final class ParametersTransformationProcessor {
     }
 
     private List<Parameter> flattenedParameters(Request request) {
-        // build a list of original-parameters those were already been accounted for by process(..) when
+        // build a list of original-parameters those were already been accounted for by process(..) while
         // processing 'this.parameters'.
         final List<Parameter> originalParameters = parameters.stream()
             .map(t -> t.parameter)
@@ -193,16 +194,35 @@ public final class ParametersTransformationProcessor {
     }
 
     /**
-     * A private mutable carrier type to hold transformation details.
+     * A tuple of parameters to be processed as a unit by the {@link #process(Request)} method.
+     */
+    private static final class ParametersTuple {
+        final ClientMethodParameter clientMethodParameter;
+        final Parameter parameter;
+
+        ParametersTuple(ClientMethodParameter clientMethodParameter, Parameter parameter) {
+            this.clientMethodParameter = clientMethodParameter;
+            this.parameter = parameter;
+        }
+    }
+
+    /**
+     * A private mutable carrier type to hold transformation details during processing.
      */
     private static final class Transformation {
         private final ClientMethodParameter key;
         private final List<ParameterMapping> mappings = new ArrayList<>();
 
         private Transformation(ClientMethodParameter key) {
-            this.key = Objects.requireNonNull(key);
+            this.key = Objects.requireNonNull(key, "'key' cannot be null");
         }
 
+        /**
+         * Checks if this transformation represents the transformation mappings for the given key parameter.
+         *
+         * @param key the key parameter to check.
+         * @return true if this transformation matches the key, false otherwise.
+         */
         private boolean matchesKey(ClientMethodParameter key) {
             return this.key.getName().equals(key.getName());
         }
@@ -246,19 +266,6 @@ public final class ParametersTransformationProcessor {
             final Transformation transformation = new Transformation(key);
             transformations.add(transformation);
             return transformation;
-        }
-    }
-
-    /**
-     * A tuple of parameters to be processed as a unit by the {@link #process(Request)} method.
-     */
-    private static final class ParametersTuple {
-        final ClientMethodParameter clientMethodParameter;
-        final Parameter parameter;
-
-        ParametersTuple(ClientMethodParameter clientMethodParameter, Parameter parameter) {
-            this.clientMethodParameter = clientMethodParameter;
-            this.parameter = parameter;
         }
     }
 
