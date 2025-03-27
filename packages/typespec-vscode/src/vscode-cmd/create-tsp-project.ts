@@ -378,12 +378,12 @@ async function installDependencies(directory: string): Promise<Result<ExecOutput
           logger.info("tsp cli is installed, try to install dependencies with tsp install");
           progress?.report({ message: "running 'tsp install' ..." });
           try {
-            return await spawnExecutionAndLogToOutput("tsp", ["install"], directory);
+            return await spawnExecutionAndLogToOutput("tsp", ["install"], directory, false);
           } catch (e) {
             if (checkNpm) {
               logger.warning("tsp install failed. Try to install dependencies with npm.");
               progress?.report({ message: "running 'npm install' ..." });
-              return await spawnExecutionAndLogToOutput("npm", ["install"], directory);
+              return await spawnExecutionAndLogToOutput("npm", ["install"], directory, true);
             } else {
               throw e;
             }
@@ -391,7 +391,7 @@ async function installDependencies(directory: string): Promise<Result<ExecOutput
         } else {
           logger.info("npm is installed, try to install dependencies with 'npm install'");
           progress?.report({ message: "running 'npm install' ..." });
-          return await spawnExecutionAndLogToOutput("npm", ["install"], directory);
+          return await spawnExecutionAndLogToOutput("npm", ["install"], directory, true);
         }
       },
     );

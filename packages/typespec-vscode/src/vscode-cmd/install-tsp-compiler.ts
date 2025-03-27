@@ -80,6 +80,7 @@ export async function installCompilerGlobally(
                 "npm",
                 ["install", "-g", "@typespec/compiler"],
                 process.cwd(),
+                true,
               ),
               token,
               TIMEOUT,

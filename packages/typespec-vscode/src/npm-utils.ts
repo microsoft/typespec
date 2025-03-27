@@ -33,7 +33,7 @@ export class NpmUtil {
   }
 
   public async npmInstallPackages(packages: string[] = [], options: any = {}): Promise<ExecOutput> {
-    return spawnExecutionAndLogToOutput("npm", ["install", ...packages], this.cwd);
+    return spawnExecutionAndLogToOutput("npm", ["install", ...packages], this.cwd, true);
   }
 
   /* identify the action to take for a package. install or skip or cancel or upgrade */
@@ -83,6 +83,7 @@ export class NpmUtil {
         "npm",
         ["view", packageFullName, ...dependencyTypes, "--json"],
         this.cwd,
+        true,
       );
 
       if (dependenciesResult.exitCode === 0) {
