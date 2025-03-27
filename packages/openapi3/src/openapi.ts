@@ -1500,6 +1500,16 @@ function createOAPIEmitter(
         break;
       case "simple":
         break;
+      case "path":
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-style",
+            messageId: httpProperty.property.optional ? "optionalPath" : "default",
+            format: { style: httpProperty.options.style, paramType: "path" },
+            target: httpProperty.property,
+          }),
+        );
+        break;
       default:
         diagnostics.add(
           createDiagnostic({

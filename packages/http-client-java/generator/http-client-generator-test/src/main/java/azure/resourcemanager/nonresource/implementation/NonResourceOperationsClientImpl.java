@@ -25,6 +25,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 
 /**
@@ -68,10 +69,28 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
             @PathParam("location") String location, @PathParam("parameter") String parameter,
             @HeaderParam("Accept") String accept, Context context);
 
+        @Headers({ "Content-Type: application/json" })
+        @Get("/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<NonResourceInner> getSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("location") String location, @PathParam("parameter") String parameter,
+            @HeaderParam("Accept") String accept, Context context);
+
         @Put("/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<NonResourceInner>> create(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("location") String location, @PathParam("parameter") String parameter,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") NonResourceInner body, Context context);
+
+        @Put("/subscriptions/{subscriptionId}/providers/Microsoft.NonResource/locations/{location}/otherParameters/{parameter}")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<NonResourceInner> createSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("location") String location, @PathParam("parameter") String parameter,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
@@ -176,7 +195,27 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NonResourceInner> getWithResponse(String location, String parameter, Context context) {
-        return getWithResponseAsync(location, parameter, context).block();
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (location == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+        }
+        if (parameter == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter parameter is required and cannot be null."));
+        }
+        final String accept = "application/json";
+        return service.getSync(this.client.getEndpoint(), this.client.getApiVersion(), this.client.getSubscriptionId(),
+            location, parameter, accept, context);
     }
 
     /**
@@ -312,7 +351,33 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<NonResourceInner> createWithResponse(String location, String parameter, NonResourceInner body,
         Context context) {
-        return createWithResponseAsync(location, parameter, body, context).block();
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (location == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter location is required and cannot be null."));
+        }
+        if (parameter == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter parameter is required and cannot be null."));
+        }
+        if (body == null) {
+            throw LOGGER.atError().log(new IllegalArgumentException("Parameter body is required and cannot be null."));
+        } else {
+            body.validate();
+        }
+        final String contentType = "application/json";
+        final String accept = "application/json";
+        return service.createSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), location, parameter, contentType, accept, body, context);
     }
 
     /**
@@ -331,4 +396,6 @@ public final class NonResourceOperationsClientImpl implements NonResourceOperati
     public NonResourceInner create(String location, String parameter, NonResourceInner body) {
         return createWithResponse(location, parameter, body, Context.NONE).getValue();
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(NonResourceOperationsClientImpl.class);
 }
