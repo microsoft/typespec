@@ -85,7 +85,7 @@ The extension for Visual Studio Code collects usage data and sends it to Microso
 | Telemetry name    | Type         | Example         |
 | ---------------    | ----------------- | ---------------- |
 | ActivityId          | string |  |
-| EmitterName         | string | known emitters like [this](https://typespec.io/docs/emitters/openapi3/reference/) |
+| EmitterName         | string | name of current emitter from [pre-defined emitters](https://github.com/microsoft/typespec/blob/main/packages/typespec-vscode/src/vscode-cmd/emit-code/emitter.ts#L37-L38) |
 | EmitterVersion      | string |  |
 | CompilerVersion     | string |  |
 | CompilerLocation    | string | "global-compiler", "local-compiler", etc. It is not to store the actual path of compiler being installed.|
