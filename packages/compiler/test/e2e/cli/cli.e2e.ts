@@ -204,7 +204,7 @@ describe("compile", () => {
     await access(resolvePath(getScenarioDir("with-config"), "tsp-output/custom-dir-name/out.txt"));
   });
 
-  it.only("set config parameter with --option", async () => {
+  it("set config parameter with --option", async () => {
     await cleanOutputDir("with-option");
     const { stdout } = await execCliSuccess(
       [
