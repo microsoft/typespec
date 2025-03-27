@@ -36,6 +36,14 @@ export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plug
       }
     },
     async configureServer(server) {
+      for (const library of options.libraries) {
+        await watchBundleLibrary(config.root, library, (bundle) => {
+          bundles[library] = bundle;
+          definitions[library] = bundle.definition;
+          server.ws.send({ type: "full-reload" });
+        });
+      }
+
       server.middlewares.use((req, res, next) => {
         const id = req.url;
         if (id === undefined) {
@@ -77,14 +85,6 @@ export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plug
         }
         next();
       });
-
-      for (const library of options.libraries) {
-        void watchBundleLibrary(config.root, library, (bundle) => {
-          bundles[library] = bundle;
-          definitions[library] = bundle.definition;
-          server.ws.send({ type: "full-reload" });
-        });
-      }
     },
 
     async generateBundle() {
