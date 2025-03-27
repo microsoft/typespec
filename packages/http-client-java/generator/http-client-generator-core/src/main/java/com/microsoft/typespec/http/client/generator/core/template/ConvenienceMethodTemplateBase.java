@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.util.CoreUtils;
 import com.azure.core.util.FluxUtil;
 import com.azure.core.util.serializer.CollectionFormat;
 import com.azure.core.util.serializer.JacksonAdapter;
@@ -27,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapTy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
@@ -112,8 +112,9 @@ abstract class ConvenienceMethodTemplateBase {
         methodBlock.line("RequestOptions requestOptions = new RequestOptions();");
 
         // parameter transformation
-        if (!CoreUtils.isNullOrEmpty(convenienceMethod.getParameterTransformationDetails())) {
-            convenienceMethod.getParameterTransformationDetails()
+        final ParameterTransformations transformations = convenienceMethod.getParameterTransformations();
+        if (!transformations.isEmpty()) {
+            transformations.asStream()
                 .forEach(d -> writeParameterTransformation(d, convenienceMethod, protocolMethod, methodBlock,
                     parametersMap));
         }
@@ -233,19 +234,18 @@ abstract class ConvenienceMethodTemplateBase {
 
     abstract void writeThrowException(ClientMethodType methodType, String exceptionExpression, JavaBlock methodBlock);
 
-    private static boolean isGroupByTransformation(ParameterTransformation detail) {
-        return !CoreUtils.isNullOrEmpty(detail.getMappings())
-            && detail.getMappings().iterator().next().getOutParameterPropertyName() == null;
-    }
+//    private static boolean isGroupByTransformation(ParameterTransformation detail) {
+//        return !CoreUtils.isNullOrEmpty(detail.getMappings())
+//            && detail.getMappings().iterator().next().getOutParameterPropertyName() == null;
+//    }
 
-    private static void writeParameterTransformation(ParameterTransformation detail, ClientMethod convenienceMethod,
-        ClientMethod protocolMethod, JavaBlock methodBlock, Map<MethodParameter, MethodParameter> parametersMap) {
-
-        if (isGroupByTransformation(detail)) {
+    private static void writeParameterTransformation(ParameterTransformation transformation,
+        ClientMethod convenienceMethod, ClientMethod protocolMethod, JavaBlock methodBlock,
+        Map<MethodParameter, MethodParameter> parametersMap) {
+        if (transformation.isGroupBy()) {
             // grouping
-
-            ParameterMapping mapping = detail.getMappings().iterator().next();
-            ClientMethodParameter sourceParameter = mapping.getInParameter();
+            // ParameterMapping mapping = transformation.getMappings().iterator().next();
+            final ClientMethodParameter sourceParameter = transformation.getGroupByInParameter();
 
             boolean sourceParameterInMethod = false;
             for (MethodParameter parameter : parametersMap.keySet()) {
@@ -264,12 +264,12 @@ abstract class ConvenienceMethodTemplateBase {
                     assignmentExpression = "%1$s %2$s = %3$s == null ? null : %3$s.%4$s();";
                 }
 
-                methodBlock.line(String.format(assignmentExpression, detail.getOutParameter().getClientType(),
-                    detail.getOutParameter().getName(), sourceParameter.getName(),
-                    CodeNamer.getModelNamer().modelPropertyGetterName(mapping.getInParameterProperty())));
+                methodBlock.line(String.format(assignmentExpression, transformation.getOutParameter().getClientType(),
+                    transformation.getOutParameter().getName(), sourceParameter.getName(),
+                    CodeNamer.getModelNamer().modelPropertyGetterName(transformation.getGroupByInParameterProperty())));
 
-                if (detail.getOutParameter().getRequestParameterLocation() != null) {
-                    ClientMethodParameter clientMethodParameter = detail.getOutParameter();
+                if (transformation.getOutParameter().getRequestParameterLocation() != null) {
+                    ClientMethodParameter clientMethodParameter = transformation.getOutParameter();
                     ProxyMethodParameter proxyMethodParameter = convenienceMethod.getProxyMethod()
                         .getAllParameters()
                         .stream()
@@ -287,7 +287,7 @@ abstract class ConvenienceMethodTemplateBase {
             }
         } else {
             // flatten (possible with grouping)
-            ClientMethodParameter targetParameter = detail.getOutParameter();
+            ClientMethodParameter targetParameter = transformation.getOutParameter();
             if (targetParameter.getWireType() == ClassType.BINARY_DATA) {
                 IType targetType = targetParameter.getRawType();
 
@@ -295,7 +295,7 @@ abstract class ConvenienceMethodTemplateBase {
                 StringBuilder setterExpression = new StringBuilder();
                 String targetParameterName = targetParameter.getName();
                 String targetParameterObjectName = targetParameterName + "Obj";
-                for (ParameterMapping mapping : detail.getMappings()) {
+                for (ParameterMapping mapping : transformation.getMappings()) {
                     String parameterName = mapping.getInParameter().getName();
 
                     String inputPath = parameterName;

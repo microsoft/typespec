@@ -235,8 +235,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      */
     protected static void applyParameterTransformations(JavaBlock function, ClientMethod clientMethod,
         JavaSettings settings) {
-        for (ParameterTransformation transformation : clientMethod.getParameterTransformationDetails()) {
-            if (transformation.getMappings().isEmpty()) {
+        for (ParameterTransformation transformation : clientMethod.getParameterTransformations().asList()) {
+            if (!transformation.hasMappings()) {
                 // the case that this flattened parameter is not original parameter from any other parameters
                 ClientMethodParameter outParameter = transformation.getOutParameter();
                 if (outParameter.isRequired() && outParameter.getClientType() instanceof ClassType) {
@@ -249,19 +249,18 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 break;
             }
 
-            String nullCheck
-                = transformation.getMappings().stream().filter(m -> !m.getInParameter().isRequired()).map(m -> {
-                    ClientMethodParameter parameter = m.getInParameter();
+            String nullCheck = transformation.getOptionalInMappings().map(m -> {
+                ClientMethodParameter parameter = m.getInParameter();
 
-                    String parameterName;
-                    if (!parameter.isFromClient()) {
-                        parameterName = parameter.getName();
-                    } else {
-                        parameterName = m.getInParameterProperty().getName();
-                    }
+                String parameterName;
+                if (!parameter.isFromClient()) {
+                    parameterName = parameter.getName();
+                } else {
+                    parameterName = m.getInParameterProperty().getName();
+                }
 
-                    return parameterName + " != null";
-                }).collect(Collectors.joining(" || "));
+                return parameterName + " != null";
+            }).collect(Collectors.joining(" || "));
 
             boolean conditionalAssignment = !nullCheck.isEmpty()
                 && !transformation.getOutParameter().isRequired()
@@ -1414,8 +1413,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         Map<String, ClientMethodParameter> nameToParameter = clientMethod.getParameters()
             .stream()
             .collect(Collectors.toMap(ClientMethodParameter::getName, Function.identity()));
-        Set<String> parametersWithTransformations = clientMethod.getParameterTransformationDetails()
-            .stream()
+        Set<String> parametersWithTransformations = clientMethod.getParameterTransformations()
+            .asStream()
             .map(transform -> transform.getOutParameter().getName())
             .collect(Collectors.toSet());
 
