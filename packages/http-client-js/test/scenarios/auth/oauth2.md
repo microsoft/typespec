@@ -36,7 +36,7 @@ The client signature should include a positional parameter for credential of typ
 ```ts src/testClient.ts class TestClient
 export class TestClient {
   #context: TestClientContext;
-  
+
   constructor(
     endpoint: string,
     credential: OAuth2TokenCredential<ClientCredentialsFlow>,
