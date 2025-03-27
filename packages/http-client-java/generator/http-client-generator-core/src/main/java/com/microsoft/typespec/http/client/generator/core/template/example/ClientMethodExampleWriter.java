@@ -21,7 +21,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformationDetails;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
@@ -290,8 +290,8 @@ public class ClientMethodExampleWriter {
 
             // group example values into a map
             Map<String, Object> exampleValue = new HashMap<>();
-            for (ParameterTransformationDetails detail : convenienceMethod.getParameterTransformationDetails()) {
-                for (ParameterMapping parameterMapping : detail.getParameterMappings()) {
+            for (ParameterTransformation detail : convenienceMethod.getParameterTransformationDetails()) {
+                for (ParameterMapping parameterMapping : detail.getMappings()) {
                     if (parameterMapping.getOutParameterPropertyName() != null) {
                         // this is a flattened property, so put flattening(real parameter) value
 
@@ -334,7 +334,7 @@ public class ClientMethodExampleWriter {
             ParameterMapping parameterMapping = convenienceMethod.getParameterTransformationDetails()
                 .iterator()
                 .next()
-                .getParameterMappings()
+                .getMappings()
                 .stream()
                 .filter(mapping -> Objects.equals(mapping.getInParameter().getName(),
                     methodParameter.getClientMethodParameter().getName()))
@@ -380,34 +380,33 @@ public class ClientMethodExampleWriter {
     }
 
     private boolean isGroupingParameter(ClientMethod convenienceMethod, MethodParameter methodParameter) {
-        List<ParameterTransformationDetails> details = convenienceMethod.getParameterTransformationDetails();
+        List<ParameterTransformation> details = convenienceMethod.getParameterTransformationDetails();
         if (CoreUtils.isNullOrEmpty(details) || details.size() <= 1) {
             return false;
         }
 
         return details.stream()
-            .allMatch(
-                detail -> !CoreUtils.isNullOrEmpty(detail.getParameterMappings()) && detail.getOutParameter() != null &&
-                // same name
-                    detail.getParameterMappings()
-                        .stream()
-                        .allMatch(mapping -> Objects.equals(mapping.getInParameter().getName(),
-                            methodParameter.getClientMethodParameter().getName())));
+            .allMatch(detail -> !CoreUtils.isNullOrEmpty(detail.getMappings()) && detail.getOutParameter() != null &&
+            // same name
+                detail.getMappings()
+                    .stream()
+                    .allMatch(mapping -> Objects.equals(mapping.getInParameter().getName(),
+                        methodParameter.getClientMethodParameter().getName())));
     }
 
     private boolean isFlattenParameter(ClientMethod convenienceMethod, MethodParameter methodParameter) {
-        List<ParameterTransformationDetails> details = convenienceMethod.getParameterTransformationDetails();
+        List<ParameterTransformation> details = convenienceMethod.getParameterTransformationDetails();
         if (CoreUtils.isNullOrEmpty(details) || details.size() != 1) {
             return false;
         }
         return details.stream()
-            .anyMatch(detail -> !CoreUtils.isNullOrEmpty(detail.getParameterMappings())
+            .anyMatch(detail -> !CoreUtils.isNullOrEmpty(detail.getMappings())
                 && detail.getOutParameter() != null
-                && detail.getParameterMappings()
+                && detail.getMappings()
                     .stream()
                     .allMatch(mapping -> mapping.getOutParameterPropertyName() != null
                         && mapping.getInParameterProperty() == null)
-                && detail.getParameterMappings()
+                && detail.getMappings()
                     .stream()
                     .anyMatch(mapping -> Objects.equals(methodParameter.getClientMethodParameter().getName(),
                         mapping.getInParameter().getName())));
