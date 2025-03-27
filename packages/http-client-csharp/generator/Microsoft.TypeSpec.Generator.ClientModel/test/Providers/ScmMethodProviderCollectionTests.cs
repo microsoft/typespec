@@ -148,6 +148,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(false)]
         public void RequestOptionsOptionality(bool inBody)
         {
+            MockHelpers.LoadMockGenerator();
             var inputOperation = InputFactory.Operation(
                 "TestOperation",
                 parameters:
@@ -159,7 +160,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         location: inBody ? InputRequestLocation.Body : InputRequestLocation.Query)
                 ]);
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            MockHelpers.LoadMockGenerator();
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             var methodCollection = new ScmMethodProviderCollection(inputOperation, client!);
             var protocolMethod = methodCollection.FirstOrDefault(
