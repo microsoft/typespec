@@ -302,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
+                    return response.Content().ToObjectFromJson(responseBodyType);
                 }
             }
             if (responseBodyType.IsDictionary)
@@ -313,7 +313,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
+                    return response.Content().ToObjectFromJson(responseBodyType);
                 }
             }
             if (responseBodyType.Equals(typeof(string)) && Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
