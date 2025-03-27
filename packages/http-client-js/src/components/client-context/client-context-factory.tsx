@@ -170,7 +170,7 @@ function AuthSchemeOptions(props: AuthSchemeOptionsProps) {
   // Filtering out custom http schemes for "http/custom" spector scenario
   // TODO: Should typekit allow for arbitrary strings on scheme with http auth type?
   const supportedSchemes = clientCredential.schemes.filter(
-    (s) => s.type !== "http" || ["basic", "bearer"].includes(s.scheme),
+    (s) => s.type !== "http" || ["Basic", "Bearer"].includes(s.scheme),
   );
 
   return (
