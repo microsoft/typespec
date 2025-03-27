@@ -53,7 +53,6 @@ const builtInTemplates: Record<string, InitTemplate> = {
           "emitter-output-dir": "{output-dir}/server/aspnet",
         },
         message: `
-         
 \tGenerated ASP.Net services require dotnet 9:
 \thttps://dotnet.microsoft.com/download 
 
@@ -70,8 +69,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
         options: {
           "emitter-output-dir": "{output-dir}/server/js",
         },
-        message: `   
-
+        message: `
 \tGenerated JavaScript services require a service runtime:
 \thttps://nodejs.org/download 
 
