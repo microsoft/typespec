@@ -12,20 +12,35 @@ $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
 Set-ConsoleEncoding
 
 Push-Location "$packageRoot"
+
+$dotnetVersion = '8.0.204'
+
 try {
     if (Test-Path "./node_modules") {
         Remove-Item -Recurse -Force "./node_modules"
     }
 
-    # install dotnet
-    if ($IsWindows) {
-        # download and run https://dot.net/v1/dotnet-install.ps1
-        Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile 'dotnet-install.ps1'
-        ./dotnet-install.ps1 -Version '8.0.204'
+    try {
+      $installedSdks = @(dotnet --list-sdks)
+      $dotnetVersionPattern = [regex]::Escape($dotnetVersion)
+      $dotnetVersionInstalled = $? -and !!($installedSdks -match "^$dotnetVersionPattern \[")
     }
-    else {
-        Invoke-WebRequest 'https://dot.net/v1/dotnet-install.sh' -OutFile 'dotnet-install.sh'
-        bash ./dotnet-install.sh --version 8.0.204
+    catch {
+      return $dotnetVersionInstalled = $false
+    }
+
+
+    if (!$dotnetVersionInstalled) {
+      # install dotnet
+      if ($IsWindows) {
+          # download and run https://dot.net/v1/dotnet-install.ps1
+          Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile 'dotnet-install.ps1'
+          ./dotnet-install.ps1 -Version $dotnetVersion
+      }
+      else {
+          Invoke-WebRequest 'https://dot.net/v1/dotnet-install.sh' -OutFile 'dotnet-install.sh'
+          bash ./dotnet-install.sh --version $dotnetVersion
+      }
     }
 
     # install and list npm packages
