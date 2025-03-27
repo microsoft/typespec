@@ -56,7 +56,7 @@
         "options": {
           "emitter-output-dir": "{output-dir}/server/js"
         },
-        "message": "\n\tGenerated JavaScript services require a service runtime:\n\thttps://nodejs.org/download \n\n\tCreate a JavaScript service project for your TypeSpec:\n\t> npx hsjs-scaffold . --use-swaggerui\n\n\tMore information on getting started:\n\thttps://aka.ms/tsp/hsjs/start\n"
+        "message": "\n\tGenerated JavaScript services require a service runtime:\n\thttps://nodejs.org/download \n\n\tCreate a JavaScript service project for your TypeSpec:\n\t> npx hsjs-scaffold\n\n\tMore information on getting started:\n\thttps://aka.ms/tsp/hsjs/start\n"
       }
     },
     "files": [

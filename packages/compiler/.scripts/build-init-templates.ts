@@ -73,7 +73,7 @@ const builtInTemplates: Record<string, InitTemplate> = {
 \thttps://nodejs.org/download 
 
 \tCreate a JavaScript service project for your TypeSpec:
-\t> npx hsjs-scaffold . --use-swaggerui
+\t> npx hsjs-scaffold
 
 \tMore information on getting started:
 \thttps://aka.ms/tsp/hsjs/start
