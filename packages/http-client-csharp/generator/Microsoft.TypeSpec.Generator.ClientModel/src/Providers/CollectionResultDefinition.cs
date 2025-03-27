@@ -176,7 +176,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             MethodBodyStatement[] getRawPagesMethodBody = (_paging.NextLink, _paging.ContinuationToken) switch
             {
-                (null, null) => BuildGetRawPagesSingle(),
+                (null, null) => BuildGetRawPagesForSingle(),
                 (not null, _) => BuildGetRawPagesForNextLink(),
                 (_, not null) => BuildGetRawPagesForContinuationToken()
             };
@@ -375,11 +375,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private MethodBodyStatement[] BuildGetRawPagesSingle()
+        private MethodBodyStatement[] BuildGetRawPagesForSingle()
         {
             var pipelineMessageDeclaration = Declare(
                     "message",
-                    InvokeCreateRequest(),
+                    InvokeCreateRequestForSingle(),
                     out ScopedApi<PipelineMessage> m);
             var pipelineResponse = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
                         _clientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
@@ -445,7 +445,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .As<PipelineMessage>();
         }
 
-        private ScopedApi<PipelineMessage> InvokeCreateRequest()
+        private ScopedApi<PipelineMessage> InvokeCreateRequestForSingle()
         {
             ValueExpression[] arguments = [.. _requestFields.Select(f => f.AsValueExpression)];
 
