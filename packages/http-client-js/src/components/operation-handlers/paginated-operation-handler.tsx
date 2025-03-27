@@ -17,6 +17,27 @@ import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework
 import { getPageResponseTypeRefkey, PageResponseDeclaration } from "./paging/page-response.jsx";
 import { getBuildPagedAsyncIteratorRefkey, getPagedAsyncIterableIteratorRefkey } from "../static-helpers/paging-helper.jsx";
 import { getPageItemTypeName } from "./paging/page-item.jsx";
+import { ModelProperty } from "@typespec/compiler";
+
+
+function getResponseHeader( httpOperation: HttpOperation, prop?: ModelProperty): string | undefined {
+  if(!prop) {
+    return undefined;
+  }
+  const headers = httpOperation.responses.flatMap(resp => resp.responses).map(resp => resp.headers);
+  for(const header of headers) {
+    if(!header) {
+      continue;
+    }
+    for(const key in header) {
+      if(header[key] === prop) {
+      return key;
+    }
+    }
+    
+  }
+  return undefined;
+}
 
 export const PaginatedOperationHandler: OperationHandler = {
   canHandle(httpOperation: HttpOperation): boolean {
@@ -47,10 +68,13 @@ export const PaginatedOperationHandler: OperationHandler = {
     // TODO: extract the elements
     const itemsPosition = pagingOperation.output.pageItems.property.name;
     const isNextLink = pagingOperation.output.nextLink !== undefined;
-    const nextTokenProperty = pagingOperation.output.nextLink?.property ?? pagingOperation.output.continuationToken?.property;
+    const returnedNextToken = pagingOperation.output.nextLink?.property ?? pagingOperation.output.continuationToken?.property;
     // TODO: extract the next token
-    const nextTokenOutputName = nextTokenProperty?.name;
+    
     const nextTokenInputName = pagingOperation.input.continuationToken?.property.name;
+    const isHeaderToken = getResponseHeader(httpOperation, returnedNextToken);
+    const returnedTokenPosition = isHeaderToken ? "headers" : "body";
+    const returnedTokenName = isHeaderToken ? isHeaderToken: returnedNextToken?.name;
     return (
       <ay.List>
         <OperationOptionsDeclaration operation={httpOperation} />
@@ -83,10 +107,10 @@ export const PaginatedOperationHandler: OperationHandler = {
           getElements: (response) => {
             return response.${itemsPosition};
           }
-          ${nextTokenOutputName ? `
+          ${returnedTokenName ? `
             ,
             getNextToken: (response) => {
-              return response.body["${nextTokenOutputName}"];
+              return response.${returnedTokenPosition}["${returnedTokenName}"];
             }
             `: ``}
           

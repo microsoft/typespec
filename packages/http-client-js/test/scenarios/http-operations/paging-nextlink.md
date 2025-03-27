@@ -14,8 +14,7 @@ op link(): {
   @pageItems
   pets: Pet[];
 
-  @nextLink
-  next?: url;
+   @continuationToken @header  nextToken?: string;
 };
 ```
 

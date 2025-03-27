@@ -42,5 +42,25 @@ describe("Payload.Pageable", () => {
       expect(items.length).toEqual(4);
       expect(items).toStrictEqual(pets);
     });
+
+    it("continuation token for requestHeaderResponseHeader", async () => {
+      const iter = await client.continuationTokenClient.requestHeaderResponseHeader({ bar: "bar", foo: "foo" });
+      const items: Array<Pet> = [];
+      for await (const user of iter) {
+        items.push(user);
+      }
+      expect(items.length).toEqual(4);
+      expect(items).toStrictEqual(pets);
+    });
+
+    it("continuation token for requestQueryResponseHeader", async () => {
+      const iter = await client.continuationTokenClient.requestQueryResponseHeader({ bar: "bar", foo: "foo" });
+      const items: Array<Pet> = [];
+      for await (const user of iter) {
+        items.push(user);
+      }
+      expect(items.length).toEqual(4);
+      expect(items).toStrictEqual(pets);
+    });
   });
 });
