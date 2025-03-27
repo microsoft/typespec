@@ -105,7 +105,7 @@ function AuthScheme(props: AuthSchemeProps) {
         <ts.ObjectExpression>
           <ay.List comma>
             <ts.ObjectProperty name="kind" jsValue="http" />
-            <ts.ObjectProperty name="scheme" jsValue={props.scheme.scheme} />
+            <ts.ObjectProperty name="scheme" jsValue={props.scheme.scheme.toLowerCase()} />
           </ay.List>
         </ts.ObjectExpression>
       );
@@ -130,11 +130,11 @@ function AuthScheme(props: AuthSchemeProps) {
           <ay.List comma>
             <ts.ObjectProperty name="kind" jsValue="oauth2" />
             <ts.ObjectProperty name="flows">
-              <ts.ArrayExpression>
-                <ay.For each={props.scheme.flows} comma line>
-                  {(flow) => <OAuth2Flow flow={flow} />}
-                </ay.For>
-              </ts.ArrayExpression>
+              [
+              <ay.For each={props.scheme.flows} comma line>
+                {(flow) => <OAuth2Flow flow={flow} />}
+              </ay.For>
+              ]
             </ts.ObjectProperty>
           </ay.List>
         </ts.ObjectExpression>
@@ -174,7 +174,6 @@ function AuthSchemeOptions(props: AuthSchemeOptionsProps) {
   );
 
   return (
-    // TODO: Alloy bug: ts.ArrayExpression inserts a leading comma even when jsValue is not defined so just using [ ] literals
     <ts.ObjectProperty name="authSchemes">
       [
       <ay.For each={supportedSchemes} comma line>
