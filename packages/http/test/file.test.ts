@@ -185,6 +185,44 @@ it("does not allow instances that improperly provide ContentType argument", asyn
   ]);
 });
 
+it("does not allow instances that improperly provide ContentType argument (is)", async () => {
+  const { diagnostics } = await compileOperationsFull(`
+    scalar myString extends string;
+    model BadFile1 is Http.File<ContentType = myString> {}
+
+    model BadFile2 is Http.File<ContentType = "asdf" | string> {}
+  `);
+
+  // Reports each diagnostic twice but with different targets.
+  // One targets the model itself (e.g. `BadFile1`), the other targets `Http.File` where the bad template arg assignment occurs.
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http/http-file-content-type-not-string",
+      severity: "error",
+      message:
+        "The 'contentType' property of the file model must be 'TypeSpec.string', a string literal, or a union of string literals. Found 'TestService.myString'.",
+    },
+    {
+      code: "@typespec/http/http-file-content-type-not-string",
+      severity: "error",
+      message:
+        "The 'contentType' property of the file model must be 'TypeSpec.string', a string literal, or a union of string literals. Found 'TestService.myString'.",
+    },
+    {
+      code: "@typespec/http/http-file-content-type-not-string",
+      severity: "error",
+      message:
+        "The 'contentType' property of the file model must be 'TypeSpec.string', a string literal, or a union of string literals. Found '\"asdf\" | string'.",
+    },
+    {
+      code: "@typespec/http/http-file-content-type-not-string",
+      severity: "error",
+      message:
+        "The 'contentType' property of the file model must be 'TypeSpec.string', a string literal, or a union of string literals. Found '\"asdf\" | string'.",
+    },
+  ]);
+});
+
 it("exact payload upload and download", async () => {
   const [
     {
@@ -542,6 +580,59 @@ describe("custom file model", () => {
     `;
   }
 
+  it("aliasing via model is", async () => {
+    const [
+      {
+        parameters: { body: requestBody },
+        responses: [
+          {
+            responses: [{ body: responseBody }],
+          },
+        ],
+      },
+    ] = await getOperations(`
+        model SpecFile is Http.File<Contents = string, ContentType = "application/json" | "application/yaml">;
+        op example(...SpecFile): SpecFile;
+      `);
+
+    strictEqual(requestBody?.bodyKind, "file");
+    expect(requestBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(requestBody?.contentTypes, ["application/json", "application/yaml"]);
+    ok(requestBody?.isText);
+
+    strictEqual(responseBody?.bodyKind, "file");
+    expect(responseBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(responseBody?.contentTypes, ["application/json", "application/yaml"]);
+    ok(responseBody?.isText);
+  });
+
+  it("extends aliased File", async () => {
+    const [
+      {
+        parameters: { body: requestBody },
+        responses: [
+          {
+            responses: [{ body: responseBody }],
+          },
+        ],
+      },
+    ] = await getOperations(`
+        model StringFile<T extends string> is Http.File<Contents = string, ContentType = T>;
+        model JsonFile extends StringFile<"application/json"> {};
+        op example(...JsonFile): JsonFile;
+      `);
+
+    strictEqual(requestBody?.bodyKind, "file");
+    expect(requestBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(requestBody?.contentTypes, ["application/json"]);
+    ok(requestBody?.isText);
+
+    strictEqual(responseBody?.bodyKind, "file");
+    expect(responseBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(responseBody?.contentTypes, ["application/json"]);
+    ok(responseBody?.isText);
+  });
+
   it("exact payload upload and download", async () => {
     const [
       {
@@ -599,6 +690,48 @@ describe("custom file model", () => {
     strictEqual(responseBody?.bodyKind, "file");
     expect(responseBody?.property).toStrictEqual(undefined);
     deepStrictEqual(responseBody?.contentTypes, ["application/json", "application/yaml"]);
+    ok(responseBody?.isText);
+    const responseXFilename = responseProperties.find(
+      (p) => p.kind === "header" && p.options.name === "x-filename",
+    );
+    ok(responseXFilename);
+    ok(isHeader(runner.program, responseBody.type.properties.get("filename")!));
+  });
+
+  it("extends aliased File with header", async () => {
+    const {
+      operations: [
+        {
+          parameters: { parameters: requestParameters, body: requestBody },
+          responses: [
+            {
+              responses: [{ properties: responseProperties, body: responseBody }],
+            },
+          ],
+        },
+      ],
+      runner,
+    } = await compileOperationsFull(`
+        model StringFile<T extends string> is Http.File<Contents = string, ContentType = T>;
+        model JsonFile extends StringFile<"application/json"> {
+          @header("x-filename") filename: string;
+        };
+        op example(...JsonFile): JsonFile;
+      `);
+
+    strictEqual(requestBody?.bodyKind, "file");
+    expect(requestBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(requestBody?.contentTypes, ["application/json"]);
+    ok(requestBody?.isText);
+    const requestXFilename = requestParameters.find(
+      (p) => p.type === "header" && p.name === "x-filename",
+    );
+    ok(requestXFilename);
+    ok(isHeader(runner.program, requestBody.type.properties.get("filename")!));
+
+    strictEqual(responseBody?.bodyKind, "file");
+    expect(responseBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(responseBody?.contentTypes, ["application/json"]);
     ok(responseBody?.isText);
     const responseXFilename = responseProperties.find(
       (p) => p.kind === "header" && p.options.name === "x-filename",

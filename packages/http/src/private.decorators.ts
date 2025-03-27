@@ -1,12 +1,14 @@
 import {
   DecoratorContext,
   DiagnosticTarget,
+  IndeterminateEntity,
   Model,
   ModelProperty,
   Namespace,
   NoTarget,
   Program,
   Type,
+  Value,
   getEffectiveModelType,
   getProperty,
   getTypeName,
@@ -49,9 +51,32 @@ export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity
   }
 };
 
+function getFileTemplateMetadata(target: Model) {
+  if (target.sourceModels.length) return;
+
+  const templateMapper = target.templateMapper;
+  if (!templateMapper || !templateMapper.args) return;
+  // Grab the contentType and contents arguments
+  const [contentTypeArg, contentsArg] = templateMapper.args;
+  if (!contentTypeArg || !contentsArg) return;
+  return { contentTypeArg, contentsArg, templateMapper: target.templateMapper };
+}
+
+function getFileDiagFormatName(
+  t: Type | Value | IndeterminateEntity | undefined,
+): string | undefined {
+  if (t?.entityKind === "Type") {
+    return getTypeName(t, { printable: true });
+  } else if (t?.type.kind === "String") {
+    return `"${t.type.value}"`;
+  }
+  return;
+}
+
 export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: Model) => {
-  const [contentTypeArg, contentsArg] = target.templateMapper!.args;
-  const mapper = target.templateMapper as { source: { node: Node } } | undefined;
+  const aliasModel = target.sourceModels.length > 0 ? target : undefined;
+  const templateMetadata = getFileTemplateMetadata(target);
+  const templateMapper = templateMetadata?.templateMapper as { source: { node: Node } } | undefined;
 
   // Validate the `ContentType` type is `TypeSpec.string`, a string literal, or a union of string literals
   const contentType = target.properties.get("contentType")!.type;
@@ -67,20 +92,18 @@ export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: 
     )
   ) {
     const contentTypeDiagnosticTarget =
-      getTemplateArgumentTarget(mapper?.source, "ContentType", 0) ??
-      (contentTypeArg as DiagnosticTarget);
+      getTemplateArgumentTarget(templateMapper?.source, "ContentType", 0) ??
+      templateMetadata?.contentTypeArg;
+
+    const contentTypeArg = templateMetadata?.contentTypeArg;
 
     const typeName =
-      contentTypeArg.entityKind === "Type"
-        ? getTypeName(contentTypeArg, { printable: true })
-        : contentTypeArg.type.kind === "String"
-          ? `"${contentTypeArg.type.value}"`
-          : "<unknown>";
+      getFileDiagFormatName(contentTypeArg) ?? getFileDiagFormatName(contentType) ?? "<unknown>";
 
     reportDiagnostic(context.program, {
       code: "http-file-content-type-not-string",
       format: { type: typeName },
-      target: contentTypeDiagnosticTarget ?? NoTarget,
+      target: contentTypeDiagnosticTarget ?? aliasModel ?? NoTarget,
     });
   }
 
@@ -88,20 +111,17 @@ export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: 
   const contents = target.properties.get("contents")!.type;
 
   if (contents.kind !== "Scalar") {
+    const contentsArg = templateMetadata?.contentsArg;
     const contentsDiagnosticTarget =
-      getTemplateArgumentTarget(mapper?.source, "Contents", 1) ?? (contentsArg as DiagnosticTarget);
+      getTemplateArgumentTarget(templateMapper?.source, "Contents", 1) ?? contentsArg;
 
     const typeName =
-      contentsArg.entityKind === "Type"
-        ? getTypeName(contentsArg, { printable: true })
-        : contentsArg.type.kind === "String"
-          ? `"${contentsArg.type.value}"`
-          : "<unknown>";
+      getFileDiagFormatName(contentsArg) ?? getFileDiagFormatName(contents) ?? "<unknown>";
 
     reportDiagnostic(context.program, {
       code: "http-file-contents-not-scalar",
       format: { type: typeName },
-      target: contentsDiagnosticTarget ?? NoTarget,
+      target: contentsDiagnosticTarget ?? aliasModel ?? NoTarget,
     });
   }
 
