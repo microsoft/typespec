@@ -2035,7 +2035,10 @@ describe("emit correct code for `@error` models", () => {
         }
       `,
       "Error.cs",
-      ["public partial class Error : HttpServiceException {", "public Error() : base(400)"],
+      [
+        "public partial class Error : HttpServiceException {",
+        "public Error(int statusCode) : base(statusCode)",
+      ],
     );
   });
   it("emits first value when `@statusCode` is defined with an union", async () => {
@@ -2049,7 +2052,10 @@ describe("emit correct code for `@error` models", () => {
         }
       `,
       "Error.cs",
-      ["public partial class Error : HttpServiceException {", "public Error() : base(200)"],
+      [
+        "public partial class Error : HttpServiceException {",
+        "public Error(int statusCode) : base(statusCode)",
+      ],
     );
   });
   it("emits error models when they inherit the `@error` decorator and resolves all the inheritance correctly", async () => {

@@ -13,6 +13,7 @@ import {
   Type,
   Union,
   getFriendlyName,
+  getMinValue,
   isErrorModel,
   isNullType,
   isNumericType,
@@ -1517,4 +1518,28 @@ export async function getOpenApiConfig(program: Program): Promise<OpenApiConfig>
     fileName: oaiOptions?.["output-file"],
     options: oaiOptions,
   };
+}
+
+export function getStatusCode(program: Program, model: Model) {
+  const statusCodeProperty = new ModelInfo().filterAllProperties(program, model, (p) =>
+    isStatusCode(program, p),
+  );
+
+  if (!statusCodeProperty) return undefined;
+
+  const { type } = statusCodeProperty;
+  switch (type.kind) {
+    case "Union":
+      return {
+        name: statusCodeProperty.name,
+        value: statusCodeProperty.name,
+        requiresConstructorArgument: true,
+      };
+    case "Number":
+      return {
+        value: type.value,
+      };
+    default:
+      return { value: getMinValue(program, statusCodeProperty) ?? `default` };
+  }
 }

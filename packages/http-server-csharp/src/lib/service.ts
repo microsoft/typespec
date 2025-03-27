@@ -32,7 +32,6 @@ import {
   Type,
   Union,
   getDoc,
-  getMinValue,
   getNamespaceFullName,
   getService,
   isErrorModel,
@@ -106,6 +105,7 @@ import {
   getModelInstantiationName,
   getOpenApiConfig,
   getOperationVerbDecorator,
+  getStatusCode,
   isEmptyResponseModel,
   isValueType,
 } from "./utils.js";
@@ -283,7 +283,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const doc = getDoc(this.emitter.getProgram(), model);
       const attributes = getModelAttributes(this.emitter.getProgram(), model, className);
       const exceptionConstructor = isErrorType
-        ? this.getModelExceptionConstructor(this.emitter.getProgram(), model, className)
+        ? this.getModelExceptionConstructor(this.emitter.getProgram(), model, name, className)
         : "";
 
       this.#metadateMap.set(model, new CSharpType({ name: className, namespace: namespace }));
@@ -303,39 +303,20 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return decl;
     }
 
-    getModelExceptionConstructor(program: Program, model: Model, className: string): string {
-      function getDefinedStatusCode() {
-        const statusCodeProperty = new ModelInfo().filterAllProperties(program, model, (p) =>
-          isStatusCode(program, p),
-        );
-
-        if (!statusCodeProperty) return undefined;
-
-        const { type } = statusCodeProperty;
-        switch (type.kind) {
-          case "Union": {
-            const firstVariant = type.variants.values().next().value;
-            return firstVariant?.type.kind === "Number" ? firstVariant.type.value : undefined;
-          }
-          case "Number":
-            return type.value;
-          default:
-            return getMinValue(program, statusCodeProperty) ?? undefined;
-        }
-      }
-
-      if (!isErrorModel(program, model)) {
-        return "";
-      }
-
-      const definedStatusCode = getDefinedStatusCode();
-      const constructor = this.getExceptionConstructorData(program, model);
-
-      return `public ${className}(${constructor.properties}) : base(${definedStatusCode ? definedStatusCode : "default"}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
-        { ${constructor.body ? `\n${constructor.body}` : ""}\n\t}`;
+    getModelExceptionConstructor(
+      program: Program,
+      model: Model,
+      modelName: string,
+      className: string,
+    ): string | undefined {
+      if (!isErrorModel(program, model)) return undefined;
+      const constructor = this.getExceptionConstructorData(program, model, modelName);
+      const isParent = !!model.derivedModels?.length;
+      return `public ${className}(${constructor.properties}) : base(${constructor.statusCode?.value ?? `default`}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
+        { ${constructor.body ? `\n${constructor.body}` : ""}\n\t}${isParent ? `\npublic ${className}(int statusCode, object? value = null, Dictionary<string, string>? headers = default): base(statusCode, value, headers) {}\n` : ""}`;
     }
 
-    getExceptionConstructorData(program: Program, model: Model) {
+    getExceptionConstructorData(program: Program, model: Model, modelName: string) {
       const allProperties = new ModelInfo().getAllProperties(program, model) ?? [];
       const propertiesWithDefaults = allProperties.map((prop) => {
         const { defaultValue: typeDefault } = this.#findPropertyType(prop);
@@ -357,9 +338,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const body: string[] = [];
       const header: string[] = [];
       const value: string[] = [];
+
+      const statusCode = getStatusCode(program, model);
+      if (statusCode?.requiresConstructorArgument) {
+        properties.push(`int ${statusCode.value}`);
+      }
+
       for (const { prop, defaultValue } of sortedProperties) {
         let propertyName = ensureCSharpIdentifier(program, prop, prop.name);
-        const modelName: string | undefined = this.emitter.getContext()["name"];
         if (modelName === propertyName) {
           propertyName = `${propertyName}Prop`;
         }
@@ -383,6 +369,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         body: body.join("\n"),
         header: header.join(", "),
         value: value.join(","),
+        statusCode: statusCode,
       };
     }
 

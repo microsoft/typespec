@@ -39,12 +39,16 @@ model Standard5XXResponse {
 }
 ```
 
-### If `@statusCode` is defined as a union, the first value will be returned
-In this case, 402 will be returned:
-
+### If `@statusCode` is defined as a union, the resulting model constructor will require a status code
+In this case, when the model is generated, it will require a status code to be provided:
 ```tsp
 model Standard4XXResponse {
   @statusCode
   statusCode: 400 | 402;
 }
+
+```
+As a result, the status code must be passed when creating an instance of the model:
+```csharp 
+throw new Standard4XXResponse(400);
 ```
