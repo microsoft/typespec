@@ -72,14 +72,13 @@ public final class ParameterTransformation {
      * @return true if the transformation is group-by, false otherwise.
      */
     public boolean isGroupBy() {
-        return !parameterMappings.isEmpty()
-            && parameterMappings.iterator().next().getOutParameterPropertyName() == null;
+        return hasMappings() && parameterMappings.iterator().next().getOutParameterPropertyName() == null;
     }
 
     /**
      * Gets the description of the group-by "input parameter" that SDK Method takes.
      *
-     * @return the input parameter, or null if there are no mappings.
+     * @return the input parameter.
      * @throws IllegalStateException if the transformation is not a group-by transformation.
      */
     public ClientMethodParameter getGroupByInParameter() {
@@ -91,8 +90,10 @@ public final class ParameterTransformation {
     }
 
     /**
+     * Gets the property within the group-by "input parameter" model, that gets flattened
+     * (read from the "input parameter") then send to the service.
      *
-     * @return
+     * @return the property.
      * @throws IllegalStateException if the transformation is not a group-by transformation.
      */
     public ClientModelProperty getGroupByInParameterProperty() {

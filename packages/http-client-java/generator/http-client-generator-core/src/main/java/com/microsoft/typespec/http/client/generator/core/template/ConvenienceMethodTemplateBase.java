@@ -234,17 +234,11 @@ abstract class ConvenienceMethodTemplateBase {
 
     abstract void writeThrowException(ClientMethodType methodType, String exceptionExpression, JavaBlock methodBlock);
 
-//    private static boolean isGroupByTransformation(ParameterTransformation detail) {
-//        return !CoreUtils.isNullOrEmpty(detail.getMappings())
-//            && detail.getMappings().iterator().next().getOutParameterPropertyName() == null;
-//    }
-
     private static void writeParameterTransformation(ParameterTransformation transformation,
         ClientMethod convenienceMethod, ClientMethod protocolMethod, JavaBlock methodBlock,
         Map<MethodParameter, MethodParameter> parametersMap) {
         if (transformation.isGroupBy()) {
             // grouping
-            // ParameterMapping mapping = transformation.getMappings().iterator().next();
             final ClientMethodParameter sourceParameter = transformation.getGroupByInParameter();
 
             boolean sourceParameterInMethod = false;

@@ -333,14 +333,8 @@ public class ClientMethod {
                 : parameterName;
 
             String result;
-            if (getParameterTransformations().asStream()
-                .anyMatch(d -> d.getOutParameter().getName().equals(parameterName + "1"))) {
-                result = getParameterTransformations().asStream()
-                    .filter(d -> d.getOutParameter().getName().equals(parameterName + "1"))
-                    .findFirst()
-                    .get()
-                    .getOutParameter()
-                    .getName();
+            if (getParameterTransformations().hasOutParameter(parameterName + "1")) {
+                result = parameterName + "1";
             } else {
                 result = parameterWireName;
             }

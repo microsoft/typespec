@@ -370,39 +370,6 @@ public class ClientMethodExampleWriter {
         return parameterValue == null ? null : (Map<String, Object>) parameterValue.getObjectValue();
     }
 
-//    private boolean isGroupingParameter(ClientMethod convenienceMethod, MethodParameter methodParameter) {
-//        List<ParameterTransformation> details = convenienceMethod.getParameterTransformations();
-//        if (CoreUtils.isNullOrEmpty(details) || details.size() <= 1) {
-//            return false;
-//        }
-//
-//        return details.stream()
-//            .allMatch(detail -> !CoreUtils.isNullOrEmpty(detail.getMappings()) && detail.getOutParameter() != null &&
-//            // same name
-//                detail.getMappings()
-//                    .stream()
-//                    .allMatch(mapping -> Objects.equals(mapping.getInParameter().getName(),
-//                        methodParameter.getClientMethodParameter().getName())));
-//    }
-//
-//    private boolean isFlattenParameter(ClientMethod convenienceMethod, MethodParameter methodParameter) {
-//        List<ParameterTransformation> details = convenienceMethod.getParameterTransformations();
-//        if (CoreUtils.isNullOrEmpty(details) || details.size() != 1) {
-//            return false;
-//        }
-//        return details.stream()
-//            .anyMatch(detail -> !CoreUtils.isNullOrEmpty(detail.getMappings())
-//                && detail.getOutParameter() != null
-//                && detail.getMappings()
-//                    .stream()
-//                    .allMatch(mapping -> mapping.getOutParameterPropertyName() != null
-//                        && mapping.getInParameterProperty() == null)
-//                && detail.getMappings()
-//                    .stream()
-//                    .anyMatch(mapping -> Objects.equals(methodParameter.getClientMethodParameter().getName(),
-//                        mapping.getInParameter().getName())));
-//    }
-
     public Set<String> getImports() {
         return new HashSet<>(this.imports);
     }

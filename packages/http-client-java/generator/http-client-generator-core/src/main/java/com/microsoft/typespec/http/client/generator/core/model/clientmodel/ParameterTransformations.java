@@ -63,9 +63,63 @@ public final class ParameterTransformations {
      * @return the set of parameter names.
      */
     public Set<String> getOutParameterNames() {
-        return transformations.stream().map(d -> d.getOutParameter().getName()).collect(Collectors.toSet());
+        return asStream().map(d -> d.getOutParameter().getName()).collect(Collectors.toSet());
     }
 
+    /**
+     * Checks if this transformation is a group-by transformation with the given parameter representing
+     * the grouped parameter that SDK Method would take.
+     *
+     * @param methodParameter the method parameter to check.
+     * @return true if the transformation is a group-by transformation, false otherwise.
+     */
+    public boolean isGroupingParameter(MethodParameter methodParameter) {
+        if (transformations.isEmpty() || transformations.size() == 1) {
+            return false;
+        }
+        return transformations.stream()
+            .allMatch(t -> t.hasMappings()
+                && t.getMappings().stream().allMatch(mapping -> matches(mapping.getInParameter(), methodParameter)));
+    }
+
+    /**
+     * Checks if the transformation represents a spread transformation with the given parameter as one of the
+     * spread-ed (flattened) parameter that SDK method takes.
+     * <p>
+     * An example an operation using spread operator (...) in the spec is -
+     * op add(...User): void
+     * where 'User' is a model with properties 'name' and 'age', The SDK Method with flattened parameter would look
+     * like:
+     * public void add(String name, int age) { ... }
+     * </p>
+     *
+     * @return true if the transformation is spread with the given parameter flattened, false otherwise.
+     */
+    public boolean isFlattenParameter(MethodParameter methodParameter) {
+        if (transformations.size() != 1) {
+            return false;
+        }
+        final ParameterTransformation transformation = transformations.get(0);
+        if (!transformation.hasMappings()) {
+            return false;
+        }
+
+        final List<ParameterMapping> mappings = transformation.getMappings();
+        final boolean b = mappings.stream()
+            .allMatch(
+                mapping -> mapping.getOutParameterPropertyName() != null && mapping.getInParameterProperty() == null);
+        if (b) {
+            return mappings.stream().anyMatch(mapping -> matches(mapping.getInParameter(), methodParameter));
+        }
+        return false;
+    }
+
+    /**
+     * Gets the transformation mapping if the given parameter is an input parameter.
+     *
+     * @param methodParameter the method parameter to check.
+     * @return the input parameter mapping if found, null otherwise.
+     */
     public ParameterMapping getInMapping(MethodParameter methodParameter) {
         if (transformations.isEmpty()) {
             return null;
@@ -77,31 +131,6 @@ public final class ParameterTransformations {
             .filter(mapping -> matches(mapping.getInParameter(), methodParameter))
             .findFirst()
             .orElse(null);
-    }
-
-    public boolean isGroupingParameter(MethodParameter methodParameter) {
-        if (transformations.isEmpty() || transformations.size() == 1) {
-            return false;
-        }
-        // TODO: anu : simplify this check
-        return transformations.stream().allMatch(t -> !t.getMappings().isEmpty() && t.getOutParameter() != null &&
-        // same name
-            t.getMappings().stream().allMatch(mapping -> matches(mapping.getInParameter(), methodParameter)));
-    }
-
-    public boolean isFlattenParameter(MethodParameter methodParameter) {
-        if (transformations.size() != 1) {
-            return false;
-        }
-        // TODO: anu : simplify this check
-        return transformations.stream()
-            .anyMatch(t -> t.hasMappings()
-                && t.getOutParameter() != null
-                && t.getMappings()
-                    .stream()
-                    .allMatch(mapping -> mapping.getOutParameterPropertyName() != null
-                        && mapping.getInParameterProperty() == null)
-                && t.getMappings().stream().anyMatch(mapping -> matches(mapping.getInParameter(), methodParameter)));
     }
 
     public ClientMethodParameter getOutParameterIfInParameterFlattened(MethodParameter inParameter) {
