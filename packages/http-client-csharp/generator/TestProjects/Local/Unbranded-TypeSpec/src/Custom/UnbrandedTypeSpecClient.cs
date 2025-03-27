@@ -6,20 +6,21 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 
 namespace UnbrandedTypeSpec
 {
     /// <summary>
-    /// Demonstrates creating a client with an unbranded authentication token provider.
+    /// Demonstrates creating a custom client constructor to enable OAuth authentication.
     /// </summary>
     public partial class UnbrandedTypeSpecClient
     {
         private readonly Dictionary<string, object>[] flows = [
             new Dictionary<string, object> {
-                    { GetTokenOptions.ScopesPropertyName, new string[] { "baselineScope" } },
-                    { GetTokenOptions.TokenUrlPropertyName , "https://myauthserver.com/token"},
-                    { GetTokenOptions.RefreshUrlPropertyName, "https://myauthserver.com/refresh"}
-                }
+                { GetTokenOptions.ScopesPropertyName, new string[] { "baselineScope" } },
+                { GetTokenOptions.TokenUrlPropertyName , "https://myauthserver.com/token"},
+                { GetTokenOptions.RefreshUrlPropertyName, "https://myauthserver.com/refresh"}
+            }
         ];
 
         /// <summary>
