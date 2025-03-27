@@ -102,6 +102,32 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
       });
     });
 
+    it("part of a simple union", async () => {
+      const res = await openApiFor(
+        `
+      op upload(@header contentType: "multipart/form-data", @multipartBody _: {profileImage: HttpPart<UnionEnum>}): void;
+      union UnionEnum { "a", "b" }
+      `,
+      );
+      const op = res.paths["/"].post;
+      deepStrictEqual(op.requestBody.content["multipart/form-data"], {
+        schema: {
+          type: "object",
+          properties: {
+            profileImage: {
+              $ref: "#/components/schemas/UnionEnum",
+            },
+          },
+          required: ["profileImage"],
+        },
+        encoding: {
+          profileImage: {
+            contentType: "text/plain",
+          },
+        },
+      });
+    });
+
     it("part of type union `HttpPart<bytes | {content: bytes}>` produce `type: string, format: binary`", async () => {
       const res = await openApiFor(
         `
