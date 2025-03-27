@@ -16,5 +16,27 @@ model Thing { id: string }
 
 The test expects a TypeScript operation that treats the model Thing as bytes.
 
-```ts src/api/widgetsClient/widgetsClientOperations.ts function get
+```ts src/api/clientOperations.ts function get
+export async function get(
+  client: ClientContext,
+  body: string,
+  options?: GetOptions,
+): Promise<void> {
+  const path = parse("/").expand({});
+  const httpRequestOptions = {
+    headers: {
+      "content-type": options?.contentType ?? "application/jsonl",
+    },
+    body: body,
+  };
+  const response = await client.pathUnchecked(path).post(httpRequestOptions);
+
+  if (typeof options?.operationOptions?.onResponse === "function") {
+    options?.operationOptions?.onResponse(response);
+  }
+  if (+response.status === 204 && !response.body) {
+    return;
+  }
+  throw createRestError(response);
+}
 ```

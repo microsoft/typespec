@@ -19,8 +19,7 @@ export function getOperationParameters(
 ): Record<string, ts.ParameterDescriptor | ay.Children> {
   const transformNamer = useTransformNamePolicy();
   const requiredParameters = operation.parameters.properties
-    .filter((p) => !p.property.optional && !hasDefaultValue(p))
-    .filter((p) => p.path.length === 1);
+    .filter((p) => !p.property.optional && !hasDefaultValue(p));
 
   const parameters: Record<string, ts.ParameterDescriptor | ay.Children> = {};
 

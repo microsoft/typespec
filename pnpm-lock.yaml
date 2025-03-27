@@ -458,6 +458,9 @@ importers:
       '@typespec/rest':
         specifier: workspace:^
         version: link:../rest
+      '@typespec/streams':
+        specifier: workspace:^
+        version: link:../streams
       concurrently:
         specifier: ^9.1.2
         version: 9.1.2
