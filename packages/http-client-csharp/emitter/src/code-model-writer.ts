@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { resolvePath } from "@typespec/compiler";
+import { PreserveType, stringifyRefs } from "json-serialize-refs";
+import { configurationFileName, tspOutputFileName } from "./constants.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 import { CodeModel } from "./type/code-model.js";
-import { configurationFileName, tspOutputFileName } from "./constants.js";
-import { PreserveType, stringifyRefs } from "json-serialize-refs";
-import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { Configuration } from "./type/configuration.js";
-
 
 /**
  * Write the code model to the output folder.
@@ -28,7 +27,11 @@ export async function writeCodeModel(
   );
 }
 
-export async function writeConfiguration(context: CSharpEmitterContext, configurations: Configuration, outputFolder: string) {
+export async function writeConfiguration(
+  context: CSharpEmitterContext,
+  configurations: Configuration,
+  outputFolder: string,
+) {
   await context.program.host.writeFile(
     resolvePath(outputFolder, configurationFileName),
     prettierOutput(JSON.stringify(configurations, null, 2)),

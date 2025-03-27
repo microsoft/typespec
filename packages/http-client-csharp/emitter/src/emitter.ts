@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  createSdkContext,
-  SdkContext,
-  UsageFlags,
-} from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -17,6 +13,7 @@ import {
 import fs, { statSync } from "fs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { writeCodeModel, writeConfiguration } from "./code-model-writer.js";
 import {
   _minSupportedDotNetSdkVersion,
   configurationFileName,
@@ -30,7 +27,6 @@ import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./op
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { CSharpEmitterContext, SdkTypeCache } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
-import { writeCodeModel, writeConfiguration } from "./code-model-writer.js";
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
