@@ -8,4 +8,4 @@ packages:
   - "@typespec/http"
 ---
 
-Cleanup errors and diagnostics in Typkeits, efv2 and http-client-js
+Cleanup errors and diagnostics in Typekit, efv2 and http-client-js
