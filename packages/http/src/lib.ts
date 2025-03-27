@@ -161,6 +161,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`File model cannot define extra properties. Found '${"propName"}'.`,
       },
     },
+    "http-file-disallowed-metadata": {
+      severity: "error",
+      messages: {
+        default: paramMessage`File model cannot define HTTP metadata type '${"metadataType"}' on property '${"propName"}'.`,
+      },
+    },
     "formdata-no-part-name": {
       severity: "error",
       messages: {
