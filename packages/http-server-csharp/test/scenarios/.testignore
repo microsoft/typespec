@@ -52,3 +52,6 @@ versioning/renamedFrom/main.tsp
 server/versions/versioned/main.tsp
 serialization/encoded-name/json/main.tsp
 server/path/multiple/main.tsp
+# Following scenarios are passing and not included in the ignore list. Added here for easy isolated test debugging
+#authentication/union/main.tsp
+#parameters/basic/main.tsp
