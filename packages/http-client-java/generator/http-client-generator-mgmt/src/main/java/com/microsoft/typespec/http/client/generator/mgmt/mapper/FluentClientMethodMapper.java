@@ -95,18 +95,21 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
                 visibility = NOT_GENERATE;
             } else {
                 // utility methods
-                // in async-stack, single page method is not visible, but the method is required for other client methods
+                // in async-stack, single page method is not visible, but the method is required for other client
+                // methods
                 visibility = NOT_VISIBLE;
             }
         } else if (methodType == ClientMethodType.PagingSyncSinglePage) {
             visibility = syncStack ? NOT_VISIBLE : NOT_GENERATE;
-        } else if (!syncStack && hasContextParameter
+        } else if (!syncStack
+            && hasContextParameter
             && (methodType == ClientMethodType.SimpleAsyncRestResponse
                 || methodType == ClientMethodType.PagingAsync
                 || methodType == ClientMethodType.LongRunningBeginAsync
                 || methodType == ClientMethodType.LongRunningAsync)) {
             // utility methods
-            // for async-stack, async + Context method is not visible, but the method is required for sync method implementation
+            // for async-stack, async + Context method is not visible, but the method is required for sync method
+            // implementation
             visibility = NOT_VISIBLE;
         } else {
             if (!methodType.isSync() && hasContextParameter) {
