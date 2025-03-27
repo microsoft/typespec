@@ -138,18 +138,6 @@ function fromSdkClient(
   }
 }
 
-function updateSdkClientTypeReferences(
-  sdkContext: CSharpEmitterContext,
-  sdkClient: SdkClientType,
-  inputClient: InputClient,
-) {
-  sdkContext.__typeCache.clients.set(sdkClient, inputClient);
-  sdkContext.__typeCache.crossLanguageDefinitionIds.set(
-    sdkClient.crossLanguageDefinitionId,
-    sdkClient.__raw.type,
-  );
-}
-
 function getMethodUri(p: SdkEndpointParameter | undefined): string {
   if (!p) return "";
 
