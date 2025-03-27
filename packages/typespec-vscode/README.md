@@ -61,21 +61,21 @@ The extension allows emitting various outputs from TypeSpec:
   - Java
   - JavaScript/TypeScript
 
-Invoke `TypeSpec: Emit From TypeSpec` to emit needed outputs:
+The action appears in the context menu on a tsp file. Or invoke `TypeSpec: Emit From TypeSpec` to emit needed outputs:
 
-![vscode_tsp_to_openapi3_generation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_tsp_to_openapi3_generation.gif)
+<!--![vscode_tsp_to_openapi3_generation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_tsp_to_openapi3_generation.gif)-->
 
 ### Import TypeSpec from OpenAPI 3
 
 The extension supports to import TypeSpec from OpenAPI 3. Invoke `TypeSpec: Import TypeSpec from OpenAPI 3` to begin importing.
 
-![vscode_import_tsp_from_openapi3.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_import_tsp_from_openapi3.gif)
+<!--![vscode_import_tsp_from_openapi3.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_import_tsp_from_openapi3.gif)-->
 
 ### Preview API Documentation
 
 The extension allows to preview API documentation. The action appears in the context menu on a tsp file. Or invoke `TypeSpec: Preview API Documentation` to visualize your API definitions.
 
-![vscode_preview_api_documentation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_preview_api_documentation.gif)
+<!--![vscode_preview_api_documentation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_preview_api_documentation.gif)-->
 
 ## Commands
 
