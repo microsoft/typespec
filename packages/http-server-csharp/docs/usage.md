@@ -13,7 +13,7 @@ The code layout inside the 'generated' folder is as follows:
   - **controllers**: A set of ASP.Net core MVC controllers representing the operations in the spec, one for each interface or namespace with operations
   - **lib**: A set of library files used in implementing generated models and controllers
   - **models**: A set of models, each serving one of two distinct purposes:
-    - Request/Response Models: Represent the data used in requests and responses.  
+    - Request/Response Models: Represent the data used in requests and responses.
     - Exception Models: Represent errors. These models inherit from `HttpServiceException` and are designed to encapsulate error details, making them suitable for throwing and handling exceptions.
   - **operations**: A set of interfaces called by the controllers, that should be implemented with the business logic for each operation.
 

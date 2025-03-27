@@ -337,11 +337,19 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     getExceptionConstructorData(program: Program, model: Model) {
       const allProperties = new ModelInfo().getAllProperties(program, model) ?? [];
-      const sortedProperties = allProperties
-        .filter((p) => !isStatusCode(program, p))
-        .sort((a, b) => {
-          if (!a.optional && !a.defaultValue && (b.optional || b.defaultValue)) return -1;
-          if (!b.optional && !b.defaultValue && (a.optional || a.defaultValue)) return 1;
+      const propertiesWithDefaults = allProperties.map((prop) => {
+        const { defaultValue: typeDefault } = this.#findPropertyType(prop);
+        const defaultValue = prop.defaultValue
+          ? code`${JSON.stringify(serializeValueAsJson(program, prop.defaultValue, prop))}`
+          : typeDefault;
+        return { prop, defaultValue };
+      });
+
+      const sortedProperties = propertiesWithDefaults
+        .filter(({ prop }) => !isStatusCode(program, prop))
+        .sort(({ prop: a, defaultValue: aDefault }, { prop: b, defaultValue: bDefault }) => {
+          if (!a.optional && !aDefault && (b.optional || bDefault)) return -1;
+          if (!b.optional && !bDefault && (a.optional || aDefault)) return 1;
           return 0;
         });
 
@@ -349,15 +357,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const body: string[] = [];
       const header: string[] = [];
       const value: string[] = [];
-      for (const prop of sortedProperties!) {
+      for (const { prop, defaultValue } of sortedProperties) {
         let propertyName = ensureCSharpIdentifier(program, prop, prop.name);
-        if (model.name === propertyName) {
+        const modelName: string | undefined = this.emitter.getContext()["name"];
+        if (modelName === propertyName) {
           propertyName = `${propertyName}Prop`;
         }
-        const { defaultValue: typeDefault } = this.#findPropertyType(prop);
-        const defaultValue = prop.defaultValue
-          ? code`${JSON.stringify(serializeValueAsJson(program, prop.defaultValue, prop))}`
-          : typeDefault;
 
         const type = getCSharpType(program, prop.type);
         properties.push(
