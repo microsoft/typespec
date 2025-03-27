@@ -2,7 +2,9 @@
 {% set operations_description = "async operations" if async_mode else "operations" %}
 {% set return_none_type_annotation = " -> None" if async_mode else "" %}
 # coding=utf-8
-{{ code_model.options['license_header'] }}
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
 {{ imports }}
 {{ unset }}
 {% if code_model.options["builders_visibility"] == "embedded" and not async_mode %}
