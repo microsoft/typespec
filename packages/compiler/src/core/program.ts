@@ -153,7 +153,6 @@ export async function compile(
   options: CompilerOptions = {},
   oldProgram?: Program, // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ) {
-  console.log("Options", options.options);
   const logger = createLogger({ sink: host.logSink });
   const { program, shouldAbort } = await logger.trackAction(
     "Compiling...",

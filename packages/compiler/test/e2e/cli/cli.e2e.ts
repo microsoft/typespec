@@ -225,8 +225,6 @@ describe("compile", () => {
         cwd: getScenarioDir("with-option"),
       },
     );
-    console.log("Stdout:---");
-    console.log(stdout);
     expect(stdout).toContain("Compilation completed successfully.");
     const file = await readFile(
       resolvePath(getScenarioDir("with-option"), "tsp-output/custom-dir-name/out.txt"),
