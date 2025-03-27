@@ -192,8 +192,8 @@ export function spawnExecutionAndLogToOutput(
   exe: string,
   args: string[],
   cwd: string,
-  logStderrAsError: boolean,
   env?: NodeJS.ProcessEnv,
+  logStderrAsError: boolean = false,
 ): Promise<ExecOutput> {
   return spawnExecution(exe, args, cwd, env, {
     onStdioOut: (data) => {

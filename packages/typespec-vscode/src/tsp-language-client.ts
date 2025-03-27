@@ -100,7 +100,6 @@ export class TspLanguageClient {
         "node",
         [this.initializeResult!.compilerCliJsPath!, ...args],
         cwd,
-        true,
       );
       if (result.exitCode !== 0) {
         logger.error(

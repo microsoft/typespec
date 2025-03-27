@@ -164,12 +164,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
               },
               async () => {
                 try {
-                  return await spawnExecutionAndLogToOutput(
-                    "npm",
-                    ["install"],
-                    packageJsonFolder,
-                    true,
-                  );
+                  return await spawnExecutionAndLogToOutput("npm", ["install"], packageJsonFolder);
                 } catch (error: any) {
                   // if we found the error is because confliction from @typespec/compiler, try to output more log to help user troubleshooting
                   if (
@@ -290,14 +285,12 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
                 TSP_OPENAPI3_COMMAND,
                 [sourceFile, "--output-dir", `${targetFolder}`],
                 targetFolder,
-                false,
               );
             } else {
               return await spawnExecutionAndLogToOutput(
                 "npx",
                 [TSP_OPENAPI3_COMMAND, sourceFile, "--output-dir", `${targetFolder}`],
                 targetFolder,
-                false,
               );
             }
           },
@@ -365,7 +358,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
       ): Promise<ExecOutput> {
         const pkgName = `${TSP_OPENAPI3_PACKAGE}@${version ?? "latest"}`;
         const args = isGlobal ? ["install", "-g", pkgName] : ["install", "--save-dev", pkgName];
-        return await spawnExecutionAndLogToOutput("npm", args, folder, true);
+        return await spawnExecutionAndLogToOutput("npm", args, folder);
       }
     },
   );

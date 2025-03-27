@@ -779,7 +779,7 @@ async function compile(
     args.push(logPretty ? "true" : "false");
   }
 
-  return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile), false, {
+  return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile), {
     NO_COLOR: "true",
   });
 }
