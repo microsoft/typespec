@@ -6,4 +6,11 @@ export interface Configuration {
   "package-name": string | null;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "disable-xml-docs"?: boolean;
+  license?: {
+    name: string;
+    company?: string;
+    header?: string;
+    link?: string;
+    description?: string;
+  };
 }

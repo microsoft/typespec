@@ -15,19 +15,19 @@ export function getProjectDocs(
       filename: `README.md`,
       emitter: emitter,
       getContents: () => (mocks.length > 0 ? getMockReadme(mocks) : getNoMockReadme()),
-      path: "..",
+      path: ".",
     }),
     new LibrarySourceFile({
       filename: `usage.md`,
       emitter: emitter,
       getContents: () => getUsageDoc(),
-      path: "../docs",
+      path: "docs",
     }),
     new LibrarySourceFile({
       filename: `emitter.md`,
       emitter: emitter,
       getContents: () => getEmitterDoc(),
-      path: "../docs",
+      path: "docs",
     }),
   );
 

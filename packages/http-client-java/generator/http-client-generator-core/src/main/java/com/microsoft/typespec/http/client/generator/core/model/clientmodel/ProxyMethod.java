@@ -363,6 +363,10 @@ public class ProxyMethod {
                             JavaSettings.getInstance().isInputStreamForBinary()
                                 ? ClassType.INPUT_STREAM
                                 : ClassType.BINARY_DATA);
+                    } else if (innerGenericType.getName().equals("Response")
+                        && innerGenericType.getTypeArguments()[0] == GenericType.FLUX_BYTE_BUFFER
+                        && JavaSettings.getInstance().isFluent()) {
+                        return GenericType.Response(ClassType.BINARY_DATA);
                     }
                 }
 

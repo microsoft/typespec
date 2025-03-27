@@ -193,13 +193,18 @@ export function spawnExecutionAndLogToOutput(
   args: string[],
   cwd: string,
   env?: NodeJS.ProcessEnv,
+  logStderrAsError: boolean = false,
 ): Promise<ExecOutput> {
   return spawnExecution(exe, args, cwd, env, {
     onStdioOut: (data) => {
       logger.info(data.trim());
     },
     onStdioError: (error) => {
-      logger.error(error.trim());
+      if (logStderrAsError) {
+        logger.error(error.trim());
+      } else {
+        logger.info(error.trim());
+      }
     },
     onError: (error) => {
       if (error?.code === ERROR_CODE_ENOENT) {
