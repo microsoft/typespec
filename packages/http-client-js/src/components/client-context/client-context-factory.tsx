@@ -80,8 +80,8 @@ function ClientFactoryArguments(props: ClientFactoryArgumentsProps) {
     ...params,
     props.credentialsRef ? (
       <ClientOptionsExpression>
-          {props.credentialsRef}
-          <AuthSchemeOptions client={props.client} />
+        {props.credentialsRef}
+        <AuthSchemeOptions client={props.client} />
       </ClientOptionsExpression>
     ) : (
       <ClientOptionsExpression />
@@ -103,9 +103,10 @@ function AuthScheme(props: AuthSchemeProps) {
     case "http":
       return (
         <ts.ObjectExpression>
-          <ts.ObjectProperty name="kind" jsValue="http" />
-          {", "}
-          <ts.ObjectProperty name="scheme" jsValue={props.scheme.scheme} />
+          <ay.List comma>
+            <ts.ObjectProperty name="kind" jsValue="http" />
+            <ts.ObjectProperty name="scheme" jsValue={props.scheme.scheme} />
+          </ay.List>
         </ts.ObjectExpression>
       );
     case "apiKey":
@@ -129,11 +130,11 @@ function AuthScheme(props: AuthSchemeProps) {
           <ay.List comma>
             <ts.ObjectProperty name="kind" jsValue="oauth2" />
             <ts.ObjectProperty name="flows">
-              {"["}
+              <ts.ArrayExpression>
                 <ay.For each={props.scheme.flows} comma line>
                   {(flow) => <OAuth2Flow flow={flow} />}
                 </ay.For>
-              {"]"}
+              </ts.ArrayExpression>
             </ts.ObjectProperty>
           </ay.List>
         </ts.ObjectExpression>
@@ -153,7 +154,7 @@ function OAuth2Flow(props: OAuth2FlowProps) {
     kind: props.flow.type,
     ...props.flow,
     // scopes are sometimes duplicated so converting to set and back to dedupe
-    scopes: [...new Set(props.flow.scopes.map(s => s.value))],
+    scopes: [...new Set(props.flow.scopes.map((s) => s.value))],
   };
 
   return <ts.ObjectExpression jsValue={rewrittenFlow} />;
@@ -168,16 +169,18 @@ function AuthSchemeOptions(props: AuthSchemeOptionsProps) {
 
   // Filtering out custom http schemes for "http/custom" spector scenario
   // TODO: Should typekit allow for arbitrary strings on scheme with http auth type?
-  const supportedSchemes = clientCredential.schemes.filter(s => s.type !== "http" || ["basic", "bearer"].includes(s.scheme));
+  const supportedSchemes = clientCredential.schemes.filter(
+    (s) => s.type !== "http" || ["basic", "bearer"].includes(s.scheme),
+  );
 
   return (
     // TODO: Alloy bug: ts.ArrayExpression inserts a leading comma even when jsValue is not defined so just using [ ] literals
     <ts.ObjectProperty name="authSchemes">
-      {"["}
+      [
       <ay.For each={supportedSchemes} comma line>
         {(scheme) => <AuthScheme scheme={scheme} client={props.client} />}
       </ay.For>
-      {"]"}
+      ]
     </ts.ObjectProperty>
   );
 }

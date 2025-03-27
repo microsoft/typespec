@@ -81,10 +81,10 @@ function getCredentialType(scheme: HttpAuth) {
     case "apiKey":
       return httpRuntimeTemplateLib.ApiKeyCredential;
     case "http":
-      if (scheme.scheme === "bearer") {
-        return httpRuntimeTemplateLib.BearerTokenCredential;
-      } else {
+      if (scheme.scheme === "Basic") {
         return httpRuntimeTemplateLib.BasicCredential;
+      } else {
+        return httpRuntimeTemplateLib.BearerTokenCredential;
       }
     case "oauth2":
       const flowType = ay.mapJoin(
