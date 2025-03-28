@@ -340,9 +340,9 @@ function getArrayConstraintConverter(): string {
         }
     }
 
-    public abstract class ConstrainedArrayConverter<T, TCollection> : JsonConverter<TCollection>
+    public abstract class ConstrainedCollectionConverter<T, TCollection> : JsonConverter<TCollection>
     {
-        protected ConstrainedArrayConverter(int? min, int? max) 
+        protected ConstrainedCollectionConverter(int? min, int? max) 
         {
             _minItems = min;
             _maxItems = max;
@@ -351,7 +351,7 @@ function getArrayConstraintConverter(): string {
         protected int? _minItems, _maxItems;
         public JsonConverter<T>? InnerConverter { get; set; }
 
-        public virtual Func<ConstrainedArrayConverter<T, TCollection>, JsonSerializerOptions, JsonConverter<T>> InnerConverterFactory { get; set; } = ConverterHelpers.GetStandardInnerConverter<T, TCollection>;
+        public virtual Func<ConstrainedCollectionConverter<T, TCollection>, JsonSerializerOptions, JsonConverter<T>> InnerConverterFactory { get; set; } = ConverterHelpers.GetStandardInnerConverter<T, TCollection>;
 
         protected bool ValidateMin(int count)
         {
@@ -402,21 +402,21 @@ function getArrayConstraintConverter(): string {
         protected abstract IEnumerable<T> GetEnumerable(TCollection collection);
     }
 
-    public class ConstrainedEnumerableConverter<T> : ConstrainedArrayConverter<T, IEnumerable<T>>
+    public class ConstrainedEnumerableConverter<T> : ConstrainedCollectionConverter<T, IEnumerable<T>>
     {
         public ConstrainedEnumerableConverter(int? min, int? max) : base(min, max) { }
         protected override IEnumerable<T> ConvertToCollection(List<T> list) => list;
         protected override IEnumerable<T> GetEnumerable(IEnumerable<T> collection) => collection;
     }
 
-    public class ConstrainedSetConverter<T> : ConstrainedArrayConverter<T, ISet<T>>
+    public class ConstrainedSetConverter<T> : ConstrainedCollectionConverter<T, ISet<T>>
     {
         public ConstrainedSetConverter(int? min, int? max) : base(min, max) { }
         protected override ISet<T> ConvertToCollection(List<T> list) => new HashSet<T>(list);
         protected override IEnumerable<T> GetEnumerable(ISet<T> collection) => collection;
     }
 
-    public class ConstrainedStandardArrayConverter<T> : ConstrainedArrayConverter<T, T[]>
+    public class ConstrainedStandardArrayConverter<T> : ConstrainedCollectionConverter<T, T[]>
     {
         public ConstrainedStandardArrayConverter(int? min, int? max) : base(min, max) { }
         protected override T[] ConvertToCollection(List<T> list) => list.ToArray();
@@ -425,7 +425,7 @@ function getArrayConstraintConverter(): string {
 
     internal static class ConverterHelpers
     {
-        internal static JsonConverter<T> GetStandardInnerConverter<T, TCollection>(this ConstrainedArrayConverter<T, TCollection> converter, JsonSerializerOptions options)
+        internal static JsonConverter<T> GetStandardInnerConverter<T, TCollection>(this ConstrainedCollectionConverter<T, TCollection> converter, JsonSerializerOptions options)
         {
             if (converter.InnerConverter == null)
             {
@@ -465,15 +465,22 @@ public class NumericArrayConstraintAttribute<T> : ArrayConstraintAttribute<T> wh
     public override JsonConverter? CreateConverter(Type typeToConvert)
     {
         var result = base.CreateConverter(typeToConvert);
-        if (result is ConstrainedSetConverter<T> setConverter)
-        {
-            setConverter.InnerConverterFactory = (c, o) => new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
+        var resultSet = result as ConstrainedSetConverter<T>;
+        if (resultSet != null) { 
+            resultSet.InnerConverterFactory = (c, o) => new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
+            return resultSet;
         }
-        else if (result is ConstrainedEnumerableConverter<T> enumerableConverter)
-        {
-            enumerableConverter.InnerConverterFactory = (c, o) =>new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
+        var resultEnumerable = result as ConstrainedEnumerableConverter<T>;
+        if (resultEnumerable != null) { 
+            resultEnumerable.InnerConverterFactory = (c, o) => new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
+            return resultEnumerable;
         }
-        return result;        
+        var resultStandardArray = result as ConstrainedStandardArrayConverter<T>;
+        if (resultStandardArray != null) { 
+            resultStandardArray.InnerConverterFactory = (c, o) => new NumericJsonConverter<T>(MinValue, MaxValue, MinValueExclusive, MaxValueExclusive, o);
+            return resultStandardArray;
+        }  
+        throw new InvalidOperationException($"Cannot create converter for {typeToConvert} with {this}");    
     }
   }
 }`;
@@ -504,15 +511,24 @@ public class StringArrayConstraintAttribute : ArrayConstraintAttribute<string>
     override public JsonConverter? CreateConverter(Type typeToConvert)
     {
         var result = base.CreateConverter(typeToConvert);
-        if (result is ConstrainedSetConverter<string> setConverter)
-        {
-            setConverter.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+        var resultSet = result as ConstrainedSetConverter<string>;
+        if (resultSet != null) { 
+            resultSet.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+            return resultSet;
         }
-        else if (result is ConstrainedEnumerableConverter<string> arrayConverter)
-        {
-            arrayConverter.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+
+        var resultEnumerable = result as ConstrainedEnumerableConverter<string>;
+        if (resultEnumerable != null) { 
+            resultEnumerable.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+            return resultEnumerable;
         }
-        return result;
+
+        var resultStandardArray = result as ConstrainedStandardArrayConverter<string>;
+        if (resultStandardArray != null) { 
+            resultStandardArray.InnerConverterFactory = (c, o) => new StringJsonConverter(MinItemLength, MaxItemLength, Pattern, o);
+            return resultStandardArray;
+        }  
+        throw new InvalidOperationException($"Cannot create converter for {typeToConvert} with {this}");    
     }
 }
   }`;

@@ -81,18 +81,66 @@ export class CSharpType implements CSharpTypeMetadata {
       return this.name;
     }
 
-    const collectionPatternRegex = /^(ISet|IEnumerable|ICollection)<(.+)>$/;
-    const collectionPattern = this.name.match(collectionPatternRegex);
-    if (collectionPattern) {
-      const [_, collectionType, innerType] = collectionPattern;
-      return `${collectionType}<${this.namespace + "." + innerType}>`;
-    }
-
     return `${this.namespace}.${this.name}`;
   }
 
   public equals(other: CSharpType | undefined): boolean {
     return this.name === other?.name && this.namespace === other?.namespace;
+  }
+}
+
+export enum CollectionType {
+  ISet = "ISet",
+  ICollection = "ICollection",
+  IEnumerable = "IEnumerable",
+  Array = "[]",
+}
+
+export class CSharpCollectionType extends CSharpType {
+  collectionType: CollectionType;
+  itemTypeName: string;
+
+  static readonly implementationType: Record<CollectionType, string> = {
+    [CollectionType.ISet]: "HashSet",
+    [CollectionType.ICollection]: "List",
+    [CollectionType.IEnumerable]: "List",
+    [CollectionType.Array]: "[]",
+  };
+
+  public constructor(
+    csharpType: {
+      name: string;
+      namespace: string;
+      isBuiltIn?: boolean;
+      isValueType?: boolean;
+      isNullable?: boolean;
+      isClass?: boolean;
+      isCollection?: boolean;
+    },
+    collectionType: CollectionType,
+    itemTypeName: string,
+  ) {
+    super(csharpType);
+    this.collectionType = collectionType;
+    this.itemTypeName = itemTypeName;
+  }
+
+  public getTypeReference(scope?: Scope<string> | undefined): string {
+    if (this.isNamespaceInScope(scope)) {
+      return this.name;
+    }
+    return `${this.collectionType}<${this.namespace}.${this.itemTypeName}>`;
+  }
+
+  public getImplementationType(): string {
+    switch (this.collectionType) {
+      case CollectionType.ISet:
+      case CollectionType.ICollection:
+      case CollectionType.IEnumerable:
+        return `new ${CSharpCollectionType.implementationType[this.collectionType]}<${this.itemTypeName}>()`;
+      default:
+        return `[]`;
+    }
   }
 }
 

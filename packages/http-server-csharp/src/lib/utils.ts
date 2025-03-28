@@ -47,9 +47,11 @@ import { getAttributes } from "./attributes.js";
 import {
   Attribute,
   BooleanValue,
+  CSharpCollectionType,
   CSharpOperationParameter,
   CSharpType,
   CSharpValue,
+  CollectionType,
   NameCasingType,
   NullValue,
   NumericValue,
@@ -163,21 +165,29 @@ export function getCSharpType(
         const uniqueItems = getUniqueItems(program, type);
         const isByte = ["byte", "SByte"].includes(itemType.name);
 
-        const returnType = uniqueItems
-          ? `ISet<${itemType.name}>`
+        const returnTypeCollection = uniqueItems
+          ? CollectionType.ISet
           : isByte
-            ? `${itemType.name}[]`
-            : `IEnumerable<${itemType.name}>`;
+            ? CollectionType.Array
+            : CollectionType.IEnumerable;
+
+        const returnType = isByte
+          ? `${itemType.name}[]`
+          : `${returnTypeCollection}<${itemType.name}>`;
 
         return {
-          type: new CSharpType({
-            name: returnType,
-            namespace: itemType.namespace,
-            isBuiltIn: itemType.isBuiltIn,
-            isValueType: false,
-            isClass: itemType.isClass,
-            isCollection: true,
-          }),
+          type: new CSharpCollectionType(
+            {
+              name: returnType,
+              namespace: itemType.namespace,
+              isBuiltIn: itemType.isBuiltIn,
+              isValueType: false,
+              isClass: itemType.isClass,
+              isCollection: true,
+            },
+            returnTypeCollection,
+            itemType.name,
+          ),
         };
       }
       if (isRecord(type))

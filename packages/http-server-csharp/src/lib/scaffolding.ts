@@ -1,6 +1,6 @@
 import { AssetEmitter, code } from "@typespec/asset-emitter";
 import { GeneratedFileHeaderWithNullable } from "./boilerplate.js";
-import { CSharpType, LibrarySourceFile } from "./interfaces.js";
+import { CSharpCollectionType, CSharpType, LibrarySourceFile } from "./interfaces.js";
 import { CSharpServiceEmitterOptions } from "./lib.js";
 
 export interface BusinessLogicImplementation {
@@ -15,7 +15,7 @@ export interface BusinessLogicMethod {
   methodName: string;
   methodParams: string;
   returnTypeName: string;
-  returnType: CSharpType;
+  returnType: CSharpType | CSharpCollectionType;
   instantiatedReturnType?: string;
 }
 
@@ -94,26 +94,21 @@ export function getBusinessLogicImplementations(
   return sourceFiles;
 }
 
-function getReturnStatement(returnType: CSharpType): string {
+function getReturnStatement(returnType: CSharpType | CSharpCollectionType): string {
   if (returnType.isValueType && returnType.isNullable) {
     return `return Task.FromResult(_initializer.Initialize(typeof(${returnType.getTypeReference()})) as ${returnType.getTypeReference()} ?? default);`;
   }
   if (returnType.isValueType) {
     return `return Task.FromResult<${returnType.getTypeReference()}>(default);`;
   }
+
   if (returnType.isCollection) {
-    const collectionPattern = /^(ISet|IEnumerable)<(.+)>$/;
-    const returnTypeReference = returnType.getTypeReference();
-    const collectionMatch = returnTypeReference.match(collectionPattern);
-
-    if (collectionMatch) {
-      const [_, collectionType, innerType] = collectionMatch;
-      const initCollectionType = collectionType === "ISet" ? "HashSet" : "List";
-      return `return Task.FromResult<${returnTypeReference}>(new ${initCollectionType}<${innerType}>());`;
+    if (returnType instanceof CSharpCollectionType) {
+      return `return Task.FromResult<${returnType.getTypeReference()}>(${returnType.getImplementationType()});`;
     }
-
-    return `return Task.FromResult<${returnTypeReference}>([]);`;
+    return `return Task.FromResult<${returnType.getTypeReference()}>([]);`;
   }
+
   if (returnType.name === "string") {
     return `return Task.FromResult("");`;
   } else if (returnType.isClass) {
