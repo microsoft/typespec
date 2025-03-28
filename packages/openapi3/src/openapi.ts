@@ -1177,7 +1177,11 @@ function createOAPIEmitter(
       if (part.property) {
         const doc = getDoc(program, part.property);
         if (doc) {
-          schema = { ...schema, description: doc };
+          if (schema.$ref) {
+            schema = { allOf: [{ $ref: schema.$ref }], description: doc };
+          } else {
+            schema = { ...schema, description: doc };
+          }
         }
       }
 
