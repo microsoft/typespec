@@ -161,10 +161,36 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`File model cannot define extra properties. Found '${"propName"}'.`,
       },
     },
+    "http-file-disallowed-metadata": {
+      severity: "error",
+      messages: {
+        default: paramMessage`File model cannot define HTTP metadata type '${"metadataType"}' on property '${"propName"}'.`,
+      },
+    },
     "formdata-no-part-name": {
       severity: "error",
       messages: {
         default: "Part used in multipart/form-data must have a name.",
+      },
+    },
+    "http-file-structured": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`HTTP File body is serialized as a structured model in '${"contentTypes"}' instead of being treated as the contents of a file because an explicit Content-Type header is defined. Override the \`contentType\` property of the file model to declare the internal media type of the file's contents, or suppress this warning if you intend to serialize the File as a model.`,
+        union:
+          "An HTTP File in a union is serialized as a structured model instead of being treated as the contents of a file. Declare a separate operation using `@sharedRoute` that has only the File model as the body type to treat it as a file, or suppress this warning if you intend to serialize the File as a model.",
+      },
+    },
+    "http-file-content-type-not-string": {
+      severity: "error",
+      messages: {
+        default: paramMessage`The 'contentType' property of the file model must be 'TypeSpec.string', a string literal, or a union of string literals. Found '${"type"}'.`,
+      },
+    },
+    "http-file-contents-not-scalar": {
+      severity: "error",
+      messages: {
+        default: paramMessage`The 'contents' property of the file model must be a scalar type that extends 'string' or 'bytes'. Found '${"type"}'.`,
       },
     },
   },

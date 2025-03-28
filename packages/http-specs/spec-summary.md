@@ -4610,13 +4610,7 @@ Expected input body:
 - Endpoint: `get /type/model/visibility`
 
 Generate and receive output model with readonly properties.
-Expected input body:
-
-```json
-{
-  "queryProp": 123
-}
-```
+Expected no body with `?queryProp=123`.
 
 Expected response body:
 
@@ -4631,13 +4625,7 @@ Expected response body:
 - Endpoint: `head /type/model/visibility`
 
 Generate abd send put model with write/create properties.
-Expected input body:
-
-```json
-{
-  "queryProp": 123
-}
-```
+Expected no body with `?queryProp=123`.
 
 ### Type_Model_Visibility_patchModel
 

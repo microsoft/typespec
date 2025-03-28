@@ -46,6 +46,8 @@
     "@typespec/compiler": "workspace:^",
     "@typespec/events": "workspace:^",
     "@typespec/http": "workspace:^",
+    "@typespec/http-server-csharp": "workspace:^",
+    "@typespec/http-server-js": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
