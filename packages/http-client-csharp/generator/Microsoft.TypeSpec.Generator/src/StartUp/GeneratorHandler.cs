@@ -40,8 +40,13 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            var json = File.ReadAllText(Path.Combine(rootDirectory, "package.json"));
-            using var doc = JsonDocument.Parse(json);
+            var packagePath = Path.Combine(rootDirectory, "package.json");
+            if (!File.Exists(packagePath))
+            {
+                return;
+            }
+
+            using var doc = JsonDocument.Parse(File.ReadAllText(packagePath));
             if (!doc.RootElement.TryGetProperty("dependencies", out var deps))
             {
                 return;
