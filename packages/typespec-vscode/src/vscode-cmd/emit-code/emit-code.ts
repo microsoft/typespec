@@ -472,8 +472,6 @@ async function doEmit(
         if (typeof err === "object" && "stdout" in err && "stderr" in err && `error` in err) {
           const execOutput = err as ExecOutput;
           const details = [];
-          if (execOutput.stdout !== "") details.push(execOutput.stdout);
-          if (execOutput.stderr !== "") details.push(execOutput.stderr);
           if (execOutput.error) details.push(execOutput.error);
           logger.error(`Emitting ${codeInfoStr}...Failed.`, details, {
             showOutput: true,

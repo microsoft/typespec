@@ -12,7 +12,7 @@ using System.Linq;
 namespace UnbrandedTypeSpec
 {
     /// <summary> The PageThing. </summary>
-    public partial class PageThing
+    internal partial class PageThing
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
