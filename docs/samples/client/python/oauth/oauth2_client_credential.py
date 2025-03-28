@@ -4,7 +4,7 @@ import time
 import httpx
 
 
-class UnbrandedClientCredential:
+class OAuth2ClientCredential:
     """A credential that uses client ID and client secret to authenticate.
     
     This credential acquires tokens via client credentials flow.
@@ -14,7 +14,7 @@ class UnbrandedClientCredential:
     """
     
     def __init__(self, client_id: str, client_secret: str, **kwargs: Any):
-        """Create a UnbrandedClientCredential with the provided client ID and secret.
+        """Create a OAuth2ClientCredential with the provided client ID and secret.
         
         :param str client_id: The client ID of the application.
         :param str client_secret: The client secret of the application.
@@ -70,7 +70,7 @@ class UnbrandedClientCredential:
             raise ValueError(f"Failed to get access token: {str(ex)}")
 
 
-credential = UnbrandedClientCredential(client_id="m2m", client_secret="secret")
+credential = OAuth2ClientCredential(client_id="m2m", client_secret="secret")
 access_token = credential.get_token_info("api", options={"authorization_url": "https://demo.duendesoftware.com/connect/token"})
 print(access_token.token)
 print(access_token.expires_on)

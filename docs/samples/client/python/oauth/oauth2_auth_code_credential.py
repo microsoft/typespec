@@ -4,7 +4,7 @@ import time
 import httpx
 
 
-class UnbrandedAuthCodeCredential:
+class OAuth2AuthCodeCredential:
     """A credential that uses auth code to authenticate.
 
     This credential acquires tokens via auth code flow.
@@ -26,7 +26,7 @@ class UnbrandedAuthCodeCredential:
         client_secret: Optional[str] = None,
         **kwargs: Any
     ):
-        """Create a UnbrandedAuthCodeCredential with the provided client ID and authorization_code.
+        """Create a OAuth2AuthCodeCredential with the provided client ID and authorization_code.
 
         :param str client_id: The client ID of the application.
         :param str authorization_code: The authorization code.
