@@ -17,16 +17,16 @@ namespace SampleService
         {
         }
 
-        void IJsonModel<Widget>.FooWrite(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<Widget>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
-            this.JsonModelWriteCore(writer, options);
+            JsonModelWriteCore(writer, options);
             writer.WriteEndObject();
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void FooJsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<Widget>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
@@ -58,11 +58,11 @@ namespace SampleService
             }
         }
 
-        Widget IJsonModel<Widget>.FooCreate(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
+        Widget IJsonModel<Widget>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Widget FooJsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected virtual Widget JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<Widget>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
@@ -70,10 +70,10 @@ namespace SampleService
                 throw new FormatException($"The model {nameof(Widget)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return Widget.DeserializeWidget(document.RootElement, options);
+            return DeserializeWidget(document.RootElement, options);
         }
 
-        internal static Widget FooDeserializeWidget(JsonElement element, ModelReaderWriterOptions options)
+        internal static Widget DeserializeWidget(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -114,10 +114,10 @@ namespace SampleService
             return new Widget(name, id, @type, weight, additionalBinaryDataProperties);
         }
 
-        BinaryData IPersistableModel<Widget>.FooWrite(ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<Widget>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData FooPersistableModelWriteCore(ModelReaderWriterOptions options)
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<Widget>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
@@ -129,11 +129,11 @@ namespace SampleService
             }
         }
 
-        Widget IPersistableModel<Widget>.FooCreate(BinaryData data, ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
+        Widget IPersistableModel<Widget>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual Widget FooPersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual Widget PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<Widget>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
@@ -141,17 +141,17 @@ namespace SampleService
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return Widget.DeserializeWidget(document.RootElement, options);
+                        return DeserializeWidget(document.RootElement, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(Widget)} does not support reading '{options.Format}' format.");
             }
         }
 
-        string IPersistableModel<Widget>.FooGetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<Widget>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="widget"> The <see cref="Widget"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator FooBinaryContent(Widget widget)
+        public static implicit operator BinaryContent(Widget widget)
         {
             if (widget == null)
             {
@@ -161,11 +161,11 @@ namespace SampleService
         }
 
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Widget"/> from. </param>
-        public static explicit operator FooWidget(ClientResult result)
+        public static explicit operator Widget(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);
-            return Widget.DeserializeWidget(document.RootElement, ModelSerializationExtensions.WireOptions);
+            return DeserializeWidget(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

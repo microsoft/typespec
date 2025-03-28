@@ -12,8 +12,8 @@ namespace SampleService
         /// <param name="id"></param>
         /// <param name="type"></param>
         /// <param name="weight"></param>
-        /// <returns> A new <see cref="Widget"/> instance for mocking. </returns>
-        public static Widget FooWidget(string name = default, string id = default, string @type = default, float weight = default)
+        /// <returns> A new <see cref="SampleService.Widget"/> instance for mocking. </returns>
+        public static Widget Widget(string name = default, string id = default, string @type = default, float weight = default)
         {
 
             return new Widget(name, id, @type, weight, additionalBinaryDataProperties: null);

@@ -43,16 +43,16 @@ namespace SampleService
         public bool IsUndefined => _innerDictionary == null;
 
         /// <summary> Gets the Count. </summary>
-        public int Count => IsUndefined ? 0 : FooEnsureDictionary().Count;
+        public int Count => IsUndefined ? 0 : EnsureDictionary().Count;
 
         /// <summary> Gets the IsReadOnly. </summary>
-        public bool IsReadOnly => IsUndefined ? false : FooEnsureDictionary().IsReadOnly;
+        public bool IsReadOnly => IsUndefined ? false : EnsureDictionary().IsReadOnly;
 
         /// <summary> Gets the Keys. </summary>
-        public ICollection<TKey> Keys => IsUndefined ? Array.Empty<TKey>() : FooEnsureDictionary().Keys;
+        public ICollection<TKey> Keys => IsUndefined ? Array.Empty<TKey>() : EnsureDictionary().Keys;
 
         /// <summary> Gets the Values. </summary>
-        public ICollection<TValue> Values => IsUndefined ? Array.Empty<TValue>() : FooEnsureDictionary().Values;
+        public ICollection<TValue> Values => IsUndefined ? Array.Empty<TValue>() : EnsureDictionary().Values;
 
         /// <summary> Gets or sets the value associated with the specified key. </summary>
         public TValue this[TKey key]
@@ -63,11 +63,11 @@ namespace SampleService
                 {
                     throw new KeyNotFoundException(nameof(key));
                 }
-                return FooEnsureDictionary()[key];
+                return EnsureDictionary()[key];
             }
             set
             {
-                FooEnsureDictionary()[key] = value;
+                EnsureDictionary()[key] = value;
             }
         }
 
@@ -77,7 +77,7 @@ namespace SampleService
         /// <summary> Gets the Values. </summary>
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> FooGetEnumerator()
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             if (IsUndefined)
             {
@@ -87,85 +87,85 @@ namespace SampleService
                 }
                 return enumerateEmpty();
             }
-            return FooEnsureDictionary().GetEnumerator();
+            return EnsureDictionary().GetEnumerator();
         }
 
-        IEnumerator IEnumerable.FooGetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
 
-        public void FooAdd(KeyValuePair<TKey, TValue> item)
+        public void Add(KeyValuePair<TKey, TValue> item)
         {
-            FooEnsureDictionary().Add(item);
+            EnsureDictionary().Add(item);
         }
 
-        public void FooClear()
+        public void Clear()
         {
-            FooEnsureDictionary().Clear();
+            EnsureDictionary().Clear();
         }
 
-        public bool FooContains(KeyValuePair<TKey, TValue> item)
+        public bool Contains(KeyValuePair<TKey, TValue> item)
         {
             if (IsUndefined)
             {
                 return false;
             }
-            return FooEnsureDictionary().Contains(item);
+            return EnsureDictionary().Contains(item);
         }
 
-        public void FooCopyTo(KeyValuePair<TKey, TValue>[] array, int index)
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int index)
         {
             if (IsUndefined)
             {
                 return;
             }
-            FooEnsureDictionary().CopyTo(array, index);
+            EnsureDictionary().CopyTo(array, index);
         }
 
-        public bool FooRemove(KeyValuePair<TKey, TValue> item)
+        public bool Remove(KeyValuePair<TKey, TValue> item)
         {
             if (IsUndefined)
             {
                 return false;
             }
-            return FooEnsureDictionary().Remove(item);
+            return EnsureDictionary().Remove(item);
         }
 
-        public void FooAdd(TKey key, TValue value)
+        public void Add(TKey key, TValue value)
         {
-            FooEnsureDictionary().Add(key, value);
+            EnsureDictionary().Add(key, value);
         }
 
-        public bool FooContainsKey(TKey key)
-        {
-            if (IsUndefined)
-            {
-                return false;
-            }
-            return FooEnsureDictionary().ContainsKey(key);
-        }
-
-        public bool FooRemove(TKey key)
+        public bool ContainsKey(TKey key)
         {
             if (IsUndefined)
             {
                 return false;
             }
-            return FooEnsureDictionary().Remove(key);
+            return EnsureDictionary().ContainsKey(key);
         }
 
-        public bool FooTryGetValue(TKey key, out TValue value)
+        public bool Remove(TKey key)
+        {
+            if (IsUndefined)
+            {
+                return false;
+            }
+            return EnsureDictionary().Remove(key);
+        }
+
+        public bool TryGetValue(TKey key, out TValue value)
         {
             if (IsUndefined)
             {
                 value = default;
                 return false;
             }
-            return FooEnsureDictionary().TryGetValue(key, out value);
+            return EnsureDictionary().TryGetValue(key, out value);
         }
 
-        public IDictionary<TKey, TValue> FooEnsureDictionary()
+        public IDictionary<TKey, TValue> EnsureDictionary()
         {
             return _innerDictionary ??= new Dictionary<TKey, TValue>();
         }

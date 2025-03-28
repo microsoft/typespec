@@ -13,7 +13,7 @@ namespace SampleService
 
         private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        internal PipelineMessage FooCreateGetWidgetRequest(string id, RequestOptions options)
+        internal PipelineMessage CreateGetWidgetRequest(string id, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;

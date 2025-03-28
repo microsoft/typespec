@@ -25,14 +25,14 @@ namespace SampleService
 
         private StringBuilder QueryBuilder => _queryBuilder  ??=  new StringBuilder(UriBuilder.Query);
 
-        public void FooReset(Uri uri)
+        public void Reset(Uri uri)
         {
             _uriBuilder = new UriBuilder(uri);
             _pathBuilder = new StringBuilder(UriBuilder.Path);
             _queryBuilder = new StringBuilder(UriBuilder.Query);
         }
 
-        public void FooAppendPath(string value, bool escape)
+        public void AppendPath(string value, bool escape)
         {
             if (escape)
             {
@@ -46,32 +46,32 @@ namespace SampleService
             UriBuilder.Path = PathBuilder.ToString();
         }
 
-        public void FooAppendPath(bool value, bool escape = false) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(bool value, bool escape = false) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendPath(float value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(float value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendPath(double value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(double value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendPath(int value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(int value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendPath(byte[] value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendPath(byte[] value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
-        public void FooAppendPath(DateTimeOffset value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendPath(DateTimeOffset value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
-        public void FooAppendPath(TimeSpan value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendPath(TimeSpan value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
-        public void FooAppendPath(Guid value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(Guid value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendPath(long value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+        public void AppendPath(long value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendPathDelimited<T>(IEnumerable<T> value, string delimiter, string format = null, bool escape = true)
+        public void AppendPathDelimited<T>(IEnumerable<T> value, string delimiter, string format = null, bool escape = true)
         {
             delimiter ??= ",";
             IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));
             AppendPath(string.Join(delimiter, stringValues), escape);
         }
 
-        public void FooAppendQuery(string name, string value, bool escape)
+        public void AppendQuery(string name, string value, bool escape)
         {
             if (QueryBuilder.Length > 0)
             {
@@ -86,36 +86,36 @@ namespace SampleService
             QueryBuilder.Append(value);
         }
 
-        public void FooAppendQuery(string name, bool value, bool escape = false) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, bool value, bool escape = false) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendQuery(string name, float value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, float value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendQuery(string name, DateTimeOffset value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, DateTimeOffset value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
-        public void FooAppendQuery(string name, TimeSpan value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, TimeSpan value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
-        public void FooAppendQuery(string name, double value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, double value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendQuery(string name, decimal value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, decimal value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendQuery(string name, int value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, int value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendQuery(string name, long value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, long value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendQuery(string name, TimeSpan value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, TimeSpan value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendQuery(string name, byte[] value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, byte[] value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
-        public void FooAppendQuery(string name, Guid value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
+        public void AppendQuery(string name, Guid value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void FooAppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, string format = null, bool escape = true)
+        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, string format = null, bool escape = true)
         {
             delimiter ??= ",";
             IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));
             AppendQuery(name, string.Join(delimiter, stringValues), escape);
         }
 
-        public Uri FooToUri()
+        public Uri ToUri()
         {
             if (_pathBuilder != null)
             {

@@ -15,7 +15,7 @@ namespace SampleService
     {
         internal static readonly ModelReaderWriterOptions WireOptions = new ModelReaderWriterOptions("W");
 
-        public static object FooGetObject(this JsonElement element)
+        public static object GetObject(this JsonElement element)
         {
             switch (element.ValueKind)
             {
@@ -57,7 +57,7 @@ namespace SampleService
             }
         }
 
-        public static byte[] FooGetBytesFromBase64(this JsonElement element, string format)
+        public static byte[] GetBytesFromBase64(this JsonElement element, string format)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -72,15 +72,15 @@ namespace SampleService
             };
         }
 
-        public static DateTimeOffset FooGetDateTimeOffset(this JsonElement element, string format) => format switch
+        public static DateTimeOffset GetDateTimeOffset(this JsonElement element, string format) => format switch
         {
             "U" when element.ValueKind == JsonValueKind.Number => DateTimeOffset.FromUnixTimeSeconds(element.GetInt64()),
             _ => TypeFormatters.ParseDateTimeOffset(element.GetString(), format)
         };
 
-        public static TimeSpan FooGetTimeSpan(this JsonElement element, string format) => TypeFormatters.ParseTimeSpan(element.GetString(), format);
+        public static TimeSpan GetTimeSpan(this JsonElement element, string format) => TypeFormatters.ParseTimeSpan(element.GetString(), format);
 
-        public static char FooGetChar(this JsonElement element)
+        public static char GetChar(this JsonElement element)
         {
             if (element.ValueKind == JsonValueKind.String)
             {
@@ -98,12 +98,12 @@ namespace SampleService
         }
 
         [Conditional("DEBUG")]
-        public static void FooThrowNonNullablePropertyIsNull(this JsonProperty @property)
+        public static void ThrowNonNullablePropertyIsNull(this JsonProperty @property)
         {
             throw new JsonException($"A property '{@property.Name}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build");
         }
 
-        public static string FooGetRequiredString(this JsonElement element)
+        public static string GetRequiredString(this JsonElement element)
         {
             string value = element.GetString();
             if (value == null)
@@ -113,27 +113,27 @@ namespace SampleService
             return value;
         }
 
-        public static void FooWriteStringValue(this Utf8JsonWriter writer, DateTimeOffset value, string format)
+        public static void WriteStringValue(this Utf8JsonWriter writer, DateTimeOffset value, string format)
         {
             writer.WriteStringValue(TypeFormatters.ToString(value, format));
         }
 
-        public static void FooWriteStringValue(this Utf8JsonWriter writer, DateTime value, string format)
+        public static void WriteStringValue(this Utf8JsonWriter writer, DateTime value, string format)
         {
             writer.WriteStringValue(TypeFormatters.ToString(value, format));
         }
 
-        public static void FooWriteStringValue(this Utf8JsonWriter writer, TimeSpan value, string format)
+        public static void WriteStringValue(this Utf8JsonWriter writer, TimeSpan value, string format)
         {
             writer.WriteStringValue(TypeFormatters.ToString(value, format));
         }
 
-        public static void FooWriteStringValue(this Utf8JsonWriter writer, char value)
+        public static void WriteStringValue(this Utf8JsonWriter writer, char value)
         {
             writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
         }
 
-        public static void FooWriteBase64StringValue(this Utf8JsonWriter writer, byte[] value, string format)
+        public static void WriteBase64StringValue(this Utf8JsonWriter writer, byte[] value, string format)
         {
             if (value == null)
             {
@@ -153,7 +153,7 @@ namespace SampleService
             }
         }
 
-        public static void FooWriteNumberValue(this Utf8JsonWriter writer, DateTimeOffset value, string format)
+        public static void WriteNumberValue(this Utf8JsonWriter writer, DateTimeOffset value, string format)
         {
             if (format != "U")
             {
@@ -162,7 +162,7 @@ namespace SampleService
             writer.WriteNumberValue(value.ToUnixTimeSeconds());
         }
 
-        public static void FooWriteObjectValue<T>(this Utf8JsonWriter writer, T value, ModelReaderWriterOptions options = null)
+        public static void WriteObjectValue<T>(this Utf8JsonWriter writer, T value, ModelReaderWriterOptions options = null)
         {
             switch (value)
             {
@@ -243,7 +243,7 @@ namespace SampleService
             }
         }
 
-        public static void FooWriteObjectValue(this Utf8JsonWriter writer, object value, ModelReaderWriterOptions options = null)
+        public static void WriteObjectValue(this Utf8JsonWriter writer, object value, ModelReaderWriterOptions options = null)
         {
             writer.WriteObjectValue<object>(value, options);
         }

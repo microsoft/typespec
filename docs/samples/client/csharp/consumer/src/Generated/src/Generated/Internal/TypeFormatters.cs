@@ -14,15 +14,15 @@ namespace SampleService
         private const string RoundtripZFormat = "yyyy-MM-ddTHH:mm:ss.fffffffZ";
         public const string DefaultNumberFormat = "G";
 
-        public static string FooToString(bool value) => value ? "true" : "false";
+        public static string ToString(bool value) => value ? "true" : "false";
 
-        public static string FooToString(DateTime value, string format) => value.Kind switch
+        public static string ToString(DateTime value, string format) => value.Kind switch
         {
-            DateTimeKind.Utc => TypeFormatters.ToString((DateTimeOffset)value, format),
+            DateTimeKind.Utc => ToString((DateTimeOffset)value, format),
             _ => throw new NotSupportedException($"DateTime {value} has a Kind of {value.Kind}. Generated clients require it to be UTC. You can call DateTime.SpecifyKind to change Kind property value to DateTimeKind.Utc.")
         };
 
-        public static string FooToString(DateTimeOffset value, string format) => format switch
+        public static string ToString(DateTimeOffset value, string format) => format switch
         {
             "D" => value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             "U" => value.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
@@ -32,20 +32,20 @@ namespace SampleService
             _ => value.ToString(format, CultureInfo.InvariantCulture)
         };
 
-        public static string FooToString(TimeSpan value, string format) => format switch
+        public static string ToString(TimeSpan value, string format) => format switch
         {
             "P" => System.Xml.XmlConvert.ToString(value),
             _ => value.ToString(format, CultureInfo.InvariantCulture)
         };
 
-        public static string FooToString(byte[] value, string format) => format switch
+        public static string ToString(byte[] value, string format) => format switch
         {
-            "U" => TypeFormatters.ToBase64UrlString(value),
+            "U" => ToBase64UrlString(value),
             "D" => Convert.ToBase64String(value),
             _ => throw new ArgumentException($"Format is not supported: '{format}'", nameof(format))
         };
 
-        public static string FooToBase64UrlString(byte[] value)
+        public static string ToBase64UrlString(byte[] value)
         {
             int numWholeOrPartialInputBlocks = checked (value.Length + 2) / 3;
             int size = checked (numWholeOrPartialInputBlocks * 4);
@@ -80,7 +80,7 @@ namespace SampleService
             return new string(output, 0, i);
         }
 
-        public static byte[] FooFromBase64UrlString(string value)
+        public static byte[] FromBase64UrlString(string value)
         {
             int paddingCharsToAdd = (value.Length % 4) switch
             {
@@ -119,31 +119,31 @@ namespace SampleService
             return Convert.FromBase64CharArray(output, 0, output.Length);
         }
 
-        public static DateTimeOffset FooParseDateTimeOffset(string value, string format) => format switch
+        public static DateTimeOffset ParseDateTimeOffset(string value, string format) => format switch
         {
             "U" => DateTimeOffset.FromUnixTimeSeconds(long.Parse(value, CultureInfo.InvariantCulture)),
             _ => DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
         };
 
-        public static TimeSpan FooParseTimeSpan(string value, string format) => format switch
+        public static TimeSpan ParseTimeSpan(string value, string format) => format switch
         {
             "P" => System.Xml.XmlConvert.ToTimeSpan(value),
             _ => TimeSpan.ParseExact(value, format, CultureInfo.InvariantCulture)
         };
 
-        public static string FooConvertToString(object value, string format = null) => value switch
+        public static string ConvertToString(object value, string format = null) => value switch
         {
             null => "null",
             string s => s,
-            bool b => TypeFormatters.ToString(b),
+            bool b => ToString(b),
             int  or  float  or  double  or  long  or  decimal => ((IFormattable)value).ToString(DefaultNumberFormat, CultureInfo.InvariantCulture),
-            byte[] b0 when format != null => TypeFormatters.ToString(b0, format),
+            byte[] b0 when format != null => ToString(b0, format),
             IEnumerable<string> s0 => string.Join(",", s0),
-            DateTimeOffset dateTime when format != null => TypeFormatters.ToString(dateTime, format),
-            TimeSpan timeSpan when format != null => TypeFormatters.ToString(timeSpan, format),
+            DateTimeOffset dateTime when format != null => ToString(dateTime, format),
+            TimeSpan timeSpan when format != null => ToString(timeSpan, format),
             TimeSpan timeSpan0 => System.Xml.XmlConvert.ToString(timeSpan0),
             Guid guid => guid.ToString(),
-            BinaryData binaryData => TypeFormatters.ConvertToString(binaryData.ToArray(), format),
+            BinaryData binaryData => ConvertToString(binaryData.ToArray(), format),
             _ => value.ToString()
         };
     }

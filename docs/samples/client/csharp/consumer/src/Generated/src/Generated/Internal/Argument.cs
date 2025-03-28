@@ -10,7 +10,7 @@ namespace SampleService
 {
     internal static partial class Argument
     {
-        public static void FooAssertNotNull<T>(T value, string name)
+        public static void AssertNotNull<T>(T value, string name)
         {
             if (value is null)
             {
@@ -18,7 +18,7 @@ namespace SampleService
             }
         }
 
-        public static void FooAssertNotNull<T>(T? value, string name)
+        public static void AssertNotNull<T>(T? value, string name)
             where T : struct 
         {
             if (!value.HasValue)
@@ -27,7 +27,7 @@ namespace SampleService
             }
         }
 
-        public static void FooAssertNotNullOrEmpty<T>(IEnumerable<T> value, string name)
+        public static void AssertNotNullOrEmpty<T>(IEnumerable<T> value, string name)
         {
             if (value is null)
             {
@@ -48,7 +48,7 @@ namespace SampleService
             }
         }
 
-        public static void FooAssertNotNullOrEmpty(string value, string name)
+        public static void AssertNotNullOrEmpty(string value, string name)
         {
             if (value is null)
             {
@@ -60,7 +60,7 @@ namespace SampleService
             }
         }
 
-        public static void FooAssertNotNullOrWhiteSpace(string value, string name)
+        public static void AssertNotNullOrWhiteSpace(string value, string name)
         {
             if (value is null)
             {
@@ -72,7 +72,7 @@ namespace SampleService
             }
         }
 
-        public static void FooAssertNotDefault<T>(ref T value, string name)
+        public static void AssertNotDefault<T>(ref T value, string name)
             where T : struct, IEquatable<T> 
         {
             if (value.Equals(default))
@@ -81,7 +81,7 @@ namespace SampleService
             }
         }
 
-        public static void FooAssertInRange<T>(T value, T minimum, T maximum, string name)
+        public static void AssertInRange<T>(T value, T minimum, T maximum, string name)
             where T : notnull, IComparable<T> 
         {
             if (minimum.CompareTo(value) > 0)
@@ -94,7 +94,7 @@ namespace SampleService
             }
         }
 
-        public static void FooAssertEnumDefined(Type enumType, object value, string name)
+        public static void AssertEnumDefined(Type enumType, object value, string name)
         {
             if (!Enum.IsDefined(enumType, value))
             {
@@ -102,20 +102,20 @@ namespace SampleService
             }
         }
 
-        public static T FooCheckNotNull<T>(T value, string name)
+        public static T CheckNotNull<T>(T value, string name)
             where T : class 
         {
-            Argument.AssertNotNull(value, name);
+            AssertNotNull(value, name);
             return value;
         }
 
-        public static string FooCheckNotNullOrEmpty(string value, string name)
+        public static string CheckNotNullOrEmpty(string value, string name)
         {
-            Argument.AssertNotNullOrEmpty(value, name);
+            AssertNotNullOrEmpty(value, name);
             return value;
         }
 
-        public static void FooAssertNull<T>(T value, string name, string message = null)
+        public static void AssertNull<T>(T value, string name, string message = null)
         {
             if (value != null)
             {
