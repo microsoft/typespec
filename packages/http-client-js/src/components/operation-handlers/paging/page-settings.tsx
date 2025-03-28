@@ -1,8 +1,8 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import { PagingOperation, PagingProperty } from "@typespec/compiler";
 import * as ef from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
-import { PagingOperation, PagingProperty } from "@typespec/compiler";
 export interface PageSettingsProps {
   operation: HttpOperation;
   pagingOperation: PagingOperation;
@@ -11,10 +11,9 @@ export interface PageSettingsProps {
 export function getPageSettingsTypeRefkey(operation: HttpOperation) {
   return ay.refkey(operation, "page-settings");
 }
-export function PageSettingsDeclaration(props: PageSettingsProps) {
-  const namePolicy = ts.useTSNamePolicy();
-  const interfaceName = namePolicy.getName(props.operation.operation.name + "PageSettings", "interface");
-  const definedSettings = props.pagingOperation.input;
+
+export function getPageSettingProperties(pagingOperation: PagingOperation) {
+  const definedSettings = pagingOperation.input;
   // Only accept these page settings
   const acceptedSettings = ["continuationToken", "offset", "pageSize", "pageIndex"];
   const settingProperties: PagingProperty[] = [];
@@ -24,7 +23,16 @@ export function PageSettingsDeclaration(props: PageSettingsProps) {
       settingProperties.push(property);
     }
   }
-   
+  return settingProperties;
+}
+
+export function PageSettingsDeclaration(props: PageSettingsProps) {
+  const namePolicy = ts.useTSNamePolicy();
+  const interfaceName = namePolicy.getName(
+    props.operation.operation.name + "PageSettings",
+    "interface",
+  );
+  const settingProperties = getPageSettingProperties(props.pagingOperation);
   return (
     <ts.InterfaceDeclaration
       export

@@ -8,36 +8,6 @@ import { HttpOperation } from "@typespec/http";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
 import * as ts from "@alloy-js/typescript";
 import { httpRuntimeTemplateLib } from "./external-packages/ts-http-runtime.js";
-
-export function getHttpRequestDeserializeRefkey(httpOperation: HttpOperation) {
-  return refkey(httpOperation, "http-request-deserialize");
-}
-
-export interface HttpResponseDeserializeProps {
-  httpOperation: HttpOperation;
-  responseRefkey: Refkey;
-  children?: Children;
-}
-
-export function HttpResponseDeserialize(props: HttpResponseProps) {
-  const httpOperation = props.httpOperation;
-  const namePolicy = ts.useTSNamePolicy();
-  const functionName = namePolicy.getName(httpOperation.operation.name + "Deserialize", "function");
-  return (
-    <FunctionDeclaration
-      name={functionName}
-      refkey={getHttpRequestDeserializeRefkey(httpOperation)}
-      parametersMode="replace"
-      parameters={{ response: httpRuntimeTemplateLib.PathUncheckedResponse }}
-    >
-      <List hardline>
-        <HttpResponses httpOperation={props.httpOperation} />
-        {code`throw ${getCreateRestErrorRefkey()}(response);`}
-      </List>
-    </FunctionDeclaration>
-  );
-}
-
 export interface HttpResponseProps {
   httpOperation: HttpOperation;
   responseRefkey: Refkey;

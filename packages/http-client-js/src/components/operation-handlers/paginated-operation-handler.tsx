@@ -1,43 +1,32 @@
 import * as ay from "@alloy-js/core";
 import { Children } from "@alloy-js/core";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import * as ts from "@alloy-js/typescript";
+import { $ } from "@typespec/compiler/experimental/typekit";
+import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
-import { OperationHandler } from "./types.js";
-import { ClientOperation } from "../client-operation.jsx";
-import { getHttpRequestSendRefkey, HttpRequest, HttpRequestSend } from "../http-request.jsx";
-import { getHttpRequestDeserializeRefkey, HttpResponse, HttpResponseDeserialize } from "../http-response.jsx";
-import { OperationOptionsDeclaration } from "../operation-options.jsx";
-import { getPageSettingsTypeRefkey, PageSettingsDeclaration } from "./paging/page-settings.jsx";
 import * as cl from "@typespec/http-client";
 import { reportDiagnostic } from "../../lib.js";
 import { getClientcontextDeclarationRef } from "../client-context/client-context-declaration.jsx";
+import { OperationOptionsDeclaration } from "../operation-options.jsx";
 import { getOperationParameters } from "../operation-parameters.jsx";
-import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
-import { getPageResponseTypeRefkey, PageResponseDeclaration } from "./paging/page-response.jsx";
-import { getBuildPagedAsyncIteratorRefkey, getPagedAsyncIterableIteratorRefkey } from "../static-helpers/paging-helper.jsx";
+import {
+  getBuildPagedAsyncIteratorRefkey,
+  getPagedAsyncIterableIteratorRefkey,
+} from "../static-helpers/paging-helper.jsx";
 import { getPageItemTypeName } from "./paging/page-item.jsx";
-import { ModelProperty } from "@typespec/compiler";
-
-
-function getResponseHeader( httpOperation: HttpOperation, prop?: ModelProperty): string | undefined {
-  if(!prop) {
-    return undefined;
-  }
-  const headers = httpOperation.responses.flatMap(resp => resp.responses).map(resp => resp.headers);
-  for(const header of headers) {
-    if(!header) {
-      continue;
-    }
-    for(const key in header) {
-      if(header[key] === prop) {
-      return key;
-    }
-    }
-    
-  }
-  return undefined;
-}
+import { getPageResponseTypeRefkey, PageResponseDeclaration } from "./paging/page-response.jsx";
+import {
+  getPageSettingProperties,
+  getPageSettingsTypeRefkey,
+  PageSettingsDeclaration,
+} from "./paging/page-settings.jsx";
+import { getHttpRequestSendRefkey, HttpRequestSend } from "./paging/request-send.jsx";
+import {
+  getHttpRequestDeserializeRefkey,
+  HttpResponseDeserialize,
+} from "./paging/response-deserialize.jsx";
+import { extractPagingDetail } from "./paging/util.js";
+import { OperationHandler } from "./types.js";
 
 export const PaginatedOperationHandler: OperationHandler = {
   canHandle(httpOperation: HttpOperation): boolean {
@@ -64,23 +53,22 @@ export const PaginatedOperationHandler: OperationHandler = {
       client: { type: clientContextInterfaceRef, refkey: ay.refkey(client, "client") },
       ...getOperationParameters(httpOperation),
     };
-    // TODO: concatentate the function call for send fn
-    // TODO: extract the elements
-    const itemsPosition = pagingOperation.output.pageItems.property.name;
-    const isNextLink = pagingOperation.output.nextLink !== undefined;
-    const returnedNextToken = pagingOperation.output.nextLink?.property ?? pagingOperation.output.continuationToken?.property;
-    // TODO: extract the next token
-    
-    const nextTokenInputName = pagingOperation.input.continuationToken?.property.name;
-    const isHeaderToken = getResponseHeader(httpOperation, returnedNextToken);
-    const returnedTokenPosition = isHeaderToken ? "headers" : "body";
-    const returnedTokenName = isHeaderToken ? isHeaderToken: returnedNextToken?.name;
+    const sendSignatureParams: Record<string, ts.ParameterDescriptor | ay.Children> = {
+      ...signatureParams,
+    };
+    const pagingDetail = extractPagingDetail(httpOperation, pagingOperation);
+    // Downgrade any page settings to PageSettings and exclude from operation options
+    const excludes = getPageSettingProperties(pagingOperation).map((p) => p.property);
     return (
       <ay.List>
-        <OperationOptionsDeclaration operation={httpOperation} />
+        <OperationOptionsDeclaration operation={httpOperation} excludes={excludes} />
         <PageSettingsDeclaration operation={httpOperation} pagingOperation={pagingOperation} />
         <PageResponseDeclaration operation={httpOperation} pagingOperation={pagingOperation} />
-        <HttpRequestSend httpOperation={httpOperation} responseRefkey={responseRefkey} signatureParams={signatureParams} />
+        <HttpRequestSend
+          httpOperation={httpOperation}
+          responseRefkey={responseRefkey}
+          signatureParams={sendSignatureParams}
+        />
         <HttpResponseDeserialize httpOperation={httpOperation} responseRefkey={responseRefkey} />
         <FunctionDeclaration
           export
@@ -92,31 +80,41 @@ export const PaginatedOperationHandler: OperationHandler = {
         >
           {ay.code`return ${getBuildPagedAsyncIteratorRefkey()}<${getPageItemTypeName(pagingOperation)},${getPageResponseTypeRefkey(httpOperation)},${getPageSettingsTypeRefkey(httpOperation)}>({
           getPagedResponse: async (nextToken?: string, settings?: ${getPageSettingsTypeRefkey(httpOperation)}) => {
-             ${isNextLink ? `if (nextToken) {
+             ${
+               pagingDetail.pattern === "nextLink"
+                 ? `if (nextToken) {
               return await client.pathUnchecked(nextToken).get();
-            }` : ``}
+            }`
+                 : ``
+             }
             const _options = { ...options, ...settings};
-            ${nextTokenInputName ? `if (nextToken) {
-              _options.${nextTokenInputName} = nextToken;
-            }` : ``}
+            ${
+              pagingDetail.pattern === "continuationToken" && pagingDetail.input?.nextToken
+                ? `if (nextToken) {
+              _options.${pagingDetail.input?.nextToken} = nextToken;
+            }`
+                : ``
+            }
             return await ${getHttpRequestSendRefkey(httpOperation)}(client, _options);
           },
           deserializeRawResponse: async (response) => {
             return await ${getHttpRequestDeserializeRefkey(httpOperation)}(response)
           },
           getElements: (response) => {
-            return response.${itemsPosition};
-          }
-          ${returnedTokenName ? `
-            ,
-            getNextToken: (response) => {
-              return response.${returnedTokenPosition}["${returnedTokenName}"];
+            return response.${pagingDetail.output.items};
+          },
+          ${
+            pagingDetail.output.nextToken
+              ? `getNextToken: (response) => {
+              return response.${pagingDetail.output.nextToken.position}["${pagingDetail.output.nextToken.name}"];
             }
-            `: ``}
+            `
+              : ``
+          }
           
           });`}
         </FunctionDeclaration>
       </ay.List>
     );
-  }
-}
+  },
+};

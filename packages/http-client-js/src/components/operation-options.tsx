@@ -1,11 +1,13 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import { ModelProperty } from "@typespec/compiler";
 import * as ef from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
 import { hasDefaultValue } from "../utils/parameters.jsx";
 import { getOperationOptionsInterfaceRefkey } from "./static-helpers/interfaces.jsx";
 export interface OperationOptionsProps {
   operation: HttpOperation;
+  excludes?: ModelProperty[];
 }
 
 export function getOperationOptionsTypeRefkey(operation: HttpOperation) {
@@ -13,9 +15,10 @@ export function getOperationOptionsTypeRefkey(operation: HttpOperation) {
 }
 export function OperationOptionsDeclaration(props: OperationOptionsProps) {
   const namePolicy = ts.useTSNamePolicy();
+  const excludes = props.excludes ?? [];
   const interfaceName = namePolicy.getName(props.operation.operation.name + "Options", "interface");
   const optionalParameters = props.operation.parameters.properties.filter(
-    (p) => p.property.optional || hasDefaultValue(p),
+    (p) => p.property.optional || hasDefaultValue(p) || !excludes.includes(p.property),
   );
 
   return (
