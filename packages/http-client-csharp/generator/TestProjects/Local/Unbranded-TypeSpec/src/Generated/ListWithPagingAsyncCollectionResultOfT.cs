@@ -14,10 +14,10 @@ namespace UnbrandedTypeSpec
 {
     internal partial class ListWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-        public ListWithPagingAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, RequestOptions options)
+        public ListWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;

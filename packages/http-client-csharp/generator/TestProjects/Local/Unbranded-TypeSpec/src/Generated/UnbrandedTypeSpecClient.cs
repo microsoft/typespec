@@ -17,7 +17,7 @@ using UnbrandedTypeSpec.Models.Custom;
 namespace UnbrandedTypeSpec
 {
     /// <summary> This is a sample typespec project. </summary>
-    public partial class UnbrandedTypeSpecClient
+    public partial class SampleTypeSpecClient
     {
         private readonly Uri _endpoint;
         /// <summary> A credential used to authenticate to the service. </summary>
@@ -26,7 +26,7 @@ namespace UnbrandedTypeSpec
         private readonly string _apiVersion;
 
         /// <summary> Initializes a new instance of UnbrandedTypeSpecClient for mocking. </summary>
-        protected UnbrandedTypeSpecClient()
+        protected SampleTypeSpecClient()
         {
         }
 
@@ -34,7 +34,7 @@ namespace UnbrandedTypeSpec
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
-        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential) : this(endpoint, keyCredential, new UnbrandedTypeSpecClientOptions())
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential) : this(endpoint, keyCredential, new UnbrandedTypeSpecClientOptions())
         {
         }
 
@@ -43,7 +43,7 @@ namespace UnbrandedTypeSpec
         /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
         /// <param name="options"> The options for configuring the client. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
-        public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential, UnbrandedTypeSpecClientOptions options)
+        public SampleTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential, UnbrandedTypeSpecClientOptions options)
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
             Argument.AssertNotNull(keyCredential, nameof(keyCredential));

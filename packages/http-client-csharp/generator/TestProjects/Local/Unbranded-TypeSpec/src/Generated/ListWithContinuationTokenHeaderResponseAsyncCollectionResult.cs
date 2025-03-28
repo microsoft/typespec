@@ -14,11 +14,11 @@ namespace UnbrandedTypeSpec
 {
     internal partial class ListWithContinuationTokenHeaderResponseAsyncCollectionResult : AsyncCollectionResult
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-        public ListWithContinuationTokenHeaderResponseAsyncCollectionResult(UnbrandedTypeSpecClient client, string token, RequestOptions options)
+        public ListWithContinuationTokenHeaderResponseAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;

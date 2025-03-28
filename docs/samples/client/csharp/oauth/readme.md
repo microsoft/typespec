@@ -4,9 +4,9 @@ This guide is intended to assist with creating custom client constructor to supp
 
 ## Table of contents
 
-  - [Creating a client with OAuth Token](#oauth-token)
-  - Example implementation of TokenCredential
-  - Example usage of TokenCredential and Custom Client
+  - [Creating a client with OAuth Token](#create-custom-client-constructor-to-support-oauth-token)
+  - Example implementation of AuthenticationTokenProvider
+  - Example usage of AuthenticationTokenProvider and Custom Client
 
 ### Create custom client constructor to support OAuth token
 This constructor initializes a new instance of the UnbrandedTypeSpecClient class, and sets a client pipeline with OAuth2 bearer token authentication using the provided AuthenticationTokenProvider and endpoint uri.

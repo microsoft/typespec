@@ -14,11 +14,11 @@ namespace UnbrandedTypeSpec
 {
     internal partial class ListWithNextLinkCollectionResultOfT : CollectionResult<Thing>
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly Uri _nextPage;
         private readonly RequestOptions _options;
 
-        public ListWithNextLinkCollectionResultOfT(UnbrandedTypeSpecClient client, Uri nextPage, RequestOptions options)
+        public ListWithNextLinkCollectionResultOfT(SampleTypeSpecClient client, Uri nextPage, RequestOptions options)
         {
             _client = client;
             _nextPage = nextPage;

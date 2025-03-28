@@ -11,7 +11,7 @@ namespace UnbrandedTypeSpec
     /// <summary>
     /// Demonstrates creating a custom client constructor to enable OAuth authentication.
     /// </summary>
-    public partial class UnbrandedTypeSpecClient
+    public partial class SampleTypeSpecClient
     {
         // If generated, flows would come from the service level OAuth2 flow definitions as shown in the Oauth2 Scopes section of this: https://typespec.io/docs/libraries/http/authentication/
         private readonly Dictionary<string, object>[] flows = [
@@ -23,11 +23,11 @@ namespace UnbrandedTypeSpec
         ];
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UnbrandedTypeSpecClient"/> class.
+        /// Initializes a new instance of the <see cref="SampleTypeSpecClient"/> class.
         /// </summary>
         /// <param name="uri">The URI of the service.</param>
         /// <param name="authTokenProvider">The authentication token provider.</param>
-        public UnbrandedTypeSpecClient(Uri uri, AuthenticationTokenProvider authTokenProvider)
+        public SampleTypeSpecClient(Uri uri, AuthenticationTokenProvider authTokenProvider)
         {
             var options = new ClientPipelineOptions();
             Pipeline = ClientPipeline.Create(options,

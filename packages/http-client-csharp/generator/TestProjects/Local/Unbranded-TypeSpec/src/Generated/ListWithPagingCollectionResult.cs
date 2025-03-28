@@ -13,10 +13,10 @@ namespace UnbrandedTypeSpec
 {
     internal partial class ListWithPagingCollectionResult : CollectionResult
     {
-        private readonly UnbrandedTypeSpecClient _client;
+        private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-        public ListWithPagingCollectionResult(UnbrandedTypeSpecClient client, RequestOptions options)
+        public ListWithPagingCollectionResult(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;

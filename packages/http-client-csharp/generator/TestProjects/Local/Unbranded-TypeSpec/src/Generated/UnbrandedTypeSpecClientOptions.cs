@@ -10,7 +10,7 @@ using System.ClientModel.Primitives;
 
 namespace UnbrandedTypeSpec
 {
-    /// <summary> Client options for <see cref="UnbrandedTypeSpecClient"/>. </summary>
+    /// <summary> Client options for <see cref="SampleTypeSpecClient"/>. </summary>
     public partial class UnbrandedTypeSpecClientOptions : ClientPipelineOptions
     {
         private const ServiceVersion LatestVersion = ServiceVersion.V2024_08_16_Preview;
