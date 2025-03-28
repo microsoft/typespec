@@ -788,7 +788,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public string TestIntDeserializeExpression(Type type, SerializationFormat format)
         {
             var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
-            return expr.ToDisplayString();
+            Assert.NotNull(expr);
+            return expr!.ToDisplayString();
         }
 
         /// <summary>
