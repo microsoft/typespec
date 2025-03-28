@@ -21,9 +21,9 @@ namespace _Type._Array
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IList<TimeSpan>> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<IReadOnlyList<TimeSpan>> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<IList<TimeSpan>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<IReadOnlyList<TimeSpan>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 

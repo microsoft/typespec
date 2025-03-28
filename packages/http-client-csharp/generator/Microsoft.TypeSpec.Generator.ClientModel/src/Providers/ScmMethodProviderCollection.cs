@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _cleanOperationName = operation.Name.ToCleanName();
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
-            _isPageable = operation.Paging?.NextLink != null || operation.Paging?.ContinuationToken != null;
+            _isPageable = operation.Paging != null;
             if (_isPageable)
             {
                 _paging = operation.Paging;
@@ -298,22 +298,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (!responseBodyType.Arguments[0].IsFrameworkType || responseBodyType.Arguments[0].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[0].Equals(typeof(BinaryData)))
                 {
-                    return declarations["value"];
+                    return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0]));
                 }
                 else
                 {
-                    return response.Content().ToObjectFromJson(responseBodyType);
+                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
                 }
             }
             if (responseBodyType.IsDictionary)
             {
                 if (!responseBodyType.Arguments[1].IsFrameworkType || responseBodyType.Arguments[1].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[1].Equals(typeof(BinaryData)))
                 {
-                    return declarations["value"];
+                    return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0], responseBodyType.Arguments[1]));
                 }
                 else
                 {
-                    return response.Content().ToObjectFromJson(responseBodyType);
+                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
                 }
             }
             if (responseBodyType.Equals(typeof(string)) && Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
@@ -579,7 +579,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var returnType = response == null || responseBodyType == null
                 ? ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType
-                : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
+                : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType.OutputType);
 
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
         }
