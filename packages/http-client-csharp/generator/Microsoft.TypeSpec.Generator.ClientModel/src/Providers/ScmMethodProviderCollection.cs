@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _cleanOperationName = operation.Name.ToCleanName();
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
-            _isPageable = operation.Paging?.NextLink != null || operation.Paging?.ContinuationToken != null;
+            _isPageable = operation.Paging != null;
             if (_isPageable)
             {
                 _paging = operation.Paging;

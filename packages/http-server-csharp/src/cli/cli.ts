@@ -11,7 +11,7 @@ async function main() {
   console.log(`TypeSpec Http Server Emitter for C-Sharp \n`);
 
   await yargs(hideBin(process.argv))
-    .scriptName("hscs")
+    .scriptName("hscs-scaffold")
     .help()
     .strict()
     .parserConfiguration({
@@ -19,8 +19,8 @@ async function main() {
       "boolean-negation": false,
     })
     .command(
-      "scaffold <path-to-spec> [--output <project-directory>] [--use-swaggerui] [OPTIONS]",
-      "Generate a complete project with mock implementation at the given project-directory for the given spec.  This requires dotnet 9: https://dotnet.microsoft.com/download.",
+      "$0 <path-to-spec> [--output <project-directory>] [--use-swaggerui] [OPTIONS]",
+      "Create an ASP.Net server project",
       (cmd) => {
         return cmd
           .option("use-swaggerui", {
@@ -130,8 +130,7 @@ async function main() {
           }
         }
       },
-    )
-    .demandCommand(1, "You must use one of the supported commands.").argv;
+    ).argv;
 }
 
 function internalError(error: unknown) {
