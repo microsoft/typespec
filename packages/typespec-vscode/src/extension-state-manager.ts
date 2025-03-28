@@ -1,8 +1,8 @@
-import { LogLevel } from "rollup";
 import vscode from "vscode";
 import { normalizePath } from "./path-utils.js";
 import { RawTelemetryEvent } from "./telemetry/telemetry-event.js";
 
+export type LogLevel = "info" | "warn" | "error";
 export interface StartUpMessage {
   /**
    * the message to show in the popup notification
