@@ -3,8 +3,7 @@ changeKind: breaking
 packages:
   - "@typespec/http-server-csharp"
 ---
-
-### Change in Array Scaffolding from TypeSpec to C#
+Change in Array Scaffolding from TypeSpec to C#
 
 Previously, arrays (`[]`/`Array<T>`) in TypeSpec were always scaffolded as arrays (`[]`) in C#. With this change, arrays will now be scaffolded differently to better align with common C# practices:
 
