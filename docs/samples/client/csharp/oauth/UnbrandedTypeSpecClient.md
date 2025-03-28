@@ -1,6 +1,7 @@
 ### Create custom client with unbranded token
 
 #### To create custom client with Uri and ApiKeyCredential
+
 ```csharp
 /// <summary>
 /// Initializes a new instance of the <see cref="UnbrandedTypeSpecClient"/> class.
@@ -13,9 +14,10 @@ public UnbrandedTypeSpecClient(Uri endpoint, ApiKeyCredential keyCredential)
 }
 ```
 
-A code sample demonstrating creating a custom client with an ApiKeyCredential can be found [here](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/generator/TestProjects/Local/Unbranded-TypeSpec/src/Generated/UnbrandedTypeSpecClient.cs#L37). 
+A code sample demonstrating creating a custom client with an ApiKeyCredential can be found [here](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/generator/TestProjects/Local/Unbranded-TypeSpec/src/Generated/UnbrandedTypeSpecClient.cs#L37).
 
 #### To create custom client with Uri and AuthenticationTokenProvider
+
 ```csharp
 /// <summary>
 /// Initializes a new instance of the <see cref="UnbrandedTypeSpecClient"/> class.
@@ -25,10 +27,12 @@ A code sample demonstrating creating a custom client with an ApiKeyCredential ca
 public UnbrandedTypeSpecClient(Uri uri, AuthenticationTokenProvider credential)
 {
     var options = new ClientPipelineOptions();
-    Pipeline = ClientPipeline.Create(options,
-    perCallPolicies: ReadOnlySpan<PipelinePolicy>.Empty,
-    perTryPolicies: [new OAuth2BearerTokenAuthenticationPolicy(credential, flows)],
-    beforeTransportPolicies: ReadOnlySpan<PipelinePolicy>.Empty);
+    Pipeline = ClientPipeline.Create(
+        options,
+        perCallPolicies: ReadOnlySpan<PipelinePolicy>.Empty,
+        perTryPolicies: [new OAuth2BearerTokenAuthenticationPolicy(credential, flows)],
+        beforeTransportPolicies: ReadOnlySpan<PipelinePolicy>.Empty
+    );
 }
 ```
 
