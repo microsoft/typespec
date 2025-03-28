@@ -31,10 +31,8 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.management.polling.PollResult;
-import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
-import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
 import java.nio.ByteBuffer;
@@ -83,16 +81,6 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             @PathParam("extensionsResourceName") String extensionsResourceName, @HeaderParam("Accept") String accept,
             Context context);
 
-        @Headers({ "Content-Type: application/json" })
-        @Get("/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}")
-        @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<ExtensionsResourceInner> getSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion,
-            @PathParam(value = "resourceUri", encoded = true) String resourceUri,
-            @PathParam("extensionsResourceName") String extensionsResourceName, @HeaderParam("Accept") String accept,
-            Context context);
-
         @Put("/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}")
         @ExpectedResponses({ 200, 201 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -103,30 +91,10 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") ExtensionsResourceInner resource, Context context);
 
-        @Put("/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}")
-        @ExpectedResponses({ 200, 201 })
-        @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<BinaryData> createOrUpdateSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion,
-            @PathParam(value = "resourceUri", encoded = true) String resourceUri,
-            @PathParam("extensionsResourceName") String extensionsResourceName,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") ExtensionsResourceInner resource, Context context);
-
         @Patch("/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<ExtensionsResourceInner>> update(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion,
-            @PathParam(value = "resourceUri", encoded = true) String resourceUri,
-            @PathParam("extensionsResourceName") String extensionsResourceName,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") ExtensionsResourceInner properties, Context context);
-
-        @Patch("/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}")
-        @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<ExtensionsResourceInner> updateSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion,
             @PathParam(value = "resourceUri", encoded = true) String resourceUri,
             @PathParam("extensionsResourceName") String extensionsResourceName,
@@ -144,15 +112,6 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             Context context);
 
         @Headers({ "Content-Type: application/json" })
-        @Delete("/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources/{extensionsResourceName}")
-        @ExpectedResponses({ 200, 204 })
-        @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<Void> deleteSync(@HostParam("endpoint") String endpoint, @QueryParam("api-version") String apiVersion,
-            @PathParam(value = "resourceUri", encoded = true) String resourceUri,
-            @PathParam("extensionsResourceName") String extensionsResourceName, @HeaderParam("Accept") String accept,
-            Context context);
-
-        @Headers({ "Content-Type: application/json" })
         @Get("/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
@@ -162,27 +121,10 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             Context context);
 
         @Headers({ "Content-Type: application/json" })
-        @Get("/{resourceUri}/providers/Azure.ResourceManager.Resources/extensionsResources")
-        @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<ExtensionsResourceListResult> listByScopeSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion,
-            @PathParam(value = "resourceUri", encoded = true) String resourceUri, @HeaderParam("Accept") String accept,
-            Context context);
-
-        @Headers({ "Content-Type: application/json" })
         @Get("{nextLink}")
         @ExpectedResponses({ 200 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<ExtensionsResourceListResult>> listByScopeNext(
-            @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, Context context);
-
-        @Headers({ "Content-Type: application/json" })
-        @Get("{nextLink}")
-        @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<ExtensionsResourceListResult> listByScopeNextSync(
             @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept, Context context);
     }
@@ -279,22 +221,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ExtensionsResourceInner> getWithResponse(String resourceUri, String extensionsResourceName,
         Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        return service.getSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            extensionsResourceName, accept, context);
+        return getWithResponseAsync(resourceUri, extensionsResourceName, context).block();
     }
 
     /**
@@ -399,87 +326,6 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type
-     * along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Response<BinaryData> createOrUpdateWithResponse(String resourceUri, String extensionsResourceName,
-        ExtensionsResourceInner resource) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            extensionsResourceName, contentType, accept, resource, Context.NONE);
-    }
-
-    /**
-     * Create a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @param resource Resource create parameters.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete extension resource types can be created by aliasing this type using a specific property type
-     * along with {@link Response}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Response<BinaryData> createOrUpdateWithResponse(String resourceUri, String extensionsResourceName,
-        ExtensionsResourceInner resource, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            extensionsResourceName, contentType, accept, resource, context);
-    }
-
-    /**
-     * Create a ExtensionsResource.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param extensionsResourceName The name of the ExtensionsResource.
-     * @param resource Resource create parameters.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link PollerFlux} for polling of concrete extension resource types can be created by aliasing this
      * type using a specific property type.
      */
@@ -531,9 +377,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ExtensionsResourceInner>, ExtensionsResourceInner>
         beginCreateOrUpdate(String resourceUri, String extensionsResourceName, ExtensionsResourceInner resource) {
-        Response<BinaryData> response = createOrUpdateWithResponse(resourceUri, extensionsResourceName, resource);
-        return this.client.<ExtensionsResourceInner, ExtensionsResourceInner>getLroResult(response,
-            ExtensionsResourceInner.class, ExtensionsResourceInner.class, Context.NONE);
+        return this.beginCreateOrUpdateAsync(resourceUri, extensionsResourceName, resource).getSyncPoller();
     }
 
     /**
@@ -552,10 +396,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<ExtensionsResourceInner>, ExtensionsResourceInner> beginCreateOrUpdate(
         String resourceUri, String extensionsResourceName, ExtensionsResourceInner resource, Context context) {
-        Response<BinaryData> response
-            = createOrUpdateWithResponse(resourceUri, extensionsResourceName, resource, context);
-        return this.client.<ExtensionsResourceInner, ExtensionsResourceInner>getLroResult(response,
-            ExtensionsResourceInner.class, ExtensionsResourceInner.class, context);
+        return this.beginCreateOrUpdateAsync(resourceUri, extensionsResourceName, resource, context).getSyncPoller();
     }
 
     /**
@@ -611,7 +452,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExtensionsResourceInner createOrUpdate(String resourceUri, String extensionsResourceName,
         ExtensionsResourceInner resource) {
-        return beginCreateOrUpdate(resourceUri, extensionsResourceName, resource).getFinalResult();
+        return createOrUpdateAsync(resourceUri, extensionsResourceName, resource).block();
     }
 
     /**
@@ -629,7 +470,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ExtensionsResourceInner createOrUpdate(String resourceUri, String extensionsResourceName,
         ExtensionsResourceInner resource, Context context) {
-        return beginCreateOrUpdate(resourceUri, extensionsResourceName, resource, context).getFinalResult();
+        return createOrUpdateAsync(resourceUri, extensionsResourceName, resource, context).block();
     }
 
     /**
@@ -745,29 +586,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ExtensionsResourceInner> updateWithResponse(String resourceUri, String extensionsResourceName,
         ExtensionsResourceInner properties, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
-        }
-        if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
-        } else {
-            properties.validate();
-        }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        return service.updateSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            extensionsResourceName, contentType, accept, properties, context);
+        return updateWithResponseAsync(resourceUri, extensionsResourceName, properties, context).block();
     }
 
     /**
@@ -876,22 +695,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(String resourceUri, String extensionsResourceName, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        if (extensionsResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter extensionsResourceName is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(), resourceUri,
-            extensionsResourceName, accept, context);
+        return deleteWithResponseAsync(resourceUri, extensionsResourceName, context).block();
     }
 
     /**
@@ -1002,67 +806,11 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ExtensionsResource list operation along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<ExtensionsResourceInner> listByScopeSinglePage(String resourceUri) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ExtensionsResourceListResult> res = service.listByScopeSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), resourceUri, accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
-    }
-
-    /**
-     * List ExtensionsResource resources by parent.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ExtensionsResource list operation along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<ExtensionsResourceInner> listByScopeSinglePage(String resourceUri, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (resourceUri == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceUri is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ExtensionsResourceListResult> res = service.listByScopeSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), resourceUri, accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
-    }
-
-    /**
-     * List ExtensionsResource resources by parent.
-     * 
-     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response of a ExtensionsResource list operation as paginated response with {@link PagedIterable}.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ExtensionsResourceInner> listByScope(String resourceUri) {
-        return new PagedIterable<>(() -> listByScopeSinglePage(resourceUri, Context.NONE),
-            nextLink -> listByScopeNextSinglePage(nextLink));
+        return new PagedIterable<>(listByScopeAsync(resourceUri));
     }
 
     /**
@@ -1077,8 +825,7 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ExtensionsResourceInner> listByScope(String resourceUri, Context context) {
-        return new PagedIterable<>(() -> listByScopeSinglePage(resourceUri, context),
-            nextLink -> listByScopeNextSinglePage(nextLink, context));
+        return new PagedIterable<>(listByScopeAsync(resourceUri, context));
     }
 
     /**
@@ -1135,61 +882,4 @@ public final class ExtensionsResourcesClientImpl implements ExtensionsResourcesC
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                 res.getValue().value(), res.getValue().nextLink(), null));
     }
-
-    /**
-     * Get the next page of items.
-     * 
-     * @param nextLink The URL to get the next list of items.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ExtensionsResource list operation along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<ExtensionsResourceInner> listByScopeNextSinglePage(String nextLink) {
-        if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
-        }
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ExtensionsResourceListResult> res
-            = service.listByScopeNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
-    }
-
-    /**
-     * Get the next page of items.
-     * 
-     * @param nextLink The URL to get the next list of items.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ExtensionsResource list operation along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<ExtensionsResourceInner> listByScopeNextSinglePage(String nextLink, Context context) {
-        if (nextLink == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter nextLink is required and cannot be null."));
-        }
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        Response<ExtensionsResourceListResult> res
-            = service.listByScopeNextSync(nextLink, this.client.getEndpoint(), accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
-    }
-
-    private static final ClientLogger LOGGER = new ClientLogger(ExtensionsResourcesClientImpl.class);
 }
