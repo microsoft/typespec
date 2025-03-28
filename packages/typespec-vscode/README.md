@@ -63,7 +63,7 @@ The extension allows emitting various outputs from TypeSpec:
 
 The action appears in the context menu on a tsp file. Or invoke `TypeSpec: Emit From TypeSpec` to emit needed outputs:
 
-<!--![vscode_tsp_to_openapi3_generation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_tsp_to_openapi3_generation.gif)-->
+![vscode_tsp_to_server_stubs.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_tsp_to_server_stubs.gif)
 
 ### Import TypeSpec from OpenAPI 3
 
