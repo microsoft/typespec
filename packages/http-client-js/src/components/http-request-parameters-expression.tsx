@@ -82,7 +82,14 @@ interface MemberChainExpression {
  * This logic will be simplified and made more robust once a couple of changes land in Alloy.
  *    - Support refkeys on interface members
  *    - Support for conditional chaining on ts.MemberChainExpression
- *    - We'd eventually get an api like this <InstancePropertyExpression instance={refkey(parameter) staticMember={refkey(property)}} />
+ *    - Eventually we'll have an API like:
+ * @example
+ * ```tsx
+ *        <InstancePropertyExpression
+ *            instance={refkey(parameter)}
+ *            staticMember={refkey(property)}
+ *        />
+ * ```
  * @param httpOperation - The HttpOperation containing parameters.
  * @param httpProperty - The current HttpProperty to build an access path for.
  * @param optionsParamRef - Reference to the user's main options parameter.
@@ -93,12 +100,12 @@ function buildMemberChainExpression(
   httpProperty: HttpProperty,
   optionsParamRef?: ay.Children,
 ): MemberChainExpression {
-  const accessSegments: ay.Children[] = []; // Renamed from 'chain' for clarity
+  const segments: ay.Children[] = [];
   let isNullish = httpProperty.property.optional === true;
   const namePolicy = ay.useNamePolicy();
   const propertyApplicationName = namePolicy.getName(httpProperty.property.name, "property");
 
-  // Handle client operation parameters, these are the parameters that are in the signature of the operation
+  // If the property is at the top level, return early
   if (httpProperty.path.length === 1) {
     if (httpProperty.property.optional || hasDefaultValue(httpProperty)) {
       return {
@@ -108,7 +115,6 @@ function buildMemberChainExpression(
         leadingExpression: ay.code`${optionsParamRef}`,
       };
     }
-
     return {
       propertyName: propertyApplicationName,
       isNullish,
@@ -116,56 +122,55 @@ function buildMemberChainExpression(
     };
   }
 
-  // There are Http Parameters that might be nested in other parameters, we need to figure out how to access them
-  // from the client parameter.
-  let currentParentPath = httpProperty.path.slice(0, -1);
-  let isFirstNested = true; // Renamed from 'isFirst' for clarity
-  while (currentParentPath.length) {
-    const parentProperty = findHttpPropertyByPath(httpOperation, currentParentPath);
-    if (!parentProperty) break;
+  // Build access segments for nested properties.
+  let currentPath = httpProperty.path.slice(0, -1);
+  while (currentPath.length > 0) {
+    const parentProperty = findHttpPropertyByPath(httpOperation, currentPath);
+    if (!parentProperty) {
+      break;
+    }
 
-    let joiner = ".";
+    // Use optional chaining if the parent is optional.
+    const joiner = parentProperty.property.optional ? "?." : ".";
     if (parentProperty.property.optional) {
-      joiner = "?.";
       isNullish = true;
     }
 
     const parentName = namePolicy.getName(parentProperty.property.name, "property");
-    accessSegments.unshift(joiner);
 
-    if (isFirstNested && typeof parentName === "string") {
-      // For the first nested property in the chain, use direct name
-      isFirstNested = false;
-      accessSegments.unshift(ay.code`${parentName}`);
+    // Unshift the joiner first
+    segments.unshift(joiner);
+
+    // Use direct property access if possible.
+    if (isValidIdentifier(parentName)) {
+      segments.unshift(ay.code`${parentName}`);
     } else {
-      // For deeper nested properties, use bracket notation
-      accessSegments.unshift(`[${JSON.stringify(parentName)}]`);
+      // For non-valid identifiers, use bracket notation.
+      segments.unshift(`[${JSON.stringify(parentName)}]`);
     }
 
-    currentParentPath = currentParentPath.slice(0, -1);
+    // Remove the last element to move one level up.
+    currentPath = currentPath.slice(0, -1);
   }
+
+  const fullExpression = (
+    <>
+      <ay.List children={segments} />
+      {propertyApplicationName}
+    </>
+  );
+  const leadingExpression = <ay.List children={segments.slice(0, -1)} />;
 
   return {
     propertyName: propertyApplicationName,
     isNullish,
-    fullExpression: (
-      <>
-        {ay.mapJoin(
-          () => accessSegments,
-          (element) => element,
-        )}
-        {propertyApplicationName}
-      </>
-    ),
-    leadingExpression: (
-      <>
-        {ay.mapJoin(
-          () => accessSegments.slice(0, -1),
-          (element) => element,
-        )}
-      </>
-    ),
+    fullExpression,
+    leadingExpression,
   };
+}
+
+function isValidIdentifier(name: string): boolean {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name);
 }
 
 function findHttpPropertyByPath(
