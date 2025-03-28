@@ -1159,7 +1159,12 @@ function createOAPIEmitter(
             part.body.type,
             visibility,
             part.body.isExplicit && part.body.containsMetadataAnnotations,
-            part.body.type.kind === "Union" ? contentType : undefined,
+            part.body.type.kind === "Union" &&
+              [...part.body.type.variants.values()].some((x) =>
+                isBinaryPayload(x.type, contentType),
+              )
+              ? contentType
+              : undefined,
           );
 
       if (part.multi) {

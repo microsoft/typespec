@@ -77,12 +77,6 @@ The name of the package to be used in pretty-printing. Will be the name of the p
 
 Whether to return responses from HEAD requests as boolean. Defaults to `true`.
 
-### `company-name`
-
-**Type:** `string`
-
-The name of the company. This will be reflected in your license files and documentation.
-
 ### `use-pyodide`
 
 **Type:** `boolean`

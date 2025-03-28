@@ -5,9 +5,15 @@
 package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.util.CoreUtils;
 import com.azure.core.util.logging.ClientLogger;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.azure.json.JsonReader;
+import com.azure.json.JsonSerializable;
+import com.azure.json.JsonToken;
+import com.azure.json.JsonWriter;
+import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import tsptest.armresourceprovider.models.ProvisioningState;
 
@@ -15,41 +21,35 @@ import tsptest.armresourceprovider.models.ProvisioningState;
  * Top Level Arm Resource Properties.
  */
 @Fluent
-public final class TopLevelArmResourceProperties {
+public final class TopLevelArmResourceProperties implements JsonSerializable<TopLevelArmResourceProperties> {
     /*
      * Configuration Endpoints.
      */
-    @JsonProperty(value = "configurationEndpoints", access = JsonProperty.Access.WRITE_ONLY)
     private List<String> configurationEndpoints;
 
     /*
      * The userName property.
      */
-    @JsonProperty(value = "userName", required = true)
     private String userName;
 
     /*
      * The userNames property.
      */
-    @JsonProperty(value = "userNames", required = true)
     private String userNames;
 
     /*
      * The accuserName property.
      */
-    @JsonProperty(value = "accuserName", required = true)
     private String accuserName;
 
     /*
      * The startTimeStamp property.
      */
-    @JsonProperty(value = "startTimeStamp", required = true)
     private OffsetDateTime startTimeStamp;
 
     /*
      * The status of the last operation.
      */
-    @JsonProperty(value = "provisioningState", access = JsonProperty.Access.WRITE_ONLY)
     private ProvisioningState provisioningState;
 
     /**
@@ -185,4 +185,59 @@ public final class TopLevelArmResourceProperties {
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(TopLevelArmResourceProperties.class);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        jsonWriter.writeStartObject();
+        jsonWriter.writeStringField("userName", this.userName);
+        jsonWriter.writeStringField("userNames", this.userNames);
+        jsonWriter.writeStringField("accuserName", this.accuserName);
+        jsonWriter.writeStringField("startTimeStamp",
+            this.startTimeStamp == null ? null : DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(this.startTimeStamp));
+        return jsonWriter.writeEndObject();
+    }
+
+    /**
+     * Reads an instance of TopLevelArmResourceProperties from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of TopLevelArmResourceProperties if the JsonReader was pointing to an instance of it, or null
+     * if it was pointing to JSON null.
+     * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
+     * @throws IOException If an error occurs while reading the TopLevelArmResourceProperties.
+     */
+    public static TopLevelArmResourceProperties fromJson(JsonReader jsonReader) throws IOException {
+        return jsonReader.readObject(reader -> {
+            TopLevelArmResourceProperties deserializedTopLevelArmResourceProperties
+                = new TopLevelArmResourceProperties();
+            while (reader.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = reader.getFieldName();
+                reader.nextToken();
+
+                if ("userName".equals(fieldName)) {
+                    deserializedTopLevelArmResourceProperties.userName = reader.getString();
+                } else if ("userNames".equals(fieldName)) {
+                    deserializedTopLevelArmResourceProperties.userNames = reader.getString();
+                } else if ("accuserName".equals(fieldName)) {
+                    deserializedTopLevelArmResourceProperties.accuserName = reader.getString();
+                } else if ("startTimeStamp".equals(fieldName)) {
+                    deserializedTopLevelArmResourceProperties.startTimeStamp = reader
+                        .getNullable(nonNullReader -> CoreUtils.parseBestOffsetDateTime(nonNullReader.getString()));
+                } else if ("configurationEndpoints".equals(fieldName)) {
+                    List<String> configurationEndpoints = reader.readArray(reader1 -> reader1.getString());
+                    deserializedTopLevelArmResourceProperties.configurationEndpoints = configurationEndpoints;
+                } else if ("provisioningState".equals(fieldName)) {
+                    deserializedTopLevelArmResourceProperties.provisioningState
+                        = ProvisioningState.fromString(reader.getString());
+                } else {
+                    reader.skipChildren();
+                }
+            }
+
+            return deserializedTopLevelArmResourceProperties;
+        });
+    }
 }

@@ -17,7 +17,7 @@ enable=useless-suppression
 # too-many-arguments: Due to the nature of the CLI many commands have large arguments set which reflect in large arguments set in corresponding methods.
 # too-many-lines: Due to code generation many files end up with too many lines.
 # Let's black deal with bad-continuation
-disable=missing-docstring,locally-disabled,fixme,cyclic-import,too-many-arguments,invalid-name,duplicate-code,too-few-public-methods,consider-using-f-string,super-with-arguments,redefined-builtin,import-outside-toplevel,client-suffix-needed,unnecessary-dunder-call,unnecessary-ellipsis,disallowed-name,consider-using-max-builtin
+disable=missing-docstring,locally-disabled,fixme,cyclic-import,too-many-arguments,invalid-name,duplicate-code,too-few-public-methods,consider-using-f-string,super-with-arguments,redefined-builtin,import-outside-toplevel,client-suffix-needed,unnecessary-dunder-call,unnecessary-ellipsis,disallowed-name,consider-using-max-builtin,unknown-option-value,file-needs-copyright-header
 
 [FORMAT]
 max-line-length=120
