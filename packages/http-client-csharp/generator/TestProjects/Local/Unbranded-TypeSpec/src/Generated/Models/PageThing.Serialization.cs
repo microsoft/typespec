@@ -14,7 +14,7 @@ using System.Text.Json;
 namespace UnbrandedTypeSpec
 {
     /// <summary></summary>
-    public partial class PageThing : IJsonModel<PageThing>
+    internal partial class PageThing : IJsonModel<PageThing>
     {
         internal PageThing()
         {
