@@ -337,6 +337,7 @@ function fromSdkConstantType(
   return {
     kind: constantType.kind,
     name: constantType.name,
+    namespace: "", // TODO -- constantType now does not have namespace, therefore here we use empty. In the next version, TCGC will be updated to have namespace for constantType.
     valueType: fromSdkBuiltInType(sdkContext, constantType.valueType),
     value: constantType.value,
     decorators: constantType.decorators,

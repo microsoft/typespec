@@ -32,7 +32,7 @@ namespace UnbrandedTypeSpec
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <param name="rename"></param>
         /// <returns> A new <see cref="UnbrandedTypeSpec.Thing"/> instance for mocking. </returns>
-        public static Thing Thing(BinaryData requiredUnion = default, string requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, int requiredLiteralInt = default, float requiredLiteralFloat = default, bool requiredLiteralBool = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string rename = default)
+        public static Thing Thing(BinaryData requiredUnion = default, ThingRequiredLiteralString requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, ThingRequiredLiteralInt requiredLiteralInt = default, ThingRequiredLiteralFloat requiredLiteralFloat = default, bool requiredLiteralBool = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string rename = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
             requiredNullableList ??= new ChangeTrackingList<int>();

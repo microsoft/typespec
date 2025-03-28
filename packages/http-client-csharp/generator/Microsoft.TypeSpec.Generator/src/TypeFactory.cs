@@ -12,30 +12,24 @@ namespace Microsoft.TypeSpec.Generator
 {
     public class TypeFactory
     {
-        private ChangeTrackingListDefinition? _changeTrackingListProvider;
-        private ChangeTrackingListDefinition ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
+        private ChangeTrackingListDefinition ChangeTrackingListProvider { get; } = new();
 
-        private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
-        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider { get; } = new();
 
-        private Dictionary<InputModelType, ModelProvider?>? _csharpToModelProvider;
-        private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider => _csharpToModelProvider ??= [];
+        private Dictionary<InputModelType, ModelProvider?> CSharpToModelProvider { get; } = [];
 
-        private Dictionary<EnumCacheKey, EnumProvider?>? _enumCache;
-        private Dictionary<EnumCacheKey, EnumProvider?> EnumCache => _enumCache ??= [];
+        private Dictionary<EnumCacheKey, EnumProvider?> EnumCache { get; } = [];
 
-        private Dictionary<InputType, CSharpType?>? _typeCache;
-        private Dictionary<InputType, CSharpType?> TypeCache => _typeCache ??= [];
+        private Dictionary<InputType, CSharpType?> TypeCache { get; } = [];
 
-        private Dictionary<InputModelProperty, PropertyProvider?>? _propertyCache;
-        private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache => _propertyCache ??= [];
+        private Dictionary<InputModelProperty, PropertyProvider?> PropertyCache { get; } = [];
 
-        private Dictionary<InputType, IReadOnlyList<TypeProvider>>? _serializationsCache;
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
-        private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache => _serializationsCache ??= [];
+        private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
 
-        private HashSet<string>? _unionTypes;
-        internal HashSet<string> UnionTypes => _unionTypes ??= [];
+        internal Dictionary<InputLiteralType, InputType> LiteralValueTypeCache { get; } = [];
+
+        internal HashSet<string> UnionTypes { get; } = [];
 
         protected internal TypeFactory()
         {
@@ -53,13 +47,37 @@ namespace Microsoft.TypeSpec.Generator
             return type;
         }
 
+        private InputType GetLiteralValueType(InputLiteralType literal)
+        {
+            if (LiteralValueTypeCache.TryGetValue(literal, out var valueType))
+            {
+                return valueType;
+            }
+
+            // we only convert the literal into enum when it is not a boolean
+            if (literal.ValueType.Kind == InputPrimitiveTypeKind.Boolean)
+            {
+                valueType = literal.ValueType;
+            }
+            else
+            {
+                var values = new List<InputEnumTypeValue>
+                {
+                    new InputEnumTypeValue(literal.Value.ToString() ?? "Null", literal.Value, literal.ValueType, null, null)
+                };
+                valueType = new InputEnumType(literal.Name, literal.Namespace, $"{literal.Namespace}.{literal.Name}", null, null, null, $"The {literal.Name}", InputModelTypeUsage.Input | InputModelTypeUsage.Output, literal.ValueType, values, true);
+            }
+            LiteralValueTypeCache.Add(literal, valueType);
+            return valueType;
+        }
+
         protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
         {
             CSharpType? type;
             switch (inputType)
             {
                 case InputLiteralType literalType:
-                    var input = CreateCSharpType(literalType.ValueType);
+                    var input = CreateCSharpType(GetLiteralValueType(literalType));
                     type = input != null ? CSharpType.FromLiteral(input, literalType.Value) : null;
                     break;
                 case InputUnionType unionType:

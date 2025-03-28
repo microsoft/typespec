@@ -5,13 +5,15 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public sealed class InputLiteralType : InputType
     {
-        public InputLiteralType(string name, InputType valueType, object value) : base(name)
+        public InputLiteralType(string name, string @namespace, InputPrimitiveType valueType, object value) : base(name)
         {
+            Namespace = @namespace;
             ValueType = valueType;
             Value = value;
         }
 
-        public InputType ValueType { get; }
+        public string Namespace { get; }
+        public InputPrimitiveType ValueType { get; }
         public object Value { get; }
 
         public static implicit operator InputConstant(InputLiteralType literal) => new(literal.Value, literal.ValueType);

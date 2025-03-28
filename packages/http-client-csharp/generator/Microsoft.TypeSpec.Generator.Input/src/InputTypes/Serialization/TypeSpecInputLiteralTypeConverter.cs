@@ -25,14 +25,16 @@ namespace Microsoft.TypeSpec.Generator.Input
         public static InputLiteralType CreateInputLiteralType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             var isFirstProperty = id == null && name == null;
+            string? ns = null;
             JsonElement? rawValue = null;
-            InputType? valueType = null;
+            InputPrimitiveType? valueType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("namespace", ref ns)
                     || reader.TryReadComplexType("value", options, ref rawValue)
                     || reader.TryReadComplexType("valueType", options, ref valueType)
                     || reader.TryReadComplexType("decorators", options, ref decorators);
@@ -44,6 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             name = name ?? string.Empty;
+            ns = ns ?? string.Empty;
             valueType = valueType ?? throw new JsonException("InputLiteralType must have type");
 
             if (rawValue == null)
@@ -51,12 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 throw new JsonException("InputLiteralType must have value");
             }
 
-            var valueKind = valueType switch
-            {
-                InputPrimitiveType primitiveType => primitiveType.Kind,
-                InputEnumType enumType => enumType.ValueType.Kind,
-                _ => throw new JsonException($"Not supported literal type {valueType.GetType()}.")
-            };
+            var valueKind = valueType.Kind;
             object value = valueKind switch
             {
                 InputPrimitiveTypeKind.String => rawValue.Value.GetString() ?? throw new JsonException(),
@@ -67,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 _ => throw new JsonException($"Not supported literal type {valueKind}.")
             };
 
-            var literalType = new InputLiteralType(name, valueType, value)
+            var literalType = new InputLiteralType(name, ns, valueType, value)
             {
                 Decorators = decorators ?? []
             };
