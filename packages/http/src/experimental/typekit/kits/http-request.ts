@@ -1,6 +1,7 @@
 import { Model, ModelProperty } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { HttpOperation } from "../../../types.js";
+import { getStreamMetadata } from "../../streams.js";
 
 export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType" | "body";
 
@@ -79,18 +80,32 @@ defineKit<TypekitExtension>({
     ): Model | undefined {
       const kinds = new Set(Array.isArray(kind) ? kind : [kind]);
       const parameterProperties = new Map<string, ModelProperty>();
-
-      kinds.forEach((kind) => {
-        if (kind === "body") {
-          this.httpRequest
-            .getBodyParameters(httpOperation)
-            ?.properties.forEach((value, key) => parameterProperties.set(key, value));
-        } else {
-          httpOperation.parameters.properties
-            .filter((p) => p.kind === kind && p.property)
-            .forEach((p) => parameterProperties.set(p.property!.name, p.property!));
-        }
-      });
+      const streamMetadata = getStreamMetadata(this.program, httpOperation.parameters);
+      if (streamMetadata) {
+        parameterProperties.set(httpOperation.parameters.body?.property?.name!, this.modelProperty.create({
+          name: "bytes",
+          type: this.program.checker.createType({
+            kind: "Scalar",
+            name: "bytes",
+            node: {} as any,
+            decorators: [],
+            constructors: {} as any,
+            derivedScalars: []
+          })
+        }));
+      } else {
+        kinds.forEach((kind) => {
+          if (kind === "body") {
+            this.httpRequest
+              .getBodyParameters(httpOperation)
+              ?.properties.forEach((value, key) => parameterProperties.set(key, value));
+          } else {
+            httpOperation.parameters.properties
+              .filter((p) => p.kind === kind && p.property)
+              .forEach((p) => parameterProperties.set(p.property!.name, p.property!));
+          }
+        });
+      }
 
       if (parameterProperties.size === 0) {
         return undefined;
