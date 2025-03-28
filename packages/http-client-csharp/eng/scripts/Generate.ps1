@@ -176,7 +176,7 @@ if ($null -eq $filter) {
     $launchSettings["profiles"].Add("Sample-Client", @{})
     $launchSettings["profiles"]["Sample-Client"].Add("commandLineArgs", "`$(SolutionDir)/../../../docs/samples/client/csharp/SampleClient/main.tsp -g ScmCodeModelGenerator")
     $launchSettings["profiles"]["Sample-Client"].Add("commandName", "Executable")
-    $launchSettings["profiles"]["Sample-Client"].Add("executablePath", $sampleExe)
+    $launchSettings["profiles"]["Sample-Client"].Add("executablePath", $mtgExe)
 
     foreach ($kvp in $spectorLaunchProjects.GetEnumerator()) {
         $launchSettings["profiles"].Add($kvp.Key, @{})
