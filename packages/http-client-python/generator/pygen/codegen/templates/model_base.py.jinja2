@@ -1,9 +1,7 @@
 # coding=utf-8
-# --------------------------------------------------------------------------
-# Copyright (c) {{ code_model.options["company_name"] }} Corporation. All rights reserved.
-# Licensed under the MIT License. See License.txt in the project root for
-# license information.
-# --------------------------------------------------------------------------
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
 # pylint: disable=protected-access, broad-except
 
 import copy

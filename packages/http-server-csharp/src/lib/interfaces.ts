@@ -352,7 +352,7 @@ export class LibrarySourceFile {
     path?: string;
     conditional?: boolean;
   }) {
-    this.path = params.path || "lib/";
+    this.path = params.path || "generated/lib/";
     this.filename = params.filename;
     const source = params.emitter.createSourceFile(`${this.path}/${this.filename}`);
     this.conditional = params.conditional || false;

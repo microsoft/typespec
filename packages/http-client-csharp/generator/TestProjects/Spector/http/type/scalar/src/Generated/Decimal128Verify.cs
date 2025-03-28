@@ -20,9 +20,9 @@ namespace _Type.Scalar
 
         public virtual Task<ClientResult> PrepareVerifyAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IList<decimal>> PrepareVerify(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<IReadOnlyList<decimal>> PrepareVerify(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<IList<decimal>>> PrepareVerifyAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<IReadOnlyList<decimal>>> PrepareVerifyAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Verify(BinaryContent content, RequestOptions options = null) => throw null;
 

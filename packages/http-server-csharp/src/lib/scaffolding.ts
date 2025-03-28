@@ -33,7 +33,7 @@ export function getScaffoldingHelpers(
       filename: "Program.cs",
       emitter: emitter,
       getContents: () => getProjectStartup(useSwagger, openApiPath, hasMockRegistration),
-      path: "..",
+      path: ".",
       conditional: true,
     }),
   ];
@@ -43,14 +43,14 @@ export function getScaffoldingHelpers(
         filename: "IInitializer.cs",
         emitter: emitter,
         getContents: getInitializerInterface,
-        path: "../mocks",
+        path: "mocks",
         conditional: true,
       }),
       new LibrarySourceFile({
         filename: "Initializer.cs",
         emitter: emitter,
         getContents: getInitializerImplementation,
-        path: "../mocks",
+        path: "mocks",
         conditional: true,
       }),
     );
@@ -73,7 +73,7 @@ export function getBusinessLogicImplementations(
         filename: `${impl.className}.cs`,
         emitter: emitter,
         getContents: () => getBusinessLogicImplementation(impl),
-        path: "../mocks",
+        path: "mocks",
         conditional: true,
       }),
     );
@@ -85,7 +85,7 @@ export function getBusinessLogicImplementations(
         filename: "MockRegistration.cs",
         emitter: emitter,
         getContents: () => getMockRegistration(mocks),
-        path: "../mocks",
+        path: "mocks",
         conditional: true,
       }),
     );
@@ -228,7 +228,10 @@ using TypeSpec.Helpers;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+  options.Filters.Add<HttpServiceExceptionFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 ${useSwagger ? "builder.Services.AddSwaggerGen();" : ""}
 ${hasMocks ? "MockRegistration.Register(builder);" : ""}
