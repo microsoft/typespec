@@ -24,7 +24,7 @@ When you are writing a TypeSpec emitter, you will draw on components and APIs fr
 
 ## How to get started
 
-We recommend you read the alloy documentation to understand its component model, reactivity system, formatting capabilities, and so forth. Alloy's [core concepts](https://alloy-framework.github.io/alloy/guides/basic-concepts/) document is a good place to start. 
+We recommend you read the alloy documentation to understand its component model, reactivity system, formatting capabilities, and so forth. Alloy's [core concepts](https://alloy-framework.github.io/alloy/guides/basic-concepts/) document is a good place to start.
 
 Also, make sure to read the 'Getting Started' section under the [emitter basics](./emitters-basics.md) topic. To use the framework, you will need an emitter library and a `$onEmit` function. Once you have a good understanding of Alloy, and have your emitter project set up.
 
@@ -33,7 +33,7 @@ Also, make sure to read the 'Getting Started' section under the [emitter basics]
 There are a few dependencies needed to use the emitter framework:
 
 ```sh
-> npm install --save-peer @alloy-js/core @alloy-js/typescript @typespec/emitter-framework
+install > npm --save-peer @alloy-js/core @alloy-js/typescript @typespec/emitter-framework
 ```
 
 This is in addition to the dependencies installed from the emitter template as described in [emitter basics](./emitters-basics.md).
@@ -42,10 +42,10 @@ This is in addition to the dependencies installed from the emitter template as d
 
 The main job of your onEmit function is to establish the overall structure of your emit output. This is done by using the following APIs and components:
 
-* [`Output`](https://alloy-framework.github.io/alloy/reference/core/components/output/), which sets up a bunch of context, takes formatting options like `printWidth`, registers external symbols for libraries you're going to use, and a few other things.
-* [`SourceDirectory`](https://alloy-framework.github.io/alloy/reference/core/components/sourcedirectory/) which creates a source directory at a given path.
-* [`SourceFile`](https://alloy-framework.github.io/alloy/reference/core/components/sourcefile/) component from `@alloy-js/core`, or from an alloy language component library such as [TypeScript](https://alloy-framework.github.io/alloy/reference/typescript/components/sourcefile/).
-* `writeOutput` from `@typespec/emitter-framework`, which renders all your emitter content and puts it on disk.
+- [`Output`](https://alloy-framework.github.io/alloy/reference/core/components/output/), which sets up a bunch of context, takes formatting options like `printWidth`, registers external symbols for libraries you're going to use, and a few other things.
+- [`SourceDirectory`](https://alloy-framework.github.io/alloy/reference/core/components/sourcedirectory/) which creates a source directory at a given path.
+- [`SourceFile`](https://alloy-framework.github.io/alloy/reference/core/components/sourcefile/) component from `@alloy-js/core`, or from an alloy language component library such as [TypeScript](https://alloy-framework.github.io/alloy/reference/typescript/components/sourcefile/).
+- `writeOutput` from `@typespec/emitter-framework`, which renders all your emitter content and puts it on disk.
 
 So for example, your `$onEmit` function could look like this:
 
@@ -62,31 +62,31 @@ export async function $onEmit(context: EmitContext) {
         Hello world!
       </SourceFile>
     </Output>,
-    context.emitterOutputDir
+    context.emitterOutputDir,
   );
 }
 ```
+
 If you run this emitter, you will see a `src` directory and a `README.md` file in your `tsp-output` directory.
 
 ## TypeScript Emitter Framework Components
 
 The TypeScript emitter framework wraps components from the Alloy TypeScript component library by adding a `type` prop that accepts a TypeSpec type, allowing for easy translation of TypeSpec to TypeScript:
 
-
-* `<ClassMethod type={Operation}>` - emit a TypeSpec operation as a class method.
-* `<EnumDeclaration type={Union | Enum} />` - emit a TypeSpec union or enum as a TypeScript enum.
-* `<FunctionDeclaration type={Operation}>` - emit a TypeSpec operation as a function declaration.
-* `<InterfaceDeclaration type={Model | Interface}>` - emit a TypeSpec model or interface as a TypeScript interface type.
-* `<TypeAliasDeclaration type={Scalar} />` - emit a scalar type as a TypeScript Type Alias.
-* `<TypeDeclaration type={Type} />` - emit a TypeSpec type as an appropriate TypeScript type declaration.
-* `<TypeExpression type={Type} />` - emit a TypeSpec type as an appropriate TypeScript type expression.
-* `<UnionDeclaration type={Union | Enum} />` - emit a TypeSpec Union or Enum as a TypeScript type declaration for a union.
-* `<UnionExpression type={Union | Enum} />` - emit a TypeSpec Union or Enum as a TypeScript union expression.
+- `<ClassMethod type={Operation}>` - emit a TypeSpec operation as a class method.
+- `<EnumDeclaration type={Union | Enum} />` - emit a TypeSpec union or enum as a TypeScript enum.
+- `<FunctionDeclaration type={Operation}>` - emit a TypeSpec operation as a function declaration.
+- `<InterfaceDeclaration type={Model | Interface}>` - emit a TypeSpec model or interface as a TypeScript interface type.
+- `<TypeAliasDeclaration type={Scalar} />` - emit a scalar type as a TypeScript Type Alias.
+- `<TypeDeclaration type={Type} />` - emit a TypeSpec type as an appropriate TypeScript type declaration.
+- `<TypeExpression type={Type} />` - emit a TypeSpec type as an appropriate TypeScript type expression.
+- `<UnionDeclaration type={Union | Enum} />` - emit a TypeSpec Union or Enum as a TypeScript type declaration for a union.
+- `<UnionExpression type={Union | Enum} />` - emit a TypeSpec Union or Enum as a TypeScript union expression.
 
 There are also some additional components handy for emitting TypeScript from TypeSpec:
 
-* `<ArrayExpression elementType={Type} />` - emit a TypeScript array type of the given type.
-* `<RecordExpression elementType={Type} >` - emit a TypeScript record type of the given type.
+- `<ArrayExpression elementType={Type} />` - emit a TypeScript array type of the given type.
+- `<RecordExpression elementType={Type} >` - emit a TypeScript record type of the given type.
 
 ### Example TypeScript emitter
 
@@ -105,16 +105,14 @@ export async function $onEmit(context: EmitContext) {
     <Output>
       <SourceDirectory path="src">
         <ts.SourceFile path="index.ts">
-          <For each={types}>
-            {(type) => <ts.TypeDeclaration type={type} />}
-          </For>
+          <For each={types}>{(type) => <ts.TypeDeclaration type={type} />}</For>
         </ts.SourceFile>
       </SourceDirectory>
       <SourceFile path="README.md" filetype="md">
         Hello world!
       </SourceFile>
     </Output>,
-    context.emitterOutputDir
+    context.emitterOutputDir,
   );
 }
 ```
