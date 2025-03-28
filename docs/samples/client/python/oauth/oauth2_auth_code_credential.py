@@ -1,7 +1,7 @@
 from typing import Any, Optional
-from corehttp.credentials import AccessTokenInfo, TokenRequestOptions
 import time
 import httpx
+from corehttp.credentials import AccessTokenInfo, TokenRequestOptions
 
 
 class OAuth2AuthCodeCredential:
@@ -40,7 +40,9 @@ class OAuth2AuthCodeCredential:
         self.redirect_uri = redirect_uri
         self.client_secret = client_secret
 
-    def get_token_info(self, *scopes: str, options: Optional[TokenRequestOptions] = None) -> AccessTokenInfo:
+    def get_token_info(
+        self, *scopes: str, options: Optional[TokenRequestOptions] = None
+    ) -> AccessTokenInfo:
         """Get an access token for the specified scopes.
 
         :param str scopes: The scopes for which the token should be valid.
@@ -54,6 +56,7 @@ class OAuth2AuthCodeCredential:
         if not scopes:
             raise ValueError("At least one scope must be provided.")
 
+        authority_url = None
         auth_flows = options.get("auth_flows")
         # If there was at least one flow in the TypeSpec, pick the first one.
         # If your TypeSpec has several flows, you may want to loop to find the one you need
@@ -62,7 +65,9 @@ class OAuth2AuthCodeCredential:
             authority_url = auth_flow.get("authorizationUrl")
         authority_url = authority_url or self.authority_url
         if not authority_url:
-            raise ValueError("No authority URL provided. Provide it in the constructor or in the options.")
+            raise ValueError(
+                "No authority URL provided. Provide it in the constructor or in the options."
+            )
 
         # Prepare the token request
         data = {
@@ -70,15 +75,17 @@ class OAuth2AuthCodeCredential:
             "grant_type": "authorization_code",
             "code": self.authorization_code,
         }
-        
+
         if self.redirect_uri:
             data["redirect_uri"] = self.redirect_uri
 
         with httpx.Client() as client:
             response = client.post(
                 authority_url,
-                auth=(self.client_id, self.client_secret) if self.client_secret else None,
-                data=data
+                auth=(
+                    (self.client_id, self.client_secret) if self.client_secret else None
+                ),
+                data=data,
             )
 
             response.raise_for_status()
