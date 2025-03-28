@@ -4522,9 +4522,9 @@
     },
     {
      "$id": "496",
-     "name": "ListWithoutPaging",
+     "name": "ListWithPaging",
      "resourceName": "UnbrandedTypeSpec",
-     "doc": "List things without paging",
+     "doc": "List things with paging",
      "accessibility": "public",
      "parameters": [
       {
@@ -4573,7 +4573,7 @@
      ],
      "httpMethod": "GET",
      "uri": "{unbrandedTypeSpecUrl}",
-     "path": "/list/noPaging",
+     "path": "/list/paging",
      "bufferResponse": true,
      "paging": {
       "$id": "501",
@@ -4583,7 +4583,7 @@
      },
      "generateProtocolMethod": true,
      "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithoutPaging",
+     "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithPaging",
      "decorators": []
     }
    ],
