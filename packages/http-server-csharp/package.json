@@ -46,7 +46,7 @@
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "regen-docs": "echo No doc generation for alpha version",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/servers/http-server-csharp/reference --skip-js",
     "emit:scenarios": "tsx eng/scripts/emit-scenarios.js --build true",
     "test:scenarios": "vitest run --config ./vitest.config.scenarios.js"
   },
