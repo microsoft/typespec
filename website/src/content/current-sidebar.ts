@@ -125,6 +125,7 @@ const sidebar: SidebarItem[] = [
         "libraries/http/cheat-sheet",
         "libraries/http/authentication",
         "libraries/http/operations",
+        "libraries/http/files",
         "libraries/http/content-types",
         "libraries/http/multipart",
         "libraries/http/encoding",
