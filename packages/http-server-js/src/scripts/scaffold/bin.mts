@@ -726,7 +726,7 @@ function updatePackageJson(
   updateObjectPath(["scripts", "start"], "node dist/src/index.js");
   updateObjectPath(["scripts", "build"], "npm run build:typespec && tsc");
   updateObjectPath(["scripts", "build:typespec"], "tsp compile .");
-  updateObjectPath(["scripts", "build:scaffold"], "hsj-scaffold");
+  updateObjectPath(["scripts", "build:scaffold"], "hsjs-scaffold");
 
   updateObjectPath(["devDependencies", "typescript"], "^5.7.3");
   updateObjectPath(["devDependencies", "@types/node"], "^22.13.1");

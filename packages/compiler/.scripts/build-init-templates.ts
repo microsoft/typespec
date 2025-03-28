@@ -50,14 +50,34 @@ const builtInTemplates: Record<string, InitTemplate> = {
       "@typespec/http-server-csharp": {
         label: "C# server stubs",
         options: {
-          "emitter-output-dir": "{output-dir}/server/generated",
+          "emitter-output-dir": "{output-dir}/server/aspnet",
         },
+        message: `
+\tGenerated ASP.Net services require dotnet 9:
+\thttps://dotnet.microsoft.com/download 
+
+\tCreate an ASP.Net service project for your TypeSpec:
+\t> npx hscs-scaffold . --use-swaggerui --overwrite
+
+\tMore information on getting started:
+\thttps://aka.ms/tsp/hscs/start
+         `,
       },
       "@typespec/http-server-js": {
         label: "JavaScript server stubs",
         options: {
-          "emitter-output-dir": "{output-dir}/server",
+          "emitter-output-dir": "{output-dir}/server/js",
         },
+        message: `
+\tGenerated JavaScript services require a service runtime:
+\thttps://nodejs.org/download 
+
+\tCreate a JavaScript service project for your TypeSpec:
+\t> npx hsjs-scaffold
+
+\tMore information on getting started:
+\thttps://aka.ms/tsp/hsjs/start
+`,
       },
     },
     files: [...(await localDir("rest"))],
