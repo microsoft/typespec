@@ -1,5 +1,5 @@
-emitters:
-  "@typespec/http-client-js": true
+emit:
+  - "@typespec/http-client-js"
 
 options:
   "@typespec/http-client-js":

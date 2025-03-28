@@ -215,7 +215,7 @@ describe("compile", () => {
         "--arg",
         "custom-dir=custom-dir-name",
         "--arg",
-        "metadata.owner=TypeSpec",
+        "owner=TypeSpec",
         "--option",
         "description.name=TypeSpec with options",
         "--option",
@@ -231,7 +231,7 @@ describe("compile", () => {
     );
     expect(file.toString()).toContain(`By Owner: TypeSpec
 TypeSpec with options
-Succeeded: TypeSpec with options with this short example by TypeSpec
+Succeeded: TypeSpec with options by TypeSpec
 Owner: TypeSpec
 Co-owner is defined by this test`);
   });
