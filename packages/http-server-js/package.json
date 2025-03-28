@@ -23,7 +23,9 @@
   "type": "module",
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js",
+    ".": {
+      "default": "./dist/src/index.js"
+    },
     "./testing": "./dist/src/testing/index.js"
   },
   "bin": {
@@ -41,7 +43,7 @@
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/servers/http-server-js/reference --skip-js",
+    "regen-docs": "tspd doc . --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/servers/http-server-js/reference --skip-js",
     "test:e2e": "npm run emit:e2e && npm run run:e2e",
     "emit:e2e": "node eng/scripts/emit-e2e.js",
     "run:e2e": "vitest run --config ./vitest.config.e2e.js"

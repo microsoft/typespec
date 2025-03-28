@@ -1,6 +1,8 @@
 ---
-title: Project Overview
+title: About Generated Projects
 ---
+
+**This package is highly experimental and may be subject to breaking changes and bugs.** Please expect that your code may need to be updated as this package evolves, and please report any issues you encounter.
 
 ## Layout
 
@@ -19,8 +21,7 @@ The code layout inside the 'generated' folder is as follows:
 
 ## Scaffolding
 
-If you use the scaffolding cli (hscs-scaffold) or use the `--emit-mocks "mocks-and-project-files"` option on compilation, a
-fully-functional .Net 9 project will be created with mock implementations of your business
+If you use the scaffolding cli (hscs-scaffold) or use the `--emit-mocks "mocks-and-project-files"` option on compilation, a fully-functional .Net 9 project will be created with mock implementations of your business
 logic, ready to compile and run.
 
 The following additional files will be generated. It is expected that you will edit or replace these
@@ -41,6 +42,20 @@ these files will be overwritten by the emitter unless you specify the `--overwri
     logic implementations in the dependency injection container.
   - **IInitializer.cs**: Interface used in the mocks to create responses.
   - **Initializer.cs**: Implementation of the interface to create mock responses.
+
+### Generating a Project and Mock Implementations using `tsp compile`
+
+If you downloaded the `tsp` standalone component and you don't have `node` and `npm` installed, you will not be able to use the `hscs-scaffold` command to create an ASP.Net project. Instead, you can use compiler options, for example, the following command will create a new project using the TypeSpec in the current directory, enabling SwaggerUI, and overwriting any existing mocks or project files:
+
+```bash
+compile > tsp . --emit @typespec/http-server-csharp --emit @typespec/openapi3 --option @typespec/http-server-csharp.emit-mocks=emit-mocks-and-project-files --option @typespec/http-server-csharp.use-swaggerui=true --option @typespec/http-server-csharp.overwrite=true
+```
+
+Once you have customized the project, you can generate new mocks for any new APIs while leaving existing implementations unchanged using:
+
+```bash
+compile > tsp . --emit @typespec/http-server-csharp --option @typespec/http-server-csharp.emit-mocks=mocks-only
+```
 
 ## SwaggerUI
 
