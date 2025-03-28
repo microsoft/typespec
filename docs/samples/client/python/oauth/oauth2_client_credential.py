@@ -28,6 +28,7 @@ class OAuth2ClientCredential:
         """Get an access token for the specified scopes.
         
         :param str scopes: The scopes for which the token should be valid.
+            These may duplicate scopes defined in the auth flow (auth_flows[0]).
         :keyword options: A dictionary of options for the token request. Unknown options will be ignored. Optional.
         :paramtype options: TokenRequestOptions
         :return: An access token for the specified scopes.
