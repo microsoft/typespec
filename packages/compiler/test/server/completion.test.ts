@@ -1417,15 +1417,15 @@ describe("identifiers", () => {
   describe("completion for objectliteral/arrayliteral as template parameter default value", () => {
     const def = `
       /**
-       * my log ctx
+       * my log context
        */
       model MyLogContext<T> {
         /**
-         * name of log ctx 
+         * name of log context 
          */
         name: string;
         /**
-         * items of ctx
+         * items of context
          */
         item: Array<T>;
       }
@@ -1443,7 +1443,7 @@ describe("identifiers", () => {
          */
         id: int16;
         /**
-         * my log ctx
+         * my log context
          */
         ctx: MyLogContext<string>[];
       }
@@ -1486,7 +1486,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log ctx",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
         ],
@@ -1514,7 +1514,7 @@ describe("identifiers", () => {
               documentation: {
                 kind: MarkupKind.Markdown,
                 value:
-                  "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log ctx",
+                  "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
               },
             },
             {
@@ -1524,7 +1524,7 @@ describe("identifiers", () => {
               documentation: {
                 kind: MarkupKind.Markdown,
                 value:
-                  "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of ctx",
+                  "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
               },
             },
           ],
@@ -1791,15 +1791,15 @@ describe("identifiers", () => {
   describe("completion for scalar init objectliteral/arrayliteral arg", () => {
     const def = `
     /**
-     * my log ctx
+     * my log context
      */
     model MyLogContext<T> {
       /**
-       * name of log ctx 
+       * name of log context 
        */
       name: string;
       /**
-       * items of ctx
+       * items of context
        */
       item: Array<T>;
     }
@@ -1817,7 +1817,7 @@ describe("identifiers", () => {
        */
       id: int16;
       /**
-       * my log ctx
+       * my log context
        */
       ctx: MyLogContext<string>[];
     }
@@ -1864,7 +1864,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log ctx",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
         ],
@@ -1908,7 +1908,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log ctx",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
         ],
@@ -1952,7 +1952,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log ctx",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
         ],
@@ -1991,15 +1991,15 @@ describe("identifiers", () => {
   describe("completion for const assignment of objectliteral/arrayliteral", () => {
     const def = `
     /**
-     * my log ctx
+     * my log context
      */
     model MyLogContext<T> {
       /**
-       * name of log ctx 
+       * name of log context 
        */
       name: string;
       /**
-       * items of ctx
+       * items of context
        */
       item: Array<T>;
     }
@@ -2017,11 +2017,11 @@ describe("identifiers", () => {
        */
       id: int16;
       /**
-       * my log ctx
+       * my log context
        */
       ctx: MyLogContext<string>[];
       /**
-       * my log ctx2
+       * my log context2
        */
       ctx2: [MyLogContext<string>, int16];
     }
@@ -2060,7 +2060,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log ctx",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
           {
@@ -2070,7 +2070,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.ctx2: [MyLogContext<string>, int16]\n```\n\nmy log ctx2",
+                "(model property)\n```typespec\nMyLogArg.ctx2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
             },
           },
         ],
@@ -2115,7 +2115,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log ctx",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
           {
@@ -2125,7 +2125,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.ctx2: [MyLogContext<string>, int16]\n```\n\nmy log ctx2",
+                "(model property)\n```typespec\nMyLogArg.ctx2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
             },
           },
         ],
@@ -2152,7 +2152,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log ctx",
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
             },
           },
           {
@@ -2162,7 +2162,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of ctx",
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
             },
           },
         ],
@@ -2189,7 +2189,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log ctx",
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
             },
           },
           {
@@ -2199,7 +2199,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of ctx",
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
             },
           },
         ],
@@ -2227,7 +2227,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log ctx",
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
             },
           },
           {
@@ -2237,7 +2237,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of ctx",
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
             },
           },
         ],
@@ -2290,15 +2290,15 @@ describe("identifiers", () => {
       import "./decorators.js";
 
       /**
-       * my log ctx
+       * my log context
        */
       model MyLogContext<T> {
         /**
-         * name of log ctx 
+         * name of log context 
          */
         name: string;
         /**
-         * items of ctx
+         * items of context
          */
         item: Record<T>;
       }
@@ -2316,7 +2316,7 @@ describe("identifiers", () => {
          */
         id: int16;
         /**
-         * my log ctx
+         * my log context
          */
         ctx: MyLogContext<string>;
       }
@@ -2372,7 +2372,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>\n```\n\nmy log ctx",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>\n```\n\nmy log context",
             },
           },
         ],
@@ -2419,7 +2419,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log ctx",
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
             },
           },
           {
@@ -2429,7 +2429,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\nitems of ctx",
+                "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\nitems of context",
             },
           },
         ],
@@ -2477,7 +2477,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\nitems of ctx",
+                "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\nitems of context",
             },
           },
         ],
@@ -2533,7 +2533,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>\n```\n\nmy log ctx",
+                "(model property)\n```typespec\nMyLogArg.ctx: MyLogContext<string>\n```\n\nmy log context",
             },
           },
         ],
