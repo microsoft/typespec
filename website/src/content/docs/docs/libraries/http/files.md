@@ -27,7 +27,7 @@ An operation payload (request, response, or multipart part) has a file body if:
 - The type of the body is _effectively_ a model that is or extends `Http.File` **AND**
 - there is no explicit declaration of a `Content-Type` header (see [_`File` with an explicit `Content-Type` header_ below for reasoning and more information](#file-with-an-explicit-content-type-header)).
 
-By "effectively a model that is or extends `Http.File`," we mean cases where an explicit body property is provided and its type is or extends `Http.File` as well as cases where `Http.File` is spread into a request or response payload and the only non-metadata properties in the payload are properties of `File` (see [_When a model is effectively a `File`_](#when-a-model-is-effectively-a-file) below for a more precise description with examples). The following sections contain examples of using `Http.File` in various contexts to define operations that have file bodies.
+By "effectively a model that is or extends `Http.File`," we mean cases where an explicit body property is provided and its type is or extends `Http.File` as well as cases where `Http.File` is spread into a request or response payload or `Http.File` is intersected with other models in a request or response and the only non-metadata properties in the payload are properties of `File` (see [_When a model is effectively a `File`_](#when-a-model-is-effectively-a-file) below for a more precise description with examples). The following sections contain examples of using `Http.File` in various contexts to define operations that have file bodies.
 
 ### Downloading a file
 
