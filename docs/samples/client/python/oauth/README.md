@@ -24,7 +24,7 @@ In the .tsp file, declare the use of OAuth 2.0:
 
 ## Implement the OAuth2 Credential
 
-Follow the sample implementation to create a credential class that includes the `get_token_info` method, which returns an `AccessTokenInfo` object.
+Follow the sample implementation to create a credential class that includes the `get_token_info` method, which returns an `AccessTokenInfo` object. This follows the credential interface defined in the [corehttp](https://learn.microsoft.com/python/api/overview/azure/corehttp-readme?view=azure-python-preview&preserve-view=true) package.
 
 ## Use the Credential with the Generated Client
 

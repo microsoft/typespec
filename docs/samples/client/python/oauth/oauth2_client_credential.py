@@ -71,12 +71,3 @@ class OAuth2ClientCredential:
             expires_on = time.time() + expires_in
 
             return AccessTokenInfo(token, expires_on)
-
-
-credential = OAuth2ClientCredential(client_id="m2m", client_secret="secret")
-access_token = credential.get_token_info(
-    "api",
-    options={"authorization_url": "https://demo.duendesoftware.com/connect/token"},
-)
-print(access_token.token)
-print(access_token.expires_on)
