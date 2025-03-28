@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@typespec/http-client-csharp": "file:../typespec-http-client-csharp-1.0.0.tgz",
+    "logging-plugin": "file:../plugins/logging"
+  }
+}
