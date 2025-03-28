@@ -6,7 +6,7 @@ title: Formatter
 TypeSpec comes with a built-in formatter. The formatter can be used in different ways:
 
 - [Via the cli](#via-the-cli)
-- Via the vscode/vs extension
+- Via the VS Code/vs extension
 - As a `prettier` plugin
 
 ## Via the cli
@@ -23,7 +23,7 @@ Check file formatting without modifying them, useful for CI enforcement.
 tsp format --check "**/*.tsp"
 ```
 
-## Via the VSCode or VS extension
+## Via the VS Code or VS extension
 
 When you use the extensions for VS Code or Visual Studio, the tsp formatter becomes automatically accessible.
 
@@ -38,9 +38,9 @@ By default this will then use the typespec style guide without any explicit opti
 This only affect the formatting, when using `tab` key to indent it will still use the editor's configuration, so recommend setting one of the configuration below.
 :::
 
-### Configuration - VSCode
+### Configuration - VS Code
 
-For VSCode to respect the TypeSpec standard style set the following options style
+For VS Code to respect the TypeSpec standard style set the following options style
 
 ```json title=.vscode/settings.json
 {
