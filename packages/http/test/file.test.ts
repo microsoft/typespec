@@ -584,6 +584,40 @@ describe("custom file model", () => {
     ok(responseBody?.isText);
   });
 
+  it("supports all composition", async () => {
+    const [
+      {
+        parameters: { body: requestBody },
+        responses: [
+          {
+            responses: [{ body: responseBody }],
+          },
+        ],
+      },
+    ] = await getOperations(`
+        model StringFile<T extends string> is Http.File<Contents = string, ContentType = T>;
+        model JsonFile extends StringFile<"application/json"> {};
+        model SpreadFile { 
+          ...JsonFile;
+        }
+        model ExtendTheSpread extends SpreadFile {};
+        model ExtraForGoodMeasure {
+          ...ExtendTheSpread;
+        };
+        op example(...ExtraForGoodMeasure): ExtraForGoodMeasure;
+      `);
+
+    strictEqual(requestBody?.bodyKind, "file");
+    expect(requestBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(requestBody?.contentTypes, ["application/json"]);
+    ok(requestBody?.isText);
+
+    strictEqual(responseBody?.bodyKind, "file");
+    expect(responseBody?.property).toStrictEqual(undefined);
+    deepStrictEqual(responseBody?.contentTypes, ["application/json"]);
+    ok(responseBody?.isText);
+  });
+
   it("exact payload upload and download", async () => {
     const [
       {
@@ -1041,25 +1075,6 @@ describe("structured files", () => {
       ],
     } = await compileOperationsFull(`
       op example(): Http.File & { foo: string };
-    `);
-
-    strictEqual(responseBody?.bodyKind, "single");
-  });
-
-  it("does not recognize model spread with File Props as a file body", async () => {
-    const {
-      operations: [
-        {
-          responses: [
-            {
-              responses: [{ body: responseBody }],
-            },
-          ],
-        },
-      ],
-    } = await compileOperationsFull(`
-      model FakeFile { ...Http.File };
-      op example(): FakeFile;
     `);
 
     strictEqual(responseBody?.bodyKind, "single");
