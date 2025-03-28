@@ -9,7 +9,7 @@ function getBadgeForLibraryStability(stability: LibraryStability | undefined): B
     case "beta":
       return { text: "beta", variant: "caution" };
     case "alpha":
-      return { text: "beta", variant: "caution" };
+      return { text: "alpha", variant: "caution" };
     case "stable":
     default:
       return undefined;
@@ -205,6 +205,25 @@ const sidebar: SidebarItem[] = [
             false,
             [],
             "preview",
+          ),
+        ],
+      },
+      {
+        label: "Servers",
+        items: [
+          createLibraryReferenceStructure(
+            "emitters/servers/http-server-csharp",
+            "ASP.Net",
+            false,
+            ["emitters/servers/http-server-csharp/project"],
+            "alpha",
+          ),
+          createLibraryReferenceStructure(
+            "emitters/servers/http-server-js",
+            "JavaScript",
+            false,
+            ["emitters/servers/http-server-js/project"],
+            "alpha",
           ),
         ],
       },
