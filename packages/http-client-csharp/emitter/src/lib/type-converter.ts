@@ -27,7 +27,7 @@ import {
   InputDictionaryType,
   InputDurationType,
   InputEnumType,
-  InputEnumValueType as InputEnumValueType,
+  InputEnumValueType,
   InputLiteralType,
   InputModelProperty,
   InputModelType,
