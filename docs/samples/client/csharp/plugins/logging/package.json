@@ -5,7 +5,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "A simple logging plugin that mutates a library generated with @typespec/http-client-csharp to log method names to the console.",
   "files": [
     "dist/generator/**"
   ]

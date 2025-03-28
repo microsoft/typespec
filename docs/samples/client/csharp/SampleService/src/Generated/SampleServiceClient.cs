@@ -66,23 +66,10 @@ namespace SampleService
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetWidget(string id, RequestOptions options)
         {
-            try
-            {
-                Console.WriteLine("Entering method GetWidget.");
-                Argument.AssertNotNull(id, nameof(id));
+            Argument.AssertNotNull(id, nameof(id));
 
-                using PipelineMessage message = CreateGetWidgetRequest(id, options);
-                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An exception was thrown in method GetWidget: {ex}");
-                throw;
-            }
-            finally
-            {
-                Console.WriteLine("Exiting method GetWidget.");
-            }
+            using PipelineMessage message = CreateGetWidgetRequest(id, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
         /// <summary>
@@ -100,23 +87,10 @@ namespace SampleService
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> GetWidgetAsync(string id, RequestOptions options)
         {
-            try
-            {
-                Console.WriteLine("Entering method GetWidgetAsync.");
-                Argument.AssertNotNull(id, nameof(id));
+            Argument.AssertNotNull(id, nameof(id));
 
-                using PipelineMessage message = CreateGetWidgetRequest(id, options);
-                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An exception was thrown in method GetWidgetAsync: {ex}");
-                throw;
-            }
-            finally
-            {
-                Console.WriteLine("Exiting method GetWidgetAsync.");
-            }
+            using PipelineMessage message = CreateGetWidgetRequest(id, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
         /// <summary> head as boolean. </summary>
@@ -126,23 +100,10 @@ namespace SampleService
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Widget> GetWidget(string id, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                Console.WriteLine("Entering method GetWidget.");
-                Argument.AssertNotNull(id, nameof(id));
+            Argument.AssertNotNull(id, nameof(id));
 
-                ClientResult result = GetWidget(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-                return ClientResult.FromValue((Widget)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An exception was thrown in method GetWidget: {ex}");
-                throw;
-            }
-            finally
-            {
-                Console.WriteLine("Exiting method GetWidget.");
-            }
+            ClientResult result = GetWidget(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return ClientResult.FromValue((Widget)result, result.GetRawResponse());
         }
 
         /// <summary> head as boolean. </summary>
@@ -152,23 +113,10 @@ namespace SampleService
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Widget>> GetWidgetAsync(string id, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                Console.WriteLine("Entering method GetWidgetAsync.");
-                Argument.AssertNotNull(id, nameof(id));
+            Argument.AssertNotNull(id, nameof(id));
 
-                ClientResult result = await GetWidgetAsync(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-                return ClientResult.FromValue((Widget)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An exception was thrown in method GetWidgetAsync: {ex}");
-                throw;
-            }
-            finally
-            {
-                Console.WriteLine("Exiting method GetWidgetAsync.");
-            }
+            ClientResult result = await GetWidgetAsync(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return ClientResult.FromValue((Widget)result, result.GetRawResponse());
         }
     }
 }

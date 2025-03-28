@@ -71,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator
                 try
                 {
                     var asmName = AssemblyName.GetAssemblyName(dllPath);
-                    var fullName = asmName.FullName!;
+                    var fullName = asmName.FullName;
                     var version = asmName.Version!;
 
                     if (!highestVersions.TryGetValue(fullName, out var existing) || version > existing.Version)

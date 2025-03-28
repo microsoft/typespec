@@ -29,7 +29,6 @@ model Widget {
   weight: float32,
 }
 
-
 @route("/getWidget/{id}")
 @doc("head as boolean.")
 @convenientAPI(true)

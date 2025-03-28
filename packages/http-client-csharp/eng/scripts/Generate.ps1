@@ -35,6 +35,26 @@ if (-not $LaunchOnly) {
             exit $LASTEXITCODE
         }
     }
+
+    if ($null -eq $filter -or $filter -eq "Sample-Service") {
+      Write-Host "Generating SampleService" -ForegroundColor Cyan
+      $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+      
+      Invoke (Get-TspCommand "$sampleDir/main.tsp" $sampleDir)
+
+      # exit if the generation failed
+      if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+      }
+
+      Write-Host "Building SampleService" -ForegroundColor Cyan
+      Invoke "dotnet build $sampleDir/src/SampleService.csproj"
+
+      # exit if the generation failed
+      if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+      }
+    }
 }
 
 $specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"
@@ -145,9 +165,7 @@ foreach ($directory in $directories) {
 if ($null -eq $filter) {
     Write-Host "Writing new launch settings" -ForegroundColor Cyan
     $mtgExe = "`$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
-    $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SampleGenerator/Debug/net8.0/Microsoft.TypeSpec.Generator.exe"
     $unbrandedSpec = "TestProjects/Local/Unbranded-TypeSpec"
-    $unbrandedSampleGeneratorSpec = "TestProjects/SampleGenerator/Unbranded-TypeSpec"
 
     $launchSettings = @{}
     $launchSettings.Add("profiles", @{})
@@ -155,10 +173,10 @@ if ($null -eq $filter) {
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -g ScmCodeModelGenerator")
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandName", "Executable")
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mtgExe)
-    $launchSettings["profiles"].Add("Debug-SampleGenerator-Test-TypeSpec", @{})
-    $launchSettings["profiles"]["Debug-SampleGenerator-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSampleGeneratorSpec -g SampleCodeModelGenerator")
-    $launchSettings["profiles"]["Debug-SampleGenerator-Test-TypeSpec"].Add("commandName", "Executable")
-    $launchSettings["profiles"]["Debug-SampleGenerator-Test-TypeSpec"].Add("executablePath", $sampleExe)
+    $launchSettings["profiles"].Add("Sample-Client", @{})
+    $launchSettings["profiles"]["Sample-Client"].Add("commandLineArgs", "`$(SolutionDir)/../../../docs/samples/client/csharp/SampleClient/main.tsp -g ScmCodeModelGenerator")
+    $launchSettings["profiles"]["Sample-Client"].Add("commandName", "Executable")
+    $launchSettings["profiles"]["Sample-Client"].Add("executablePath", $sampleExe)
 
     foreach ($kvp in $spectorLaunchProjects.GetEnumerator()) {
         $launchSettings["profiles"].Add($kvp.Key, @{})
