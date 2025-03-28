@@ -35,34 +35,5 @@ namespace UnbrandedTypeSpec
             perTryPolicies: [new OAuth2BearerTokenAuthenticationPolicy(authTokenProvider, flows)],
             beforeTransportPolicies: ReadOnlySpan<PipelinePolicy>.Empty);
         }
-
-        /// <summary>
-        /// [Protocol Method] Return bye
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult SayBye(RequestOptions options)
-        {
-            using PipelineMessage message = CreateSayByeRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        internal PipelineMessage CreateSayByeRequest(RequestOptions options)
-        {
-            PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
-            PipelineRequest request = message.Request;
-            request.Method = "GET";
-            ClientUriBuilder uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/bye", false);
-            request.Headers.Set("Accept", "application/json");
-            message.Apply(options);
-            return message;
-        }
     }
 }
