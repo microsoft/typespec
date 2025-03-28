@@ -12,8 +12,6 @@ import { MultipartHelpers } from "./components/static-helpers/multipart-helpers.
 import { RestError } from "./components/static-helpers/rest-error.jsx";
 import { JsClientEmitterOptions } from "./lib.js";
 
-const a: string = 1;
-
 /**
  * Main function to handle the emission process.
  * @param context - The context for the emission process.
