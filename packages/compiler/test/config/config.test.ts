@@ -153,12 +153,12 @@ describe("compiler: config file loading", () => {
     });
 
     it("fails if passing the wrong type", () => {
-      deepStrictEqual(validate({ emitters: true } as any), [
+      deepStrictEqual(validate({ emit: true } as any), [
         {
           code: "invalid-schema",
           target: { file, pos: 0, end: 0 },
           severity: "error",
-          message: "Schema violation: must be object (/emitters)",
+          message: "Schema violation: must be array (/emit)",
         },
       ]);
     });
