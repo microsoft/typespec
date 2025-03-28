@@ -89,10 +89,6 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 return null;
             };
-            foreach (var candidateDll in dllPathsInOrder)
-            {
-                catalog.Catalogs.Add(new AssemblyCatalog(candidateDll));
-            }
 
             // Load each highest-version DLL into the catalog
             foreach (KeyValuePair<string, (Version Version, string Path)> kvp in highestVersions)
