@@ -15,11 +15,11 @@ export function getOperationOptionsTypeRefkey(operation: HttpOperation) {
 }
 export function OperationOptionsDeclaration(props: OperationOptionsProps) {
   const namePolicy = ts.useTSNamePolicy();
-  const excludes = props.excludes ?? [];
+  const excludes = (props.excludes ?? []).map((p) => p.name);
   const interfaceName = namePolicy.getName(props.operation.operation.name + "Options", "interface");
-  const optionalParameters = props.operation.parameters.properties.filter(
-    (p) => p.property.optional || hasDefaultValue(p) || !excludes.includes(p.property),
-  );
+  const optionalParameters = props.operation.parameters.properties
+    .filter((p) => !excludes.includes(p.property.name))
+    .filter((p) => p.property.optional || hasDefaultValue(p));
 
   return (
     <ts.InterfaceDeclaration

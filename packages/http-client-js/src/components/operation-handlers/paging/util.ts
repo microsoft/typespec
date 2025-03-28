@@ -23,11 +23,9 @@ export function extractPagingDetail(httpOperation: HttpOperation, pagingOperatio
       items: pagingOperation.output.pageItems.property.name,
     }
   };
-  const isNextLink = pagingOperation.output.continuationToken !== undefined;
   const returnedNextToken =
     pagingOperation.output.nextLink?.property ??
     pagingOperation.output.continuationToken?.property;
-  // const nextTokenInputName = pagingOperation.input.continuationToken?.property.name;
   const isHeaderToken = getResponseHeader(httpOperation, returnedNextToken);
   const returnedTokenPosition = isHeaderToken ? "headers" : "body";
   const returnedTokenName = isHeaderToken ? isHeaderToken : returnedNextToken?.name;
@@ -37,7 +35,7 @@ export function extractPagingDetail(httpOperation: HttpOperation, pagingOperatio
       position: returnedTokenPosition,
     };
   }
-  if (!isNextLink) {
+  if (pagingOperation.output.continuationToken) {
     ret.pattern = "continuationToken";
     if (pagingOperation.input.continuationToken) {
       ret.input = {

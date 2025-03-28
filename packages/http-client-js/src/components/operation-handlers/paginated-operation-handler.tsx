@@ -87,15 +87,15 @@ export const PaginatedOperationHandler: OperationHandler = {
             }`
                  : ``
              }
-            const _options = { ...options, ...settings};
+            const combinedOptions = {...options, ...settings};
             ${
               pagingDetail.pattern === "continuationToken" && pagingDetail.input?.nextToken
                 ? `if (nextToken) {
-              _options.${pagingDetail.input?.nextToken} = nextToken;
+              combinedOptions.${pagingDetail.input?.nextToken} = nextToken;
             }`
                 : ``
             }
-            return await ${getHttpRequestSendRefkey(httpOperation)}(client, _options);
+            return await ${getHttpRequestSendRefkey(httpOperation)}(client, combinedOptions as any);
           },
           deserializeRawResponse: async (response) => {
             return await ${getHttpRequestDeserializeRefkey(httpOperation)}(response)
