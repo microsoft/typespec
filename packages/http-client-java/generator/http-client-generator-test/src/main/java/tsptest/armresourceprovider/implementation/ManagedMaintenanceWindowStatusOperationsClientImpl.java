@@ -124,44 +124,6 @@ public final class ManagedMaintenanceWindowStatusOperationsClientImpl
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a ManagedMaintenanceWindowStatusContent along with {@link Response} on successful completion of
-     * {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<ManagedMaintenanceWindowStatusInner>> getByResourceGroupWithResponseAsync(
-        String resourceGroupName, String managedMaintenanceWindowStatusContentName, Context context) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (managedMaintenanceWindowStatusContentName == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter managedMaintenanceWindowStatusContentName is required and cannot be null."));
-        }
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service.getByResourceGroup(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, managedMaintenanceWindowStatusContentName, accept,
-            context);
-    }
-
-    /**
-     * Get a ManagedMaintenanceWindowStatusContent.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param managedMaintenanceWindowStatusContentName The name of the ManagedMaintenanceWindowStatusContent.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
