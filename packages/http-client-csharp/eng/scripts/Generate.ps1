@@ -13,22 +13,22 @@ $solutionDir = Join-Path $packageRoot 'generator'
 if (-not $LaunchOnly) {
     Refresh-Build
 
-    if ($null -eq $filter -or $filter -eq "Unbranded-TypeSpec") {
-        Write-Host "Generating UnbrandedTypeSpec" -ForegroundColor Cyan
+    if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
+        Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
         $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
-        $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
-        $unbrandedTypespecTestProject = $unbrandedTypespecTestProject
+        $sampleTypespecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
+        $sampleTypespecTestProject = $sampleTypespecTestProject
 
-        Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject -newProject $false)
+        Invoke (Get-TspCommand "$sampleTypespecTestProject/Sample-TypeSpec.tsp" $sampleTypespecTestProject -newProject $false)
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }
 
-        Write-Host "Building UnbrandedTypeSpec" -ForegroundColor Cyan
-        Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Unbranded-TypeSpec/src/UnbrandedTypeSpec.csproj"
+        Write-Host "Building SampleTypeSpec" -ForegroundColor Cyan
+        Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Sample-TypeSpec/src/SampleTypeSpec.csproj"
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {

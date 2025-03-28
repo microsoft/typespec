@@ -1,6 +1,6 @@
-# Guide for CSharp OAuth
+# Authentication using AuthenticationTokenProvider
 
-This guide is intended to assist with creating a custom client constructor to support the OAuth token.
+This readme is intended to demonstrate using the authentication token provider.
 
 ## Table of contents
 
@@ -10,10 +10,10 @@ This guide is intended to assist with creating a custom client constructor to su
 
 ### Create custom client constructor to support OAuth token
 
-This constructor initializes a new instance of the `UnbrandedTypeSpecClient` class and sets a client pipeline with OAuth2 bearer token authentication using the provided `AuthenticationTokenProvider` and endpoint URI.
+This constructor initializes a new instance of the `SampleTypeSpecClient` class and sets a client pipeline with OAuth2 bearer token authentication using the provided `AuthenticationTokenProvider` and endpoint URI.
 
 ```csharp
-public UnbrandedTypeSpecClient(Uri uri, AuthenticationTokenProvider credential)
+public SampleTypeSpecClient(Uri uri, AuthenticationTokenProvider credential)
 {
     var options = new ClientPipelineOptions();
     Pipeline = ClientPipeline.Create(
