@@ -26,7 +26,7 @@ export async function create(
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {
-      ...(options?.foo && { foo: options?.foo }),
+      ...(options?.foo && { foo: options.foo }),
     },
     body: jsonWidgetToTransportTransform(widget),
   };

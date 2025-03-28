@@ -66,7 +66,7 @@ export async function defaultEncoding(
   options?: DefaultEncodingOptions,
 ): Promise<void> {
   const path = parse("/default{?value}").expand({
-    ...(options?.value && { value: dateRfc3339Serializer(options?.value) }),
+    ...(options?.value && { value: dateRfc3339Serializer(options.value) }),
   });
   const httpRequestOptions = {
     headers: {},
