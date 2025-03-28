@@ -126,17 +126,17 @@ namespace Microsoft.TypeSpec.Generator
         internal void SelectGenerator(CommandLineOptions options)
         {
             bool loaded = false;
-            foreach (var mockGenerator in Generators!)
+            foreach (var generator in Generators!)
             {
-                if (mockGenerator.Metadata.GeneratorName == options.GeneratorName!)
+                if (generator.Metadata.GeneratorName == options.GeneratorName!)
                 {
-                    CodeModelGenerator.Instance = mockGenerator.Value;
+                    CodeModelGenerator.Instance = generator.Value;
                     CodeModelGenerator.Instance.IsNewProject = options.IsNewProject;
 
                     // Apply discovered plugins (if any)
                     if (Plugins != null)
                     {
-                        foreach (var plugin in Plugins.Distinct())
+                        foreach (var plugin in Plugins)
                         {
                             plugin.Apply(CodeModelGenerator.Instance);
                         }

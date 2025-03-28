@@ -77,35 +77,11 @@ The name of the package to be used in pretty-printing. Will be the name of the p
 
 Whether to return responses from HEAD requests as boolean. Defaults to `true`.
 
-### `models-mode`
-
-**Type:** `"dpg" | "none"`
-
-What kind of models to generate. If you pass in `none`, we won't generate models. `dpg` models are the default models we generate.
-
-### `company-name`
-
-**Type:** `string`
-
-The name of the company. This will be reflected in your license files and documentation.
-
 ### `use-pyodide`
 
 **Type:** `boolean`
 
 Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.
-
-### `flavor`
-
-**Type:** `string`
-
-The flavor of the SDK.
-
-### `generate-test`
-
-**Type:** `boolean`
-
-Whether to generate test files, for basic testing of your generated sdks. Defaults to `false`.
 
 ### `generate-protocol-methods`
 

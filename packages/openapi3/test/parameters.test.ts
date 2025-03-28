@@ -573,6 +573,13 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
         );
         expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
       });
+
+      it("with optional parameter", async () => {
+        const diagnostics = await diagnoseOpenApiFor(
+          `@route("test") op test(@path myParam?: string): void;`,
+        );
+        expectDiagnostics(diagnostics, { code: "@typespec/openapi3/invalid-style" });
+      });
     });
 
     describe("emit diagnostic when using style: fragment", () => {

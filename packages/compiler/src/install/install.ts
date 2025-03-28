@@ -224,7 +224,10 @@ async function runPackageManager(
   const child = fork(binPath, packageManager.commands.install, {
     stdio,
     cwd: directory,
-    env: process.env,
+    env: {
+      ...process.env,
+      TYPESPEC_CLI_PASSTHROUGH: "1",
+    },
   });
 
   const stdout: string[] = [];
