@@ -47,6 +47,9 @@ op download(): {
   ...File;
 };
 
+// File is intersected with other models containing only HTTP metadata, so the response has a file body.
+op download(): OkResponse & File;
+
 // The response has an explicit body that is _effectively_ a File, so the response has a file body.
 op download(): {
   @bodyRoot file: {
@@ -62,6 +65,13 @@ All of the following TypeSpec operation definitions have file bodies in the requ
 ```typespec
 // The request has an explicit body that is _exactly_ a File, so the request has a file body.
 op upload(@bodyRoot file: File): void;
+
+alias FileRequest = {
+  @header("x-request-id") requestId: string;
+} & File;
+
+// File is intersected with other models containing only HTTP metadata, so the request has a file body.
+op upload(...FileRequest): void;
 
 // The request is _effectively_ a File (`File` is the only thing spread into it), so the request has a file body.
 op upload(...File): void;

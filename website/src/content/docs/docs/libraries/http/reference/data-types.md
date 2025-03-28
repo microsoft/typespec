@@ -274,6 +274,21 @@ model TypeSpec.Http.File<ContentType, Contents>
 ```
 
 ```tsp
+// Upload and download files in a multipart payload
+op multipartFormDataUpload(
+  @multipartBody fields: {
+    files: HttpPart<File>[];
+  },
+): void;
+
+op multipartFormDataDownload(): {
+  @multipartBody formFields: {
+    files: HttpPart<File>[];
+  };
+};
+```
+
+```tsp
 // Declare a custom type of text file, where the filename goes in the path
 // in requests.
 model SpecFile extends File<"application/json" | "application/yaml", string> {
