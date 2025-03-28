@@ -1059,6 +1059,12 @@ const diagnostics = {
       osx: "Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.\nSee instruction for Mac OS here https://code.visualstudio.com/docs/setup/mac",
     },
   },
+  "invalid-option-flag": {
+    severity: "error",
+    messages: {
+      default: paramMessage`The --option parameter value "${"value"}" must be in the format: <emitterName>.some-options=value`,
+    },
+  },
   // #endregion CLI
 } as const;
 
