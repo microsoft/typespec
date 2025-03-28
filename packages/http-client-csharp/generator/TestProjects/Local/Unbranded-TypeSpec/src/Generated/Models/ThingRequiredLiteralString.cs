@@ -10,11 +10,10 @@ using System.ComponentModel;
 
 namespace UnbrandedTypeSpec
 {
-    /// <summary> The Thing_requiredLiteralString. </summary>
+    /// <summary> The ThingRequiredLiteralString. </summary>
     public readonly partial struct ThingRequiredLiteralString : IEquatable<ThingRequiredLiteralString>
     {
         private readonly string _value;
-        /// <summary> accept. </summary>
         private const string AcceptValue = "accept";
 
         /// <summary> Initializes a new instance of <see cref="ThingRequiredLiteralString"/>. </summary>
@@ -27,7 +26,7 @@ namespace UnbrandedTypeSpec
             _value = value;
         }
 
-        /// <summary> accept. </summary>
+        /// <summary> Gets the Accept. </summary>
         public static ThingRequiredLiteralString Accept { get; } = new ThingRequiredLiteralString(AcceptValue);
 
         /// <summary> Determines if two <see cref="ThingRequiredLiteralString"/> values are the same. </summary>

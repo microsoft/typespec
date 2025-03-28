@@ -11,11 +11,10 @@ using System.Globalization;
 
 namespace UnbrandedTypeSpec
 {
-    /// <summary> The Thing_requiredLiteralInt. </summary>
+    /// <summary> The ThingRequiredLiteralInt. </summary>
     public readonly partial struct ThingRequiredLiteralInt : IEquatable<ThingRequiredLiteralInt>
     {
         private readonly int _value;
-        /// <summary> 123. </summary>
         private const int _123Value = 123;
 
         /// <summary> Initializes a new instance of <see cref="ThingRequiredLiteralInt"/>. </summary>
@@ -25,7 +24,7 @@ namespace UnbrandedTypeSpec
             _value = value;
         }
 
-        /// <summary> 123. </summary>
+        /// <summary> Gets the _123. </summary>
         public static ThingRequiredLiteralInt _123 { get; } = new ThingRequiredLiteralInt(_123Value);
 
         /// <summary> Determines if two <see cref="ThingRequiredLiteralInt"/> values are the same. </summary>

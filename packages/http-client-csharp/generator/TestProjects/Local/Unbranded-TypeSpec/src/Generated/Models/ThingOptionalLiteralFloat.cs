@@ -11,11 +11,10 @@ using System.Globalization;
 
 namespace UnbrandedTypeSpec
 {
-    /// <summary> The Thing_optionalLiteralFloat. </summary>
+    /// <summary> The ThingOptionalLiteralFloat. </summary>
     public readonly partial struct ThingOptionalLiteralFloat : IEquatable<ThingOptionalLiteralFloat>
     {
         private readonly float _value;
-        /// <summary> 4.56. </summary>
         private const float _456Value = 4.56F;
 
         /// <summary> Initializes a new instance of <see cref="ThingOptionalLiteralFloat"/>. </summary>
@@ -25,7 +24,7 @@ namespace UnbrandedTypeSpec
             _value = value;
         }
 
-        /// <summary> 4.56. </summary>
+        /// <summary> Gets the _456. </summary>
         public static ThingOptionalLiteralFloat _456 { get; } = new ThingOptionalLiteralFloat(_456Value);
 
         /// <summary> Determines if two <see cref="ThingOptionalLiteralFloat"/> values are the same. </summary>

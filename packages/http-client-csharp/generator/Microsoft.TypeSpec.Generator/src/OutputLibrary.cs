@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator
@@ -23,9 +24,10 @@ namespace Microsoft.TypeSpec.Generator
         {
             var input = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
             var enums = new List<TypeProvider>(input.Enums.Count);
-            foreach (var inputEnum in input.Enums)
+            var convertedEnums = CodeModelGenerator.Instance.TypeFactory.LiteralValueTypeCache.Values.OfType<InputEnumType>();
+            foreach (var inputEnum in input.Enums.Concat(convertedEnums))
             {
-                if (inputEnum.Usage.HasFlag(Input.InputModelTypeUsage.ApiVersionEnum))
+                if (inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
                     continue;
                 var outputEnum = CodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
 
@@ -53,6 +55,7 @@ namespace Microsoft.TypeSpec.Generator
                 var outputModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
                 if (outputModel != null)
                 {
+                    _ = outputModel.Properties; // we call this to enforce it to build all its properties. TODO -- this is only temporary.
                     models.Add(outputModel);
                     var unknownVariant = inputModel.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
                     if (unknownVariant != null)
@@ -72,8 +75,8 @@ namespace Microsoft.TypeSpec.Generator
         protected virtual TypeProvider[] BuildTypeProviders()
         {
             return [
-                .. BuildEnums(),
                 .. BuildModels(),
+                .. BuildEnums(),
                 new ChangeTrackingListDefinition(),
                 new ChangeTrackingDictionaryDefinition(),
                 new ArgumentDefinition(),
