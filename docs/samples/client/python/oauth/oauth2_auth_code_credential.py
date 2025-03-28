@@ -53,13 +53,13 @@ class OAuth2AuthCodeCredential:
         if not scopes:
             raise ValueError("At least one scope must be provided.")
 
-        authority_url = self.authority_url
-        if options is not None:
-            auth_flows = getattr(options, "auth_flows", None)
-            if auth_flows and len(auth_flows) > 0:
-                auth_flow = auth_flows[0]
-                authority_url = auth_flow.get("authorizationUrl") or authority_url
-
+        auth_flows = options.get("auth_flows")
+        # If there was at least one flow in the TypeSpec, pick the first one.
+        # If your TypeSpec has several flows, you may want to loop to find the one you need
+        if auth_flows and len(auth_flows) > 0:
+            auth_flow = auth_flows[0]
+            authority_url = auth_flow.get("authorizationUrl")
+        authority_url = authority_url or self.authority_url
         if not authority_url:
             raise ValueError("No authority URL provided. Provide it in the constructor or in the options.")
 

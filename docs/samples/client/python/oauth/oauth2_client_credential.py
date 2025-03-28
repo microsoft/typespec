@@ -40,6 +40,8 @@ class OAuth2ClientCredential:
                     
         
         auth_flows = options.get("auth_flows")
+        # If there was at least one flow in the TypeSpec, pick the first one.
+        # If your TypeSpec has several flows, you may want to loop to find the one you need
         if auth_flows and len(auth_flows) > 0:
             auth_flow = auth_flows[0]
             authority_url = auth_flow.get("authorizationUrl")
