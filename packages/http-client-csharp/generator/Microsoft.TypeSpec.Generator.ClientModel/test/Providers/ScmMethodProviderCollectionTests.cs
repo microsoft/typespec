@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -112,10 +113,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public void ListMethodWithNoPaging()
         {
             MockHelpers.LoadMockGenerator();
-            var paging = new InputOperationPaging(
-                ["items"],
-                null,
-                null);
             var inputModel = InputFactory.Model("cat", properties:
             [
                 InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
@@ -124,7 +121,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var response = InputFactory.OperationResponse(
                 [200],
                 InputFactory.Array(inputModel));
-            var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
             var inputClient = InputFactory.Client("TestClient", operations: [operation]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
@@ -140,7 +137,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(listMethod);
             var signature = listMethod!.Signature;
 
-            var expectedReturnType = new CSharpType(typeof(ClientResult<>), new CSharpType(typeof(IList<>), modelType!));
+            var expectedReturnType = new CSharpType(typeof(ClientResult<>), new CSharpType(typeof(IReadOnlyList<>), modelType!));
+            Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
+        }
+
+        [Test]
+        public void ListMethodWithImplicitPaging()
+        {
+            var paging = new InputOperationPaging(
+                ["items"],
+                null,
+                null);
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
+            var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
+            var inputClient = InputFactory.Client("TestClient", operations: [operation]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            // there should be a CollectionResultDefinition
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+               t => t is CollectionResultDefinition);
+            Assert.IsNotNull(collectionResultDefinition);
+
+            var methodCollection = new ScmMethodProviderCollection(inputClient.Operations.First(), client!);
+            Assert.IsNotNull(methodCollection);
+            Assert.AreEqual(4, methodCollection.Count);
+
+            var listMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "GetCats");
+            Assert.IsNotNull(listMethod);
+
+            var signature = listMethod!.Signature;
+            var expectedReturnType = new CSharpType(typeof(CollectionResult));
             Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
         }
 
