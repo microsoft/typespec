@@ -9,7 +9,6 @@ import {
   Program,
   Type,
   Value,
-  getEffectiveModelType,
   getProperty,
   getTypeName,
   walkPropertiesInherited,
@@ -202,11 +201,7 @@ export function getHttpFileModel(
     return undefined;
   }
 
-  const effectiveType = getEffectiveModelType(program, type, filter);
-  if (isOrExtendsHttpFile(program, effectiveType)) {
-    return { contents, contentType, filename, type };
-  }
-
+  // Check that each property is sourced from an `Http.File` model
   if (
     !propertyIsFromHttpFile(program, contentType) ||
     !propertyIsFromHttpFile(program, filename) ||
@@ -215,8 +210,8 @@ export function getHttpFileModel(
     return undefined;
   }
 
-  // Handle tricky spread cases - once metadata is filtered out
-  // there should only be the 3 file properties left
+  // Need to make sure that the filtered model only has the 3 `Http.File` properties
+  // Filtering should have removed all metadata (besides filename)
   const effectiveProperties = new Set(walkPropertiesInherited(type));
   if (filter) {
     for (const prop of effectiveProperties) {
@@ -226,18 +221,22 @@ export function getHttpFileModel(
     }
   }
 
+  // If there are any props beyond these 3, we know we have a body parameter
+  // that transforms this into a regular model.
   if (effectiveProperties.size !== 3) {
-    return;
+    return undefined;
   }
 
   return { contents, contentType, filename, type };
 }
 
 function propertyIsFromHttpFile(program: Program, property: ModelProperty) {
+  // Checks if the property's model, or any base models, are an Http.File.
   const isFile = property.model ? isOrExtendsHttpFile(program, property.model) : false;
 
   if (isFile) return true;
 
+  // For spreads, the property may have a source property that links back to an Http.File model.
   if (property.sourceProperty) {
     return propertyIsFromHttpFile(program, property.sourceProperty);
   }
