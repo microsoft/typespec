@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-// Demonstrates creating a client with an unbranded authentication token provider.
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
