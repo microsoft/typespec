@@ -1,4 +1,6 @@
+import { ignoreDiagnostics } from "../../../core/diagnostics.js";
 import { ModelProperty, Operation, Type } from "../../../core/types.js";
+import { getPagingOperation, PagingOperation } from "../../../lib/paging.js";
 import { defineKit } from "../define-kit.js";
 
 /**
@@ -38,6 +40,11 @@ export interface OperationKit {
    * @param type type to check
    */
   is(type: Type): type is Operation;
+  /**
+   * Get the paging operation for an operation.
+   * @param operation operation to get the paging operation for
+   */
+  getPagingOperation(operation: Operation): PagingOperation | undefined;
 }
 
 interface TypekitExtension {
@@ -56,6 +63,9 @@ defineKit<TypekitExtension>({
   operation: {
     is(type: Type) {
       return type.kind === "Operation";
+    },
+    getPagingOperation(operation: Operation) {
+      return ignoreDiagnostics(getPagingOperation(this.program, operation));
     },
     create(desc) {
       const parametersModel = this.model.create({

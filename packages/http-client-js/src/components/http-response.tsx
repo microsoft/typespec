@@ -1,34 +1,36 @@
-import { Children, code, For, Refkey } from "@alloy-js/core";
+import { Children, code, For, Refkey, List, refkey } from "@alloy-js/core";
 import { isVoidType } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import { ClientOperation } from "@typespec/http-client";
 import { getCreateRestErrorRefkey } from "./static-helpers/rest-error.jsx";
 import { ContentTypeEncodingProvider } from "./transforms/content-type-encoding-provider.jsx";
 import { JsonTransform } from "./transforms/json/json-transform.jsx";
+import { HttpOperation } from "@typespec/http";
+import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
+import * as ts from "@alloy-js/typescript";
+import { httpRuntimeTemplateLib } from "./external-packages/ts-http-runtime.js";
 export interface HttpResponseProps {
-  operation: ClientOperation;
+  httpOperation: HttpOperation;
   responseRefkey: Refkey;
   children?: Children;
 }
 
 export function HttpResponse(props: HttpResponseProps) {
   return (
-    <>
-      <HttpResponses operation={props.operation} />
-
+    <List hardline>
+      <HttpResponses httpOperation={props.httpOperation} />
       {code`throw ${getCreateRestErrorRefkey()}(response);`}
-    </>
+    </List>
   );
 }
 
 export interface HttpResponsesProps {
-  operation: ClientOperation;
+  httpOperation: HttpOperation;
   children?: Children;
 }
 
 export function HttpResponses(props: HttpResponsesProps) {
   // Handle response by status code and content type
-  const responses = $.httpOperation.flattenResponses(props.operation.httpOperation);
+  const responses = $.httpOperation.flattenResponses(props.httpOperation);
   return (
     <For each={responses.filter((r) => !$.httpResponse.isErrorResponse(r))}>
       {({ statusCode, contentType, responseContent, type }) => {
