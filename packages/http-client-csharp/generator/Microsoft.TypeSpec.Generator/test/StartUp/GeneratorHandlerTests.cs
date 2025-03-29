@@ -3,6 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
+using System.Linq;
 using Moq;
 using NUnit.Framework;
 
@@ -129,6 +132,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
 
             Assert.Throws<Exception>(() => generatorHandler.SelectGenerator(options));
             mockGenerator.Verify(p => p.Configure(), Times.Never);
+        }
+
+        [Test]
+        public void ShouldDiscoverPlugins()
+        {
+            var handler = new GeneratorHandler();
+            var catalog = new TypeCatalog(typeof(TestGeneratorPlugin), typeof(TestGenerator));
+            var container = new CompositionContainer(catalog);
+            container.ComposeParts(handler);
+
+            var plugins = handler.Plugins?.ToList();
+
+            Assert.NotNull(plugins);
+            Assert.AreEqual(1, plugins!.Count);
+            Assert.IsInstanceOf<TestGeneratorPlugin>(plugins[0]);
         }
     }
 }

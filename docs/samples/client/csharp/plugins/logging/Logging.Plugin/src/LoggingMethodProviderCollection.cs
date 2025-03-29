@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.TypeSpec.Generator.ClientModel;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -12,11 +11,11 @@ using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
-namespace SampleGenerator.Providers
+namespace Logging.Plugin
 {
-    internal class SampleGeneratorMethodProviderCollection : ScmMethodProviderCollection
+    internal class LoggingMethodProviderCollection : ScmMethodProviderCollection
     {
-        public SampleGeneratorMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
+        public LoggingMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
         {
         }
