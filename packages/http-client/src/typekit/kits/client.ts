@@ -4,7 +4,6 @@ import {
   isTemplateDeclarationOrInstance,
   ModelProperty,
   Namespace,
-  NoTarget,
   Operation,
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/experimental/typekit";
@@ -119,12 +118,6 @@ defineKit<TypekitExtension>({
       return clients;
     },
     getClient(namespace) {
-      if (!namespace) {
-        reportDiagnostic(this.program, {
-          code: "undefined-namespace-for-client",
-          target: NoTarget,
-        });
-      }
       if (clientCache.has(namespace)) {
         return clientCache.get(namespace)!;
       }
@@ -235,8 +228,14 @@ defineKit<TypekitExtension>({
         return { url: server.url, parameters: Array.from(server.parameters.values()) };
       }
 
-      // Couldn't find a match, return the default
-      throw new Error("Couldn't find a matching server for the client");
+      // Couldn't determin the url template, returning the default
+      // This should be unreachable.
+      reportDiagnostic(this.program, {
+        code: "client-url-template-unknown",
+        target: client.type,
+        format: { clientName: client.type.name },
+      });
+
       return endpointTemplate;
     },
     haveSameConstructor(a, b) {
