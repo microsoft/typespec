@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.template.example;
 import com.azure.core.http.ContentType;
 import com.azure.core.http.HttpMethod;
 import com.azure.core.http.rest.PagedIterable;
-import com.azure.core.util.CoreUtils;
 import com.azure.core.util.polling.LongRunningOperationStatus;
 import com.azure.core.util.polling.SyncPoller;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
@@ -20,8 +19,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodTransformationDetail;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -285,20 +284,20 @@ public class ClientMethodExampleWriter {
     private ExampleNode parseNodeFromParameter(ClientMethod convenienceMethod, ProxyMethodExample proxyMethodExample,
         MethodParameter methodParameter) {
         ExampleNode node;
-        if (isGroupingParameter(convenienceMethod, methodParameter)) {
+        final ParameterTransformations transformations = convenienceMethod.getParameterTransformations();
+        if (transformations.isGroupingParameter(methodParameter)) {
             // grouping, possible with flattening first
-
             // group example values into a map
             Map<String, Object> exampleValue = new HashMap<>();
-            for (MethodTransformationDetail detail : convenienceMethod.getMethodTransformationDetails()) {
-                for (ParameterMapping parameterMapping : detail.getParameterMappings()) {
-                    if (parameterMapping.getOutputParameterPropertyName() != null) {
+            for (ParameterTransformation transformation : convenienceMethod.getParameterTransformations().asList()) {
+                for (ParameterMapping parameterMapping : transformation.getMappings()) {
+                    if (parameterMapping.getOutParameterPropertyName() != null) {
                         // this is a flattened property, so put flattening(real parameter) value
 
                         // output parameter's name is the "escaped reserved client method parameter name" of the real
                         // parameter's serialized name
                         // since flattened parameter is always in body, we can deal with that explicitly
-                        ClientMethodParameter outputParameter = detail.getOutParameter();
+                        ClientMethodParameter outputParameter = transformation.getOutParameter();
                         Map<String, Object> flattenedParameterValue
                             = getFlattenedBodyParameterExampleValue(proxyMethodExample, outputParameter);
                         if (flattenedParameterValue != null) {
@@ -311,9 +310,8 @@ public class ClientMethodExampleWriter {
                     } else {
                         // Group property's "serializedName" is the real parameter's "serializedName" on the wire.
                         // This implicit equivalence is defined in emitter and preserved in mapping client method.
-                        String serializedParameterName
-                            = parameterMapping.getInputParameterProperty().getSerializedName();
-                        ClientMethodParameter parameter = detail.getOutParameter();
+                        String serializedParameterName = parameterMapping.getInParameterProperty().getSerializedName();
+                        ClientMethodParameter parameter = transformation.getOutParameter();
                         exampleValue.put(serializedParameterName, ModelExampleUtil.getParameterExampleValue(
                             proxyMethodExample, serializedParameterName, parameter.getRequestParameterLocation()));
                     }
@@ -322,30 +320,22 @@ public class ClientMethodExampleWriter {
             IType type = methodParameter.getClientMethodParameter().getClientType();
             IType wireType = methodParameter.getClientMethodParameter().getWireType();
             node = ModelExampleUtil.parseNode(type, wireType, exampleValue);
-        } else if (isFlattenParameter(convenienceMethod, methodParameter)) {
+        } else if (transformations.isFlattenParameter(methodParameter)) {
             // flatten, no grouping
             ClientMethodParameter outputParameter
-                = convenienceMethod.getMethodTransformationDetails().iterator().next().getOutParameter();
+                = transformations.getOutParameterIfInParameterFlattened(methodParameter);
             Map<String, Object> realParameterValue
                 = getFlattenedBodyParameterExampleValue(proxyMethodExample, outputParameter);
 
             IType type = methodParameter.getClientMethodParameter().getClientType();
             IType wireType = methodParameter.getClientMethodParameter().getWireType();
 
-            ParameterMapping parameterMapping = convenienceMethod.getMethodTransformationDetails()
-                .iterator()
-                .next()
-                .getParameterMappings()
-                .stream()
-                .filter(mapping -> Objects.equals(mapping.getInputParameter().getName(),
-                    methodParameter.getClientMethodParameter().getName()))
-                .findFirst()
-                .orElse(null);
+            final ParameterMapping parameterMapping = transformations.getInMapping(methodParameter);
 
             Object methodParameterValue = null;
             if (realParameterValue != null && parameterMapping != null) {
                 methodParameterValue
-                    = realParameterValue.get(parameterMapping.getOutputParameterProperty().getSerializedName());
+                    = realParameterValue.get(parameterMapping.getOutParameterProperty().getSerializedName());
             }
             node = ModelExampleUtil.parseNode(type, wireType, methodParameterValue);
         } else {
@@ -378,40 +368,6 @@ public class ClientMethodExampleWriter {
         }
 
         return parameterValue == null ? null : (Map<String, Object>) parameterValue.getObjectValue();
-    }
-
-    private boolean isGroupingParameter(ClientMethod convenienceMethod, MethodParameter methodParameter) {
-        List<MethodTransformationDetail> details = convenienceMethod.getMethodTransformationDetails();
-        if (CoreUtils.isNullOrEmpty(details) || details.size() <= 1) {
-            return false;
-        }
-
-        return details.stream()
-            .allMatch(
-                detail -> !CoreUtils.isNullOrEmpty(detail.getParameterMappings()) && detail.getOutParameter() != null &&
-                // same name
-                    detail.getParameterMappings()
-                        .stream()
-                        .allMatch(mapping -> Objects.equals(mapping.getInputParameter().getName(),
-                            methodParameter.getClientMethodParameter().getName())));
-    }
-
-    private boolean isFlattenParameter(ClientMethod convenienceMethod, MethodParameter methodParameter) {
-        List<MethodTransformationDetail> details = convenienceMethod.getMethodTransformationDetails();
-        if (CoreUtils.isNullOrEmpty(details) || details.size() != 1) {
-            return false;
-        }
-        return details.stream()
-            .anyMatch(detail -> !CoreUtils.isNullOrEmpty(detail.getParameterMappings())
-                && detail.getOutParameter() != null
-                && detail.getParameterMappings()
-                    .stream()
-                    .allMatch(mapping -> mapping.getOutputParameterPropertyName() != null
-                        && mapping.getInputParameterProperty() == null)
-                && detail.getParameterMappings()
-                    .stream()
-                    .anyMatch(mapping -> Objects.equals(methodParameter.getClientMethodParameter().getName(),
-                        mapping.getInputParameter().getName())));
     }
 
     public Set<String> getImports() {

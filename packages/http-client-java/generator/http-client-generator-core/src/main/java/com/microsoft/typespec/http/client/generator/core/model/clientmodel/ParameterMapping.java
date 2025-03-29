@@ -3,48 +3,76 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-public class ParameterMapping {
-    private ClientMethodParameter inputParameter;
+/**
+ * A type holding the mappings derived from the transformations (e.g. group-by, body spreading) applied on parameter.
+ */
+public final class ParameterMapping {
+    private final ClientMethodParameter inParameter;
+    private final ClientModelProperty inParameterProperty;
+    private final ClientMethodParameter outParameter;
+    private final ClientModelProperty outParameterProperty;
+    private final String outParameterPropertyName;
 
-    private ClientModelProperty inputParameterProperty;
-
-    private String outputParameterPropertyName;
-
-    private ClientModelProperty outputParameterProperty;
-
-    public ClientMethodParameter getInputParameter() {
-        return inputParameter;
+    public ParameterMapping(ClientMethodParameter inParameter, ClientModelProperty inParameterProperty,
+        ClientMethodParameter outParameter, ClientModelProperty outParameterProperty, String outParameterPropertyName) {
+        this.inParameter = inParameter;
+        this.inParameterProperty = inParameterProperty;
+        this.outParameter = outParameter;
+        this.outParameterProperty = outParameterProperty;
+        this.outParameterPropertyName = outParameterPropertyName;
     }
 
-    public ParameterMapping setInputParameter(ClientMethodParameter inputParameter) {
-        this.inputParameter = inputParameter;
-        return this;
+    /**
+     * Gets the description of an "input parameter" that SDK Method takes.
+     *
+     * @return the in parameter.
+     */
+    public ClientMethodParameter getInParameter() {
+        return inParameter;
     }
 
-    public ClientModelProperty getInputParameterProperty() {
-        return inputParameterProperty;
+    /**
+     * Gets the property within the "input parameter" model ({@link #getInParameter()}). When calling service,
+     * this property's value is read from the "input parameter" model and transmitted. A non-null value from this
+     * getter indicates spec requested a flattening transformation (group-by) of the SDK Method input to its
+     * properties for the purpose of wire call.
+     *
+     * @return the property.
+     */
+    public ClientModelProperty getInParameterProperty() {
+        return inParameterProperty;
     }
 
-    public ParameterMapping setInputParameterProperty(ClientModelProperty inputParameterProperty) {
-        this.inputParameterProperty = inputParameterProperty;
-        return this;
+    /**
+     * Gets description of the "output parameter" that is transmitted to the service.
+     *
+     * @return the out parameter.
+     */
+    public ClientMethodParameter getOutParameter() {
+        return outParameter;
     }
 
-    public String getOutputParameterPropertyName() {
-        return outputParameterPropertyName;
+    /**
+     * Gets description of the property within the "output parameter" model ({@link #getOutParameter()}), where its
+     * value is populated from an SDK Method argument. A non-null value from this indicates spec requested the
+     * spreading transformation of operation parameter to SDK method arguments.
+     * <p>
+     * E.g, spec has 'op add(...User): void' and the SDK method will look like 'void add(String name, int age)',
+     * i.e., properties of the 'User' model ("output parameter") are spread into the SDK method arguments.
+     * </p>
+     *
+     * @return the property.
+     */
+    public ClientModelProperty getOutParameterProperty() {
+        return outParameterProperty;
     }
 
-    public ParameterMapping setOutputParameterPropertyName(String outputParameterPropertyName) {
-        this.outputParameterPropertyName = outputParameterPropertyName;
-        return this;
-    }
-
-    public ClientModelProperty getOutputParameterProperty() {
-        return outputParameterProperty;
-    }
-
-    public ParameterMapping setOutputParameterProperty(ClientModelProperty outputParameterProperty) {
-        this.outputParameterProperty = outputParameterProperty;
-        return this;
+    /**
+     * Gets the name of the property {@link #getOutParameterProperty()} in the "output parameter" model.
+     *
+     * @return the name of the property.
+     */
+    public String getOutParameterPropertyName() {
+        return outParameterPropertyName;
     }
 }
