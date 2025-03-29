@@ -3,8 +3,8 @@
     "composite": true,
     "alwaysStrict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "Node16",
-    "moduleResolution": "Node16",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -15,9 +15,9 @@
     "declaration": true,
     "stripInternal": true,
     "noEmitHelpers": false,
-    "target": "ES2022",
+    "target": "es2024",
     "types": ["node"],
-    "lib": ["es2022", "DOM"],
+    "lib": ["es2024", "DOM"],
     "experimentalDecorators": true,
     "newLine": "LF"
   }
