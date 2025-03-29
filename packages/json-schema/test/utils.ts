@@ -83,6 +83,6 @@ export async function emitSchema(
   } = { emitNamespace: true },
 ) {
   const [schemas, diagnostics] = await emitSchemaWithDiagnostics(code, options, testOptions);
-  expectDiagnosticEmpty(diagnostics);
+  expectEmpty(diagnostics);
   return schemas;
 }
