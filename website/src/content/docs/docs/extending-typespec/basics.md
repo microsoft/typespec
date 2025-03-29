@@ -364,9 +364,9 @@ Foo; // type of: model Foo {}
 CustomName; // type of : Bar.name
 ```
 
-#### f. Install vscode extension for the test framework
+#### f. Install VS Code extension for the test framework
 
-If you are using VSCode, you can install the [Node test runner](https://marketplace.visualstudio.com/items?itemName=connor4312.nodejs-testing) to run your tests from the editor. This will also allow you to easily debug your tests.
+If you are using VS Code, you can install the [Node test runner](https://marketplace.visualstudio.com/items?itemName=connor4312.nodejs-testing) to run your tests from the editor. This will also allow you to easily debug your tests.
 
 After installing the extension, you should be able to discover, run, and debug your tests from the test explorer.
 
