@@ -13,13 +13,10 @@ describe("Authentication.Union", () => {
     // Assert successful request
   });
 
-  it.skip("should authenticate using the valid OAuth token", async () => {
+  it("should authenticate using the valid OAuth token", async () => {
     const client = new UnionClient(
       {
-        getToken: async () => ({
-          token: "Bearer https://security.microsoft.com/.default",
-          expiresOnTimestamp: Date.now() + 3600 * 1000,
-        }),
+        getOAuth2Token: async () => "https://security.microsoft.com/.default",
       },
       { allowInsecureConnection: true },
     );
