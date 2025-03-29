@@ -1377,16 +1377,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     await emitter.writeOutput();
     const projectDir = normalizeSlashes(path.relative(process.cwd(), resolvePath(outputDir)));
-    const traceId = "http-server-csharp";
+    function trace(message: string) {
+      context.program.trace("http-server-csharp", `hscs-msg: ${message}`);
+    }
 
-    context.program.trace(traceId, `Your project was successfully created at "${projectDir}"`);
-    context.program.trace(
-      traceId,
-      `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
-    );
+    trace(`Your project was successfully created at "${projectDir}"`);
+    trace(`You can build and start the project using 'dotnet run --project "${projectDir}"'`);
     if (options["use-swaggerui"] === true && httpsPort) {
-      context.program.trace(
-        traceId,
+      trace(
         `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
       );
     }
