@@ -1,4 +1,4 @@
-using SampleTypeSpec;
+using UnbrandedTypeSpec;
 using System;
 
 namespace Sample
