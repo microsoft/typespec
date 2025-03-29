@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 namespace TestProjects.Local.Tests
 {
