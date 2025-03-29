@@ -48,13 +48,13 @@ these files will be overwritten by the emitter unless you specify the `--overwri
 If you downloaded the `tsp` standalone component and you don't have `node` and `npm` installed, you will not be able to use the `hscs-scaffold` command to create an ASP.Net project. Instead, you can use compiler options, for example, the following command will create a new project using the TypeSpec in the current directory, enabling SwaggerUI, and overwriting any existing mocks or project files:
 
 ```bash
-compile > tsp . --emit @typespec/http-server-csharp --emit @typespec/openapi3 --option @typespec/http-server-csharp.emit-mocks=emit-mocks-and-project-files --option @typespec/http-server-csharp.use-swaggerui=true --option @typespec/http-server-csharp.overwrite=true
+tsp compile . --emit @typespec/http-server-csharp --emit @typespec/openapi3 --option @typespec/http-server-csharp.emit-mocks=emit-mocks-and-project-files --option @typespec/http-server-csharp.use-swaggerui=true --option @typespec/http-server-csharp.overwrite=true
 ```
 
 Once you have customized the project, you can generate new mocks for any new APIs while leaving existing implementations unchanged using:
 
 ```bash
-compile > tsp . --emit @typespec/http-server-csharp --option @typespec/http-server-csharp.emit-mocks=mocks-only
+tsp compile . --emit @typespec/http-server-csharp --option @typespec/http-server-csharp.emit-mocks=mocks-only
 ```
 
 ## SwaggerUI
