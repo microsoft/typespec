@@ -286,7 +286,7 @@ When you run the scaffolding step again:
 When scaffolding your service, you can use additional options for customization:
 
 ```bash
-npx hscs scaffold main.tsp --help
+npx hscs-scaffold main.tsp --help
 ```
 
 Some useful options include:
