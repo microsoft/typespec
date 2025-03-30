@@ -148,7 +148,7 @@ The console will display information about what it generated and where it placed
 You'll see output similar to this:
 
 ```
-Your project was successfully created at "tsp-output/server"
+Your project was successfully created at "tsp-output/server/aspnet"
 
 You can build and start the project using 'dotnet run --project "tsp-output/server"'
 You can browse the swagger UI to test your service using 'start https://localhost:7348/swagger/'
