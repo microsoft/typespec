@@ -260,7 +260,7 @@ This updates the generated files (controllers, interfaces, models) but preserves
 3. If you've added entirely new resources that require new implementation files:
 
 ```bash
-npx hscs scaffold main.tsp
+npx hscs-scaffold main.tsp
 ```
 
 This is particularly useful when you've added new interfaces in your TypeSpec. For example, if you add a new `Categories` interface:
