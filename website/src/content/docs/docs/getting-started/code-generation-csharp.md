@@ -1,6 +1,6 @@
 ---
 id: code-generation-csharp
-title: Getting Started with TypeSpec Code Generation for C#
+title: Code Generation - C#
 ---
 
 <!-- cspell:ignore myproject -->
