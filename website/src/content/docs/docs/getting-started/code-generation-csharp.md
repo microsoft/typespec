@@ -252,7 +252,7 @@ As your API evolves, you'll need to update your TypeSpec definition and regenera
 2. Recompile to update the generated code:
 
 ```bash
-tsp compile
+tsp compile .
 ```
 
 This updates the generated files (controllers, interfaces, models) but preserves your implementation files.
