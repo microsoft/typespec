@@ -159,7 +159,7 @@ You can browse the swagger UI to test your service using 'start https://localhos
 Run the generated service using the following command:
 
 ```bash
-dotnet run --project "tsp-output/server
+dotnet run --project "tsp-output/server/aspnet"
 ```
 
 Once the server is up and running, you can access the Swagger UI by navigating to `http://localhost:<port>/swagger` in your browser, replacing `<port>` with the port listed in the console output, which in the example above is `7348`.
