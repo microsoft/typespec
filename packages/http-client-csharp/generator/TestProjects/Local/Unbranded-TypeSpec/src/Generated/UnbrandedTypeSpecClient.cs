@@ -1424,7 +1424,7 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary>
-        /// [Protocol Method] List things without paging
+        /// [Protocol Method] List things with paging
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -1434,14 +1434,13 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ListWithoutPaging(RequestOptions options)
+        public virtual CollectionResult ListWithPaging(RequestOptions options)
         {
-            using PipelineMessage message = CreateListWithoutPagingRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            return new ListWithPagingCollectionResult(this, options);
         }
 
         /// <summary>
-        /// [Protocol Method] List things without paging
+        /// [Protocol Method] List things with paging
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -1451,28 +1450,25 @@ namespace UnbrandedTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ListWithoutPagingAsync(RequestOptions options)
+        public virtual AsyncCollectionResult ListWithPagingAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateListWithoutPagingRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return new ListWithPagingAsyncCollectionResult(this, options);
         }
 
-        /// <summary> List things without paging. </summary>
+        /// <summary> List things with paging. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<PageThing> ListWithoutPaging(CancellationToken cancellationToken = default)
+        public virtual CollectionResult<Thing> ListWithPaging(CancellationToken cancellationToken = default)
         {
-            ClientResult result = ListWithoutPaging(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((PageThing)result, result.GetRawResponse());
+            return new ListWithPagingCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
 
-        /// <summary> List things without paging. </summary>
+        /// <summary> List things with paging. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<PageThing>> ListWithoutPagingAsync(CancellationToken cancellationToken = default)
+        public virtual AsyncCollectionResult<Thing> ListWithPagingAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await ListWithoutPagingAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((PageThing)result, result.GetRawResponse());
+            return new ListWithPagingAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
     }
 }

@@ -77,6 +77,20 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
     const schema = res.paths["/"].post.requestBody.content["multipart/form-data"].schema;
     expect(schema.properties.name.description).toEqual("My doc");
   });
+
+  it("doc of property use allOf", async () => {
+    const res = await openApiFor(
+      `
+    op upload(@header contentType: "multipart/form-data", @multipartBody _: { /** My doc */ name: HttpPart<Foo> }): void;
+    union Foo { "a", "b" }
+    `,
+    );
+    const schema = res.paths["/"].post.requestBody.content["multipart/form-data"].schema;
+    expect(schema.properties.name).toEqual({
+      allOf: [{ $ref: "#/components/schemas/Foo" }],
+      description: "My doc",
+    });
+  });
 });
 
 worksFor(["3.0.0"], ({ openApiFor }) => {
@@ -98,6 +112,32 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
             },
           },
           required: ["profileImage"],
+        },
+      });
+    });
+
+    it("part of a simple union", async () => {
+      const res = await openApiFor(
+        `
+      op upload(@header contentType: "multipart/form-data", @multipartBody _: {profileImage: HttpPart<UnionEnum>}): void;
+      union UnionEnum { "a", "b" }
+      `,
+      );
+      const op = res.paths["/"].post;
+      deepStrictEqual(op.requestBody.content["multipart/form-data"], {
+        schema: {
+          type: "object",
+          properties: {
+            profileImage: {
+              $ref: "#/components/schemas/UnionEnum",
+            },
+          },
+          required: ["profileImage"],
+        },
+        encoding: {
+          profileImage: {
+            contentType: "text/plain",
+          },
         },
       });
     });

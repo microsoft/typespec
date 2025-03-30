@@ -1,7 +1,7 @@
 import { Program, Type, navigateProgram } from "@typespec/compiler";
 import { BasicTestRunner, resolveVirtualPath } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
-import { beforeEach, it } from "vitest";
+import { beforeEach, describe, it } from "vitest";
 import { getPropertySource, getSourceModel } from "../src/lib/utils.js";
 import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
 
@@ -1963,4 +1963,252 @@ it("generates jsdoc comments", async () => {
       "public string Name { get; set; }",
     ],
   );
+});
+
+describe("emit correct code for `@error` models", () => {
+  it("model has additional properties apart from `@statusCode`", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model NotFoundError {
+          @statusCode statusCode: 404;
+          code: "not-found";
+        }
+      `,
+      "NotFoundError.cs",
+      [
+        "public partial class NotFoundError : HttpServiceException {",
+        `public NotFoundError(string code = "not-found") : base(404,`,
+        "value: new{code = code}) ",
+      ],
+    );
+  });
+  it("model only has `@statusCode` property", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model NotFoundError {
+          @statusCode _: 404;
+        }
+      `,
+      "NotFoundError.cs",
+      [
+        "public partial class NotFoundError : HttpServiceException {",
+        "public NotFoundError() : base(404)",
+      ],
+    );
+  });
+  it("emits `@min` value when `@statusCode` property is not defined but has `@min` and `@max` decorators", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model ErrorInRange {
+          @minValue(500)
+          @maxValue(599)
+          @statusCode
+          _: int32;
+        }
+      `,
+      "ErrorInRange.cs",
+      [
+        "public partial class ErrorInRange : HttpServiceException {",
+        "public ErrorInRange() : base(500)",
+      ],
+    );
+  });
+  it("emits first value when `@statusCode` is defined with an union reference", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: statusCodes;
+        }
+
+        union statusCodes {
+          400,
+          404,
+        }
+      `,
+      "Error.cs",
+      [
+        "public partial class Error : HttpServiceException {",
+        "public Error(int statusCode) : base(statusCode)",
+      ],
+    );
+  });
+  it("emits first value when `@statusCode` is defined with an union", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200 | 202;
+        }
+      `,
+      "Error.cs",
+      [
+        "public partial class Error : HttpServiceException {",
+        "public Error(int statusCode) : base(statusCode)",
+      ],
+    );
+  });
+  it("emits error models when they inherit the `@error` decorator and resolves all the inheritance correctly", async () => {
+    await compileAndValidateMultiple(
+      runner,
+      `
+        @error
+        model ApiError {
+          code: string;
+          message: string;
+        }
+     
+        model Error extends ApiError {
+          @statusCode
+          statusCode: 500;
+        }
+      `,
+      [
+        [
+          "ApiError.cs",
+          [
+            "public partial class ApiError : HttpServiceException {",
+            "public ApiError(string code, string message) : base(400,",
+            "public string Code { get; set; }",
+            "public string MessageProp { get; set; }",
+          ],
+        ],
+        ["Error.cs", ["public partial class Error : ApiError {", "public Error() : base(500)"]],
+      ],
+    );
+  });
+  it("emit error constructor with parameters ordered by required followed by optional/default", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200;
+          optionalMessage?: string;
+          code: string;
+          defined: string = "default message";
+          message: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message, string optionalMessage = default, string defined = "default message") : base(200,`,
+      ],
+    );
+  });
+  it("emit error with headers", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode statusCode: 200;
+          @header("x-ms-error-code") code: string;
+          @header customHeader: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string customHeader) : base(200,`,
+        ` headers: new(){{"x-ms-error-code", code}, {"custom-header", customHeader}})`,
+      ],
+    );
+  });
+  it("emit error constructor with value/regular properties", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          code: string;
+          message: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message) : base(400,`,
+        `value: new{code = code,message = message}) `,
+      ],
+    );
+  });
+  it("emit error constructor properties and defined in body", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200;
+          code: string;
+          message: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message) : base(200,`,
+        `Code = code;`,
+        `MessageProp = message;`,
+      ],
+    );
+  });
+  it("renames body properties that conflict with properties from exception", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200;
+          code: string;
+          message: string;
+          value: string;
+          headers: string;
+          stackTrace: string;
+          source: string;
+          innerException: string;
+          hResult: string;
+          data: string;
+          targetSite: string;
+          helpLink: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message, string value, string headers, string stackTrace, string source, string innerException, string hResult, string data, string targetSite, string helpLink) : base(200,`,
+        `Code = code;`,
+        `MessageProp = message;`,
+        `ValueProp = value;`,
+        `HeadersProp = headers;`,
+        `StackTraceProp = stackTrace;`,
+        `SourceProp = source;`,
+        `InnerExceptionProp = innerException;`,
+        `HResultProp = hResult;`,
+        `DataProp = data;`,
+        `TargetSiteProp = targetSite;`,
+        `HelpLinkProp = helpLink;`,
+        `public string Code { get; set; }`,
+        `public string MessageProp { get; set; }`,
+        `public string ValueProp { get; set; }`,
+        `public string HeadersProp { get; set; }`,
+        `public string StackTraceProp { get; set; }`,
+        `public string SourceProp { get; set; }`,
+        `public string InnerExceptionProp { get; set; }`,
+        `public string HResultProp { get; set; }`,
+        `public string DataProp { get; set; }`,
+        `public string TargetSiteProp { get; set; }`,
+        `public string HelpLinkProp { get; set; }`,
+      ],
+    );
+  });
 });
