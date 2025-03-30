@@ -1,19 +1,19 @@
 ---
-id: code-generation-csharp
-title: Code Generation - C#
+id: code-generation-javascript
+title: Code Generation - JavaScript
 ---
 
 <!-- cspell:ignore myproject -->
 
-# Getting started with TypeSpec server code generation for C#
+# Getting started with TypeSpec server code generation for JavaScript
 
-TypeSpec's code generation capabilities allow you to rapidly build a working API service starting from a TypeSpec definition. This guide walks you through the entire process, from installation to creating and customizing your generated service using the C# server emitter.
+TypeSpec's code generation capabilities allow you to rapidly build a working API service starting from a TypeSpec definition. This guide walks you through the entire process, from installation to creating and customizing your generated service using the JavaScript server emitter.
 
 ## Prerequisites
 
-- .NET 9 installed (required for C# server code generation)
-- Node.js and npm (for the installation method)
+- Node.js and npm (required for both TypeSpec and JavaScript server code generation)
 - Basic familiarity with TypeSpec
+- Basic knowledge of JavaScript/TypeScript and Express.js
 
 ## 1. Installing TypeSpec
 
@@ -42,7 +42,7 @@ tsp init
 
    - Choose "Generic REST API" to create a standard REST API
    - Enter a project name or accept the default
-   - Select "C# Server Stubs" from the emitter options
+   - Select "JavaScript Server Stubs" from the emitter options
 
 4. After initialization completes, your project structure will include:
 
@@ -112,32 +112,32 @@ The `tspconfig.yaml` file configures your emitters:
 ```yaml
 emit:
   - "@typespec/openapi3"
-  - "@typespec/http-server-csharp"
+  - "@typespec/http-server-js"
 options:
   "@typespec/openapi3":
     emitter-output-dir: "{output-dir}/schema"
     openapi-versions:
       - 3.1.0
-  "@typespec/http-server-csharp":
+  "@typespec/http-server-js":
     emitter-output-dir: "{output-dir}/server/generated"
 ```
 
 This configuration:
 
 - Generates OpenAPI 3.1.0 schema in the `tsp-output/schema` directory
-- Generates C# server code in the `tsp-output/server/generated` directory
+- Generates JavaScript server code in the `tsp-output/server/generated` directory
 
 ## 4. Scaffolding your service
 
 The next step is to generate the server code from your TypeSpec definition. This process is called "scaffolding".
 
 ```bash
-npx hscs-scaffold . --use-swaggerui --overwrite
+npx hsj-scaffold . --use-swagger --overwrite
 ```
 
 > **Note about `npx`**: The `npx` command executes binaries from your local node_modules directory. This ensures you're using the version of the scaffold tool installed in your project, which is especially useful if you have multiple TypeSpec projects with different versions.
 
-The `--use-swaggerui` flag adds a Swagger UI endpoint to your generated service. This is useful during development as it allows you to interact with your API directly from a browser.
+The `--use-swagger` flag adds Swagger UI integration to your generated service. This is useful during development as it allows you to interact with your API directly from a browser.
 
 The console will display information about what it generated and where it placed the files, including:
 
@@ -148,21 +148,23 @@ The console will display information about what it generated and where it placed
 You'll see output similar to this:
 
 ```
-Your project was successfully created at "tsp-output/server/aspnet"
+Your project was successfully created at "tsp-output/server/express"
 
-You can build and start the project using 'dotnet run --project "tsp-output/server/aspnet"'
-You can browse the swagger UI to test your service using 'start https://localhost:7348/swagger/'
+You can start the project using 'npm start' in the "tsp-output/server/express" directory
+You can browse the Swagger UI to test your service at 'http://localhost:3000/api-docs'
 ```
 
 ## 5. Running your service
 
-Run the generated service using the following command:
+Navigate to your generated project directory and start the server:
 
 ```bash
-dotnet run --project "tsp-output/server/aspnet"
+cd tsp-output/server/express
+npm install
+npm start
 ```
 
-Once the server is up and running, you can access the Swagger UI by navigating to `https://localhost:<port>/swagger` in your browser, replacing `<port>` with the port listed in the console output, which in the example above is `7348`.
+Once the server is up and running, you can access the Swagger UI by navigating to `http://localhost:3000/api-docs` in your browser.
 
 You should see a Swagger UI interface that lists all the available API endpoints, allowing you to test them directly from your browser:
 
@@ -182,62 +184,65 @@ The scaffolded code is organized into two main categories:
 
 Located in the `generated` directory, these files will be regenerated whenever you recompile your TypeSpec definition:
 
-- **Controllers**: Front-end API endpoints that receive HTTP requests
+- **Routes**: Express route definitions that receive HTTP requests
 
-  - Example: `WidgetsController.cs` handles requests to `/widgets`
-  - Each controller method maps to an operation in your TypeSpec interface
+  - Example: `widgetsRoutes.js` handles requests to `/widgets`
+  - Each route maps to an operation in your TypeSpec interface
 
 - **Operations interfaces**: Definitions for your business logic
 
-  - Example: `IWidgets.cs` defines methods like `ListWidgetsAsync()`
+  - Example: `widgetsInterface.js` defines methods like `listWidgets()`
   - These interfaces are what your implementation will need to fulfill
 
 - **Models**: Data structures for requests and responses
-  - Example: `Widget.cs`, `WidgetList.cs`
+  - Example: `models.js` contains type definitions like `Widget`, `WidgetList`
   - These directly represent the models defined in your TypeSpec
 
 ### Customizable files
 
 These files are intended for you to modify with your implementation:
 
-- **Implementation classes**: Mock implementations of your operations interfaces
+- **Service implementations**: Mock implementations of your operations interfaces
 
-  - Example: `Widgets.cs` is where you'll add your business logic
+  - Example: `widgetsService.js` is where you'll add your business logic
   - The emitter generates these with mock implementations that return syntactically correct responses
   - These files **won't be overwritten** when you recompile, preserving your business logic
 
-- **Program.cs**: Application entry point and service configuration
+- **app.js**: Express application configuration
+  - Sets up middleware, routes, and error handling
 
-- **MockRegistration.cs**: Dependency injection configuration
-  - This file connects your implementation classes to the controller interfaces
-  - If you create custom service classes, you'll register them here
+- **server.js**: HTTP server configuration and startup
 
-## 7. Understanding the dependency injection system
+## 7. Understanding the middleware and routing system
 
-The generated C# service uses ASP.NET Core's dependency injection system to connect controllers with your business logic:
+The generated JavaScript service uses Express.js middleware and routing:
 
-1. Controllers defined in the `generated` folder depend on interface types (like `IWidgets`)
-2. Your implementation classes (like `Widgets`) implement these interfaces
-3. The `MockRegistration.cs` file registers your implementations with the dependency injection container
-4. When a request comes in, the controller receives it and calls your implementation
+1. Routes defined in the `generated/routes` folder receive HTTP requests
+2. These routes call methods in your service implementation files
+3. Your implementation methods return responses that are sent back to the client
 
-If you need to register additional services or dependencies, you would add them to the `MockRegistration.cs` file.
+The entire system is wired together in the `app.js` file, which:
+
+- Sets up Express middleware (body parsing, CORS, etc.)
+- Registers the route handlers
+- Configures error handling
 
 ## 8. Adding your business logic
 
-1. Locate the implementation file for your service (e.g., `Widgets.cs`)
+1. Locate the service implementation file for your service (e.g., `services/widgetsService.js`)
 
 2. Update the implementation methods with your actual business logic. For example:
 
-```csharp
-public async Task<Widget[]> ListAsync()
-{
-    // Replace the mock implementation with your actual database query
-    return new Widget[]
-    {
-        new Widget { Id = "1", Weight = 10, Color = "red" },
-        new Widget { Id = "2", Weight = 15, Color = "blue" }
-    };
+```javascript
+// Replace the mock implementation with your actual business logic
+async function listWidgets() {
+  // In a real application, you would fetch data from a database
+  return {
+    items: [
+      { id: "1", weight: 10, color: "red" },
+      { id: "2", weight: 15, color: "blue" }
+    ]
+  };
 }
 ```
 
@@ -255,12 +260,12 @@ As your API evolves, you'll need to update your TypeSpec definition and regenera
 tsp compile .
 ```
 
-This updates the generated files (controllers, interfaces, models) but preserves your implementation files.
+This updates the generated files (routes, interfaces, models) but preserves your implementation files.
 
 3. If you've added entirely new resources that require new implementation files:
 
 ```bash
-npx hscs-scaffold main.tsp
+npx hsj-scaffold main.tsp
 ```
 
 This is particularly useful when you've added new interfaces in your TypeSpec. For example, if you add a new `Categories` interface:
@@ -277,8 +282,8 @@ interface Categories {
 
 When you run the scaffolding step again:
 
-- It will create new files for the new `Categories` interface (`CategoriesController.cs`, `ICategories.cs`, and `CategoriesImpl.cs`)
-- It won't overwrite your existing `Widgets.cs` with your custom business logic
+- It will create new files for the new `Categories` interface (`categoriesRoutes.js`, `categoriesInterface.js`, and `categoriesService.js`)
+- It won't overwrite your existing `widgetsService.js` with your custom business logic
 - This allows you to incrementally add new resources without losing your existing implementations
 
 ## 10. Advanced customization options
@@ -286,13 +291,13 @@ When you run the scaffolding step again:
 When scaffolding your service, you can use additional options for customization:
 
 ```bash
-npx hscs-scaffold main.tsp --help
+npx hsj-scaffold --help
 ```
 
 Some useful options include:
 
 - `--project-name <name>`: Set a custom project name
-- `--https-port <port>`: Set a different HTTPS port
+- `--port <port>`: Set a different HTTP port (default is 3000)
 - `--output <path>`: Generate files to a different location
 - `--overwrite`: Overwrite existing files (use with caution)
   - Normally, implementation files that already exist won't be overwritten
@@ -300,13 +305,15 @@ Some useful options include:
 
 ## Next steps
 
-- Explore the included README and documentation in the `docs` folder of your generated project
-- Add authentication mechanisms to your service
+- Explore the included README in your generated project
+- Add authentication middleware to your service
 - Implement data validation and error handling
-- Connect your implementation to a database
+- Connect your implementation to a database (like MongoDB, PostgreSQL, etc.)
+- Deploy your service to a cloud provider
 
 ## Additional resources
 
 - [TypeSpec Documentation](https://typespec.io/docs/)
 - [TypeSpec Community](https://typespec.io/community/)
 - [GitHub Repository](https://github.com/microsoft/typespec)
+- [Express.js Documentation](https://expressjs.com/)
