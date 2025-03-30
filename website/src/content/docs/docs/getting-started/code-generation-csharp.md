@@ -162,7 +162,7 @@ Run the generated service using the following command:
 dotnet run --project "tsp-output/server/aspnet"
 ```
 
-Once the server is up and running, you can access the Swagger UI by navigating to `http://localhost:<port>/swagger` in your browser, replacing `<port>` with the port listed in the console output, which in the example above is `7348`.
+Once the server is up and running, you can access the Swagger UI by navigating to `https://localhost:<port>/swagger` in your browser, replacing `<port>` with the port listed in the console output, which in the example above is `7348`.
 
 You should see a Swagger UI interface that lists all the available API endpoints, allowing you to test them directly from your browser:
 
