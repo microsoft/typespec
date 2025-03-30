@@ -1,4 +1,4 @@
-import { Model, ModelProperty } from "@typespec/compiler";
+import { ignoreDiagnostics, Model, ModelProperty } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { HttpOperation } from "../../../types.js";
 import { getStreamMetadata } from "../../streams.js";
@@ -54,7 +54,6 @@ defineKit<TypekitExtension>({
     },
     getBodyParameters(httpOperation: HttpOperation): Model | undefined {
       const body = httpOperation.parameters.body;
-
       if (!body) {
         return undefined;
       }
@@ -69,6 +68,19 @@ defineKit<TypekitExtension>({
       }
 
       const bodyPropertyName = bodyProperty.name ? bodyProperty.name : "body";
+      const streamMetadata = getStreamMetadata(this.program, httpOperation.parameters);
+      const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
+      if (streamMetadata && bytes) {
+        this.model.create({
+          properties: {
+            [bodyPropertyName]: this.modelProperty.create({
+              name: httpOperation.parameters.body?.property?.name!,
+              type: bytes,
+              optional: httpOperation.parameters.body?.property?.optional,
+            }),
+          },
+        });
+      }
 
       return this.model.create({
         properties: { [bodyPropertyName]: bodyProperty },
@@ -81,18 +93,16 @@ defineKit<TypekitExtension>({
       const kinds = new Set(Array.isArray(kind) ? kind : [kind]);
       const parameterProperties = new Map<string, ModelProperty>();
       const streamMetadata = getStreamMetadata(this.program, httpOperation.parameters);
-      if (streamMetadata) {
-        parameterProperties.set(httpOperation.parameters.body?.property?.name!, this.modelProperty.create({
-          name: "bytes",
-          type: this.program.checker.createType({
-            kind: "Scalar",
-            name: "bytes",
-            node: {} as any,
-            decorators: [],
-            constructors: {} as any,
-            derivedScalars: []
-          })
-        }));
+      const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
+      if (streamMetadata && bytes) {
+        parameterProperties.set(
+          httpOperation.parameters.body?.property?.name!,
+          this.modelProperty.create({
+            name: httpOperation.parameters.body?.property?.name!,
+            type: bytes,
+            optional: httpOperation.parameters.body?.property?.optional,
+          }),
+        );
       } else {
         kinds.forEach((kind) => {
           if (kind === "body") {

@@ -715,6 +715,9 @@ importers:
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
+      '@typespec/streams':
+        specifier: workspace:^
+        version: link:../streams
       eslint:
         specifier: ^9.23.0
         version: 9.23.0

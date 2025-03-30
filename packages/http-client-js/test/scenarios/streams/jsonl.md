@@ -7,7 +7,9 @@ This TypeSpec block defines a simple model, Foo, containing two properties: name
 ```tsp
 @route("/")
 op get(stream: HttpStream<Thing, "application/jsonl", string>): void;
-model Thing { id: string }
+model Thing {
+  id: string;
+}
 ```
 
 ## TypeScript
@@ -19,15 +21,15 @@ The test expects a TypeScript operation that treats the model Thing as bytes.
 ```ts src/api/clientOperations.ts function get
 export async function get(
   client: ClientContext,
-  body: string,
+  stream: Uint8Array,
   options?: GetOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
-    headers: {
-      "content-type": options?.contentType ?? "application/jsonl",
+    headers: {},
+    body: {
+      stream: encodeUint8Array(stream, "base64")!,
     },
-    body: body,
   };
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 

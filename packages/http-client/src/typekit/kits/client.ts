@@ -1,4 +1,5 @@
 import {
+  ignoreDiagnostics,
   Interface,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
@@ -17,6 +18,7 @@ import {
   resolveAuthentication,
 } from "@typespec/http";
 import "@typespec/http/experimental/typekit";
+import { isStream } from "@typespec/streams";
 import { InternalClient } from "../../interfaces.js";
 import { reportDiagnostic } from "../../lib.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
@@ -169,7 +171,21 @@ defineKit<TypekitExtension>({
         if (isTemplateDeclarationOrInstance(clientOperation)) {
           continue;
         }
-
+        const paramMap = clientOperation.parameters.properties;
+        const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
+        for (const [key, param] of clientOperation.parameters.properties) {
+          if (param.type.kind === "Model" && isStream(this.program, param.type) && bytes) {
+            paramMap.set(
+              key,
+              this.modelProperty.create({
+                name: key,
+                type: bytes,
+                optional: param.optional,
+              }),
+            );
+          }
+        }
+        clientOperation.parameters.properties = paramMap;
         operations.push(clientOperation);
       }
 

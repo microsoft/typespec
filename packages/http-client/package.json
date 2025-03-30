@@ -34,6 +34,7 @@
     "@types/node": "~22.13.11",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
+    "@typespec/streams": "workspace:^",
     "eslint": "^9.23.0",
     "prettier": "~3.5.3",
     "typescript": "~5.8.2",
