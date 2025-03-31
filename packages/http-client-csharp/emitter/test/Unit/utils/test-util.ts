@@ -136,6 +136,7 @@ export async function createCSharpSdkContext(
       types: new Map(),
       models: new Map(),
       enums: new Map(),
+      constants: new Map(),
     },
   };
 }

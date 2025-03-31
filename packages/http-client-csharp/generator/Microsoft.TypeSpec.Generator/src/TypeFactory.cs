@@ -27,7 +27,7 @@ namespace Microsoft.TypeSpec.Generator
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
 
-        internal Dictionary<InputLiteralType, InputType> LiteralValueTypeCache { get; } = [];
+        private Dictionary<InputLiteralType, InputType> LiteralValueTypeCache { get; } = [];
 
         internal HashSet<string> UnionTypes { get; } = [];
 
@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator
             return type;
         }
 
-        private InputType GetLiteralValueType(InputLiteralType literal)
+        internal InputType GetLiteralValueType(InputLiteralType literal)
         {
             if (LiteralValueTypeCache.TryGetValue(literal, out var valueType))
             {

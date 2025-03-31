@@ -81,6 +81,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         types: new Map(),
         models: new Map(),
         enums: new Map(),
+        constants: new Map(),
       },
     };
     program.reportDiagnostics(sdkContext.diagnostics);

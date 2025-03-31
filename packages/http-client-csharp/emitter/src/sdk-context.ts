@@ -10,7 +10,7 @@ import {
 import { Type } from "@typespec/compiler";
 import { Logger } from "./lib/logger.js";
 import { CSharpEmitterOptions } from "./options.js";
-import { InputClient, InputEnumType, InputModelType, InputType } from "./type/input-type.js";
+import { InputClient, InputEnumType, InputLiteralType, InputModelType, InputType } from "./type/input-type.js";
 
 /**
  * The emitter context for the CSharp emitter.
@@ -27,4 +27,5 @@ export interface SdkTypeMap {
   types: Map<SdkType, InputType>;
   models: Map<string, InputModelType>;
   enums: Map<string, InputEnumType>;
+  constants: Map<string, InputLiteralType>;
 }

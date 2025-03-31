@@ -111,6 +111,8 @@ function updateTypeCache(sdkContext: CSharpEmitterContext, typeName: string, typ
     sdkContext.__typeCache.models.set(typeName, type);
   } else if (type.kind === "enum") {
     sdkContext.__typeCache.enums.set(typeName, type);
+  } else if (type.kind === "constant") {
+    sdkContext.__typeCache.constants.set(typeName, type);
   }
 }
 
@@ -222,7 +224,6 @@ export function fromSdkModelType(
 export function fromSdkEnumType(
   sdkContext: CSharpEmitterContext,
   enumType: SdkEnumType,
-  addToCollection: boolean = true,
 ): InputEnumType {
   const enumName = enumType.name;
   let inputEnumType = sdkContext.__typeCache.enums.get(enumName);
@@ -244,9 +245,7 @@ export function fromSdkEnumType(
       usage: enumType.usage,
       decorators: enumType.decorators,
     };
-    if (addToCollection) {
-      updateTypeCache(sdkContext, enumName, inputEnumType);
-    }
+    updateTypeCache(sdkContext, enumName, inputEnumType);
     for (const v of enumType.values) {
       values.push(fromSdkEnumValueType(sdkContext, v));
     }
@@ -334,7 +333,13 @@ function fromSdkConstantType(
   sdkContext: CSharpEmitterContext,
   constantType: SdkConstantType,
 ): InputLiteralType {
-  return {
+  const name = constantType.name;
+  let literalType = sdkContext.__typeCache.constants.get(name);
+  if (literalType) {
+    return literalType;
+  }
+
+  literalType = {
     kind: constantType.kind,
     name: constantType.name,
     namespace: "", // TODO -- constantType now does not have namespace, therefore here we use empty. In the next version, TCGC will be updated to have namespace for constantType.
@@ -342,6 +347,10 @@ function fromSdkConstantType(
     value: constantType.value,
     decorators: constantType.decorators,
   };
+
+  updateTypeCache(sdkContext, name, literalType);
+
+  return literalType;
 }
 
 function fromSdkEnumValueType(

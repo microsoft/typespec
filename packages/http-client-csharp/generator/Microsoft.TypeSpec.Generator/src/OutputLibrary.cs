@@ -24,12 +24,33 @@ namespace Microsoft.TypeSpec.Generator
         {
             var input = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
             var enums = new List<TypeProvider>(input.Enums.Count);
-            var convertedEnums = CodeModelGenerator.Instance.TypeFactory.LiteralValueTypeCache.Values.OfType<InputEnumType>();
-            foreach (var inputEnum in input.Enums.Concat(convertedEnums))
+            foreach (var inputEnum in input.Enums)
             {
                 if (inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
                     continue;
                 var outputEnum = CodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
+
+                // If there is a custom code view for a fixed enum, then we should not emit the generated enum as the custom code will have
+                // the implementation. We will still need to emit the serialization code.
+                if (outputEnum is FixedEnumProvider { CustomCodeView: { IsEnum: true, Type: { IsValueType: true, IsStruct: false } } })
+                {
+                    enums.AddRange(outputEnum.SerializationProviders);
+                }
+                else if (outputEnum != null)
+                {
+                    enums.Add(outputEnum);
+                }
+            }
+
+            foreach (var inputLiteral in input.Constants)
+            {
+                var valueType = CodeModelGenerator.Instance.TypeFactory.GetLiteralValueType(inputLiteral);
+                if (valueType is not InputEnumType enumType)
+                {
+                    continue;
+                }
+
+                var outputEnum = CodeModelGenerator.Instance.TypeFactory.CreateEnum(enumType);
 
                 // If there is a custom code view for a fixed enum, then we should not emit the generated enum as the custom code will have
                 // the implementation. We will still need to emit the serialization code.
@@ -75,8 +96,8 @@ namespace Microsoft.TypeSpec.Generator
         protected virtual TypeProvider[] BuildTypeProviders()
         {
             return [
-                .. BuildModels(),
                 .. BuildEnums(),
+                .. BuildModels(),
                 new ChangeTrackingListDefinition(),
                 new ChangeTrackingDictionaryDefinition(),
                 new ArgumentDefinition(),

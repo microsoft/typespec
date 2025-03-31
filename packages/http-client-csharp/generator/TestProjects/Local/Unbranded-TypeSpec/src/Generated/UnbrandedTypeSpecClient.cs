@@ -1000,12 +1000,12 @@ namespace UnbrandedTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="accept"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<UnbrandedTypeSpec.GetUnknownValueResponse6> GetUnknownValue(string accept, CancellationToken cancellationToken = default)
+        public virtual ClientResult<GetUnknownValueResponse6> GetUnknownValue(string accept, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(accept, nameof(accept));
 
             ClientResult result = GetUnknownValue(accept, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue(new UnbrandedTypeSpec.GetUnknownValueResponse6(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
+            return ClientResult.FromValue(new GetUnknownValueResponse6(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
         }
 
         /// <summary> get extensible enum. </summary>
@@ -1013,12 +1013,12 @@ namespace UnbrandedTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="accept"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<UnbrandedTypeSpec.GetUnknownValueResponse6>> GetUnknownValueAsync(string accept, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<GetUnknownValueResponse6>> GetUnknownValueAsync(string accept, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(accept, nameof(accept));
 
             ClientResult result = await GetUnknownValueAsync(accept, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue(new UnbrandedTypeSpec.GetUnknownValueResponse6(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
+            return ClientResult.FromValue(new GetUnknownValueResponse6(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
         }
 
         /// <summary>
