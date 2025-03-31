@@ -1238,7 +1238,7 @@ PetStoreClient client = new PetStoreClient();
 await using FileStream profileImage = File.OpenRead("C:\\myDog.jpg");
 using MultiPartFormDataBinaryContent content = new();
 content.Add("id", "123");
-content.Add("profileImage", profileImage, fileName: "profileImage.jpg", contentType: "application/octet-stream");
+content.Add("profileImage", profileImage);
 
 ClientResult response = await client.UploadDogAsync(content, content.ContentType);
 ```
