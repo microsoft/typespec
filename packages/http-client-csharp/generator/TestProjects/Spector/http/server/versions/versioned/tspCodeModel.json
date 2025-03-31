@@ -68,6 +68,7 @@
  "clients": [
   {
    "$id": "8",
+   "kind": "client",
    "name": "VersionedClient",
    "namespace": "Server.Versions.Versioned",
    "doc": "Illustrates versioned server.",
@@ -292,7 +293,11 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Server.Versions.Versioned"
+   "crossLanguageDefinitionId": "Server.Versions.Versioned",
+   "apiVersions": [
+    "2021-01-01-preview",
+    "2022-12-01-preview"
+   ]
   }
  ]
 }

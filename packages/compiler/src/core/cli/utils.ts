@@ -28,11 +28,23 @@ export interface CliHostArgs {
 }
 
 export function withCliHost<T extends CliHostArgs>(
-  fn: (host: CliCompilerHost, args: T) => void | Promise<void>,
-): (args: T) => void | Promise<void> {
-  return (args: T) => {
+  fn: (host: CliCompilerHost, args: T) => Promise<void>,
+): (args: T) => Promise<void> {
+  return withFailsafe((args: T) => {
     const host = createCLICompilerHost(args);
     return fn(host, args);
+  });
+}
+
+function withFailsafe<T extends unknown[], R>(
+  fn: (...args: T) => Promise<R>,
+): (...args: T) => Promise<R> {
+  return async (...args: T) => {
+    try {
+      return await fn(...args);
+    } catch (error) {
+      handleInternalCompilerError(error);
+    }
   };
 }
 
@@ -42,7 +54,7 @@ export function withCliHost<T extends CliHostArgs>(
 export function withCliHostAndDiagnostics<T extends CliHostArgs>(
   fn: (host: CliCompilerHost, args: T) => readonly Diagnostic[] | Promise<readonly Diagnostic[]>,
 ): (args: T) => void | Promise<void> {
-  return async (args: T) => {
+  return withFailsafe(async (args: T) => {
     const host = createCLICompilerHost(args);
     const diagnostics = await fn(host, args);
     logDiagnostics(diagnostics, host.logSink);
@@ -50,7 +62,7 @@ export function withCliHostAndDiagnostics<T extends CliHostArgs>(
     if (diagnostics.some((d) => d.severity === "error")) {
       process.exit(1);
     }
-  };
+  });
 }
 
 export function createCLICompilerHost(options: CliHostArgs): CliCompilerHost {
@@ -169,7 +181,7 @@ export function logInternalCompilerError(error: unknown) {
  *
  * @param error error thrown
  */
-export function handleInternalCompilerError(error: unknown) {
+export function handleInternalCompilerError(error: unknown): never {
   logInternalCompilerError(error);
   process.exit(1);
 }

@@ -15,6 +15,7 @@ import com.azure.core.annotation.HostParam;
 import com.azure.core.annotation.Patch;
 import com.azure.core.annotation.Post;
 import com.azure.core.annotation.Put;
+import com.azure.core.annotation.QueryParam;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceInterface;
 import com.azure.core.annotation.ServiceMethod;
@@ -136,8 +137,9 @@ public final class VisibilityClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> getModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData input, RequestOptions requestOptions, Context context);
+            @QueryParam("queryProp") int queryProp, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData input,
+            RequestOptions requestOptions, Context context);
 
         @Get("/type/model/visibility")
         @ExpectedResponses({ 200 })
@@ -146,8 +148,9 @@ public final class VisibilityClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> getModelSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData input, RequestOptions requestOptions, Context context);
+            @QueryParam("queryProp") int queryProp, @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData input,
+            RequestOptions requestOptions, Context context);
 
         @Head("/type/model/visibility")
         @ExpectedResponses({ 200 })
@@ -155,7 +158,7 @@ public final class VisibilityClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<Void>> headModel(@HostParam("endpoint") String endpoint,
+        Mono<Response<Void>> headModel(@HostParam("endpoint") String endpoint, @QueryParam("queryProp") int queryProp,
             @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData input,
             RequestOptions requestOptions, Context context);
 
@@ -165,7 +168,7 @@ public final class VisibilityClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<Void> headModelSync(@HostParam("endpoint") String endpoint,
+        Response<Void> headModelSync(@HostParam("endpoint") String endpoint, @QueryParam("queryProp") int queryProp,
             @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BinaryData input,
             RequestOptions requestOptions, Context context);
 
@@ -278,7 +281,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -296,7 +298,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -308,6 +309,7 @@ public final class VisibilityClientImpl {
      * }
      * </pre>
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -318,11 +320,12 @@ public final class VisibilityClientImpl {
      * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> getModelWithResponseAsync(BinaryData input, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> getModelWithResponseAsync(int queryProp, BinaryData input,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return FluxUtil.withContext(
-            context -> service.getModel(this.getEndpoint(), contentType, accept, input, requestOptions, context));
+        return FluxUtil.withContext(context -> service.getModel(this.getEndpoint(), queryProp, contentType, accept,
+            input, requestOptions, context));
     }
 
     /**
@@ -333,7 +336,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -351,7 +353,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -363,6 +364,7 @@ public final class VisibilityClientImpl {
      * }
      * </pre>
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -372,10 +374,11 @@ public final class VisibilityClientImpl {
      * @return output model with visibility properties along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> getModelWithResponse(BinaryData input, RequestOptions requestOptions) {
+    public Response<BinaryData> getModelWithResponse(int queryProp, BinaryData input, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.getModelSync(this.getEndpoint(), contentType, accept, input, requestOptions, Context.NONE);
+        return service.getModelSync(this.getEndpoint(), queryProp, contentType, accept, input, requestOptions,
+            Context.NONE);
     }
 
     /**
@@ -386,7 +389,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -398,6 +400,7 @@ public final class VisibilityClientImpl {
      * }
      * </pre>
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -407,10 +410,11 @@ public final class VisibilityClientImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> headModelWithResponseAsync(BinaryData input, RequestOptions requestOptions) {
+    public Mono<Response<Void>> headModelWithResponseAsync(int queryProp, BinaryData input,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
-        return FluxUtil
-            .withContext(context -> service.headModel(this.getEndpoint(), contentType, input, requestOptions, context));
+        return FluxUtil.withContext(
+            context -> service.headModel(this.getEndpoint(), queryProp, contentType, input, requestOptions, context));
     }
 
     /**
@@ -421,7 +425,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -433,6 +436,7 @@ public final class VisibilityClientImpl {
      * }
      * </pre>
      * 
+     * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -442,9 +446,9 @@ public final class VisibilityClientImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> headModelWithResponse(BinaryData input, RequestOptions requestOptions) {
+    public Response<Void> headModelWithResponse(int queryProp, BinaryData input, RequestOptions requestOptions) {
         final String contentType = "application/json";
-        return service.headModelSync(this.getEndpoint(), contentType, input, requestOptions, Context.NONE);
+        return service.headModelSync(this.getEndpoint(), queryProp, contentType, input, requestOptions, Context.NONE);
     }
 
     /**
@@ -455,7 +459,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -490,7 +493,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -524,7 +526,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -559,7 +560,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -593,7 +593,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -628,7 +627,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -662,7 +660,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]
@@ -697,7 +694,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     readProp: String (Required)
-     *     queryProp: Integer (Required)
      *     createProp (Required): [
      *         String (Required)
      *     ]

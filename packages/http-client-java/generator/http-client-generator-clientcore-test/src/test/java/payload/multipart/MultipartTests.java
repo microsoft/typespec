@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
+import payload.multipart.formdata.AnonymousModelRequest;
 import payload.multipart.formdata.httpparts.nonstring.FloatRequest;
 
 public class MultipartTests {
@@ -215,7 +216,8 @@ public class MultipartTests {
 
     @Test
     public void testAnonymousModel() {
-        client.anonymousModel(new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
+        client.anonymousModel(
+            new AnonymousModelRequest(new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg")));
     }
 
     @Test
