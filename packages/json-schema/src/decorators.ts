@@ -11,6 +11,7 @@ import {
   type Type,
   typespecTypeToJson,
   type Union,
+  type EnumMember,
 } from "@typespec/compiler";
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import type { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
@@ -33,6 +34,11 @@ import type {
 } from "../generated-defs/TypeSpec.JsonSchema.js";
 import { JsonSchemaStateKeys } from "./lib.js";
 import { createDataDecorator } from "./utils.js";
+
+// Helper functions for type checking
+function isEnumMember(type: Type): type is EnumMember {
+  return type.kind === "EnumMember";
+}
 
 /**
  * TypeSpec Types that can create a json schmea declaration
@@ -288,7 +294,12 @@ export function setExtension(program: Program, target: Type, key: string, value:
       key,
       value: typespecTypeToJson(value.properties.get("value")!.type, target)[0],
     });
+  } else if (typeof value === "object" && value !== null && "entityKind" in value && value.entityKind === "Type" && isEnumMember(value as Type)) {
+    // Special handling just for enum members to avoid circular references
+    const enumMember = value as EnumMember;
+    extensions.push({ key, value: enumMember.value ?? enumMember.name });
   } else {
+    // For all other values, preserve as is
     extensions.push({ key, value });
   }
 }
