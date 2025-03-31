@@ -15,6 +15,7 @@ namespace UnbrandedTypeSpec
     public readonly partial struct ThingRequiredLiteralFloat : IEquatable<ThingRequiredLiteralFloat>
     {
         private readonly float _value;
+        /// <summary> 1.23. </summary>
         private const float _123Value = 1.23F;
 
         /// <summary> Initializes a new instance of <see cref="ThingRequiredLiteralFloat"/>. </summary>
@@ -24,7 +25,7 @@ namespace UnbrandedTypeSpec
             _value = value;
         }
 
-        /// <summary> Gets the _123. </summary>
+        /// <summary> 1.23. </summary>
         public static ThingRequiredLiteralFloat _123 { get; } = new ThingRequiredLiteralFloat(_123Value);
 
         /// <summary> Determines if two <see cref="ThingRequiredLiteralFloat"/> values are the same. </summary>

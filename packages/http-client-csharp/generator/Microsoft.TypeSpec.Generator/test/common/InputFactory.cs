@@ -29,19 +29,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         public static class Literal
         {
-            public static InputLiteralType String(string value)
+            public static InputLiteralType String(string value, string? name = null, string? @namespace = null)
             {
-                return new InputLiteralType(InputPrimitiveType.String, value);
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.String, value);
             }
 
-            public static InputLiteralType Any(object value)
+            public static InputLiteralType Int32(int value, string? name = null, string? @namespace =null)
             {
-                return new InputLiteralType(InputPrimitiveType.Any, value);
-            }
-
-            public static InputLiteralType Enum(InputEnumType enumType, object value)
-            {
-                return new InputLiteralType(enumType, value);
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Int32, value);
             }
         }
 
@@ -106,11 +101,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string name,
             IEnumerable<InputModelType>? models = null,
             IEnumerable<InputEnumType>? enums = null,
-            IEnumerable<InputClient>? clients = null)
+            IEnumerable<InputClient>? clients = null,
+            IEnumerable<InputLiteralType>? constants = null)
         {
             return new InputNamespace(
                 name,
                 [],
+                constants is null ? [] : [.. constants],
                 enums is null ? [] : [.. enums],
                 models is null ? [] : [.. models],
                 clients is null ? [] : [.. clients],

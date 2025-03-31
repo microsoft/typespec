@@ -14,6 +14,7 @@ namespace UnbrandedTypeSpec
     public readonly partial struct GetUnknownValueResponse6 : IEquatable<GetUnknownValueResponse6>
     {
         private readonly string _value;
+        /// <summary> Sunday. </summary>
         private const string SundayValue = "Sunday";
 
         /// <summary> Initializes a new instance of <see cref="GetUnknownValueResponse6"/>. </summary>
@@ -26,7 +27,7 @@ namespace UnbrandedTypeSpec
             _value = value;
         }
 
-        /// <summary> Gets the Sunday. </summary>
+        /// <summary> Sunday. </summary>
         public static GetUnknownValueResponse6 Sunday { get; } = new GetUnknownValueResponse6(SundayValue);
 
         /// <summary> Determines if two <see cref="GetUnknownValueResponse6"/> values are the same. </summary>

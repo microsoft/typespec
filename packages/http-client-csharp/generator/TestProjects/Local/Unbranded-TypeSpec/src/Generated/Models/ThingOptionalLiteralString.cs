@@ -14,6 +14,7 @@ namespace UnbrandedTypeSpec
     public readonly partial struct ThingOptionalLiteralString : IEquatable<ThingOptionalLiteralString>
     {
         private readonly string _value;
+        /// <summary> reject. </summary>
         private const string RejectValue = "reject";
 
         /// <summary> Initializes a new instance of <see cref="ThingOptionalLiteralString"/>. </summary>
@@ -26,7 +27,7 @@ namespace UnbrandedTypeSpec
             _value = value;
         }
 
-        /// <summary> Gets the Reject. </summary>
+        /// <summary> reject. </summary>
         public static ThingOptionalLiteralString Reject { get; } = new ThingOptionalLiteralString(RejectValue);
 
         /// <summary> Determines if two <see cref="ThingOptionalLiteralString"/> values are the same. </summary>
