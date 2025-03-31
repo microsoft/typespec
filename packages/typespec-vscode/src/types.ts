@@ -14,6 +14,7 @@ export const enum CommandName {
   EmitCode = "typespec.emitCode",
   ImportFromOpenApi3 = "typespec.importFromOpenApi3",
   ShowOpenApi3 = "typespec.showOpenApi3",
+  InstallImportPackage = "typespec.installImportPackage",
 }
 
 export type RestartServerCommandResult = Result<TspLanguageClient>;

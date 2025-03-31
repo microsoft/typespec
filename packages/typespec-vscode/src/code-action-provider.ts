@@ -46,8 +46,28 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
           ),
         );
       }
+      if (
+        diagnostic.source === "TypeSpec" &&
+        diagnostic.code &&
+        diagnostic.code === "import-not-found"
+      ) {
+        actions.push(this.createInstallPackageCodeAction(diagnostic));
+      }
     });
     return actions;
+  }
+
+  private createInstallPackageCodeAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {
+    const action = new vscode.CodeAction(
+      "Install Package for Unrecognized Import",
+      vscode.CodeActionKind.QuickFix,
+    );
+    action.command = {
+      command: CommandName.InstallImportPackage,
+      title: diagnostic.message,
+    };
+    action.diagnostics = [diagnostic];
+    return action;
   }
 
   private createOpenUrlCodeAction(
