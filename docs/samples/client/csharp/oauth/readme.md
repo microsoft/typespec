@@ -24,3 +24,5 @@ public SampleTypeSpecClient(Uri uri, AuthenticationTokenProvider credential)
     );
 }
 ```
+
+A more detailed code sample is shown here. [insert link here]
