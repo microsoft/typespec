@@ -53,6 +53,7 @@ defineKit<TypekitExtension>({
     },
     getBodyParameters(httpOperation: HttpOperation): Model | undefined {
       const body = httpOperation.parameters.body;
+
       if (!body) {
         return undefined;
       }
@@ -78,6 +79,7 @@ defineKit<TypekitExtension>({
     ): Model | undefined {
       const kinds = new Set(Array.isArray(kind) ? kind : [kind]);
       const parameterProperties = new Map<string, ModelProperty>();
+      
       kinds.forEach((kind) => {
         if (kind === "body") {
           this.httpRequest
