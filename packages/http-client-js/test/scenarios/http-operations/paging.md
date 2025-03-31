@@ -10,7 +10,7 @@ model Pet {
 
 @route("/link")
 @list
-op link(@continuationToken @query nextToken?: string): {
+op link(@query filter: string, @continuationToken @query nextToken?: string): {
   @pageItems
   pets: Pet[];
 
@@ -23,26 +23,56 @@ op link(@continuationToken @query nextToken?: string): {
 ```ts src/api/testClientOperations.ts function link
 export function link(
   client: TestClientContext,
+  filter: string,
   options?: LinkOptions,
 ): PagedAsyncIterableIterator<Pet, LinkPageResponse, LinkPageSettings> {
+  function getElements(response: LinkPageResponse) {
+    return response.pets;
+  }
+  async function getPagedResponse(nextToken?: string, settings?: LinkPageSettings) {
+    const combinedOptions = { ...options, ...settings };
+
+    if (nextToken) {
+      combinedOptions.nextToken = nextToken;
+    }
+    const response = await linkSend(client, filter, combinedOptions);
+
+    return {
+      pagedResponse: await linkDeserialize(response, options),
+      nextToken: response.headers["next-token"],
+    };
+  }
   return buildPagedAsyncIterator<Pet, LinkPageResponse, LinkPageSettings>({
-    getPagedResponse: async (nextToken?: string, settings?: LinkPageSettings) => {
-      const combinedOptions = { ...options, ...settings };
-      if (nextToken) {
-        combinedOptions.nextToken = nextToken;
-      }
-      return await linkSend(client, combinedOptions as any);
-    },
-    deserializeRawResponse: async (response) => {
-      return await linkDeserialize(response);
-    },
-    getElements: (response) => {
-      return response.pets;
-    },
-    getNextToken: (response) => {
-      return response.headers["next-token"];
-    },
+    getElements,
+    getPagedResponse,
   });
+}
+```
+
+```ts src/api/testClientOperations.ts function linkSend
+async function linkSend(client: TestClientContext, filter: string, options?: Record<string, any>) {
+  const path = parse("/link{?filter,nextToken}").expand({
+    filter: filter,
+    ...(options?.nextToken && { nextToken: options?.nextToken }),
+  });
+  const httpRequestOptions = {
+    headers: {},
+  };
+  return await client.pathUnchecked(path).get(httpRequestOptions);
+}
+```
+
+```ts src/api/testClientOperations.ts function linkDeserialize
+function linkDeserialize(response: PathUncheckedResponse, options?: LinkOptions) {
+  if (typeof options?.operationOptions?.onResponse === "function") {
+    options?.operationOptions?.onResponse(response);
+  }
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
+    return {
+      pets: jsonArrayPetToApplicationTransform(response.body.pets),
+    }!;
+  }
+  throw createRestError(response);
 }
 ```
 
@@ -84,8 +114,8 @@ export class TestClient {
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
-  async link(options?: LinkOptions) {
-    return link(this.#context, options);
+  link(filter: string, options?: LinkOptions) {
+    return link(this.#context, filter, options);
   }
 }
 ```

@@ -69,10 +69,11 @@ export function ClientClass(props: ClientClassProps) {
           {(op) => {
             const parameters = getOperationParameters(op.httpOperation);
             const args = Object.keys(parameters).map((p) => p);
+            const isPaging = Boolean($.operation.getPagingOperation(op.httpOperation.operation));
 
             return (
               <ClassMethod
-                async
+                async={!isPaging}
                 type={op.httpOperation.operation}
                 parameters={parameters}
                 returnType={null}

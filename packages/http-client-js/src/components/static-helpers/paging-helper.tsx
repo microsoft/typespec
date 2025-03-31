@@ -1,6 +1,5 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { httpRuntimeTemplateLib } from "../external-packages/ts-http-runtime.js";
 
 export function getPagedAsyncIterableIteratorRefkey() {
   return ay.refkey("PagedAsyncIterableIterator", "interface");
@@ -18,10 +17,13 @@ function getBuildPagedAsyncIteratorOptionsRefkey() {
   return ay.refkey("BuildPagedAsyncIteratorOptions", "interface");
 }
 
-
 function PagedAsyncIterableIteratorInterfaceDeclaration() {
-  return (<ay.Declaration name="PagedAsyncIterableIterator" refkey={getPagedAsyncIterableIteratorRefkey()}>
-    {ay.code`
+  return (
+    <ay.Declaration
+      name="PagedAsyncIterableIterator"
+      refkey={getPagedAsyncIterableIteratorRefkey()}
+    >
+      {ay.code`
   /**
 * An interface that allows async iterable iteration both to completion and by page.
 */
@@ -49,12 +51,14 @@ export interface PagedAsyncIterableIterator<
     settings?: TPageSettings,
   ) => AsyncIterableIterator<TPageResponse>;
 }  `}
-  </ay.Declaration>);
+    </ay.Declaration>
+  );
 }
 
 function PagedResultInterfaceDeclaration() {
-  return (<ay.Declaration name="PagedResult" refkey={getPagedResultRefkey()}>
-    {ay.code`
+  return (
+    <ay.Declaration name="PagedResult" refkey={getPagedResultRefkey()}>
+      {ay.code`
 /**
 * An interface that describes how to communicate with the service.
 */
@@ -82,80 +86,55 @@ interface PagedResult<
   byPage: (
     settings?: TPageSettings,
   ) => AsyncIterableIterator<TPageResponse>;
-}`
-    }
-  </ay.Declaration>);
-
+}`}
+    </ay.Declaration>
+  );
 }
 
 function BuildPagedAsyncIteratorOptionsInterfaceDeclaration() {
-  return (<ay.Declaration name="BuildPagedAsyncIteratorOptions" refkey={getBuildPagedAsyncIteratorOptionsRefkey()}>
-    {ay.code`
-    /**
-* Options for the paging helper
-*/
+  return (
+    <ay.Declaration
+      name="BuildPagedAsyncIteratorOptions"
+      refkey={getBuildPagedAsyncIteratorOptionsRefkey()}
+    >
+      {ay.code`
+/**
+ * Options for the paging helper
+ */
 export interface BuildPagedAsyncIteratorOptions<
   TElement,
   TPageResponse,
   TPageSettings,
-  TResponse extends ${httpRuntimeTemplateLib.PathUncheckedResponse} = ${httpRuntimeTemplateLib.PathUncheckedResponse},
 > {
-  getPagedResponse: (nextToken?: string, settings?: TPageSettings) => Promise<TResponse>,
-  deserializeRawResponse: (result: TResponse) => Promise<TPageResponse>,
-  getElements: (response: TPageResponse) => TElement[],
-  getNextToken?: (response: ${httpRuntimeTemplateLib.PathUncheckedResponse}) => string | undefined;
-}
-    `}
-  </ay.Declaration>);
+  getElements: (response: TPageResponse) => TElement[];
+  getPagedResponse: (nextToken?: string, settings?: TPageSettings) =>  Promise<{ pagedResponse: TPageResponse; nextToken?: string } | undefined>;
+}`}
+    </ay.Declaration>
+  );
 }
 
 function BuildPagedAsyncIteratorInterfaceDeclaration() {
-  return (<ay.Declaration name="buildPagedAsyncIterator" refkey={getBuildPagedAsyncIteratorRefkey()}>
-    {ay.code`
+  return (
+    <ay.Declaration name="buildPagedAsyncIterator" refkey={getBuildPagedAsyncIteratorRefkey()}>
+      {ay.code`
 /**
-* Helper to paginate results in a generic way and return a PagedAsyncIterableIterator
-*/
+ * Helper to paginate results in a generic way and return a PagedAsyncIterableIterator
+ */
 export function buildPagedAsyncIterator<
-  TElement,
-  TPageResponse,
-  TPageSettings,
-  TResponse extends ${httpRuntimeTemplateLib.PathUncheckedResponse} = ${httpRuntimeTemplateLib.PathUncheckedResponse},
->(
-  options: ${getBuildPagedAsyncIteratorOptionsRefkey()}<TElement, TPageResponse, TPageSettings, TResponse>,
-): PagedAsyncIterableIterator<TElement, TPageResponse, TPageSettings> {
-  const pagedResult: ${getPagedResultRefkey()}<TElement, TPageResponse, TPageSettings> = {
-    getElements: options.getElements,
-    getPage: async (nextToken?: string, settings?: TPageSettings) => {
-      const response = await options.getPagedResponse(nextToken, settings);
-      return {
-        pagedResponse: await options.deserializeRawResponse(response),
-        nextToken: options.getNextToken?.(response),
-      };
-    },
-    byPage: (setting?: TPageSettings) => {
-      return getPageAsyncIterator(pagedResult, { setting });
-    },
-  };
-  return getPagedAsyncIterator(pagedResult);
-}
-/**
-* returns an async iterator that iterates over results. It also has a \`byPage\`
-* method that returns pages of items at once.
-*
-* @param pagedResult - an object that specifies how to get pages.
-* @returns a paged async iterator that iterates over results.
-*/
-
-function getPagedAsyncIterator<
   TElement,
   TPageResponse,
   TPageSettings
 >(
-  pagedResult: ${getPagedResultRefkey()}<TElement, TPageResponse, TPageSettings>,
+  options: BuildPagedAsyncIteratorOptions<TElement, TPageResponse, TPageSettings>,
 ): PagedAsyncIterableIterator<TElement, TPageResponse, TPageSettings> {
-  const iter = getItemAsyncIterator<TElement, TPageResponse, TPageSettings>(
-    pagedResult,
-  );
+  const pagedResult: ${getPagedResultRefkey()}<TElement, TPageResponse, TPageSettings> = {
+    getElements: options.getElements,
+    getPage: options.getPagedResponse,
+    byPage: (setting?: TPageSettings) => {
+      return getPageAsyncIterator(pagedResult, { setting });
+    },
+  };
+  const iter = getItemAsyncIterator<TElement, TPageResponse, TPageSettings>(pagedResult);
   return {
     next() {
       return iter.next();
@@ -167,11 +146,7 @@ function getPagedAsyncIterator<
   };
 }
 
-async function* getItemAsyncIterator<
-  TElement,
-  TPage,
-  TPageSettings,
->(
+async function* getItemAsyncIterator<TElement, TPage, TPageSettings>(
   pagedResult: ${getPagedResultRefkey()}<TElement, TPage, TPageSettings>,
 ): AsyncIterableIterator<TElement> {
   const pages = getPageAsyncIterator(pagedResult);
@@ -181,20 +156,13 @@ async function* getItemAsyncIterator<
   }
 }
 
-async function* getPageAsyncIterator<
-  TElement,
-  TPageResponse,
-  TPageSettings,
->(
+async function* getPageAsyncIterator<TElement, TPageResponse, TPageSettings>(
   pagedResult: ${getPagedResultRefkey()}<TElement, TPageResponse, TPageSettings>,
   options: {
     setting?: TPageSettings;
   } = {},
 ): AsyncIterableIterator<TPageResponse> {
-  let response = await pagedResult.getPage(
-    undefined,
-    options.setting
-  );
+  let response = await pagedResult.getPage(undefined, options.setting);
   let results = response?.pagedResponse;
   let nextToken = response?.nextToken;
   if (!results) {
@@ -210,7 +178,9 @@ async function* getPageAsyncIterator<
     nextToken = response.nextToken;
     yield results;
   }
-}`}</ay.Declaration>);
+}`}
+    </ay.Declaration>
+  );
 }
 
 export function PagingHelpers() {

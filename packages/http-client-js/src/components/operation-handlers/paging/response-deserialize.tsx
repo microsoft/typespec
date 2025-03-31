@@ -4,6 +4,8 @@ import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
 import { httpRuntimeTemplateLib } from "../../external-packages/ts-http-runtime.js";
 import { HttpResponseProps, HttpResponses } from "../../http-response.jsx";
+import { getOperationOptionsTypeRefkey } from "../../operation-options.jsx";
+import { getOperationOptionsParameterRefkey } from "../../operation-parameters.jsx";
 import { getCreateRestErrorRefkey } from "../../static-helpers/rest-error.jsx";
 
 export function getHttpRequestDeserializeRefkey(httpOperation: HttpOperation) {
@@ -20,13 +22,25 @@ export function HttpResponseDeserialize(props: HttpResponseProps) {
   const httpOperation = props.httpOperation;
   const namePolicy = ts.useTSNamePolicy();
   const functionName = namePolicy.getName(httpOperation.operation.name + "Deserialize", "function");
+  const params = {
+    response: httpRuntimeTemplateLib.PathUncheckedResponse,
+    options: {
+      refkey: getOperationOptionsParameterRefkey(httpOperation),
+      type: getOperationOptionsTypeRefkey(httpOperation),
+      optional: true,
+    },
+  };
   return (
     <FunctionDeclaration
       name={functionName}
       refkey={getHttpRequestDeserializeRefkey(httpOperation)}
       parametersMode="replace"
-      parameters={{ response: httpRuntimeTemplateLib.PathUncheckedResponse }}
+      parameters={params}
     >
+      {code`      
+      if (typeof options?.operationOptions?.onResponse === "function") {
+        options?.operationOptions?.onResponse(response);
+      }`}
       <List hardline>
         <HttpResponses httpOperation={props.httpOperation} />
         {code`throw ${getCreateRestErrorRefkey()}(response);`}
