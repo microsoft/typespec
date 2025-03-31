@@ -157,6 +157,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("b", orderedPathParams[2].Name);
         }
 
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        public void HeaderParameterOptionality(bool isRequired, bool isValueType)
+        {
+            var testOperation = InputFactory.Operation("TestOperation",
+                parameters:
+                [
+                    InputFactory.Parameter(
+                        "header",
+                        isValueType ? InputFactory.Enum("header", InputPrimitiveType.String) : InputPrimitiveType.String,
+                        location: InputRequestLocation.Header,
+                        isRequired: isRequired),
+                    InputFactory.Parameter(
+                        "requiredParam",
+                        InputPrimitiveType.String,
+                        location: InputRequestLocation.Header,
+                        isRequired: true)
+                ]);
+            var client = InputFactory.Client(
+                "TestClient",
+                operations: [testOperation]);
+            var clientProvider = new ClientProvider(client);
+            var parameters = RestClientProvider.GetMethodParameters(testOperation, RestClientProvider.MethodType.Convenience);
+            Assert.IsNotNull(parameters);
+
+            if (isRequired)
+            {
+                Assert.AreEqual("header", parameters[0].Name);
+            }
+            else
+            {
+                Assert.AreEqual("header", parameters[1].Name);
+            }
+        }
+
         [TestCaseSource(nameof(GetSpreadParameterModelTestCases))]
         public void TestGetSpreadParameterModel(InputParameter inputParameter)
         {
