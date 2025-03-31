@@ -1,6 +1,13 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { visitChildren } from "../core/parser.js";
-import { createScanner, isKeyword, isPunctuation, Token, TokenFlags } from "../core/scanner.js";
+import {
+  createScanner,
+  isKeyword,
+  isPunctuation,
+  isReservedKeyword,
+  Token,
+  TokenFlags,
+} from "../core/scanner.js";
 import {
   IdentifierNode,
   Node,
@@ -150,6 +157,7 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
   }
 
   function classifyToken(token: Token): SemanticTokenKind | typeof defer | typeof ignore {
+    console.log(token, Token[token]);
     switch (token) {
       case Token.Identifier:
         return defer;
@@ -161,6 +169,9 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case Token.SingleLineComment:
         return SemanticTokenKind.Comment;
       default:
+        if (isReservedKeyword(token)) {
+          return defer;
+        }
         if (isKeyword(token)) {
           return SemanticTokenKind.Keyword;
         }
