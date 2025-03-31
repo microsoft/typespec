@@ -12,20 +12,22 @@ export interface PagingDetail {
     nextToken?: {
       name: string;
       position: "headers" | "body";
-    }
-  }
+    };
+  };
 }
 
-export function extractPagingDetail(httpOperation: HttpOperation, pagingOperation: PagingOperation): PagingDetail {
+export function extractPagingDetail(
+  httpOperation: HttpOperation,
+  pagingOperation: PagingOperation,
+): PagingDetail {
   const ret: PagingDetail = {
     pattern: "nextLink",
     output: {
       items: pagingOperation.output.pageItems.property.name,
-    }
+    },
   };
   const returnedNextToken =
-    pagingOperation.output.nextLink?.property ??
-    pagingOperation.output.continuationToken?.property;
+    pagingOperation.output.nextLink?.property ?? pagingOperation.output.continuationToken?.property;
   const isHeaderToken = getResponseHeader(httpOperation, returnedNextToken);
   const returnedTokenPosition = isHeaderToken ? "headers" : "body";
   const returnedTokenName = isHeaderToken ? isHeaderToken : returnedNextToken?.name;
@@ -45,7 +47,6 @@ export function extractPagingDetail(httpOperation: HttpOperation, pagingOperatio
     return ret;
   }
   return ret;
-
 }
 
 function getResponseHeader(httpOperation: HttpOperation, prop?: ModelProperty): string | undefined {
@@ -67,4 +68,3 @@ function getResponseHeader(httpOperation: HttpOperation, prop?: ModelProperty): 
   }
   return undefined;
 }
-

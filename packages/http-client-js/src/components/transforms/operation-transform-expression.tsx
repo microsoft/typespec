@@ -2,12 +2,12 @@ import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { HasName, TransformNamePolicyContext } from "@typespec/emitter-framework";
+import { HttpOperation } from "@typespec/http";
 import { reportDiagnostic } from "../../lib.js";
 import { ContentTypeEncodingProvider } from "./content-type-encoding-provider.jsx";
 import { JsonTransform } from "./json/json-transform.jsx";
 import { MultipartTransform } from "./multipart/multipart-transform.jsx";
 import { defaultTransportNameGetter } from "./transform-name-policy.js";
-import { HttpOperation } from "@typespec/http";
 
 export interface OperationTransformToTransportExpression {
   httpOperation: HttpOperation;

@@ -112,7 +112,7 @@ export const $lib = createTypeSpecLibrary({
       messages: {
         default: "Client for operation not found",
       },
-    }
+    },
   },
 });
 

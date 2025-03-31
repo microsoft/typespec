@@ -1,10 +1,10 @@
 import { Children, code, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import { HttpOperation } from "@typespec/http";
 import { EncodingProvider } from "./encoding-provider.jsx";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.jsx";
 import { getOperationOptionsParameterRefkey } from "./operation-parameters.jsx";
 import { OperationTransformExpression } from "./transforms/operation-transform-expression.jsx";
-import { HttpOperation } from "@typespec/http";
 
 export interface HttpRequestOptionsProps {
   httpOperation: HttpOperation;

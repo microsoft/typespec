@@ -1,10 +1,10 @@
-import { Children, code, For, Refkey, List } from "@alloy-js/core";
+import { Children, code, For, List, Refkey } from "@alloy-js/core";
 import { isVoidType } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
+import { HttpOperation } from "@typespec/http";
 import { getCreateRestErrorRefkey } from "./static-helpers/rest-error.jsx";
 import { ContentTypeEncodingProvider } from "./transforms/content-type-encoding-provider.jsx";
 import { JsonTransform } from "./transforms/json/json-transform.jsx";
-import { HttpOperation } from "@typespec/http";
 export interface HttpResponseProps {
   httpOperation: HttpOperation;
   responseRefkey: Refkey;
