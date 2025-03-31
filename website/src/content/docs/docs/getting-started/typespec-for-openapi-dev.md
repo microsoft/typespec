@@ -323,7 +323,7 @@ The following fields of a parameter object are specific to OpenAPI v2:
 #### Collection Formats
 
 In OpenAPI v2, the `collectionFormat` field of a query or header parameter object specifies how multiple values are delimited.
-You can use a combination of the `@encode` decorator `explode` field of the `@query` or `@header` decorator to specify the collection format.
+You can use a combination of the `@encode` decorator and `explode` field of the `@query` or `@header` decorator to specify the collection format.
 
 ```typespec
 op read(
