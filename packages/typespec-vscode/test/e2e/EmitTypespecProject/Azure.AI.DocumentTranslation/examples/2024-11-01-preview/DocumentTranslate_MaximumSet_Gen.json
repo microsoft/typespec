@@ -1,0 +1,20 @@
+{
+  "title": "Translate a single document",
+  "operationId": "DocumentTranslationOperations_DocumentTranslate",
+  "parameters": {
+    "api-version": "2024-11-01-preview",
+    "sourceLanguage": "en",
+    "targetLanguage": "es",
+    "document": "TXkgdHJhbnNsYXRlZCBkb2N1bWVudA=="
+  },
+  "responses": {
+    "200": {
+      "headers": {
+        "x-metered-usage": 739,
+        "total-image-scans-succeeded": 6,
+        "total-image-scans-failed": 1
+      },
+      "body": "TXkgdHJhbnNsYXRlZCBkb2N1bWVudA=="
+    }
+  }
+}
