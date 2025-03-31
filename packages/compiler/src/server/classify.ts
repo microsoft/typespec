@@ -157,7 +157,6 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
   }
 
   function classifyToken(token: Token): SemanticTokenKind | typeof defer | typeof ignore {
-    console.log(token, Token[token]);
     switch (token) {
       case Token.Identifier:
         return defer;
