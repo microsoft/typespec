@@ -14,4 +14,4 @@ Previously, arrays (`[]`/`Array<T>`) in TypeSpec were always scaffolded as array
   For arrays decorated with the `@uniqueItems` decorator, they will be scaffolded to `ISet<T>`, with `HashSet<T>` as the default implementation.
 
 - **Byte**:  
-  `byte` type will continue to be treated as regular arrays (`[]`) in C#.
+  `bytes` type will continue to be treated as an array of byte (`byte[]`) in C#.
