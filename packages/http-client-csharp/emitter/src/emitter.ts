@@ -25,7 +25,7 @@ import { Logger } from "./lib/logger.js";
 import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
-import { CSharpEmitterContext, SdkTypeCache } from "./sdk-context.js";
+import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
@@ -63,15 +63,14 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
-    const sdkContext = {
-      ...(await createSdkContext(
+    const sdkContext = createCSharpEmitterContext(
+      await createSdkContext(
         context,
         "@typespec/http-client-csharp",
         options["sdk-context-options"] ?? defaultSDKContextOptions,
-      )),
-      logger: logger,
-      __typeCache: new SdkTypeCache(),
-    };
+      ),
+      logger,
+    );
     program.reportDiagnostics(sdkContext.diagnostics);
 
     let root = createModel(sdkContext);

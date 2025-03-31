@@ -31,7 +31,17 @@ export interface CSharpEmitterContext extends SdkContext<CSharpEmitterOptions> {
   __typeCache: SdkTypeCache;
 }
 
-export class SdkTypeCache {
+export function createCSharpEmitterContext<
+  TOptions extends CSharpEmitterOptions = CSharpEmitterOptions,
+>(context: SdkContext<TOptions>, logger: Logger): CSharpEmitterContext {
+  return {
+    ...context,
+    logger,
+    __typeCache: new SdkTypeCache(),
+  };
+}
+
+class SdkTypeCache {
   clients: Map<SdkClientType<SdkHttpOperation>, InputClient>;
   properties: Map<SdkModelPropertyType, InputParameter | InputModelProperty>;
   responses: Map<SdkHttpResponse, OperationResponse>;
