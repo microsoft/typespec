@@ -76,7 +76,6 @@ namespace Microsoft.TypeSpec.Generator
                 var outputModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
                 if (outputModel != null)
                 {
-                    _ = outputModel.Properties; // we call this to enforce it to build all its properties. TODO -- this is only temporary.
                     models.Add(outputModel);
                     var unknownVariant = inputModel.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
                     if (unknownVariant != null)
