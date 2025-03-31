@@ -30,9 +30,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                 reader.Read();
             }
 
-            var invalidNamespaceSegments = new List<string>();
-            resolver.AddReference(TypeSpecSerialization.InvalidNamespaceSegmentsKey, invalidNamespaceSegments);
-
             string? name = null;
             IReadOnlyList<string>? apiVersions = null;
             IReadOnlyList<InputEnumType>? enums = null;
@@ -42,12 +39,12 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadString(nameof(InputNamespace.Name), ref name)
-                    || reader.TryReadComplexType(nameof(InputNamespace.ApiVersions), options, ref apiVersions)
-                    || reader.TryReadComplexType(nameof(InputNamespace.Enums), options, ref enums)
-                    || reader.TryReadComplexType(nameof(InputNamespace.Models), options, ref models)
-                    || reader.TryReadComplexType(nameof(InputNamespace.Clients), options, ref clients)
-                    || reader.TryReadComplexType(nameof(InputNamespace.Auth), options, ref auth);
+                var isKnownProperty = reader.TryReadString("name", ref name)
+                    || reader.TryReadComplexType("apiVersions", options, ref apiVersions)
+                    || reader.TryReadComplexType("enums", options, ref enums)
+                    || reader.TryReadComplexType("models", options, ref models)
+                    || reader.TryReadComplexType("clients", options, ref clients)
+                    || reader.TryReadComplexType("auth", options, ref auth);
 
                 if (!isKnownProperty)
                 {
@@ -55,10 +52,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            apiVersions ??= Array.Empty<string>();
-            enums ??= Array.Empty<InputEnumType>();
-            models ??= Array.Empty<InputModelType>();
-            clients ??= Array.Empty<InputClient>();
+            apiVersions ??= [];
+            enums ??= [];
+            models ??= [];
+            clients ??= [];
 
             return new InputNamespace(
                 name ?? throw new JsonException(),
@@ -66,8 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 enums,
                 models,
                 clients,
-                auth,
-                invalidNamespaceSegments);
+                auth);
         }
     }
 }

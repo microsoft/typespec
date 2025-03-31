@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import {
+  createSdkContext,
+  SdkContext,
+  UsageFlags,
+} from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -68,11 +72,12 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       ...(await createSdkContext(
         context,
         "@typespec/http-client-csharp",
-        defaultSDKContextOptions,
+        options["sdk-context-options"] ?? defaultSDKContextOptions,
       )),
       logger: logger,
       __typeCache: {
         crossLanguageDefinitionIds: new Map(),
+        clients: new Map(),
         types: new Map(),
         models: new Map(),
         enums: new Map(),
@@ -93,14 +98,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       // emit tspCodeModel.json
       await writeCodeModel(sdkContext, root, outputFolder);
 
-      const namespace = root.Name;
-      const configurations: Configuration = {
-        "output-folder": ".",
-        "package-name": options["package-name"] ?? namespace,
-        "unreferenced-types-handling": options["unreferenced-types-handling"],
-        "disable-xml-docs":
-          options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
-      };
+      const namespace = root.name;
+      const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
       //emit configuration.json
       await program.host.writeFile(
@@ -125,7 +124,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         const result = await execCSharpGenerator(sdkContext, {
           generatorPath: generatorPath,
           outputFolder: outputFolder,
-          pluginName: options["plugin-name"],
+          generatorName: options["generator-name"],
           newProject: options["new-project"] || !checkFile(csProjFile),
           debug: options.debug ?? false,
         });
@@ -150,6 +149,21 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       }
     }
   }
+}
+
+export function createConfiguration(
+  options: CSharpEmitterOptions,
+  namespace: string,
+  sdkContext: SdkContext,
+): Configuration {
+  return {
+    "output-folder": ".",
+    "package-name": options["package-name"] ?? namespace,
+    "unreferenced-types-handling": options["unreferenced-types-handling"],
+    "disable-xml-docs":
+      options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
+    license: sdkContext.sdkPackage.licenseInfo,
+  };
 }
 
 /**

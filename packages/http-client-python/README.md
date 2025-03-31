@@ -1,118 +1,120 @@
-# TypeSpec Python Client Emitter
+# @typespec/http-client-python
 
-## Getting started
+TypeSpec emitter for Python SDKs
 
-### Initialize TypeSpec Project
+## Install
 
-Follow [TypeSpec Getting Started](https://typespec.io/docs) to initialize your TypeSpec project.
-
-Make sure `npx tsp compile .` runs correctly.
-
-### Add `@typespec/http-client-python` to your project
-
-Include `@typespec/http-client-python` in `package.json`:
-
-```diff
- "dependencies": {
-+      "@typespec/http-client-python": "latest"
-  },
+```bash
+npm install @typespec/http-client-python
 ```
 
-Run `npm install` to install the dependency.
+## Usage
 
-### Generate a Python client library
+1. Via the command line
 
-You can either specify `@typespec/http-client-python` on the commandline or through tspconfig.yaml.
-
-#### Generate with `--emit` command
-
-Run command `npx tsp compile --emit @typespec/http-client-python <path-to-typespec-file>`
-
-e.g.
-
-```cmd
-npx tsp compile main.tsp --emit @typespec/http-client-python
+```bash
+tsp compile . --emit=@typespec/http-client-python
 ```
 
-or
+2. Via the config
 
-```cmd
-npx tsp compile client.tsp --emit @typespec/http-client-python
-```
-
-#### Generate with tspconfig.yaml
-
-Add the following configuration in tspconfig.yaml:
-
-```diff
+```yaml
 emit:
   - "@typespec/http-client-python"
-options:
-  "@typespec/http-client-python":
-+    package-dir: "contoso"
-+    package-name: "contoso"
 ```
 
-Run the command to generate your library:
-
-```cmd
-npx tsp compile main.tsp
-```
-
-or
-
-```cmd
-npx tsp compile client.tsp
-```
-
-## Configure the generated library
-
-You can further configure the generated client library using the emitter options provided through @typespec/http-client-python.
-
-You can set options in the command line directly via `--option @typespec/http-client-python.<optionName>=XXX`, e.g. `--option @typespec/http-client-python.package-name="contoso"`
-
-or
-
-Modify `tspconfig.yaml` in the TypeSpec project to add emitter options under options/@typespec/http-client-python.
-
-```diff
-emit:
-  - "@typespec/http-client-python"
-options:
-  "@typespec/http-client-python":
-+    package-dir: "{package-dir}"
-+    package-name: "contoso"
-```
-
-### Supported emitter options
-
-Common emitter configuration example:
+The config can be extended with options as follows:
 
 ```yaml
 emit:
   - "@typespec/http-client-python"
 options:
   "@typespec/http-client-python":
-    package-dir: "{package-dir}"
-    package-name: "contoso"
+    option: value
 ```
 
-| Option                     | Type    | Description                                                                                                                                                                                |
-| -------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `package-version`          | string  | Specify the package version. Default version: `1.0.0b1`.                                                                                                                                   |
-| `package-name`             | string  | Specify the package name.                                                                                                                                                                  |
-| `package-dir`              | string  | Specify the output directory for the package.                                                                                                                                              |
-| `generate-packaging-files` | boolean | Indicate if packaging files, such as setup.py, should be generated.                                                                                                                        |
-| `package-pprint-name`      | string  | Specify the pretty print name for the package.                                                                                                                                             |
-| `flavor`                   | string  | Represents the type of SDK that will be generated. By default, there will be no branding in the generated client library. Specify `"azure"` to generate an SDK following Azure guidelines. |
-| `company-name`             | string  | Specify the company name to be inserted into licensing data. For `"azure"` flavor, the default value inserted is `Microsoft`.                                                              |
+## Emitter options
 
-**Advanced emitter options**
+### `package-version`
 
-| Option                   | Type    | Description                                                                                                                        |
-| ------------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `head-as-boolean`        | boolean | Generate head calls to return a boolean. Default: `true`.                                                                          |
-| `packaging-files-dir`    | string  | Pass in the path to a custom directory with SDK packaging files.                                                                   |
-| `packaging-files-config` | object  | Specify configuration options that will be passed directly into the packaging files specified by the `packaging-files-dir` option. |
-| `tracing`                | boolean | Only available for the `"azure"` flavor of SDKs, provide tracing support in the generated client library. Default: `true`.         |
-| `debug`                  | boolean | Enable debugging.                                                                                                                  |
+**Type:** `string`
+
+The version of the package.
+
+### `package-name`
+
+**Type:** `string`
+
+The name of the package.
+
+### `generate-packaging-files`
+
+**Type:** `boolean`
+
+Whether to generate packaging files. Packaging files refer to the `setup.py`, `README`, and other files that are needed to package your code.
+
+### `packaging-files-dir`
+
+**Type:** `string`
+
+If you are using a custom packaging files directory, you can specify it here. We won't generate with the default packaging files we have.
+
+### `packaging-files-config`
+
+**Type:** `object`
+
+If you are using a custom packaging files directory, and have additional configuration parameters you want to pass in during generation, you can specify it here. Only applicable if `packaging-files-dir` is set.
+
+### `package-pprint-name`
+
+**Type:** `string`
+
+The name of the package to be used in pretty-printing. Will be the name of the package in `README` and pprinting of `setup.py`.
+
+### `head-as-boolean`
+
+**Type:** `boolean`
+
+Whether to return responses from HEAD requests as boolean. Defaults to `true`.
+
+### `use-pyodide`
+
+**Type:** `boolean`
+
+Whether to generate using `pyodide` instead of `python`. If there is no python installed on your device, we will default to using pyodide to generate the code.
+
+### `generate-protocol-methods`
+
+**Type:** `boolean`
+
+When set to `true`, the emitter will generate low-level protocol methods for each service operation if `@protocolAPI` is not set for an operation. Default value is `true`.
+
+### `generate-convenience-methods`
+
+**Type:** `boolean`
+
+When set to `true`, the emitter will generate low-level protocol methods for each service operation if `@convenientAPI` is not set for an operation. Default value is `true`.
+
+### `examples-dir`
+
+**Type:** `string`
+
+Specifies the directory where the emitter will look for example files. If the flag isn’t set, the emitter defaults to using an `examples` directory located at the project root.
+
+### `namespace`
+
+**Type:** `string`
+
+Specifies the namespace you want to override for namespaces set in the spec. With this config, all namespace for the spec types will default to it.
+
+### `api-version`
+
+**Type:** `string`
+
+Use this flag if you would like to generate the sdk only for a specific version. Default value is the latest version. Also accepts values `latest` and `all`.
+
+### `license`
+
+**Type:** `object`
+
+License information for the generated client code.

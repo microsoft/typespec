@@ -16,21 +16,15 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
-import java.util.Objects;
 import reactor.core.publisher.Mono;
 import tsptest.flatten.implementation.FlattenClientImpl;
 import tsptest.flatten.implementation.JsonMergePatchHelper;
-import tsptest.flatten.implementation.MultipartFormDataHelper;
 import tsptest.flatten.implementation.models.SendLongRequest;
 import tsptest.flatten.implementation.models.SendProjectedNameRequest;
 import tsptest.flatten.implementation.models.SendRequest;
-import tsptest.flatten.implementation.models.UploadFileRequest;
-import tsptest.flatten.implementation.models.UploadTodoRequest;
-import tsptest.flatten.models.FileDataFileDetails;
 import tsptest.flatten.models.SendLongOptions;
 import tsptest.flatten.models.TodoItem;
 import tsptest.flatten.models.UpdatePatchRequest;
-import tsptest.flatten.models.UploadTodoOptions;
 import tsptest.flatten.models.User;
 
 /**
@@ -218,46 +212,6 @@ public final class FlattenAsyncClient {
     }
 
     /**
-     * The uploadFile operation.
-     * 
-     * @param name The name parameter.
-     * @param uploadFileRequest The uploadFileRequest parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> uploadFileWithResponse(String name, BinaryData uploadFileRequest,
-        RequestOptions requestOptions) {
-        // Operation 'uploadFile' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
-        // generated.
-        return this.serviceClient.uploadFileWithResponseAsync(name, uploadFileRequest, requestOptions);
-    }
-
-    /**
-     * The uploadTodo operation.
-     * 
-     * @param uploadTodoRequest The uploadTodoRequest parameter.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> uploadTodoWithResponse(BinaryData uploadTodoRequest, RequestOptions requestOptions) {
-        // Operation 'uploadTodo' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
-        // generated.
-        return this.serviceClient.uploadTodoWithResponseAsync(uploadTodoRequest, requestOptions);
-    }
-
-    /**
      * The send operation.
      * 
      * @param id The id parameter.
@@ -394,69 +348,5 @@ public final class FlattenAsyncClient {
         JsonMergePatchHelper.getUpdatePatchRequestAccessor().prepareModelForJsonMergePatch(updateRequest, false);
         return updateWithResponse(id, updateRequestInBinaryData, requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(TodoItem.class));
-    }
-
-    /**
-     * The uploadFile operation.
-     * 
-     * @param name The name parameter.
-     * @param fileData The fileData parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> uploadFile(String name, FileDataFileDetails fileData) {
-        // Generated convenience method for uploadFileWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        UploadFileRequest uploadFileRequestObj = new UploadFileRequest(fileData);
-        BinaryData uploadFileRequest = new MultipartFormDataHelper(requestOptions)
-            .serializeFileField("file_data", uploadFileRequestObj.getFileData().getContent(),
-                uploadFileRequestObj.getFileData().getContentType(), uploadFileRequestObj.getFileData().getFilename())
-            .serializeTextField("constant", uploadFileRequestObj.getConstant())
-            .end()
-            .getRequestBody();
-        return uploadFileWithResponse(name, uploadFileRequest, requestOptions).flatMap(FluxUtil::toMono);
-    }
-
-    /**
-     * The uploadTodo operation.
-     * 
-     * @param options Options for uploadTodo API.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> uploadTodo(UploadTodoOptions options) {
-        // Generated convenience method for uploadTodoWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        UploadTodoRequest uploadTodoRequestObj
-            = new UploadTodoRequest(options.getTitle(), options.getStatus()).setDescription(options.getDescription())
-                .setDummy(options.getDummy())
-                .setProp1(options.getProp1())
-                .setProp2(options.getProp2())
-                .setProp3(options.getProp3());
-        BinaryData uploadTodoRequest
-            = new MultipartFormDataHelper(requestOptions).serializeTextField("title", uploadTodoRequestObj.getTitle())
-                .serializeTextField("description", uploadTodoRequestObj.getDescription())
-                .serializeTextField("status", Objects.toString(uploadTodoRequestObj.getStatus()))
-                .serializeTextField("_dummy", uploadTodoRequestObj.getDummy())
-                .serializeTextField("prop1", uploadTodoRequestObj.getProp1())
-                .serializeTextField("prop2", uploadTodoRequestObj.getProp2())
-                .serializeTextField("prop3", uploadTodoRequestObj.getProp3())
-                .end()
-                .getRequestBody();
-        return uploadTodoWithResponse(uploadTodoRequest, requestOptions).flatMap(FluxUtil::toMono);
     }
 }

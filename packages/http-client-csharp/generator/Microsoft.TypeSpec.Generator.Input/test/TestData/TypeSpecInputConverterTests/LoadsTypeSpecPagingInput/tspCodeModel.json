@@ -1,8 +1,8 @@
 {
   "$id": "1",
-  "Name": "UnbrandedTypeSpec",
-  "ApiVersions": ["2024-07-16-preview", "2024-08-16-preview"],
-  "Enums": [
+  "name": "UnbrandedTypeSpec",
+  "apiVersions": ["2024-07-16-preview", "2024-08-16-preview"],
+  "enums": [
     {
       "$id": "2",
       "kind": "enum",
@@ -838,7 +838,7 @@
       "decorators": []
     }
   ],
-  "Models": [
+  "models": [
     {
       "$id": "90",
       "kind": "model",
@@ -2362,25 +2362,25 @@
       ]
     }
   ],
-  "Clients": [
+  "clients": [
     {
       "$id": "303",
-      "Name": "UnbrandedTypeSpecClient",
-      "Namespace": "UnbrandedTypeSpec",
-      "Doc": "This is a sample typespec project.",
-      "Operations": [
+      "name": "UnbrandedTypeSpecClient",
+      "namespace": "UnbrandedTypeSpec",
+      "doc": "This is a sample typespec project.",
+      "operations": [
         {
           "$id": "457",
-          "Name": "ListWithNextLink",
-          "ResourceName": "UnbrandedTypeSpec",
-          "Doc": "List things with nextlink",
-          "Accessibility": "public",
-          "Parameters": [
+          "name": "ListWithNextLink",
+          "resourceName": "UnbrandedTypeSpec",
+          "doc": "List things with nextlink",
+          "accessibility": "public",
+          "parameters": [
             {
               "$id": "458",
-              "Name": "accept",
-              "NameInRequest": "Accept",
-              "Type": {
+              "name": "accept",
+              "nameInRequest": "Accept",
+              "type": {
                 "$id": "459",
                 "kind": "constant",
                 "valueType": {
@@ -2393,80 +2393,80 @@
                 "value": "application/json",
                 "decorators": []
               },
-              "Location": "Header",
-              "IsApiVersion": false,
-              "IsContentType": false,
-              "IsEndpoint": false,
-              "Explode": false,
-              "IsRequired": true,
-              "Kind": "Constant",
-              "Decorators": [],
-              "SkipUrlEncoding": false
+              "location": "Header",
+              "isApiVersion": false,
+              "isContentType": false,
+              "isEndpoint": false,
+              "explode": false,
+              "isRequired": true,
+              "kind": "Constant",
+              "decorators": [],
+              "skipUrlEncoding": false
             }
           ],
-          "Responses": [
+          "responses": [
             {
               "$id": "461",
-              "StatusCodes": [200],
-              "BodyType": {
+              "statusCodes": [200],
+              "bodyType": {
                 "$ref": "285"
               },
-              "Headers": [],
-              "IsErrorResponse": false,
-              "ContentTypes": ["application/json"]
+              "headers": [],
+              "isErrorResponse": false,
+              "contentTypes": ["application/json"]
             }
           ],
-          "HttpMethod": "GET",
-          "Uri": "{unbrandedTypeSpecUrl}",
-          "Path": "/link",
-          "BufferResponse": true,
-          "Paging": {
+          "httpMethod": "GET",
+          "uri": "{unbrandedTypeSpecUrl}",
+          "path": "/link",
+          "bufferResponse": true,
+          "paging": {
             "$id": "462",
-            "ItemPropertySegments": ["things"],
-            "NextLink": {
+            "itemPropertySegments": ["things"],
+            "nextLink": {
               "$id": "463",
-              "ResponseSegments": ["next"],
-              "ResponseLocation": "Body"
+              "responseSegments": ["next"],
+              "responseLocation": "Body"
             }
           },
-          "GenerateProtocolMethod": true,
-          "GenerateConvenienceMethod": true,
-          "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithNextLink",
-          "Decorators": []
+          "generateProtocolMethod": true,
+          "generateConvenienceMethod": true,
+          "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithNextLink",
+          "decorators": []
         },
         {
           "$id": "464",
-          "Name": "ListWithContinuationToken",
-          "ResourceName": "UnbrandedTypeSpec",
-          "Doc": "List things with continuation token",
-          "Accessibility": "public",
-          "Parameters": [
+          "name": "ListWithContinuationToken",
+          "resourceName": "UnbrandedTypeSpec",
+          "doc": "List things with continuation token",
+          "accessibility": "public",
+          "parameters": [
             {
               "$id": "465",
-              "Name": "token",
-              "NameInRequest": "token",
-              "Type": {
+              "name": "token",
+              "nameInRequest": "token",
+              "type": {
                 "$id": "466",
                 "kind": "string",
                 "name": "string",
                 "crossLanguageDefinitionId": "TypeSpec.string",
                 "decorators": []
               },
-              "Location": "Query",
-              "IsApiVersion": false,
-              "IsContentType": false,
-              "IsEndpoint": false,
-              "Explode": false,
-              "IsRequired": true,
-              "Kind": "Method",
-              "Decorators": [],
-              "SkipUrlEncoding": false
+              "location": "Query",
+              "isApiVersion": false,
+              "isContentType": false,
+              "isEndpoint": false,
+              "explode": false,
+              "isRequired": true,
+              "kind": "Method",
+              "decorators": [],
+              "skipUrlEncoding": false
             },
             {
               "$id": "467",
-              "Name": "accept",
-              "NameInRequest": "Accept",
-              "Type": {
+              "name": "accept",
+              "nameInRequest": "Accept",
+              "type": {
                 "$id": "468",
                 "kind": "constant",
                 "valueType": {
@@ -2479,100 +2479,96 @@
                 "value": "application/json",
                 "decorators": []
               },
-              "Location": "Header",
-              "IsApiVersion": false,
-              "IsContentType": false,
-              "IsEndpoint": false,
-              "Explode": false,
-              "IsRequired": true,
-              "Kind": "Constant",
-              "Decorators": [],
-              "SkipUrlEncoding": false
+              "location": "Header",
+              "isApiVersion": false,
+              "isContentType": false,
+              "isEndpoint": false,
+              "explode": false,
+              "isRequired": true,
+              "kind": "Constant",
+              "decorators": [],
+              "skipUrlEncoding": false
             }
           ],
-          "Responses": [
+          "responses": [
             {
               "$id": "470",
-              "StatusCodes": [200],
-              "BodyType": {
+              "statusCodes": [200],
+              "bodyType": {
                 "$ref": "294"
               },
-              "Headers": [],
-              "IsErrorResponse": false,
-              "ContentTypes": ["application/json"]
+              "headers": [],
+              "isErrorResponse": false,
+              "contentTypes": ["application/json"]
             }
           ],
-          "HttpMethod": "GET",
-          "Uri": "{unbrandedTypeSpecUrl}",
-          "Path": "/continuation",
-          "BufferResponse": true,
-          "Paging": {
+          "httpMethod": "GET",
+          "uri": "{unbrandedTypeSpecUrl}",
+          "path": "/continuation",
+          "bufferResponse": true,
+          "paging": {
             "$id": "471",
-            "ItemPropertySegments": ["things"],
-            "ContinuationToken": {
+            "itemPropertySegments": ["things"],
+            "continuationToken": {
               "$id": "472",
-              "Parameter": {
+              "parameter": {
                 "$id": "473",
-                "Name": "token",
-                "NameInRequest": "token",
-                "Type": {
+                "name": "token",
+                "nameInRequest": "token",
+                "type": {
                   "$ref": "466"
                 },
-                "Location": "Query",
-                "IsApiVersion": false,
-                "IsContentType": false,
-                "IsEndpoint": false,
-                "Explode": false,
-                "IsRequired": true,
-                "Kind": "Method",
-                "Decorators": [],
-                "SkipUrlEncoding": false
+                "location": "Query",
+                "isApiVersion": false,
+                "isContentType": false,
+                "isEndpoint": false,
+                "explode": false,
+                "isRequired": true,
+                "kind": "Method",
+                "decorators": [],
+                "skipUrlEncoding": false
               },
-              "ResponseSegments": ["nextToken"],
-              "ResponseLocation": "Header"
+              "responseSegments": ["nextToken"],
+              "responseLocation": "Header"
             }
           },
-          "GenerateProtocolMethod": true,
-          "GenerateConvenienceMethod": true,
-          "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithContinuationToken",
-          "Decorators": []
+          "generateProtocolMethod": true,
+          "generateConvenienceMethod": true,
+          "crossLanguageDefinitionId": "UnbrandedTypeSpec.ListWithContinuationToken",
+          "decorators": []
         }
       ],
-      "Protocol": {
-        "$id": "474"
-      },
-      "Parameters": [
+      "parameters": [
         {
           "$id": "475",
-          "Name": "unbrandedTypeSpecUrl",
-          "NameInRequest": "unbrandedTypeSpecUrl",
-          "Type": {
+          "name": "unbrandedTypeSpecUrl",
+          "nameInRequest": "unbrandedTypeSpecUrl",
+          "type": {
             "$id": "476",
             "kind": "url",
             "name": "url",
             "crossLanguageDefinitionId": "TypeSpec.url"
           },
-          "Location": "Uri",
-          "IsApiVersion": false,
-          "IsResourceParameter": false,
-          "IsContentType": false,
-          "IsRequired": true,
-          "IsEndpoint": true,
-          "SkipUrlEncoding": false,
-          "Explode": false,
-          "Kind": "Client"
+          "location": "Uri",
+          "isApiVersion": false,
+          "isContentType": false,
+          "isRequired": true,
+          "isEndpoint": true,
+          "skipUrlEncoding": false,
+          "explode": false,
+          "kind": "Client"
         }
       ],
-      "Decorators": [],
-      "CrossLanguageDefinitionId": "UnbrandedTypeSpec"
+      "decorators": [],
+      "crossLanguageDefinitionId": "UnbrandedTypeSpec"
     }
   ],
-  "Auth": {
+  "auth": {
     "$id": "477",
-    "ApiKey": {
+    "apiKey": {
       "$id": "478",
-      "Name": "my-api-key",
-      "In": "header"
+      "name": "my-api-key",
+      "in": "header"
     }
   }
 }

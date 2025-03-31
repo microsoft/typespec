@@ -70,11 +70,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             if (throwsError)
             {
-                Assert.Throws<InvalidOperationException>(() => MockHelpers.LoadMockPlugin(configuration: mockJson));
+                Assert.Throws<InvalidOperationException>(() => MockHelpers.LoadMockGenerator(configuration: mockJson));
                 return;
             }
 
-            var library = CodeModelPlugin.Instance.Configuration.PackageName;
+            var library = CodeModelGenerator.Instance.Configuration.PackageName;
             var expected = "libraryName";
 
             Assert.AreEqual(expected, library);
@@ -91,9 +91,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 ""unknown-bool-property"": true
                 }";
 
-            MockHelpers.LoadMockPlugin(configuration: mockJson);
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
 
-            var additionalConfigOptions = CodeModelPlugin.Instance.Configuration.AdditionalConfigOptions;
+            var additionalConfigOptions = CodeModelGenerator.Instance.Configuration.AdditionalConfigOptions;
             Assert.IsNotNull(additionalConfigOptions);
             Assert.IsTrue(additionalConfigOptions!.ContainsKey("unknown-string-property"));
             Assert.IsTrue(additionalConfigOptions.ContainsKey("unknown-bool-property"));
@@ -104,8 +104,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             bool unknownBoolValue = additionalConfigOptions["unknown-bool-property"].ToObjectFromJson<bool>();
             Assert.AreEqual(true, unknownBoolValue);
 
-            Assert.AreEqual("libraryName", CodeModelPlugin.Instance.Configuration.PackageName);
-            Assert.AreEqual("Sample", CodeModelPlugin.Instance.TypeFactory.PrimaryNamespace);
+            Assert.AreEqual("libraryName", CodeModelGenerator.Instance.Configuration.PackageName);
+            Assert.AreEqual("Sample", CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace);
         }
 
         [Test]
@@ -117,9 +117,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 ""disable-xml-docs"": true
                 }";
 
-            MockHelpers.LoadMockPlugin(configuration: mockJson);
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
 
-            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+            Assert.IsTrue(CodeModelGenerator.Instance.Configuration.DisableXmlDocs);
 
             PropertyProvider property = new($"IntProperty description", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), new TestTypeProvider());
             using var writer = new CodeWriter();
@@ -139,7 +139,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 ""unreferenced-types-handling"": ""keepAll""
                 }";
 
-            MockHelpers.LoadMockPlugin(configuration: mockJson);
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
             var expected = input switch
             {
                 "removeOrInternalize" => Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
@@ -160,9 +160,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 ""disable-xml-docs"": true
                 }";
 
-            MockHelpers.LoadMockPlugin(configuration: mockJson);
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
 
-            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+            Assert.IsTrue(CodeModelGenerator.Instance.Configuration.DisableXmlDocs);
             MethodProvider method = new(
                 new MethodSignature(
                     "Method",
@@ -187,9 +187,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 ""disable-xml-docs"": true
                 }";
 
-            MockHelpers.LoadMockPlugin(configuration: mockJson);
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
 
-            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+            Assert.IsTrue(CodeModelGenerator.Instance.Configuration.DisableXmlDocs);
             TypeProvider type = new TestTypeProvider();
             TypeProviderWriter writer = new(type);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
@@ -204,13 +204,53 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 ""disable-xml-docs"": true
                 }";
 
-            MockHelpers.LoadMockPlugin(configuration: mockJson);
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
 
-            Assert.IsTrue(CodeModelPlugin.Instance.Configuration.DisableXmlDocs);
+            Assert.IsTrue(CodeModelGenerator.Instance.Configuration.DisableXmlDocs);
+
             FieldProvider field = new(FieldModifiers.Public, typeof(int), "_field", new TestTypeProvider(), $"Field Description");
             using var writer = new CodeWriter();
             writer.WriteField(field);
             Assert.AreEqual("public int _field;\n", writer.ToString(false));
+        }
+
+        [Test]
+        public void CanAddLicenseInfo()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName"",
+                ""license"": {
+                    ""name"": ""MIT"",
+                    ""company"": ""Microsoft"",
+                    ""link"": ""https://mit-license.org"",
+                    ""header"": ""This is a test header."",
+                    ""description"": ""This is a test description.""
+                }
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var licenseInfo = CodeModelGenerator.Instance.Configuration.LicenseInfo;
+            Assert.IsNotNull(licenseInfo);
+            Assert.AreEqual("This is a test header.", licenseInfo!.Header);
+            Assert.AreEqual("MIT", licenseInfo.Name);
+            Assert.AreEqual("Microsoft", licenseInfo.Company);
+            Assert.AreEqual("https://mit-license.org", licenseInfo.Link);
+            Assert.AreEqual("This is a test description.", licenseInfo.Description);
+            Assert.AreEqual("This is a test header.", CodeModelGenerator.Instance.LicenseHeader);
+        }
+
+        [Test]
+        public void LicenseInfoIsNullWhenNotInConfig()
+        {
+            var mockJson = @"{
+                ""output-folder"": ""outputFolder"",
+                ""package-name"": ""libraryName""
+            }";
+
+            MockHelpers.LoadMockGenerator(configuration: mockJson);
+            var licenseInfo = CodeModelGenerator.Instance.Configuration.LicenseInfo;
+            Assert.IsNull(licenseInfo);
         }
 
         public static IEnumerable<TestCaseData> ParseConfigOutputFolderTestCases

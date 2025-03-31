@@ -1,11 +1,11 @@
 {
  "$id": "1",
- "Name": "Versioning.Removed.V2Preview",
- "ApiVersions": [
+ "name": "Versioning.Removed.V2Preview",
+ "apiVersions": [
   "v1",
   "v2preview"
  ],
- "Enums": [
+ "enums": [
   {
    "$id": "2",
    "kind": "enum",
@@ -155,7 +155,7 @@
    "decorators": []
   }
  ],
- "Models": [
+ "models": [
   {
    "$id": "18",
    "kind": "model",
@@ -436,26 +436,27 @@
    ]
   }
  ],
- "Clients": [
+ "clients": [
   {
    "$id": "57",
-   "Name": "RemovedClient",
-   "Namespace": "Versioning.Removed",
-   "Doc": "Test for the `@removed` decorator.",
-   "Operations": [
+   "kind": "client",
+   "name": "RemovedClient",
+   "namespace": "Versioning.Removed",
+   "doc": "Test for the `@removed` decorator.",
+   "operations": [
     {
      "$id": "58",
-     "Name": "v1",
-     "ResourceName": "Removed",
-     "Doc": "This operation should not be generated with latest version's signature.",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "v1",
+     "resourceName": "Removed",
+     "doc": "This operation should not be generated with latest version's signature.",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "59",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
+       "name": "contentType",
+       "nameInRequest": "Content-Type",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
         "$id": "60",
         "kind": "constant",
         "valueType": {
@@ -468,21 +469,21 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": true,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
        "$id": "62",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
         "$id": "63",
         "kind": "constant",
         "valueType": {
@@ -495,95 +496,95 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
        "$id": "65",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
+       "name": "body",
+       "nameInRequest": "body",
+       "type": {
         "$ref": "18"
        },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "66",
-       "StatusCodes": [
+       "statusCodes": [
         200
        ],
-       "BodyType": {
+       "bodyType": {
         "$ref": "18"
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{endpoint}/versioning/removed/api-version:{version}",
-     "Path": "/v1",
-     "RequestMediaTypes": [
+     "httpMethod": "POST",
+     "uri": "{endpoint}/versioning/removed/api-version:{version}",
+     "path": "/v1",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Versioning.Removed.v1",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Versioning.Removed.v1",
+     "decorators": []
     },
     {
      "$id": "67",
-     "Name": "v2",
-     "ResourceName": "Removed",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "v2",
+     "resourceName": "Removed",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "68",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
+       "name": "param",
+       "nameInRequest": "param",
+       "type": {
         "$id": "69",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Query",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
        "$id": "70",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
+       "name": "contentType",
+       "nameInRequest": "Content-Type",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
         "$id": "71",
         "kind": "constant",
         "valueType": {
@@ -596,21 +597,21 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": true,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
        "$id": "73",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
         "$id": "74",
         "kind": "constant",
         "valueType": {
@@ -623,75 +624,75 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
        "$id": "76",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
+       "name": "body",
+       "nameInRequest": "body",
+       "type": {
         "$ref": "32"
        },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "77",
-       "StatusCodes": [
+       "statusCodes": [
         200
        ],
-       "BodyType": {
+       "bodyType": {
         "$ref": "32"
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{endpoint}/versioning/removed/api-version:{version}",
-     "Path": "/v2",
-     "RequestMediaTypes": [
+     "httpMethod": "POST",
+     "uri": "{endpoint}/versioning/removed/api-version:{version}",
+     "path": "/v2",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Versioning.Removed.v2",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Versioning.Removed.v2",
+     "decorators": []
     },
     {
      "$id": "78",
-     "Name": "modelV3",
-     "ResourceName": "Removed",
-     "Doc": "This operation will pass different paths and different request bodies based on different versions.",
-     "Accessibility": "public",
-     "Parameters": [
+     "name": "modelV3",
+     "resourceName": "Removed",
+     "doc": "This operation will pass different paths and different request bodies based on different versions.",
+     "accessibility": "public",
+     "parameters": [
       {
        "$id": "79",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
+       "name": "contentType",
+       "nameInRequest": "Content-Type",
+       "doc": "Body parameter's content type. Known values are application/json",
+       "type": {
         "$id": "80",
         "kind": "constant",
         "valueType": {
@@ -704,21 +705,21 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": true,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
        "$id": "82",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
+       "name": "accept",
+       "nameInRequest": "Accept",
+       "type": {
         "$id": "83",
         "kind": "constant",
         "valueType": {
@@ -731,271 +732,274 @@
         "value": "application/json",
         "decorators": []
        },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Header",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Constant",
+       "decorators": [],
+       "skipUrlEncoding": false
       },
       {
        "$id": "85",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
+       "name": "body",
+       "nameInRequest": "body",
+       "type": {
         "$ref": "52"
        },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+       "location": "Body",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isEndpoint": false,
+       "explode": false,
+       "isRequired": true,
+       "kind": "Method",
+       "decorators": [],
+       "skipUrlEncoding": false
       }
      ],
-     "Responses": [
+     "responses": [
       {
        "$id": "86",
-       "StatusCodes": [
+       "statusCodes": [
         200
        ],
-       "BodyType": {
+       "bodyType": {
         "$ref": "52"
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
+       "headers": [],
+       "isErrorResponse": false,
+       "contentTypes": [
         "application/json"
        ]
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{endpoint}/versioning/removed/api-version:{version}",
-     "Path": "/v3",
-     "RequestMediaTypes": [
+     "httpMethod": "POST",
+     "uri": "{endpoint}/versioning/removed/api-version:{version}",
+     "path": "/v3",
+     "requestMediaTypes": [
       "application/json"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Versioning.Removed.modelV3",
-     "Decorators": []
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Versioning.Removed.modelV3",
+     "decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "87"
-   },
-   "Parameters": [
+   "parameters": [
     {
-     "$id": "88",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Need to be set as 'http://localhost:3000' in client.",
-     "Type": {
-      "$id": "89",
+     "$id": "87",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Need to be set as 'http://localhost:3000' in client.",
+     "type": {
+      "$id": "88",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
     },
+    {
+     "$id": "89",
+     "name": "version",
+     "nameInRequest": "version",
+     "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
+     "type": {
+      "$ref": "12"
+     },
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": false,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client"
+    }
+   ],
+   "decorators": [],
+   "crossLanguageDefinitionId": "Versioning.Removed",
+   "apiVersions": [
+    "v1",
+    "v2preview"
+   ],
+   "children": [
     {
      "$id": "90",
-     "Name": "version",
-     "NameInRequest": "version",
-     "Doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
-     "Type": {
-      "$ref": "12"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": false,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Versioning.Removed"
-  },
-  {
-   "$id": "91",
-   "Name": "InterfaceV1",
-   "Namespace": "Versioning.Removed",
-   "Doc": "This operation group should not be generated with latest version.",
-   "Operations": [
-    {
-     "$id": "92",
-     "Name": "v1InInterface",
-     "ResourceName": "InterfaceV1",
-     "Accessibility": "public",
-     "Parameters": [
+     "kind": "client",
+     "name": "InterfaceV1",
+     "namespace": "Versioning.Removed",
+     "doc": "This operation group should not be generated with latest version.",
+     "operations": [
       {
-       "$id": "93",
-       "Name": "contentType",
-       "NameInRequest": "Content-Type",
-       "Doc": "Body parameter's content type. Known values are application/json",
-       "Type": {
-        "$id": "94",
-        "kind": "constant",
-        "valueType": {
+       "$id": "91",
+       "name": "v1InInterface",
+       "resourceName": "InterfaceV1",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "92",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "93",
+          "kind": "constant",
+          "valueType": {
+           "$id": "94",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        },
+        {
          "$id": "95",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "96",
+          "kind": "constant",
+          "valueType": {
+           "$id": "97",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": true,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "96",
-       "Name": "accept",
-       "NameInRequest": "Accept",
-       "Type": {
-        "$id": "97",
-        "kind": "constant",
-        "valueType": {
+        {
          "$id": "98",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "Location": "Header",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Constant",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      },
-      {
-       "$id": "99",
-       "Name": "body",
-       "NameInRequest": "body",
-       "Type": {
-        "$ref": "18"
-       },
-       "Location": "Body",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+         "name": "body",
+         "nameInRequest": "body",
+         "type": {
+          "$ref": "18"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Method",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "99",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "18"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}/versioning/removed/api-version:{version}",
+       "path": "/interface-v1/v1",
+       "requestMediaTypes": [
+        "application/json"
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Versioning.Removed.InterfaceV1.v1InInterface",
+       "decorators": []
       }
      ],
-     "Responses": [
+     "parameters": [
       {
        "$id": "100",
-       "StatusCodes": [
-        200
-       ],
-       "BodyType": {
-        "$ref": "18"
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Need to be set as 'http://localhost:3000' in client.",
+       "type": {
+        "$id": "101",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
-       "Headers": [],
-       "IsErrorResponse": false,
-       "ContentTypes": [
-        "application/json"
-       ]
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
+      },
+      {
+       "$id": "102",
+       "name": "version",
+       "nameInRequest": "version",
+       "doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
+       "type": {
+        "$ref": "12"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": false,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client"
       }
      ],
-     "HttpMethod": "POST",
-     "Uri": "{endpoint}/versioning/removed/api-version:{version}",
-     "Path": "/interface-v1/v1",
-     "RequestMediaTypes": [
-      "application/json"
+     "decorators": [],
+     "crossLanguageDefinitionId": "Versioning.Removed.InterfaceV1",
+     "apiVersions": [
+      "v1",
+      "v2preview"
      ],
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Versioning.Removed.InterfaceV1.v1InInterface",
-     "Decorators": []
+     "parent": {
+      "$ref": "57"
+     }
     }
-   ],
-   "Protocol": {
-    "$id": "101"
-   },
-   "Parent": "RemovedClient",
-   "Parameters": [
-    {
-     "$id": "102",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Need to be set as 'http://localhost:3000' in client.",
-     "Type": {
-      "$id": "103",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
-    },
-    {
-     "$id": "104",
-     "Name": "version",
-     "NameInRequest": "version",
-     "Doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
-     "Type": {
-      "$ref": "12"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": false,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client"
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Versioning.Removed.InterfaceV1"
+   ]
   }
  ]
 }

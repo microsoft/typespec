@@ -240,22 +240,21 @@ Expected body:
 - Endpoint: `post /encode/bytes/body/request/custom-content-type`
 
 When content type is a custom type(image/png here) and body is `bytes` the payload is a binary file.
-File should match packages/cadl-ranch-specs/assets/image.png
+File should match packages/http-specs/assets/image.png.
 
 ### Encode_Bytes_RequestBody_default
 
 - Endpoint: `post /encode/bytes/body/request/default`
 
-Test default encode (base64) for bytes in a json body.
-Expected body:
-"dGVzdA==" (base64 encode of test, in JSON string)
+When content type is not defined and body is `bytes` the payload is a binary stream.
+Stream should match packages/http-specs/assets/image.png file.
 
 ### Encode_Bytes_RequestBody_octetStream
 
 - Endpoint: `post /encode/bytes/body/request/octet-stream`
 
-When content type is application/octet-stream and body is `bytes` the payload is a binary file.
-File should match packages/cadl-ranch-specs/assets/image.png
+When content type is application/octet-stream and body is `bytes` the payload is a binary stream.
+Stream should match packages/http-specs/assets/image.png file.
 
 ### Encode_Bytes_ResponseBody_base64
 
@@ -278,22 +277,21 @@ Expected body:
 - Endpoint: `get /encode/bytes/body/response/custom-content-type`
 
 When content type is a custom type(image/png here) and body is `bytes` the payload is a binary file.
-File should match packages/cadl-ranch-specs/assets/image.png
+File should match packages/http-specs/assets/image.png
 
 ### Encode_Bytes_ResponseBody_default
 
 - Endpoint: `get /encode/bytes/body/response/default`
 
-Test default encode (base64) for bytes in a json body.
-Expected body:
-"dGVzdA==" (base64 encode of test, in JSON string)
+When content type is not defined and body is `bytes` the payload is a binary stream.
+Stream should match packages/http-specs/assets/image.png file.
 
 ### Encode_Bytes_ResponseBody_octetStream
 
 - Endpoint: `get /encode/bytes/body/response/octet-stream`
 
-When content type is application/octet-stream and body is `bytes` the payload is a binary file.
-File should match packages/cadl-ranch-specs/assets/image.png
+When content type is application/octet-stream and body is `bytes` the payload is a binary stream.
+Stream should match packages/http-specs/assets/image.png file.
 
 ### Encode_Datetime_Header_default
 
@@ -1303,9 +1301,9 @@ Expected request body is a string '{cat}'.
 Expect request (
 
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-  appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-  If there are duplicated filename in same filedName, cadl-ranch can't parse them all.
+  If there are duplicated filename in same filedName, server can't parse them all.
   ):
 
 ```
@@ -1328,9 +1326,9 @@ Content-Type: application/octet-stream;
 Expect request (
 
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-  appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-  If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+  If there are duplicated filename in same fieldName, server can't parse them all.
   ):
 
 ```
@@ -1358,9 +1356,9 @@ Content-Type: application/octet-stream;
 Expect request (
 
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-  appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-  If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+  If there are duplicated filename in same fieldName, server can't parse them all.
   ):
 
 ```
@@ -1417,9 +1415,9 @@ Content-Type: image/jpg
 Expect request (
 
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-  appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-  If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+  If there are duplicated filename in same fieldName, server can't parse them all.
   ):
 
 ```
@@ -1527,7 +1525,7 @@ Content-Type: application/octet-stream
 
 - Endpoint: `post /multipart/form-data/complex-parts-with-httppart`
 
-For File part, filename will not be checked but it is necessary otherwise cadl-ranch can't parse it;
+For File part, filename will not be checked but it is necessary otherwise server can't parse it;
 content-type will be checked with value "application/octet-stream". Expect request:
 
 ```
@@ -1600,9 +1598,9 @@ Content-Type: text/plain
 Expect request (
 
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-  appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-  If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+  If there are duplicated filename in same fieldName, server can't parse them all.
   ):
 
 ```
@@ -1632,9 +1630,9 @@ Content-Type: application/octet-stream
 Please send request twice, first time with only profileImage, second time with both profileImage and picture(
 
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
-  appropriate media type, cadl-ranch will check it; content-type of other parts is optional, cadl-ranch will ignore it.
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
 - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
-  If there are duplicated filename in same fieldName, cadl-ranch can't parse them all.
+  If there are duplicated filename in same fieldName, server can't parse them all.
   ):
 
 ```
@@ -4612,13 +4610,7 @@ Expected input body:
 - Endpoint: `get /type/model/visibility`
 
 Generate and receive output model with readonly properties.
-Expected input body:
-
-```json
-{
-  "queryProp": 123
-}
-```
+Expected no body with `?queryProp=123`.
 
 Expected response body:
 
@@ -4633,13 +4625,7 @@ Expected response body:
 - Endpoint: `head /type/model/visibility`
 
 Generate abd send put model with write/create properties.
-Expected input body:
-
-```json
-{
-  "queryProp": 123
-}
-```
+Expected no body with `?queryProp=123`.
 
 ### Type_Model_Visibility_patchModel
 
@@ -5333,42 +5319,6 @@ Expected input body:
 {
   "knownProp": [{ "state": "ok" }, { "state": "ok" }],
   "prop": [{ "state": "ok" }, { "state": "ok" }]
-}
-```
-
-### Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_get
-
-- Endpoint: `get /type/property/additionalProperties/spreadRecordDiscriminatedUnion`
-
-Expected response body:
-
-```json
-{
-  "name": "abc",
-  "prop1": { "kind": "kind0", "fooProp": "abc" },
-  "prop2": {
-    "kind": "kind1",
-    "start": "2021-01-01T00:00:00Z",
-    "end": "2021-01-02T00:00:00Z"
-  }
-}
-```
-
-### Type_Property_AdditionalProperties_SpreadRecordDiscriminatedUnion_put
-
-- Endpoint: `put /type/property/additionalProperties/spreadRecordDiscriminatedUnion`
-
-Expected input body:
-
-```json
-{
-  "name": "abc",
-  "prop1": { "kind": "kind0", "fooProp": "abc" },
-  "prop2": {
-    "kind": "kind1",
-    "start": "2021-01-01T00:00:00Z",
-    "end": "2021-01-02T00:00:00Z"
-  }
 }
 ```
 

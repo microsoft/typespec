@@ -410,3 +410,13 @@ op ListWithContinuationTokenHeaderResponse(@query @continuationToken token?: str
 
   @header @continuationToken nextToken?: string;
 };
+
+model Page<T> {
+  @pageItems items: T[];
+}
+
+@route("list/paging")
+@doc("List things with paging")
+@convenientAPI(true)
+@list
+op ListWithPaging(): Page<Thing>;

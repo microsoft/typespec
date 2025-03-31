@@ -1,5 +1,6 @@
 import {
   $service,
+  compilerAssert,
   DecoratorContext,
   getDoc,
   getService,
@@ -10,7 +11,6 @@ import {
   Operation,
   Program,
   Type,
-  typespecTypeToJson,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
 import * as http from "@typespec/http";
@@ -58,16 +58,12 @@ export const $extension: ExtensionDecorator = (
   extensionName: string,
   value: unknown,
 ) => {
-  let data = value;
-  if (value && isType(value as any)) {
-    const [result, diagnostics] = typespecTypeToJson(value as Type, entity);
-    if (diagnostics.length > 0) {
-      context.program.reportDiagnostics(diagnostics);
-    }
-    data = result;
-  }
-
-  setExtension(context.program, entity, extensionName as ExtensionKey, data);
+  compilerAssert(
+    !value || !isType(value as any),
+    "OpenAPI extension value must be a value but was a type",
+    context.getArgumentTarget(1),
+  );
+  setExtension(context.program, entity, extensionName as ExtensionKey, value);
 };
 
 /**

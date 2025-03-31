@@ -1,20 +1,30 @@
 # coding=utf-8
-{{ license_header }}
-# coding: utf-8
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
+
 {% if package_mode %}
+
 import os
 import re
-{% endif -%}
+{% endif %}
 from setuptools import setup, find_packages
 
 {% set package_name = package_name or code_model.clients[0].name %}
 
 PACKAGE_NAME = "{{ package_name|lower }}"
-{% if package_mode -%}
+{% if package_mode %}
 PACKAGE_PPRINT_NAME = "{{ package_pprint_name }}"
+{% if code_model.is_tsp %}
+PACKAGE_NAMESPACE = "{{ code_model.namespace|lower }}"
+
+# a.b.c => a/b/c
+package_folder_path = PACKAGE_NAMESPACE.replace(".", "/")
+{% else %}
 
 # a-b-c => a/b/c
 package_folder_path = PACKAGE_NAME.replace("-", "/")
+{% endif %}
 
 # Version extraction inspired from 'requests'
 with open(os.path.join(package_folder_path, "_version.py"), "r") as fd:
@@ -24,7 +34,7 @@ with open(os.path.join(package_folder_path, "_version.py"), "r") as fd:
 
 if not version:
     raise RuntimeError("Cannot find version information")
-{% set description = "\"" + code_model.options["company_name"] + " {} Client Library for Python\".format(PACKAGE_PPRINT_NAME)" %}
+{% set description = "\"" + code_model.company_name + " {} Client Library for Python\".format(PACKAGE_PPRINT_NAME)" %}
 {% set author_email = "azpysdkhelp@microsoft.com" %}
 {% set url = "https://github.com/Azure/azure-sdk-for-python/tree/main/sdk" %}
 {% else %}
@@ -33,7 +43,8 @@ version = "{{ package_version }}"
 {% set long_description = code_model.description %}
 {% set author_email = "" %}
 {% set url = "" %}
-{% endif -%}
+{% endif %}
+
 
 setup(
     name=PACKAGE_NAME,
@@ -43,7 +54,7 @@ setup(
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
     license="MIT License",
-    author="{{ code_model.options["company_name"] }} Corporation",
+    author="{{ code_model.company_name }}",
     {% endif %}
     {% if code_model.is_azure_flavor %}
     author_email="{{ author_email }}",
@@ -70,9 +81,9 @@ setup(
             {% if pkgutil_names %}
             # Exclude packages that will be covered by PEP420 or nspkg
             {% endif %}
-            {%- for pkgutil_name in pkgutil_names %}
+            {% for pkgutil_name in pkgutil_names %}
             "{{ pkgutil_name }}",
-            {%- endfor %}
+            {% endfor %}
         ]
     ),
     include_package_data=True,

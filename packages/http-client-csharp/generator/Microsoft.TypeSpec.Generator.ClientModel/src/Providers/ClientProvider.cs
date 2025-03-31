@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -36,6 +36,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly InputClient _inputClient;
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
+        /// <summary>
+        /// This field is not one of the fields in this client, but the field in my parent client to get myself.
+        /// </summary>
         private readonly FieldProvider? _clientCachingField;
 
         private readonly ApiKeyFields? _apiKeyAuthFields;
@@ -62,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            _inputAuth = ScmCodeModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
+            _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = new Lazy<ClientOptionsProvider?>(() => _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null);
@@ -70,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Description = DocHelpers.GetFormattableDescription(_inputClient.Summary, _inputClient.Doc) ?? FormattableStringHelpers.Empty;
 
             var apiKey = _inputAuth?.ApiKey;
-            var keyCredentialType = ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
+            var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
             if (apiKey != null && keyCredentialType != null)
             {
                 var apiKeyAuthField = new FieldProvider(
@@ -96,9 +99,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // skip auth fields for sub-clients
                 _apiKeyAuthFields = ClientOptions.Value is null ? null : new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
             }
-            // in this plugin, the type of TokenCredential is null therefore these code will never be executed, but it should be invoked in other plugins that could support it.
+            // in this generator, the type of TokenCredential is null therefore these code will never be executed, but it should be invoked in other generators that could support it.
             var tokenAuth = _inputAuth?.OAuth2;
-            var tokenCredentialType = ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
+            var tokenCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
             if (tokenAuth != null && tokenCredentialType != null)
             {
                 var tokenCredentialField = new FieldProvider(
@@ -124,7 +127,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PipelineProperty = new(
                 description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
                 modifiers: MethodSignatureModifiers.Public,
-                type: ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.ClientPipelineType,
+                type: ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ClientPipelineType,
                 name: "Pipeline",
                 body: new AutoPropertyBody(false),
                 enclosingType: this);
@@ -162,12 +165,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return base.BuildNamespace();
             }
-            var ns = ScmCodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
+            var ns = ScmCodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
 
             // figure out if this namespace has been changed for this client
             if (!StringExtensions.IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
             {
-                ScmCodeModelPlugin.Instance.Emitter.ReportDiagnostic(namespaceConflictCode, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(namespaceConflictCode, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
             }
             return ns;
         }
@@ -277,8 +280,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!p.IsEndpoint)
                 {
                     var type = p is { IsApiVersion: true, Type: InputEnumType enumType }
-                        ? ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
-                        : ScmCodeModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type);
+                        ? ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(enumType.ValueType)
+                        : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(p.Type);
 
                     if (type != null)
                     {
@@ -288,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             "_" + p.Name.ToVariableName(),
                             this,
                             wireInfo: new PropertyWireInformation(
-                                ScmCodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(p.Type),
+                                ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(p.Type),
                                 p.IsRequired,
                                 false,
                                 p.Type is InputNullableType,
@@ -411,7 +414,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ParameterProvider CreateParameter(InputParameter parameter)
         {
-            var param = ScmCodeModelPlugin.Instance.TypeFactory.CreateParameter(parameter);
+            var param = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(parameter);
             param.Field = Fields.FirstOrDefault(f => f.Name == "_" + parameter.Name);
             return param;
         }
@@ -444,13 +447,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 case ApiKeyFields keyAuthFields:
                     ValueExpression? keyPrefixExpression = keyAuthFields.AuthorizationApiKeyPrefixField != null ? (ValueExpression)keyAuthFields.AuthorizationApiKeyPrefixField : null;
-                    perRetryPolicies = New.Array(ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression));
+                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression));
                     break;
                 case OAuth2Fields oauth2AuthFields:
-                    perRetryPolicies = New.Array(ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField));
+                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField));
                     break;
                 default:
-                    perRetryPolicies = New.Array(ScmCodeModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType);
+                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType);
                     break;
             }
 
@@ -509,7 +512,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                var clientMethods = ScmCodeModelPlugin.Instance.TypeFactory.CreateMethods(operation, this);
+                var clientMethods = ScmCodeModelGenerator.Instance.TypeFactory.CreateMethods(operation, this);
                 if (clientMethods != null)
                 {
                     methods.AddRange(clientMethods);
@@ -597,19 +600,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<ClientProvider> GetSubClients()
         {
-            var inputClients = ScmCodeModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
-            var subClients = new List<ClientProvider>(inputClients.Count);
+            var subClients = new List<ClientProvider>(_inputClient.Children.Count);
 
-            foreach (var client in inputClients)
+            foreach (var client in _inputClient.Children)
             {
-                // add direct child clients
-                if (client.Parent != null && client.Parent == _inputClient.Key)
+                var subClient = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+                if (subClient != null)
                 {
-                    var subClient = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(client);
-                    if (subClient != null)
-                    {
-                        subClients.Add(subClient);
-                    }
+                    subClients.Add(subClient);
                 }
             }
 

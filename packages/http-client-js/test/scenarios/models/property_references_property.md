@@ -33,7 +33,7 @@ export interface Bar {
 
 Should emit a serializer for this model
 
-```ts src/models/serializers.ts function jsonBarToTransportTransform
+```ts src/models/internal/serializers.ts function jsonBarToTransportTransform
 export function jsonBarToTransportTransform(input_?: Bar | null): any {
   if (!input_) {
     return input_ as any;
@@ -47,8 +47,8 @@ export function jsonBarToTransportTransform(input_?: Bar | null): any {
 
 Should emit an operation serializer
 
-```ts src/models/serializers.ts
-import { Bar } from "./models.js";
+```ts src/models/internal/serializers.ts
+import { Bar } from "../models.js";
 
 export function decodeBase64(value: string): Uint8Array | undefined {
   if (!value) {
@@ -137,7 +137,7 @@ export function jsonBarToApplicationTransform(input_?: any): Bar {
 
 Should emit a serializer for this model
 
-```ts src/models/serializers.ts function jsonBarToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonBarToApplicationTransform
 export function jsonBarToApplicationTransform(input_?: any): Bar {
   if (!input_) {
     return input_ as any;

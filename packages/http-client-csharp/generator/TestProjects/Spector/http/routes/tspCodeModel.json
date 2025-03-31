@@ -1,3407 +1,3423 @@
 {
  "$id": "1",
- "Name": "Routes",
- "ApiVersions": [],
- "Enums": [],
- "Models": [],
- "Clients": [
+ "name": "Routes",
+ "apiVersions": [],
+ "enums": [],
+ "models": [],
+ "clients": [
   {
    "$id": "2",
-   "Name": "RoutesClient",
-   "Namespace": "Routes",
-   "Doc": "Define scenario in building the http route/uri",
-   "Operations": [
+   "kind": "client",
+   "name": "RoutesClient",
+   "namespace": "Routes",
+   "doc": "Define scenario in building the http route/uri",
+   "operations": [
     {
      "$id": "3",
-     "Name": "fixed",
-     "ResourceName": "Routes",
-     "Accessibility": "public",
-     "Parameters": [],
-     "Responses": [
+     "name": "fixed",
+     "resourceName": "Routes",
+     "accessibility": "public",
+     "parameters": [],
+     "responses": [
       {
        "$id": "4",
-       "StatusCodes": [
+       "statusCodes": [
         204
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "headers": [],
+       "isErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/fixed",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.fixed",
-     "Decorators": []
+     "httpMethod": "GET",
+     "uri": "{endpoint}",
+     "path": "/routes/fixed",
+     "bufferResponse": true,
+     "generateProtocolMethod": true,
+     "generateConvenienceMethod": true,
+     "crossLanguageDefinitionId": "Routes.fixed",
+     "decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "5"
-   },
-   "Parameters": [
+   "parameters": [
     {
-     "$id": "6",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "7",
+     "$id": "5",
+     "name": "endpoint",
+     "nameInRequest": "endpoint",
+     "doc": "Service host",
+     "type": {
+      "$id": "6",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "8",
-      "Type": {
-       "$id": "9",
+     "location": "Uri",
+     "isApiVersion": false,
+     "isContentType": false,
+     "isRequired": true,
+     "isEndpoint": true,
+     "skipUrlEncoding": false,
+     "explode": false,
+     "kind": "Client",
+     "defaultValue": {
+      "$id": "7",
+      "type": {
+       "$id": "8",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
       },
-      "Value": "http://localhost:3000"
+      "value": "http://localhost:3000"
      }
     }
    ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes"
-  },
-  {
-   "$id": "10",
-   "Name": "PathParameters",
-   "Namespace": "Routes.PathParameters",
-   "Operations": [
+   "decorators": [],
+   "crossLanguageDefinitionId": "Routes",
+   "apiVersions": [],
+   "children": [
     {
-     "$id": "11",
-     "Name": "templateOnly",
-     "ResourceName": "PathParameters",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "9",
+     "kind": "client",
+     "name": "PathParameters",
+     "namespace": "Routes.PathParameters",
+     "operations": [
       {
-       "$id": "12",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "13",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
+       "$id": "10",
+       "name": "templateOnly",
+       "resourceName": "PathParameters",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "11",
+         "name": "param",
+         "nameInRequest": "param",
+         "type": {
+          "$id": "12",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+         },
+         "location": "Path",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Method",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "13",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/routes/path/template-only/{param}",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Routes.PathParameters.templateOnly",
+       "decorators": []
+      },
       {
        "$id": "14",
-       "StatusCodes": [
-        204
+       "name": "explicit",
+       "resourceName": "PathParameters",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "15",
+         "name": "param",
+         "nameInRequest": "param",
+         "type": {
+          "$id": "16",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+         },
+         "location": "Path",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Method",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/template-only/{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.templateOnly",
-     "Decorators": []
-    },
-    {
-     "$id": "15",
-     "Name": "explicit",
-     "ResourceName": "PathParameters",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "16",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "17",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
+       "responses": [
+        {
+         "$id": "17",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/routes/path/explicit/{param}",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Routes.PathParameters.explicit",
+       "decorators": []
+      },
       {
        "$id": "18",
-       "StatusCodes": [
-        204
+       "name": "annotationOnly",
+       "resourceName": "PathParameters",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "19",
+         "name": "param",
+         "nameInRequest": "param",
+         "type": {
+          "$id": "20",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+         },
+         "location": "Path",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Method",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "responses": [
+        {
+         "$id": "21",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/routes/path/annotation-only/{param}",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Routes.PathParameters.annotationOnly",
+       "decorators": []
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/explicit/{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.explicit",
-     "Decorators": []
-    },
-    {
-     "$id": "19",
-     "Name": "annotationOnly",
-     "ResourceName": "PathParameters",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "20",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "21",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
+     "parameters": [
       {
        "$id": "22",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/annotation-only/{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.annotationOnly",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "23"
-   },
-   "Parent": "RoutesClient",
-   "Parameters": [
-    {
-     "$id": "24",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "25",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "26",
-      "Type": {
-       "$id": "27",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters"
-  },
-  {
-   "$id": "28",
-   "Name": "PathParametersReservedExpansion",
-   "Namespace": "Routes.PathParameters.ReservedExpansion",
-   "Operations": [
-    {
-     "$id": "29",
-     "Name": "template",
-     "ResourceName": "ReservedExpansion",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "30",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "31",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "23",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": true
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "32",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/reserved-expansion/template/{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.ReservedExpansion.template",
-     "Decorators": []
-    },
-    {
-     "$id": "33",
-     "Name": "annotation",
-     "ResourceName": "ReservedExpansion",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "34",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "35",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": true
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "36",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/reserved-expansion/annotation/{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.ReservedExpansion.annotation",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "37"
-   },
-   "Parent": "PathParameters",
-   "Parameters": [
-    {
-     "$id": "38",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "39",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "40",
-      "Type": {
-       "$id": "41",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.ReservedExpansion"
-  },
-  {
-   "$id": "42",
-   "Name": "PathParametersSimpleExpansion",
-   "Namespace": "Routes.PathParameters.SimpleExpansion",
-   "Operations": [],
-   "Protocol": {
-    "$id": "43"
-   },
-   "Parent": "PathParameters",
-   "Parameters": [
-    {
-     "$id": "44",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "45",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "46",
-      "Type": {
-       "$id": "47",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion"
-  },
-  {
-   "$id": "48",
-   "Name": "PathParametersSimpleExpansionStandard",
-   "Namespace": "Routes.PathParameters.SimpleExpansion.Standard",
-   "Operations": [
-    {
-     "$id": "49",
-     "Name": "primitive",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "50",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "51",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "52",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/simple/standard/primitive{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard.primitive",
-     "Decorators": []
-    },
-    {
-     "$id": "53",
-     "Name": "array",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "54",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "55",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "56",
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "24",
+        "type": {
+         "$id": "25",
          "kind": "string",
          "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+        "value": "http://localhost:3000"
+       }
       }
      ],
-     "Responses": [
-      {
-       "$id": "57",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/simple/standard/array{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard.array",
-     "Decorators": []
-    },
-    {
-     "$id": "58",
-     "Name": "record",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "59",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "60",
-        "kind": "dict",
-        "keyType": {
-         "$id": "61",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
-         "$id": "62",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "63",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/simple/standard/record{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "64"
-   },
-   "Parent": "PathParametersSimpleExpansion",
-   "Parameters": [
-    {
-     "$id": "65",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "66",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
+     "decorators": [],
+     "crossLanguageDefinitionId": "Routes.PathParameters",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "2"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "67",
-      "Type": {
-       "$id": "68",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
+     "children": [
+      {
+       "$id": "26",
+       "kind": "client",
+       "name": "ReservedExpansion",
+       "namespace": "Routes.PathParameters.ReservedExpansion",
+       "operations": [
+        {
+         "$id": "27",
+         "name": "template",
+         "resourceName": "ReservedExpansion",
+         "accessibility": "public",
+         "parameters": [
+          {
+           "$id": "28",
+           "name": "param",
+           "nameInRequest": "param",
+           "type": {
+            "$id": "29",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+           },
+           "location": "Path",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isEndpoint": false,
+           "explode": false,
+           "isRequired": true,
+           "kind": "Method",
+           "decorators": [],
+           "skipUrlEncoding": true
+          }
+         ],
+         "responses": [
+          {
+           "$id": "30",
+           "statusCodes": [
+            204
+           ],
+           "headers": [],
+           "isErrorResponse": false
+          }
+         ],
+         "httpMethod": "GET",
+         "uri": "{endpoint}",
+         "path": "/routes/path/reserved-expansion/template/{param}",
+         "bufferResponse": true,
+         "generateProtocolMethod": true,
+         "generateConvenienceMethod": true,
+         "crossLanguageDefinitionId": "Routes.PathParameters.ReservedExpansion.template",
+         "decorators": []
+        },
+        {
+         "$id": "31",
+         "name": "annotation",
+         "resourceName": "ReservedExpansion",
+         "accessibility": "public",
+         "parameters": [
+          {
+           "$id": "32",
+           "name": "param",
+           "nameInRequest": "param",
+           "type": {
+            "$id": "33",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+           },
+           "location": "Path",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isEndpoint": false,
+           "explode": false,
+           "isRequired": true,
+           "kind": "Method",
+           "decorators": [],
+           "skipUrlEncoding": true
+          }
+         ],
+         "responses": [
+          {
+           "$id": "34",
+           "statusCodes": [
+            204
+           ],
+           "headers": [],
+           "isErrorResponse": false
+          }
+         ],
+         "httpMethod": "GET",
+         "uri": "{endpoint}",
+         "path": "/routes/path/reserved-expansion/annotation/{param}",
+         "bufferResponse": true,
+         "generateProtocolMethod": true,
+         "generateConvenienceMethod": true,
+         "crossLanguageDefinitionId": "Routes.PathParameters.ReservedExpansion.annotation",
+         "decorators": []
+        }
+       ],
+       "parameters": [
+        {
+         "$id": "35",
+         "name": "endpoint",
+         "nameInRequest": "endpoint",
+         "doc": "Service host",
+         "type": {
+          "$id": "36",
+          "kind": "url",
+          "name": "url",
+          "crossLanguageDefinitionId": "TypeSpec.url"
+         },
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": true,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client",
+         "defaultValue": {
+          "$id": "37",
+          "type": {
+           "$id": "38",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "value": "http://localhost:3000"
+         }
+        }
+       ],
+       "decorators": [],
+       "crossLanguageDefinitionId": "Routes.PathParameters.ReservedExpansion",
+       "apiVersions": [],
+       "parent": {
+        "$ref": "9"
+       }
       },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard"
-  },
-  {
-   "$id": "69",
-   "Name": "PathParametersSimpleExpansionExplode",
-   "Namespace": "Routes.PathParameters.SimpleExpansion.Explode",
-   "Operations": [
-    {
-     "$id": "70",
-     "Name": "primitive",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
       {
-       "$id": "71",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "72",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "73",
-       "StatusCodes": [
-        204
+       "$id": "39",
+       "kind": "client",
+       "name": "SimpleExpansion",
+       "namespace": "Routes.PathParameters.SimpleExpansion",
+       "operations": [],
+       "parameters": [
+        {
+         "$id": "40",
+         "name": "endpoint",
+         "nameInRequest": "endpoint",
+         "doc": "Service host",
+         "type": {
+          "$id": "41",
+          "kind": "url",
+          "name": "url",
+          "crossLanguageDefinitionId": "TypeSpec.url"
+         },
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": true,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client",
+         "defaultValue": {
+          "$id": "42",
+          "type": {
+           "$id": "43",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "value": "http://localhost:3000"
+         }
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/simple/explode/primitive{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode.primitive",
-     "Decorators": []
-    },
-    {
-     "$id": "74",
-     "Name": "array",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "75",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "76",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "77",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
+       "decorators": [],
+       "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion",
+       "apiVersions": [],
+       "parent": {
+        "$ref": "9"
        },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "78",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/simple/explode/array{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode.array",
-     "Decorators": []
-    },
-    {
-     "$id": "79",
-     "Name": "record",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "80",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "81",
-        "kind": "dict",
-        "keyType": {
-         "$id": "82",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "children": [
+        {
+         "$id": "44",
+         "kind": "client",
+         "name": "Standard",
+         "namespace": "Routes.PathParameters.SimpleExpansion.Standard",
+         "operations": [
+          {
+           "$id": "45",
+           "name": "primitive",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "46",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "47",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "48",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/simple/standard/primitive{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "49",
+           "name": "array",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "50",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "51",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "52",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "53",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/simple/standard/array{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard.array",
+           "decorators": []
+          },
+          {
+           "$id": "54",
+           "name": "record",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "55",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "56",
+              "kind": "dict",
+              "keyType": {
+               "$id": "57",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "58",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "59",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/simple/standard/record{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "60",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "61",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "62",
+            "type": {
+             "$id": "63",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Standard",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "39"
+         }
         },
-        "valueType": {
-         "$id": "83",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
+        {
+         "$id": "64",
+         "kind": "client",
+         "name": "Explode",
+         "namespace": "Routes.PathParameters.SimpleExpansion.Explode",
+         "operations": [
+          {
+           "$id": "65",
+           "name": "primitive",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "66",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "67",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "68",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/simple/explode/primitive{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "69",
+           "name": "array",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "70",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "71",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "72",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "73",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/simple/explode/array{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode.array",
+           "decorators": []
+          },
+          {
+           "$id": "74",
+           "name": "record",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "75",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "76",
+              "kind": "dict",
+              "keyType": {
+               "$id": "77",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "78",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "79",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/simple/explode/record{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "80",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "81",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "82",
+            "type": {
+             "$id": "83",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "39"
+         }
+        }
+       ]
+      },
       {
        "$id": "84",
-       "StatusCodes": [
-        204
+       "kind": "client",
+       "name": "PathExpansion",
+       "namespace": "Routes.PathParameters.PathExpansion",
+       "operations": [],
+       "parameters": [
+        {
+         "$id": "85",
+         "name": "endpoint",
+         "nameInRequest": "endpoint",
+         "doc": "Service host",
+         "type": {
+          "$id": "86",
+          "kind": "url",
+          "name": "url",
+          "crossLanguageDefinitionId": "TypeSpec.url"
+         },
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": true,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client",
+         "defaultValue": {
+          "$id": "87",
+          "type": {
+           "$id": "88",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "value": "http://localhost:3000"
+         }
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/simple/explode/record{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "85"
-   },
-   "Parent": "PathParametersSimpleExpansion",
-   "Parameters": [
-    {
-     "$id": "86",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "87",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "88",
-      "Type": {
-       "$id": "89",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.SimpleExpansion.Explode"
-  },
-  {
-   "$id": "90",
-   "Name": "PathParametersPathExpansion",
-   "Namespace": "Routes.PathParameters.PathExpansion",
-   "Operations": [],
-   "Protocol": {
-    "$id": "91"
-   },
-   "Parent": "PathParameters",
-   "Parameters": [
-    {
-     "$id": "92",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "93",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "94",
-      "Type": {
-       "$id": "95",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion"
-  },
-  {
-   "$id": "96",
-   "Name": "PathParametersPathExpansionStandard",
-   "Namespace": "Routes.PathParameters.PathExpansion.Standard",
-   "Operations": [
-    {
-     "$id": "97",
-     "Name": "primitive",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "98",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "99",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
+       "decorators": [],
+       "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion",
+       "apiVersions": [],
+       "parent": {
+        "$ref": "9"
        },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "100",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/path/standard/primitive{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard.primitive",
-     "Decorators": []
-    },
-    {
-     "$id": "101",
-     "Name": "array",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "102",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "103",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "104",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "children": [
+        {
+         "$id": "89",
+         "kind": "client",
+         "name": "Standard",
+         "namespace": "Routes.PathParameters.PathExpansion.Standard",
+         "operations": [
+          {
+           "$id": "90",
+           "name": "primitive",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "91",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "92",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "93",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/path/standard/primitive{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "94",
+           "name": "array",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "95",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "96",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "97",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "98",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/path/standard/array{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard.array",
+           "decorators": []
+          },
+          {
+           "$id": "99",
+           "name": "record",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "100",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "101",
+              "kind": "dict",
+              "keyType": {
+               "$id": "102",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "103",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "104",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/path/standard/record{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "105",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "106",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "107",
+            "type": {
+             "$id": "108",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "84"
+         }
         },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "105",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/path/standard/array{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard.array",
-     "Decorators": []
-    },
-    {
-     "$id": "106",
-     "Name": "record",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "107",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "108",
-        "kind": "dict",
-        "keyType": {
+        {
          "$id": "109",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
-         "$id": "110",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "111",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/path/standard/record{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "112"
-   },
-   "Parent": "PathParametersPathExpansion",
-   "Parameters": [
-    {
-     "$id": "113",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "114",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "115",
-      "Type": {
-       "$id": "116",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
+         "kind": "client",
+         "name": "Explode",
+         "namespace": "Routes.PathParameters.PathExpansion.Explode",
+         "operations": [
+          {
+           "$id": "110",
+           "name": "primitive",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "111",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "112",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "113",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/path/explode/primitive{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "114",
+           "name": "array",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "115",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "116",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "117",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "118",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/path/explode/array{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode.array",
+           "decorators": []
+          },
+          {
+           "$id": "119",
+           "name": "record",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "120",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "121",
+              "kind": "dict",
+              "keyType": {
+               "$id": "122",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "123",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "124",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/path/explode/record{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "125",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "126",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "127",
+            "type": {
+             "$id": "128",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "84"
+         }
+        }
+       ]
       },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Standard"
-  },
-  {
-   "$id": "117",
-   "Name": "PathParametersPathExpansionExplode",
-   "Namespace": "Routes.PathParameters.PathExpansion.Explode",
-   "Operations": [
-    {
-     "$id": "118",
-     "Name": "primitive",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
       {
-       "$id": "119",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "120",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "121",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/path/explode/primitive{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode.primitive",
-     "Decorators": []
-    },
-    {
-     "$id": "122",
-     "Name": "array",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "123",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "124",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "125",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "126",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/path/explode/array{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode.array",
-     "Decorators": []
-    },
-    {
-     "$id": "127",
-     "Name": "record",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "128",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "129",
-        "kind": "dict",
-        "keyType": {
+       "$id": "129",
+       "kind": "client",
+       "name": "LabelExpansion",
+       "namespace": "Routes.PathParameters.LabelExpansion",
+       "operations": [],
+       "parameters": [
+        {
          "$id": "130",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
-         "$id": "131",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "132",
-       "StatusCodes": [
-        204
+         "name": "endpoint",
+         "nameInRequest": "endpoint",
+         "doc": "Service host",
+         "type": {
+          "$id": "131",
+          "kind": "url",
+          "name": "url",
+          "crossLanguageDefinitionId": "TypeSpec.url"
+         },
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": true,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client",
+         "defaultValue": {
+          "$id": "132",
+          "type": {
+           "$id": "133",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "value": "http://localhost:3000"
+         }
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/path/explode/record{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "133"
-   },
-   "Parent": "PathParametersPathExpansion",
-   "Parameters": [
-    {
-     "$id": "134",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "135",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "136",
-      "Type": {
-       "$id": "137",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
+       "decorators": [],
+       "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion",
+       "apiVersions": [],
+       "parent": {
+        "$ref": "9"
+       },
+       "children": [
+        {
+         "$id": "134",
+         "kind": "client",
+         "name": "Standard",
+         "namespace": "Routes.PathParameters.LabelExpansion.Standard",
+         "operations": [
+          {
+           "$id": "135",
+           "name": "primitive",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "136",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "137",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "138",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/label/standard/primitive{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "139",
+           "name": "array",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "140",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "141",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "142",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "143",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/label/standard/array{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard.array",
+           "decorators": []
+          },
+          {
+           "$id": "144",
+           "name": "record",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "145",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "146",
+              "kind": "dict",
+              "keyType": {
+               "$id": "147",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "148",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "149",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/label/standard/record{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "150",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "151",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "152",
+            "type": {
+             "$id": "153",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "129"
+         }
+        },
+        {
+         "$id": "154",
+         "kind": "client",
+         "name": "Explode",
+         "namespace": "Routes.PathParameters.LabelExpansion.Explode",
+         "operations": [
+          {
+           "$id": "155",
+           "name": "primitive",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "156",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "157",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "158",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/label/explode/primitive{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "159",
+           "name": "array",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "160",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "161",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "162",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "163",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/label/explode/array{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode.array",
+           "decorators": []
+          },
+          {
+           "$id": "164",
+           "name": "record",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "165",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "166",
+              "kind": "dict",
+              "keyType": {
+               "$id": "167",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "168",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "169",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/label/explode/record{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "170",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "171",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "172",
+            "type": {
+             "$id": "173",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "129"
+         }
+        }
+       ]
       },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.PathExpansion.Explode"
-  },
-  {
-   "$id": "138",
-   "Name": "PathParametersLabelExpansion",
-   "Namespace": "Routes.PathParameters.LabelExpansion",
-   "Operations": [],
-   "Protocol": {
-    "$id": "139"
-   },
-   "Parent": "PathParameters",
-   "Parameters": [
-    {
-     "$id": "140",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "141",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "142",
-      "Type": {
-       "$id": "143",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion"
-  },
-  {
-   "$id": "144",
-   "Name": "PathParametersLabelExpansionStandard",
-   "Namespace": "Routes.PathParameters.LabelExpansion.Standard",
-   "Operations": [
-    {
-     "$id": "145",
-     "Name": "primitive",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "146",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "147",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "148",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/label/standard/primitive{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard.primitive",
-     "Decorators": []
-    },
-    {
-     "$id": "149",
-     "Name": "array",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "150",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "151",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "152",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "153",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/label/standard/array{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard.array",
-     "Decorators": []
-    },
-    {
-     "$id": "154",
-     "Name": "record",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "155",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "156",
-        "kind": "dict",
-        "keyType": {
-         "$id": "157",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
-         "$id": "158",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "159",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/label/standard/record{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "160"
-   },
-   "Parent": "PathParametersLabelExpansion",
-   "Parameters": [
-    {
-     "$id": "161",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "162",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "163",
-      "Type": {
-       "$id": "164",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Standard"
-  },
-  {
-   "$id": "165",
-   "Name": "PathParametersLabelExpansionExplode",
-   "Namespace": "Routes.PathParameters.LabelExpansion.Explode",
-   "Operations": [
-    {
-     "$id": "166",
-     "Name": "primitive",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "167",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "168",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "169",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/label/explode/primitive{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode.primitive",
-     "Decorators": []
-    },
-    {
-     "$id": "170",
-     "Name": "array",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "171",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "172",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "173",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
       {
        "$id": "174",
-       "StatusCodes": [
-        204
+       "kind": "client",
+       "name": "MatrixExpansion",
+       "namespace": "Routes.PathParameters.MatrixExpansion",
+       "operations": [],
+       "parameters": [
+        {
+         "$id": "175",
+         "name": "endpoint",
+         "nameInRequest": "endpoint",
+         "doc": "Service host",
+         "type": {
+          "$id": "176",
+          "kind": "url",
+          "name": "url",
+          "crossLanguageDefinitionId": "TypeSpec.url"
+         },
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": true,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client",
+         "defaultValue": {
+          "$id": "177",
+          "type": {
+           "$id": "178",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "value": "http://localhost:3000"
+         }
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/label/explode/array{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode.array",
-     "Decorators": []
-    },
-    {
-     "$id": "175",
-     "Name": "record",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "176",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "177",
-        "kind": "dict",
-        "keyType": {
-         "$id": "178",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
+       "decorators": [],
+       "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion",
+       "apiVersions": [],
+       "parent": {
+        "$ref": "9"
+       },
+       "children": [
+        {
          "$id": "179",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
+         "kind": "client",
+         "name": "Standard",
+         "namespace": "Routes.PathParameters.MatrixExpansion.Standard",
+         "operations": [
+          {
+           "$id": "180",
+           "name": "primitive",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "181",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "182",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "183",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/matrix/standard/primitive{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "184",
+           "name": "array",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "185",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "186",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "187",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "188",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/matrix/standard/array{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard.array",
+           "decorators": []
+          },
+          {
+           "$id": "189",
+           "name": "record",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "190",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "191",
+              "kind": "dict",
+              "keyType": {
+               "$id": "192",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "193",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "194",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/matrix/standard/record{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "195",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "196",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "197",
+            "type": {
+             "$id": "198",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "174"
+         }
         },
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+        {
+         "$id": "199",
+         "kind": "client",
+         "name": "Explode",
+         "namespace": "Routes.PathParameters.MatrixExpansion.Explode",
+         "operations": [
+          {
+           "$id": "200",
+           "name": "primitive",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "201",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "202",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "203",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/matrix/explode/primitive{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "204",
+           "name": "array",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "205",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "206",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "207",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "208",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/matrix/explode/array{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode.array",
+           "decorators": []
+          },
+          {
+           "$id": "209",
+           "name": "record",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "210",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "211",
+              "kind": "dict",
+              "keyType": {
+               "$id": "212",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "213",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Path",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "214",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/path/matrix/explode/record{param}",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "215",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "216",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "217",
+            "type": {
+             "$id": "218",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "174"
+         }
+        }
+       ]
       }
-     ],
-     "Responses": [
-      {
-       "$id": "180",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/label/explode/record{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "181"
-   },
-   "Parent": "PathParametersLabelExpansion",
-   "Parameters": [
-    {
-     "$id": "182",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "183",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "184",
-      "Type": {
-       "$id": "185",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.LabelExpansion.Explode"
-  },
-  {
-   "$id": "186",
-   "Name": "PathParametersMatrixExpansion",
-   "Namespace": "Routes.PathParameters.MatrixExpansion",
-   "Operations": [],
-   "Protocol": {
-    "$id": "187"
-   },
-   "Parent": "PathParameters",
-   "Parameters": [
-    {
-     "$id": "188",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "189",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "190",
-      "Type": {
-       "$id": "191",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion"
-  },
-  {
-   "$id": "192",
-   "Name": "PathParametersMatrixExpansionStandard",
-   "Namespace": "Routes.PathParameters.MatrixExpansion.Standard",
-   "Operations": [
-    {
-     "$id": "193",
-     "Name": "primitive",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "194",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "195",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "196",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/matrix/standard/primitive{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard.primitive",
-     "Decorators": []
+     ]
     },
     {
-     "$id": "197",
-     "Name": "array",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "219",
+     "kind": "client",
+     "name": "QueryParameters",
+     "namespace": "Routes.QueryParameters",
+     "operations": [
       {
-       "$id": "198",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "199",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "200",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "201",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/matrix/standard/array{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard.array",
-     "Decorators": []
-    },
-    {
-     "$id": "202",
-     "Name": "record",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "203",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "204",
-        "kind": "dict",
-        "keyType": {
-         "$id": "205",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
-         "$id": "206",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "207",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/matrix/standard/record{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "208"
-   },
-   "Parent": "PathParametersMatrixExpansion",
-   "Parameters": [
-    {
-     "$id": "209",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "210",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "211",
-      "Type": {
-       "$id": "212",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Standard"
-  },
-  {
-   "$id": "213",
-   "Name": "PathParametersMatrixExpansionExplode",
-   "Namespace": "Routes.PathParameters.MatrixExpansion.Explode",
-   "Operations": [
-    {
-     "$id": "214",
-     "Name": "primitive",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "215",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "216",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "217",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/matrix/explode/primitive{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode.primitive",
-     "Decorators": []
-    },
-    {
-     "$id": "218",
-     "Name": "array",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "219",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "220",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
+       "$id": "220",
+       "name": "templateOnly",
+       "resourceName": "QueryParameters",
+       "accessibility": "public",
+       "parameters": [
+        {
          "$id": "221",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "222",
-       "StatusCodes": [
-        204
+         "name": "param",
+         "nameInRequest": "param",
+         "type": {
+          "$id": "222",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+         },
+         "location": "Query",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Method",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/matrix/explode/array{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode.array",
-     "Decorators": []
-    },
-    {
-     "$id": "223",
-     "Name": "record",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
+       "responses": [
+        {
+         "$id": "223",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/routes/query/template-only",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Routes.QueryParameters.templateOnly",
+       "decorators": []
+      },
       {
        "$id": "224",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "225",
-        "kind": "dict",
-        "keyType": {
-         "$id": "226",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
+       "name": "explicit",
+       "resourceName": "QueryParameters",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "225",
+         "name": "param",
+         "nameInRequest": "param",
+         "type": {
+          "$id": "226",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+         },
+         "location": "Query",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Method",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
          "$id": "227",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Path",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/routes/query/explicit",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Routes.QueryParameters.explicit",
+       "decorators": []
+      },
       {
        "$id": "228",
-       "StatusCodes": [
-        204
+       "name": "annotationOnly",
+       "resourceName": "QueryParameters",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "229",
+         "name": "param",
+         "nameInRequest": "param",
+         "type": {
+          "$id": "230",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+         },
+         "location": "Query",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Method",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "responses": [
+        {
+         "$id": "231",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/routes/query/annotation-only",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Routes.QueryParameters.annotationOnly",
+       "decorators": []
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/path/matrix/explode/record{param}",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "229"
-   },
-   "Parent": "PathParametersMatrixExpansion",
-   "Parameters": [
-    {
-     "$id": "230",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "231",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
+     "parameters": [
+      {
+       "$id": "232",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "233",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "234",
+        "type": {
+         "$id": "235",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Routes.QueryParameters",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "2"
      },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "232",
-      "Type": {
-       "$id": "233",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.PathParameters.MatrixExpansion.Explode"
-  },
-  {
-   "$id": "234",
-   "Name": "QueryParameters",
-   "Namespace": "Routes.QueryParameters",
-   "Operations": [
-    {
-     "$id": "235",
-     "Name": "templateOnly",
-     "ResourceName": "QueryParameters",
-     "Accessibility": "public",
-     "Parameters": [
+     "children": [
       {
        "$id": "236",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "237",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "238",
-       "StatusCodes": [
-        204
+       "kind": "client",
+       "name": "QueryExpansion",
+       "namespace": "Routes.QueryParameters.QueryExpansion",
+       "operations": [],
+       "parameters": [
+        {
+         "$id": "237",
+         "name": "endpoint",
+         "nameInRequest": "endpoint",
+         "doc": "Service host",
+         "type": {
+          "$id": "238",
+          "kind": "url",
+          "name": "url",
+          "crossLanguageDefinitionId": "TypeSpec.url"
+         },
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": true,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client",
+         "defaultValue": {
+          "$id": "239",
+          "type": {
+           "$id": "240",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "value": "http://localhost:3000"
+         }
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/template-only",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.templateOnly",
-     "Decorators": []
-    },
-    {
-     "$id": "239",
-     "Name": "explicit",
-     "ResourceName": "QueryParameters",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "240",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "241",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
+       "decorators": [],
+       "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion",
+       "apiVersions": [],
+       "parent": {
+        "$ref": "219"
        },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "242",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/explicit",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.explicit",
-     "Decorators": []
-    },
-    {
-     "$id": "243",
-     "Name": "annotationOnly",
-     "ResourceName": "QueryParameters",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "244",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "245",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "246",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/annotation-only",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.annotationOnly",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "247"
-   },
-   "Parent": "RoutesClient",
-   "Parameters": [
-    {
-     "$id": "248",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "249",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "250",
-      "Type": {
-       "$id": "251",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.QueryParameters"
-  },
-  {
-   "$id": "252",
-   "Name": "QueryParametersQueryExpansion",
-   "Namespace": "Routes.QueryParameters.QueryExpansion",
-   "Operations": [],
-   "Protocol": {
-    "$id": "253"
-   },
-   "Parent": "QueryParameters",
-   "Parameters": [
-    {
-     "$id": "254",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "255",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "256",
-      "Type": {
-       "$id": "257",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion"
-  },
-  {
-   "$id": "258",
-   "Name": "QueryParametersQueryExpansionStandard",
-   "Namespace": "Routes.QueryParameters.QueryExpansion.Standard",
-   "Operations": [
-    {
-     "$id": "259",
-     "Name": "primitive",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "260",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "261",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "262",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-expansion/standard/primitive",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard.primitive",
-     "Decorators": []
-    },
-    {
-     "$id": "263",
-     "Name": "array",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "264",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "265",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "266",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "children": [
+        {
+         "$id": "241",
+         "kind": "client",
+         "name": "Standard",
+         "namespace": "Routes.QueryParameters.QueryExpansion.Standard",
+         "operations": [
+          {
+           "$id": "242",
+           "name": "primitive",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "243",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "244",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "245",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-expansion/standard/primitive",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "246",
+           "name": "array",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "247",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "248",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "249",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "250",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-expansion/standard/array",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard.array",
+           "decorators": []
+          },
+          {
+           "$id": "251",
+           "name": "record",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "252",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "253",
+              "kind": "dict",
+              "keyType": {
+               "$id": "254",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "255",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "256",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-expansion/standard/record",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "257",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "258",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "259",
+            "type": {
+             "$id": "260",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "236"
+         }
         },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "267",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-expansion/standard/array",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard.array",
-     "Decorators": []
-    },
-    {
-     "$id": "268",
-     "Name": "record",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "269",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "270",
-        "kind": "dict",
-        "keyType": {
-         "$id": "271",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
-         "$id": "272",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "273",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-expansion/standard/record",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "274"
-   },
-   "Parent": "QueryParametersQueryExpansion",
-   "Parameters": [
-    {
-     "$id": "275",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "276",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "277",
-      "Type": {
-       "$id": "278",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
+        {
+         "$id": "261",
+         "kind": "client",
+         "name": "Explode",
+         "namespace": "Routes.QueryParameters.QueryExpansion.Explode",
+         "operations": [
+          {
+           "$id": "262",
+           "name": "primitive",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "263",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "264",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "265",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-expansion/explode/primitive",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "266",
+           "name": "array",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "267",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "268",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "269",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "270",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-expansion/explode/array",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode.array",
+           "decorators": []
+          },
+          {
+           "$id": "271",
+           "name": "record",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "272",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "273",
+              "kind": "dict",
+              "keyType": {
+               "$id": "274",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "275",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "276",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-expansion/explode/record",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "277",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "278",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "279",
+            "type": {
+             "$id": "280",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "236"
+         }
+        }
+       ]
       },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Standard"
-  },
-  {
-   "$id": "279",
-   "Name": "QueryParametersQueryExpansionExplode",
-   "Namespace": "Routes.QueryParameters.QueryExpansion.Explode",
-   "Operations": [
-    {
-     "$id": "280",
-     "Name": "primitive",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
       {
        "$id": "281",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "282",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "283",
-       "StatusCodes": [
-        204
+       "kind": "client",
+       "name": "QueryContinuation",
+       "namespace": "Routes.QueryParameters.QueryContinuation",
+       "operations": [],
+       "parameters": [
+        {
+         "$id": "282",
+         "name": "endpoint",
+         "nameInRequest": "endpoint",
+         "doc": "Service host",
+         "type": {
+          "$id": "283",
+          "kind": "url",
+          "name": "url",
+          "crossLanguageDefinitionId": "TypeSpec.url"
+         },
+         "location": "Uri",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isRequired": true,
+         "isEndpoint": true,
+         "skipUrlEncoding": false,
+         "explode": false,
+         "kind": "Client",
+         "defaultValue": {
+          "$id": "284",
+          "type": {
+           "$id": "285",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string"
+          },
+          "value": "http://localhost:3000"
+         }
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "decorators": [],
+       "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation",
+       "apiVersions": [],
+       "parent": {
+        "$ref": "219"
+       },
+       "children": [
+        {
+         "$id": "286",
+         "kind": "client",
+         "name": "Standard",
+         "namespace": "Routes.QueryParameters.QueryContinuation.Standard",
+         "operations": [
+          {
+           "$id": "287",
+           "name": "primitive",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "288",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "289",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "290",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-continuation/standard/primitive?fixed=true",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "291",
+           "name": "array",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "292",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "293",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "294",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "295",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-continuation/standard/array?fixed=true",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard.array",
+           "decorators": []
+          },
+          {
+           "$id": "296",
+           "name": "record",
+           "resourceName": "Standard",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "297",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "298",
+              "kind": "dict",
+              "keyType": {
+               "$id": "299",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "300",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": false,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "301",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-continuation/standard/record?fixed=true",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "302",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "303",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "304",
+            "type": {
+             "$id": "305",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "281"
+         }
+        },
+        {
+         "$id": "306",
+         "kind": "client",
+         "name": "Explode",
+         "namespace": "Routes.QueryParameters.QueryContinuation.Explode",
+         "operations": [
+          {
+           "$id": "307",
+           "name": "primitive",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "308",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "309",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "310",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-continuation/explode/primitive?fixed=true",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode.primitive",
+           "decorators": []
+          },
+          {
+           "$id": "311",
+           "name": "array",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "312",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "313",
+              "kind": "array",
+              "name": "Array",
+              "valueType": {
+               "$id": "314",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "crossLanguageDefinitionId": "TypeSpec.Array",
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "315",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-continuation/explode/array?fixed=true",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode.array",
+           "decorators": []
+          },
+          {
+           "$id": "316",
+           "name": "record",
+           "resourceName": "Explode",
+           "accessibility": "public",
+           "parameters": [
+            {
+             "$id": "317",
+             "name": "param",
+             "nameInRequest": "param",
+             "type": {
+              "$id": "318",
+              "kind": "dict",
+              "keyType": {
+               "$id": "319",
+               "kind": "string",
+               "name": "string",
+               "crossLanguageDefinitionId": "TypeSpec.string",
+               "decorators": []
+              },
+              "valueType": {
+               "$id": "320",
+               "kind": "int32",
+               "name": "int32",
+               "crossLanguageDefinitionId": "TypeSpec.int32",
+               "decorators": []
+              },
+              "decorators": []
+             },
+             "location": "Query",
+             "isApiVersion": false,
+             "isContentType": false,
+             "isEndpoint": false,
+             "explode": true,
+             "isRequired": true,
+             "kind": "Method",
+             "decorators": [],
+             "skipUrlEncoding": false
+            }
+           ],
+           "responses": [
+            {
+             "$id": "321",
+             "statusCodes": [
+              204
+             ],
+             "headers": [],
+             "isErrorResponse": false
+            }
+           ],
+           "httpMethod": "GET",
+           "uri": "{endpoint}",
+           "path": "/routes/query/query-continuation/explode/record?fixed=true",
+           "bufferResponse": true,
+           "generateProtocolMethod": true,
+           "generateConvenienceMethod": true,
+           "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode.record",
+           "decorators": []
+          }
+         ],
+         "parameters": [
+          {
+           "$id": "322",
+           "name": "endpoint",
+           "nameInRequest": "endpoint",
+           "doc": "Service host",
+           "type": {
+            "$id": "323",
+            "kind": "url",
+            "name": "url",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+           },
+           "location": "Uri",
+           "isApiVersion": false,
+           "isContentType": false,
+           "isRequired": true,
+           "isEndpoint": true,
+           "skipUrlEncoding": false,
+           "explode": false,
+           "kind": "Client",
+           "defaultValue": {
+            "$id": "324",
+            "type": {
+             "$id": "325",
+             "kind": "string",
+             "name": "string",
+             "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+           }
+          }
+         ],
+         "decorators": [],
+         "crossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode",
+         "apiVersions": [],
+         "parent": {
+          "$ref": "281"
+         }
+        }
+       ]
       }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-expansion/explode/primitive",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode.primitive",
-     "Decorators": []
+     ]
     },
     {
-     "$id": "284",
-     "Name": "array",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
+     "$id": "326",
+     "kind": "client",
+     "name": "InInterface",
+     "namespace": "Routes",
+     "operations": [
       {
-       "$id": "285",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "286",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "287",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "288",
-       "StatusCodes": [
-        204
+       "$id": "327",
+       "name": "fixed",
+       "resourceName": "InInterface",
+       "accessibility": "public",
+       "parameters": [],
+       "responses": [
+        {
+         "$id": "328",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
        ],
-       "Headers": [],
-       "IsErrorResponse": false
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/routes/in-interface/fixed",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Routes.InInterface.fixed",
+       "decorators": []
       }
      ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-expansion/explode/array",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode.array",
-     "Decorators": []
-    },
-    {
-     "$id": "289",
-     "Name": "record",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "290",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "291",
-        "kind": "dict",
-        "keyType": {
-         "$id": "292",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
-         "$id": "293",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "294",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-expansion/explode/record",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "295"
-   },
-   "Parent": "QueryParametersQueryExpansion",
-   "Parameters": [
-    {
-     "$id": "296",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "297",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "298",
-      "Type": {
-       "$id": "299",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryExpansion.Explode"
-  },
-  {
-   "$id": "300",
-   "Name": "QueryParametersQueryContinuation",
-   "Namespace": "Routes.QueryParameters.QueryContinuation",
-   "Operations": [],
-   "Protocol": {
-    "$id": "301"
-   },
-   "Parent": "QueryParameters",
-   "Parameters": [
-    {
-     "$id": "302",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "303",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "304",
-      "Type": {
-       "$id": "305",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation"
-  },
-  {
-   "$id": "306",
-   "Name": "QueryParametersQueryContinuationStandard",
-   "Namespace": "Routes.QueryParameters.QueryContinuation.Standard",
-   "Operations": [
-    {
-     "$id": "307",
-     "Name": "primitive",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "308",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "309",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "310",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-continuation/standard/primitive?fixed=true",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard.primitive",
-     "Decorators": []
-    },
-    {
-     "$id": "311",
-     "Name": "array",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "312",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "313",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "314",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "315",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-continuation/standard/array?fixed=true",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard.array",
-     "Decorators": []
-    },
-    {
-     "$id": "316",
-     "Name": "record",
-     "ResourceName": "Standard",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "317",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "318",
-        "kind": "dict",
-        "keyType": {
-         "$id": "319",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
-         "$id": "320",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": false,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "321",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-continuation/standard/record?fixed=true",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "322"
-   },
-   "Parent": "QueryParametersQueryContinuation",
-   "Parameters": [
-    {
-     "$id": "323",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "324",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "325",
-      "Type": {
-       "$id": "326",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Standard"
-  },
-  {
-   "$id": "327",
-   "Name": "QueryParametersQueryContinuationExplode",
-   "Namespace": "Routes.QueryParameters.QueryContinuation.Explode",
-   "Operations": [
-    {
-     "$id": "328",
-     "Name": "primitive",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
+     "parameters": [
       {
        "$id": "329",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
         "$id": "330",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "331",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-continuation/explode/primitive?fixed=true",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode.primitive",
-     "Decorators": []
-    },
-    {
-     "$id": "332",
-     "Name": "array",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "333",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "334",
-        "kind": "array",
-        "name": "Array",
-        "valueType": {
-         "$id": "335",
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "331",
+        "type": {
+         "$id": "332",
          "kind": "string",
          "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+         "crossLanguageDefinitionId": "TypeSpec.string"
         },
-        "crossLanguageDefinitionId": "TypeSpec.Array",
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
+        "value": "http://localhost:3000"
+       }
       }
      ],
-     "Responses": [
-      {
-       "$id": "336",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-continuation/explode/array?fixed=true",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode.array",
-     "Decorators": []
-    },
-    {
-     "$id": "337",
-     "Name": "record",
-     "ResourceName": "Explode",
-     "Accessibility": "public",
-     "Parameters": [
-      {
-       "$id": "338",
-       "Name": "param",
-       "NameInRequest": "param",
-       "Type": {
-        "$id": "339",
-        "kind": "dict",
-        "keyType": {
-         "$id": "340",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "valueType": {
-         "$id": "341",
-         "kind": "int32",
-         "name": "int32",
-         "crossLanguageDefinitionId": "TypeSpec.int32",
-         "decorators": []
-        },
-        "decorators": []
-       },
-       "Location": "Query",
-       "IsApiVersion": false,
-       "IsContentType": false,
-       "IsEndpoint": false,
-       "Explode": true,
-       "IsRequired": true,
-       "Kind": "Method",
-       "Decorators": [],
-       "SkipUrlEncoding": false
-      }
-     ],
-     "Responses": [
-      {
-       "$id": "342",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/query/query-continuation/explode/record?fixed=true",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode.record",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "343"
-   },
-   "Parent": "QueryParametersQueryContinuation",
-   "Parameters": [
-    {
-     "$id": "344",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "345",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "346",
-      "Type": {
-       "$id": "347",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
+     "decorators": [],
+     "crossLanguageDefinitionId": "Routes.InInterface",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "2"
      }
     }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.QueryParameters.QueryContinuation.Explode"
-  },
-  {
-   "$id": "348",
-   "Name": "InInterface",
-   "Namespace": "Routes",
-   "Operations": [
-    {
-     "$id": "349",
-     "Name": "fixed",
-     "ResourceName": "InInterface",
-     "Accessibility": "public",
-     "Parameters": [],
-     "Responses": [
-      {
-       "$id": "350",
-       "StatusCodes": [
-        204
-       ],
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "GET",
-     "Uri": "{endpoint}",
-     "Path": "/routes/in-interface/fixed",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Routes.InInterface.fixed",
-     "Decorators": []
-    }
-   ],
-   "Protocol": {
-    "$id": "351"
-   },
-   "Parent": "RoutesClient",
-   "Parameters": [
-    {
-     "$id": "352",
-     "Name": "endpoint",
-     "NameInRequest": "endpoint",
-     "Doc": "Service host",
-     "Type": {
-      "$id": "353",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "Location": "Uri",
-     "IsApiVersion": false,
-     "IsResourceParameter": false,
-     "IsContentType": false,
-     "IsRequired": true,
-     "IsEndpoint": true,
-     "SkipUrlEncoding": false,
-     "Explode": false,
-     "Kind": "Client",
-     "DefaultValue": {
-      "$id": "354",
-      "Type": {
-       "$id": "355",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "Value": "http://localhost:3000"
-     }
-    }
-   ],
-   "Decorators": [],
-   "CrossLanguageDefinitionId": "Routes.InInterface"
+   ]
   }
  ]
 }

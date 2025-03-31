@@ -17,11 +17,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public async Task CanChangeClientNamespace()
         {
             var inputClient = InputFactory.Client("TestClient");
-            var plugin = await MockHelpers.LoadMockPluginAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
             Assert.IsNotNull(clientProvider);
             var restClientProvider = (clientProvider as ClientProvider)!.RestClient;
             Assert.IsNotNull(restClientProvider);

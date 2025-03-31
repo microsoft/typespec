@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
+import { inspect } from "util";
 import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import { Document, isScalar, isSeq } from "yaml";
@@ -60,7 +61,7 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
     ignoreFocusOut: true,
   });
   if (!codeType) {
-    logger.info("No emitter Type selected. Emitting Cancelled.");
+    logger.info("No emitter type selected. Emitting Cancelled.");
     return undefined;
   }
 
@@ -104,7 +105,7 @@ async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitt
   emitterSelector.items = all;
   emitterSelector.title = `Emit from TypeSpec`;
   emitterSelector.canSelectMany = false;
-  emitterSelector.placeholder = `Select a Language for${codeType.emitterKind !== EmitterKind.Unknown ? " " + codeType.emitterKind : ""} code Emitting`;
+  emitterSelector.placeholder = `Select a language for${codeType.emitterKind !== EmitterKind.Unknown ? " " + codeType.emitterKind : ""} code emitting`;
   emitterSelector.ignoreFocusOut = true;
   emitterSelector.onDidTriggerItemButton(async (e) => {
     if (e.button.tooltip === "More details") {
@@ -148,10 +149,13 @@ async function doEmit(
 ): Promise<ResultCode> {
   if (!mainTspFile || !(await isFile(mainTspFile))) {
     logger.error(
-      "Invalid typespec project. There is no main tsp file in the project. Emitting Cancelled.",
+      "Invalid TypeSpec project. There is no main tsp file in the project. Emitting Cancelled.",
       [],
       { showOutput: false, showPopup: true },
     );
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "no main tsp file found in the project.",
+    });
     tel.lastStep = "Check main tsp file for emitting";
     return ResultCode.Fail;
   }
@@ -300,11 +304,17 @@ async function doEmit(
           try {
             const npmInstallResult = await npmUtil.npmInstallPackages(installPackages, undefined);
             if (npmInstallResult.exitCode !== 0) {
+              telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+                error: `npm install failed: ${inspect(npmInstallResult)}`,
+              });
               return false;
             } else {
               return true;
             }
           } catch (err: any) {
+            telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+              error: `npm install failed: ${inspect(err)}`,
+            });
             return false;
           }
         },
@@ -331,6 +341,9 @@ async function doEmit(
         showPopup: true,
       },
     );
+    telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+      error: "Cannot find TypeSpec CLI.",
+    });
     tel.lastStep = "Resolve TypeSpec CLI";
     return ResultCode.Fail;
   }
@@ -444,6 +457,9 @@ async function doEmit(
             showOutput: true,
             showPopup: true,
           });
+          telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+            emitResult: `Emitting code failed: ${inspect(compileResult)}`,
+          });
           return ResultCode.Fail;
         } else {
           logger.info(`Emitting ${codeInfoStr}...Succeeded`, [], {
@@ -456,8 +472,6 @@ async function doEmit(
         if (typeof err === "object" && "stdout" in err && "stderr" in err && `error` in err) {
           const execOutput = err as ExecOutput;
           const details = [];
-          if (execOutput.stdout !== "") details.push(execOutput.stdout);
-          if (execOutput.stderr !== "") details.push(execOutput.stderr);
           if (execOutput.error) details.push(execOutput.error);
           logger.error(`Emitting ${codeInfoStr}...Failed.`, details, {
             showOutput: true,
@@ -469,6 +483,9 @@ async function doEmit(
             showPopup: true,
           });
         }
+        telemetryClient.logOperationDetailTelemetry(tel.activityId, {
+          emitResult: `Emitting code failed: ${inspect(err)}`,
+        });
         return ResultCode.Fail;
       }
     },
@@ -526,7 +543,7 @@ export async function emitCode(
   } else {
     const tspStartFile = await getEntrypointTspFile(uri.fsPath);
     if (!tspStartFile) {
-      logger.info(`No entrypoint file (${StartFileName}). Invalid typespec project.`, [], {
+      logger.info(`No entrypoint file (${StartFileName}). Invalid TypeSpec project.`, [], {
         showOutput: true,
         showPopup: true,
       });
@@ -683,7 +700,7 @@ export async function emitCode(
           }
         } else if (selectedItem === selectMultipleQuickPick) {
           const selectedItems = await vscode.window.showQuickPick(existingEmitterQuickPickItems, {
-            title: "Generate from TypeSpec",
+            title: "Emit from TypeSpec",
             canPickMany: true,
             placeHolder: "Select emitters",
             ignoreFocusOut: true,

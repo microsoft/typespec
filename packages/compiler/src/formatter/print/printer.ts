@@ -1484,7 +1484,7 @@ function printFunctionParameterDeclaration(
   print: PrettierChildPrint,
 ): Doc {
   const node = path.node;
-  const id = path.call(print, "id");
+  const id = printIdentifier(node.id, "allow-reserved");
 
   const type = node.type ? [": ", path.call(print, "type")] : "";
 

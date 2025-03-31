@@ -4,8 +4,15 @@
 import { JSONSchemaType, createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export interface JsEmitterOptions {
+  /** If set to `true`, the emitter will generate a router that exposes an Express.js middleware function in addition to the ordinary Node.js HTTP server router.
+
+If this option is not set to `true`, the `expressMiddleware` property will not be present on the generated router. */
   express?: boolean;
+
+  /** By default, the emitter will create interfaces that represent all models in the service namespace. If this option is set
+to `true`, the emitter will only emit those types that are reachable from an HTTP operation. */
   "omit-unreachable-types": boolean;
+  /** If set to `true`, the emitter will not format the generated code using Prettier. */
   "no-format": boolean;
 }
 
@@ -13,14 +20,24 @@ const EmitterOptionsSchema: JSONSchemaType<JsEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
-    express: { type: "boolean", nullable: true, default: false },
+    express: {
+      type: "boolean",
+      nullable: true,
+      default: false,
+      description:
+        "If set to `true`, the emitter will generate a router that exposes an Express.js middleware function in addition to the ordinary Node.js HTTP server router.\n\nIf this option is not set to `true`, the `expressMiddleware` property will not be present on the generated router.",
+    },
     "omit-unreachable-types": {
       type: "boolean",
       default: false,
+      description:
+        "By default, the emitter will create interfaces that represent all models in the service namespace. If this option is set to `true`, the emitter will only emit those types that are reachable from an HTTP operation.",
     },
     "no-format": {
       type: "boolean",
       default: false,
+      description:
+        "If set to `true`, the emitter will not format the generated code using Prettier.",
     },
   },
   required: [],
@@ -123,6 +140,12 @@ export const $lib = createTypeSpecLibrary({
           "@typespec/openapi3 is installed, but the OpenAPI 3 document could not be generated.",
         versioned:
           "An OpenAPI3 document could not be generated for this service because versioned services are not yet supported by the HTTP server emitter for JavaScript.",
+      },
+    },
+    "unknown-encoding": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Unknown encoding '${"encoding"}' to type '${"target"}' for type '${"type"}'.`,
       },
     },
   },
