@@ -594,7 +594,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
-                        if (parameter.Validation != ParameterValidationType.None)
+                        if (parameter.DefaultValue == null)
                         {
                             sortedParams.Add(required++, parameter);
                         }

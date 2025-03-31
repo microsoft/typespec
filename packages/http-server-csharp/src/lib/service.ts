@@ -79,7 +79,7 @@ import {
   getBusinessLogicImplementations,
   getScaffoldingHelpers,
 } from "./scaffolding.js";
-import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
+import { getEnumType, getRecordType, isKnownReferenceType } from "./type-helpers.js";
 import {
   CSharpOperationHelpers,
   EmittedTypeInfo,
@@ -188,6 +188,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     enumDeclaration(en: Enum, name: string): EmitterOutput<string> {
+      if (getEnumType(en) === "double") return "";
       const program = this.emitter.getProgram();
       const enumName = ensureCSharpIdentifier(program, en, name);
       const namespace = this.emitter.getContext().namespace;
@@ -214,6 +215,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     enumDeclarationContext(en: Enum): Context {
+      if (getEnumType(en) === "double") return this.emitter.getContext();
       const enumName = ensureCSharpIdentifier(this.emitter.getProgram(), en, en.name);
       const enumFile = this.emitter.createSourceFile(`generated/models/${enumName}.cs`);
       enumFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
@@ -222,18 +224,27 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     enumMembers(en: Enum): EmitterOutput<string> {
+      const enumType = getEnumType(en);
       const result = new StringBuilder();
       let i = 0;
       for (const [name, member] of en.members) {
         i++;
         const memberName: string = ensureCSharpIdentifier(this.emitter.getProgram(), member, name);
         this.#metadateMap.set(member, { name: memberName });
-        result.push(
-          code`
+        if (enumType === "string") {
+          result.push(
+            code`
           [JsonStringEnumMemberName("${member.value ? (member.value as string) : name}")]
           ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)}`,
-        );
-        if (i < en.members.size) result.pushLiteralSegment(",\n");
+          );
+          if (i < en.members.size) result.pushLiteralSegment(",\n");
+        } else if (member.value !== undefined) {
+          result.push(
+            code`
+          ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)} = ${member.value.toString()}`,
+          );
+          if (i < en.members.size) result.pushLiteralSegment(",\n");
+        }
       }
 
       return this.emitter.result.rawCode(result.reduce());

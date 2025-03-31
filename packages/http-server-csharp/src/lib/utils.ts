@@ -60,6 +60,7 @@ import {
   StringValue,
 } from "./interfaces.js";
 import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
+import { getDoubleType, getEnumType } from "./type-helpers.js";
 
 const _scalars: Map<Scalar, CSharpType> = new Map<Scalar, CSharpType>();
 export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharpType {
@@ -150,6 +151,7 @@ export function getCSharpType(
         }),
       };
     case "Enum":
+      if (getEnumType(type) === "double") return { type: getDoubleType() };
       return {
         type: new CSharpType({
           name: ensureCSharpIdentifier(program, type, type.name, NameCasingType.Class),
@@ -1357,6 +1359,8 @@ export class CSharpOperationHelpers {
       case "ModelProperty":
         return this.getTypeInfo(program, tsType.type, tsType);
       case "Enum":
+        if (getEnumType(tsType) === "double")
+          return { typeReference: getDoubleType().getTypeReference(), nullableType: false };
         return {
           typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
           nullableType: false,
