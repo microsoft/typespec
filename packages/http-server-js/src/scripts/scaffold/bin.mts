@@ -789,7 +789,6 @@ function updatePackageJson(
   }
 }
 
-scaffold(parseScaffoldArguments(process.argv)).catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+export async function main() {
+  await scaffold(parseScaffoldArguments(process.argv));
+}
