@@ -1,4 +1,3 @@
-/* eslint-disable vitest/no-commented-out-tests */
 import { describe, expect, it } from "vitest";
 import {
   Pet,
