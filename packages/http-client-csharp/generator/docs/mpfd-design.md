@@ -6,7 +6,7 @@
 2. [System ClientModel Updates](#system-clientmodel-updates)
 3. [MultiPartFormDataBinaryContent Internal Helper](#multiPartFormDataBinaryContent-internal-helper-type)
 4. [Usage Examples](#usage-examples)
-5. [Considerations for Advanced Scenarios](#considerations-for-advanced-scenarios)
+5. [Considerations](#considerations)
 
 ## Motivation
 
@@ -1164,7 +1164,9 @@ ClientResult response = await client.UploadCatAsync(petDetails, contentType);
 
 </details>
 
-## Considerations for Advanced Scenarios
+## Considerations
+
+### Limitations in Advanced Scenarios
 
 The introduction of the file part type described in [_File Part Type_](#file-part-type) has some limitations when used in more advanced scenarios
 that should be considered.
@@ -1194,3 +1196,29 @@ op uploadSnake(
 The `pictures` property is a list of file parts where each file has required metadata (filename + content type are required). Since the [`FileBinaryContent`](#file-part-type), by default, has these metadata properties as _optional_, the generated model for `Snake` would need a way to describe the metadata as being required for reach file in `pictures`. Otherwise, the following effect of not doing so should be considered:
 
 - If the constructor overloads for `Snake` accept a list of streams, file paths, or BinaryData then consumers of the `uploadSnake` operation would not be made aware of this metadata requirement for the `pictures` property until the `uploadSnake` operation returns a service failure.
+
+### Protocol Method Usage with Public MPFD Type
+
+The usage of the generated protocol methods can be improved if we consider exposing the [`MultiPartFormDataBinaryContent`](#multiPartFormDataBinaryContent-internal-helper-type) type as a public SCM type. Consider the [dog example](#operation-that-contains-a-payload-with-a-file-part-and-a-primitive-type-part) outlined earlier:
+
+```csharp
+PetStoreClient client = new PetStoreClient();
+using Dog dog = new Dog("123", "C:\\myDog.jpg");
+// get the multipart content type, which includes the boundary
+string contentType = ModelReaderWriter.Write(dog, new ModelReaderWriterOptions("MPFD-ContentType")).ToString();
+// dog is implicitly converted to BinaryContent
+ClientResult response = await client.UploadDogAsync(dog, contentType);
+```
+
+If the `MultiPartFormDataBinaryContent` type was made public, advanced users can construct this same request as:
+
+```csharp
+PetStoreClient client = new PetStoreClient();
+
+await using FileStream profileImage = File.OpenRead("C:\\myDog.jpg");
+using MultiPartFormDataBinaryContent content = new();
+content.Add("id", "123");
+content.Add("profileImage", profileImage, fileName: "profileImage.jpg", contentType: "application/octet-stream");
+
+ClientResult response = await client.UploadDogAsync(content, content.ContentType);
+```
