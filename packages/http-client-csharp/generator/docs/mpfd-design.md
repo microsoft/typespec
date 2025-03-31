@@ -1193,13 +1193,33 @@ op uploadSnake(
 ): NoContentResponse;
 ```
 
-The `pictures` property is a list of file parts where each file has required metadata (filename + content type are required). Since the [`FileBinaryContent`](#file-part-type), by default, has these metadata properties as _optional_, the generated model for `Snake` would need a way to describe the metadata as being required for reach file in `pictures`. Otherwise, the following effect of not doing so should be considered:
+The pictures property is a collection of file parts where each file has required metadata (filename + content type are required). In the generated code, this creates a mismatch between the TypeSpec definition (where metadata is required) and the FileBinaryContent class (where Filename and ContentType properties are optional).
 
-- If the constructor overloads for `Snake` accept a list of streams, file paths, or BinaryData then consumers of the `uploadSnake` operation would not be made aware of this metadata requirement for the `pictures` property until the `uploadSnake` operation returns a service failure.
+Specifically:
+
+1. The generated Snake model would have constructors that accept collections of `Stream`, `string` (file paths), or `BinaryData` for the pictures property.
+2. Each item would be converted to a `FileBinaryContent` object with default (null) metadata properties.
+3. The TypeSpec contract requires `filename` and `contentType` for each file, but the C# API doesn't enforce this requirement.
+4. The service could reject the request, but users would only discover this at runtime when the upload fails.
+
+For example, the generated constructor might look like:
+
+```csharp
+public Snake(string name, IEnumerable<Stream> pictures)
+{
+    Name = name;
+    Pictures = pictures.Select(pic => new FileBinaryContent(pic)).ToArray();
+    // FileBinaryContent objects created without required metadata.
+}
+```
 
 ### Protocol Method Usage with Public MPFD Type
 
-The usage of the generated protocol methods can be improved if we consider exposing the [`MultiPartFormDataBinaryContent`](#multiPartFormDataBinaryContent-internal-helper-type) type as a public SCM type. Consider the protocol method usage for the [dog example](#operation-that-contains-a-payload-with-a-file-part-and-a-primitive-type-part) outlined earlier:
+Making the `MultiPartFormDataBinaryContent` type public in SCM would significantly enhance flexibility for advanced scenarios while maintaining the simplicity of the convenience layer for common use cases.
+
+#### Example: Current Protocol Usage vs. Public MPFD Type
+
+Consider the protocol method usage for the [dog example](#operation-that-contains-a-payload-with-a-file-part-and-a-primitive-type-part) outlined earlier:
 
 ```csharp
 PetStoreClient client = new PetStoreClient();
@@ -1210,7 +1230,7 @@ string contentType = ModelReaderWriter.Write(dog, new ModelReaderWriterOptions("
 ClientResult response = await client.UploadDogAsync(dog, contentType);
 ```
 
-If the `MultiPartFormDataBinaryContent` type was made public, advanced users can construct this same request as:
+With a public `MultiPartFormDataBinaryContent` type, users could directly construct and customize the request:
 
 ```csharp
 PetStoreClient client = new PetStoreClient();
