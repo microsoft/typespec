@@ -64,10 +64,18 @@ const DiagnosticItem: FunctionComponent<DiagnosticItemProps> = ({ diagnostic, on
 };
 
 const DiagnosticTargetLink = memo(({ target }: { target: DiagnosticTarget | typeof NoTarget }) => {
+  if (target === undefined) {
+    return (
+      <span title="Diagnostic didn't report a target. This is a bug on the emitter.">
+        No target
+      </span>
+    );
+  }
   if (typeof target === "symbol") {
     return <span></span>;
   }
   const location = getSourceLocation(target);
+
   const file = location.file.path === "/test/main.tsp" ? "" : `${location.file.path}:`;
   const { line, character } = location.file.getLineAndCharacterOfPosition(location.pos);
   return (
