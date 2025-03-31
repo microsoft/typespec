@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.IO;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -147,6 +148,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             Assert.NotNull(plugins);
             Assert.AreEqual(1, plugins!.Count);
             Assert.IsInstanceOf<TestGeneratorPlugin>(plugins[0]);
+        }
+
+        [Test]
+        public void GetOrderedPluginDlls()
+        {
+            var testRoot = TestContext.CurrentContext.TestDirectory;
+            var plugin1Directory = Path.Combine(testRoot, "node_modules", "plugin-1", "dist");
+            var plugin2Directory = Path.Combine(testRoot, "node_modules", "plugin-2", "dist");
+            try
+            {
+                Directory.CreateDirectory(plugin1Directory);
+                Directory.CreateDirectory(plugin2Directory);
+
+                File.WriteAllText(Path.Combine(testRoot, "package.json"), @"{
+                    ""name"": ""dummy-project"",
+                    ""version"": ""1.0.0"",
+                    ""description"": ""Dummy project for testing purposes."",
+                    ""dependencies"": { ""plugin-1"": ""^1.0.0"", ""plugin-2"": ""^2.0.0"" }
+                }");
+
+                File.WriteAllText(Path.Combine(plugin1Directory, "Plugin1.dll"), "Dummy DLL content");
+                File.WriteAllText(Path.Combine(plugin2Directory, "Plugin2.dll"), "Other DLL content");
+                var dlls = GeneratorHandler.GetOrderedPluginDlls(plugin1Directory);
+
+                Assert.AreEqual(2, dlls.Count);
+                Assert.AreEqual("Plugin1.dll", Path.GetFileName(dlls[0]));
+                Assert.AreEqual("Plugin2.dll", Path.GetFileName(dlls[1]));
+            }
+            finally
+            {
+                File.Delete(Path.Combine(plugin1Directory, "Plugin1.dll"));
+                File.Delete(Path.Combine(plugin2Directory, "Plugin2.dll"));
+            }
         }
     }
 }

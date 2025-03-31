@@ -34,35 +34,10 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void AddPluginDlls(AggregateCatalog catalog)
         {
-            string? rootDirectory = FindRootDirectory();
-            if (rootDirectory == null)
+            var dllPathsInOrder = GetOrderedPluginDlls(AppContext.BaseDirectory);
+            if (dllPathsInOrder.Count == 0)
             {
                 return;
-            }
-
-            var packagePath = Path.Combine(rootDirectory, "package.json");
-            if (!File.Exists(packagePath))
-            {
-                return;
-            }
-
-            using var doc = JsonDocument.Parse(File.ReadAllText(packagePath));
-            if (!doc.RootElement.TryGetProperty("dependencies", out var deps))
-            {
-                return;
-            }
-
-            var packageNamesInOrder = deps.EnumerateObject().Select(p => p.Name).ToList();
-
-            var dllPathsInOrder = new List<string>();
-            foreach (var package in packageNamesInOrder)
-            {
-                var packageDistPath = Path.Combine(NodeModulesDir, package, "dist");
-                if (Directory.Exists(packageDistPath))
-                {
-                    var dlls = Directory.EnumerateFiles(packageDistPath, "*.dll", SearchOption.AllDirectories);
-                    dllPathsInOrder.AddRange(dlls);
-                }
             }
 
             var highestVersions = new Dictionary<string, (Version Version, string Path)>(StringComparer.OrdinalIgnoreCase);
@@ -109,9 +84,45 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static string? FindRootDirectory()
+        internal static IList<string> GetOrderedPluginDlls(string pluginDirectoryStart)
         {
-            var dir = new DirectoryInfo(AppContext.BaseDirectory);
+            var dllPathsInOrder = new List<string>();
+            string? rootDirectory = FindRootDirectory(pluginDirectoryStart);
+            if (rootDirectory == null)
+            {
+                return dllPathsInOrder;
+            }
+
+            var packagePath = Path.Combine(rootDirectory, "package.json");
+            if (!File.Exists(packagePath))
+            {
+                return dllPathsInOrder;
+            }
+
+            using var doc = JsonDocument.Parse(File.ReadAllText(packagePath));
+            if (!doc.RootElement.TryGetProperty("dependencies", out var deps))
+            {
+                return dllPathsInOrder;
+            }
+
+            var packageNamesInOrder = deps.EnumerateObject().Select(p => p.Name).ToList();
+
+            foreach (var package in packageNamesInOrder)
+            {
+                var packageDistPath = Path.Combine(rootDirectory, NodeModulesDir, package, "dist");
+                if (Directory.Exists(packageDistPath))
+                {
+                    var dlls = Directory.EnumerateFiles(packageDistPath, "*.dll", SearchOption.AllDirectories);
+                    dllPathsInOrder.AddRange(dlls);
+                }
+            }
+
+            return dllPathsInOrder;
+        }
+
+        private static string? FindRootDirectory(string startDirectory)
+        {
+            var dir = new DirectoryInfo(startDirectory);
             while (dir != null)
             {
                 if (dir.Name == NodeModulesDir)
