@@ -2,10 +2,7 @@
 
 :warning: **This package is highly experimental and may be subject to breaking changes and bugs.** Please expect that your code may need to be updated as this package evolves, and please report any issues you encounter.
 
-TypeSpec HTTP server code generator for JavaScript and TypeScript.
-
-This package generates an implementation of an HTTP server layer for a TypeSpec API. It supports binding directly to a
-Node.js HTTP server or Express.js application.
+TypeSpec HTTP server code generator for JavaScript
 
 ## Install
 
@@ -13,9 +10,7 @@ Node.js HTTP server or Express.js application.
 npm install @typespec/http-server-js
 ```
 
-## Emitter
-
-### Usage
+## Usage
 
 1. Via the command line
 
@@ -30,25 +25,33 @@ emit:
   - "@typespec/http-server-js"
 ```
 
-### Emitter options
+The config can be extended with options as follows:
 
-#### `express`
+```yaml
+emit:
+  - "@typespec/http-server-js"
+options:
+  "@typespec/http-server-js":
+    option: value
+```
+
+## Emitter options
+
+### `express`
 
 **Type:** `boolean`
 
-If set to `true`, the emitter will generate a router that exposes an Express.js middleware function in addition to the
-ordinary Node.js HTTP server router.
+If set to `true`, the emitter will generate a router that exposes an Express.js middleware function in addition to the ordinary Node.js HTTP server router.
 
 If this option is not set to `true`, the `expressMiddleware` property will not be present on the generated router.
 
-#### `omit-unreachable-types`
+### `omit-unreachable-types`
 
 **Type:** `boolean`
 
-By default, the emitter will create interfaces that represent all models in the service namespace. If this option is set
-to `true`, the emitter will only emit those types that are reachable from an HTTP operation.
+By default, the emitter will create interfaces that represent all models in the service namespace. If this option is set to `true`, the emitter will only emit those types that are reachable from an HTTP operation.
 
-#### `no-format`
+### `no-format`
 
 **Type:** `boolean`
 

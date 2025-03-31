@@ -71,6 +71,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         }
 
         [Test]
+        public void TestNullRootClientWithChildren()
+        {
+            var plugin = MockHelpers.LoadMockGenerator(
+                clients: () => [_testClient],
+                clientPipelineApi: TestClientPipelineApi.Instance,
+                createClientCore: FilterOutClient
+                );
+
+            ClientProvider? FilterOutClient(InputClient client)
+            {
+                if (client == _testClient)
+                {
+                    return null;
+                }
+                return new ClientProvider(client);
+            }
+
+            var clients = plugin.Object.OutputLibrary.TypeProviders.Where(p => p is ClientProvider).ToList();
+            Assert.AreEqual(3, clients.Count);
+        }
+
+        [Test]
         public void TestBuildProperties()
         {
             var client = InputFactory.Client(TestClientName);

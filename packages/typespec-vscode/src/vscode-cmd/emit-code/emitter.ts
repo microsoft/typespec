@@ -28,7 +28,7 @@ export const PreDefinedEmitterPickItems: Record<string, vscode.QuickPickItem> = 
       "Emitting Client Code from TypeSpec files. Supported languages are .NET, Python, Java, JavaScript.",
   },
   server: {
-    label: "<PREVIEW> Server Stub",
+    label: "Server Stub",
     detail: "Emitting Server Stub from TypeSpec files. Supported languages are .NET, JavaScript.",
   },
 };

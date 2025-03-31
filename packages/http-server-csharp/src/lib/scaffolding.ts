@@ -223,7 +223,10 @@ using TypeSpec.Helpers;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+  options.Filters.Add<HttpServiceExceptionFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 ${useSwagger ? "builder.Services.AddSwaggerGen();" : ""}
 ${hasMocks ? "MockRegistration.Register(builder);" : ""}

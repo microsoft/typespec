@@ -28,6 +28,7 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
           default: { type: "string" },
         },
         required: ["default"],
+        additionalProperties: false,
       },
     },
     parameters: {
@@ -40,6 +41,7 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
           default: { type: "string" },
         },
         required: ["default"],
+        additionalProperties: false,
       },
     },
 
@@ -76,16 +78,6 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
       required: [],
       additionalProperties: emitterOptionsSchema,
     },
-    emitters: {
-      type: "object",
-      nullable: true,
-      deprecated: true,
-      required: [],
-      additionalProperties: {
-        oneOf: [{ type: "boolean" }, emitterOptionsSchema],
-      },
-    },
-
     linter: {
       type: "object",
       nullable: true,

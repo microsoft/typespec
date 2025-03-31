@@ -779,9 +779,8 @@ export class CodeModelBuilder {
   ): SdkClientType<SdkHttpOperation>[] {
     const isRootClient = !client.parent;
     const subClients: SdkClientType<SdkHttpOperation>[] = [];
-    for (const method of client.methods) {
-      if (method.kind === "clientaccessor") {
-        const subClient = method.response;
+    if (client.children) {
+      for (const subClient of client.children) {
         if (!isRootClient) {
           // if it is not root client, append the parent client's name
           subClient.name =
