@@ -55,11 +55,11 @@ import {
   getStatusCodeDescription,
   HttpAuth,
   HttpOperation,
-  HttpOperationBody,
   HttpOperationMultipartBody,
   HttpOperationPart,
   HttpOperationResponse,
   HttpOperationResponseContent,
+  HttpPayloadBody,
   HttpProperty,
   HttpServer,
   HttpServiceAuthentication,
@@ -1098,7 +1098,7 @@ function createOAPIEmitter(
   }
 
   function getBodyContentEntry(
-    body: HttpOperationBody | HttpOperationMultipartBody,
+    body: HttpPayloadBody,
     visibility: Visibility,
     contentType: string,
     examples?: [Example, Type][],
@@ -1116,7 +1116,7 @@ function createOAPIEmitter(
             body.type,
             visibility,
             body.isExplicit && body.containsMetadataAnnotations,
-            contentType.startsWith("multipart/") ? contentType : undefined,
+            undefined,
           ),
           ...oai3Examples,
         };
@@ -1124,6 +1124,10 @@ function createOAPIEmitter(
         return {
           ...getBodyContentForMultipartBody(body, visibility, contentType),
           ...oai3Examples,
+        };
+      case "file":
+        return {
+          schema: getRawBinarySchema(contentType) as any,
         };
     }
   }
@@ -1153,14 +1157,22 @@ function createOAPIEmitter(
     const encodings: Record<string, OpenAPI3Encoding> = {};
     for (const [partIndex, part] of body.parts.entries()) {
       const partName = part.name ?? `part${partIndex}`;
-      let schema = isBytesKeptRaw(program, part.body.type)
-        ? getRawBinarySchema()
-        : getSchemaForSingleBody(
-            part.body.type,
-            visibility,
-            part.body.isExplicit && part.body.containsMetadataAnnotations,
-            part.body.type.kind === "Union" ? contentType : undefined,
-          );
+      let schema =
+        part.body.bodyKind === "file"
+          ? getRawBinarySchema()
+          : isBytesKeptRaw(program, part.body.type)
+            ? getRawBinarySchema()
+            : getSchemaForSingleBody(
+                part.body.type,
+                visibility,
+                part.body.isExplicit && part.body.containsMetadataAnnotations,
+                part.body.type.kind === "Union" &&
+                  [...part.body.type.variants.values()].some((x) =>
+                    isBinaryPayload(x.type, contentType),
+                  )
+                  ? contentType
+                  : undefined,
+              );
 
       if (part.multi) {
         schema = {
@@ -1172,7 +1184,11 @@ function createOAPIEmitter(
       if (part.property) {
         const doc = getDoc(program, part.property);
         if (doc) {
-          schema = { ...schema, description: doc };
+          if (schema.$ref) {
+            schema = { allOf: [{ $ref: schema.$ref }], description: doc };
+          } else {
+            schema = { ...schema, description: doc };
+          }
         }
       }
 
@@ -1317,7 +1333,7 @@ function createOAPIEmitter(
   }
 
   function getRequestBody(
-    bodies: (HttpOperationBody | HttpOperationMultipartBody)[] | undefined,
+    bodies: HttpPayloadBody[] | undefined,
     visibility: Visibility,
     examples: OperationExamples,
   ): OpenAPI3RequestBody | undefined {
@@ -1499,6 +1515,16 @@ function createOAPIEmitter(
         attributes.style = "matrix";
         break;
       case "simple":
+        break;
+      case "path":
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-style",
+            messageId: httpProperty.property.optional ? "optionalPath" : "default",
+            format: { style: httpProperty.options.style, paramType: "path" },
+            target: httpProperty.property,
+          }),
+        );
         break;
       default:
         diagnostics.add(

@@ -21,12 +21,6 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
     private String readProp;
 
     /*
-     * Required int32, illustrating a query property.
-     */
-    @Metadata(generated = true)
-    private final Integer queryProp;
-
-    /*
      * Required string[], illustrating a create property.
      */
     @Metadata(generated = true)
@@ -47,14 +41,12 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
     /**
      * Creates an instance of VisibilityModel class.
      * 
-     * @param queryProp the queryProp value to set.
      * @param createProp the createProp value to set.
      * @param updateProp the updateProp value to set.
      * @param deleteProp the deleteProp value to set.
      */
     @Metadata(generated = true)
-    public VisibilityModel(Integer queryProp, List<String> createProp, List<Integer> updateProp, Boolean deleteProp) {
-        this.queryProp = queryProp;
+    public VisibilityModel(List<String> createProp, List<Integer> updateProp, Boolean deleteProp) {
         this.createProp = createProp;
         this.updateProp = updateProp;
         this.deleteProp = deleteProp;
@@ -68,16 +60,6 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
     @Metadata(generated = true)
     public String getReadProp() {
         return this.readProp;
-    }
-
-    /**
-     * Get the queryProp property: Required int32, illustrating a query property.
-     * 
-     * @return the queryProp value.
-     */
-    @Metadata(generated = true)
-    public Integer getQueryProp() {
-        return this.queryProp;
     }
 
     /**
@@ -117,7 +99,6 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeNumberField("queryProp", this.queryProp);
         jsonWriter.writeArrayField("createProp", this.createProp, (writer, element) -> writer.writeString(element));
         jsonWriter.writeArrayField("updateProp", this.updateProp, (writer, element) -> writer.writeInt(element));
         jsonWriter.writeBooleanField("deleteProp", this.deleteProp);
@@ -137,7 +118,6 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
     public static VisibilityModel fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String readProp = null;
-            Integer queryProp = null;
             List<String> createProp = null;
             List<Integer> updateProp = null;
             Boolean deleteProp = null;
@@ -147,8 +127,6 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
 
                 if ("readProp".equals(fieldName)) {
                     readProp = reader.getString();
-                } else if ("queryProp".equals(fieldName)) {
-                    queryProp = reader.getNullable(JsonReader::getInt);
                 } else if ("createProp".equals(fieldName)) {
                     createProp = reader.readArray(reader1 -> reader1.getString());
                 } else if ("updateProp".equals(fieldName)) {
@@ -159,8 +137,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
                     reader.skipChildren();
                 }
             }
-            VisibilityModel deserializedVisibilityModel
-                = new VisibilityModel(queryProp, createProp, updateProp, deleteProp);
+            VisibilityModel deserializedVisibilityModel = new VisibilityModel(createProp, updateProp, deleteProp);
             deserializedVisibilityModel.readProp = readProp;
 
             return deserializedVisibilityModel;

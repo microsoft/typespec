@@ -2,13 +2,28 @@
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./base-layout.astro";
 import { resolveBlogImagePath } from "../pages/blog/resolve-image";
+import { resolveAuthorAvatar } from "../utils/resolve-author-avatar";
 import { format } from "date-fns/format";
 import { Image } from "astro:assets";
+import BlogAuthor from "../components/BlogAuthor.astro";
 
 type Props = CollectionEntry<"blog">["data"];
-
-const { title, image: relativeImage, publishDate } = Astro.props;
+const { title, image: relativeImage, publishDate, author, authorAvatar, authors } = Astro.props;
 const image = relativeImage && (await resolveBlogImagePath(Astro.params.slug ?? "", relativeImage));
+// Fixed height value for all images
+const fixedHeight = 360;
+
+// Handle both single author and multiple authors
+const authorList =
+  authors ?? (author ? [{ name: author.name, title: author.title, avatar: authorAvatar }] : []);
+
+// Resolve avatars for all authors
+const authorsWithAvatars = await Promise.all(
+  authorList.map(async (author) => ({
+    ...author,
+    avatar: author.avatar ? await resolveAuthorAvatar(author.avatar) : undefined,
+  })),
+);
 ---
 
 <style>
@@ -29,6 +44,9 @@ const image = relativeImage && (await resolveBlogImagePath(Astro.params.slug ?? 
     display: block;
     margin: 0 auto;
     box-shadow: var(--shadow2);
+    /* Force a fixed height for all hero images, letting width auto-adjust */
+    height: 360px;
+    width: auto;
   }
   .prose {
     width: 720px;
@@ -53,7 +71,6 @@ const image = relativeImage && (await resolveBlogImagePath(Astro.params.slug ?? 
   .last-updated-on {
     font-style: italic;
   }
-
   hr {
     display: block;
     margin-top: 2rem;
@@ -64,7 +81,7 @@ const image = relativeImage && (await resolveBlogImagePath(Astro.params.slug ?? 
 <BaseLayout>
   <article class="content">
     <div class="hero-image">
-      {image && <Image src={image} alt="" />}
+      {image && <Image src={image} alt="" height={fixedHeight} />}
     </div>
     <div class="prose">
       <div class="title">
@@ -75,6 +92,21 @@ const image = relativeImage && (await resolveBlogImagePath(Astro.params.slug ?? 
         <hr />
       </div>
       <slot />
+
+      {
+        authorList.length > 0 && (
+          <div
+            class="author-section"
+            style="margin: 2rem 0; padding: 1rem 0; border-top: 1px solid var(--colorNeutralStroke3);"
+          >
+            {authorsWithAvatars.map((author) => (
+              <div style="margin-bottom: 1rem;">
+                <BlogAuthor name={author.name} title={author.title} avatar={author.avatar} />
+              </div>
+            ))}
+          </div>
+        )
+      }
     </div>
   </article>
 </BaseLayout>

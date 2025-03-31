@@ -1,5 +1,7 @@
 # coding=utf-8
-{{ code_model.options['license_header'] }}
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
 
 {{ imports }}
 {% for nu in code_model.named_unions %}
