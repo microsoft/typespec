@@ -1,9 +1,9 @@
 import { Enum, Model, Namespace, Program, Union } from "@typespec/compiler";
 import { unsafe_$, unsafe_Mutator } from "@typespec/compiler/experimental";
+import { HttpOperation } from "@typespec/http";
 import { Client, InternalClient } from "./interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 import { collectDataTypes } from "./utils/type-collector.js";
-import { HttpOperation } from "@typespec/http";
 
 export interface ClientLibrary {
   topLevel: Client[];
@@ -74,13 +74,14 @@ function getEffectiveClient(program: Program, namespace: Namespace): InternalCli
 
 const operationClientMap = new Map<Program, Map<HttpOperation, Client>>();
 
-export function createClientLibrary(program: Program, options: CreateClientLibraryOptions = {}): ClientLibrary {
+export function createClientLibrary(
+  program: Program,
+  options: CreateClientLibraryOptions = {},
+): ClientLibrary {
   const $ = unsafe_$(program);
 
-  if(!operationClientMap.has(program)) {
-    operationClientMap.set(program,
-      new Map<HttpOperation, Client>()
-    );
+  if (!operationClientMap.has(program)) {
+    operationClientMap.set(program, new Map<HttpOperation, Client>());
   }
 
   let topLevel: InternalClient[] = [];
@@ -107,7 +108,9 @@ export function createClientLibrary(program: Program, options: CreateClientLibra
   }
 
   for (const c of topLevel) {
-    const client = visitClient(program, c, dataTypes, { operationMutators: options.operationMutators });
+    const client = visitClient(program, c, dataTypes, {
+      operationMutators: options.operationMutators,
+    });
     topLevelClients.push(client);
   }
 
