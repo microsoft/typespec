@@ -312,8 +312,24 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       if (!isErrorModel(program, model)) return undefined;
       const constructor = this.getExceptionConstructorData(program, model, modelName);
       const isParent = !!model.derivedModels?.length;
-      return `public ${className}(${constructor.properties}) : base(${constructor.statusCode?.value ?? `default`}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
+      return `public ${className}(${constructor.properties}) : base(${constructor.statusCode?.value ?? `400`}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
         { ${constructor.body ? `\n${constructor.body}` : ""}\n\t}${isParent ? `\npublic ${className}(int statusCode, object? value = null, Dictionary<string, string>? headers = default): base(statusCode, value, headers) {}\n` : ""}`;
+    }
+
+    isDuplicateExceptionName(name: string): boolean {
+      const exceptionPropertyNames: string[] = [
+        "value",
+        "headers",
+        "stacktrace",
+        "source",
+        "message",
+        "innerexception",
+        "hresult",
+        "data",
+        "targetsite",
+        "helplink",
+      ];
+      return exceptionPropertyNames.includes(name.toLowerCase());
     }
 
     getExceptionConstructorData(program: Program, model: Model, modelName: string) {
@@ -346,7 +362,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
       for (const { prop, defaultValue } of sortedProperties) {
         let propertyName = ensureCSharpIdentifier(program, prop, prop.name);
-        if (modelName === propertyName) {
+        if (modelName === propertyName || this.isDuplicateExceptionName(propertyName)) {
           propertyName = `${propertyName}Prop`;
         }
 
@@ -487,7 +503,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const doc = getDoc(this.emitter.getProgram(), property);
       const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
       const modelName: string | undefined = this.emitter.getContext()["name"];
-      if (modelName === propertyName) {
+      if (
+        modelName === propertyName ||
+        (this.isDuplicateExceptionName(propertyName) &&
+          property.model &&
+          isErrorModel(this.emitter.getProgram(), property.model))
+      ) {
         propertyName = `${propertyName}Prop`;
         attributes.push(
           getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!,
@@ -1377,16 +1398,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     await emitter.writeOutput();
     const projectDir = normalizeSlashes(path.relative(process.cwd(), resolvePath(outputDir)));
-    const traceId = "http-server-csharp";
+    function trace(message: string) {
+      context.program.trace("http-server-csharp", `hscs-msg: ${message}`);
+    }
 
-    context.program.trace(traceId, `Your project was successfully created at "${projectDir}"`);
-    context.program.trace(
-      traceId,
-      `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
-    );
+    trace(`Your project was successfully created at "${projectDir}"`);
+    trace(`You can build and start the project using 'dotnet run --project "${projectDir}"'`);
     if (options["use-swaggerui"] === true && httpsPort) {
-      context.program.trace(
-        traceId,
+      trace(
         `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
       );
     }
