@@ -76,7 +76,7 @@
     "tsx": "~4.19.1"
   },
   "devDependencies": {
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.13-dev.0",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.13-dev.1",
     "@azure-tools/typespec-autorest": "~0.54.0-dev.5",
     "@azure-tools/typespec-azure-core": "~0.54.0-dev.5",
     "@azure-tools/typespec-azure-resource-manager": "~0.54.0-dev.3",
