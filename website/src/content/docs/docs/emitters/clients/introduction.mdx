@@ -50,24 +50,20 @@ The below option applies to all client emitters.
 
 ### JavaScript Client Emitter Settings
 
-JavaScript generally requires minimal configuration. However, it is recommended to provide `packageDetails` for package metadata, which is used in `package.json` and `README.md` files.
+JavaScript generally requires minimal configuration. However, it is recommended to provide `package-name` for package metadata, which is used in `package.json` and `README.md` files.
 
-#### packageDetails
+#### package-name
 
 Provide the metadata for `package.json`, `README.md` information.
 
 | Property    | Description                                                            |
 | ----------- | ---------------------------------------------------------------------- |
-| name        | Package name used in `package.json`                                    |
-| description | Package description used in `package.json` file                        |
-| version     | Detailed version for your package, the default value is `1.0.0-beta.1` |
+| package-name| Package name used in `package.json`                                    |
 
 Example configuration:
 
 ```yaml
-packageDetails:
-  name: "${your_package_name}"
-  version: 1.0.0
+  package-name: "${your_package_name}"
 ```
 
 ### Java Client Emitter Settings
@@ -114,9 +110,7 @@ emit:
 options:
   "@typespec/http-client-js":
     emitter-output-dir: "{project-root}/clients/javascript"
-    packageDetails:
-      name: "your_package_name"
-      version: 1.0.0
+    package-name: "your_package_name"
 ```
 
 ### Step 3: Generate Client
