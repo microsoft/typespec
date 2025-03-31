@@ -650,7 +650,11 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 break;
 
             case LongRunningSync:
-                generateLongRunningSync(clientMethod, typeBlock, restAPIMethod, settings);
+                if (settings.isSyncStackEnabled()) {
+                    generateLongRunningPlainSync(clientMethod, typeBlock, restAPIMethod, settings);
+                } else {
+                    generateSyncMethod(clientMethod, typeBlock, restAPIMethod, settings);
+                }
                 break;
 
             case LongRunningBeginAsync:
@@ -940,44 +944,22 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .getArgumentList()
                     .replace("requestOptions", "requestOptionsForNextPage");
                 String firstPageArgs = clientMethod.getArgumentList();
-                if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
-                    nextMethodArgs = nextMethodArgs.replace("context", TemplateUtil.getContextNone());
-                    if (!CoreUtils.isNullOrEmpty(firstPageArgs)) {
-                        firstPageArgs = firstPageArgs + ", " + TemplateUtil.getContextNone();
-                    } else {
-                        // If there are no first page arguments don't include a leading comma.
-                        firstPageArgs = TemplateUtil.getContextNone();
-                    }
-                }
-                String effectiveNextMethodArgs = nextMethodArgs;
-                String effectiveFirstPageArgs = firstPageArgs;
                 function.indent(() -> {
-                    function.line("%s,",
-                        this.getPagingSinglePageExpression(clientMethod,
-                            clientMethod.getProxyMethod().getPagingSinglePageMethodName(), effectiveFirstPageArgs,
-                            settings));
+                    function.line("%s,", this.getPagingSinglePageExpression(clientMethod,
+                        clientMethod.getProxyMethod().getPagingSinglePageMethodName(), firstPageArgs, settings));
                     function.line("%s);",
                         this.getPagingNextPageExpression(clientMethod,
                             clientMethod.getMethodPageDetails()
                                 .getNextMethod()
                                 .getProxyMethod()
                                 .getPagingSinglePageMethodName(),
-                            effectiveNextMethodArgs, settings));
+                            nextMethodArgs, settings));
                 });
             });
         } else {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
 
-                String firstPageArgs = clientMethod.getArgumentList();
-                if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
-                    if (!CoreUtils.isNullOrEmpty(firstPageArgs)) {
-                        firstPageArgs = firstPageArgs + ", " + TemplateUtil.getContextNone();
-                    } else {
-                        // If there are no first page arguments don't include a leading comma.
-                        firstPageArgs = TemplateUtil.getContextNone();
-                    }
-                }
-                String effectiveFirstPageArgs = firstPageArgs;
+                String effectiveFirstPageArgs = clientMethod.getArgumentList();
                 addOptionalVariables(function, clientMethod);
                 function.line("return new PagedIterable<>(");
                 function.indent(() -> function.line(this.getPagingSinglePageExpression(clientMethod,
@@ -1545,8 +1527,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param restAPIMethod proxy method
      * @param settings java settings
      */
-    protected void generateLongRunningSync(ClientMethod clientMethod, JavaType typeBlock, ProxyMethod restAPIMethod,
-        JavaSettings settings) {
+    protected void generateLongRunningPlainSync(ClientMethod clientMethod, JavaType typeBlock,
+        ProxyMethod restAPIMethod, JavaSettings settings) {
 
     }
 

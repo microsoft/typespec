@@ -183,6 +183,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void RequestOptionsOptionality(bool inBody)
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters:
+                [
+                    InputFactory.Parameter(
+                        "message",
+                        InputPrimitiveType.Boolean,
+                        isRequired: true,
+                        location: inBody ? InputRequestLocation.Body : InputRequestLocation.Query)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputOperation, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "TestOperation");
+            Assert.IsNotNull(protocolMethod);
+
+            var optionsParameter = protocolMethod!.Signature.Parameters.Single(p => p.Name == "options");
+            if (inBody)
+            {
+                // When the parameter is in the body, the signatures of the protocol and convenience methods
+                // will differ due to the presence of the BinaryContent parameter, which means the options parameter
+                // can remain optional.
+                Assert.IsNotNull(optionsParameter.DefaultValue);
+            }
+            else
+            {
+                Assert.IsNull(optionsParameter.DefaultValue);
+            }
+        }
+
         public static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases
         {
             get
