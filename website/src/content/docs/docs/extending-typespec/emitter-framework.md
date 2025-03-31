@@ -15,7 +15,7 @@ The emitter framework is still experimental and is under active development. Onl
 
 The emitter framework has four separate but related areas:
 
-1. **alloy**: a framework for code generation that provides a React-like functional component model, manages symbols and references, renders and formats source text, and does other things useful regardless of what language you're emitting. [Alloy](https://alloy-project.github.io/alloy) is not part of TypeSpec, and we are developing it to be useful even if you aren't writing a TypeSpec emitter. [Read the documentation for the Alloy framework](https://alloy-framework.github.io/alloy/guides/getting-started/).
+1. **alloy**: a framework for code generation that provides a React-like functional component model, manages symbols and references, renders and formats source text, and does other things useful regardless of what language you're emitting. [Alloy](https://alloy-framework.github.io/alloy) is not part of TypeSpec, and we are developing it to be useful even if you aren't writing a TypeSpec emitter. [Read the documentation for the Alloy framework](https://alloy-framework.github.io/alloy/guides/getting-started/).
 2. **alloy language components**: Libraries of components for various languages. For example, allows for declaring a variable in TypeScript, and then creating a reference to that variable such that any necessary imports and package.json dependencies are added. [Read the documentation for these components](https://alloy-framework.github.io/alloy/guides/getting-started/).
 3. **typekits**: A convenient way to pull information from the TypeSpec type graph.
 4. **emitter framework**: builds off of alloy and its language components to provide TypeSpec-aware components and utilities. For example, while the alloy language component for TypeScript interfaces allows manually declaring members, the emitter framework component can take a TypeSpec data type and convert it directly into a TypeScript interface.
@@ -33,7 +33,7 @@ Also, make sure to read the 'Getting Started' section under the [emitter basics]
 There are a few dependencies needed to use the emitter framework:
 
 ```sh
-install > npm --save-peer @alloy-js/core @alloy-js/typescript @typespec/emitter-framework
+> npm install --save-peer @alloy-js/core @alloy-js/typescript @typespec/emitter-framework
 ```
 
 This is in addition to the dependencies installed from the emitter template as described in [emitter basics](./emitters-basics.md).
