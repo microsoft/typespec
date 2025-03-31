@@ -1,0 +1,51 @@
+{
+  "title": "Returns the status for all documents in a batch document translation request",
+  "operationId": "DocumentTranslationOperations_GetDocumentsStatus",
+  "parameters": {
+    "api-version": "2024-11-01-preview",
+    "subscriptionId": "EA19050C-51FC-4B55-84E5-9EA7283601DA",
+    "resourceGroupName": "TestResourceGroup",
+    "endpoint": "{endpoint}",
+    "Ocp-Apim-Subscription-Key": "{API key}",
+    "id": "727BF148-F327-47A0-9481-ABAE6362F11E",
+    "top": 2,
+    "skip": 0,
+    "maxpagesize": 1,
+    "orderBy": "CreatedDateTimeUtc asc",
+    "createdDateTimeUtcStart": "2021-03-23T07:03:38.0136316Z",
+    "createdDateTimeUtcEnd": "2021-03-25T07:03:38.0136316Z",
+    "statuses": [
+      "Succeeded"
+    ],
+    "ids": [
+      "273622bd-835c-4946-9798-fd8f19f6bbf2",
+      "511b6a66-a6f8-4640-83e1-48c325e9fa29"
+    ]
+  },
+  "responses": {
+    "200": {
+      "headers": {
+        "retry-after": "30",
+        "ETag": "686897696a7c876b7e"
+      },
+      "body": {
+        "value": [
+          {
+            "path": "https://myblob.blob.core.windows.net/destinationContainer/fr/mydoc.txt",
+            "sourcePath": "https://myblob.blob.core.windows.net/sourceContainer/fr/mydoc.txt",
+            "createdDateTimeUtc": "2021-03-23T07:03:39.013631Z",
+            "lastActionDateTimeUtc": "2021-03-23T07:03:41.012452Z",
+            "status": "Running",
+            "to": "fr",
+            "progress": 0.1,
+            "id": "273622bd-835c-4946-9798-fd8f19f6bbf2",
+            "characterCharged": 0,
+            "totalImageScansSucceeded": 6,
+            "totalImageScansFailed": 1
+          }
+        ],
+        "nextLink": "https://westus.cognitiveservices.azure.com/translator/text/batch/v1.0/operation/0FA2822F-4C2A-4317-9C20-658C801E0E55/documents?top=1&skip=1&maxpagesize=1&orderBy=CreatedDateTimeUtc%20asc&createdDateTimeUtcStart=2021-03-23T00:03:38.0136316Z&createdDateTimeUtcEnd=2021-03-25T00:03:38.0136316&statuses=Succeeded&ids=273622BD-835C-4946-9798-FD8F19F6BBF2,511B6A66-A6F8-4640-83E1-48C325E9FA29"
+      }
+    }
+  }
+}

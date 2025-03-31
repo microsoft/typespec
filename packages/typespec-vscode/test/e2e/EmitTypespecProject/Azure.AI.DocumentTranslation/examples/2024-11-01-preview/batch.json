@@ -1,0 +1,55 @@
+{
+  "title": "Submit a document translation request to the Document Translation service",
+  "operationId": "DocumentTranslationOperations_StartTranslation",
+  "parameters": {
+    "api-version": "2024-11-01-preview",
+    "subscriptionId": "EA19050C-51FC-4B55-84E5-9EA7283601DA",
+    "resourceGroupName": "TestResourceGroup",
+    "endpoint": "{endpoint}",
+    "Ocp-Apim-Subscription-Key": "{API key}",
+    "body": {
+      "inputs": [
+        {
+          "source": {
+            "sourceUrl": "https://myblob.blob.core.windows.net/sourceContainer",
+            "filter": {
+              "prefix": "pre",
+              "suffix": ".txt"
+            },
+            "language": "en",
+            "storageSource": "AzureBlob"
+          },
+          "targets": [
+            {
+              "targetUrl": "https://myblob.blob.core.windows.net/destinationContainer1",
+              "category": "general",
+              "language": "fr",
+              "glossaries": [
+                {
+                  "glossaryUrl": "https://myblob.blob.core.windows.net/myglossary/en_fr_glossary.xlf",
+                  "storageSource": "AzureBlob",
+                  "format": "XLIFF"
+                }
+              ],
+              "storageSource": "AzureBlob"
+            },
+            {
+              "targetUrl": "https://myblob.blob.core.windows.net/destinationContainer2",
+              "category": "general",
+              "language": "es",
+              "storageSource": "AzureBlob"
+            }
+          ],
+          "storageType": "Folder"
+        }
+      ]
+    }
+  },
+  "responses": {
+    "202": {
+      "headers": {
+        "Operation-Location": "https://westus.cognitiveservices.azure.com/translator/document/batches?api-version=2024-05-01/operation/0FA2822F-4C2A-4317-9C20-658C801E0E55"
+      }
+    }
+  }
+}

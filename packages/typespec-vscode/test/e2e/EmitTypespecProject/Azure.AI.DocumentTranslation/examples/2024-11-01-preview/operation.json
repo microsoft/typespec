@@ -1,0 +1,37 @@
+{
+  "title": "Returns the status for a batch document translation request",
+  "operationId": "DocumentTranslationOperations_GetTranslationStatus",
+  "parameters": {
+    "api-version": "2024-11-01-preview",
+    "subscriptionId": "EA19050C-51FC-4B55-84E5-9EA7283601DA",
+    "resourceGroupName": "TestResourceGroup",
+    "endpoint": "{endpoint}",
+    "Ocp-Apim-Subscription-Key": "{API key}",
+    "id": "727BF148-F327-47A0-9481-ABAE6362F11E"
+  },
+  "responses": {
+    "200": {
+      "headers": {
+        "retry-after": "30",
+        "ETag": "686897696a7c876b7e"
+      },
+      "body": {
+        "id": "727bf148-f327-47a0-9481-abae6362f11e",
+        "createdDateTimeUtc": "2020-03-26T00:00:00Z",
+        "lastActionDateTimeUtc": "2020-03-26T01:00:00Z",
+        "status": "Succeeded",
+        "summary": {
+          "total": 10,
+          "failed": 1,
+          "success": 9,
+          "inProgress": 0,
+          "notYetStarted": 0,
+          "cancelled": 0,
+          "totalCharacterCharged": 0,
+          "totalImageScansSucceeded": 6,
+          "totalImageScansFailed": 1
+        }
+      }
+    }
+  }
+}
