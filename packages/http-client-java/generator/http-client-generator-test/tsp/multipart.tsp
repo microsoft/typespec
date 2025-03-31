@@ -19,12 +19,12 @@ model Size {
 }
 
 model FormData {
-  name: string;
-  resolution: int32;
-  type: ImageType;
-  size: Size;
-  image: bytes;
-  fileData?: bytes[];
+  name: HttpPart<string>;
+  resolution: HttpPart<int32>;
+  type: HttpPart<ImageType>;
+  size: HttpPart<Size>;
+  image: HttpPart<bytes>;
+  fileData?: HttpPart<bytes>[];
 }
 
 @route("/upload/images/{name}")
@@ -33,7 +33,7 @@ op upload(
   @path name: string,
   @query compress?: boolean,
   @header contentType: "multipart/form-data",
-  @body data: FormData,
+  @multipartBody data: FormData,
 ): OkResponse;
 
 model Inherit1File extends File {

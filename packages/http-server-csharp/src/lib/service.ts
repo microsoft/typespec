@@ -46,8 +46,10 @@ import { createRekeyableMap } from "@typespec/compiler/utils";
 import {
   HttpOperation,
   HttpOperationResponse,
+  getHeaderFieldName,
   getHttpOperation,
   getHttpPart,
+  isHeader,
   isStatusCode,
 } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
@@ -82,6 +84,7 @@ import {
   CSharpOperationHelpers,
   EmittedTypeInfo,
   HttpMetadata,
+  ModelInfo,
   UnknownType,
   coalesceTypes,
   coalesceUnionTypes,
@@ -102,6 +105,7 @@ import {
   getModelInstantiationName,
   getOpenApiConfig,
   getOperationVerbDecorator,
+  getStatusCode,
   isEmptyResponseModel,
   isValueType,
 } from "./utils.js";
@@ -268,28 +272,121 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         parts.forEach((p) => this.emitter.emitType(p));
         return "";
       }
-      const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
+      const isErrorType = isErrorModel(this.emitter.getProgram(), model);
+      const baseModelRef = model.baseModel
+        ? code`: ${this.emitter.emitTypeReference(model.baseModel)}`
+        : "";
+      const baseClass = baseModelRef || (isErrorType ? ": HttpServiceException" : "");
+
       const namespace = this.emitter.getContext().namespace;
+      const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const doc = getDoc(this.emitter.getProgram(), model);
       const attributes = getModelAttributes(this.emitter.getProgram(), model, className);
+      const exceptionConstructor = isErrorType
+        ? this.getModelExceptionConstructor(this.emitter.getProgram(), model, name, className)
+        : "";
+
       this.#metadateMap.set(model, new CSharpType({ name: className, namespace: namespace }));
       const decl = this.emitter.result.declaration(
         className,
         code`${this.#generatedFileHeader}
 
       ${this.#emitUsings()}
-      
       namespace ${namespace} {
 
-      ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public partial class ${className} ${
-        model.baseModel ? code`: ${this.emitter.emitTypeReference(model.baseModel)}` : ""
-      } {
-      ${this.emitter.emitModelProperties(model)}
+      ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public partial class ${className} ${baseClass} {
+      ${exceptionConstructor ? `${exceptionConstructor}\n` : ""}${this.emitter.emitModelProperties(model)}
     }
    } `,
       );
 
       return decl;
+    }
+
+    getModelExceptionConstructor(
+      program: Program,
+      model: Model,
+      modelName: string,
+      className: string,
+    ): string | undefined {
+      if (!isErrorModel(program, model)) return undefined;
+      const constructor = this.getExceptionConstructorData(program, model, modelName);
+      const isParent = !!model.derivedModels?.length;
+      return `public ${className}(${constructor.properties}) : base(${constructor.statusCode?.value ?? `400`}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
+        { ${constructor.body ? `\n${constructor.body}` : ""}\n\t}${isParent ? `\npublic ${className}(int statusCode, object? value = null, Dictionary<string, string>? headers = default): base(statusCode, value, headers) {}\n` : ""}`;
+    }
+
+    isDuplicateExceptionName(name: string): boolean {
+      const exceptionPropertyNames: string[] = [
+        "value",
+        "headers",
+        "stacktrace",
+        "source",
+        "message",
+        "innerexception",
+        "hresult",
+        "data",
+        "targetsite",
+        "helplink",
+      ];
+      return exceptionPropertyNames.includes(name.toLowerCase());
+    }
+
+    getExceptionConstructorData(program: Program, model: Model, modelName: string) {
+      const allProperties = new ModelInfo().getAllProperties(program, model) ?? [];
+      const propertiesWithDefaults = allProperties.map((prop) => {
+        const { defaultValue: typeDefault } = this.#findPropertyType(prop);
+        const defaultValue = prop.defaultValue
+          ? code`${JSON.stringify(serializeValueAsJson(program, prop.defaultValue, prop))}`
+          : typeDefault;
+        return { prop, defaultValue };
+      });
+
+      const sortedProperties = propertiesWithDefaults
+        .filter(({ prop }) => !isStatusCode(program, prop))
+        .sort(({ prop: a, defaultValue: aDefault }, { prop: b, defaultValue: bDefault }) => {
+          if (!a.optional && !aDefault && (b.optional || bDefault)) return -1;
+          if (!b.optional && !bDefault && (a.optional || aDefault)) return 1;
+          return 0;
+        });
+
+      const properties: string[] = [];
+      const body: string[] = [];
+      const header: string[] = [];
+      const value: string[] = [];
+
+      const statusCode = getStatusCode(program, model);
+      if (statusCode?.requiresConstructorArgument) {
+        properties.push(`int ${statusCode.value}`);
+      }
+
+      for (const { prop, defaultValue } of sortedProperties) {
+        let propertyName = ensureCSharpIdentifier(program, prop, prop.name);
+        if (modelName === propertyName || this.isDuplicateExceptionName(propertyName)) {
+          propertyName = `${propertyName}Prop`;
+        }
+
+        const type = getCSharpType(program, prop.type);
+        properties.push(
+          `${type?.type.name} ${prop.name}${defaultValue ? ` = ${defaultValue}` : `${prop.optional ? " = default" : ""}`}`,
+        );
+        body.push(`\t\t${propertyName} = ${prop.name};`);
+
+        if (isHeader(program, prop)) {
+          const headerName = getHeaderFieldName(program, prop);
+          header.push(`{"${headerName}", ${prop.name}}`);
+        } else {
+          value.push(`${prop.name} = ${prop.name}`);
+        }
+      }
+
+      return {
+        properties: properties.join(", "),
+        body: body.join("\n"),
+        header: header.join(", "),
+        value: value.join(","),
+        statusCode: statusCode,
+      };
     }
 
     modelDeclarationContext(model: Model, name: string): Context {
@@ -406,7 +503,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const doc = getDoc(this.emitter.getProgram(), property);
       const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
       const modelName: string | undefined = this.emitter.getContext()["name"];
-      if (modelName === propertyName) {
+      if (
+        modelName === propertyName ||
+        (this.isDuplicateExceptionName(propertyName) &&
+          property.model &&
+          isErrorModel(this.emitter.getProgram(), property.model))
+      ) {
         propertyName = `${propertyName}Prop`;
         attributes.push(
           getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!,
@@ -897,6 +999,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       context.file.imports.set("TypeSpec.Helpers.JsonConverters", [
         "TypeSpec.Helpers.JsonConverters",
       ]);
+      context.file.imports.set("TypeSpec.Helpers", ["TypeSpec.Helpers"]);
       return context;
     }
 
@@ -1295,16 +1398,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     await emitter.writeOutput();
     const projectDir = normalizeSlashes(path.relative(process.cwd(), resolvePath(outputDir)));
-    const traceId = "http-server-csharp";
+    function trace(message: string) {
+      context.program.trace("http-server-csharp", `hscs-msg: ${message}`);
+    }
 
-    context.program.trace(traceId, `Your project was successfully created at "${projectDir}"`);
-    context.program.trace(
-      traceId,
-      `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
-    );
+    trace(`Your project was successfully created at "${projectDir}"`);
+    trace(`You can build and start the project using 'dotnet run --project "${projectDir}"'`);
     if (options["use-swaggerui"] === true && httpsPort) {
-      context.program.trace(
-        traceId,
+      trace(
         `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
       );
     }

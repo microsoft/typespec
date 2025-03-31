@@ -142,28 +142,28 @@ function mergeOptions(
   overrides: Record<string, Record<string, unknown>> | undefined,
 ): Record<string, EmitterOptions> {
   const configuredEmitters: Record<string, Record<string, unknown>> = deepClone(base ?? {});
-  function deepMerge(emitter: any, options: any, name: string): any {
-    if (typeof emitter !== "object") {
-      return emitter;
-    }
-    for (const key of Object.keys(emitter)) {
-      if (hasNestedObjects(emitter[key])) {
-        emitter[key] = deepMerge(emitter[key], options, `${name}.${key}`);
-      } else if (typeof options[name] === "object") {
-        emitter[key] = options[name][key] ?? emitter[key];
+  function isObject(item: unknown): item is Record<string, unknown> {
+    return item && typeof item === "object" && (!Array.isArray(item) as any);
+  }
+  function deepMerge(target: any, source: any): any {
+    if (isObject(target) && isObject(source)) {
+      for (const key in source) {
+        if (isObject(source[key])) {
+          if (!target[key]) Object.assign(target, { [key]: {} });
+          deepMerge(target[key], source[key]);
+        } else {
+          Object.assign(target, { [key]: source[key] });
+        }
       }
     }
-    return emitter;
+
+    return target;
   }
 
   for (const [emitterName, cliOptionOverride] of Object.entries(overrides ?? {})) {
     configuredEmitters[emitterName] = deepMerge(
-      {
-        ...(configuredEmitters[emitterName] ?? {}),
-        ...cliOptionOverride,
-      },
-      overrides,
-      emitterName,
+      configuredEmitters[emitterName] ?? {},
+      cliOptionOverride,
     );
   }
 

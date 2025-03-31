@@ -86,7 +86,6 @@ export interface TypeSpecRawConfig {
 
   emit?: string[];
   options?: Record<string, EmitterOptions>;
-  emitters?: Record<string, boolean | EmitterOptions>;
 
   linter?: LinterConfig;
 }
