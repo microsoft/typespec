@@ -5,7 +5,6 @@ packages:
   - "@typespec/emitter-framework"
   - "@typespec/http-client-js"
   - "@typespec/http-client"
-  - "@typespec/http"
 ---
 
 Support basic streams for js client gen
