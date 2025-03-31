@@ -6,6 +6,7 @@
 2. [System ClientModel Updates](#system-clientmodel-updates)
 3. [MultiPartFormDataBinaryContent Internal Helper](#multiPartFormDataBinaryContent-internal-helper-type)
 4. [Usage Examples](#usage-examples)
+5. [Considerations for Advanced Scenarios](#considerations-for-advanced-scenarios)
 
 ## Motivation
 
@@ -1162,3 +1163,34 @@ ClientResult response = await client.UploadCatAsync(petDetails, contentType);
 ```
 
 </details>
+
+## Considerations for Advanced Scenarios
+
+The introduction of the file part type described in [_File Part Type_](#file-part-type) has some limitations when used in more advanced scenarios
+that should be considered.
+
+Consider the following scenario:
+
+```tsp
+// filename and contentType are required
+model FileRequiredMetaData extends File {
+  filename: string;
+  contentType: string;
+}
+
+model Snake {
+  name: HttpPart<string>;
+  pictures: HttpPart<FileRequiredMetaData>[];
+}
+
+@post
+@route("/snakes")
+op uploadSnake(
+  @header contentType: "multipart/form-data",
+  @multipartBody body: Snake,
+): NoContentResponse;
+```
+
+The `pictures` property is a list of file parts where each file has required metadata (filename + content type are required). Since the [`FileBinaryContent`](#file-part-type), by default, has these metadata properties as _optional_, the generated model for `Snake` would need a way to describe the metadata as being required for reach file in `pictures`. Otherwise, the following effect of not doing so should be considered:
+
+- If the constructor overloads for `Snake` accept a list of streams, file paths, or BinaryData then consumers of the `uploadSnake` operation would not be made aware of this metadata requirement for the `pictures` property until the `uploadSnake` operation returns a service failure.
