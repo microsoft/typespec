@@ -325,8 +325,8 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
-    "Sample-Client": {
-      "commandLineArgs": "$(SolutionDir)/../../../docs/samples/client/csharp/SampleClient/main.tsp -g ScmCodeModelGenerator",
+    "Sample-Service": {
+      "commandLineArgs": "$(SolutionDir)/../../../docs/samples/client/csharp/SampleService/main.tsp -g ScmCodeModelGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
