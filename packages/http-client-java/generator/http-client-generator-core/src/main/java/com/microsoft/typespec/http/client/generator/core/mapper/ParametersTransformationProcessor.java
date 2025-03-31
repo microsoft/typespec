@@ -77,26 +77,43 @@ public final class ParametersTransformationProcessor {
             final ClientMethodParameter inParameter;
             final ClientModelProperty inParameterProperty;
             // Consider the following example spec:
-            /*
-             * parameters:
-             * - name: pageNumber
-             * in: query
-             * schema:
-             * type: integer
-             * groupBy: pagination
-             * - name: pageSize
-             * in: query
-             * schema:
-             * type: integer
-             * groupBy: pagination
-             */
-            // The service query parameters 'pageNumber' and 'pageSize' are grouped by 'pagination'.
-            // The SDK Method takes an object argument with model type 'Pagination', composing two properties.
             //
-            // public PagedIterable<User> list(Pagination p) { ... }
+            // import "@azure-tools/typespec-azure-core";
+            // import "@azure-tools/typespec-client-generator-core";
+            // import "@typespec/http";
+            // import "@typespec/rest";
+            // import "@typespec/versioning";
             //
-            // The 'parameter' here is one of the parameters (e.g., 'pageNumber') belongs to such a group and
-            // 'parameter.getGroupedBy()' provide access to the group (e.g., 'Pagination') it belongs to.
+            // using Azure.ClientGenerator.Core;
+            // using TypeSpec.Http;
+            // using TypeSpec.Versioning;
+            //
+            // @service(#{ title: "Contoso" })
+            // @versioned(Versions)
+            // namespace Contoso {
+            // enum Versions { v1: "v1" }
+            // model UserOptions { @query userid?: string; @query zipcode?: string; }
+            // model User { name: string; phone: string; }
+            //
+            // @get
+            // @route("/get-user")
+            // op getUser(...UserOptions): User;
+            // }
+            //
+            // // customization in client.tsp
+            // @useDependency(Contoso.Versions.v1)
+            // namespace Customization {
+            // op getUserCustomization(options?: Contoso.UserOptions): Contoso.User;
+            // @@override(Contoso.getUser, Customization.getUserCustomization);
+            // }
+            //
+            // The service query parameters 'userid' and 'zipcode' are grouped by 'UserOptions'.
+            // The SDK Method takes an object argument with model type 'UserOptions', composing two properties.
+            //
+            // public User getUser(UserOptions options) { ... }
+            //
+            // The 'parameter' here is one of the parameters (e.g., 'userid') belongs to such a group and
+            // 'parameter.getGroupedBy()' provide access to the group (e.g., 'UserOptions') it belongs to.
             //
             // i.e., This method inspect and process "INPUT" (group-by) model that SDK Method takes.
             //
