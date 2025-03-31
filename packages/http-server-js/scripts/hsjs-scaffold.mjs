@@ -1,4 +1,4 @@
-import { main } from "../dist/src/scripts/bin.mjs";
+import { main } from "../dist/src/scripts/scaffold/bin.mjs";
 
 main().catch(function onScaffoldError(error) {
   console.error(error);
