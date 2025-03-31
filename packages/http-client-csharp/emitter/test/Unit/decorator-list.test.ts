@@ -2,6 +2,7 @@ vi.resetModules();
 
 import { TestHost } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
+import { ok } from "assert/strict";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
@@ -35,8 +36,11 @@ describe("Test emitting decorator list", () => {
     });
     const root = createModel(sdkContext);
     const clients = root.clients;
-    strictEqual(clients.length, 2);
-    deepStrictEqual(clients[1].decorators, [
+    strictEqual(clients.length, 1);
+    ok(clients[0].children);
+    strictEqual(clients[0].children.length, 1);
+    const childClient = clients[0].children[0];
+    deepStrictEqual(childClient.decorators, [
       {
         name: "Azure.ClientGenerator.Core.@clientName",
         arguments: {

@@ -277,6 +277,9 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
     namespace: getRootNamespace(sdkContext),
     clients: [],
   };
+  if (sdkPackage.licenseInfo) {
+    codeModel["licenseInfo"] = sdkPackage.licenseInfo;
+  }
   for (const client of sdkPackage.clients) {
     codeModel["clients"].push(emitClient(sdkContext, client));
   }

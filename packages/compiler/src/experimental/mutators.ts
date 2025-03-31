@@ -701,6 +701,7 @@ function createMutatorEngine(
       for (const arg of dec.args) {
         const jsValue =
           typeof arg.jsValue === "object" &&
+          arg.jsValue !== null &&
           isType(arg.jsValue as any) &&
           isMutableTypeWithNamespace(arg.jsValue as any)
             ? mutateSubgraphWorker(arg.jsValue as any, newMutators)

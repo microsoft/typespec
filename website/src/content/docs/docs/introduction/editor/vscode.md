@@ -1,4 +1,5 @@
 ---
+website-refresh-for-vsc-extension
 title: TypeSpec Extension for Visual Studio Code
 ---
 
@@ -59,7 +60,7 @@ You can uninstall the extension via the Visual Studio Code extension manager or 
 ```bash
 tsp code uninstall
 
-# For VSCode insiders
+# For VS Code insiders
 tsp code uninstall --insiders
 ```
 

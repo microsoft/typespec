@@ -1,5 +1,5 @@
 ---
-title: TypeSpec for OpenAPI Developer
+title: TypeSpec for OpenAPI Developers
 ---
 
 This guide introduces TypeSpec using concepts familiar to developers who build or use API definitions in OpenAPI v2 or v3.
