@@ -41,7 +41,6 @@ export async function read(
     headers: {},
   };
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
-
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }

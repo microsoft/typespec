@@ -44,7 +44,6 @@ export async function create(
     },
   };
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
-
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }

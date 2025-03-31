@@ -32,7 +32,6 @@ export async function create(
     body: jsonWidgetToTransportTransform(widget),
   };
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
-
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }

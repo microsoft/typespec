@@ -46,7 +46,6 @@ export function HttpRequestSend(props: HttpRequestSendProps) {
   const httpOperation = props.httpOperation;
   const operationUrlRefkey = refkey();
   const requestOptionsRefkey = refkey();
-  const httpResponseRefkey = props.responseRefkey ?? refkey();
   const verb = props.httpOperation.verb;
   const namePolicy = ts.useTSNamePolicy();
   const functionName = namePolicy.getName(httpOperation.operation.name + "Send", "function");

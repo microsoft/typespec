@@ -31,7 +31,6 @@ export async function get(
     headers: {},
   };
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
-
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
@@ -80,7 +79,6 @@ export async function put(
     },
   };
   const response = await client.pathUnchecked(path).put(httpRequestOptions);
-
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
@@ -111,7 +109,6 @@ export async function post(
     },
   };
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
-
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }

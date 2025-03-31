@@ -26,7 +26,6 @@ export async function read(client: WidgetsClientContext, options?: ReadOptions):
     headers: {},
   };
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
-
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
@@ -88,7 +87,6 @@ export async function read(
     },
   };
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
-
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
@@ -132,7 +130,6 @@ export async function read(
     body: count,
   };
   const response = await client.pathUnchecked(path).get(httpRequestOptions);
-
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }

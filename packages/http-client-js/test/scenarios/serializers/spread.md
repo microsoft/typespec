@@ -57,7 +57,6 @@ export async function spreadWithMultipleParameters(
     },
   };
   const response = await client.pathUnchecked(path).put(httpRequestOptions);
-
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
