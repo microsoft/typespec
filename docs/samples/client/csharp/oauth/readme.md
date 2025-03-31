@@ -23,6 +23,7 @@ public partial class UnbrandedTypeSpecClient
 {
   public UnbrandedTypeSpecClient(Uri uri, AuthenticationTokenProvider credential)
   {
+      _endpoint = uri;
       var options = new ClientPipelineOptions();
       Pipeline = ClientPipeline.Create(
           options,

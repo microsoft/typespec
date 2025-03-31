@@ -29,6 +29,7 @@ namespace UnbrandedTypeSpec
         /// <param name="authTokenProvider">The authentication token provider.</param>
         public UnbrandedTypeSpecClient(Uri uri, AuthenticationTokenProvider authTokenProvider)
         {
+            _endpoint = uri;
             var options = new ClientPipelineOptions();
             Pipeline = ClientPipeline.Create(options,
             perCallPolicies: ReadOnlySpan<PipelinePolicy>.Empty,
