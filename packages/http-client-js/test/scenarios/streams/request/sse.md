@@ -1,15 +1,34 @@
-# only: Should support generate as bytes for jsonl streams
+# only: Should generate as bytes for sse
 
 ## TypeSpec
 
 This TypeSpec block defines a simple model, Foo, containing two properties: name (a string) and age (an integer). The foo operation returns an instance of Foo, ensuring that the generated TypeScript code includes the correct type definitions and transformation functions.
 
 ```tsp
-@route("/")
-op get(stream: HttpStream<Thing, "application/jsonl", string>): void;
-model Thing {
-  id: string;
+model UserConnect {
+  username: string;
+  time: string;
 }
+model UserMessage {
+  username: string;
+  time: string;
+  text: string;
+}
+model UserDisconnect {
+  username: string;
+  time: string;
+}
+@Events.events
+union ChannelEvents {
+  userconnect: UserConnect,
+  usermessage: UserMessage,
+  userdisconnect: UserDisconnect,
+
+  @Events.contentType("text/plain")
+  @terminalEvent
+  "[unsubscribe]",
+}
+op subscribeToChannel(stream: SSEStream<ChannelEvents>): void;
 ```
 
 ## TypeScript
@@ -18,11 +37,11 @@ model Thing {
 
 The test expects a TypeScript operation that treats the model Thing as bytes.
 
-```ts src/api/clientOperations.ts function get
-export async function get(
+```ts src/api/clientOperations.ts function subscribeToChannel
+export async function subscribeToChannel(
   client: ClientContext,
   stream: Uint8Array,
-  options?: GetOptions,
+  options?: SubscribeToChannelOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
   const httpRequestOptions = {

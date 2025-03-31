@@ -452,12 +452,18 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
+      '@typespec/events':
+        specifier: workspace:~
+        version: link:../events
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
       '@typespec/rest':
         specifier: workspace:^
         version: link:../rest
+      '@typespec/sse':
+        specifier: workspace:~
+        version: link:../sse
       '@typespec/streams':
         specifier: workspace:^
         version: link:../streams
@@ -712,9 +718,15 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
+      '@typespec/events':
+        specifier: workspace:~
+        version: link:../events
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
+      '@typespec/sse':
+        specifier: workspace:~
+        version: link:../sse
       '@typespec/streams':
         specifier: workspace:^
         version: link:../streams
@@ -751,9 +763,6 @@ importers:
       '@typespec/rest':
         specifier: workspace:^
         version: link:../rest
-      '@typespec/streams':
-        specifier: workspace:^
-        version: link:../streams
       prettier:
         specifier: ~3.5.3
         version: 3.5.3
@@ -773,6 +782,9 @@ importers:
       '@types/yargs':
         specifier: ~17.0.33
         version: 17.0.33
+      '@typespec/events':
+        specifier: workspace:~
+        version: link:../events
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
@@ -782,6 +794,12 @@ importers:
       '@typespec/spector':
         specifier: workspace:^
         version: link:../spector
+      '@typespec/sse':
+        specifier: workspace:~
+        version: link:../sse
+      '@typespec/streams':
+        specifier: workspace:^
+        version: link:../streams
       '@typespec/ts-http-runtime':
         specifier: 0.1.0
         version: 0.1.0

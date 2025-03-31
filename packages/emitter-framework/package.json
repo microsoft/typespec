@@ -52,6 +52,8 @@
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^",
     "@typespec/streams": "workspace:^",
+    "@typespec/sse": "workspace:~",
+    "@typespec/events": "workspace:~",
     "concurrently": "^9.1.2",
     "minimist": "^1.2.8",
     "prettier": "~3.5.3",

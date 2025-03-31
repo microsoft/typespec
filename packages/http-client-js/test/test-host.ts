@@ -25,8 +25,17 @@ export async function createHttpClientJavascriptEmitterTestRunner() {
       "@typespec/rest",
       "@typespec/http/streams",
       "@typespec/streams",
+      "@typespec/sse",
+      "@typespec/events",
     ],
-    autoUsings: ["TypeSpec.Http", "TypeSpec.Rest", "TypeSpec.Http.Streams", "TypeSpec.Streams"],
+    autoUsings: [
+      "TypeSpec.Http",
+      "TypeSpec.Rest",
+      "TypeSpec.Http.Streams",
+      "TypeSpec.Streams",
+      "TypeSpec.SSE",
+      "TypeSpec.Events",
+    ],
     compilerOptions: {
       noEmit: false,
       emit: ["@typespec/http-client-js"],
