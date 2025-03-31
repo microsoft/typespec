@@ -1,7 +1,6 @@
-import { ignoreDiagnostics, Model, ModelProperty } from "@typespec/compiler";
+import { Model, ModelProperty } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { HttpOperation } from "../../../types.js";
-import { getStreamMetadata } from "../../streams.js";
 
 export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType" | "body";
 
@@ -68,19 +67,6 @@ defineKit<TypekitExtension>({
       }
 
       const bodyPropertyName = bodyProperty.name ? bodyProperty.name : "body";
-      const streamMetadata = getStreamMetadata(this.program, httpOperation.parameters);
-      const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
-      if (streamMetadata && bytes) {
-        this.model.create({
-          properties: {
-            [bodyPropertyName]: this.modelProperty.create({
-              name: httpOperation.parameters.body?.property?.name!,
-              type: bytes,
-              optional: httpOperation.parameters.body?.property?.optional,
-            }),
-          },
-        });
-      }
 
       return this.model.create({
         properties: { [bodyPropertyName]: bodyProperty },
@@ -92,30 +78,17 @@ defineKit<TypekitExtension>({
     ): Model | undefined {
       const kinds = new Set(Array.isArray(kind) ? kind : [kind]);
       const parameterProperties = new Map<string, ModelProperty>();
-      const streamMetadata = getStreamMetadata(this.program, httpOperation.parameters);
-      const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
-      if (streamMetadata && bytes) {
-        parameterProperties.set(
-          httpOperation.parameters.body?.property?.name!,
-          this.modelProperty.create({
-            name: httpOperation.parameters.body?.property?.name!,
-            type: bytes,
-            optional: httpOperation.parameters.body?.property?.optional,
-          }),
-        );
-      } else {
-        kinds.forEach((kind) => {
-          if (kind === "body") {
-            this.httpRequest
-              .getBodyParameters(httpOperation)
-              ?.properties.forEach((value, key) => parameterProperties.set(key, value));
-          } else {
-            httpOperation.parameters.properties
-              .filter((p) => p.kind === kind && p.property)
-              .forEach((p) => parameterProperties.set(p.property!.name, p.property!));
-          }
-        });
-      }
+      kinds.forEach((kind) => {
+        if (kind === "body") {
+          this.httpRequest
+            .getBodyParameters(httpOperation)
+            ?.properties.forEach((value, key) => parameterProperties.set(key, value));
+        } else {
+          httpOperation.parameters.properties
+            .filter((p) => p.kind === kind && p.property)
+            .forEach((p) => parameterProperties.set(p.property!.name, p.property!));
+        }
+      });
 
       if (parameterProperties.size === 0) {
         return undefined;

@@ -1,7 +1,6 @@
-import { Enum, ignoreDiagnostics, Model, Namespace, Union } from "@typespec/compiler";
+import { Enum, Model, Namespace, Union } from "@typespec/compiler";
 import { unsafe_Mutator } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import { getStreamMetadata } from "@typespec/http/experimental";
 import { Client, InternalClient } from "./interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 import { collectDataTypes } from "./utils/type-collector.js";
@@ -132,19 +131,6 @@ function visitClient(
 
   // Now store the prepared operations
   currentClient.operations = $.client.listHttpOperations(client).map((o) => {
-    const streamMetadata = getStreamMetadata($.program, o.parameters);
-    const bytes = ignoreDiagnostics($.program.resolveTypeReference("TypeSpec.bytes"));
-    if (streamMetadata && bytes) {
-      const bytesAsBody = {
-        bodyKind: "single",
-        contentTypes: streamMetadata.contentTypes,
-        // type: streamMetadata.bodyType,
-        type: bytes,
-        isExplicit: true,
-        containsMetadataAnnotations: false,
-      };
-      o.parameters.body = bytesAsBody as any;
-    }
     return {
       client: currentClient,
       httpOperation: o,

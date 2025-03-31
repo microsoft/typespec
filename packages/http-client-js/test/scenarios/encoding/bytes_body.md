@@ -43,7 +43,7 @@ export async function foo(
 }
 ```
 
-# only: Should not encode a bytes data when the body is bytes and encoding is base64
+# Should encode a bytes data when the body is bytes and encoding is base64
 
 ## TypeSpec
 
