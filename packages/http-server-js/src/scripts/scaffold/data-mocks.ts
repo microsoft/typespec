@@ -9,8 +9,8 @@ import {
   Union,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import { isUnspeakable, parseCase } from "../../util/case.js";
 import { JsContext, Module } from "../../ctx.js";
+import { isUnspeakable, parseCase } from "../../util/case.js";
 
 import { module as dateTimeHelper } from "../../../generated-defs/helpers/datetime.js";
 import { KEYWORDS } from "../../util/keywords.js";
@@ -108,7 +108,11 @@ function mockRecord(ctx: JsContext, module: Module, type: Model): string {
  * @param prop - The TypeSpec model property to mock
  * @returns A JavaScript string representation of the mocked property or undefined if it cannot be mocked
  */
-function mockModelProperty(ctx: JsContext, module: Module, prop: ModelProperty): string | undefined {
+function mockModelProperty(
+  ctx: JsContext,
+  module: Module,
+  prop: ModelProperty,
+): string | undefined {
   return mockType(ctx, module, prop.type);
 }
 
@@ -210,7 +214,7 @@ function mockScalar(ctx: JsContext, module: Module, scalar: Scalar): string | un
       binder: ["Duration"],
     });
 
-    return "Duration.parseISO8601(\"P1Y2M3DT4H5M6S\")";
+    return 'Duration.parseISO8601("P1Y2M3DT4H5M6S")';
   }
 
   if ($.scalar.isOffsetDateTime(scalar) || $.scalar.extendsOffsetDateTime(scalar)) {

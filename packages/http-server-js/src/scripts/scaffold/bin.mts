@@ -191,7 +191,9 @@ export async function scaffold(options: ScaffoldingOptions) {
     config.options?.["@typespec/http-server-js"]?.["emitter-output-dir"];
   const defaultOutputDir = path.resolve(path.dirname(projectYamlPath), "tsp-output");
 
-  const emitterOutputDir = emitterOutputDirTemplate?.replace("{output-dir}", defaultOutputDir) ?? path.join(defaultOutputDir, "@typespec", "http-server-js");
+  const emitterOutputDir =
+    emitterOutputDirTemplate?.replace("{output-dir}", defaultOutputDir) ??
+    path.join(defaultOutputDir, "@typespec", "http-server-js");
 
   const baseOutputDir = options["no-standalone"] ? cwd : path.resolve(cwd, emitterOutputDir);
   const tsConfigOutputPath = path.resolve(baseOutputDir, COMMON_PATHS.tsConfigJson);
