@@ -146,9 +146,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("requiredQuery", methodParameters[1].Name);
             Assert.AreEqual("requiredHeader", methodParameters[2].Name);
             Assert.AreEqual("body", methodParameters[3].Name);
-            Assert.AreEqual("contentType", methodParameters[4].Name);
-            Assert.AreEqual("optionalQuery", methodParameters[5].Name);
-            Assert.AreEqual("optionalHeader", methodParameters[6].Name);
+            Assert.AreEqual("optionalQuery", methodParameters[4].Name);
+            Assert.AreEqual("optionalHeader", methodParameters[5].Name);
+            Assert.AreEqual("optionalContentType", methodParameters[6].Name);
 
             var orderedPathParams = RestClientProvider.GetMethodParameters(OperationWithOnlyPathParams, RestClientProvider.MethodType.Convenience);
             Assert.AreEqual(OperationWithOnlyPathParams.Parameters.Count, orderedPathParams.Count);
@@ -514,7 +514,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     kind: InputOperationParameterKind.Method),
                 // content type param
                 InputFactory.Parameter(
-                    "contentType",
+                    "optionalContentType",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Header,
                     isContentType: true,

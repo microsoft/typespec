@@ -931,6 +931,9 @@ importers:
       '@typespec/spector':
         specifier: workspace:^
         version: link:../spector
+      '@typespec/tspd':
+        specifier: workspace:^
+        version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.9
         version: 3.0.9(vitest@3.0.9(@types/debug@4.1.12)(@types/node@22.13.13)(@vitest/ui@3.0.9)(happy-dom@17.4.4)(jiti@2.4.2)(jsdom@26.0.0)(tsx@4.19.3)(yaml@2.7.0))
@@ -2470,6 +2473,12 @@ importers:
       '@typespec/http':
         specifier: workspace:^
         version: link:../packages/http
+      '@typespec/http-server-csharp':
+        specifier: workspace:^
+        version: link:../packages/http-server-csharp
+      '@typespec/http-server-js':
+        specifier: workspace:^
+        version: link:../packages/http-server-js
       '@typespec/internal-build-utils':
         specifier: workspace:^
         version: link:../packages/internal-build-utils
