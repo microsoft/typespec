@@ -1199,7 +1199,7 @@ The `pictures` property is a list of file parts where each file has required met
 
 ### Protocol Method Usage with Public MPFD Type
 
-The usage of the generated protocol methods can be improved if we consider exposing the [`MultiPartFormDataBinaryContent`](#multiPartFormDataBinaryContent-internal-helper-type) type as a public SCM type. Consider the [dog example](#operation-that-contains-a-payload-with-a-file-part-and-a-primitive-type-part) outlined earlier:
+The usage of the generated protocol methods can be improved if we consider exposing the [`MultiPartFormDataBinaryContent`](#multiPartFormDataBinaryContent-internal-helper-type) type as a public SCM type. Consider the protocol method usage for the [dog example](#operation-that-contains-a-payload-with-a-file-part-and-a-primitive-type-part) outlined earlier:
 
 ```csharp
 PetStoreClient client = new PetStoreClient();
