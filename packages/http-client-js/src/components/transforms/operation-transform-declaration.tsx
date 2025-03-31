@@ -63,6 +63,8 @@ function TransformToTransportDeclaration(props: TransformToTransportDeclarationP
     return;
   }
 
+  if (requestPayload.bodyKind === "file") return;
+
   const namePolicy = ts.useTSNamePolicy();
   const name = namePolicy.getName(`${props.operation.name}_payload_to_transport`, "function");
 

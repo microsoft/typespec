@@ -17,9 +17,8 @@ import {
   getHttpService,
   getVisibilitySuffix,
   HttpOperation,
-  HttpOperationBody,
-  HttpOperationMultipartBody,
   HttpOperationResponse,
+  HttpPayloadBody,
   resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
@@ -258,9 +257,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
       return remarks.length === 0 ? "" : ` (${remarks.join(", ")})`;
     }
 
-    function getContentTypeRemark(
-      body: HttpOperationBody | HttpOperationMultipartBody | undefined,
-    ) {
+    function getContentTypeRemark(body: HttpPayloadBody | undefined) {
       const ct = body?.contentTypes;
       if (!ct || ct.length === 0 || (ct.length === 1 && ct[0] === "application/json")) {
         return "";
