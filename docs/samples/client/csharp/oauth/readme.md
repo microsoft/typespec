@@ -35,4 +35,4 @@ public partial class UnbrandedTypeSpecClient
 }
 ```
 
-A more detailed code sample is shown here. [insert link here]
+The full code is available [here](insert link here).
