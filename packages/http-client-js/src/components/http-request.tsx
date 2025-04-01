@@ -30,6 +30,7 @@ export function HttpRequest(props: HttpRequestProps) {
       await client.pathUnchecked(${(<Reference refkey={operationUrlRefkey} />)}).${verb}(${(<Reference refkey={requestOptionsRefkey} />)})
       `}
         </ts.VarDeclaration>
+        <hbr />
       </StatementList>
       {code`      
       if (typeof options?.operationOptions?.onResponse === "function") {

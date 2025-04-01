@@ -29,6 +29,7 @@ export async function headModel(
     body: jsonVisibilityModelToTransportTransform(input),
   };
   const response = await client.pathUnchecked(path).head(httpRequestOptions);
+
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
