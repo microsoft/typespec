@@ -72,19 +72,19 @@ import { AuthenticationClient } from "auth0";
 import { SampleTypeSpecClient } from "SampleTypeSpecSDK"; 
 
 // Create an OAuth2 credential that implements authorization code flow
-  const credential: OAuth2TokenCredential<ClientCredentialsFlow> = {
-    async getOAuth2Token(flows: ClientCredentialsFlow[]) {
-      const { tokenUrl } = flows[0];
-      const option = {
-        domain: tokenUrl,
-        clientId: "SampleClientID",
-        clientSecret: "SampleClientSecret",
-      };
-      const client = new AuthenticationClient(option);
-      const response = await client.oauth.clientCredentialsGrant({ audience: "SampleAudience" });
-      return response.data.access_token;
-    }
+const credential: OAuth2TokenCredential<ClientCredentialsFlow> = {
+  async getOAuth2Token(flows: ClientCredentialsFlow[]) {
+    const { tokenUrl } = flows[0];
+    const option = {
+      domain: tokenUrl,
+      clientId: "SampleClientID",
+      clientSecret: "SampleClientSecret",
+    };
+    const client = new AuthenticationClient(option);
+    const response = await client.oauth.clientCredentialsGrant({ audience: "SampleAudience" });
+    return response.data.access_token;
   }
+}
 
 // Authentication shemes that the services allow
 const authorizationCodeScheme: AuthScheme = {
