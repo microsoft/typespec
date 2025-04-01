@@ -13,7 +13,6 @@ The TypeSpec extension for Visual Studio Code enhances the development of TypeSp
 - Emit code from TypeSpec <_new_>
 - Preview API documentation <_new_>
 
-
 ## Prerequisites
 
 Before using the TypeSpec extension, install [Node.js](https://nodejs.org/en/download/) and verify npm is available:
