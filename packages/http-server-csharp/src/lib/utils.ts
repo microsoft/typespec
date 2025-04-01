@@ -88,9 +88,9 @@ export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharp
 
 export const UnknownType: CSharpType = new CSharpType({
   name: "JsonNode",
-  namespace: "System.Text.Json",
+  namespace: "System.Text.Json.Nodes",
   isValueType: false,
-  isBuiltIn: true,
+  isBuiltIn: false,
 });
 export function getCSharpType(
   program: Program,
@@ -482,8 +482,10 @@ export function formatComment(
 export function getCSharpIdentifier(
   name: string,
   context: NameCasingType = NameCasingType.Class,
+  checkReserved: boolean = true,
 ): string {
   if (name === undefined) return "Placeholder";
+  name = replaceCSharpReservedWord(name, context);
   switch (context) {
     case NameCasingType.Namespace:
       const parts: string[] = [];
@@ -506,6 +508,7 @@ export function ensureCSharpIdentifier(
   context: NameCasingType = NameCasingType.Class,
 ): string {
   let location = "";
+  let includeDot = false;
   switch (target.kind) {
     case "Enum":
       location = `enum ${target.name}`;
@@ -538,11 +541,11 @@ export function ensureCSharpIdentifier(
     case "Namespace":
       location = `namespace ${target.name}`;
       let invalid: boolean = false;
-      const nsName: StringBuilder = new StringBuilder();
+      //const nsName: StringBuilder = new StringBuilder();
       for (const part of name.split(".")) {
         if (!isValidCSharpIdentifier(part)) {
           invalid = true;
-          nsName.pushLiteralSegment(transformInvalidIdentifier(part));
+          //nsName.pushLiteralSegment(transformInvalidIdentifier(part));
         }
       }
 
@@ -552,9 +555,11 @@ export function ensureCSharpIdentifier(
           format: { identifier: name, location: location },
           target: target.node ?? NoTarget,
         });
-        return nsName.segments.join(".");
+        //return nsName.segments.join(".");
       }
-      return name;
+      //return name;
+      includeDot = true;
+      break;
     case "Operation": {
       const parent = target.interface
         ? `interface ${target.interface.name}`
@@ -571,7 +576,7 @@ export function ensureCSharpIdentifier(
     }
   }
 
-  if (!isValidCSharpIdentifier(name)) {
+  if (!isValidCSharpIdentifier(name, includeDot)) {
     reportDiagnostic(program, {
       code: "invalid-identifier",
       format: { identifier: name, location: location },
@@ -791,8 +796,25 @@ export async function ensureCleanDirectory(program: Program, targetPath: string)
   await program.host.mkdirp(targetPath);
 }
 
-export function isValidCSharpIdentifier(identifier: string): boolean {
-  return identifier?.match(/^[A-Za-z_][\w]*$/) !== null;
+export function isValidCSharpIdentifier(identifier: string, includeDot: boolean = false): boolean {
+  if (!includeDot) return identifier?.match(/^[A-Za-z_][\w]*$/) !== null;
+  return identifier?.match(/^[A-Za-z_][\w.]*$/) !== null;
+}
+
+export function replaceCSharpReservedWord(identifier: string, context?: NameCasingType): string {
+  const reserved: Map<string, string> = new Map<string, string>([
+    ["string", "StringName"],
+    ["type", "TypeName"],
+    ["boolean", "BooleanName"],
+    ["decimal", "DecimalName"],
+    ["enum", "EnumName"],
+  ]);
+  const check = reserved.get(identifier.toLowerCase());
+  if (check !== undefined) {
+    return getCSharpIdentifier(check, context, false);
+  }
+
+  return identifier;
 }
 
 export function getValidChar(target: string, position: number): string {
