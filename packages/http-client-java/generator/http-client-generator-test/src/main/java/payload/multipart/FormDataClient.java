@@ -16,16 +16,15 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import java.util.stream.Collectors;
+import payload.multipart.formdata.models.AnonymousModelRequest;
 import payload.multipart.implementation.FormDatasImpl;
 import payload.multipart.implementation.MultipartFormDataHelper;
-import payload.multipart.implementation.models.AnonymousModelRequest;
 import payload.multipart.models.BinaryArrayPartsRequest;
 import payload.multipart.models.ComplexPartsRequest;
 import payload.multipart.models.JsonPartRequest;
 import payload.multipart.models.MultiBinaryPartsRequest;
 import payload.multipart.models.MultiPartRequest;
 import payload.multipart.models.PicturesFileDetails;
-import payload.multipart.models.ProfileImageFileDetails;
 
 /**
  * Initializes a new instance of the synchronous MultiPartClient type.
@@ -162,7 +161,7 @@ public final class FormDataClient {
     /**
      * Test content-type: multipart/form-data.
      * 
-     * @param anonymousModelRequest The anonymousModelRequest parameter.
+     * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -172,10 +171,10 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> anonymousModelWithResponse(BinaryData anonymousModelRequest, RequestOptions requestOptions) {
+    Response<Void> anonymousModelWithResponse(BinaryData body, RequestOptions requestOptions) {
         // Operation 'anonymousModel' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.anonymousModelWithResponse(anonymousModelRequest, requestOptions);
+        return this.serviceClient.anonymousModelWithResponse(body, requestOptions);
     }
 
     /**
@@ -333,7 +332,7 @@ public final class FormDataClient {
     /**
      * Test content-type: multipart/form-data.
      * 
-     * @param profileImage The profileImage parameter.
+     * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -343,16 +342,15 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void anonymousModel(ProfileImageFileDetails profileImage) {
+    public void anonymousModel(AnonymousModelRequest body) {
         // Generated convenience method for anonymousModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        AnonymousModelRequest anonymousModelRequestObj = new AnonymousModelRequest(profileImage);
-        BinaryData anonymousModelRequest = new MultipartFormDataHelper(requestOptions)
-            .serializeFileField("profileImage", anonymousModelRequestObj.getProfileImage().getContent(),
-                anonymousModelRequestObj.getProfileImage().getContentType(),
-                anonymousModelRequestObj.getProfileImage().getFilename())
-            .end()
-            .getRequestBody();
-        anonymousModelWithResponse(anonymousModelRequest, requestOptions).getValue();
+        anonymousModelWithResponse(
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions).getValue();
     }
 }

@@ -2100,7 +2100,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseFunctionParameter(): FunctionParameterNode {
     const pos = tokenPos();
     const rest = parseOptional(Token.Ellipsis);
-    const id = parseIdentifier({ message: "property" });
+    const id = parseIdentifier({ message: "property", allowReservedIdentifier: true });
 
     const optional = parseOptional(Token.Question);
     let type;

@@ -43,7 +43,7 @@ export async function foo(
 
 ## Deserializer
 
-```ts src/models/serializers.ts function jsonBytesBodyToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonBytesBodyToApplicationTransform
 export function jsonBytesBodyToApplicationTransform(input_?: any): BytesBody {
   if (!input_) {
     return input_ as any;

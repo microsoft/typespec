@@ -113,6 +113,7 @@
  "clients": [
   {
    "$id": "15",
+   "kind": "client",
    "name": "MadeOptionalClient",
    "namespace": "Versioning.MadeOptional",
    "doc": "Test for the `@madeOptional` decorator.",
@@ -286,7 +287,10 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Versioning.MadeOptional"
+   "crossLanguageDefinitionId": "Versioning.MadeOptional",
+   "apiVersions": [
+    "v1"
+   ]
   }
  ]
 }

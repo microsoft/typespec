@@ -20,9 +20,9 @@ namespace _Type._Array
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IList<int?>> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<IReadOnlyList<int?>> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<IList<int?>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<IReadOnlyList<int?>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 

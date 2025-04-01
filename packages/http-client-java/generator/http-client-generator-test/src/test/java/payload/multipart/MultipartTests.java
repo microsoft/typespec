@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
 import payload.multipart.formdata.httpparts.nonstring.models.FloatRequest;
+import payload.multipart.formdata.models.AnonymousModelRequest;
 import payload.multipart.models.Address;
 import payload.multipart.models.BinaryArrayPartsRequest;
 import payload.multipart.models.ComplexHttpPartsModelRequest;
@@ -237,7 +238,8 @@ public class MultipartTests {
 
     @Test
     public void testAnonymousModel() {
-        client.anonymousModel(new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg"));
+        client.anonymousModel(
+            new AnonymousModelRequest(new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg")));
     }
 
     @Test

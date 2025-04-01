@@ -45,7 +45,7 @@ Scenarios.Payload_JsonMergePatch_createResource = passOnSuccess({
   uri: "/json-merge-patch/create/resource",
   method: "put",
   request: {
-    body: expectedCreateBody,
+    body: json(expectedCreateBody),
   },
   response: {
     status: 200,
@@ -58,7 +58,7 @@ Scenarios.Payload_JsonMergePatch_updateResource = passOnSuccess({
   uri: "/json-merge-patch/update/resource",
   method: "patch",
   request: {
-    body: expectedUpdateBody,
+    body: json(expectedUpdateBody),
   },
   response: {
     status: 200,
@@ -78,7 +78,7 @@ Scenarios.Payload_JsonMergePatch_updateOptionalResource = passOnSuccess({
   uri: "/json-merge-patch/update/resource/optional",
   method: "patch",
   request: {
-    body: expectedUpdateBody,
+    body: json(expectedUpdateBody),
   },
   response: {
     status: 200,

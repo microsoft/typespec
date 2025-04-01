@@ -40,7 +40,7 @@ Should generate a serializer for Pet. Also a serializer for Dog that calls the P
 
 ### Pet Serializer
 
-```ts src/models/serializers.ts function jsonPetToTransportTransform
+```ts src/models/internal/serializers.ts function jsonPetToTransportTransform
 export function jsonPetToTransportTransform(input_?: Pet | null): any {
   if (!input_) {
     return input_ as any;
@@ -54,7 +54,7 @@ export function jsonPetToTransportTransform(input_?: Pet | null): any {
 
 ### Pet deserializer
 
-```ts src/models/serializers.ts function jsonPetToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonPetToApplicationTransform
 export function jsonPetToApplicationTransform(input_?: any): Pet {
   if (!input_) {
     return input_ as any;
@@ -68,7 +68,7 @@ export function jsonPetToApplicationTransform(input_?: any): Pet {
 
 ### Dog Serializer
 
-```ts src/models/serializers.ts function jsonDogToTransportTransform
+```ts src/models/internal/serializers.ts function jsonDogToTransportTransform
 export function jsonDogToTransportTransform(input_?: Dog | null): any {
   if (!input_) {
     return input_ as any;
@@ -83,7 +83,7 @@ export function jsonDogToTransportTransform(input_?: Dog | null): any {
 
 ### Dog deserializer
 
-```ts src/models/serializers.ts function jsonDogToApplicationTransform
+```ts src/models/internal/serializers.ts function jsonDogToApplicationTransform
 export function jsonDogToApplicationTransform(input_?: any): Dog {
   if (!input_) {
     return input_ as any;

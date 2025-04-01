@@ -35,8 +35,8 @@ $generateScript = {
     # override namespace for reserved keyword "enum"
     $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.fixed"""
   } elseif ($tspFile -match "azure[\\/]example[\\/]basic[\\/]") {
-    # override examples-directory
-    $tspOptions += " --option ""@typespec/http-client-java.examples-directory={project-root}/http/azure/example/basic/examples"""
+    # override examples-dir
+    $tspOptions += " --option ""@typespec/http-client-java.examples-dir={project-root}/specs/azure/example/basic/examples"""
   } elseif ($tspFile -match "resiliency[\\/]srv-driven[\\/]old\.tsp") {
     # override namespace for "resiliency/srv-driven/old.tsp" (make it different to that from "main.tsp")
     $tspOptions += " --option ""@typespec/http-client-java.namespace=resiliency.servicedriven.v1"""
@@ -64,20 +64,15 @@ $generateScript = {
   } elseif ($tspFile -match "arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
-    # also don't generate with stream-style-serialization as azure-core-management hasn't migrated to azure-json yet
-    $tspOptions += " --option ""@typespec/http-client-java.stream-style-serialization=false"""
-    # also generate with group-etag-headers=false since mgmt doesn't support etag grouping yet
-    $tspOptions += " --option ""@typespec/http-client-java.group-etag-headers=false"""
     # also test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2023-11-01"""
     # exclude preview from service versions
     $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
+    # enable sync-stack
+    $tspOptions += " --option ""@typespec/http-client-java.enable-sync-stack=true"""
   } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
-    $tspOptions += " --option ""@typespec/http-client-java.stream-style-serialization=true"""
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
-    # also generate with group-etag-headers=false since mgmt doesn't support etag grouping yet
-    $tspOptions += " --option ""@typespec/http-client-java.group-etag-headers=false"""
   } elseif ($tspFile -match "subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
   }
@@ -91,8 +86,9 @@ $generateScript = {
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
   $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"
 
+  # output of "tsp compile" seems trigger powershell error or exit, hence the ">$null 2>&1"
   $timer = [Diagnostics.Stopwatch]::StartNew()
-  $generateOutput = Invoke-Expression $tspCommand
+  Invoke-Expression $tspCommand >$null 2>&1
   $timer.Stop()
 
   $global:ExitCode = $global:ExitCode -bor $LASTEXITCODE
@@ -103,7 +99,6 @@ $generateScript = {
   $tspCommand
   ========================
   FAILED (Time elapsed: $($timer.ToString()))
-  $([String]::Join("`n", $generateOutput))
     "
   } else {
     Write-Host "
@@ -119,10 +114,7 @@ $generateScript = {
   }
 }
 
-# hack to allow additionalProperties in this test
-(Get-Content -Path "../../emitter/src/options.ts") -replace "additionalProperties: false,", "additionalProperties: true," | Set-Content -Path "../../emitter/src/options.ts"
 ./Setup.ps1
-(Get-Content -Path "../../emitter/src/options.ts") -replace "additionalProperties: true,", "additionalProperties: false," | Set-Content -Path "../../emitter/src/options.ts"
 
 New-Item -Path ./existingcode/src/main/java/tsptest -ItemType Directory -Force | Out-Null
 
@@ -156,8 +148,6 @@ Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse
 Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
 # remove xml tests, emitter has not supported xml model
 Remove-Item ./specs/payload/xml -Recurse -Force
-# TODO, enable it on 0.67
-Remove-Item ./specs/streaming -Recurse -Force
 
 $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 

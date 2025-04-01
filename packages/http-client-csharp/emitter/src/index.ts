@@ -4,7 +4,7 @@
 export { configurationFileName, tspOutputFileName } from "./constants.js";
 export { $onEmit, writeCodeModel } from "./emitter.js";
 export { createModel } from "./lib/client-model-builder.js";
-export { createDiagnostic, getTracer, reportDiagnostic } from "./lib/lib.js";
+export { $lib, createDiagnostic, getTracer, reportDiagnostic } from "./lib/lib.js";
 export { LoggerLevel } from "./lib/logger-level.js";
 export { Logger } from "./lib/logger.js";
 export {
@@ -16,4 +16,4 @@ export {
 export { setSDKContextOptions } from "./sdk-context-options.js";
 export { CSharpEmitterContext } from "./sdk-context.js";
 export { CodeModel } from "./type/code-model.js";
-export { InputModelType } from "./type/input-type.js";
+export { InputClient, InputModelType } from "./type/input-type.js";

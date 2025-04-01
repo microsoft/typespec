@@ -37,6 +37,7 @@ import {
 
 export class FooClient {
   #context: FooClientContext;
+
   constructor(endpoint: string, options?: FooClientOptions) {
     this.#context = createFooClientContext(endpoint, options);
   }
@@ -59,6 +60,7 @@ import {
 
 export class BarClient {
   #context: BarClientContext;
+
   constructor(endpoint: string, options?: BarClientOptions) {
     this.#context = createBarClientContext(endpoint, options);
   }

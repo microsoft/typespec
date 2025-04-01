@@ -1,7 +1,7 @@
 import { Program, Type, navigateProgram } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
+import { BasicTestRunner, resolveVirtualPath } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
-import { beforeEach, it } from "vitest";
+import { beforeEach, describe, it } from "vitest";
 import { getPropertySource, getSourceModel } from "../src/lib/utils.js";
 import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
 
@@ -405,6 +405,29 @@ it("generates default values in properties", async () => {
     ],
   );
 });
+it("generates default values in required properties", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** string literal */
+        stringLiteralProp: string = "This is a string literal";
+        /** boolean literal */
+        boolLiteralProp: boolean =  true;
+        /** numeric literal */
+        numericLiteralProp: int32 = 17;
+      }
+      `,
+    "Foo.cs",
+    [
+      "public partial class Foo",
+      `public string StringLiteralProp { get; set; } = "This is a string literal";`,
+      "public bool BoolLiteralProp { get; set; } = true;",
+      "public int NumericLiteralProp { get; set; } = 17;",
+    ],
+  );
+});
 
 it("generates standard scalar array  properties", async () => {
   await compileAndValidateSingleModel(
@@ -490,9 +513,9 @@ it("generates standard scalar array  constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[ArrayConstraint( MinItems = 1, MaxItems = 10)]",
+      "[ArrayConstraint<SByte>( MinItems = 1, MaxItems = 10)]",
       "public SByte[] ArrSbyteProp { get; set; }",
-      "[ArrayConstraint( MaxItems = 10)]",
+      "[ArrayConstraint<Byte>( MaxItems = 10)]",
       "public Byte[] ArrByteProp { get; set; }",
     ],
   );
@@ -577,6 +600,69 @@ it("handles enum, complex type properties, and circular references", async () =>
   );
 });
 
+it("handles integer enums", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** An integer enum */
+      enum IntegerEnum { /** one */ One: 1, /** three */Three: 3, /** five */ Five: 5}
+      /** A simple test model*/
+      model Foo {
+        /** enum */
+        barProp?: IntegerEnum;
+
+        /** non-nullable enum */
+        bazProp: IntegerEnum;
+      }
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          `public IntegerEnum? BarProp { get; set; }`,
+          `public IntegerEnum BazProp { get; set; }`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("handles non-integer numeric enums", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A floating point enum */
+      enum DoubleEnum { /** one */ One: 1.1, /** three */Three: 3.333, /** five */ Five: 5.55555}
+      /** A mixed integer and float enum */
+      enum MixedEnum { /** one */ One: 1, /** three */Three: 3.3, /** five */ Five: 5}
+      /** A simple test model*/
+      model Foo {
+        /** nullable enum */
+        barNullableProp?: DoubleEnum;
+        /** enum */
+        barProp: DoubleEnum;
+        /** non-nullable enum */
+        bazProp: MixedEnum;
+        /** nullable enum */
+        bazNullableProp?: MixedEnum;
+      }
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          `public double BarProp { get; set; }`,
+          `public double? BarNullableProp { get; set; }`,
+          `public double BazProp { get; set; }`,
+          `public double? BazNullableProp { get; set; }`,
+        ],
+      ],
+    ],
+  );
+});
+
 it("processes sub-namespaces of a service", async () => {
   await compileAndValidateSingleModel(
     runner,
@@ -646,7 +732,7 @@ it("Generates types for named model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -667,7 +753,7 @@ it("Generates types for generic model instantiation", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -688,7 +774,7 @@ it("Generates good name for model instantiation without hints", async () => {
   await compileAndValidateSingleModel(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        model Toy {
         @key("toyId")
@@ -713,7 +799,7 @@ it("Generates types and controllers in a service subnamespace", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -742,7 +828,7 @@ it("Handles user-defined model templates", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -783,7 +869,7 @@ it("Handles void type in operations", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -818,7 +904,7 @@ it("Handles empty body 2xx as void", async () => {
   await compileAndValidateMultiple(
     runner,
     `
-       using TypeSpec.Rest.Resource;
+       using Rest.Resource;
 
        namespace MyService {
          model Toy {
@@ -1324,55 +1410,57 @@ model FileAttachmentMultipartRequest {
   );
 });
 
-it("Produces correct scaffolding", async () => {
-  await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
-    `
-      @error
-  model NotFoundErrorResponse {
-     @statusCode statusCode: 404;
-     code: "not-found";
-  }
-model ApiError {
-  /** A machine readable error code */
-  code: string;
-
-  /** A human readable message */
-  message: string;
+const multipartSpec = `
+@error
+model NotFoundErrorResponse {
+@statusCode statusCode: 404;
+code: "not-found";
 }
-    /**
- * Something is wrong with you.
- */
+model ApiError {
+/** A machine readable error code */
+code: string;
+
+/** A human readable message */
+message: string;
+}
+/**
+* Something is wrong with you.
+*/
 model Standard4XXResponse extends ApiError {
-  @minValue(400)
-  @maxValue(499)
-  @statusCode
-  statusCode: int32;
+@minValue(400)
+@maxValue(499)
+@statusCode
+statusCode: int32;
 }
 
 /**
- * Something is wrong with me.
- */
+* Something is wrong with me.
+*/
 model Standard5XXResponse extends ApiError {
-  @minValue(500)
-  @maxValue(599)
-  @statusCode
-  statusCode: int32;
+@minValue(500)
+@maxValue(599)
+@statusCode
+statusCode: int32;
 }
 
 model FileAttachmentMultipartRequest {
-  contents: HttpPart<File>;
+contents: HttpPart<File>;
 }
 
-    alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
+alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
 
-    @post
-    op createFileAttachment(
-      @header contentType: "multipart/form-data",
-      @path itemId: int32,
-      @multipartBody body: FileAttachmentMultipartRequest,
-    ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
-    `,
+@post
+op createFileAttachment(
+@header contentType: "multipart/form-data",
+@path itemId: int32,
+@multipartBody body: FileAttachmentMultipartRequest,
+): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+`;
+
+it("Produces correct scaffolding", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    multipartSpec,
     [
       ["IInitializer.cs", ["public interface IInitializer"]],
       ["Initializer.cs", ["public class Initializer : IInitializer"]],
@@ -1386,13 +1474,76 @@ model FileAttachmentMultipartRequest {
         ],
       ],
       ["Program.cs", ["MockRegistration"]],
+      ["README.md", [`  - \`mocks/ContosoOperations.cs\``]],
+      ["usage.md", [`**controllers**`]],
+      ["emitter.md", [`@typespec/http-server-csharp`]],
     ],
   );
 });
 
+it("Does not overwrite mock files", async () => {
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "mocks-and-project-files",
+  });
+  runner.fs.set(
+    resolveVirtualPath("@typespec", "http-server-csharp", "ServiceProject.csproj"),
+    "ServiceProject\n",
+  );
+  await compileAndValidateMultiple(runner, multipartSpec, [
+    ["ServiceProject.csproj", ["ServiceProject"]],
+  ]);
+});
+
+it("Does overwrite mock files with overWrite option", async () => {
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "mocks-and-project-files",
+    overwrite: true,
+  });
+  runner.fs.set(
+    resolveVirtualPath("@typespec", "http-server-csharp", "ServiceProject.csproj"),
+    "ServiceProject\n",
+  );
+  await compileAndValidateMultiple(runner, multipartSpec, [
+    ["ServiceProject.csproj", ["<TargetFramework>net9.0</TargetFramework>"]],
+  ]);
+});
+
+it("reads default location for OpenAPI from config", async () => {
+  const runner = await createCSharpServiceEmitterTestRunner({
+    "emit-mocks": "mocks-and-project-files",
+    "use-swaggerui": true,
+  });
+  runner.fs.set(
+    resolveVirtualPath("tspconfig.yaml"),
+    `
+emit:
+  - "@typespec/openapi3"
+options:
+  "@typespec/openapi3":
+    emitter-output-dir: "{project-root}/openapi"
+    output-file: "openapi.yaml"
+
+`,
+  );
+  await compileAndValidateMultiple(runner, multipartSpec, [
+    [
+      "Program.cs",
+      [
+        "builder.Services.AddSwaggerGen();",
+        "app.UseSwagger();",
+        "app.UseSwaggerUI( c=> {",
+        `c.DocumentTitle = "TypeSpec Generated OpenAPI Viewer";`,
+        `c.SwaggerEndpoint("/openapi.yaml", "TypeSpec Generated OpenAPI Docs");`,
+        `c.RoutePrefix = "swagger";`,
+        `var externalFilePath = "../../openapi/openapi.yaml"; // Full path to the file outside the project`,
+      ],
+    ],
+  ]);
+});
+
 it("Handles spread parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
     model Widget {
       @path id: string;
@@ -1439,7 +1590,7 @@ it("Handles spread parameters", async () => {
 
 it("Handles bodyRoot parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
     model Widget {
       @visibility(Lifecycle.Update, Lifecycle.Read)
@@ -1477,7 +1628,7 @@ it("Handles bodyRoot parameters", async () => {
 
 it("Initializes enum types", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
     enum Color {
       Red,
@@ -1531,7 +1682,7 @@ it("Initializes enum types", async () => {
 
 it("emits correct code for GET requests with body parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
       #suppress "@typespec/http-server-csharp/get-request-body" "Test"
       @route("/foo") @get op foo(intProp?: int32): void;
@@ -1552,7 +1703,7 @@ it("emits correct code for GET requests with body parameters", async () => {
 
 it("emits correct code for GET requests with explicit body parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
     `
       #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
       #suppress "@typespec/http-server-csharp/get-request-body" "Test"
@@ -1586,6 +1737,198 @@ it("generates one line `@doc` decorator comments", async () => {
       "public partial class Pet",
       "///<summary>",
       "/// Pet name in the format of a string",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline jsdoc comments", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /**
+       * Pet name in the format of a string.
+       * The name will be the main identifier for the dog. It is suggested to keep it short and simple.
+       * Pets have a difficult time understanding and learning complex names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. The name will be the main identifier",
+      "/// for the dog. It is suggested to keep it short and simple. Pets have a",
+      "/// difficult time understanding and learning complex names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates multiline jsdoc comments with long non-space words", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /**
+       * Pet name in the format of a string.
+       * Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string. Visit",
+      "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
+      "/// where you can find many unique names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates correct (awkward) multiline jsdoc comments without multiline asterisk", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    /**
+     * A multiline comment.
+     *   This line is indented.
+     * This line is not
+     * This line is quite long and likely should be broken into multiple lines as it goes on and on and on and on and doesn't stop ever, really it doesn't ever stop.  OK, it stops now.
+     * https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html
+     * and a line afterward.
+     */
+    model Pet {
+      /**
+        Pet name in the format of a string.
+        The name will be the main identifier for the dog. It is suggested to keep it short and simple.
+        Pets have a difficult time understanding and learning complex names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "///<summary>",
+      "/// A multiline comment. This line is indented. This line is not This line is",
+      "/// quite long and likely should be broken into multiple lines as it goes on",
+      "/// and on and on and on and doesn't stop ever, really it doesn't ever stop. ",
+      "/// OK, it stops now.",
+      "/// https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html",
+      "/// and a line afterward.",
+      "///</summary>",
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string.         The name will be the main",
+      "/// identifier for the dog. It is suggested to keep it short and simple.  ",
+      "///  Pets have a difficult time understanding and learning complex names.",
+      "///</summary>",
+      "public string Name { get; set; }",
+    ],
+  );
+});
+
+it("generates correct multiline jsdoc comments for operations", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /** Pet name string */
+      name?: string;
+    }
+    
+    @route("/pets")
+    interface Pets {
+      /**
+       * List Pet results
+       * Provide top/skip or filter by name if needed
+       */
+      @get op listPets(
+        @query top?: int32 = 50, 
+        @query skip?: int32 = 0,
+        @query nameFilter?: string = "*"
+      ) : Pet[];
+    }
+    `,
+    "IPets.cs",
+    [
+      "public interface IPets",
+      "///<summary>",
+      "/// List Pet results Provide top/skip or filter by name if needed",
+      "///</summary>",
+      `Task<Pet[]> ListPetsAsync( int? top, int? skip, string? nameFilter);`,
+    ],
+  );
+});
+
+it("generates correct multiline jsdoc long comments for operations", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /** Pet name string */
+      name?: string;
+    }
+    
+    @route("/pets")
+    interface Pets {
+      /**
+       * A multiline comment.
+       *   This line is indented.
+       * This line is not
+       * This line is quite long and likely should be broken into multiple lines as it goes on and on and on and on and doesn't stop ever, really it doesn't ever stop.  OK, it stops now.
+       * https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html
+       * and a line afterward.
+       */
+      @get op listPets(
+        @query top?: string, 
+        @query skip?: string
+      ) : Pet[];
+    }
+    `,
+    "IPets.cs",
+    [
+      "public interface IPets",
+      "///<summary>",
+      "/// A multiline comment. This line is indented. This line is not This line is",
+      "/// quite long and likely should be broken into multiple lines as it goes on",
+      "/// and on and on and on and doesn't stop ever, really it doesn't ever stop. ",
+      "/// OK, it stops now.",
+      "/// https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html",
+      "/// and a line afterward.",
+      "///</summary>",
+      "Task<Pet[]> ListPetsAsync( string? top, string? skip);",
+    ],
+  );
+});
+
+it("generates correct (awkward) multiline jsdoc comments with long non-space words  without multiline asterisk", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+    model Pet {
+      /**
+        Pet name in the format of a string.
+        Visit example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name where you can find many unique names.
+       */
+      name?: string;
+    }
+    `,
+    "Pet.cs",
+    [
+      "public partial class Pet",
+      "///<summary>",
+      "/// Pet name in the format of a string.         Visit",
+      "/// example.funnamesforpets.com/bestowners/popularnames/let-your-best-friend-have-the-best-name",
+      "/// where you can find many unique names.",
       "///</summary>",
       "public string Name { get; set; }",
     ],
@@ -1683,4 +2026,252 @@ it("generates jsdoc comments", async () => {
       "public string Name { get; set; }",
     ],
   );
+});
+
+describe("emit correct code for `@error` models", () => {
+  it("model has additional properties apart from `@statusCode`", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model NotFoundError {
+          @statusCode statusCode: 404;
+          code: "not-found";
+        }
+      `,
+      "NotFoundError.cs",
+      [
+        "public partial class NotFoundError : HttpServiceException {",
+        `public NotFoundError(string code = "not-found") : base(404,`,
+        "value: new{code = code}) ",
+      ],
+    );
+  });
+  it("model only has `@statusCode` property", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model NotFoundError {
+          @statusCode _: 404;
+        }
+      `,
+      "NotFoundError.cs",
+      [
+        "public partial class NotFoundError : HttpServiceException {",
+        "public NotFoundError() : base(404)",
+      ],
+    );
+  });
+  it("emits `@min` value when `@statusCode` property is not defined but has `@min` and `@max` decorators", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model ErrorInRange {
+          @minValue(500)
+          @maxValue(599)
+          @statusCode
+          _: int32;
+        }
+      `,
+      "ErrorInRange.cs",
+      [
+        "public partial class ErrorInRange : HttpServiceException {",
+        "public ErrorInRange() : base(500)",
+      ],
+    );
+  });
+  it("emits first value when `@statusCode` is defined with an union reference", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: statusCodes;
+        }
+
+        union statusCodes {
+          400,
+          404,
+        }
+      `,
+      "Error.cs",
+      [
+        "public partial class Error : HttpServiceException {",
+        "public Error(int statusCode) : base(statusCode)",
+      ],
+    );
+  });
+  it("emits first value when `@statusCode` is defined with an union", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200 | 202;
+        }
+      `,
+      "Error.cs",
+      [
+        "public partial class Error : HttpServiceException {",
+        "public Error(int statusCode) : base(statusCode)",
+      ],
+    );
+  });
+  it("emits error models when they inherit the `@error` decorator and resolves all the inheritance correctly", async () => {
+    await compileAndValidateMultiple(
+      runner,
+      `
+        @error
+        model ApiError {
+          code: string;
+          message: string;
+        }
+     
+        model Error extends ApiError {
+          @statusCode
+          statusCode: 500;
+        }
+      `,
+      [
+        [
+          "ApiError.cs",
+          [
+            "public partial class ApiError : HttpServiceException {",
+            "public ApiError(string code, string message) : base(400,",
+            "public string Code { get; set; }",
+            "public string MessageProp { get; set; }",
+          ],
+        ],
+        ["Error.cs", ["public partial class Error : ApiError {", "public Error() : base(500)"]],
+      ],
+    );
+  });
+  it("emit error constructor with parameters ordered by required followed by optional/default", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200;
+          optionalMessage?: string;
+          code: string;
+          defined: string = "default message";
+          message: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message, string optionalMessage = default, string defined = "default message") : base(200,`,
+      ],
+    );
+  });
+  it("emit error with headers", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode statusCode: 200;
+          @header("x-ms-error-code") code: string;
+          @header customHeader: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string customHeader) : base(200,`,
+        ` headers: new(){{"x-ms-error-code", code}, {"custom-header", customHeader}})`,
+      ],
+    );
+  });
+  it("emit error constructor with value/regular properties", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          code: string;
+          message: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message) : base(400,`,
+        `value: new{code = code,message = message}) `,
+      ],
+    );
+  });
+  it("emit error constructor properties and defined in body", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200;
+          code: string;
+          message: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message) : base(200,`,
+        `Code = code;`,
+        `MessageProp = message;`,
+      ],
+    );
+  });
+  it("renames body properties that conflict with properties from exception", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200;
+          code: string;
+          message: string;
+          value: string;
+          headers: string;
+          stackTrace: string;
+          source: string;
+          innerException: string;
+          hResult: string;
+          data: string;
+          targetSite: string;
+          helpLink: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message, string value, string headers, string stackTrace, string source, string innerException, string hResult, string data, string targetSite, string helpLink) : base(200,`,
+        `Code = code;`,
+        `MessageProp = message;`,
+        `ValueProp = value;`,
+        `HeadersProp = headers;`,
+        `StackTraceProp = stackTrace;`,
+        `SourceProp = source;`,
+        `InnerExceptionProp = innerException;`,
+        `HResultProp = hResult;`,
+        `DataProp = data;`,
+        `TargetSiteProp = targetSite;`,
+        `HelpLinkProp = helpLink;`,
+        `public string Code { get; set; }`,
+        `public string MessageProp { get; set; }`,
+        `public string ValueProp { get; set; }`,
+        `public string HeadersProp { get; set; }`,
+        `public string StackTraceProp { get; set; }`,
+        `public string SourceProp { get; set; }`,
+        `public string InnerExceptionProp { get; set; }`,
+        `public string HResultProp { get; set; }`,
+        `public string DataProp { get; set; }`,
+        `public string TargetSiteProp { get; set; }`,
+        `public string HelpLinkProp { get; set; }`,
+      ],
+    );
+  });
 });

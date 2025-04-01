@@ -197,9 +197,13 @@ class JinjaSerializer(ReaderAndWriter):
             env = Environment(
                 loader=PackageLoader("pygen.codegen", "templates/packaging_templates"),
                 undefined=StrictUndefined,
+                trim_blocks=True,
+                lstrip_blocks=True,
             )
 
             package_files = _PACKAGE_FILES
+            if not self.code_model.license_description:
+                package_files.remove("LICENSE.jinja2")
         elif Path(self.code_model.options["package_mode"]).exists():
             env = Environment(
                 loader=FileSystemLoader(str(Path(self.code_model.options["package_mode"]))),
@@ -271,7 +275,7 @@ class JinjaSerializer(ReaderAndWriter):
         if not "" in group_names:
             self.write_file(
                 rest_path / Path("__init__.py"),
-                self.code_model.options["license_header"],
+                self.code_model.license_header,
             )
 
     def _serialize_and_write_single_rest_layer(
@@ -461,20 +465,10 @@ class JinjaSerializer(ReaderAndWriter):
         self.write_file(self.exec_path(namespace) / Path("_metadata.json"), metadata_serializer.serialize())
 
     @property
-    def _namespace_from_package_name(self) -> str:
-        return get_namespace_from_package_name(self.code_model.options["package_name"])
-
-    def _name_space(self) -> str:
-        if self.code_model.namespace.count(".") >= self._namespace_from_package_name.count("."):
-            return self.code_model.namespace
-
-        return self._namespace_from_package_name
-
-    @property
     def exec_path_compensation(self) -> Path:
         """Assume the process is running in the root folder of the package. If not, we need the path compensation."""
         return (
-            Path("../" * (self._name_space().count(".") + 1))
+            Path("../" * (self.code_model.namespace.count(".") + 1))
             if self.code_model.options["no_namespace_folders"]
             else Path(".")
         )
@@ -482,16 +476,28 @@ class JinjaSerializer(ReaderAndWriter):
     def exec_path_for_test_sample(self, namespace: str) -> Path:
         return self.exec_path_compensation / Path(*namespace.split("."))
 
+    # pylint: disable=line-too-long
     def exec_path(self, namespace: str) -> Path:
         if self.code_model.options["no_namespace_folders"] and not self.code_model.options["multiapi"]:
+            # when output folder contains parts different from the namespace, we fall back to current folder directly.
+            # (e.g. https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/communication/azure-communication-callautomation/swagger/SWAGGER.md)
             return Path(".")
         return self.exec_path_compensation / Path(*namespace.split("."))
 
+    # pylint: disable=line-too-long
     @property
-    def _additional_folder(self) -> Path:
+    def sample_additional_folder(self) -> Path:
+        # For special package, we need to additional folder when generate samples.
+        # For example, azure-mgmt-resource is combined by multiple modules, and each module is multiapi package.
+        # one of namespace is "azure.mgmt.resource.resources.v2020_01_01", then additional folder is "resources"
+        # so that we could avoid conflict when generate samples.
+        # python config: https://github.com/Azure/azure-rest-api-specs/blob/main/specification/resources/resource-manager/readme.python.md
+        # generated SDK: https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/resources/azure-mgmt-resource/generated_samples
         namespace_config = get_namespace_config(self.code_model.namespace, self.code_model.options["multiapi"])
         num_of_namespace = namespace_config.count(".") + 1
-        num_of_package_namespace = self._namespace_from_package_name.count(".") + 1
+        num_of_package_namespace = (
+            get_namespace_from_package_name(self.code_model.options["package_name"]).count(".") + 1
+        )
         if num_of_namespace > num_of_package_namespace:
             return Path("/".join(namespace_config.split(".")[num_of_package_namespace:]))
         return Path("")
@@ -514,7 +520,7 @@ class JinjaSerializer(ReaderAndWriter):
                         file_name = to_snake_case(extract_sample_name(file)) + ".py"
                         try:
                             self.write_file(
-                                out_path / self._additional_folder / _sample_output_path(file) / file_name,
+                                out_path / self.sample_additional_folder / _sample_output_path(file) / file_name,
                                 SampleSerializer(
                                     code_model=self.code_model,
                                     env=env,

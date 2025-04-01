@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import { exec as execCallback } from "child_process";
+import chalk from "chalk";
+import { execFile } from "child_process";
 import { promises, rmSync } from "fs";
 import { dirname, join, relative, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -20,9 +21,6 @@ const argv = parseArgs({
   },
 });
 
-// Promisify the exec function
-const exec = promisify(execCallback);
-
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
@@ -35,99 +33,170 @@ const GENERATED_FOLDER = argv.values.generatedFolder
 
 interface TspCommand {
   outputDir: string;
-  command: string;
+  command: string[];
 }
+
+const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
+  "azure/example/basic": {
+    namespace: "specs.azure.example.basic",
+  },
+  "azure/client-generator-core/access": {
+    namespace: "specs.azure.clientgenerator.core.access",
+  },
+  "azure/client-generator-core/usage": {
+    namespace: "specs.azure.clientgenerator.core.usage",
+  },
+  "client/structure/default": {
+    namespace: "client.structure.service",
+  },
+  "client/structure/multi-client": {
+    "package-name": "client-structure-multiclient",
+    namespace: "client.structure.multiclient",
+  },
+  "client/structure/renamed-operation": {
+    "package-name": "client-structure-renamedoperation",
+    namespace: "client.structure.renamedoperation",
+  },
+  "client/structure/two-operation-group": {
+    "package-name": "client-structure-twooperationgroup",
+    namespace: "client.structure.twooperationgroup",
+  },
+  "client/naming": {
+    namespace: "client.naming",
+  },
+  "encode/duration": {
+    namespace: "encode.duration",
+  },
+  "encode/numeric": {
+    namespace: "encode.numeric",
+  },
+  "parameters/basic": {
+    namespace: "parameters.basic",
+  },
+  "parameters/spread": {
+    namespace: "parameters.spread",
+  },
+  "payload/content-negotiation": {
+    namespace: "payload.contentnegotiation",
+  },
+  "payload/multipart": {
+    namespace: "payload.multipart",
+  },
+  "serialization/encoded-name/json": {
+    namespace: "serialization.encodedname.json",
+  },
+  "special-words": {
+    namespace: "specialwords",
+  },
+};
 
 const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
   "resiliency/srv-driven/old.tsp": {
     "package-name": "resiliency-srv-driven1",
+    namespace: "resiliency.srv.driven1",
     "package-mode": "azure-dataplane",
     "package-pprint-name": "ResiliencySrvDriven1",
   },
   "resiliency/srv-driven": {
     "package-name": "resiliency-srv-driven2",
+    namespace: "resiliency.srv.driven2",
     "package-mode": "azure-dataplane",
     "package-pprint-name": "ResiliencySrvDriven2",
   },
   "authentication/http/custom": {
     "package-name": "authentication-http-custom",
+    namespace: "authentication.http.custom",
     "package-pprint-name": "Authentication Http Custom",
   },
   "authentication/union": {
     "package-name": "authentication-union",
+    namespace: "authentication.union",
   },
   "type/array": {
     "package-name": "typetest-array",
+    namespace: "typetest.array",
     "use-pyodide": "true",
   },
   "type/dictionary": {
     "package-name": "typetest-dictionary",
+    namespace: "typetest.dictionary",
   },
   "type/enum/extensible": {
     "package-name": "typetest-enum-extensible",
+    namespace: "typetest.enum.extensible",
   },
   "type/enum/fixed": {
     "package-name": "typetest-enum-fixed",
+    namespace: "typetest.enum.fixed",
   },
   "type/model/empty": {
     "package-name": "typetest-model-empty",
+    namespace: "typetest.model.empty",
   },
   "type/model/inheritance/enum-discriminator": {
     "package-name": "typetest-model-enumdiscriminator",
+    namespace: "typetest.model.enumdiscriminator",
   },
   "type/model/inheritance/nested-discriminator": {
     "package-name": "typetest-model-nesteddiscriminator",
+    namespace: "typetest.model.nesteddiscriminator",
   },
   "type/model/inheritance/not-discriminated": {
     "package-name": "typetest-model-notdiscriminated",
+    namespace: "typetest.model.notdiscriminated",
   },
   "type/model/inheritance/single-discriminator": {
     "package-name": "typetest-model-singlediscriminator",
+    namespace: "typetest.model.singlediscriminator",
   },
   "type/model/inheritance/recursive": {
     "package-name": "typetest-model-recursive",
+    namespace: "typetest.model.recursive",
     "use-pyodide": "true",
   },
   "type/model/usage": {
     "package-name": "typetest-model-usage",
+    namespace: "typetest.model.usage",
   },
   "type/model/visibility": [
-    { "package-name": "typetest-model-visibility" },
-    { "package-name": "headasbooleantrue", "head-as-boolean": "true" },
-    { "package-name": "headasbooleanfalse", "head-as-boolean": "false" },
+    {
+      "package-name": "typetest-model-visibility",
+      namespace: "typetest.model.visibility",
+    },
+    {
+      "package-name": "headasbooleantrue",
+      namespace: "headasbooleantrue",
+      "head-as-boolean": "true",
+    },
+    {
+      "package-name": "headasbooleanfalse",
+      namespace: "headasbooleanfalse",
+      "head-as-boolean": "false",
+    },
   ],
   "type/property/nullable": {
     "package-name": "typetest-property-nullable",
+    namespace: "typetest.property.nullable",
   },
   "type/property/optionality": {
     "package-name": "typetest-property-optional",
+    namespace: "typetest.property.optional",
   },
   "type/property/additional-properties": {
     "package-name": "typetest-property-additionalproperties",
+    namespace: "typetest.property.additionalproperties",
   },
   "type/scalar": {
     "package-name": "typetest-scalar",
+    namespace: "typetest.scalar",
   },
   "type/property/value-types": {
     "package-name": "typetest-property-valuetypes",
+    namespace: "typetest.property.valuetypes",
   },
   "type/union": {
     "package-name": "typetest-union",
-  },
-  "azure/core/lro/rpc": {
-    "package-name": "azurecore-lro-rpc",
-  },
-  "client/structure/multi-client": {
-    "package-name": "client-structure-multiclient",
-  },
-  "client/structure/renamed-operation": {
-    "package-name": "client-structure-renamedoperation",
-  },
-  "client/structure/two-operation-group": {
-    "package-name": "client-structure-twooperationgroup",
-  },
-  "client/namespace": {
-    "enable-typespec-namespace": "true",
+    namespace: "typetest.union",
   },
 };
 
@@ -141,29 +210,9 @@ function getEmitterOption(spec: string, flavor: string): Record<string, string>[
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
     ? relativeSpec
     : dirname(relativeSpec);
-  const emitter_options = EMITTER_OPTIONS[key] || [{}];
-  const result = Array.isArray(emitter_options) ? emitter_options : [emitter_options];
-
-  function updateOptions(options: Record<string, string>): void {
-    if (options["package-name"] && options["enable-typespec-namespace"] === undefined) {
-      options["enable-typespec-namespace"] = "false";
-    }
-  }
-
-  // when package name is different with typespec namespace, disable typespec namespace
-  if (flavor !== "azure") {
-    for (const options of result) {
-      if (Array.isArray(options)) {
-        for (const option of options) {
-          updateOptions(option);
-        }
-      } else {
-        updateOptions(options);
-      }
-    }
-  }
-
-  return result;
+  const emitter_options = EMITTER_OPTIONS[key] ||
+    (flavor === "azure" ? AZURE_EMITTER_OPTIONS[key] : [{}]) || [{}];
+  return Array.isArray(emitter_options) ? emitter_options : [emitter_options];
 }
 
 // Function to execute CLI commands asynchronously
@@ -171,16 +220,15 @@ async function executeCommand(tspCommand: TspCommand): Promise<void> {
   try {
     rmSync(tspCommand.outputDir, { recursive: true, force: true });
   } catch (error) {
-    console.error(`rm error: ${error}`);
+    console.error(chalk.red(`rm error: ${error}`));
   }
+  const execFileAsync = promisify(execFile);
   try {
-    console.log(`exec: ${tspCommand.command}`);
-    const { stdout, stderr } = await exec(tspCommand.command);
-    if (stdout) console.log(`stdout: ${stdout}`);
-    if (stderr) console.error(`stderr: ${stderr}`);
-  } catch (error) {
-    console.error(`exec error: ${error}`);
-    throw error;
+    await execFileAsync("tsp", tspCommand.command, { shell: true });
+    console.log(chalk.green(`tsp ${tspCommand.command.join(" ")} succeeded`));
+  } catch (err) {
+    console.error(chalk.red(`exec error: ${err}`));
+    throw err;
   }
 }
 
@@ -265,7 +313,7 @@ function defaultPackageName(spec: string): string {
 }
 
 interface EmitterConfig {
-  optionsStr: string;
+  options: string[];
   outputDir: string;
 }
 
@@ -293,15 +341,15 @@ function addOptions(
     if (flags.debug) {
       options["debug"] = "true";
     }
-    if (flags.flavor === "unbranded") {
-      options["company-name"] = "Unbranded";
-    }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
     const configs = Object.entries(options).flatMap(([k, v]) => {
-      return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${typeof v === "string" && v.indexOf(" ") > -1 ? `"${v}"` : v}`;
+      return [
+        "--option",
+        `${argv.values.emitterName || "@typespec/http-client-python"}.${k}="${v}"`,
+      ];
     });
     emitterConfigs.push({
-      optionsStr: configs.join(" "),
+      options: configs,
       outputDir: options["emitter-output-dir"],
     });
   }
@@ -311,7 +359,7 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
   return addOptions(spec, GENERATED_FOLDER, flags).map((option) => {
     return {
       outputDir: option.outputDir,
-      command: `tsp compile ${spec} --emit=${toPosix(PLUGIN_DIR)} ${option.optionsStr}`,
+      command: ["compile", spec, "--emit", toPosix(PLUGIN_DIR), ...option.options],
     };
   });
 }
@@ -360,7 +408,9 @@ const start = performance.now();
 regenerate(argv.values)
   .then(() =>
     console.log(
-      `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
+      chalk.green(
+        `Regeneration successful, time taken: ${Math.round((performance.now() - start) / 1000)} s`,
+      ),
     ),
   )
-  .catch((error) => console.error(`Regeneration failed: ${error.message}`));
+  .catch((error) => console.error(chalk.red(`Regeneration failed: ${error.message}`)));

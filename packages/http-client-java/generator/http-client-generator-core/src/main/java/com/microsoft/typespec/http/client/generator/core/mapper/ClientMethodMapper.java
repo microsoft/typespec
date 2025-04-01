@@ -25,7 +25,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalDocumentation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -407,17 +406,29 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
 
                     if (JavaSettings.getInstance().isSyncStackEnabled() && !proxyMethodUsesFluxByteBuffer) {
-                        // WithResponseAsync, with required and optional parameters
-                        methods.add(builder
+                        // WithResponseSync, with required and optional parameters
+                        builder
                             .returnValue(createSimpleSyncRestResponseReturnValue(operation,
                                 returnTypeHolder.syncReturnWithResponse, returnTypeHolder.syncReturnType))
                             .name(proxyMethod.getSimpleRestResponseMethodName())
                             .onlyRequiredParameters(false)
                             .type(ClientMethodType.SimpleSyncRestResponse)
                             .groupedParameterRequired(false)
-                            .methodVisibility(simpleSyncMethodVisibility)
-                            .proxyMethod(proxyMethod.toSync())
-                            .build());
+                            .proxyMethod(proxyMethod.toSync());
+
+                        // fluent + sync stack needs simple rest response for implementation only
+                        if (settings.isFluent()) {
+                            simpleSyncMethodVisibility = NOT_VISIBLE;
+                            simpleSyncMethodVisibilityWithContext = NOT_VISIBLE;
+                            ReturnValue binaryDataResponse = createSimpleSyncRestResponseReturnValue(operation,
+                                ResponseTypeFactory.createSyncResponse(operation, ClassType.BINARY_DATA,
+                                    isProtocolMethod, settings, proxyMethod.isCustomHeaderIgnored()),
+                                ClassType.BINARY_DATA);
+                            builder.returnValue(binaryDataResponse);
+                        }
+
+                        builder.methodVisibility(simpleSyncMethodVisibility);
+                        methods.add(builder.build());
 
                         builder.methodVisibility(simpleSyncMethodVisibilityWithContext);
                         addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
@@ -646,14 +657,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             return returnTypeHolder;
         }
 
-        IType responseBodyType = MapperUtils.handleResponseSchema(operation, settings);
+        IType responseBodyType = MapperUtils.getExpectedResponseBodyType(operation, settings);
         if (isProtocolMethod && JavaSettings.getInstance().isBranded()) {
-            responseBodyType = SchemaUtil.removeModelFromResponse(responseBodyType, operation);
+            responseBodyType = SchemaUtil.tryMapToBinaryData(responseBodyType, operation);
         }
 
-        returnTypeHolder.asyncRestResponseReturnType = Mappers.getProxyMethodMapper()
-            .getAsyncRestResponseReturnType(operation, responseBodyType, isProtocolMethod, settings,
-                isCustomHeaderIgnored)
+        returnTypeHolder.asyncRestResponseReturnType = ResponseTypeFactory
+            .createAsyncResponse(operation, responseBodyType, isProtocolMethod, settings, isCustomHeaderIgnored)
             .getClientType();
 
         IType restAPIMethodReturnBodyClientType = responseBodyType.getClientType();
@@ -672,8 +682,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             }
         }
 
-        returnTypeHolder.syncReturnWithResponse = createSyncReturnWithResponseType(returnTypeHolder.syncReturnType,
-            operation, isProtocolMethod, settings, isCustomHeaderIgnored);
+        returnTypeHolder.syncReturnWithResponse = ResponseTypeFactory.createSyncResponse(operation,
+            returnTypeHolder.syncReturnType, isProtocolMethod, settings, isCustomHeaderIgnored);
 
         return returnTypeHolder;
     }
@@ -1105,36 +1115,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .finalParameter(false)
             .required(false)
             .build();
-    }
-
-    /**
-     * Creates the synchronous {@code withResponse} type.
-     *
-     * @param syncReturnType The return type.
-     * @param operation The operation.
-     * @param isProtocolMethod Whether this is a protocol method.
-     * @param settings Autorest generation settings.
-     * @param ignoreCustomHeaders Whether the custom header type is ignored.
-     * @return The synchronous {@code withResponse} type.
-     */
-    protected IType createSyncReturnWithResponseType(IType syncReturnType, Operation operation,
-        boolean isProtocolMethod, JavaSettings settings, boolean ignoreCustomHeaders) {
-        boolean responseContainsHeaders = SchemaUtil.responseContainsHeaderSchemas(operation, settings);
-
-        // If DPG is being generated or the response doesn't contain headers return Response<T>
-        // If no named response types are being used return ResponseBase<H, T>
-        // Else named response types are being used and return that.
-        if (isProtocolMethod || !responseContainsHeaders) {
-            return GenericType.Response(syncReturnType);
-        } else if (settings.isGenericResponseTypes()) {
-            if (ignoreCustomHeaders || settings.isDisableTypedHeadersMethods()) {
-                return GenericType.Response(syncReturnType);
-            }
-            return GenericType.RestResponse(
-                Mappers.getSchemaMapper().map(ClientMapper.parseHeader(operation, settings)), syncReturnType);
-        } else {
-            return ClientMapper.getClientResponseClassType(operation, ClientModels.getInstance().getModels(), settings);
-        }
     }
 
     /**

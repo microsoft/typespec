@@ -9,7 +9,7 @@ azure-mgmt-core==1.3.2
 -e ./generated/azure-client-generator-core-flatten-property
 -e ./generated/azure-core-basic
 -e ./generated/azure-core-scalar
--e ./generated/azurecore-lro-rpc
+-e ./generated/azure-core-lro-rpc
 -e ./generated/azure-core-lro-standard
 -e ./generated/azure-core-model
 -e ./generated/azure-core-traits
@@ -46,6 +46,7 @@ azure-mgmt-core==1.3.2
 -e ./generated/server-versions-versioned
 -e ./generated/server-versions-not-versioned
 -e ./generated/special-words
+-e ./generated/streaming-jsonl
 -e ./generated/typetest-array
 -e ./generated/typetest-dictionary
 -e ./generated/typetest-enum-extensible

@@ -24,14 +24,24 @@ namespace Microsoft.TypeSpec.Generator
         internal void SelectGenerator(CommandLineOptions options)
         {
             bool loaded = false;
-            foreach (var mockGenerator in Generators!)
+            foreach (var generator in Generators!)
             {
-                if (mockGenerator.Metadata.GeneratorName == options.GeneratorName!)
+                if (generator.Metadata.GeneratorName == options.GeneratorName!)
                 {
-                    CodeModelGenerator.Instance = mockGenerator.Value;
+                    CodeModelGenerator.Instance = generator.Value;
                     CodeModelGenerator.Instance.IsNewProject = options.IsNewProject;
-                    loaded = true;
+
+                    // Apply discovered plugins (if any)
+                    if (Plugins != null)
+                    {
+                        foreach (var plugin in Plugins)
+                        {
+                            plugin.Apply(CodeModelGenerator.Instance);
+                        }
+                    }
+
                     CodeModelGenerator.Instance.Configure();
+                    loaded = true;
                     break;
                 }
             }
@@ -44,6 +54,9 @@ namespace Microsoft.TypeSpec.Generator
 
         [ImportMany]
         public IEnumerable<Lazy<CodeModelGenerator, IMetadata>>? Generators { get; set; }
+
+        [ImportMany]
+        public IEnumerable<GeneratorPlugin>? Plugins { get; set; }
     }
 
     public interface IMetadata

@@ -1,5 +1,5 @@
 ---
-title: TypeSpec for OpenAPI Developer
+title: TypeSpec for OpenAPI Developers
 ---
 
 This guide introduces TypeSpec using concepts familiar to developers who build or use API definitions in OpenAPI v2 or v3.
@@ -323,13 +323,14 @@ The following fields of a parameter object are specific to OpenAPI v2:
 #### Collection Formats
 
 In OpenAPI v2, the `collectionFormat` field of a query or header parameter object specifies how multiple values are delimited.
-You can use the `format` field of the `@query` or `@header` decorator to specify the collection format.
+You can use a combination of the `@encode` decorator and `explode` field of the `@query` or `@header` decorator to specify the collection format.
 
 ```typespec
 op read(
   @query csv?: string[], // equivalent to collectionFormat: csv
   @query(#{ explode: false }) csvExplicit?: string[], // equivalent to collectionFormat: csv
-  @query(#{ explode: true }) multi?: string[], // equivalent to collectionFormat: csv
+  @query(#{ explode: true }) multi?: string[], // equivalent to collectionFormat: multi
+  @query @encode(ArrayEncoding.pipeDelimited) pipes?: string[], // equivalent to collectionFormat: pipes
 ): Widget | Error;
 ```
 
@@ -337,15 +338,15 @@ op read(
 
 The following fields of a parameter object are specific to OpenAPI v3:
 
-| OpenAPI v3 `parameter` field | TypeSpec construct                          | Notes                               |
-| ---------------------------- | ------------------------------------------- | ----------------------------------- |
-| `style`                      | `format` parameter on `@query` or `@header` |                                     |
-| `explode`                    | `format` parameter on `@query` or `@header` |                                     |
-| `schema`                     | parameter schema                            | see [Schema Object](#schema-object) |
-| `deprecated`                 | `#deprecated` directive.                    |                                     |
-| `example`                    |                                             | Not currently supported.            |
-| `examples`                   |                                             | Not currently supported.            |
-| `content`                    |                                             | Not currently supported.            |
+| OpenAPI v3 `parameter` field | TypeSpec construct                                                                                              | Notes                                                                           |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `style`                      | `explode` parameter on `@query` or `@header` and `@encode`                                                      |                                                                                 |
+| `explode`                    | `explode` parameter on `@query` or `@header`                                                                    |                                                                                 |
+| `schema`                     | parameter schema                                                                                                | see [Schema Object](#schema-object)                                             |
+| `deprecated`                 | `#deprecated` directive.                                                                                        |                                                                                 |
+| `example`                    | `@example` on data types (e.g. models, scalars), `@opExample` to describe in-line parameters of operations      | Open API 3.0 only supports a single example when using `@example` on data types |
+| `examples`                   | `@example` on data types (e.g. models, scalars), `@opExample` to describe parameters/return types of operations | Open API 3.1 always outputs `examples` instead of `example`.                    |
+| `content`                    |                                                                                                                 | Not currently supported.                                                        |
 
 ## Request Body Object (OAS3)
 
@@ -453,14 +454,14 @@ elements common to both.
 
 The fields in an OpenAPI response object are specified with the following TypeSpec constructs:
 
-| OpenAPI `response` field | TypeSpec construct                                 | Notes                                              |
-| ------------------------ | -------------------------------------------------- | -------------------------------------------------- |
-| `description`            | `@doc` decorator                                   |                                                    |
-| `headers`                | fields in the return type with `@header` decorator | required or optional based on optionality of field |
-| `schema` (OAS2)          | return type or type of `@body`` property           |                                                    |
-| `content` (OAS3)         | return type or type of `@body`` property           |                                                    |
-| `examples` (OAS3)        |                                                    | Not currently supported.                           |
-| `links` (OAS3)           |                                                    | Not currently supported.                           |
+| OpenAPI `response` field | TypeSpec construct                                  | Notes                                               |
+| ------------------------ | --------------------------------------------------- | --------------------------------------------------- |
+| `description`            | `@doc` decorator                                    |                                                     |
+| `headers`                | fields in the return type with `@header` decorator  | Required or optional based on optionality of field. |
+| `schema` (OAS2)          | return type or type of `@body`` property            |                                                     |
+| `content` (OAS3)         | return type or type of `@body`` property            |                                                     |
+| `examples` (OAS3)        | `@opExample` to describe return types of operations | Supported on an operation.                          |
+| `links` (OAS3)           |                                                     | Not currently supported.                            |
 
 ```typespec
 @get op read(@path id: string): {
@@ -526,9 +527,11 @@ model Snake {
 }
 ```
 
-### additionalProperties
+### additionalProperties/unevaluatedProperties
 
 You can generate a schema with `additionalProperties` with the TypeSpec `Record` construct.
+
+**Note:** `unevaluatedProperties` is used instead of `additionalProperties` when emitting Open API 3.1 specs.
 
 ```typespec
   bar: Record<unknown>;
@@ -575,6 +578,23 @@ bar:
   additionalProperties:
     type: string
 ```
+
+To define a schema that **does not** allow any additional properties, use `Record<never>`.
+
+```typespec
+  bar: Record<never>;
+```
+
+results in
+
+```yaml title=openapi.yaml
+bar:
+  type: object
+  additionalProperties:
+    not: {}
+```
+
+In the openapi3 emitter, schemas that don't define `additionalProperties` can automatically be set to `additionalProperties: { not: {} }` by setting the `seal-object-schemas` emitter option to `true`. This will not add `additionalProperties` to object schemas that are referenced in an `allOf` of another schema.
 
 ### allOf and polymorphism using allOf
 
@@ -721,10 +741,10 @@ Pet:
 
 To make Pet a discriminated union, add the `@discriminator` decorator and add the discriminator property
 with a string literal value to each of the child schemas.
+View the [`@discriminated` documentation](https://typespec.io/docs/standard-library/built-in-decorators/#@discriminated) to learn how to further customize what is emitted.
 
 ```typespec
-@discriminator("kind")
-@oneOf
+@discriminated(#{ envelope: "none" })
 union Pet {
   cat: Cat,
   dog: Dog,
@@ -796,14 +816,8 @@ In TypeSpec this information is specified with [decorators on the namespace][typ
 /** The Contoso Widget Service provides access to the Contoso Widget API. */
 @service(#{ title: "Widget Service" })
 @info(#{
-  contact: {
-    name: "API Support",
-    email: "contact@contoso.com",
-  },
-  license: {
-    name: "Apache 2.0",
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html",
-  },
+  contact: #{ name: "API Support", email: "contact@contoso.com" },
+  license: #{ name: "Apache 2.0", url: "https://www.apache.org/licenses/LICENSE-2.0.html" },
 })
 namespace DemoService;
 ```
@@ -821,7 +835,7 @@ in favor of explicit `content-type` and `accept` header properties in request an
 Use the `@useAuth` decorator from the `@typespec/rest" library
 
 ```typespec
-using TypeSpec.Http;
+using Http;
 @useAuth(OAuth2Auth<["read", "write"]>)
 namespace MyService;
 ```

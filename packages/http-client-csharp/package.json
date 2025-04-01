@@ -2,7 +2,7 @@
   "name": "@typespec/http-client-csharp",
   "version": "1.0.0",
   "author": "Microsoft Corporation",
-  "description": "The typespec library that can be used to generate C# models from a TypeSpec REST protocol binding",
+  "description": "TypeSpec library for emitting Http Client libraries for C#.",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/Microsoft/typespec/blob/main/packages/http-client-csharp/readme.md",
   "license": "MIT",
@@ -19,7 +19,10 @@
   "type": "module",
   "main": "dist/emitter/src/index.js",
   "exports": {
-    ".": "./dist/emitter/src/index.js"
+    ".": {
+      "types": "./dist/emitter/src/index.d.ts",
+      "default": "./dist/emitter/src/index.js"
+    }
   },
   "scripts": {
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
@@ -37,7 +40,8 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "pnpm -w format:dir packages/http-client-csharp",
-    "extract-api": "npx api-extractor run --local --verbose"
+    "extract-api": "npx api-extractor run --local --verbose",
+    "regen-docs": "node ../../packages/tspd/cmd/tspd.js doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-csharp/reference --skip-js"
   },
   "files": [
     "dist/emitter/src/**",
@@ -47,34 +51,34 @@
     "json-serialize-refs": "0.1.0-0"
   },
   "peerDependencies": {
-    "@azure-tools/typespec-azure-core": ">=0.52.0 <1.0.0 || ~0.53.0-0",
-    "@azure-tools/typespec-client-generator-core": ">=0.52.0 <1.0.0 || ~0.53.0-0",
-    "@typespec/compiler": ">=0.66.0 <1.0.0 || ~0.67.0-0",
-    "@typespec/http": ">=0.66.0 <1.0.0 || ~0.67.0-0",
-    "@typespec/openapi": ">=0.66.0 <1.0.0 || ~0.67.0-0",
-    "@typespec/rest": ">=0.66.0 <1.0.0 || ~0.67.0-0",
-    "@typespec/versioning": ">=0.66.0 <1.0.0 || ~0.67.0-0"
+    "@azure-tools/typespec-azure-core": ">=0.53.0 <1.0.0 || ~0.54.0-0",
+    "@azure-tools/typespec-client-generator-core": ">=0.53.0 <1.0.0 || ~0.54.0-0",
+    "@typespec/compiler": ">=0.67.0 <1.0.0 || ~0.68.0-0",
+    "@typespec/http": ">=0.67.0 <1.0.0 || ~0.68.0-0",
+    "@typespec/openapi": ">=0.67.0 <1.0.0 || ~0.68.0-0",
+    "@typespec/rest": ">=0.67.0 <1.0.0 || ~0.68.0-0",
+    "@typespec/versioning": ">=0.67.0 <1.0.0 || ~0.68.0-0"
   },
   "devDependencies": {
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.7",
-    "@azure-tools/typespec-azure-core": "0.52.0",
-    "@azure-tools/typespec-client-generator-core": "0.52.0",
-    "@microsoft/api-extractor": "^7.47.11",
+    "@typespec/http-specs": "0.1.0-alpha.15",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.10",
+    "@azure-tools/typespec-azure-core": "0.53.0",
+    "@azure-tools/typespec-client-generator-core": "0.53.1",
+    "@microsoft/api-extractor": "^7.52.2",
     "@types/node": "~22.7.5",
-    "@typespec/compiler": "0.66.0",
-    "@typespec/http": "0.66.0",
-    "@typespec/http-specs": "0.1.0-alpha.12",
-    "@typespec/json-schema": "0.66.0",
-    "@typespec/library-linter": "0.66.0",
-    "@typespec/openapi": "0.66.0",
-    "@typespec/rest": "0.66.0",
-    "@typespec/versioning": "0.66.0",
-    "@typespec/xml": "^0.66.0",
+    "@typespec/compiler": "0.67.1",
+    "@typespec/http": "0.67.1",
+    "@typespec/json-schema": "0.67.0",
+    "@typespec/library-linter": "0.67.0",
+    "@typespec/openapi": "0.67.0",
+    "@typespec/rest": "0.67.1",
+    "@typespec/versioning": "0.67.1",
+    "@typespec/xml": "0.67.1",
     "@vitest/coverage-v8": "^3.0.5",
     "@vitest/ui": "^3.0.5",
     "c8": "^10.1.2",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.3",
+    "typescript": "~5.8.2",
     "vitest": "^3.0.5"
   }
 }
