@@ -63,7 +63,7 @@ _Option 2_. Typing `>TypeSpec: Emit from TypeSpec` in the _Command Palette_ with
 
 ![alt text](./images/EmitfromTypeSpec_SelectTypespecProject.png)
 
-### Step 4: Select an Emitter for code generation.(optional)
+### Step 4: Select an Emitter for code emitting.(optional)
 
 **Validate:** There should be a prompt "Select emitters for code emitting".
 
@@ -95,11 +95,11 @@ emit:
 
 ### Step 5: Select an Emitter Type.
 
-**Validate:** There should be a prompt "Select an emitter type", and should see three emitter types: `Client Code`, `<PREVIEW> Server Stub`, `OpenAPI Document`.
+**Validate:** There should be a prompt "Select an emitter type", and should see three emitter types: `Client Code`, `Server Stub`, `OpenAPI Document`.
 
 ![alt text](./images/EmitfromTypeSpec_SelectEmitter_client.png)
 
-### Step 6: Click an Emitter Type, Select a Language and Generate Code.
+### Step 6: Click an Emitter Type, Select a Language and Emit Code.
 
 - For Emitter Type `Client Code`:
 
@@ -141,13 +141,13 @@ emit:
 
        ![alt text](./images/EmitClientCode_VerifyGenerateCodeSucceeded_Python.png)
 
-- For Emitter Type `<PREVIEW> Server Stub`:
+- For Emitter Type `Server Stub`:
 
   The service stub generation support will be PREVIEWED for 2 languages: `.NET` and `JavaScript`.
 
   > Note: Server Stub Emitter is currently under PREVIEW.
 
-  1. Click `<PREVIEW> Server Stub`, and select a Language.
+  1. Click `Server Stub`, and select a Language.
 
      **Validate:** There should be a prompt "Select a Language for server code emitting", and should see two languages: `.NET`, `JavaScript`.
 

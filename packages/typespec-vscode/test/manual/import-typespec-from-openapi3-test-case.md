@@ -1,6 +1,6 @@
-# Import TypeSpec from OpenAPI3 Test Scenario
+# Import TypeSpec from OpenAPI 3 Test Scenario
 
-With the TypeSpec emitter for OpenAPI3, users can import a TypeSpec file from a designated OpenAPI3 document. While it is possible to repeatedly convert OpenAPI3 to TypeSpec.
+With the TypeSpec emitter for OpenAPI 3, users can import a TypeSpec file from a designated OpenAPI3 document. While it is possible to repeatedly convert OpenAPI 3 to TypeSpec.
 
 ## Test Environment
 
@@ -30,7 +30,7 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 ![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
 
-### Step 2: Trigger "Import TypeSpec from OpenAPI 3.0", and confirm the project folder where you will place the TypeSpec file converted from the specified OpenAPI3 specification.
+### Step 2: Trigger "Import TypeSpec from OpenAPI 3", and confirm the project folder where you will place the TypeSpec file converted from the specified OpenAPI 3 specification.
 
 _Option 1_. From the right-click context menu of a file.
 
@@ -64,7 +64,7 @@ _Option 2_. From the right-click context menu of a folder.
 
   If the folder is empty, skip the query and go to the next step.
 
-_Option 3_. Typing `>TypeSpec: Import TypeSpec from OpenApi3` in the _Command Palette_.
+_Option 3_. Typing `>TypeSpec: Import TypeSpec from OpenAPI 3` in the _Command Palette_.
 
 ![alt text](./images/TriggerImportTypeSpecfromOpenAPI3_Option3.png)
 
@@ -82,13 +82,13 @@ _Option 3_. Typing `>TypeSpec: Import TypeSpec from OpenApi3` in the _Command Pa
 
   If the folder is empty, skip the query and go to the next step.
 
-### Step 3: Specify the OpenAPI3 specification to convert.
+### Step 3: Specify the OpenAPI 3 specification to convert.
 
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_SpecifyOpenAPI3Specification.png)
 
 ### Step 4: Verify that `@typespec/openapi3` are installed.
 
-- If `@typespec/openapi3` is not installed. it will prompt `'@typespec/openapi3' is required to import OpenApi3. Do you want to install it?`. Click `Install @typespec/openapi3` to install.
+- If `@typespec/openapi3` is not installed. it will prompt `'@typespec/openapi3' is required to import OpenAPI3. Do you want to install it?`. Click `Install @typespec/openapi3` to install.
 
   > Note: When `@typespec/openapi3` is already defined in the project's `package.json`, `npm install` will be used. Otherwise, `npm install @typespec/openapi3` will be used.
 
@@ -110,7 +110,7 @@ When an error is detected, it's necessary to document the findings by using the 
 
 | No  |                   Title                   |             Issue Description             |                                                                                         Repro Steps                                                                                         |    Expected Results    |              Actual Results               |  Comments  |
 | --- | :---------------------------------------: | :---------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------: | :---------------------------------------: | :--------: |
-| 1   | e.g. Import TypeSpec from OpenAPI3 failed | Failed to convert OpenAPI3 specification. | 1. Right-click context menu of a .tsp file. <br> 2. Confirm the Project Folder. <br> 3. Specify the OpenAPI3 specification to convert. <br> 4.Verify Install Dependencies, start converting | Successful conversion. | Failed to convert OpenAPI3 specification. | Issue link |
+| 1   | e.g. Import TypeSpec from OpenAPI 3 failed | Failed to convert OpenAPI 3 specification. | 1. Right-click context menu of a .tsp file. <br> 2. Confirm the Project Folder. <br> 3. Specify the OpenAPI 3 specification to convert. <br> 4.Verify Install Dependencies, start converting | Successful conversion. | Failed to convert OpenAPI 3 specification. | Issue link |
 
 ## Test Results Summary
 
@@ -118,4 +118,4 @@ The test results will be presented in the following form:
 
 | NO  |          Test Cases           |   Platform    | Result | Issues | Comments |
 | --- | :---------------------------: | :-----------: | :----: | :----: | :------: |
-| 1   | Import TypeSpec from OpenAPI3 | Windows/Linux |        |        |          |
+| 1   | Import TypeSpec from OpenAPI 3 | Windows/Linux |        |        |          |

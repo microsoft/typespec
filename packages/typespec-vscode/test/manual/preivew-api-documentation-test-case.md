@@ -1,6 +1,6 @@
-# Show OpenAPI3 Documentation Test Scenario
+# Preview API Documentation Test Scenario
 
-Provides users with OpenAPI3 preview functionality for Typespec files. Users can view API specifications through the Show OpenAPI3 Documentation feature.
+Provides users with OpenAPI 3 preview functionality for Typespec files. Users can view API specifications through the Preview API Documentation feature.
 
 **Important: There must be at least one TypeSpec project in the project folder.**
 
@@ -33,21 +33,23 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 ![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
 
-### Step 2: Trigger "Show OpenAPI3 Documentation".
+### Step 2: Trigger "Preview API Documentation".
 
 _Option 1_. From the right-click context menu of a `.tsp` file.
 
-![alt text](./images/TriggerShowOpenapi3Documentation_right-click.png)
+![alt text](./images/TriggerPreviewAPIDocumentation_right-click.png)
 
-_Option 2_. Typing `>TypeSpec: Show OpenAPI3 Documentation` in the _Command Palette_.
+_Option 2_. Typing `>TypeSpec: Preview API Documentation` in the _Command Palette_.
 
-![alt text](./images/TriggerShowOpenapi3Documentation_Option2.png)
+> Note: Before typing content in the _Command Palette_, first select a ".tsp" file.
+
+![alt text](./images/TriggerPreviewAPIDocumentation_Option2.png)
 
 ### Step 3: Select OpenAPI3 files. (optional)
 
 - If multiple OpenAPI3 files are generated, you will be prompted to select one to preview.
   **Validate:** There should be a prompt "Multiple OpenAPI3 files found. Select one to preview", and generated OpenAPI3 files.
-  ![alt text](./images/ShowOpenAPI3Documentation_SelectOpenAPI3File.png)
+  ![alt text](./images/PreviewAPIDocumentation_SelectOpenAPI3File.png)
 
 - If only one OpenAPI3 file is generated, the selection will be skipped.
 
@@ -55,7 +57,7 @@ _Option 2_. Typing `>TypeSpec: Show OpenAPI3 Documentation` in the _Command Pale
 
 After selecting the OpenAPI3 file, the file will be loaded. After the loading is successful, you can display the OpenAPI3 preview in vscode.
 
-![alt text](./images/ShowOpenAPI3Documentation_CompilationSuccessfully.png)
+![alt text](./images/PreviewAPIDocumentation_CompilationSuccessfully.png)
 
 ## Issue Report
 
@@ -63,7 +65,7 @@ When an error is detected, it's necessary to document the findings by using the 
 
 | No  |                  Title                  |         Issue Description          |                                                                            Repro Steps                                                                            |           Expected Results           |           Actual Results           |  Comments  |
 | --- | :-------------------------------------: | :--------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------: | :--------------------------------: | :--------: |
-| 1   | e.g. Show OpenAPI3 Documentation failed | Failed to generate OpenAPI3 files. | 1. Right-click context menu of a .tsp file. <br> 2. Select Show OpenAPI3 Documentation. <br> 3. Select OpenAPI3 files. <br> 4. Failed to generate OpenAPI3 files. | Generate OpenAPI3 file successfully. | Failed to generate OpenAPI3 files. | Issue link |
+| 1   | e.g. Preview API Documentation failed | Failed to generate OpenAPI3 files. | 1. Right-click context menu of a .tsp file. <br> 2. Select Preview API Documentation. <br> 3. Select OpenAPI3 files. <br> 4. Failed to generate OpenAPI3 files. | Generate OpenAPI3 file successfully. | Failed to generate OpenAPI3 files. | Issue link |
 
 ## Test Results Summary
 
@@ -71,4 +73,4 @@ The test results will be presented in the following form:
 
 | NO  |         Test Cases          |   Platform    | Result | Issues | Comments |
 | --- | :-------------------------: | :-----------: | :----: | :----: | :------: |
-| 1   | Show OpenAPI3 Documentation | Windows/Linux |        |        |          |
+| 1   | Preview API Documentation | Windows/Linux |        |        |          |
