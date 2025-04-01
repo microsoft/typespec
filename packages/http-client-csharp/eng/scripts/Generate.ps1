@@ -20,7 +20,7 @@ if (-not $LaunchOnly) {
         $sampleTypespecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
         $sampleTypespecTestProject = $sampleTypespecTestProject
 
-        Invoke (Get-TspCommand "$sampleTypespecTestProject/Sample-TypeSpec.tsp" $sampleTypespecTestProject -newProject $false)
+        Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject -newProject $false)
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {

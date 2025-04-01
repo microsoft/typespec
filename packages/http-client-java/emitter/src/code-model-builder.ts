@@ -365,9 +365,8 @@ export class CodeModelBuilder {
               serializedName: arg.serializedName,
             },
           },
-          // TODO: deprecate this logic of string/url for x-ms-skip-url-encoding
           extensions: {
-            "x-ms-skip-url-encoding": schema instanceof UriSchema,
+            "x-ms-skip-url-encoding": arg.allowReserved,
           },
           clientDefaultValue: arg.clientDefaultValue,
         });
@@ -2702,7 +2701,6 @@ export class CodeModelBuilder {
     }
 
     if (prop.kind === "property" && prop.serializationOptions.multipart) {
-      // TODO: handle MultipartOptions.isMulti
       if (prop.serializationOptions.multipart?.isFilePart) {
         schema = this.processMultipartFormDataFilePropertySchema(prop);
       } else if (
