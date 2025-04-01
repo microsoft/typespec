@@ -31,8 +31,8 @@ import { OperationHandler } from "./types.js";
 
 export const PaginatedOperationHandler: OperationHandler = {
   canHandle(httpOperation: HttpOperation): boolean {
-    const pagingOperation = $.operation.getPagingOperation(httpOperation.operation);
-    return pagingOperation !== undefined;
+    const pagingMetadata = $.operation.getPagingMetadata(httpOperation.operation);
+    return pagingMetadata !== undefined;
   },
   handle(httpOperation: HttpOperation): Children {
     const clientLibrary = cl.useClientLibrary();
@@ -45,7 +45,7 @@ export const PaginatedOperationHandler: OperationHandler = {
       });
       return;
     }
-    const pagingOperation = $.operation.getPagingOperation(httpOperation.operation)!;
+    const pagingOperation = $.operation.getPagingMetadata(httpOperation.operation)!;
     const responseRefkey = ay.refkey(httpOperation, "http-response");
     const operationRefkey = ay.refkey(httpOperation.operation);
     const returnType = ay.code`${getPagedAsyncIterableIteratorRefkey()}<${getPageItemTypeName(pagingOperation)},${getPageResponseTypeRefkey(httpOperation)},${getPageSettingsTypeRefkey(httpOperation)}>`;

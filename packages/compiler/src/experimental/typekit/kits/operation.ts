@@ -41,10 +41,10 @@ export interface OperationKit {
    */
   is(type: Type): type is Operation;
   /**
-   * Get the paging operation for an operation.
+   * Get the paging operation's metadata for an operation.
    * @param operation operation to get the paging operation for
    */
-  getPagingOperation(operation: Operation): PagingOperation | undefined;
+  getPagingMetadata(operation: Operation): PagingOperation | undefined;
 }
 
 interface TypekitExtension {
@@ -64,7 +64,7 @@ defineKit<TypekitExtension>({
     is(type: Type) {
       return type.kind === "Operation";
     },
-    getPagingOperation(operation: Operation) {
+    getPagingMetadata(operation: Operation) {
       return ignoreDiagnostics(getPagingOperation(this.program, operation));
     },
     create(desc) {
