@@ -14,7 +14,7 @@ def client():
 
 
 def test_get_model(client):
-    result = client.get_model(models.VisibilityModel(query_prop=123))
+    result = client.get_model(models.VisibilityModel(), query_prop=123)
     assert result == models.VisibilityModel(read_prop="abc")
 
 
