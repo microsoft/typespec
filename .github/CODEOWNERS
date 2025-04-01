@@ -8,7 +8,7 @@
 # CSharp
 ######################
 /packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @nisha-bhatia
-/docs/samples/client/csharp                  @nisha-bhatia
+/docs/samples/client/csharp                  @nisha-bhatia @JoshLove-msft @jorgerangel-msft
 
 ######################
 # Java
