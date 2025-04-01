@@ -1269,6 +1269,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                   this.emitter.getProgram(),
                   type.namespace,
                   getNamespaceFullName(type.namespace),
+                  NameCasingType.Namespace,
                 )
               : "TypeSpec"
           }.Service`;
