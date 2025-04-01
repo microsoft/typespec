@@ -1218,25 +1218,25 @@ it("generates appropriate types for literal tuples in operation parameters", asy
         "Foo.cs",
         [
           "public partial class Foo",
-          "public IEnumerable<int> IntProp { get; } = new List<int> {8, 10}",
-          "public IEnumerable<double> FloatProp { get; } = new List<double> {3.14, 5.2}",
+          "public int[] IntProp { get; } = {8, 10}",
+          "public double[] FloatProp { get; } = {3.14, 5.2}",
           `public string StringProp { get; } = "string of characters"`,
-          `public IEnumerable<string> StringArrayProp { get; } = new List<string> {"A string of characters", "and another"}`,
-          `public IEnumerable<string> StringTempProp { get; } = new List<string> {"A string of characters and then some", "Yet another string of characters"}`,
-          "public IEnumerable<bool> TrueProp { get; } = new List<bool> {true, true}",
-          "public IEnumerable<bool> FalseProp { get; } = new List<bool> {false, false}",
+          `public string[] StringArrayProp { get; } = {"A string of characters", "and another"}`,
+          `public string[] StringTempProp { get; } = {"A string of characters and then some", "Yet another string of characters"}`,
+          "public bool[] TrueProp { get; } = {true, true}",
+          "public bool[] FalseProp { get; } = {false, false}",
         ],
       ],
       [
         "ContosoOperationsController.cs",
         [
-          `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] IEnumerable<int> intProp, [FromHeader(Name="float-prop")] IEnumerable<double> floatProp, [FromHeader(Name="string-prop")] string stringProp = "string of characters", [FromHeader(Name="string-array-prop")] IEnumerable<string> stringArrayProp, [FromHeader(Name="string-temp-prop")] IEnumerable<string> stringTempProp, [FromHeader(Name="true-prop")] IEnumerable<bool> trueProp, [FromHeader(Name="false-prop")] IEnumerable<bool> falseProp)`,
+          `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] int[] intProp, [FromHeader(Name="float-prop")] double[] floatProp, [FromHeader(Name="string-prop")] string stringProp = "string of characters", [FromHeader(Name="string-array-prop")] string[] stringArrayProp, [FromHeader(Name="string-temp-prop")] string[] stringTempProp, [FromHeader(Name="true-prop")] bool[] trueProp, [FromHeader(Name="false-prop")] bool[] falseProp)`,
         ],
       ],
       [
         "IContosoOperations.cs",
         [
-          `Task FooAsync( IEnumerable<int> intProp, IEnumerable<double> floatProp, string stringProp, IEnumerable<string> stringArrayProp, IEnumerable<string> stringTempProp, IEnumerable<bool> trueProp, IEnumerable<bool> falseProp);`,
+          `Task FooAsync( int[] intProp, double[] floatProp, string stringProp, string[] stringArrayProp, string[] stringTempProp, bool[] trueProp, bool[] falseProp);`,
         ],
       ],
     ],
@@ -1303,7 +1303,7 @@ it("generates valid code for anonymous models", async () => {
         "Foo.cs",
         [
           "public partial class Foo",
-          "public IEnumerable<int> IntProp { get; } = new List<int> {8, 10}",
+          "public int[] IntProp { get; } = {8, 10}",
           "public Model0 ModelProp { get; set; }",
           "public Model1 AnotherModelProp { get; set; }",
           "public Model0 YetAnother { get; set; }",
@@ -2400,7 +2400,7 @@ describe("collection type: defined as emitter option", () => {
     intArr: Array<int32>;
     stringArr: Array<string>;
     modelArr: Array<FooProp>;
-
+        
     @uniqueItems
     stringUnique: string[];
   }
