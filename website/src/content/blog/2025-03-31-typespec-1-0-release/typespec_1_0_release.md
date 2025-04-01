@@ -1,8 +1,8 @@
 ---
 slug: 2025-03-31-typespec-1-0-release
-title: "TypeSpec 1.0-RC: Write your API once, let TypeSpec do the rest"
+title: "TypeSpec 1.0-RC: Design Faster Today, Scale Easier Tomorrow"
 image: ./TypeSpec_1_0_RC.png
-description: "The TypeSpec 1.0 Release Candidate is here! This open-source project, created by Microsoft, brings a powerful yet concise API modeling language that generates server code, client libraries, schemas, and documentation from a single source of truth."
+description: "The TypeSpec 1.0 Release Candidate is here! This open-source project, created by Microsoft and released to the community, brings a powerful yet concise API modeling language that supports API-first development, streamlining the generation of server code, client libraries, schemas, and documentation from a single source of truth."
 publishDate: 2025-03-19
 author:
   name: Mario Guerra
@@ -13,19 +13,28 @@ tags:
   - announcement
 ---
 
-We're excited to announce the TypeSpec 1.0 Release Candidate, marking a significant milestone for the TypeSpec project. TypeSpec embodies a simple yet powerful principle: write your API once, and let TypeSpec take care of the rest. This straightforward approach allows you to focus on designing the perfect API contract while TypeSpec handles generating all the artifacts you need - from OpenAPI specifications to client libraries and server code scaffolding - saving you time and eliminating inconsistencies.
+We're excited to announce the TypeSpec 1.0 Release Candidate, marking a significant milestone for the TypeSpec project. TypeSpec accelerates your initial API development while providing a sustainable approach to evolving your APIs over time. Design faster today by defining your APIs in a concise, human-readable format and generating all the artifacts you need from a single source of truth – OpenAPI specifications, client libraries, and server code scaffolding. Scale easier tomorrow with an API-first approach that keeps everything in sync as your API grows and requirements change.
 
 ## What is TypeSpec?
 
-TypeSpec is a language for describing API contracts. Using TypeSpec, you write your API definition in a concise, human-readable format, and TypeSpec takes care of generating:
+TypeSpec is an open source language and tooling for describing API contracts, created by Microsoft and shared with the community. Using TypeSpec, you write your API definition in a concise, human-readable format, and TypeSpec takes care of generating:
 
 - API specifications (OpenAPI, JSON Schema, Protocol Buffers)
-- Server-side code skeletons (C#, JavaScript)
-- Client libraries in multiple languages (JavaScript, Python, C#, Java)
+- Server-side code skeletons (C#, JavaScript today, with more languages coming soon)
+- Client libraries in multiple languages (JavaScript, Python, C#, Java today, with more languages coming soon)
 - Documentation
 - Custom formats through our emitter framework
 
 This API-first development approach accelerates your initial API development by generating boilerplate code automatically, while also eliminating the need to maintain multiple, separate artifacts that can easily drift out of sync as your API evolves.
+
+We're building a vibrant ecosystem around TypeSpec with multiple channels for support, collaboration, and knowledge sharing:
+
+- **[GitHub Issues](https://github.com/microsoft/typespec/issues)**: For bug reports and feature requests
+- **[GitHub Discussions](https://github.com/microsoft/typespec/discussions)**: For questions, discussions, and community support
+- **[Discord Community](https://aka.ms/typespec/discord/)**: Connect with other TypeSpec users and contributors
+- **[Documentation](https://typespec.io/docs/)**: Comprehensive guides and examples on typespec.io
+
+We welcome contributions and feedback from the community in any form - whether it's code, documentation, examples, or simply sharing your experiences using TypeSpec with others.
 
 ## Who's using TypeSpec?
 
@@ -33,7 +42,7 @@ TypeSpec is already being used by teams both inside and outside Microsoft to str
 
 > "One of the highlights [of using TypeSpec] was our ability to author API specs in a very simple and intuitive language. This meant that even [our PMs] who are not engineers were able to understand these API specifications. They could review them, make comments, and participate in designing those APIs."
 >
-> — _MS Learn Team_
+> — _Microsoft Learn Team_
 
 > Before the introduction of TypeSpec and our move to an API first approach, an OAS [OpenAPI Specification] was a byproduct of the implementation phase. Manual OAS reviews were happening at the end of the development cycle and changes were contentious because of the code rework implied and the likely impact to the release schedule. TypeSpec provides a way to embed [our] guidelines and rules directly in the design. Reviews are now focused more on the design than on the rules and requires less time." [(read more)](../2024-11-04-typespec-at-lseg/blog.md)
 >
@@ -47,7 +56,7 @@ The 1.0-RC includes a foundation of stable core components alongside preview fea
 
 ### Stable components
 
-These components have been thoroughly tested and are considered ready for testing in your production environment:
+These components have been heavily used and tested internally, and we consider them ready for you to try in your own production environment:
 
 - **Compiler and core libraries**
 
@@ -81,7 +90,7 @@ We're also including several components in preview state that are still being de
   - [@typespec/versioning](https://www.npmjs.com/package/@typespec/versioning)
   - [@typespec/xml](https://www.npmjs.com/package/@typespec/xml)
 
-- **Client/server code generation (Preview)**
+- **Client/server code generation**
   - [@typespec/http-client-csharp](https://www.npmjs.com/package/@typespec/http-client-csharp)
   - [@typespec/http-client-js](https://www.npmjs.com/package/@typespec/http-client-js)
   - [@typespec/http-client-java](https://www.npmjs.com/package/@typespec/http-client-java)
@@ -95,9 +104,7 @@ Let's see how TypeSpec works with a simple Todo API example. First, you define y
 
 ```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
-import "@typespec/rest";
 using Http;
-using Rest;
 
 @route("/todoitems")
 interface TodoItems {
@@ -121,7 +128,7 @@ model CreateTodoItem {
 }
 ```
 
-From this single definition, TypeSpec can generate multiple artifacts that keep your API implementation consistent across languages and platforms. One of the most powerful capabilities is the ability to generate both client and server code directly from your TypeSpec definition.
+From this single definition, TypeSpec can generate multiple artifacts that keep your API implementation consistent across languages and platforms.
 
 ## Code generation (Preview)
 
@@ -160,14 +167,14 @@ console.log(todo);
 
 ### Current limitations
 
-The code generation features are currently in preview and have a few technical limitations to be aware of:
+The code generation features are currently in preview and have some limitations to be aware of:
 
-- Limited support for authentication mechanisms
+- Support for a limited set of authentication mechanisms
 - Complex data transformations may require manual coding
-- Not all HTTP features are fully supported
+- Not all HTTP features are supported (and some advanced features may remain out of scope)
 - Documentation for these features is still being developed
 
-We're actively working to address these limitations and we welcome your feedback.
+We're actively improving these features based on common scenarios and community feedback, with a focus on addressing the most important use cases for API developers.
 
 ## Emitters: From TypeSpec to different formats
 
@@ -179,19 +186,9 @@ The OpenAPI 3.0 emitter is particularly important as it ensures compatibility wi
 
 For teams with specialized needs, TypeSpec 1.0-RC includes a new experimental emitter framework that allows you to build custom emitters. This framework provides access to TypeSpec's compiler APIs and type system, enabling you to transform your TypeSpec definitions into any format your organization needs.
 
-The emitter framework is designed to be extensible and developer-friendly, with clear patterns for accessing the TypeSpec type system, transforming types, and generating output. This opens up possibilities for creating custom emitters for internal specifications, proprietary formats, or integration with existing toolchains.
+The [emitter framework](https://typespec.io/docs/extending-typespec/emitter-framework/) is designed to be extensible and developer-friendly, with clear patterns for accessing the TypeSpec type system, transforming types, and generating output. This opens up possibilities for creating custom emitters for internal specifications, proprietary formats, or integration with existing toolchains.
 
 For teams with existing OpenAPI definitions, we've created an [OpenAPI to TypeSpec converter tool](https://typespec.io/docs/emitters/openapi3/cli/) to help migrate existing API definitions to TypeSpec.
-
-## Community support and contributions
-
-TypeSpec is an [open source project](https://github.com/microsoft/typespec) developed by Microsoft and shared with the community. We're working to build a vibrant ecosystem around TypeSpec with multiple channels for support, collaboration, and knowledge sharing:
-
-- **[GitHub Issues](https://github.com/microsoft/typespec/issues)**: For bug reports, feature requests, and technical discussions
-- **[Discord Community](https://aka.ms/typespec/discord/)**: Connect with other TypeSpec users and contributors
-- **[Documentation](https://typespec.io/docs/)**: Comprehensive guides and examples on typespec.io
-
-We welcome contributions and feedback from the community in any form - whether it's code, documentation, examples, or simply sharing your experiences using TypeSpec with others. While TypeSpec is developed by Microsoft, support is provided through these community channels rather than official Microsoft support services.
 
 ## Getting started
 
@@ -199,7 +196,7 @@ To start using TypeSpec 1.0-RC:
 
 1. **Install TypeSpec**: Follow our [installation guide](https://typespec.io/docs/) to set up TypeSpec in your environment.
 2. **Create your first TypeSpec definition**: Follow our [quickstart guide](https://typespec.io/docs/getting-started/getting-started-rest/01-setup-basic-syntax/) to learn the basics of TypeSpec syntax and features and create a simple API definition.
-3. **Generate artifacts**: Use the TypeSpec CLI or IDE extensions to generate server code, client libraries, and API specifications from your TypeSpec definition.
+3. **Generate artifacts**: Use the TypeSpec CLI or IDE extensions to [generate server code](https://typespec.io/docs/getting-started/code-generation-csharp/), client libraries, and API specifications from your TypeSpec definition.
 4. **Join our community**: Connect with other TypeSpec users in our [Discord community](https://aka.ms/typespec/discord)
 
 ## We need your feedback!
