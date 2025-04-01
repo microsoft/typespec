@@ -96,6 +96,16 @@ export enum CollectionType {
   Array = "[]",
 }
 
+export function resolveCollectionType(option?: string): CollectionType {
+  switch (option) {
+    case "enumerable":
+      return CollectionType.IEnumerable;
+    case "array":
+    default:
+      return CollectionType.Array;
+  }
+}
+
 export class CSharpCollectionType extends CSharpType {
   collectionType: CollectionType;
   itemTypeName: string;

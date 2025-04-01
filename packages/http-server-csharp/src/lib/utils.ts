@@ -59,7 +59,7 @@ import {
   NumericValue,
   StringValue,
 } from "./interfaces.js";
-import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
+import { CSharpServiceEmitterOptions, CSharpServiceOptions, reportDiagnostic } from "./lib.js";
 import { getDoubleType, getEnumType } from "./type-helpers.js";
 
 const _scalars: Map<Scalar, CSharpType> = new Map<Scalar, CSharpType>();
@@ -168,17 +168,18 @@ export function getCSharpType(
 
         const uniqueItems = getUniqueItems(program, type);
         const isByte = ["byte", "SByte"].includes(itemType.name);
+        const collectionType = CSharpServiceOptions.getInstance().collectionType;
 
         const returnTypeCollection = uniqueItems
           ? CollectionType.ISet
           : isByte
             ? CollectionType.Array
-            : CollectionType.IEnumerable;
+            : collectionType;
 
-        const returnType = isByte
-          ? `${itemType.name}[]`
-          : `${returnTypeCollection}<${itemType.name}>`;
-
+        const returnType =
+          returnTypeCollection === CollectionType.Array
+            ? `${itemType.name}[]`
+            : `${returnTypeCollection}<${itemType.name}>`;
         return {
           type: new CSharpCollectionType(
             {
@@ -1308,11 +1309,24 @@ export class CSharpOperationHelpers {
           const { defaultValue: itemDefault } = this.getTypeInfo(program, value);
           defaults.push(itemDefault);
         }
-        return {
-          typeReference: code`IEnumerable<${csharpType.getTypeReference()}>`,
-          defaultValue: `new List<${csharpType.getTypeReference()}> {${defaults.join(", ")}}`,
-          nullableType: csharpType.isNullable,
-        };
+        const collectionType = CSharpServiceOptions.getInstance().collectionType;
+
+        switch (collectionType) {
+          case CollectionType.IEnumerable:
+            return {
+              typeReference: code`IEnumerable<${csharpType.getTypeReference()}>`,
+              defaultValue: `new List<${csharpType.getTypeReference()}> {${defaults.join(", ")}}`,
+              nullableType: csharpType.isNullable,
+            };
+          case CollectionType.Array:
+          default:
+            return {
+              typeReference: code`${csharpType.getTypeReference()}[]`,
+              defaultValue: `{${defaults.join(", ")}}`,
+              nullableType: csharpType.isNullable,
+            };
+        }
+
       case "Model":
         let modelResult: EmittedTypeInfo & { hasUniqueItems: boolean };
         const hasUniqueItems = modelProperty

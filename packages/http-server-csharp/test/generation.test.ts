@@ -476,21 +476,21 @@ it("generates standard scalar array properties", async () => {
       "public partial class Foo",
       "public SByte[] ArrSbyteProp { get; set; }",
       "public Byte[] ArrByteProp { get; set; }",
-      "public IEnumerable<Int16> Arrint16Prop { get; set; }",
-      "public IEnumerable<int> Arrint32Prop { get; set; }",
-      "public IEnumerable<long> Arrint64Prop { get; set; }",
-      "public IEnumerable<UInt16> ArrayUint16Prop { get; set; }",
-      "public IEnumerable<UInt32> ArrayUint32Prop { get; set; }",
-      "public IEnumerable<UInt64> ArrayUint64Prop { get; set; }",
-      "public IEnumerable<float> ArrayF32Prop { get; set; }",
-      "public IEnumerable<double> ArrayF64Prop { get; set; }",
-      "public IEnumerable<bool> ArrayBoolProp { get; set; }",
-      "public IEnumerable<DateTime> ArrdateProp { get; set; }",
-      "public IEnumerable<DateTime> ArrtimeProp { get; set; }",
-      "public IEnumerable<TimeSpan> ArrdurationProp { get; set; }",
-      "public IEnumerable<DateTimeOffset> ArrutcDateTimeProp { get; set; }",
-      "public IEnumerable<DateTimeOffset> ArroffsetDateTimeProp { get; set; }",
-      "public IEnumerable<string> ArrStringProp { get; set; }",
+      "public Int16[] Arrint16Prop { get; set; }",
+      "public int[] Arrint32Prop { get; set; }",
+      "public long[] Arrint64Prop { get; set; }",
+      "public UInt16[] ArrayUint16Prop { get; set; }",
+      "public UInt32[] ArrayUint32Prop { get; set; }",
+      "public UInt64[] ArrayUint64Prop { get; set; }",
+      "public float[] ArrayF32Prop { get; set; }",
+      "public double[] ArrayF64Prop { get; set; }",
+      "public bool[] ArrayBoolProp { get; set; }",
+      "public DateTime[] ArrdateProp { get; set; }",
+      "public DateTime[] ArrtimeProp { get; set; }",
+      "public TimeSpan[] ArrdurationProp { get; set; }",
+      "public DateTimeOffset[] ArrutcDateTimeProp { get; set; }",
+      "public DateTimeOffset[] ArroffsetDateTimeProp { get; set; }",
+      "public string[] ArrStringProp { get; set; }",
     ],
   );
 });
@@ -567,7 +567,7 @@ it("generates standard scalar array for uniqueItems model", async () => {
       @route("/Foo/{id}") @get op get(@path id: string): Foo;
       `,
     "IContosoOperations.cs",
-    ["Task<IEnumerable<ISet<string>>> ListAsync( )", "Task<ISet<string>> GetAsync( string id)"],
+    ["Task<ISet<string>[]> ListAsync( )", "Task<ISet<string>> GetAsync( string id)"],
   );
 });
 
@@ -592,15 +592,13 @@ it("generates standard array properties", async () => {
         "Foo.cs",
         [
           "public partial class Foo",
-          "public IEnumerable<string> ArrNames { get; set; }",
-          "public IEnumerable<string> ArrColors { get; set; }",
+          "public string[] ArrNames { get; set; }",
+          "public string[] ArrColors { get; set; }",
         ],
       ],
       [
         "IContosoOperations.cs",
-        [
-          "Task<IEnumerable<Foo>> UpdateAsync( IEnumerable<string> arrNames, IEnumerable<string> arrColors)",
-        ],
+        ["Task<Foo[]> UpdateAsync( string[] arrNames, string[] arrColors)"],
       ],
     ],
   );
@@ -1263,16 +1261,10 @@ it("generates valid code for overridden parameters", async () => {
       @route("/foo") op foo(): void;
       `,
     [
-      [
-        "FooBase.cs",
-        ["public partial class FooBase", "public IEnumerable<int> IntProp { get; set; }"],
-      ],
+      ["FooBase.cs", ["public partial class FooBase", "public int[] IntProp { get; set; }"]],
       [
         "Foo.cs",
-        [
-          "public partial class Foo : FooBase",
-          "public new IEnumerable<int> IntProp { get; } = new List<int> {8, 10}",
-        ],
+        ["public partial class Foo : FooBase", "public new int[] IntProp { get; } = {8, 10}"],
       ],
       ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
       ["IContosoOperations.cs", [`Task FooAsync( );`]],
@@ -1384,7 +1376,7 @@ it("handles implicit request body models correctly", async () => {
           ".FooAsync(body.IntProp, body.ArrayProp)",
         ],
       ],
-      ["IContosoOperations.cs", [`Task FooAsync( int? intProp, IEnumerable<string>? arrayProp);`]],
+      ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
     ],
   );
 });
@@ -1984,7 +1976,7 @@ it("generates correct multiline jsdoc comments for operations", async () => {
       "///<summary>",
       "/// List Pet results Provide top/skip or filter by name if needed",
       "///</summary>",
-      `Task<IEnumerable<Pet>> ListPetsAsync( int? top, int? skip, string? nameFilter);`,
+      `Task<Pet[]> ListPetsAsync( int? top, int? skip, string? nameFilter);`,
     ],
   );
 });
@@ -2025,7 +2017,7 @@ it("generates correct multiline jsdoc long comments for operations", async () =>
       "/// https://verylongdomainname.verylogdomainserver.biz/verylongpathcomponent1/compoent2/compoent3/component4/additional-components/andothergoodies/andyetmoregoodies/andthenitends.html",
       "/// and a line afterward.",
       "///</summary>",
-      "Task<IEnumerable<Pet>> ListPetsAsync( string? top, string? skip);",
+      "Task<Pet[]> ListPetsAsync( string? top, string? skip);",
     ],
   );
 });
@@ -2393,5 +2385,96 @@ describe("emit correct code for `@error` models", () => {
         `public string HelpLinkProp { get; set; }`,
       ],
     );
+  });
+});
+
+describe("collection type: defined as emitter option", () => {
+  const collectionTest = `
+  model Foo {
+    byteProp: uint8[];
+    sbyteProp: int8[];
+    intProp: int32[];
+    stringProp: string[];
+    modelProp: FooProp[];
+    intPropInitialized: [8, 10];
+    intArr: Array<int32>;
+    stringArr: Array<string>;
+    modelArr: Array<FooProp>;
+
+    @uniqueItems
+    stringUnique: string[];
+  }
+
+  model FooProp {
+    name: string;
+  }
+
+  @route("/foo") op foo(): Foo[];
+`;
+  it("defined collection type as enumerable", async () => {
+    const runner = await createCSharpServiceEmitterTestRunner({
+      "collection-type": "enumerable",
+    });
+    await compileAndValidateMultiple(runner, collectionTest, [
+      [
+        "Foo.cs",
+        [
+          `public Byte[] ByteProp { get; set; }`,
+          "public SByte[] SbyteProp { get; set; }",
+          "public IEnumerable<int> IntProp { get; set; }",
+          "public IEnumerable<string> StringProp { get; set; }",
+          "public IEnumerable<FooProp> ModelProp { get; set; }",
+          "public IEnumerable<int> IntPropInitialized { get; } = new List<int> {8, 10};",
+          "public IEnumerable<int> IntArr { get; set; }",
+          "public IEnumerable<string> StringArr { get; set; }",
+          "public IEnumerable<FooProp> ModelArr { get; set; }",
+          "public ISet<string> StringUnique { get; set; }",
+        ],
+      ],
+      ["IContosoOperations.cs", ["Task<IEnumerable<Foo>> FooAsync( );"]],
+    ]);
+  });
+  it("default collection is array", async () => {
+    await compileAndValidateMultiple(runner, collectionTest, [
+      [
+        "Foo.cs",
+        [
+          `public Byte[] ByteProp { get; set; }`,
+          "public SByte[] SbyteProp { get; set; }",
+          "public int[] IntProp { get; set; }",
+          "public string[] StringProp { get; set; }",
+          "public FooProp[] ModelProp { get; set; }",
+          "public int[] IntPropInitialized { get; } = {8, 10};",
+          "public int[] IntArr { get; set; }",
+          "public string[] StringArr { get; set; }",
+          "public FooProp[] ModelArr { get; set; }",
+          "public ISet<string> StringUnique { get; set; }",
+        ],
+      ],
+      ["IContosoOperations.cs", ["Task<Foo[]> FooAsync( );"]],
+    ]);
+  });
+  it("array is explicitly defined", async () => {
+    const runner = await createCSharpServiceEmitterTestRunner({
+      "collection-type": "array",
+    });
+    await compileAndValidateMultiple(runner, collectionTest, [
+      [
+        "Foo.cs",
+        [
+          `public Byte[] ByteProp { get; set; }`,
+          "public SByte[] SbyteProp { get; set; }",
+          "public int[] IntProp { get; set; }",
+          "public string[] StringProp { get; set; }",
+          "public FooProp[] ModelProp { get; set; }",
+          "public int[] IntPropInitialized { get; } = {8, 10};",
+          "public int[] IntArr { get; set; }",
+          "public string[] StringArr { get; set; }",
+          "public FooProp[] ModelArr { get; set; }",
+          "public ISet<string> StringUnique { get; set; }",
+        ],
+      ],
+      ["IContosoOperations.cs", ["Task<Foo[]> FooAsync( );"]],
+    ]);
   });
 });
