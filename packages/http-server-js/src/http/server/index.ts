@@ -274,6 +274,7 @@ function* emitRawServerOperation(
   for (const param of parameters) {
     let paramBaseExpression;
     const paramNameCase = parseCase(param.name);
+    const paramNameSafe = keywordSafe(paramNameCase.camelCase);
     const isBodyField = bodyFields.has(param.name) && bodyFields.get(param.name) === param.type;
     const isBodyExact = operation.parameters.body?.property === param;
     if (isBodyField) {
@@ -290,9 +291,9 @@ function* emitRawServerOperation(
 
         const encoder = jsScalar.http[httpOperationParam.type];
 
-        paramBaseExpression = encoder.decode(paramNameCase.camelCase);
+        paramBaseExpression = encoder.decode(paramNameSafe);
       } else {
-        paramBaseExpression = paramNameCase.camelCase;
+        paramBaseExpression = paramNameSafe;
       }
     }
 
@@ -304,7 +305,7 @@ function* emitRawServerOperation(
     }
   }
 
-  const paramLines = requiredParams.map((p) => `${p},`);
+  const paramLines = requiredParams.map((p) => `${keywordSafe(p)},`);
 
   if (hasOptions) {
     paramLines.push(
@@ -515,6 +516,7 @@ function* emitHeaderParamBinding(
   parameter: Extract<HttpOperationParameter, { type: "header" }>,
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
+  const name = keywordSafe(nameCase.camelCase);
   const headerName = parameter.name.toLowerCase();
 
   // See https://nodejs.org/api/http.html#messageheaders
@@ -523,10 +525,10 @@ function* emitHeaderParamBinding(
 
   const assertion = canBeArrayType ? "" : " as string | undefined";
 
-  yield `const ${nameCase.camelCase} = ${names.ctx}.request.headers[${JSON.stringify(headerName)}]${assertion};`;
+  yield `const ${name} = ${names.ctx}.request.headers[${JSON.stringify(headerName)}]${assertion};`;
 
   if (!parameter.param.optional) {
-    yield `if (${nameCase.camelCase} === undefined) {`;
+    yield `if (${name} === undefined) {`;
     // prettier-ignore
     yield `  return ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required header '${headerName}'");`;
     yield "}";
@@ -550,11 +552,13 @@ function* emitQueryParamBinding(
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
 
+  const name = keywordSafe(nameCase.camelCase);
+
   // UrlSearchParams annoyingly returns null for missing parameters instead of undefined.
-  yield `const ${nameCase.camelCase} = ${names.queryParams}.get(${JSON.stringify(parameter.name)}) ?? undefined;`;
+  yield `const ${name} = ${names.queryParams}.get(${JSON.stringify(parameter.name)}) ?? undefined;`;
 
   if (!parameter.param.optional) {
-    yield `if (!${nameCase.camelCase}) {`;
+    yield `if (!${name}) {`;
     yield `  return ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required query parameter '${parameter.name}'");`;
     yield "}";
     yield "";
