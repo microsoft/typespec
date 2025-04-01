@@ -92,7 +92,7 @@ export function getType(
     case "enumvalue":
       return emitEnumMember(type, emitEnum(context, type.enumType));
     case "credential":
-      return emitCredential(type);
+      return emitCredential(context, type);
     case "bytes":
     case "boolean":
     case "plainDate":
@@ -143,7 +143,10 @@ function emitMultiPartFile(
   });
 }
 
-function emitCredential(credential: SdkCredentialType): Record<string, any> {
+function emitCredential(
+  context: PythonSdkContext,
+  credential: SdkCredentialType,
+): Record<string, any> {
   let credential_type: Record<string, any> = {};
   const scheme = credential.scheme;
   if (scheme.type === "oauth2") {
@@ -152,6 +155,7 @@ function emitCredential(credential: SdkCredentialType): Record<string, any> {
       policy: {
         type: "BearerTokenCredentialPolicy",
         credentialScopes: [],
+        flows: (context.emitContext.options as any).flavor === "azure" ? [] : scheme.flows,
       },
     };
     for (const flow of scheme.flows) {
@@ -513,7 +517,7 @@ export function emitEndpointType(
       location: "endpointPath",
       implementation: getImplementation(context, param),
       clientDefaultValue: param.clientDefaultValue,
-      skipUrlEncoding: param.allowReserved === false,
+      skipUrlEncoding: param.allowReserved,
     });
     context.__endpointPathParameters!.push(params.at(-1)!);
   }
