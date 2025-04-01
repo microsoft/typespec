@@ -69,7 +69,7 @@ async function initialize() {
     const onigasmPath = require.resolve("onigasm");
     const wasmPath = resolve(dirname(onigasmPath), "onigasm.wasm");
     const wasm = await readFile(wasmPath);
-    await loadWASM(wasm.buffer);
+    await loadWASM(wasm.buffer as any);
     initialized = true;
   }
 }
