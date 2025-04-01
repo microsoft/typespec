@@ -55,6 +55,7 @@ function Get-TspCommand {
     if ($newProject) {
         $command += " --option @typespec/http-client-csharp.new-project=true"
     }
+
     return $command
 }
 
