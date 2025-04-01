@@ -182,13 +182,13 @@ TypeSpec's emitter system allows your API definitions to be transformed into var
 
 The OpenAPI 3.0 emitter is particularly important as it ensures compatibility with existing OpenAPI workflows and toolchains, allowing teams to adopt TypeSpec while maintaining their current API ecosystem. This means you can gradually introduce TypeSpec into your development process without disrupting existing tools and processes that depend on OpenAPI specifications.
 
+For teams with existing OpenAPI definitions, we've created an [OpenAPI to TypeSpec converter tool](https://typespec.io/docs/emitters/openapi3/cli/) to help migrate existing API definitions to TypeSpec.
+
 ### Custom emitters with the emitter framework
 
 For teams with specialized needs, TypeSpec 1.0-RC includes a new experimental emitter framework that allows you to build custom emitters. This framework provides access to TypeSpec's compiler APIs and type system, enabling you to transform your TypeSpec definitions into any format your organization needs.
 
 The [emitter framework](https://typespec.io/docs/extending-typespec/emitter-framework/) is designed to be extensible and developer-friendly, with clear patterns for accessing the TypeSpec type system, transforming types, and generating output. This opens up possibilities for creating custom emitters for internal specifications, proprietary formats, or integration with existing toolchains.
-
-For teams with existing OpenAPI definitions, we've created an [OpenAPI to TypeSpec converter tool](https://typespec.io/docs/emitters/openapi3/cli/) to help migrate existing API definitions to TypeSpec.
 
 ## Getting started
 
