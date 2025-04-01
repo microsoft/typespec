@@ -92,6 +92,7 @@
     "@typespec/rest": "~0.68.0-dev.3",
     "@typespec/versioning": "~0.68.0-dev.2",
     "@typespec/events": "~0.68.0-dev.2",
+    "@typespec/spec-api": "0.1.0-alpha.4-dev.0",
     "@typespec/spector": "0.1.0-alpha.11-dev.0",
     "@typespec/sse": "~0.68.0-dev.2",
     "@typespec/streams": "~0.68.0-dev.2",
