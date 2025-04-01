@@ -27,9 +27,13 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
     return { theme: theme === "dark" ? "typespec-dark" : "typespec" };
   }, [theme]);
 
+  const imports = Object.keys(versionData.importMap.imports).filter(
+    (x) => (x.match(/\//g) || []).length < 2, // Don't include sub imports as libraries.
+  );
   return (
     <StandalonePlayground
       {...TypeSpecPlaygroundConfig}
+      libraries={imports}
       emitterViewers={{ "@typespec/openapi3": [SwaggerUIViewer] }}
       importConfig={{ useShim: true }}
       editorOptions={editorOptions}
