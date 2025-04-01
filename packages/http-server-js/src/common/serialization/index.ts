@@ -12,7 +12,7 @@ import { emitJsonSerialization, requiresJsonSerialization } from "./json.js";
 export type SerializableType = Model | Scalar | Union;
 
 export function isSerializableType(t: Type): t is SerializableType {
-  return t.kind === "Model" || t.kind === "Scalar" || t.kind === "Union";
+  return t.kind === "Model" || t.kind === "Scalar" || t.kind === "Union" || t.kind === "Intrinsic";
 }
 
 export type SerializationContentType = "application/json";
