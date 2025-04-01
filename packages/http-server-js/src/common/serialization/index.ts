@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import { Model, NoTarget, Scalar, Type, Union } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { JsContext, Module, completePendingDeclarations } from "../../ctx.js";
 import { UnimplementedError } from "../../util/error.js";
 import { indent } from "../../util/iter.js";
@@ -29,10 +30,7 @@ export function requireSerialization(
   }
 
   // Ignore array and record types
-  if (
-    ctx.program.checker.isStdType(type, "Record") ||
-    ctx.program.checker.isStdType(type, "Array")
-  ) {
+  if ($(ctx.program).array.is(type) || $(ctx.program).record.is(type)) {
     return requireSerialization(ctx, (type as Model).indexer!.value, contentType);
   }
 
