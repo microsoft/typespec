@@ -13,6 +13,7 @@
 # Java
 ######################
 /packages/http-client-java/                  @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
+/website/src/content/docs/docs/emitters/clients/http-client-java/ @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
 
 ######################
 # Python
