@@ -33,7 +33,7 @@ Also, make sure to read the 'Getting Started' section under the [emitter basics]
 There are a few dependencies needed to use the emitter framework:
 
 ```sh
-install > npm --save-peer @alloy-js/core @alloy-js/typescript @typespec/emitter-framework
+npm install --save-peer @alloy-js/core @alloy-js/typescript @typespec/emitter-framework
 ```
 
 This is in addition to the dependencies installed from the emitter template as described in [emitter basics](./emitters-basics.md).
