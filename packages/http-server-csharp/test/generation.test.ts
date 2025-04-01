@@ -600,6 +600,69 @@ it("handles enum, complex type properties, and circular references", async () =>
   );
 });
 
+it("handles integer enums", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** An integer enum */
+      enum IntegerEnum { /** one */ One: 1, /** three */Three: 3, /** five */ Five: 5}
+      /** A simple test model*/
+      model Foo {
+        /** enum */
+        barProp?: IntegerEnum;
+
+        /** non-nullable enum */
+        bazProp: IntegerEnum;
+      }
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          `public IntegerEnum? BarProp { get; set; }`,
+          `public IntegerEnum BazProp { get; set; }`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("handles non-integer numeric enums", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A floating point enum */
+      enum DoubleEnum { /** one */ One: 1.1, /** three */Three: 3.333, /** five */ Five: 5.55555}
+      /** A mixed integer and float enum */
+      enum MixedEnum { /** one */ One: 1, /** three */Three: 3.3, /** five */ Five: 5}
+      /** A simple test model*/
+      model Foo {
+        /** nullable enum */
+        barNullableProp?: DoubleEnum;
+        /** enum */
+        barProp: DoubleEnum;
+        /** non-nullable enum */
+        bazProp: MixedEnum;
+        /** nullable enum */
+        bazNullableProp?: MixedEnum;
+      }
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          `public double BarProp { get; set; }`,
+          `public double? BarNullableProp { get; set; }`,
+          `public double BazProp { get; set; }`,
+          `public double? BazNullableProp { get; set; }`,
+        ],
+      ],
+    ],
+  );
+});
+
 it("processes sub-namespaces of a service", async () => {
   await compileAndValidateSingleModel(
     runner,
@@ -2078,9 +2141,9 @@ describe("emit correct code for `@error` models", () => {
           "ApiError.cs",
           [
             "public partial class ApiError : HttpServiceException {",
-            "public ApiError(string code, string message) : base(default,",
+            "public ApiError(string code, string message) : base(400,",
             "public string Code { get; set; }",
-            "public string Message { get; set; }",
+            "public string MessageProp { get; set; }",
           ],
         ],
         ["Error.cs", ["public partial class Error : ApiError {", "public Error() : base(500)"]],
@@ -2137,7 +2200,7 @@ describe("emit correct code for `@error` models", () => {
       `,
       "Error.cs",
       [
-        `public Error(string code, string message) : base(default,`,
+        `public Error(string code, string message) : base(400,`,
         `value: new{code = code,message = message}) `,
       ],
     );
@@ -2158,7 +2221,56 @@ describe("emit correct code for `@error` models", () => {
       [
         `public Error(string code, string message) : base(200,`,
         `Code = code;`,
-        `Message = message;`,
+        `MessageProp = message;`,
+      ],
+    );
+  });
+  it("renames body properties that conflict with properties from exception", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+        @error
+        model Error {
+          @statusCode
+          statusCode: 200;
+          code: string;
+          message: string;
+          value: string;
+          headers: string;
+          stackTrace: string;
+          source: string;
+          innerException: string;
+          hResult: string;
+          data: string;
+          targetSite: string;
+          helpLink: string;
+        }
+      `,
+      "Error.cs",
+      [
+        `public Error(string code, string message, string value, string headers, string stackTrace, string source, string innerException, string hResult, string data, string targetSite, string helpLink) : base(200,`,
+        `Code = code;`,
+        `MessageProp = message;`,
+        `ValueProp = value;`,
+        `HeadersProp = headers;`,
+        `StackTraceProp = stackTrace;`,
+        `SourceProp = source;`,
+        `InnerExceptionProp = innerException;`,
+        `HResultProp = hResult;`,
+        `DataProp = data;`,
+        `TargetSiteProp = targetSite;`,
+        `HelpLinkProp = helpLink;`,
+        `public string Code { get; set; }`,
+        `public string MessageProp { get; set; }`,
+        `public string ValueProp { get; set; }`,
+        `public string HeadersProp { get; set; }`,
+        `public string StackTraceProp { get; set; }`,
+        `public string SourceProp { get; set; }`,
+        `public string InnerExceptionProp { get; set; }`,
+        `public string HResultProp { get; set; }`,
+        `public string DataProp { get; set; }`,
+        `public string TargetSiteProp { get; set; }`,
+        `public string HelpLinkProp { get; set; }`,
       ],
     );
   });

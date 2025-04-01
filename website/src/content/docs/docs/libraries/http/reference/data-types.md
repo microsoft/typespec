@@ -217,25 +217,133 @@ model TypeSpec.Http.CreatedResponse
 
 ### `File` {#TypeSpec.Http.File}
 
-```typespec
-model TypeSpec.Http.File
+A file in an HTTP request, response, or multipart payload.
+
+Files have a special meaning that the HTTP library understands. When the body of an HTTP request, response,
+or multipart payload is _effectively_ an instance of `TypeSpec.Http.File` or any type that extends it, the
+operation is treated as a file upload or download.
+
+When using file bodies, the fields of the file model are defined to come from particular locations by default:
+
+- `contentType`: The `Content-Type` header of the request, response, or multipart payload (CANNOT be overridden or changed).
+- `contents`: The body of the request, response, or multipart payload (CANNOT be overridden or changed).
+- `filename`: The `filename` parameter value of the `Content-Disposition` header of the response or multipart payload
+  (MAY be overridden or changed).
+
+A File may be used as a normal structured JSON object in a request or response, if the request specifies an explicit
+`Content-Type` header. In this case, the entire File model is serialized as if it were any other model. In a JSON payload,
+it will have a structure like:
+
+```
+{
+  "contentType": <string?>,
+  "filename": <string?>,
+  "contents": <string, base64>
+}
 ```
 
-#### Properties
+The `contentType` _within_ the file defines what media types the data inside the file can be, but if the specification
+defines a `Content-Type` for the payload as HTTP metadata, that `Content-Type` metadata defines _how the file is
+serialized_. See the examples below for more information.
 
-| Name         | Type     | Description |
-| ------------ | -------- | ----------- |
-| contentType? | `string` |             |
-| filename?    | `string` |             |
-| contents     | `bytes`  |             |
+NOTE: The `filename` and `contentType` fields are optional. Furthermore, the default location of `filename`
+(`Content-Disposition: <disposition>; filename=<filename>`) is only valid in HTTP responses and multipart payloads. If
+you wish to send the `filename` in a request, you must use HTTP metadata decorators to describe the location of the
+`filename` field. You can combine the metadata decorators with `@visibility` to control when the `filename` location
+is overridden, as shown in the examples below.
+
+```typespec
+model TypeSpec.Http.File<ContentType, Contents>
+```
+
+#### Template Parameters
+
+| Name        | Description                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------------- |
+| ContentType | The allowed media (MIME) types of the file contents.                                           |
+| Contents    | The type of the file contents. This can be `string`, `bytes`, or any scalar that extends them. |
+
+#### Examples
+
+```tsp
+// Download a file
+@get op download(): File;
+
+// Upload a file
+@post op upload(@bodyRoot file: File): void;
+```
+
+```tsp
+// Upload and download files in a multipart payload
+op multipartFormDataUpload(
+  @multipartBody fields: {
+    files: HttpPart<File>[];
+  },
+): void;
+
+op multipartFormDataDownload(): {
+  @multipartBody formFields: {
+    files: HttpPart<File>[];
+  };
+};
+```
+
+```tsp
+// Declare a custom type of text file, where the filename goes in the path
+// in requests.
+model SpecFile extends File<"application/json" | "application/yaml", string> {
+  // Provide a header that contains the name of the file when created or updated
+  @header("x-filename")
+  @path
+  filename: string;
+}
+
+@get op downloadSpec(@path name: string): SpecFile;
+
+@post op uploadSpec(@bodyRoot spec: SpecFile): void;
+```
+
+```tsp
+// Declare a custom type of binary file
+model ImageFile extends File {
+  contentType: "image/png" | "image/jpeg";
+  @path filename: string;
+}
+
+@get op downloadImage(@path name: string): ImageFile;
+
+@post op uploadImage(@bodyRoot image: ImageFile): void;
+```
+
+````tsp
+// Use a File as a structured JSON object. The HTTP library will warn you that the File will be serialized as JSON,
+// so you should suppress the warning if it's really what you want instead of a binary file upload/download.
+
+// The response body is a JSON object like `{"contentType":<string?>,"filename":<string?>,"contents":<string>}`
+@get op downloadTextFileJson(): {
+  @header contentType: "application/json",
+  @body file: File<"text/plain", string>,
+};
+
+// The request body is a JSON object like `{"contentType":<string?>,"filename":<string?>,"contents":<base64>}`
+@post op uploadBinaryFileJson(
+  @header contentType: "application/json",
+  @body file: File<"image/png", bytes>,
+): void;
+
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
+| contentType? | `ContentType` | The allowed media (MIME) types of the file contents.<br /><br />In file bodies, this value comes from the `Content-Type` header of the request or response. In JSON bodies,<br />this value is serialized as a field in the response.<br /><br />NOTE: this is not _necessarily_ the same as the `Content-Type` header of the request or response, but<br />it will be for file bodies. It may be different if the file is serialized as a JSON object. It always refers to the<br />_contents_ of the file, and not necessarily the way the file itself is transmitted or serialized. |
+| filename? | `string` | The name of the file, if any.<br /><br />In file bodies, this value comes from the `filename` parameter of the `Content-Disposition` header of the response<br />or multipart payload. In JSON bodies, this value is serialized as a field in the response.<br /><br />NOTE: By default, `filename` cannot be sent in request payloads and can only be sent in responses and multipart<br />payloads, as the `Content-Disposition` header is not valid in requests. If you want to send the `filename` in a request,<br />you must extend the `File` model and override the `filename` property with a different location defined by HTTP metadata<br />decorators. |
+| contents | `Contents` | The contents of the file.<br /><br />In file bodies, this value comes from the body of the request, response, or multipart payload. In JSON bodies,<br />this value is serialized as a field in the response. |
 
 ### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
 
 Access is forbidden.
-
 ```typespec
 model TypeSpec.Http.ForbiddenResponse
-```
+````
 
 #### Properties
 

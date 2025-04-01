@@ -3,9 +3,9 @@ parameters:
     default: "8080"
   service-port-https:
     default: "8443"
-emitters:
-  "@typespec/http-server-csharp": true
-  "@typespec/openapi3": true
+emit:
+  - "@typespec/http-server-csharp"
+  - "@typespec/openapi3"
 options:
   "@typespec/http-server-csharp":
     emitter-output-dir: "{output-dir}"
