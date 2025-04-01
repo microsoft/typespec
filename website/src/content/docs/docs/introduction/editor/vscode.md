@@ -1,5 +1,4 @@
 ---
-website-refresh-for-vsc-extension
 title: TypeSpec Extension for Visual Studio Code
 ---
 
