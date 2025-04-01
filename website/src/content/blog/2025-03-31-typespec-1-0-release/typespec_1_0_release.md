@@ -54,7 +54,7 @@ You can explore more real-world TypeSpec usage on our [videos page](https://type
 
 The 1.0-RC includes a foundation of core components alongside preview features that are still actively being developed based on community feedback.
 
-### Stable components
+### 1.0-RC components
 
 These components have been heavily used and tested internally, and we consider them ready for you to try in your own production environment:
 
