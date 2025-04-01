@@ -83,24 +83,36 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
     protected JavaVisibility methodVisibility(ClientMethodType methodType, MethodOverloadType methodOverloadType,
         boolean hasContextParameter, boolean isProtocolMethod) {
 
-        JavaVisibility visibility;
+        boolean syncStack = JavaSettings.getInstance().isSyncStackEnabled();
+
+        JavaVisibility visibility
+            = super.methodVisibility(methodType, methodOverloadType, hasContextParameter, isProtocolMethod);
         if (methodType == ClientMethodType.PagingAsyncSinglePage) {
-            // utility methods
-            // single page method is not visible, but the method is required for other client methods
-            visibility = NOT_VISIBLE;
+            if (syncStack && hasContextParameter) {
+                // in async-stack, single page method + context is for pagingAsync + context implementation, which
+                // is for pagingSync + context implementation
+                // sync-stack doesn't need it
+                visibility = NOT_GENERATE;
+            } else {
+                // utility methods
+                // in async-stack, single page method is not visible, but the method is required for other client
+                // methods
+                visibility = NOT_VISIBLE;
+            }
         } else if (methodType == ClientMethodType.PagingSyncSinglePage) {
-            // wait for sync-stack to decide
-            visibility = NOT_GENERATE;
-        } else if (hasContextParameter
+            visibility = syncStack ? NOT_VISIBLE : NOT_GENERATE;
+        } else if (!syncStack
+            && hasContextParameter
             && (methodType == ClientMethodType.SimpleAsyncRestResponse
                 || methodType == ClientMethodType.PagingAsync
                 || methodType == ClientMethodType.LongRunningBeginAsync
                 || methodType == ClientMethodType.LongRunningAsync)) {
             // utility methods
-            // async + Context method is not visible, but the method is required for other client methods
+            // for async-stack, async + Context method is not visible, but the method is required for sync method
+            // implementation
             visibility = NOT_VISIBLE;
         } else {
-            if (methodType.name().contains("Async") && hasContextParameter) {
+            if (!methodType.isSync() && hasContextParameter) {
                 // async method has both minimum overload and maximum overload, but no overload with Context parameter
                 visibility = NOT_GENERATE;
             } else if (methodType == ClientMethodType.SimpleSync && hasContextParameter) {
@@ -110,15 +122,18 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
                 && methodOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM) {
                 // SimpleAsync with maximum overload is covered by SimpleAsyncRestResponse
                 visibility = NOT_GENERATE;
-            } else if (((methodType.name().contains("Sync") && !hasContextParameter))
-                && ((methodOverloadType.value() & MethodOverloadType.OVERLOAD_MINIMUM.value())
-                    != MethodOverloadType.OVERLOAD_MINIMUM.value())) {
-                // sync method has both minimum overload and maximum overload + Context parameter, but not maximum
-                // overload without Context parameter
-                visibility = NOT_GENERATE;
-            } else {
-                visibility
-                    = super.methodVisibility(methodType, methodOverloadType, hasContextParameter, isProtocolMethod);
+            } else if (methodType.isSync()
+                && !hasContextParameter
+                && (methodOverloadType.value() & MethodOverloadType.OVERLOAD_MINIMUM.value())
+                    != MethodOverloadType.OVERLOAD_MINIMUM.value()) {
+                if (syncStack && methodType == ClientMethodType.LongRunningBeginSync) {
+                    // In sync-stack, LongRunningSync calls LongRunningBeginSync for implementation.
+                    visibility = NOT_VISIBLE;
+                } else {
+                    // sync method has both minimum overload and maximum overload + Context parameter, but not maximum
+                    // overload without Context parameter
+                    visibility = NOT_GENERATE;
+                }
             }
         }
 

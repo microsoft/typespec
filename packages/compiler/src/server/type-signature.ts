@@ -102,7 +102,7 @@ function getOperationSignature(type: Operation) {
 function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${printIdentifier(parameter.name)}${optional}: ${getEntityName(parameter.type)}`;
+  return `${rest}${printIdentifier(parameter.name, "allow-reserved")}${optional}: ${getEntityName(parameter.type)}`;
 }
 
 function getStringTemplateSignature(stringTemplate: StringTemplate) {

@@ -21,9 +21,9 @@ namespace _Type.Dictionary
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IDictionary<string, BinaryData>> Get(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<IReadOnlyDictionary<string, BinaryData>> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<IDictionary<string, BinaryData>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<IReadOnlyDictionary<string, BinaryData>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
