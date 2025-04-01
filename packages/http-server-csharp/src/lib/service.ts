@@ -107,6 +107,7 @@ import {
   getOperationVerbDecorator,
   getStatusCode,
   isEmptyResponseModel,
+  isStringEnumType,
   isValueType,
 } from "./utils.js";
 
@@ -910,7 +911,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     unionDeclaration(union: Union, name: string): EmitterOutput<string> {
       const baseType = coalesceUnionTypes(this.emitter.getProgram(), union);
-      if (baseType.isBuiltIn && baseType.name === "string") {
+      if (isStringEnumType(this.emitter.getProgram(), union)) {
         const program = this.emitter.getProgram();
         const unionName = ensureCSharpIdentifier(program, union, name);
         const namespace = this.emitter.getContext().namespace;
@@ -930,7 +931,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
             ${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}
             public enum ${unionName}
             {
-              ${this.emitter.emitUnionVariants(union)};
+              ${this.emitter.emitUnionVariants(union)}
             }
         } `,
         );
@@ -940,21 +941,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     unionDeclarationContext(union: Union): Context {
-      const baseType = coalesceUnionTypes(this.emitter.getProgram(), union);
-      if (baseType.isBuiltIn && baseType.name === "string") {
+      if (isStringEnumType(this.emitter.getProgram(), union)) {
         const unionName = ensureCSharpIdentifier(
           this.emitter.getProgram(),
           union,
           union.name || "Union",
         );
+
         const unionFile = this.emitter.createSourceFile(`generated/models/${unionName}.cs`);
+
         unionFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
         const unionNamespace = `${this.#getOrSetBaseNamespace(union)}.Models`;
-        return {
-          namespace: unionNamespace,
-          file: unionFile,
-          scope: unionFile.globalScope,
-        };
+        return this.#createEnumContext(unionNamespace, unionFile, unionName);
       } else {
         return this.emitter.getContext();
       }
@@ -982,7 +980,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           );
           this.#metadateMap.set(variant, { name: memberName });
           result.push(
-            code`${ensureCSharpIdentifier(this.emitter.getProgram(), variant, nameHint)} = "${variant.type.value}"`,
+            code`
+            [JsonStringEnumMemberName("${variant.type.value}")]
+            ${ensureCSharpIdentifier(this.emitter.getProgram(), variant, nameHint, NameCasingType.Property)}`,
           );
           if (i < union.variants.size) result.pushLiteralSegment(", ");
         }

@@ -796,8 +796,8 @@ export async function ensureCleanDirectory(program: Program, targetPath: string)
   await program.host.mkdirp(targetPath);
 }
 
-export function isValidCSharpIdentifier(identifier: string, includeDot: boolean = false): boolean {
-  if (!includeDot) return identifier?.match(/^[A-Za-z_][\w]*$/) !== null;
+export function isValidCSharpIdentifier(identifier: string, isNamespace: boolean = false): boolean {
+  if (!isNamespace) return identifier?.match(/^[A-Za-z_][\w]*$/) !== null;
   return identifier?.match(/^[A-Za-z_][\w.]*$/) !== null;
 }
 
@@ -1350,12 +1350,23 @@ export class CSharpOperationHelpers {
           return { typeReference: "int", defaultValue: stringValue, nullableType: false };
         }
         if (typeof tsType.value === "string") {
-          return { typeReference: "string", defaultValue: tsType.value, nullableType: false };
+          const retVal = this.getTypeInfo(program, tsType.enum);
+          retVal.defaultValue = `${retVal.typeReference}.${ensureCSharpIdentifier(program, tsType, tsType.name, NameCasingType.Property)}`;
+          return retVal;
         }
         return { typeReference: code`object`, nullableType: false };
       case "Union":
         return this.getUnionInfo(program, tsType);
       case "UnionVariant":
+        if (
+          isStringEnumType(program, tsType.union) &&
+          tsType.type.kind === "String" &&
+          typeof tsType.name === "string"
+        ) {
+          const retVal = this.getUnionInfo(program, tsType.union);
+          retVal.defaultValue = `${retVal.typeReference}.${ensureCSharpIdentifier(program, tsType, tsType.name, NameCasingType.Property)}`;
+          return retVal;
+        }
         return this.getTypeInfo(program, tsType.type);
       default:
         return {
@@ -1366,7 +1377,7 @@ export class CSharpOperationHelpers {
   }
   getUnionInfo(program: Program, union: Union): EmittedTypeInfo {
     const propResult = getNonNullableTsType(union);
-    if (propResult === undefined) {
+    if (propResult === undefined || isStringEnumType(program, union)) {
       return {
         typeReference: code`${this.emitter.emitTypeReference(union)}`,
         nullableType: [...union.variants.values()].some((v) => isNullType(v.type)),
@@ -1404,6 +1415,18 @@ export function findNumericType(type: NumericLiteral): [string, string] {
   const stringValue = type.valueAsString;
   if (stringValue.includes(".") || stringValue.includes("e")) return ["double", stringValue];
   return ["int", stringValue];
+}
+
+export function isStringEnumType(program: Program, union: Union): boolean {
+  const baseType = coalesceUnionTypes(program, union);
+  if (!baseType.isBuiltIn || baseType.name !== "string") return false;
+  return ![...union.variants.values()].some(
+    (v) =>
+      (v.type.kind === "String" ||
+        v.type.kind === "StringTemplate" ||
+        v.type.kind === "StringTemplateSpan") &&
+      typeof v.name !== "string",
+  );
 }
 
 export function coalesceUnionTypes(program: Program, union: Union): CSharpType {

@@ -614,7 +614,7 @@ it("handles integer enums", async () => {
         /** non-nullable enum */
         bazProp: IntegerEnum;
       }
-      `,
+`,
     [
       [
         "Foo.cs",
@@ -657,6 +657,141 @@ it("handles non-integer numeric enums", async () => {
           `public double? BarNullableProp { get; set; }`,
           `public double BazProp { get; set; }`,
           `public double? BazNullableProp { get; set; }`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("handles extensible enums and discriminators for inheritance", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** An extensible string union */
+      union PetType { /** Dog */ Dog: "dog", /** Cat */ Cat: "cat", string}
+      /** A fixed string union */
+      union AnimalType {/** Wolf */ Wolf: "wolf", /** Bear */ Bear: "bear"}
+
+      /** base discriminated type */
+      @discriminator("kind")
+      model Pet {
+        /** The disriminated type */
+        kind: PetType;
+
+        /** The name */
+        name: string;
+
+        /** Age in years */
+        age: safeint;
+      }
+      
+      /** A leaf instance */
+      model Dog extends Pet {
+        /** specific kind */
+        kind: PetType.Dog;
+      /** tail length */
+        tail: "long" | "short";
+      }
+
+      /** A leaf instance */
+      model Cat extends Pet {
+        /** specific kind */
+        kind: PetType.Cat;
+        /** hair length */
+        hair: "long" | "short" | "hairless";
+      }
+      
+      /** A base animal */
+      @discriminator("kind")
+      model Animal {
+        /** The animal */
+        kind: AnimalType;
+      }
+
+      /** A leaf animal */
+      model Wolf extends Animal {
+        kind: AnimalType.Wolf;
+        variety: "dire" | "timber" | "red";
+      }
+
+      /** A leaf animal */
+      model Bear extends Animal {
+        kind: AnimalType.Bear;
+        color: "brown" | "black" | "white";
+
+      }
+      `,
+    [
+      [
+        "Pet.cs",
+        [
+          "public partial class Pet",
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          `public PetType Kind { get; set; }`,
+          `public string Name { get; set; }`,
+          `public long Age { get; set; }`,
+        ],
+      ],
+      [
+        "Animal.cs",
+        [
+          "public partial class Animal",
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          `public AnimalType Kind { get; set; }`,
+        ],
+      ],
+      [
+        "Dog.cs",
+        [
+          "public partial class Dog : Pet {",
+          `public new PetType Kind { get; } = PetType.Dog;`,
+          `public string Tail { get; set; }`,
+        ],
+      ],
+      [
+        "Cat.cs",
+        [
+          "public partial class Cat : Pet {",
+          `public new PetType Kind { get; } = PetType.Cat;`,
+          `public string Hair { get; set; }`,
+        ],
+      ],
+      [
+        "Bear.cs",
+        [
+          "public partial class Bear : Animal {",
+          `public new AnimalType Kind { get; } = AnimalType.Bear;`,
+          `public string Color { get; set; }`,
+        ],
+      ],
+      [
+        "Wolf.cs",
+        [
+          "public partial class Wolf : Animal {",
+          `public new AnimalType Kind { get; } = AnimalType.Wolf;`,
+          `public string Variety { get; set; }`,
+        ],
+      ],
+      [
+        "PetType.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum PetType",
+          `[JsonStringEnumMemberName("dog")]`,
+          "Dog,",
+          `[JsonStringEnumMemberName("cat")]`,
+          "Cat",
+        ],
+      ],
+      [
+        "AnimalType.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum AnimalType",
+          `[JsonStringEnumMemberName("wolf")]`,
+          "Wolf,",
+          `[JsonStringEnumMemberName("bear")]`,
+          "Bear",
         ],
       ],
     ],
