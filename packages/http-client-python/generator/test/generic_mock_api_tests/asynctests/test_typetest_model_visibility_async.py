@@ -16,7 +16,7 @@ async def client():
 
 @pytest.mark.asyncio
 async def test_get_model(client):
-    result = await client.get_model(models.VisibilityModel(query_prop=123))
+    result = await client.get_model(models.VisibilityModel(), query_prop=123)
     assert result == models.VisibilityModel(read_prop="abc")
 
 
