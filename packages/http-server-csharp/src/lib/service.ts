@@ -79,7 +79,7 @@ import {
   getBusinessLogicImplementations,
   getScaffoldingHelpers,
 } from "./scaffolding.js";
-import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
+import { getEnumType, getRecordType, isKnownReferenceType } from "./type-helpers.js";
 import {
   CSharpOperationHelpers,
   EmittedTypeInfo,
@@ -186,6 +186,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     enumDeclaration(en: Enum, name: string): EmitterOutput<string> {
+      if (getEnumType(en) === "double") return "";
       const program = this.emitter.getProgram();
       const enumName = ensureCSharpIdentifier(program, en, name);
       const namespace = this.emitter.getContext().namespace;
@@ -212,6 +213,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     enumDeclarationContext(en: Enum): Context {
+      if (getEnumType(en) === "double") return this.emitter.getContext();
       const enumName = ensureCSharpIdentifier(this.emitter.getProgram(), en, en.name);
       const enumFile = this.emitter.createSourceFile(`generated/models/${enumName}.cs`);
       enumFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
@@ -220,18 +222,27 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     enumMembers(en: Enum): EmitterOutput<string> {
+      const enumType = getEnumType(en);
       const result = new StringBuilder();
       let i = 0;
       for (const [name, member] of en.members) {
         i++;
         const memberName: string = ensureCSharpIdentifier(this.emitter.getProgram(), member, name);
         this.#metadateMap.set(member, { name: memberName });
-        result.push(
-          code`
+        if (enumType === "string") {
+          result.push(
+            code`
           [JsonStringEnumMemberName("${member.value ? (member.value as string) : name}")]
           ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)}`,
-        );
-        if (i < en.members.size) result.pushLiteralSegment(",\n");
+          );
+          if (i < en.members.size) result.pushLiteralSegment(",\n");
+        } else if (member.value !== undefined) {
+          result.push(
+            code`
+          ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)} = ${member.value.toString()}`,
+          );
+          if (i < en.members.size) result.pushLiteralSegment(",\n");
+        }
       }
 
       return this.emitter.result.rawCode(result.reduce());
@@ -312,8 +323,24 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       if (!isErrorModel(program, model)) return undefined;
       const constructor = this.getExceptionConstructorData(program, model, modelName);
       const isParent = !!model.derivedModels?.length;
-      return `public ${className}(${constructor.properties}) : base(${constructor.statusCode?.value ?? `default`}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
+      return `public ${className}(${constructor.properties}) : base(${constructor.statusCode?.value ?? `400`}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
         { ${constructor.body ? `\n${constructor.body}` : ""}\n\t}${isParent ? `\npublic ${className}(int statusCode, object? value = null, Dictionary<string, string>? headers = default): base(statusCode, value, headers) {}\n` : ""}`;
+    }
+
+    isDuplicateExceptionName(name: string): boolean {
+      const exceptionPropertyNames: string[] = [
+        "value",
+        "headers",
+        "stacktrace",
+        "source",
+        "message",
+        "innerexception",
+        "hresult",
+        "data",
+        "targetsite",
+        "helplink",
+      ];
+      return exceptionPropertyNames.includes(name.toLowerCase());
     }
 
     getExceptionConstructorData(program: Program, model: Model, modelName: string) {
@@ -346,7 +373,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
       for (const { prop, defaultValue } of sortedProperties) {
         let propertyName = ensureCSharpIdentifier(program, prop, prop.name);
-        if (modelName === propertyName) {
+        if (modelName === propertyName || this.isDuplicateExceptionName(propertyName)) {
           propertyName = `${propertyName}Prop`;
         }
 
@@ -487,7 +514,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const doc = getDoc(this.emitter.getProgram(), property);
       const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
       const modelName: string | undefined = this.emitter.getContext()["name"];
-      if (modelName === propertyName) {
+      if (
+        modelName === propertyName ||
+        (this.isDuplicateExceptionName(propertyName) &&
+          property.model &&
+          isErrorModel(this.emitter.getProgram(), property.model))
+      ) {
         propertyName = `${propertyName}Prop`;
         attributes.push(
           getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!,
@@ -1377,16 +1409,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     await emitter.writeOutput();
     const projectDir = normalizeSlashes(path.relative(process.cwd(), resolvePath(outputDir)));
-    const traceId = "http-server-csharp";
+    function trace(message: string) {
+      context.program.trace("http-server-csharp", `hscs-msg: ${message}`);
+    }
 
-    context.program.trace(traceId, `Your project was successfully created at "${projectDir}"`);
-    context.program.trace(
-      traceId,
-      `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
-    );
+    trace(`Your project was successfully created at "${projectDir}"`);
+    trace(`You can build and start the project using 'dotnet run --project "${projectDir}"'`);
     if (options["use-swaggerui"] === true && httpsPort) {
-      context.program.trace(
-        traceId,
+      trace(
         `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
       );
     }

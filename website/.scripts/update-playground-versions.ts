@@ -1,10 +1,8 @@
 // @ts-check
 import { readFile, writeFile } from "fs/promises";
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { resolve } from "path";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const filename = resolve(__dirname, "../playground-versions.json");
+const filename = resolve(import.meta.dirname, "../playground-versions.json");
 const currentContent = await readFile(filename);
 const current = JSON.parse(currentContent.toString());
 
@@ -12,7 +10,9 @@ console.log("Current versions:", current);
 
 async function getMajorMinorVersion() {
   const version = JSON.parse(
-    (await readFile(resolve(__dirname, "../compiler/package.json"))).toString(),
+    (
+      await readFile(resolve(import.meta.dirname, "../../packages/compiler/package.json"))
+    ).toString(),
   ).version;
   const [major, minor] = version.split(".");
   return `${major}.${minor}.x`;

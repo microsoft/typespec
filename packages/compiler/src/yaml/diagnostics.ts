@@ -31,7 +31,11 @@ function findYamlNode(
     } else if (isCollection(current)) {
       if (isLast) {
         if (kind === "value" || !isMap(current)) {
-          return current.get(key, true);
+          if (Array.isArray(current.items) && current.items.every((item) => isScalar(item))) {
+            return current.items.find((m: any) => m.source && m.source === key) as any;
+          } else {
+            return current.get(key, true);
+          }
         } else {
           const pair = findPair(current.items, key);
           if (kind === "key") {

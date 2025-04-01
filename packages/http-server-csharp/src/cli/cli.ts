@@ -147,8 +147,10 @@ function processStream(input: string | number | null | undefined): string {
   const lines = data.split("\n");
   const result: string[] = [];
   for (const line of lines) {
-    if (line.includes("http-server-csharp") && line.includes("trace")) {
-      const endPos = line.indexOf("http-server-csharp") + 25;
+    const token = "hscs-msg:";
+    const extraChars = token.length;
+    if (line.includes(token) && line.includes("trace")) {
+      const endPos = line.indexOf(token) + extraChars;
       result.push(pc.bold(line.substring(endPos)));
     } else {
       result.push(pc.dim(line));

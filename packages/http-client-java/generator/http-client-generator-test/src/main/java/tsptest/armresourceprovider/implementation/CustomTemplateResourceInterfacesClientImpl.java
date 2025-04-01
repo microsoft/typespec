@@ -164,54 +164,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * @param resource Resource create parameters.
      * @param ifMatch The request should only proceed if an entity matches this string.
      * @param ifNoneMatch The request should only proceed if no entity matches this string.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response} on successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
-        String customTemplateResourceName, CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch,
-        Context context) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (customTemplateResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter customTemplateResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, ifMatch, ifNoneMatch, customTemplateResourceName,
-            contentType, accept, resource, context);
-    }
-
-    /**
-     * Create a CustomTemplateResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param customTemplateResourceName arm resource name for path.
-     * @param resource Resource create parameters.
-     * @param ifMatch The request should only proceed if an entity matches this string.
-     * @param ifNoneMatch The request should only proceed if no entity matches this string.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -360,33 +312,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * @param resource Resource create parameters.
      * @param ifMatch The request should only proceed if an entity matches this string.
      * @param ifNoneMatch The request should only proceed if no entity matches this string.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdateAsync(
-        String resourceGroupName, String customTemplateResourceName, CustomTemplateResourceInner resource,
-        String ifMatch, String ifNoneMatch, Context context) {
-        context = this.client.mergeContext(context);
-        Mono<Response<Flux<ByteBuffer>>> mono = createOrUpdateWithResponseAsync(resourceGroupName,
-            customTemplateResourceName, resource, ifMatch, ifNoneMatch, context);
-        return this.client.<CustomTemplateResourceInner, CustomTemplateResourceInner>getLroResult(mono,
-            this.client.getHttpPipeline(), CustomTemplateResourceInner.class, CustomTemplateResourceInner.class,
-            context);
-    }
-
-    /**
-     * Create a CustomTemplateResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param customTemplateResourceName arm resource name for path.
-     * @param resource Resource create parameters.
-     * @param ifMatch The request should only proceed if an entity matches this string.
-     * @param ifNoneMatch The request should only proceed if no entity matches this string.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -501,29 +426,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param customTemplateResourceName arm resource name for path.
      * @param resource Resource create parameters.
-     * @param ifMatch The request should only proceed if an entity matches this string.
-     * @param ifNoneMatch The request should only proceed if no entity matches this string.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type on
-     * successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<CustomTemplateResourceInner> createOrUpdateAsync(String resourceGroupName,
-        String customTemplateResourceName, CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch,
-        Context context) {
-        return beginCreateOrUpdateAsync(resourceGroupName, customTemplateResourceName, resource, ifMatch, ifNoneMatch,
-            context).last().flatMap(this.client::getLroFinalResultOrError);
-    }
-
-    /**
-     * Create a CustomTemplateResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param customTemplateResourceName arm resource name for path.
-     * @param resource Resource create parameters.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -602,51 +504,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
                 this.client.getSubscriptionId(), resourceGroupName, customTemplateResourceName, contentType, accept,
                 properties, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
-    }
-
-    /**
-     * Update a CustomTemplateResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param customTemplateResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
-     * with {@link Response} on successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> updateLongRunningWithResponseAsync(String resourceGroupName,
-        String customTemplateResourceName, CustomTemplateResourcePatch properties, Context context) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (customTemplateResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter customTemplateResourceName is required and cannot be null."));
-        }
-        if (properties == null) {
-            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
-        } else {
-            properties.validate();
-        }
-        final String contentType = "application/json";
-        final String accept = "application/json";
-        context = this.client.mergeContext(context);
-        return service.updateLongRunning(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, customTemplateResourceName, contentType, accept,
-            properties, context);
     }
 
     /**
@@ -773,31 +630,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param customTemplateResourceName arm resource name for path.
      * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner>
-        beginUpdateLongRunningAsync(String resourceGroupName, String customTemplateResourceName,
-            CustomTemplateResourcePatch properties, Context context) {
-        context = this.client.mergeContext(context);
-        Mono<Response<Flux<ByteBuffer>>> mono
-            = updateLongRunningWithResponseAsync(resourceGroupName, customTemplateResourceName, properties, context);
-        return this.client.<CustomTemplateResourceInner, CustomTemplateResourceInner>getLroResult(mono,
-            this.client.getHttpPipeline(), CustomTemplateResourceInner.class, CustomTemplateResourceInner.class,
-            context);
-    }
-
-    /**
-     * Update a CustomTemplateResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param customTemplateResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -852,26 +684,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     private Mono<CustomTemplateResourceInner> updateLongRunningAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourcePatch properties) {
         return beginUpdateLongRunningAsync(resourceGroupName, customTemplateResourceName, properties).last()
-            .flatMap(this.client::getLroFinalResultOrError);
-    }
-
-    /**
-     * Update a CustomTemplateResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param customTemplateResourceName arm resource name for path.
-     * @param properties The resource properties to be updated.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type on
-     * successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<CustomTemplateResourceInner> updateLongRunningAsync(String resourceGroupName,
-        String customTemplateResourceName, CustomTemplateResourcePatch properties, Context context) {
-        return beginUpdateLongRunningAsync(resourceGroupName, customTemplateResourceName, properties, context).last()
             .flatMap(this.client::getLroFinalResultOrError);
     }
 
