@@ -16,7 +16,7 @@ describe("Payload.Pageable", () => {
       { id: "4", name: "fish" },
     ];
     it("Payload Pageable ServerDriven Pagination link", async () => {
-      const iter = await client.link();
+      const iter = client.link();
       const items: Array<Pet> = [];
       for await (const user of iter) {
         items.push(user);
@@ -26,7 +26,7 @@ describe("Payload.Pageable", () => {
     });
 
     it("continuation token for requestHeaderResponseBody", async () => {
-      const iter = await client.continuationTokenClient.requestHeaderResponseBody({
+      const iter = client.continuationTokenClient.requestHeaderResponseBody({
         bar: "bar",
         foo: "foo",
       });
@@ -39,7 +39,7 @@ describe("Payload.Pageable", () => {
     });
 
     it("continuation token for requestQueryResponseBody", async () => {
-      const iter = await client.continuationTokenClient.requestQueryResponseBody({
+      const iter = client.continuationTokenClient.requestQueryResponseBody({
         bar: "bar",
         foo: "foo",
       });
@@ -52,7 +52,7 @@ describe("Payload.Pageable", () => {
     });
 
     it("continuation token for requestHeaderResponseHeader", async () => {
-      const iter = await client.continuationTokenClient.requestHeaderResponseHeader({
+      const iter = client.continuationTokenClient.requestHeaderResponseHeader({
         bar: "bar",
         foo: "foo",
       });
@@ -65,7 +65,7 @@ describe("Payload.Pageable", () => {
     });
 
     it("continuation token for requestQueryResponseHeader", async () => {
-      const iter = await client.continuationTokenClient.requestQueryResponseHeader({
+      const iter = client.continuationTokenClient.requestQueryResponseHeader({
         bar: "bar",
         foo: "foo",
       });
