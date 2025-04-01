@@ -1,6 +1,6 @@
 // noop logger shouldn't be used in browser
 
-import { LogSink, ProcessedLog } from "../types.js";
+import type { Diagnostic, LogSink, ProcessedLog } from "../types.js";
 
 export function createConsoleSink(options: any): LogSink {
   function log(data: ProcessedLog) {
@@ -14,5 +14,9 @@ export function createConsoleSink(options: any): LogSink {
 }
 
 export function formatLog(log: ProcessedLog): string {
+  return JSON.stringify(log);
+}
+
+export function formatDiagnostic(log: Diagnostic): string {
   return JSON.stringify(log);
 }

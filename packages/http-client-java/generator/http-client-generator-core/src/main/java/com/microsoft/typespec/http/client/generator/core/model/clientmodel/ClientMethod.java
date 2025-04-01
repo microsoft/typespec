@@ -91,7 +91,7 @@ public class ClientMethod {
     /**
      * The parameter transformations before calling ProxyMethod.
      */
-    private final List<MethodTransformationDetail> methodTransformationDetails;
+    private final ParameterTransformations parameterTransformations;
 
     private final JavaVisibility methodVisibility;
 
@@ -124,7 +124,7 @@ public class ClientMethod {
      * @param isGroupedParameterRequired The parameter that needs to transformed before pagination.
      * @param groupedParameterTypeName The type name of groupedParameter.
      * @param methodPageDetails The pagination information if this is a paged method.
-     * @param methodTransformationDetails The parameter transformations before calling ProxyMethod.
+     * @param parameterTransformations The parameter transformations before calling ProxyMethod.
      * @param externalDocumentation The external documentation.
      * @param hasWithContextOverload Whether this method has a corresponding {@code Context}-based overload.
      */
@@ -133,7 +133,7 @@ public class ClientMethod {
         ProxyMethod proxyMethod, Map<String, String> validateExpressions, String clientReference,
         List<String> requiredNullableParameterExpressions, boolean isGroupedParameterRequired,
         String groupedParameterTypeName, MethodPageDetails methodPageDetails,
-        List<MethodTransformationDetail> methodTransformationDetails, JavaVisibility methodVisibility,
+        ParameterTransformations parameterTransformations, JavaVisibility methodVisibility,
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
         MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation,
         String crossLanguageDefinitionId, boolean hasWithContextOverload) {
@@ -159,7 +159,7 @@ public class ClientMethod {
         this.isGroupedParameterRequired = isGroupedParameterRequired;
         this.groupedParameterTypeName = groupedParameterTypeName;
         this.methodPageDetails = methodPageDetails;
-        this.methodTransformationDetails = methodTransformationDetails;
+        this.parameterTransformations = parameterTransformations;
         this.methodVisibility = methodVisibility;
         this.implementationDetails = implementationDetails;
         this.methodPollingDetails = methodPollingDetails;
@@ -189,7 +189,7 @@ public class ClientMethod {
             && type == that.type
             && Objects.equals(requiredNullableParameterExpressions, that.requiredNullableParameterExpressions)
             && Objects.equals(groupedParameterTypeName, that.groupedParameterTypeName)
-            && Objects.equals(methodTransformationDetails, that.methodTransformationDetails)
+            && Objects.equals(parameterTransformations, that.parameterTransformations)
             && methodVisibility == that.methodVisibility;
     }
 
@@ -197,7 +197,7 @@ public class ClientMethod {
     public int hashCode() {
         return Objects.hash(returnValue.getType(), name, getParametersDeclaration(), onlyRequiredParameters, type,
             requiredNullableParameterExpressions, isGroupedParameterRequired, groupedParameterTypeName,
-            methodTransformationDetails, methodVisibility);
+            parameterTransformations, methodVisibility);
     }
 
     public String getCrossLanguageDefinitionId() {
@@ -299,8 +299,8 @@ public class ClientMethod {
         return methodPageDetails;
     }
 
-    public final List<MethodTransformationDetail> getMethodTransformationDetails() {
-        return methodTransformationDetails;
+    public final ParameterTransformations getParameterTransformations() {
+        return parameterTransformations;
     }
 
     public ExternalDocumentation getMethodDocumentation() {
@@ -333,14 +333,8 @@ public class ClientMethod {
                 : parameterName;
 
             String result;
-            if (getMethodTransformationDetails().stream()
-                .anyMatch(d -> d.getOutParameter().getName().equals(parameterName + "1"))) {
-                result = getMethodTransformationDetails().stream()
-                    .filter(d -> d.getOutParameter().getName().equals(parameterName + "1"))
-                    .findFirst()
-                    .get()
-                    .getOutParameter()
-                    .getName();
+            if (getParameterTransformations().hasOutParameter(parameterName + "1")) {
+                result = parameterName + "1";
             } else {
                 result = parameterWireName;
             }
@@ -511,6 +505,15 @@ public class ClientMethod {
                 ClassType.BINARY_DATA.addImportsTo(imports, false);
                 ClassType.HTTP_REQUEST.addImportsTo(imports, false);
             }
+            // sync-stack, lro (+ pageable)
+            if (settings.isSyncStackEnabled() && settings.isFluent()) {
+                boolean isLroPageable = (type == ClientMethodType.PagingSyncSinglePage
+                    && proxyMethod != null
+                    && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()));
+                if (type == ClientMethodType.LongRunningBeginSync || isLroPageable) {
+                    ClassType.SYNC_POLLER_FACTORY.addImportsTo(imports, false);
+                }
+            }
         }
     }
 
@@ -554,7 +557,7 @@ public class ClientMethod {
         protected boolean isGroupedParameterRequired;
         protected String groupedParameterTypeName;
         protected MethodPageDetails methodPageDetails;
-        protected List<MethodTransformationDetail> methodTransformationDetails;
+        protected ParameterTransformations parameterTransformations;
         protected JavaVisibility methodVisibility = JavaVisibility.Public;
         protected JavaVisibility methodVisibilityInWrapperClient = JavaVisibility.Public;
         protected ImplementationDetails implementationDetails;
@@ -721,11 +724,11 @@ public class ClientMethod {
         /**
          * Sets the parameter transformations before calling ProxyMethod.
          *
-         * @param methodTransformationDetails the parameter transformations before calling ProxyMethod
+         * @param parameterTransformations the parameter transformations before calling ProxyMethod
          * @return the Builder itself
          */
-        public Builder methodTransformationDetails(List<MethodTransformationDetail> methodTransformationDetails) {
-            this.methodTransformationDetails = methodTransformationDetails;
+        public Builder parameterTransformations(ParameterTransformations parameterTransformations) {
+            this.parameterTransformations = parameterTransformations;
             return this;
         }
 
@@ -806,7 +809,7 @@ public class ClientMethod {
         public ClientMethod build() {
             return new ClientMethod(description, returnValue, name, parameters, onlyRequiredParameters, type,
                 proxyMethod, validateExpressions, clientReference, requiredNullableParameterExpressions,
-                isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, methodTransformationDetails,
+                isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, parameterTransformations,
                 methodVisibility, methodVisibilityInWrapperClient, implementationDetails, methodPollingDetails,
                 externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload);
         }

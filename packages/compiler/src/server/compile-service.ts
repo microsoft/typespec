@@ -7,10 +7,11 @@ import {
 } from "../config/config-loader.js";
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
-import { compilerAssert, formatDiagnostic } from "../core/diagnostics.js";
+import { compilerAssert } from "../core/diagnostics.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
+import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
@@ -22,6 +23,8 @@ import type {
 } from "../core/types.js";
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import { parseYaml } from "../yaml/parser.js";
 import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
@@ -77,6 +80,7 @@ export function createCompileService({
   const oldPrograms = new Map<string, Program>();
   const eventListeners = new Map<string, (...args: unknown[]) => void>();
   const updated = new UpdateManger((document) => compile(document));
+  let configFilePath: string | undefined;
 
   return { compile, getScript, on, notifyChange };
 
@@ -101,6 +105,7 @@ export function createCompileService({
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
     const config = await getConfig(mainFile);
+    configFilePath = config.filename;
     log({ level: "debug", message: `config resolved`, detail: config });
 
     const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
@@ -172,14 +177,39 @@ export function createCompileService({
       if (serverHost.throwInternalErrors) {
         throw err;
       }
+
+      let uri = document.uri;
+      let range = Range.create(0, 0, 0, 0);
+      if (err.name === "ExternalError" && err.info.kind === "emitter" && configFilePath) {
+        const emitterName = err.info.metadata.name;
+        const [yamlScript] = parseYaml(await serverHost.compilerHost.readFile(configFilePath));
+        const target = getLocationInYamlScript(yamlScript, ["emit", emitterName], "key");
+        if (target.pos === 0) {
+          log({
+            level: "debug",
+            message: `Unexpected situation, can't find emitter '${emitterName}' in config file '${configFilePath}'`,
+          });
+        }
+        uri = fileService.getURL(configFilePath);
+        const lineAndChar = target.file.getLineAndCharacterOfPosition(target.pos);
+        range = Range.create(
+          lineAndChar.line,
+          lineAndChar.character,
+          lineAndChar.line,
+          lineAndChar.character + emitterName.length,
+        );
+      }
+
       serverHost.sendDiagnostics({
-        uri: document.uri,
+        uri,
         diagnostics: [
           {
             severity: DiagnosticSeverity.Error,
-            range: Range.create(0, 0, 0, 0),
+            range,
             message:
-              `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n` +
+              (err.name === "ExternalError"
+                ? "External compiler error!\n"
+                : `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n`) +
               err.stack,
           },
         ],

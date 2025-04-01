@@ -1653,7 +1653,7 @@ async function createOnigLib(): Promise<IOnigLib> {
   const require = createRequire(import.meta.url);
   const onigWasm = await readFile(`${dirname(require.resolve("vscode-oniguruma"))}/onig.wasm`);
 
-  await loadWASM(onigWasm.buffer);
+  await loadWASM(onigWasm.buffer as any);
 
   return {
     createOnigScanner: (sources) => createOnigScanner(sources),
