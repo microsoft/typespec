@@ -3,15 +3,17 @@ changeKind: breaking
 packages:
   - "@typespec/http-server-csharp"
 ---
-Change in Array Scaffolding from TypeSpec to C#
+### Change in Array Scaffolding from TypeSpec to C#
 
-Previously, arrays (`[]`/`Array<T>`) in TypeSpec were always scaffolded as arrays (`[]`) in C#. With this change, arrays will now be scaffolded differently to better align with common C# practices:
+The default behavior for scaffolding arrays remains unchanged: arrays will continue to be scaffolded as `T[]` by default. However, for arrays decorated with the `@uniqueItems` decorator, they will now be scaffolded as `ISet<T>`, with `HashSet<T>` as the default implementation.
 
-- **Default Behavior**:  
-  Arrays will be scaffolded to `IEnumerable<T>` in most cases, with `List<T>` used as the default implementation where an implementation is required.
+Additionally, a new emitter option, `collection-type`, has been introduced to provide flexibility in how collections are generated:
+- **`collection-type`**:
+  - **`array` (default)**: Generates arrays (`T[]`).
+  - **`enumerable`**: Generates `IEnumerable<T>` for collections, with `List<T>` used as the default implementation when needed.
 
-- **Unique Items**:  
-  For arrays decorated with the `@uniqueItems` decorator, they will be scaffolded to `ISet<T>`, with `HashSet<T>` as the default implementation.
+#### Unique Items
+For arrays decorated with the `@uniqueItems` decorator, they will be scaffolded as `ISet<T>`, regardless of the `collection-type` option, with `HashSet<T>` as the default implementation.
 
-- **Byte**:  
-  `bytes` type will continue to be treated as an array of byte (`byte[]`) in C#.
+#### Byte Arrays
+The `bytes` type will always be treated as an array of bytes (`byte[]`) in C#, regardless of the `collection-type` option selected.
