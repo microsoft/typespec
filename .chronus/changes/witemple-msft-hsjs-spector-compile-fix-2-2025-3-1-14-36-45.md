@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-server-js"
 ---
 
-Correct implementation of JSON body deserialization when the body type is an array requiring interior serialization/deserialization.
+Correct implementation of JSON body deserialization when the body type is an array or record requiring interior serialization/deserialization.
