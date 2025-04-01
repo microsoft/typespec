@@ -1,7 +1,13 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { ModelProperty, NoTarget, Type, compilerAssert } from "@typespec/compiler";
+import {
+  ModelProperty,
+  NoTarget,
+  Type,
+  compilerAssert,
+  isArrayModelType,
+} from "@typespec/compiler";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -229,7 +235,27 @@ function* emitRawServerOperation(
         let value: string;
 
         if (requiresJsonSerialization(ctx, module, body.type)) {
-          value = `${bodyTypeName}.fromJsonObject(JSON.parse(body))`;
+          if (body.type.kind === "Model" && isArrayModelType(ctx.program, body.type)) {
+            const innerTypeName = emitTypeReference(
+              ctx,
+              body.type.indexer.value,
+              body.type,
+              module,
+              { requireDeclaration: true },
+            );
+            yield `        const __arrayBody = JSON.parse(body);`;
+            yield `        if (!Array.isArray(__arrayBody)) {`;
+            yield `          ${names.ctx}.errorHandlers.onInvalidRequest(`;
+            yield `            ${names.ctx},`;
+            yield `            ${JSON.stringify(operation.path)},`;
+            yield `            "invalid JSON in request body",`;
+            yield `          );`;
+            yield `          return reject();`;
+            yield `        }`;
+            value = `__arrayBody.map((item) => ${innerTypeName}.fromJsonObject(JSON.parse(item)))`;
+          } else {
+            value = `${bodyTypeName}.fromJsonObject(JSON.parse(body))`;
+          }
         } else {
           value = `JSON.parse(body)`;
         }

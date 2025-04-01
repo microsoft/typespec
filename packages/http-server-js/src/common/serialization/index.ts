@@ -28,6 +28,14 @@ export function requireSerialization(
     throw new UnimplementedError(`no implementation of JSON serialization for type '${type.kind}'`);
   }
 
+  // Ignore array and record types
+  if (
+    ctx.program.checker.isStdType(type, "Record") ||
+    ctx.program.checker.isStdType(type, "Array")
+  ) {
+    return requireSerialization(ctx, (type as Model).indexer!.value, contentType);
+  }
+
   let serializationsForType = _SERIALIZATIONS_MAP.get(type);
 
   if (!serializationsForType) {
