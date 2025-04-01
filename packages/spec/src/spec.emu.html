@@ -527,7 +527,15 @@ IdentifierOrMemberExpression :
     IdentifierOrMemberExpression `.` Identifier
 
 TemplateArguments :
-    `<` ExpressionList `>`
+    `<` TemplateArgumentList `>`
+
+TemplateArgumentList :
+    TemplateArgument
+    TemplateArgumentList `,` TemplateArgument
+
+TemplateArgument :
+    Expression
+    Identifier `=` Expression
 
 ParenthesizedExpression[InParameter] :
     [~InParameter] `(` Expression `)`

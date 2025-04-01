@@ -1,4 +1,5 @@
 import {
+  Enum,
   IndeterminateEntity,
   ModelProperty,
   Program,
@@ -10,6 +11,7 @@ import {
   getPattern,
   isArrayModelType,
 } from "@typespec/compiler";
+import { CSharpType } from "./interfaces.js";
 
 /**
  * Utility function to determine if a given type is a record type
@@ -26,6 +28,39 @@ export function getRecordType(program: Program, type: Type): Type | undefined {
     return type.indexer.value;
 
   return undefined;
+}
+
+export type EnumValueType = "string" | "int" | "double";
+
+export function getDoubleType() {
+  return new CSharpType({
+    name: "double",
+    namespace: "System",
+    isBuiltIn: true,
+    isValueType: true,
+  });
+}
+
+export function getEnumType(en: Enum): EnumValueType | undefined {
+  let result: EnumValueType | undefined = undefined;
+  for (const [_, member] of en.members) {
+    if (member.value === undefined) {
+      return "string";
+    }
+    switch (typeof member.value) {
+      case "string":
+        return "string";
+      case "number":
+        const val = member.value?.toString();
+        if (val === undefined) return undefined;
+        if (val.includes(".")) {
+          return "double";
+        }
+        if (result === undefined || result === "int") result = "int";
+    }
+  }
+
+  return result;
 }
 
 /**
