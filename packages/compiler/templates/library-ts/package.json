@@ -28,7 +28,7 @@
     "typescript": "^5.3.3"
   },
   "scripts": {
-    "build": "tsc && npm run build:tsp",
+    "build": "tsc && pnpm build:tsp",
     "watch": "tsc --watch",
     "build:tsp": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "node --test",
