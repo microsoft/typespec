@@ -513,7 +513,7 @@ export function emitEndpointType(
       location: "endpointPath",
       implementation: getImplementation(context, param),
       clientDefaultValue: param.clientDefaultValue,
-      skipUrlEncoding: param.allowReserved === false,
+      skipUrlEncoding: param.allowReserved,
     });
     context.__endpointPathParameters!.push(params.at(-1)!);
   }
