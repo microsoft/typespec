@@ -132,7 +132,7 @@ This configuration:
 The next step is to generate the server code from your TypeSpec definition. This process is called "scaffolding".
 
 ```bash
-npx hsj-scaffold . --use-swagger --overwrite
+npx hsjs-scaffold
 ```
 
 > **Note about `npx`**: The `npx` command executes binaries from your local node_modules directory. This ensures you're using the version of the scaffold tool installed in your project, which is especially useful if you have multiple TypeSpec projects with different versions.
