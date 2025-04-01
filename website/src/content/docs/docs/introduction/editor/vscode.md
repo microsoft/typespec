@@ -72,22 +72,22 @@ The extension for Visual Studio Code collects usage data and sends it to Microso
 
 - OperationTelemetry
 
-| Telemetry name    | Type         | Example         |
-| ---------------    | ----------------- | ---------------- |
-| EventName          | string | "start-extension" for example |
-| ActivityId         | string |  |
-| StartTime          | datatime    |  |
-| EndTime            | datatime    |  |
-| Result             | string    | "success","fail","cancelled", etc. |
-| LastStep           | string    |  |
+| Telemetry name | Type     | Example                            |
+| -------------- | -------- | ---------------------------------- |
+| EventName      | string   | "start-extension" for example      |
+| ActivityId     | string   |                                    |
+| StartTime      | datatime |                                    |
+| EndTime        | datatime |                                    |
+| Result         | string   | "success","fail","cancelled", etc. |
+| LastStep       | string   |                                    |
 
 - OperationDetailTelemetry
 
-| Telemetry name    | Type         | Example         |
-| ---------------    | ----------------- | ---------------- |
-| ActivityId          | string |  |
-| EmitterName         | string | The extension will log only names of pre-defined emitters. Unknown emitters from customers will be masked to ensure privacy. |
-| EmitterVersion      | string |  |
-| CompilerVersion     | string |  |
-| CompilerLocation    | string | "global-compiler", "local-compiler", etc. It is not to store the actual path of compiler being installed.|
-| Error               | string | tsp compiling errors |
+| Telemetry name   | Type   | Example                                                                                                                      |
+| ---------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| ActivityId       | string |                                                                                                                              |
+| EmitterName      | string | The extension will log only names of pre-defined emitters. Unknown emitters from customers will be masked to ensure privacy. |
+| EmitterVersion   | string |                                                                                                                              |
+| CompilerVersion  | string |                                                                                                                              |
+| CompilerLocation | string | "global-compiler", "local-compiler", etc. It is not to store the actual path of compiler being installed.                    |
+| Error            | string | tsp compiling errors                                                                                                         |
