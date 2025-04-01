@@ -1,7 +1,7 @@
-import { ArrayBuilder, ObjectBuilder } from "@typespec/asset-emitter";
+import { ArrayBuilder, ObjectBuilder, Placeholder } from "@typespec/asset-emitter";
 import {
   ArrayModelType,
-  IntrinsicScalarName,
+  Enum,
   Model,
   ModelProperty,
   Program,
@@ -9,9 +9,9 @@ import {
   isArrayModelType,
   resolveEncodedName,
 } from "@typespec/compiler";
+import { shouldInline } from "@typespec/openapi";
 import { reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
-import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import { OpenAPI3Schema, OpenAPI3XmlSchema, OpenAPISchema3_1 } from "./types.js";
 
 export interface XmlModule {
@@ -122,38 +122,43 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
         const propXmlName = hasUnwrappedDecorator
           ? xmlName
           : resolveEncodedName(program, propValue as Scalar | Model, "application/xml");
-        if (propValue.kind === "Scalar") {
-          let scalarSchema: OpenAPI3Schema = {};
-          const isStd = program.checker.isStdType(propValue);
-          if (isStd) {
-            scalarSchema = getSchemaForStdScalars(propValue, options);
-          } else if (propValue.baseScalar) {
-            scalarSchema = getSchemaForStdScalars(
-              propValue.baseScalar as Scalar & { name: IntrinsicScalarName },
-              options,
-            );
-          }
-          scalarSchema.xml = { name: propXmlName };
-          refSchema.items = scalarSchema;
-        } else {
+
+        if (
+          (refSchema.items instanceof Placeholder || "$ref" in refSchema.items) &&
+          !(propValue && shouldInline(program, propValue))
+        ) {
           const items = new ArrayBuilder();
           items.push(refSchema.items);
           refSchema.items = new ObjectBuilder({
             allOf: items,
             xml: { name: propXmlName },
           });
+        } else {
+          refSchema.items = new ObjectBuilder({
+            ...refSchema.items,
+            xml: { name: propXmlName },
+          });
         }
 
-        // handel unwrapped decorator
         if (!hasUnwrappedDecorator) {
           xmlObject.wrapped = true;
         }
       }
 
       if (!isArrayProperty && !refSchema.type && !isAttribute) {
+        xmlObject.name = xmlName;
         emitObject.allOf = new ArrayBuilder();
         emitObject.allOf.push(refSchema);
-        xmlObject.name = xmlName;
+      }
+
+      if (
+        isAttribute &&
+        (refSchema instanceof Placeholder || "$ref" in refSchema) &&
+        !(prop.type && shouldInline(program, prop.type)) &&
+        prop.type?.kind !== "Model"
+      ) {
+        emitObject.allOf = new ArrayBuilder();
+        emitObject.allOf.push(refSchema);
       }
 
       if (isArrayProperty && hasUnwrappedDecorator) {
@@ -171,7 +176,7 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
 
 function isXmlModelChecker(
   program: Program,
-  model: Scalar | Model | ModelProperty,
+  model: Scalar | Model | ModelProperty | Enum,
   checked: string[],
 ): boolean {
   if (model.decorators && model.decorators.some((d) => d.definition?.namespace.name === "Xml")) {
@@ -183,11 +188,21 @@ function isXmlModelChecker(
   }
 
   if (model.kind === "ModelProperty") {
-    const propModel = model.type as Scalar | Model;
-    if (propModel && !checked.includes(propModel.name)) {
-      checked.push(propModel.name);
-      if (isXmlModelChecker(program, propModel, checked)) {
-        return true;
+    const isArrayProperty = model.type?.kind === "Model" && isArrayModelType(program, model.type);
+    if (isArrayProperty) {
+      const propValue = (model.type as ArrayModelType).indexer.value;
+      if (propValue.kind === "Scalar") {
+        if (isXmlModelChecker(program, propValue, checked)) {
+          return true;
+        }
+      }
+    } else {
+      const propModel = model.type as Scalar | Model;
+      if (propModel && !checked.includes(propModel.name)) {
+        checked.push(propModel.name);
+        if (isXmlModelChecker(program, propModel, checked)) {
+          return true;
+        }
       }
     }
   }
@@ -208,6 +223,12 @@ function isXmlModelChecker(
           }
         }
       }
+    }
+  }
+
+  if (model.kind === "Scalar" && model.baseScalar) {
+    if (isXmlModelChecker(program, model.baseScalar, checked)) {
+      return true;
     }
   }
 
