@@ -290,7 +290,7 @@ When you run the scaffolding step again:
 When scaffolding your service, you can use additional options for customization:
 
 ```bash
-npx hsj-scaffold --help
+npx hsjs-scaffold --help
 ```
 
 Some useful options include:
