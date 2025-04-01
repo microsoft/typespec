@@ -52,7 +52,7 @@ You can explore more real-world TypeSpec usage on our [videos page](https://type
 
 ## What's in the 1.0 Release Candidate
 
-The 1.0-RC includes a foundation of stable core components alongside preview features that are still actively being developed based on community feedback.
+The 1.0-RC includes a foundation of core components alongside preview features that are still actively being developed based on community feedback.
 
 ### Stable components
 
