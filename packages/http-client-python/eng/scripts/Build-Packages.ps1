@@ -57,9 +57,8 @@ try {
 
     Invoke-LoggedCommand "npm run build" -GroupOutput
 
-    # after python 3.13 fix pylint issue, will reopen the check
-    # Write-Host "run lint check for pygen"
-    # Invoke-LoggedCommand "npm run lint:py" -GroupOutput
+    Write-Host "run lint check for pygen"
+    Invoke-LoggedCommand "npm run lint:py" -GroupOutput
 
     # pack the emitter
     Invoke-LoggedCommand "npm pack"
