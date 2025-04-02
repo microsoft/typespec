@@ -60,7 +60,7 @@ steps:
   - task: UsePythonVersion@0
     displayName: "Use Python ${{ parameters.PythonVersion }}"
     inputs:
-        versionSpec: ${{ parameters.PythonVersion }}
+      versionSpec: ${{ parameters.PythonVersion }}
 
   - ${{ parameters.AdditionalInitializeSteps }}
 
