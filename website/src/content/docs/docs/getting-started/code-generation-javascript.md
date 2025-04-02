@@ -208,6 +208,7 @@ These files are intended for you to modify with your implementation:
   - These files **won't be overwritten** when you recompile, preserving your business logic
 
 - **app.js**: Express application configuration
+
   - Sets up middleware, routes, and error handling
 
 - **server.js**: HTTP server configuration and startup
@@ -239,8 +240,8 @@ async function listWidgets() {
   return {
     items: [
       { id: "1", weight: 10, color: "red" },
-      { id: "2", weight: 15, color: "blue" }
-    ]
+      { id: "2", weight: 15, color: "blue" },
+    ],
   };
 }
 ```
