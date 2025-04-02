@@ -44,9 +44,9 @@ TypeSpec is already being used by teams both inside and outside Microsoft to str
 >
 > — _Microsoft Learn Team_
 
-> Before the introduction of TypeSpec and our move to an API first approach, an OAS [OpenAPI Specification] was a byproduct of the implementation phase. Manual OAS reviews were happening at the end of the development cycle and changes were contentious because of the code rework implied and the likely impact to the release schedule. TypeSpec provides a way to embed [our] guidelines and rules directly in the design. Reviews are now focused more on the design than on the rules and requires less time." [(read more)](../2024-11-04-typespec-at-lseg/blog.md)
+> Before the introduction of TypeSpec and our move to an API first approach, an OAS [OpenAPI Specification] was a byproduct of the implementation phase. Manual OAS reviews were happening at the end of the development cycle and changes were contentious because of the code rework implied and the likely impact to the release schedule. TypeSpec provides a way to embed [our] guidelines and rules directly in the design. Reviews are now focused more on the design than on the rules and requires less time."
 >
-> — _London Stock Exchange Group_
+> — _London Stock Exchange Group_ [(read more)](../2024-11-04-typespec-at-lseg/blog.md)
 
 You can explore more real-world TypeSpec usage on our [videos page](https://typespec.io/videos/), featuring presentations from both Microsoft teams and external community members showing how they're using TypeSpec to improve their API development workflows.
 
@@ -67,7 +67,6 @@ These components have been heavily used and tested internally, and we consider t
 - **IDE support**
 
   - [typespec-vscode](https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vscode): VS Code extension
-  - [typespec.typespecvs](https://marketplace.visualstudio.com/items?itemName=typespec.typespecvs): Visual Studio extension
 
 - **Stable emitters**
   - [@typespec/openapi3](https://www.npmjs.com/package/@typespec/openapi3): OpenAPI 3.0 output
