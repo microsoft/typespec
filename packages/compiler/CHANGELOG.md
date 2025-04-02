@@ -9,7 +9,7 @@
   
     ```diff lang=json title=package.json
     "dependencies": {
-    +   "@typespec/asset-emitter": "^1.0.0-rc.0"
+    +   "@typespec/asset-emitter": "^0.68.0"
     }
     ```
   
