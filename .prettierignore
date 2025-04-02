@@ -55,7 +55,7 @@ eng/feeds/
 grammars/
 
 # auto generated code model files
-packages/http-client-csharp/generator/TestProjects/**/tspCodeModel.json
+**/tspCodeModel.json
 
 # auto generated api view properties files
 packages/http-client-java/generator/http-client-generator-test/src/main/**/*.json
