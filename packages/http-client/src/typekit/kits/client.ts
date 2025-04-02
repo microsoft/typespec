@@ -177,12 +177,21 @@ defineKit<TypekitExtension>({
       const httpOperations = operations.map((o) => {
         const httpOperation = this.httpOperation.get(o);
 
-        const streamMetadata = getStreamMetadata(this.program, httpOperation.parameters);
+        const streamMetadataBody = getStreamMetadata(this.program, httpOperation.parameters);
         const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
         httpOperation.parameters.properties.map((param) => {
-          if (param.kind === "body" && streamMetadata?.bodyType === param.property.type && bytes) {
+          if (param.kind === "body" && streamMetadataBody?.bodyType === param.property.type && bytes) {
             param.property.type = bytes;
           }
+        });
+        httpOperation.responses.map((response) => {
+          response.responses.map((responseContent) => {
+            const streamMetadata = getStreamMetadata(this.program, responseContent);
+            if (streamMetadata && bytes && responseContent.body?.bodyKind === "single") {
+              (responseContent.body as any).type = bytes;
+            }
+            return response;
+          });
         });
         return httpOperation;
       });
