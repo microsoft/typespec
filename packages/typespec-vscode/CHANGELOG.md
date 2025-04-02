@@ -1,6 +1,6 @@
 # Change Log - typespec-vscode
 
-## 0.68.0
+## 1.0.0-rc.0
 
 ### Bump dependencies
 
