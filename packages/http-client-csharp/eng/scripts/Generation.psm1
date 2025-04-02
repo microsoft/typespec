@@ -31,7 +31,6 @@ function Get-TspCommand {
         [string]$emitterDir = $null
     )
     if (-not $emitterDir) {
-        Write-Host "Setting default emitterDir"
         $emitterDir = (Resolve-Path (Join-Path $PSScriptRoot '..' '..'))
     }
     $command = "npx tsp compile $specFile"
