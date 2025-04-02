@@ -44,6 +44,7 @@ import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ReturnTypeDescriptionAssembler;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -230,14 +231,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
                 final boolean isJsonPatch = MethodUtil.isContentTypeInRequest(request, "application/json-patch+json");
 
-                final boolean proxyMethodUsesBinaryData = proxyMethod.getParameters()
-                    .stream()
-                    .anyMatch(proxyMethodParameter -> proxyMethodParameter.getClientType() == ClassType.BINARY_DATA);
-                final boolean proxyMethodUsesFluxByteBuffer = proxyMethod.getParameters()
-                    .stream()
-                    .anyMatch(
-                        proxyMethodParameter -> proxyMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER);
-
                 Set<Parameter> originalParameters = new HashSet<>();
                 for (Parameter parameter : codeModelParameters) {
                     ClientMethodParameter clientMethodParameter
@@ -246,13 +239,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     if (isJsonPatch) {
                         clientMethodParameter
                             = CustomClientParameterMapper.getInstance().map(parameter, isProtocolMethod);
-                    }
-
-                    // If the codemodel parameter and proxy method parameter types don't match, update the client
-                    // method param to use proxy method parameter type.
-                    if (proxyMethodUsesBinaryData
-                        && clientMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER) {
-                        clientMethodParameter = updateClientMethodParameter(clientMethodParameter);
                     }
 
                     if (request.getSignatureParameters().contains(parameter)) {
@@ -383,7 +369,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     builder.methodVisibility(simpleAsyncMethodVisibilityWithContext);
                     addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
 
-                    if (JavaSettings.getInstance().isSyncStackEnabled() && !proxyMethodUsesFluxByteBuffer) {
+                    if (JavaSettings.getInstance().isSyncStackEnabled()) {
                         // WithResponseSync, with required and optional parameters
                         builder
                             .returnValue(createSimpleSyncRestResponseReturnValue(operation,
@@ -944,13 +930,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         return signatures;
     }
 
-    private static ClientMethodParameter updateClientMethodParameter(ClientMethodParameter clientMethodParameter) {
-        return clientMethodParameter.newBuilder()
-            .rawType(ClassType.BINARY_DATA)
-            .wireType(ClassType.BINARY_DATA)
-            .build();
-    }
-
     /**
      * Extension point of additional methods for LRO.
      */
@@ -966,10 +945,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         MethodPollingDetails methodPollingDetails, boolean isProtocolMethod,
         boolean generateClientMethodWithOnlyRequiredParameters, MethodOverloadType defaultOverloadType,
         ProxyMethod proxyMethod) {
-
-        boolean proxyMethodUsesFluxByteBuffer = proxyMethod.getParameters()
-            .stream()
-            .anyMatch(proxyMethodParameter -> proxyMethodParameter.getClientType() == GenericType.FLUX_BYTE_BUFFER);
 
         builder.methodPollingDetails(methodPollingDetails);
         if (JavaSettings.getInstance().isGenerateAsyncMethods()) {
@@ -999,9 +974,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
         }
 
-        if (!proxyMethodUsesFluxByteBuffer
-            && (JavaSettings.getInstance().isGenerateSyncMethods()
-                || JavaSettings.getInstance().isSyncStackEnabled())) {
+        if (JavaSettings.getInstance().isGenerateSyncMethods()
+                || JavaSettings.getInstance().isSyncStackEnabled()) {
             // begin method sync
             methods.add(builder
                 .returnValue(createLongRunningBeginSyncReturnValue(operation, syncReturnType, methodPollingDetails))

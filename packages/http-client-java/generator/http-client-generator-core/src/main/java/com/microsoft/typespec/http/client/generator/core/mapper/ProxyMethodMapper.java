@@ -17,10 +17,11 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodExample;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import com.microsoft.typespec.http.client.generator.core.util.XmsExampleWrapper;
+import org.slf4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,7 +33,6 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
 
 /**
  * Maps Swagger definition into the interface methods that RestProxy consumes.
@@ -315,18 +315,6 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             methods.add(noCustomHeaderMethod);
         }
 
-        // The async proxy method overload with BinaryData parameter,
-        //
-        final ProxyMethod binaryDataMethod = createMethodOverloadForBinaryData(method);
-        if (binaryDataMethod != null) {
-            methods.add(binaryDataMethod);
-            final ProxyMethod noCustomHeaderBinaryDataMethod
-                = createNoCustomHeaderMethod(operation, settings, operationName, binaryDataMethod);
-            if (noCustomHeaderBinaryDataMethod != null) {
-                methods.add(noCustomHeaderBinaryDataMethod);
-            }
-        }
-
         // The sync proxy method variants.
         //
         final List<ProxyMethod> asyncMethods = new ArrayList<>(methods);
@@ -373,36 +361,6 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             return builder.build();
         }
         return null;
-    }
-
-    /**
-     * if the given method has a Flux&lt;ByteBuffer&gt; parameter, create a method overload with BinaryData parameter.
-     *
-     * @param method the method to check and create overload for.
-     * @return the new method overload with BinaryData parameter, or null if no Flux of ByteBuffer parameter found.
-     */
-    private static ProxyMethod createMethodOverloadForBinaryData(ProxyMethod method) {
-        final ProxyMethodParameter fluxByteBufferParameter = method.getParameters()
-            .stream()
-            .filter(parameter -> parameter.getClientType() == GenericType.FLUX_BYTE_BUFFER)
-            .findFirst()
-            .orElse(null);
-        if (fluxByteBufferParameter == null) {
-            return null;
-        }
-        final List<ProxyMethodParameter> parameters = new ArrayList<>(method.getParameters());
-        final int i = method.getParameters().indexOf(fluxByteBufferParameter);
-        parameters.remove(i);
-        final ProxyMethodParameter binaryDataParameter = fluxByteBufferParameter.newBuilder()
-            .wireType(ClassType.BINARY_DATA)
-            .rawType(ClassType.BINARY_DATA)
-            .clientType(ClassType.BINARY_DATA)
-            .build();
-        parameters.add(i, binaryDataParameter);
-
-        final ProxyMethod.Builder builder = method.newBuilder();
-        builder.parameters(parameters);
-        return builder.build();
     }
 
     /**
