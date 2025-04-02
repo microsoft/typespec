@@ -14,7 +14,7 @@ export interface JsClientEmitterOptions {
 
 export const EmitterOptionsSchema: JSONSchemaType<JsClientEmitterOptions> = {
   type: "object",
-  additionalProperties: false,
+  additionalProperties: true,
   properties: {
     "package-version": {
       type: "string",
