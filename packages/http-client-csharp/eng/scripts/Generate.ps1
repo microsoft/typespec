@@ -13,22 +13,22 @@ $solutionDir = Join-Path $packageRoot 'generator'
 if (-not $LaunchOnly) {
     Refresh-Build
 
-    if ($null -eq $filter -or $filter -eq "Unbranded-TypeSpec") {
-        Write-Host "Generating UnbrandedTypeSpec" -ForegroundColor Cyan
+    if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
+        Write-Host "Generating SampleTypeSpec" -ForegroundColor Cyan
         $testProjectsLocalDir = Join-Path $packageRoot 'generator' 'TestProjects' 'Local'
 
-        $unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
-        $unbrandedTypespecTestProject = $unbrandedTypespecTestProject
+        $SampleTypeSpecTestProject = Join-Path $testProjectsLocalDir "Sample-TypeSpec"
+        $SampleTypeSpecTestProject = $SampleTypeSpecTestProject
 
-        Invoke (Get-TspCommand "$unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp" $unbrandedTypespecTestProject -newProject $false)
+        Invoke (Get-TspCommand "$SampleTypeSpecTestProject/Sample-TypeSpec.tsp" $SampleTypeSpecTestProject -newProject $false)
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }
 
-        Write-Host "Building UnbrandedTypeSpec" -ForegroundColor Cyan
-        Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Unbranded-TypeSpec/src/UnbrandedTypeSpec.csproj"
+        Write-Host "Building SampleTypeSpec" -ForegroundColor Cyan
+        Invoke "dotnet build $packageRoot/generator/TestProjects/Local/Sample-TypeSpec/src/SampleTypeSpec.csproj"
 
         # exit if the generation failed
         if ($LASTEXITCODE -ne 0) {
@@ -146,15 +146,15 @@ if ($null -eq $filter) {
     Write-Host "Writing new launch settings" -ForegroundColor Cyan
     $mtgExe = "`$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SampleGenerator/Debug/net8.0/Microsoft.TypeSpec.Generator.exe"
-    $unbrandedSpec = "TestProjects/Local/Unbranded-TypeSpec"
-    $unbrandedSampleGeneratorSpec = "TestProjects/SampleGenerator/Unbranded-TypeSpec"
+    $unbrandedSpec = "TestProjects/Local/Sample-TypeSpec"
+    $unbrandedSampleGeneratorSpec = "TestProjects/SampleGenerator/Sample-TypeSpec"
 
     $launchSettings = @{}
     $launchSettings.Add("profiles", @{})
-    $launchSettings["profiles"].Add("Unbranded-TypeSpec", @{})
-    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -g ScmCodeModelGenerator")
-    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandName", "Executable")
-    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mtgExe)
+    $launchSettings["profiles"].Add("Sample-TypeSpec", @{})
+    $launchSettings["profiles"]["Sample-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -g ScmCodeModelGenerator")
+    $launchSettings["profiles"]["Sample-TypeSpec"].Add("commandName", "Executable")
+    $launchSettings["profiles"]["Sample-TypeSpec"].Add("executablePath", $mtgExe)
     $launchSettings["profiles"].Add("Debug-SampleGenerator-Test-TypeSpec", @{})
     $launchSettings["profiles"]["Debug-SampleGenerator-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSampleGeneratorSpec -g SampleCodeModelGenerator")
     $launchSettings["profiles"]["Debug-SampleGenerator-Test-TypeSpec"].Add("commandName", "Executable")
