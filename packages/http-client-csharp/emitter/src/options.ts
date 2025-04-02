@@ -31,7 +31,7 @@ export interface CSharpEmitterOptions {
     header?: string;
     description?: string;
   };
-};
+}
 
 /**
  * The JSON schema for the CSharp emitter options.
