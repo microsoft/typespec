@@ -26,7 +26,8 @@ function Get-TspCommand {
         [string]$generationDir,
         [bool]$generateStub = $false,
         [string]$libraryNameOverride = $null,
-        [string]$apiVersion = $null
+        [string]$apiVersion = $null,
+        [bool]$newProject = $true
     )
     $emitterDir = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
     $command = "npx tsp compile $specFile"
@@ -50,8 +51,10 @@ function Get-TspCommand {
         $command += " --option @typespec/http-client-csharp.api-version=$apiVersion"
     }
     
-    # Always regenerate the csproj to reflect updates to NewProjectScaffolding 
-    $command += " --option @typespec/http-client-csharp.new-project=true"
+    # Regenerate the csproj to reflect updates to NewProjectScaffolding, emitter default is to set new-project=false
+    if ($newProject) {
+        $command += " --option @typespec/http-client-csharp.new-project=true"
+    }
 
     return $command
 }

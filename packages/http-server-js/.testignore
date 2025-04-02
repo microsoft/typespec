@@ -1,4 +1,3 @@
-special-words
 authentication/oauth2
 authentication/union
 encode/bytes
@@ -10,7 +9,6 @@ payload/multipart
 payload/xml
 response/status-code-range
 streaming/jsonl
-type/array
 type/enum/fixed
 type/property/additional-properties
 type/property/value-types
