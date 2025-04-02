@@ -40,3 +40,8 @@ jobs:
 
       - script: node eng/common/scripts/check-for-changed-files.js
         displayName: Check Git Status For Changed Files
+      - script: |
+          ls
+          echo "current root path"
+          cwd
+        displayName: current Foolder
