@@ -44,7 +44,6 @@ import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ReturnTypeDescriptionAssembler;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -971,8 +970,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             addClientMethodWithContext(methods, builder, parameters, getContextParameter(isProtocolMethod));
         }
 
-        if (JavaSettings.getInstance().isGenerateSyncMethods()
-                || JavaSettings.getInstance().isSyncStackEnabled()) {
+        if (JavaSettings.getInstance().isGenerateSyncMethods() || JavaSettings.getInstance().isSyncStackEnabled()) {
             // begin method sync
             methods.add(builder
                 .returnValue(createLongRunningBeginSyncReturnValue(operation, syncReturnType, methodPollingDetails))
