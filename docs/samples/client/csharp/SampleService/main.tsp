@@ -3,13 +3,13 @@ import "@typespec/http";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
-@service(#{ title: "hello world", version: "0.1.0" })
-@doc("This is a sample typespec project.")
+@service(#{ title: "Sample TypeSpec Project", version: "0.1.0" })
+@doc("This is a sample TypeSpec project.")
 @server(
-  "{unbrandedTypeSpecUrl}",
+  "{sampleTypeSpecUrl}",
   "Endpoint Service",
   {
-    unbrandedTypeSpecUrl: string,
+    sampleTypeSpecUrl: string,
   }
 )
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "my-api-key">)
@@ -18,7 +18,7 @@ namespace SampleService;
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;
 
-@doc("Sample Widget")
+/** Sample Widget */
 model Widget {
   name: string;
   id: string;

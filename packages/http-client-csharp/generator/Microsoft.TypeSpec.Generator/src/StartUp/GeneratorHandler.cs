@@ -18,9 +18,8 @@ namespace Microsoft.TypeSpec.Generator
 
         public void LoadGenerator(CommandLineOptions options)
         {
-            using AggregateCatalog catalog = new();
             using DirectoryCatalog directoryCatalog = new(AppContext.BaseDirectory);
-            catalog.Catalogs.Add(directoryCatalog);
+            using AggregateCatalog catalog = new(directoryCatalog);
 
             AddPluginDlls(catalog);
 

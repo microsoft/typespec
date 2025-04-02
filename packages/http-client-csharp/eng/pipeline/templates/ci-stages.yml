@@ -38,19 +38,3 @@ stages:
       Condition: ${{ parameters.Condition }}
       DependsOn: ${{ parameters.DependsOn }}
       LanguageShortName: "csharp"
-
-  - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
-    parameters:
-      StagePrefix: Samples
-      BuildPrereleaseVersion: true
-      UseTypeSpecNext: false
-      Publish: "none"
-      PackagePath: /packages/samples/client/csharp/SampleService
-      EmitterPackageJsonPath: packages/http-client-csharp/package.json
-      UnitTestArgs: -UnitTests
-      TestMatrix:
-        RegenCheck:
-          TestArguments: -GenerationChecks
-      Condition: ${{ parameters.Condition }}
-      DependsOn: ${{ parameters.DependsOn }}
-      LanguageShortName: "csharp"
