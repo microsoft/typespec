@@ -5,13 +5,13 @@ import {
   installExtensionForFile,
   preContrastResult,
   start,
-} from "../common/commonSteps"
+} from "./common/commonSteps"
 import {
   emitSelectLanguageForOpenapi,
   emitSelectProject,
   emitSelectType,
-} from "../common/emiSteps"
-import { screenshotSelf, test } from "../common/utils"
+} from "./common/emiSteps"
+import { screenshotSelf, test } from "./common/utils"
 import path from "node:path"
 import fs from "node:fs"
 
