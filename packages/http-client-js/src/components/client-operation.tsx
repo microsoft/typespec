@@ -9,7 +9,7 @@ import { getClientcontextDeclarationRef } from "./client-context/client-context-
 import { HttpRequest } from "./http-request.jsx";
 import { HttpResponse } from "./http-response.jsx";
 import { OperationPipeline } from "./operation-handlers/operation-pipeline.jsx";
-import { PaginatedOperationHandler } from "./operation-handlers/paginated-operation-handler.jsx";
+import { PaginatedOperationHandler } from "./operation-handlers/paging/paginated-operation-handler.jsx";
 import { OperationOptionsDeclaration } from "./operation-options.jsx";
 import { getOperationParameters } from "./operation-parameters.jsx";
 

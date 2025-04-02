@@ -6,28 +6,28 @@ import { $ } from "@typespec/compiler/experimental/typekit";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import { HttpOperation } from "@typespec/http";
 import * as cl from "@typespec/http-client";
-import { reportDiagnostic } from "../../lib.js";
-import { getClientcontextDeclarationRef } from "../client-context/client-context-declaration.jsx";
-import { OperationOptionsDeclaration } from "../operation-options.jsx";
-import { getOperationParameters } from "../operation-parameters.jsx";
+import { reportDiagnostic } from "../../../lib.js";
+import { getClientcontextDeclarationRef } from "../../client-context/client-context-declaration.jsx";
+import { OperationOptionsDeclaration } from "../../operation-options.jsx";
+import { getOperationParameters } from "../../operation-parameters.jsx";
 import {
   getBuildPagedAsyncIteratorRefkey,
   getPagedAsyncIterableIteratorRefkey,
-} from "../static-helpers/paging-helper.jsx";
-import { getPageItemTypeName } from "./paging/page-item.jsx";
-import { getPageResponseTypeRefkey, PageResponseDeclaration } from "./paging/page-response.jsx";
+} from "../../static-helpers/paging-helper.jsx";
+import { getPageItemTypeName } from "../paging/page-item.jsx";
+import { getPageResponseTypeRefkey, PageResponseDeclaration } from "../paging/page-response.jsx";
 import {
   getPageSettingProperties,
   getPageSettingsTypeRefkey,
   PageSettingsDeclaration,
-} from "./paging/page-settings.jsx";
-import { HttpRequestSend } from "./paging/request-send.jsx";
+} from "../paging/page-settings.jsx";
+import { HttpRequestSend } from "../paging/request-send.jsx";
 import {
   getHttpRequestDeserializeRefkey,
   HttpResponseDeserialize,
-} from "./paging/response-deserialize.jsx";
-import { extractPagingDetail, PagingDetail } from "./paging/util.js";
-import { OperationHandler } from "./types.js";
+} from "../paging/response-deserialize.jsx";
+import { extractPagingDetail, PagingDetail } from "../paging/util.js";
+import { OperationHandler } from "../types.js";
 
 export const PaginatedOperationHandler: OperationHandler = {
   canHandle(httpOperation: HttpOperation): boolean {
