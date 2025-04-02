@@ -1,5 +1,43 @@
 # Change Log - @typespec/compiler
 
+## 0.68.0
+
+### Breaking Changes
+
+- [#6678](https://github.com/microsoft/typespec/pull/6678) Moved `TypeSpecPrettierPlugin` type to internal. If wanting to use the prettier pluging programmatically, use it from the `@typespec/prettier-plugin-typespec` package
+- [#6544](https://github.com/microsoft/typespec/pull/6544) Remove deprecated `@typespec/compiler/emitter-framework` export in favor of a new package `@typespec/asset-emitter`
+  
+    ```diff lang=json title=package.json
+    "dependencies": {
+    +   "@typespec/asset-emitter": "^1.0.0-rc.0"
+    }
+    ```
+  
+    ```diff lang=ts
+    -import { TypeEmitter, ... } from "@typespec/compiler/emitter-framework";
+    +import { TypeEmitter, ... } from "@typespec/asset-emitter";
+    ```
+- [#6754](https://github.com/microsoft/typespec/pull/6754) Reserve additional keywords:
+   - `context`
+   - `sym`
+   - `prop`
+   - `property`
+   - `scenario`
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+### Bug Fixes
+
+- [#6197](https://github.com/microsoft/typespec/pull/6197) Show emitter internal error message in tspconfig
+- [#6710](https://github.com/microsoft/typespec/pull/6710) Updates to scaffolding script and scaffold commands for consistency
+- [#6826](https://github.com/microsoft/typespec/pull/6826) Fix new reserved keywords were not allowed in augment decorator expression
+- [#6697](https://github.com/microsoft/typespec/pull/6697) Fix crash that would happen when a type was mutated while using null in a decorator(e.g. when using versioning library with `@example(null)`)
+- [#6711](https://github.com/microsoft/typespec/pull/6711) Fix extra properties not validated in nested entries of the config
+- [#6711](https://github.com/microsoft/typespec/pull/6711) Fix passing nested emitter options with `--option`
+
+
 ## 0.67.2
 
 ### Bug Fixes
