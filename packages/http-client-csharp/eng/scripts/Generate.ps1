@@ -40,7 +40,7 @@ if (-not $LaunchOnly) {
       Write-Host "Generating SampleService" -ForegroundColor Cyan
       $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
       
-      Invoke (Get-TspCommand "$sampleDir/main.tsp" $sampleDir)
+      Invoke (Get-TspCommand "$sampleDir/main.tsp" $sampleDir -usePackageDependency $true)
 
       # exit if the generation failed
       if ($LASTEXITCODE -ne 0) {

@@ -27,12 +27,18 @@ function Get-TspCommand {
         [bool]$generateStub = $false,
         [string]$libraryNameOverride = $null,
         [string]$apiVersion = $null,
-        [bool]$newProject = $true
+        [bool]$newProject = $true,
+        [bool]$usePackageDependency = $false
     )
     $emitterDir = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
     $command = "npx tsp compile $specFile"
     $command += " --trace @typespec/http-client-csharp"
-    $command += " --emit $emitterDir"
+    if ($usePackageDependency) {
+        $command += " --trace @typespec/http-client-csharp"
+    }
+    else {
+        $command += " --emit $emitterDir"
+    }
     $configFile = Join-Path $generationDir "tspconfig.yaml"
     if (Test-Path $configFile) {
         $command += " --config=$configFile"
