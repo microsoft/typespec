@@ -1,4 +1,5 @@
 import {
+  ignoreDiagnostics,
   Interface,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
@@ -22,6 +23,7 @@ import { reportDiagnostic } from "../../lib.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
 import { getStringValue } from "../../utils/helpers.js";
 import { NameKit } from "./utils.js";
+import { getStreamMetadata } from "@typespec/http/experimental";
 
 interface ClientKit extends NameKit<InternalClient> {
   /**
@@ -169,25 +171,22 @@ defineKit<TypekitExtension>({
         if (isTemplateDeclarationOrInstance(clientOperation)) {
           continue;
         }
-        // const paramMap = clientOperation.parameters.properties;
-        // const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
-        // for (const [key, param] of clientOperation.parameters.properties) {
-        //   if (param.type.kind === "Model" && isStream(this.program, param.type) && bytes) {
-        //     paramMap.set(
-        //       key,
-        //       this.modelProperty.create({
-        //         name: key,
-        //         type: bytes,
-        //         optional: param.optional,
-        //       }),
-        //     );
-        //   }
-        // }
-        // clientOperation.parameters.properties = paramMap;
         operations.push(clientOperation);
       }
 
-      const httpOperations = operations.map((o) => this.httpOperation.get(o));
+      const httpOperations = operations.map((o) => {
+        const httpOperation = this.httpOperation.get(o);
+  
+        const streamMetadata = getStreamMetadata(this.program, httpOperation.parameters);
+        const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
+        httpOperation.parameters.properties.map((param) => {
+
+          if (param.kind === "body" && streamMetadata?.bodyType === param.property.type && bytes) {
+            param.property.type = bytes;
+          }
+        });
+        return httpOperation;
+      });
       clientOperationCache.set(client, httpOperations);
 
       return httpOperations;

@@ -26,7 +26,11 @@ The client signature should include a positional parameter for credential of typ
 export class TestClient {
   #context: TestClientContext;
 
-  constructor(endpoint: string, credential: KeyCredential, options?: TestClientOptions) {
+  constructor(
+    endpoint: string,
+    credential: KeyCredential,
+    options?: TestClientOptions,
+  ) {
     this.#context = createTestClientContext(endpoint, credential, options);
   }
   async valid(options?: ValidOptions) {

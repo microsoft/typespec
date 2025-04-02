@@ -51,7 +51,12 @@ It should generate a client for Bar with `create` and `get` operations as define
 
 ```ts src/barClient.ts
 import { BarItem } from "./models/models.js";
-import { GetOptions, get, CreateOptions, create } from "./api/barClientOperations.js";
+import {
+  GetOptions,
+  get,
+  CreateOptions,
+  create,
+} from "./api/barClientOperations.js";
 import {
   BarClientContext,
   BarClientOptions,
@@ -67,8 +72,8 @@ export class BarClient {
   async get(options?: GetOptions) {
     return get(this.#context, options);
   }
-  async create(foo: BarItem, options?: CreateOptions) {
-    return create(this.#context, foo, options);
+  async create(title: string, foo: BarItem, options?: CreateOptions) {
+    return create(this.#context, title, foo, options);
   }
 }
 ```

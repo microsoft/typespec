@@ -31,6 +31,10 @@ export async function create(
   client: TestClientContext,
   id: string,
   name: string,
+  street: string,
+  city: string,
+  state: string,
+  zipCode: string,
   options?: CreateOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
@@ -76,8 +80,25 @@ export class TestClient {
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
-  async create(id: string, name: string, options?: CreateOptions) {
-    return create(this.#context, id, name, options);
+  async create(
+    id: string,
+    name: string,
+    street: string,
+    city: string,
+    state: string,
+    zipCode: string,
+    options?: CreateOptions,
+  ) {
+    return create(
+      this.#context,
+      id,
+      name,
+      street,
+      city,
+      state,
+      zipCode,
+      options,
+    );
   }
 }
 ```

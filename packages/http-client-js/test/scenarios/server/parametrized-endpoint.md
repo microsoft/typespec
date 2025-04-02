@@ -37,12 +37,14 @@ export function createTestClientContext(
   const params: Record<string, any> = {
     foo: foo,
   };
-  const resolvedEndpoint = "{foo}/server/path/multiple".replace(/{([^}]+)}/g, (_, key) =>
-    key in params
-      ? String(params[key])
-      : (() => {
-          throw new Error(`Missing parameter: ${key}`);
-        })(),
+  const resolvedEndpoint = "{foo}/server/path/multiple".replace(
+    /{([^}]+)}/g,
+    (_, key) =>
+      key in params
+        ? String(params[key])
+        : (() => {
+            throw new Error(`Missing parameter: ${key}`);
+          })(),
   );
   return getClient(resolvedEndpoint, {
     ...options,

@@ -35,7 +35,11 @@ The subclient is not a child of the TestClient because they have different param
 export class TestClient {
   #context: TestClientContext;
 
-  constructor(endpoint: string, credential: KeyCredential, options?: TestClientOptions) {
+  constructor(
+    endpoint: string,
+    credential: KeyCredential,
+    options?: TestClientOptions,
+  ) {
     this.#context = createTestClientContext(endpoint, credential, options);
   }
   async valid(options?: ValidOptions) {

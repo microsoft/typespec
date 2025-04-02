@@ -26,15 +26,15 @@ The test expects a TypeScript operation that treats the model Thing as bytes.
 ```ts src/api/clientOperations.ts function get
 export async function get(
   client: ClientContext,
-  stream: Uint8Array,
+  body: Uint8Array,
   options?: GetOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
-    headers: {},
-    body: {
-      stream: encodeUint8Array(stream, "base64")!,
+    headers: {
+      "content-type": options?.contentType ?? "custom/built-here",
     },
+    body: body,
   };
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 

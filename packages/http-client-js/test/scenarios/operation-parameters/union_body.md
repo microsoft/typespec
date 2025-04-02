@@ -29,6 +29,8 @@ model EnumsOnlyCases {
 ```ts src/api/testClientOperations.ts function send
 export async function send(
   client: TestClientContext,
+  lr: Lr | Ud,
+  ud: Ud | Ud,
   prop: EnumsOnlyCases,
   options?: SendOptions,
 ): Promise<void> {
@@ -68,14 +70,21 @@ export class TestClient {
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
-  async send(prop: EnumsOnlyCases, options?: SendOptions) {
-    return send(this.#context, prop, options);
+  async send(
+    lr: Lr | Ud,
+    ud: Ud | Ud,
+    prop: EnumsOnlyCases,
+    options?: SendOptions,
+  ) {
+    return send(this.#context, lr, ud, prop, options);
   }
 }
 ```
 
 ```ts src/models/internal/serializers.ts function jsonEnumsOnlyCasesToTransportTransform
-export function jsonEnumsOnlyCasesToTransportTransform(input_?: EnumsOnlyCases | null): any {
+export function jsonEnumsOnlyCasesToTransportTransform(
+  input_?: EnumsOnlyCases | null,
+): any {
   if (!input_) {
     return input_ as any;
   }

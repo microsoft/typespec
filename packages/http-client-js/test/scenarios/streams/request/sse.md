@@ -40,15 +40,15 @@ The test expects a TypeScript operation that treats the model Thing as bytes.
 ```ts src/api/clientOperations.ts function subscribeToChannel
 export async function subscribeToChannel(
   client: ClientContext,
-  stream: Uint8Array,
+  body: Uint8Array,
   options?: SubscribeToChannelOptions,
 ): Promise<void> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
-    headers: {},
-    body: {
-      stream: encodeUint8Array(stream, "base64")!,
+    headers: {
+      "content-type": options?.contentType ?? "text/event-stream",
     },
+    body: body,
   };
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 

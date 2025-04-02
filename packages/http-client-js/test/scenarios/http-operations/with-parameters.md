@@ -72,7 +72,13 @@ export class WidgetsClient {
   constructor(endpoint: string, options?: WidgetsClientOptions) {
     this.#context = createWidgetsClientContext(endpoint, options);
   }
-  async read(id: string, etag: string, foo: string, name: string, options?: ReadOptions) {
+  async read(
+    id: string,
+    etag: string,
+    foo: string,
+    name: string,
+    options?: ReadOptions,
+  ) {
     return read(this.#context, id, etag, foo, name, options);
   }
 }
