@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test"
+import { Page } from "playwright/test"
 
 /**
  * When emitting a select project event, it will select the project with the given name.
