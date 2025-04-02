@@ -18,7 +18,7 @@ import fs from "node:fs"
 beforeEach(() => {
   const dir = path.resolve(
     __dirname,
-    "../../EmitTypespecProject/Azure.AI.TextTranslation/tsp-output"
+    "./EmitTypespecProject/Azure.AI.TextTranslation/tsp-output"
   )
   if (fs.existsSync(dir)) {
     for (const file of fs.readdirSync(dir)) {
@@ -26,21 +26,10 @@ beforeEach(() => {
       fs.rmSync(filePath, { recursive: true, force: true })
     }
   }
-
-  const dirs = path.resolve(
-    __dirname,
-    "../../EmitTypespecProject/Azure.AI.DocumentTranslation/tsp-output"
-  )
-  if (fs.existsSync(dirs)) {
-    for (const file of fs.readdirSync(dirs)) {
-      const filePath = path.resolve(dirs, file)
-      fs.rmSync(filePath, { recursive: true, force: true })
-    }
-  }
 })
 
 test("EmitTypespec-OpenAPI Document", async ({ launch }) => {
-  const workspacePath = path.resolve(__dirname, "../../EmitTypespecProject")
+  const workspacePath = path.resolve(__dirname, "./EmitTypespecProject")
   const { page } = await launch({
     workspacePath,
   })
@@ -54,7 +43,7 @@ test("EmitTypespec-OpenAPI Document", async ({ launch }) => {
     folderName: "EmitTypespecProject",
     command: "Emit from Typespec",
   })
-  await emitSelectProject(page, "TextTranslation")
+  // await emitSelectProject(page, "TextTranslation")
 
   await page
     .getByRole("option", { name: "Choose another emitter" })
@@ -73,9 +62,6 @@ test("EmitTypespec-OpenAPI Document", async ({ launch }) => {
   )
   await contrastResult(
     ["openapi.3.0.yaml"],
-    path.resolve(
-      workspacePath,
-      "./Azure.AI.TextTranslation/tsp-output/@typespec/openapi3"
-    )
+    path.resolve(workspacePath, "tsp-output/schema")
   )
 })

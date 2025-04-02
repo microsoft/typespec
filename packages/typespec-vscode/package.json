@@ -259,8 +259,14 @@
     "test:extension": "vitest --root test/extension"
   },
   "devDependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "@rollup/plugin-commonjs": "~28.0.3",
+    "@rollup/plugin-json": "~6.1.0",
+    "@rollup/plugin-node-resolve": "~16.0.1",
+    "@rollup/plugin-typescript": "~12.1.2",
     "@types/mocha": "^10.0.9",
     "@types/node": "~22.13.11",
+    "@types/screenshot-desktop": "^1.12.3",
     "@types/semver": "^7.5.8",
     "@types/vscode": "~1.98.0",
     "@types/which": "^3.0.4",
@@ -287,6 +293,8 @@
     "vitest": "^3.0.9",
     "vscode-languageclient": "~9.0.1",
     "which": "^5.0.0",
-    "yaml": "~2.7.0"
+    "yaml": "~2.7.0",
+    "@typespec/openapi3": "latest",
+    "@typespec/http": "latest"
   }
 }
