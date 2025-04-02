@@ -32,24 +32,29 @@ changeKinds:
     description: Changes that break existing features
 
 versionPolicies:
-  - name: typespec
+  - name: typespec-stable
     type: lockstep
     step: minor
     packages:
       - "@typespec/compiler"
       - "@typespec/http"
-      - "@typespec/versioning"
-      - "@typespec/rest"
       - "@typespec/openapi"
       - "@typespec/openapi3"
+      - "@typespec/json-schema"
+      - "typespec-vscode"
+
+  - name: typespec-preview
+    type: lockstep
+    step: minor
+    packages:
+      - "@typespec/versioning"
+      - "@typespec/rest"
       - "@typespec/protobuf"
       - "@typespec/prettier-plugin-typespec"
       - "@typespec/eslint-plugin"
       - "@typespec/html-program-viewer"
-      - "@typespec/json-schema"
       - "@typespec/internal-build-utils"
       - "typespec-vs"
-      - "typespec-vscode"
       - "@typespec/library-linter"
       - "@typespec/events"
       - "@typespec/sse"

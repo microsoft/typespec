@@ -2,6 +2,10 @@
 
 ## 0.1.0-alpha.10
 
+No changes, version bump only.
+
+## 0.1.0-alpha.10
+
 ### Features
 
 - [#6565](https://github.com/microsoft/typespec/pull/6565) Make handling of request body and response body consistent
