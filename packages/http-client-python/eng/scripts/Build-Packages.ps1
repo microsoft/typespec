@@ -56,7 +56,15 @@ try {
     Write-Host "Working in $PWD"
 
     Write-Host "run format"
-    Invoke-LoggedCommand "npm run format" -GroupOutput
+    Invoke-LoggedCommand "npm run format:py" -GroupOutput
+
+    try {
+      Write-Host "check git diff after run format"
+      & "eng/scripts/Check-GitChanges.ps1"
+    }
+    catch {
+      Write-Error 'There is diff after running format. Please run: npm run format'
+    }
 
     Invoke-LoggedCommand "npm run build" -GroupOutput
 

@@ -35,6 +35,7 @@
     "lint": "eslint emitter/ --max-warnings=0",
     "lint:py": "tsx ./eng/scripts/ci/lint.ts --folderName generator/pygen",
     "format": "pnpm -w format:dir packages/http-client-python && tsx ./eng/scripts/ci/format.ts",
+    "format:py": "tsx ./eng/scripts/ci/format.ts",
     "install": "tsx ./eng/scripts/setup/install.ts",
     "prepare": "tsx ./eng/scripts/setup/prepare.ts",
     "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
