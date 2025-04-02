@@ -3,10 +3,10 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List
+from typing import List, cast
 
 from . import utils
-from ..models import Client, ParameterMethodLocation
+from ..models import Client, ParameterMethodLocation, Parameter
 from .parameter_serializer import ParameterSerializer, PopKwargType
 from ...utils import build_policies
 
@@ -77,7 +77,21 @@ class ClientSerializer:
         retval.append('"""')
         return retval
 
-    def initialize_config(self) -> str:
+    def initialize_config(self) -> List[str]:
+        retval = []
+        additional_signatures = []
+        if self.client.need_cloud_setting:
+            additional_signatures.append("credential_scopes=credential_scopes")
+            endpoint_parameter = cast(Parameter, self.client.endpoint_parameter)
+            retval.extend(
+                [
+                    '_cloud = kwargs.pop("cloud_setting", None) or settings.current.azure_cloud  # type: ignore',
+                    "_endpoints = get_arm_endpoints(_cloud)",
+                    f"if not {endpoint_parameter.client_name}:",
+                    f'    {endpoint_parameter.client_name} = _endpoints["resource_manager"]',
+                    'credential_scopes = kwargs.pop("credential_scopes", _endpoints["credential_scopes"])',
+                ]
+            )
         config_name = f"{self.client.name}Configuration"
         config_call = ", ".join(
             [
@@ -85,9 +99,11 @@ class ClientSerializer:
                 for p in self.client.config.parameters.method
                 if p.method_location != ParameterMethodLocation.KWARG
             ]
+            + additional_signatures
             + ["**kwargs"]
         )
-        return f"self._config = {config_name}({config_call})"
+        retval.append(f"self._config = {config_name}({config_call})")
+        return retval
 
     @property
     def host_variable_name(self) -> str:
