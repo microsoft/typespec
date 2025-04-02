@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SampleService
 {
-    /// <summary> This is a sample typespec project. </summary>
+    /// <summary> This is a sample TypeSpec project. </summary>
     public partial class SampleServiceClient
     {
         private readonly Uri _endpoint;
