@@ -8,6 +8,12 @@ importers:
 
   .:
     devDependencies:
+      '@alloy-js/babel-preset':
+        specifier: ^0.2.0
+        version: 0.2.0(@babel/core@7.26.10)
+      '@babel/preset-typescript':
+        specifier: ^7.27.0
+        version: 7.27.0(@babel/core@7.26.10)
       '@chronus/chronus':
         specifier: ^1.0.0
         version: 1.0.0
