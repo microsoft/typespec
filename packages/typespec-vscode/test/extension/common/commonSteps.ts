@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test"
+import { Locator, Page } from "playwright/test"
 import { retry, sleep } from "./utils"
 import { keyboard, Key } from "@nut-tree/nut-js"
 import fs from "node:fs"

@@ -255,7 +255,8 @@
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
     "test:e2e": "pnpm test:web",
-    "test:web": "vscode-test-web --quality stable --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
+    "test:web": "vscode-test-web --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data",
+    "test:extension": "vitest --root test/extension"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.9",
@@ -268,6 +269,7 @@
     "@vitest/coverage-v8": "^3.0.9",
     "@vitest/ui": "^3.0.9",
     "@vscode/extension-telemetry": "^0.9.8",
+    "@vscode/test-electron": "^2.3.9",
     "@vscode/test-web": "^0.0.67",
     "@vscode/vsce": "~3.3.0",
     "ajv": "~8.17.1",
@@ -276,6 +278,9 @@
     "mocha": "^11.1.0",
     "playwright": "^1.51.1",
     "rimraf": "~6.0.1",
+    "rollup": "~4.36.0",
+    "rollup-plugin-copy": "^3.5.0",
+    "screenshot-desktop": "^1.15.1",
     "semver": "^7.7.1",
     "swagger-ui-dist": "^5.20.1",
     "typescript": "~5.8.2",

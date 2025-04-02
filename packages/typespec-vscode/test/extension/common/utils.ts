@@ -1,4 +1,4 @@
-import { Page, _electron } from "@playwright/test"
+import { Page, _electron } from "playwright/test"
 import fs from "node:fs"
 import os from "node:os"
 import path, { resolve } from "node:path"
