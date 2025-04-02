@@ -20,10 +20,7 @@ interface Widgets {
 ### Request
 
 ```ts src/api/widgetsClient/widgetsClientOperations.ts function read
-export async function read(
-  client: WidgetsClientContext,
-  options?: ReadOptions,
-): Promise<void> {
+export async function read(client: WidgetsClientContext, options?: ReadOptions): Promise<void> {
   const path = parse("/widgets").expand({});
   const httpRequestOptions = {
     headers: {},

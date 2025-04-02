@@ -89,16 +89,7 @@ export class TestClient {
     zipCode: string,
     options?: CreateOptions,
   ) {
-    return create(
-      this.#context,
-      id,
-      name,
-      street,
-      city,
-      state,
-      zipCode,
-      options,
-    );
+    return create(this.#context, id, name, street, city, state, zipCode, options);
   }
 }
 ```

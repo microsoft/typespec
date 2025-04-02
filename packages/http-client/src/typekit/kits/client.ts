@@ -17,13 +17,13 @@ import {
   HttpServiceAuthentication,
   resolveAuthentication,
 } from "@typespec/http";
+import { getStreamMetadata } from "@typespec/http/experimental";
 import "@typespec/http/experimental/typekit";
 import { InternalClient } from "../../interfaces.js";
 import { reportDiagnostic } from "../../lib.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
 import { getStringValue } from "../../utils/helpers.js";
 import { NameKit } from "./utils.js";
-import { getStreamMetadata } from "@typespec/http/experimental";
 
 interface ClientKit extends NameKit<InternalClient> {
   /**
@@ -176,11 +176,10 @@ defineKit<TypekitExtension>({
 
       const httpOperations = operations.map((o) => {
         const httpOperation = this.httpOperation.get(o);
-  
+
         const streamMetadata = getStreamMetadata(this.program, httpOperation.parameters);
         const bytes = ignoreDiagnostics(this.program.resolveTypeReference("TypeSpec.bytes"));
         httpOperation.parameters.properties.map((param) => {
-
           if (param.kind === "body" && streamMetadata?.bodyType === param.property.type && bytes) {
             param.property.type = bytes;
           }

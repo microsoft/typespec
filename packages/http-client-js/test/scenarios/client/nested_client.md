@@ -90,12 +90,7 @@ export class WidgetsClient {
   async create(weight: number, color: "red" | "blue", options?: CreateOptions) {
     return create(this.#context, weight, color, options);
   }
-  async update(
-    id: string,
-    weight: number,
-    color: "red" | "blue",
-    options?: UpdateOptions,
-  ) {
+  async update(id: string, weight: number, color: "red" | "blue", options?: UpdateOptions) {
     return update(this.#context, id, weight, color, options);
   }
   async delete_(id: string, options?: DeleteOptions) {

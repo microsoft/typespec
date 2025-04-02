@@ -17,9 +17,7 @@ op foo(): void;
 The client uses the optional endpoint if available or the default endpoint
 
 ```ts src/api/testClientContext.ts function createTestClientContext
-export function createTestClientContext(
-  options?: TestClientOptions,
-): TestClientContext {
+export function createTestClientContext(options?: TestClientOptions): TestClientContext {
   const params: Record<string, any> = {
     endpoint: options?.endpoint ?? "https://example.org/api",
   };

@@ -35,10 +35,7 @@ export async function get(
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (
-    +response.status === 200 &&
-    response.headers["content-type"]?.includes("application/json")
-  ) {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return jsonModelWithBytesToApplicationTransform(response.body)!;
   }
   throw createRestError(response);
@@ -50,9 +47,7 @@ export async function get(
 Should decode as uint8array the nullableProperty
 
 ```ts src/models/internal/serializers.ts function jsonModelWithBytesToApplicationTransform
-export function jsonModelWithBytesToApplicationTransform(
-  input_?: any,
-): ModelWithBytes {
+export function jsonModelWithBytesToApplicationTransform(input_?: any): ModelWithBytes {
   if (!input_) {
     return input_ as any;
   }
@@ -134,9 +129,7 @@ export async function post(
 Should encode as base64 the nullableProperty
 
 ```ts src/models/internal/serializers.ts function jsonModelWithBytesToTransportTransform
-export function jsonModelWithBytesToTransportTransform(
-  input_?: ModelWithBytes | null,
-): any {
+export function jsonModelWithBytesToTransportTransform(input_?: ModelWithBytes | null): any {
   if (!input_) {
     return input_ as any;
   }
