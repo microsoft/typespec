@@ -66,6 +66,7 @@
     "@azure-tools/typespec-client-generator-core": "0.54.0-dev.22",
     "@microsoft/api-extractor": "^7.52.2",
     "@types/node": "~22.7.5",
+    "@typespec/asset-emitter": "0.68.0-dev.2",
     "@typespec/compiler": "0.68.0-dev.13",
     "@typespec/events": "~0.68.0-dev.3",
     "@typespec/http": "0.68.0-dev.9",
