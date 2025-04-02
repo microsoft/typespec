@@ -32,6 +32,7 @@ try {
     }
     if ($GenerationChecks) {
         Set-StrictMode -Version 1
+        Invoke-LoggedCommand "npm run build" -GroupOutput
         # run E2E Test for TypeSpec emitter
         Write-Host "Generating test projects ..."
         & "$packageRoot/eng/scripts/Generate.ps1"
