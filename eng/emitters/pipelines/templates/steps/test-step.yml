@@ -40,6 +40,10 @@ parameters:
     type: boolean
     default: true
 
+  - name: PythonVersion
+    type: string
+    default: "3.12"
+
 steps:
   - checkout: self
 
@@ -52,6 +56,11 @@ steps:
     retryCountOnTaskFailure: 3
     inputs:
       versionSpec: ${{ parameters.NodeVersion }}
+
+  - task: UsePythonVersion@0
+    displayName: "Use Python ${{ parameters.PythonVersion }}"
+    inputs:
+        versionSpec: ${{ parameters.PythonVersion }}
 
   - ${{ parameters.AdditionalInitializeSteps }}
 
