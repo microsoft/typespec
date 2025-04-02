@@ -11,7 +11,7 @@ TypeSpec's code generation capabilities allow you to rapidly build a working API
 
 ## Prerequisites
 
-- Node.js and npm (required for both TypeSpec and JavaScript server code generation)
+- Node.js and NPM (required for both TypeSpec and JavaScript server code generation)
 - Basic familiarity with TypeSpec
 - Basic knowledge of JavaScript/TypeScript and Express.js
 
@@ -135,21 +135,19 @@ The next step is to generate the server code from your TypeSpec definition. This
 npx hsjs-scaffold
 ```
 
-> **Note about `npx`**: The `npx` command executes binaries from your local node_modules directory. This ensures you're using the version of the scaffold tool installed in your project, which is especially useful if you have multiple TypeSpec projects with different versions.
-
 The console will display information about what it generated and where it placed the files, including:
 
 - The location of your generated project
 - How to run the project
-- Where to access the Swagger UI
 
-You'll see output similar to this:
+When scaffolding is finished, you'll see output similar to the following:
 
 ```
-Your project was successfully created at "tsp-output/server/express"
-
-You can start the project using 'npm start' in the "tsp-output/server/express" directory
-You can browse the Swagger UI to test your service at 'http://localhost:3000/api-docs'
+[hsjs] Project is ready to run. Use `npm start` to launch the server.
+[hsjs] A debug configuration has been created for Visual Studio Code.
+[hsjs] Try `code tsp-output/server/generated` to open the project and press F5 to start debugging.
+[hsjs] The newly-generated route controllers in 'tsp-output/server/generated/src/controllers' are ready to be implemented.
+[hsjs] Done.
 ```
 
 ## 5. Running your service
@@ -157,12 +155,11 @@ You can browse the Swagger UI to test your service at 'http://localhost:3000/api
 Navigate to your generated project directory and start the server:
 
 ```bash
-cd tsp-output/server/express
-npm install
-npm start
+cd tsp-output/server/generated
+npm run start
 ```
 
-Once the server is up and running, you can access the Swagger UI by navigating to `http://localhost:3000/api-docs` in your browser.
+Once the server is up and running, you can access the Swagger UI by navigating to `http://localhost:3000/.api-docs` in your browser.
 
 You should see a Swagger UI interface that lists all the available API endpoints, allowing you to test them directly from your browser:
 
@@ -176,70 +173,84 @@ This UI allows you to:
 
 ## 6. Understanding the generated code
 
-The scaffolded code is organized into two main categories:
+The generated code is organized into two main categories:
 
-### Generated files (don't modify directly)
+### Regenerated implementation (don't modify directly)
 
-Located in the `generated` directory, these files will be regenerated whenever you recompile your TypeSpec definition:
+Located in the `src/generated` directory, these files will be regenerated whenever you recompile your TypeSpec definition. If you modify these files, your modifications will be overwritten every time you run `tsp compile`. Your code may need to import and use methods or types from these files, but **do not** modify them as your modifications will not be preserved.
 
-- **Routes**: Express route definitions that receive HTTP requests
+- **Helpers**: Located in `src/generated/helpers`, these files contain common implementation used by the generated code.
 
-  - Example: `widgetsRoutes.js` handles requests to `/widgets`
-  - Each route maps to an operation in your TypeSpec interface
+  - Example: `helpers/router.ts` contains common types and implementation for the generated router.
+  - Your code may need to import and use methods/types from these helpers, but you never need to modify them.
 
-- **Operations interfaces**: Definitions for your business logic
+- **HTTP Infrastructure**: Located in `src/generated/http`, these files define the HTTP implementation layer for the server.
 
-  - Example: `widgetsInterface.js` defines methods like `listWidgets()`
-  - These interfaces are what your implementation will need to fulfill
+  - Example: `http/router.ts` contains the implementation of the service router that dispatches requests to the route handlers.
+  - Example: `http/operations/server-raw.ts` contains the individual route handlers that handle parsing types from requests and serializing them to responses.
+  - These files handle the HTTP infrastructure. Your code will create an instance of the router in `http/router.ts`, but otherwise does not need to interact with this code directly.
 
-- **Models**: Data structures for requests and responses
-  - Example: `models.js` contains type definitions like `Widget`, `WidgetList`
-  - These directly represent the models defined in your TypeSpec
+- **Data Models and Operation Interfaces**: Located in `src/generated/models`, these files define the data types that represent the API types defined in the TypeSpec specification.
 
-### Customizable files
+  - Example: `models/all/demo-service.ts` contains the interfaces that represent the `Widget` data type and the `Widgets` operations interface.
+  - Your code will import and use these types to define implementations of the route controllers that define the business logic of your service.
 
-These files are intended for you to modify with your implementation:
+### User implementation
 
-- **Service implementations**: Mock implementations of your operations interfaces
+These files are not regenerated automatically when your specification is recompiled. They are generated once by the scaffolding tool, but the scaffolding tool will not overwrite them if they already exist because they are intended to be modified according to your needs. If you want to regenerate a scaffolded file that is in this category, you must delete it first, and then the scaffolding tool will replace it the next time it is run.
 
-  - Example: `widgetsService.js` is where you'll add your business logic
-  - The emitter generates these with mock implementations that return syntactically correct responses
-  - These files **won't be overwritten** when you recompile, preserving your business logic
+These files are all located in the output directory `tsp-output/server/generated`, but none of them are located within the `src/generated` folder of the emitter output directory.
 
-- **app.js**: Express application configuration
+- **Project files**: these files define the structure of the project, its dependencies, and build scripts
 
-  - Sets up middleware, routes, and error handling
+  - Examples: `package.json`, `tsconfig.json`, `.vscode/` which all define the project structure.
+  - You can customize these files to your liking, for example by adding new dependencies or changing TypeScript config settings.
 
-- **server.js**: HTTP server configuration and startup
+- **Route controllers**: Implementations of the operation interfaces that define the business logic layer.
+
+  - Example: `src/controllers/widgets.ts` contains the scaffolded implementation of the `Widgets` interface.
+  - These controllers are passed in to the router and define the business logic of your app.
+  - The scaffolding system generates "mock" implementations that either return made-up values or throw `NotImplementedError`.
+  - These files **are not overwritten** when you recompile, so you can edit them to add the correct logic for your service.
+
+- **Server entrypoint**: Located in `src/index.ts`, this file defines the entrypoint of the server process.
+
+  - This file creates an Express app and an instance of the generated router, then binds them together and starts the Express app.
+  - You can change this file to add middleware, custom routes, etc. to the express app as needed.
 
 ## 7. Understanding the middleware and routing system
 
-The generated JavaScript service uses Express.js middleware and routing:
+The generated JavaScript server uses a router that provides an Express.js middleware. It is added to the express app with `app.use(router.expressMiddleware)`. The generated router is created with instances of the route controllers, and Express will call the router as part of its middleware chain:
 
-1. Routes defined in the `generated/routes` folder receive HTTP requests
-2. These routes call methods in your service implementation files
-3. Your implementation methods return responses that are sent back to the client
+1. Express receives a request and passes it through the middleware chain.
+2. When/if the generated router middleware is reached, it checks if the request matches one of its routes. If it does, it processes the request and then calls your business logic implementation defined by the route controller in `src/controllers` that was passed to the router when it was created.
+3. If the route does not match, the router sends the request to the next middleware in the chain.
 
-The entire system is wired together in the `app.js` file, which:
+The router is bound to the Express app in `src/index.ts` by the scaffolded server code. The entrypoint file:
 
-- Sets up Express middleware (body parsing, CORS, etc.)
-- Registers the route handlers
-- Configures error handling
+- Sets up Express middleware (SwaggerUI, logging, etc.).
+- Adds the router middleware.
+- Binds the app to a Node HTTP server and listens for incoming requests.
+
+You can customize the entrypoint to add your own middleware, custom routes, etc.
 
 ## 8. Adding your business logic
 
-1. Locate the service implementation file for your service (e.g., `services/widgetsService.js`)
+1. Locate the route controller implementation files for your service (e.g., `tsp-output/server/generated/src/controllers/widgets.ts`).
 
 2. Update the implementation methods with your actual business logic. For example:
 
 ```javascript
 // Replace the mock implementation with your actual business logic
-async function listWidgets() {
-  // In a real application, you would fetch data from a database
+async list(ctx: HttpContext): Promise<WidgetList | Error> {
+  // In a real application, you would call a database or execute some logic to construct the correct response.
   return {
     items: [
-      { id: "1", weight: 10, color: "red" },
-      { id: "2", weight: 15, color: "blue" },
+      {
+        id: "mock-string",
+        weight: 42,
+        color: "red",
+      }
     ],
   };
 }
@@ -264,8 +275,10 @@ This updates the generated files (routes, interfaces, models) but preserves your
 3. If you've added entirely new resources that require new implementation files:
 
 ```bash
-npx hsj-scaffold main.tsp
+npx hsjs-scaffold
 ```
+
+Running the scaffolding command again will create any new files that don't already exist, but won't update files that you may have modified.
 
 This is particularly useful when you've added new interfaces in your TypeSpec. For example, if you add a new `Categories` interface:
 
@@ -281,30 +294,14 @@ interface Categories {
 
 When you run the scaffolding step again:
 
-- It will create new files for the new `Categories` interface (`categoriesRoutes.js`, `categoriesInterface.js`, and `categoriesService.js`)
-- It won't overwrite your existing `widgetsService.js` with your custom business logic
-- This allows you to incrementally add new resources without losing your existing implementations
+- It will create new files for the new `Categories` interface (`src/controllers/categories.ts`).
+- It won't overwrite your existing `widgets.ts` with your custom business logic.
+- This allows you to incrementally add new resources without losing your existing implementations.
 
-## 10. Advanced customization options
-
-When scaffolding your service, you can use additional options for customization:
-
-```bash
-npx hsjs-scaffold --help
-```
-
-Some useful options include:
-
-- `--project-name <name>`: Set a custom project name
-- `--port <port>`: Set a different HTTP port (default is 3000)
-- `--output <path>`: Generate files to a different location
-- `--overwrite`: Overwrite existing files (use with caution)
-  - Normally, implementation files that already exist won't be overwritten
-  - Use this flag if you want to reset your implementations back to the generated mock versions
+NOTE: You will need to either delete the entrypoint `src/index.ts` and allow it to be scaffolded again (which will overwrite any modifications you have made to the entrypoint) or modify it to add an instance of the `Categories` controller to the router, otherwise the router will be missing an implementation of `Categories`!
 
 ## Next steps
 
-- Explore the included README in your generated project
 - Add authentication middleware to your service
 - Implement data validation and error handling
 - Connect your implementation to a database (like MongoDB, PostgreSQL, etc.)
