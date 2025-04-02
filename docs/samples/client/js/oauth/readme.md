@@ -9,13 +9,15 @@ This readme demonstrates how to implement `OAuth2TokenCredential` using popular 
   - [Example with `auth0`](#client-credential-flow-with-auth0)
 
 ## Create OAuth2 Credential
+
 #### Authorization Code Flow with `@auth0/auth0-spa-js`
+
 The following sample illustrates using `@auth0/auth0-spa-js` to acquire the access token for authorization code flow. The credential created is passed into the constructor of the `SampleTypeSpecClient` and the client will set the appropriate authentication policy using the information provided. The method `getOAuth2Token` will be called to get the token to authenticate the request.
 
 ```ts
 import { OAuth2TokenCredential, AuthorizationCodeFlow } from "@typespec/ts-http-runtime";
 import { Auth0Client } from "@auth0/auth0-spa-js";
-import { SampleTypeSpecClient } from "SampleTypeSpecSDK"; 
+import { SampleTypeSpecClient } from "SampleTypeSpecSDK";
 
 // Create an OAuth2 credential that implements authorization code flow
 const credential: OAuth2TokenCredential<AuthorizationCodeFlow> = {
@@ -28,7 +30,7 @@ const credential: OAuth2TokenCredential<AuthorizationCodeFlow> = {
         authorizationParams: {
           redirect_uri: "https://example.com/redirect",
           audience: "SampleAudience",
-        }
+        },
       });
 
       const token = await auth0Client.getTokenSilently({
@@ -42,8 +44,8 @@ const credential: OAuth2TokenCredential<AuthorizationCodeFlow> = {
       console.error("Failed to retrieve token from Auth0", error);
       throw new Error("Token retrieval failed");
     }
-  }
-}
+  },
+};
 
 // Authentication shemes that the services allow
 const authorizationCodeScheme: AuthScheme = {
@@ -53,23 +55,25 @@ const authorizationCodeScheme: AuthScheme = {
       kind: "authorizationCode",
       authorizationUrl: "https://example.com/authorize",
       tokenUrl: "https://example.com/token",
-      scopes: ["sampleScope1", "sampleScope2"]
+      scopes: ["sampleScope1", "sampleScope2"],
     },
   ],
 };
 
 // Pass the credential to the client and use the client to make a request to the service
 const client = new SampleTypeSpecClient(credential, {
-  authSchemes: [ authorizationCodeScheme ]
+  authSchemes: [authorizationCodeScheme],
 });
 ```
+
 #### Client Credential Flow with `auth0`
+
 The following sample illustrates using `auth0` to acquire the access token for authorization code flow. The credential created is passed into the constructor of the `SampleTypeSpecClient` and the client will set the appropriate authentication policy using the information provided. The method `getOAuth2Token` will be called to get the token to authenticate the request.
 
 ```ts
 import { OAuth2TokenCredential, ClientCredentialsFlow } from "@typespec/ts-http-runtime";
 import { AuthenticationClient } from "auth0";
-import { SampleTypeSpecClient } from "SampleTypeSpecSDK"; 
+import { SampleTypeSpecClient } from "SampleTypeSpecSDK";
 
 // Create an OAuth2 credential that implements authorization code flow
 const credential: OAuth2TokenCredential<ClientCredentialsFlow> = {
@@ -83,8 +87,8 @@ const credential: OAuth2TokenCredential<ClientCredentialsFlow> = {
     const client = new AuthenticationClient(option);
     const response = await client.oauth.clientCredentialsGrant({ audience: "SampleAudience" });
     return response.data.access_token;
-  }
-}
+  },
+};
 
 // Authentication shemes that the services allow
 const authorizationCodeScheme: AuthScheme = {
@@ -93,13 +97,13 @@ const authorizationCodeScheme: AuthScheme = {
     {
       kind: "clientCredentials",
       tokenUrl: "https://example.com/token",
-      scopes: ["sampleScope1", "sampleScope2"]
+      scopes: ["sampleScope1", "sampleScope2"],
     },
   ],
 };
 
 // Pass the credential to the client and use the client to make a request to the service
 const client = new SampleTypeSpecClient(credential, {
-  authSchemes: [ authorizationCodeScheme ]
+  authSchemes: [authorizationCodeScheme],
 });
 ```
