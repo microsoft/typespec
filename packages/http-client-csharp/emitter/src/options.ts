@@ -1,6 +1,6 @@
 import {
   CreateSdkContextOptions,
-  SdkEmitterOptions,
+  UnbrandedSdkEmitterOptions,
 } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
@@ -27,7 +27,7 @@ export interface CSharpEmitterOptions {
   "generate-protocol-methods"?: boolean;
   "generate-convenience-methods"?: boolean;
   "package-name"?: string;
-  license?: SdkEmitterOptions["license"];
+  license?: UnbrandedSdkEmitterOptions["license"];
 }
 
 /**

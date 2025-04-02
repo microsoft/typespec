@@ -54,7 +54,6 @@ function fromSdkClient(
     doc: client.doc,
     summary: client.summary,
     operations: client.methods
-      .filter((m) => m.kind !== "clientaccessor")
       .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions)),
     parameters: clientParameters,
     decorators: client.decorators,
