@@ -1,7 +1,4 @@
-import {
-  CreateSdkContextOptions,
-  UnbrandedSdkEmitterOptions,
-} from "@azure-tools/typespec-client-generator-core";
+import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger-level.js";
