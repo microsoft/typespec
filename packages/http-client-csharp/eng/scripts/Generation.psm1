@@ -34,7 +34,7 @@ function Get-TspCommand {
     $command = "npx tsp compile $specFile"
     $command += " --trace @typespec/http-client-csharp"
     if ($usePackageDependency) {
-        $command += "--emit @typespec/http-client-csharp"
+        $command += " --emit @typespec/http-client-csharp"
     }
     else {
         $command += " --emit $emitterDir"
