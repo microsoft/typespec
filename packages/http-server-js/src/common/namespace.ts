@@ -32,6 +32,8 @@ export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
     unions.values(),
     scalars.values(),
   )) {
+    if (!type.isFinished) continue;
+
     ctx.typeQueue.add(type);
   }
 
@@ -40,7 +42,7 @@ export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
   }
 
   if (operations.size > 0) {
-    // If the operation has any floating operations in it, we will synthesize an interface for them in the parent module.
+    // If the namespace has any floating operations in it, we will synthesize an interface for them in the parent module.
     // This requires some special handling by other parts of the emitter to ensure that the interface for a namespace's
     // own operations is properly imported.
     if (!namespace.namespace) {

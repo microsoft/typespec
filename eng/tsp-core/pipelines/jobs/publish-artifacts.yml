@@ -22,7 +22,7 @@ jobs:
       - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr $(System.PullRequest.PullRequestNumber) --buildNumber $(Build.BuildNumber)
         displayName: Bump version to prerelease targets
 
-      - script: npm run gen-manifest
+      - script: pnpm run gen-manifest
         displayName: Regen manifest for compiler
         workingDirectory: ./packages/compiler
 
