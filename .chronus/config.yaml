@@ -41,7 +41,6 @@ versionPolicies:
       - "@typespec/openapi"
       - "@typespec/openapi3"
       - "@typespec/json-schema"
-      - "typespec-vs"
       - "typespec-vscode"
 
   - name: typespec-preview
@@ -55,6 +54,7 @@ versionPolicies:
       - "@typespec/eslint-plugin"
       - "@typespec/html-program-viewer"
       - "@typespec/internal-build-utils"
+      - "typespec-vs"
       - "@typespec/library-linter"
       - "@typespec/events"
       - "@typespec/sse"
