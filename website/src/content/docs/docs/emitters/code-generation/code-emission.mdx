@@ -3,6 +3,8 @@ id: code-emission
 title: Code emission from TypeSpec
 ---
 
+<!-- cspell:ignore getitdone -->
+
 import { FileTree } from "@astrojs/starlight/components";
 
 # Code emission from TypeSpec: user guide
@@ -98,21 +100,21 @@ npm install -D @typespec/openapi3 @typespec/http-client-csharp @typespec/http-cl
 
 {/* prettier-ignore */}
 <FileTree>
-    my-api/
-    ├── tsp-output/
-    │   ├── schema/                  # Emitted OpenAPI 3.0 spec
-    │   │   └── openapi.yaml
-    │   ├── clients/                 # Emitted Client libraries for selected language(s)
-    │   │   ├── dotnet/
-    │   │   └── node/
-    │   └── servers/                 # Emitted Server Code
-    │       ├── aspnet/
-    │       │   └── emitted/         # Emitted code for ASP.NET
-    │       └── node/
-    │           └── emitted/         # Emitted code for Node.js
-    ├── main.tsp
-    ├── tspconfig.yaml
-    └── package.json
+- my-api/
+  - tsp-output/
+    - schema/                  # Emitted OpenAPI 3.0 spec
+      - openapi.yaml
+    - clients/                 # Emitted Client libraries for selected language(s)
+      - dotnet/
+      - node/
+    - servers/                 # Emitted Server Code
+      - aspnet/
+        - emitted/         # Emitted code for ASP.NET
+      - node/
+        - emitted/         # Emitted code for Node.js
+  - main.tsp
+  - tspconfig.yaml
+  - package.json
 </FileTree>
 
 ## Understanding the emitted code structure
@@ -125,25 +127,25 @@ Based on a generic 'todo' style app, the emitted code structure for C# will typi
 
 {/* prettier-ignore */}
 <FileTree>
-servers/
-┣ aspnet/
-┃ ┗ emitted/
-┃   ┣ controllers/               # Contains the base controller classes
-┃ ┃ ┃ ┣ CommentOpsOperationsControllerBase.cs  # Base class for comment-related API operations
-┃ ┃ ┃ ┣ CommentsOperationsControllerBase.cs   # Base class for general comment operations
-┃ ┃ ┃ ┣ ... (other controller base classes)
-┃   ┣ lib/                     # Utility functions
-┃ ┃ ┃ ┣ ArrayConstraintAttribute.cs    # Custom attributes for enforcing array constraints
-┃ ┃ ┃ ┣ Base64UrlConverter.cs        # Utility for Base64 URL encoding
-┃ ┃ ┃ ┣ ... (other utility files)
-┃   ┣ models/                  # Defines the data models (DTOs) used by the API
-┃ ┃ ┃ ┣ Attachment.cs              # Data model representing an attachment
-┃ ┃ ┃ ┣ Collaborator.cs            # Data model representing a collaborator
-┃ ┃ ┃ ┣ ... (other model files)
-┃   ┗ operations/              # Defines service interface
-┃ ┃ ┃ ┣ ICommentOpsOperations.cs  # Service interface for comment-related operations
-┃ ┃ ┃ ┣ ICommentsOperations.cs   # Service interface for general comment operations
-┃ ┃ ┃ ┣ ... (other operation interface files)
+- servers/
+  - aspnet/
+    - emitted/
+      - controllers/               # Contains the base controller classes
+        - CommentOpsOperationsControllerBase.cs  # Base class for comment-related API operations
+        - CommentsOperationsControllerBase.cs   # Base class for general comment operations
+        - ... (other controller base classes)
+      - lib/                     # Utility functions
+        - ArrayConstraintAttribute.cs    # Custom attributes for enforcing array constraints
+        - Base64UrlConverter.cs        # Utility for Base64 URL encoding
+        - ... (other utility files)
+      - models/                  # Defines the data models (DTOs) used by the API
+        - Attachment.cs              # Data model representing an attachment
+        - Collaborator.cs            # Data model representing a collaborator
+        - ... (other model files)
+      - operations/              # Defines service interface
+        - ICommentOpsOperations.cs  # Service interface for comment-related operations
+        - ICommentsOperations.cs   # Service interface for general comment operations
+        - ... (other operation interface files)
 </FileTree>
 
 - **`lib`**: This directory contains utility classes such as custom attributes used for server side validation to ensure input data adhere to the spec.
@@ -156,21 +158,21 @@ servers/
 
 {/* prettier-ignore */}
 <FileTree>
-node/
-┗ tsp-output/
-  ┗ @typespec/
-┃   ┗ http-server-javascript/
-┃ ┃   ┣ helpers/         # Contains helper functions
-┃ ┃ ┃ ┣ header.ts    # Helper for header operations
-┃ ┃ ┃ ┣ multipart.ts # Helper for multipart form data
-┃ ┃ ┃ ┗ router.ts    # Helper for routing
-┃ ┃   ┣ http/           # Contains http request related code
-┃ ┃ ┃ ┃ ┗ router.ts    # Helper for setting up http router
-┃ ┃   ┗ models/         # Contains emitted data models
-┃ ┃ ┃   ┣ all/         # Contains helper import all the data models
-┃ ┃ ┃ ┃ ┃ ┗ getitdone/  # Folder containing data models emitted from getitdone namespace
-┃ ┃ ┃ ┃ ┃   ┗ index.ts   # Helper to export the data models
-┃ ┃ ┃   ┗ synthetic.ts # Type spec synthetic code
+- node/
+  - tsp-output/
+    - @typespec/
+      - http-server-javascript/
+        - helpers/         # Contains helper functions
+          - header.ts    # Helper for header operations
+          - multipart.ts # Helper for multipart form data
+          - router.ts    # Helper for routing
+        - http/           # Contains http request related code
+          - router.ts    # Helper for setting up http router
+        - models/         # Contains emitted data models
+          - all/         # Contains helper import all the data models
+            - getitdone/  # Folder containing data models emitted from getitdone namespace
+              - index.ts   # Helper to export the data models
+          - synthetic.ts # Type spec synthetic code
 </FileTree>
 
 - **`Helpers`**: This folder contains helper functions to perform common operations such as setting header, and multipart operations.
