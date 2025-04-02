@@ -6,9 +6,9 @@ using System.IO;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
-namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec
+namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Sample_TypeSpec
 {
     internal class ThingWithNullsTests : LocalModelJsonTests<Thing>
     {

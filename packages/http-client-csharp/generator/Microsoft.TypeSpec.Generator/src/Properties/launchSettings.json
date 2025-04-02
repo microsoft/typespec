@@ -1,7 +1,7 @@
 {
   "profiles": {
     "Debug-SampleGenerator-Test-TypeSpec": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/SampleGenerator/Unbranded-TypeSpec -g SampleCodeModelGenerator",
+      "commandLineArgs": "$(SolutionDir)/TestProjects/SampleGenerator/Sample-TypeSpec -g SampleCodeModelGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../generator/artifacts/bin/SampleGenerator/Debug/net8.0/Microsoft.TypeSpec.Generator.exe"
     },
@@ -330,8 +330,8 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
-    "Unbranded-TypeSpec": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec -g ScmCodeModelGenerator",
+    "Sample-TypeSpec": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Sample-TypeSpec -g ScmCodeModelGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     }

@@ -1,6 +1,6 @@
 {
  "$id": "1",
- "Name": "UnbrandedTypeSpec",
+ "Name": "SampleTypeSpec",
  "ApiVersions": [],
  "Enums": [
   {
@@ -154,7 +154,7 @@
      "Value": "4"
     }
    ],
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.StringFixedEnum",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.StringFixedEnum",
    "Description": "Simple enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -184,7 +184,7 @@
      "Value": "4"
     }
    ],
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.StringExtensibleEnum",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.StringExtensibleEnum",
    "Description": "Extensible enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -214,7 +214,7 @@
      "Value": 4
     }
    ],
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.IntExtensibleEnum",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.IntExtensibleEnum",
    "Description": "Int based extensible enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -244,7 +244,7 @@
      "Value": 4.4
     }
    ],
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatExtensibleEnum",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.FloatExtensibleEnum",
    "Description": "Float based extensible enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -274,7 +274,7 @@
      "Value": 4
     }
    ],
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatExtensibleEnumWithIntValue",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.FloatExtensibleEnumWithIntValue",
    "Description": "float fixed enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -304,7 +304,7 @@
      "Value": 4.4
     }
    ],
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatFixedEnum",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.FloatFixedEnum",
    "Description": "float fixed enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -334,7 +334,7 @@
      "Value": 4
     }
    ],
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatFixedEnumWithIntValue",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.FloatFixedEnumWithIntValue",
    "Description": "float fixed enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -364,7 +364,7 @@
      "Value": 4
     }
    ],
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.IntFixedEnum",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.IntFixedEnum",
    "Description": "int fixed enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -375,7 +375,7 @@
    "$id": "60",
    "Kind": "model",
    "Name": "Thing",
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.Thing",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.Thing",
    "Usage": "RoundTrip",
    "Description": "A model with a few properties of literal types",
    "Properties": [
@@ -610,7 +610,7 @@
    "$id": "97",
    "Kind": "model",
    "Name": "RoundTripModel",
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.RoundTripModel",
    "Usage": "RoundTrip",
    "Description": "this is a roundtrip model",
    "Properties": [
@@ -933,7 +933,7 @@
       "$id": "144",
       "Kind": "model",
       "Name": "ModelWithRequiredNullableProperties",
-      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties",
+      "CrossLanguageDefinitionId": "SampleTypeSpec.ModelWithRequiredNullableProperties",
       "Usage": "RoundTrip",
       "Description": "A model with a few required nullable properties",
       "Properties": [
@@ -1010,7 +1010,7 @@
    "$id": "154",
    "Kind": "model",
    "Name": "Friend",
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.NotFriend",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.NotFriend",
    "Usage": "RoundTrip",
    "Description": "this is not a friendly model but with a friendly name",
    "Properties": [
@@ -1032,7 +1032,7 @@
    "$id": "157",
    "Kind": "model",
    "Name": "ProjectedModel",
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.ModelWithProjectedName",
    "Usage": "RoundTrip",
    "Description": "this is a model with a projected name",
    "Properties": [
@@ -1054,7 +1054,7 @@
    "$id": "160",
    "Kind": "model",
    "Name": "ReturnsAnonymousModelResponse",
-   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel.Response.anonymous",
+   "CrossLanguageDefinitionId": "SampleTypeSpec.returnsAnonymousModel.Response.anonymous",
    "Usage": "Output",
    "Properties": []
   }
@@ -1068,7 +1068,7 @@
     {
      "$id": "162",
      "Name": "sayHi",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "Return hi",
      "Accessibility": "public",
      "Parameters": [
@@ -1200,7 +1200,7 @@
     {
      "$id": "175",
      "Name": "helloAgain",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "Return hi again",
      "Accessibility": "public",
      "Parameters": [
@@ -1348,7 +1348,7 @@
     {
      "$id": "189",
      "Name": "noContentType",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "Return hi again",
      "Accessibility": "public",
      "Parameters": [
@@ -1492,7 +1492,7 @@
     {
      "$id": "202",
      "Name": "helloDemo2",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "Return hi in demo2",
      "Accessibility": "public",
      "Parameters": [
@@ -1554,7 +1554,7 @@
     {
      "$id": "207",
      "Name": "createLiteral",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "Create with literal value",
      "Accessibility": "public",
      "Parameters": [
@@ -1662,7 +1662,7 @@
     {
      "$id": "216",
      "Name": "helloLiteral",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "Send literal parameters",
      "Accessibility": "public",
      "Parameters": [
@@ -1814,7 +1814,7 @@
     {
      "$id": "233",
      "Name": "topAction",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "top level method",
      "Accessibility": "public",
      "Parameters": [
@@ -1899,7 +1899,7 @@
     {
      "$id": "241",
      "Name": "topAction2",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "top level method2",
      "Accessibility": "public",
      "Parameters": [
@@ -1961,7 +1961,7 @@
     {
      "$id": "246",
      "Name": "patchAction",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "top level patch",
      "Accessibility": "public",
      "Parameters": [
@@ -2069,7 +2069,7 @@
     {
      "$id": "255",
      "Name": "anonymousBody",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "body parameter without body decorator",
      "Accessibility": "public",
      "Parameters": [
@@ -2178,7 +2178,7 @@
     {
      "$id": "264",
      "Name": "friendlyModel",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "Model can have its friendly name",
      "Accessibility": "public",
      "Parameters": [
@@ -2287,7 +2287,7 @@
     {
      "$id": "273",
      "Name": "addTimeHeader",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2365,7 +2365,7 @@
     {
      "$id": "281",
      "Name": "projectedNameModel",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "Model can have its projected name",
      "Accessibility": "public",
      "Parameters": [
@@ -2474,7 +2474,7 @@
     {
      "$id": "290",
      "Name": "returnsAnonymousModel",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "return anonymous model",
      "Accessibility": "public",
      "Parameters": [
@@ -2536,7 +2536,7 @@
     {
      "$id": "295",
      "Name": "getUnknownValue",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "get extensible enum",
      "Accessibility": "public",
      "Parameters": [
@@ -2599,7 +2599,7 @@
     {
      "$id": "301",
      "Name": "internalProtocol",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "When set protocol false and convenient true, then the protocol method should be internal",
      "Accessibility": "public",
      "Parameters": [
@@ -2707,7 +2707,7 @@
     {
      "$id": "310",
      "Name": "stillConvenient",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
      "Accessibility": "public",
      "Parameters": [
@@ -2763,7 +2763,7 @@
     {
      "$id": "315",
      "Name": "headAsBoolean",
-     "ResourceName": "UnbrandedTypeSpec",
+     "ResourceName": "SampleTypeSpec",
      "Description": "head as boolean.",
      "Accessibility": "public",
      "Parameters": [

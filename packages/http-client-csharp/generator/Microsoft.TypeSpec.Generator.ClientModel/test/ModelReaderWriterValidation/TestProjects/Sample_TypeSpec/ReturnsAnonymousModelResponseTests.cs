@@ -5,9 +5,9 @@ using System.ClientModel;
 using System.IO;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
-namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec
+namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Sample_TypeSpec
 {
     internal class ReturnsAnonymousModelResponseTests : LocalModelJsonTests<ReturnsAnonymousModelResponse>
     {

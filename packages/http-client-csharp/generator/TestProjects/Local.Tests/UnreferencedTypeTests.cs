@@ -13,7 +13,7 @@ namespace TestProjects.Local.Tests
         [Test]
         public void UnreferencedTypesAreRemoved()
         {
-            var types = Assembly.GetAssembly(typeof(UnbrandedTypeSpecClient))!.GetTypes();
+            var types = Assembly.GetAssembly(typeof(SampleTypeSpecClient))!.GetTypes();
             Assert.IsFalse(types.Any(t => t.Name == "BinaryContentHelper"));
             Assert.IsFalse(types.Any(t => t.Name == "PipelineRequestHeadersExtensions"));
             Assert.IsFalse(types.Any(t => t.Name == "Utf8JsonBinaryContent"));

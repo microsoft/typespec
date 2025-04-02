@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 #nullable disable
 

@@ -9,14 +9,14 @@ import "@azure-tools/typespec-azure-core";
 })
 @doc("This is a sample typespec project.")
 @server(
-  "{unbrandedTypeSpecUrl}",
+  "{sampleTypeSpecUrl}",
   "Endpoint Service",
   {
-    unbrandedTypeSpecUrl: string,
+    sampleTypeSpecUrl: string,
   }
 )
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "my-api-key">)
-namespace UnbrandedTypeSpec;
+namespace SampleTypeSpec;
 
 using TypeSpec.Http;
 using Azure.ClientGenerator.Core;

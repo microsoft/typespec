@@ -35,4 +35,4 @@ public partial class SampleTypeSpecClient
 }
 ```
 
-The full code is available [here](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/generator/TestProjects/Local/Unbranded-TypeSpec/src/Custom/UnbrandedTypeSpecClient.cs).
+The full code is available [here](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Custom/UnbrandedTypeSpecClient.cs).

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using UnbrandedTypeSpec;
+using SampleTypeSpec;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
