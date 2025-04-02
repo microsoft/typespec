@@ -27,8 +27,14 @@ export interface CSharpEmitterOptions {
   "generate-protocol-methods"?: boolean;
   "generate-convenience-methods"?: boolean;
   "package-name"?: string;
-  license?: UnbrandedSdkEmitterOptions["license"];
-}
+  license?: {
+    name: string;
+    company?: string;
+    link?: string;
+    header?: string;
+    description?: string;
+  };
+};
 
 /**
  * The JSON schema for the CSharp emitter options.
