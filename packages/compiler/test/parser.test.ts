@@ -32,6 +32,7 @@ describe("compiler: parser", () => {
 
     // Allowed in decorator calls
     parseEach(reserved.map((x) => `@${x} model Foo {}`));
+    parseEach(reserved.map((x) => `@@${x}();`));
 
     // Allowed in member reference
     parseEach(reserved.map((x) => `alias T = Base.${x};`));
