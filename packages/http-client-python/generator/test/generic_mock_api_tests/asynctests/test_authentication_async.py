@@ -121,5 +121,5 @@ async def test_http_custom_invalid(http_custom_client, core_library):
     client = http_custom_client(key="invalid-key")
     with pytest.raises(core_library.exceptions.HttpResponseError) as ex:
         await client.invalid()
-    assert ex.value.status_code == 403
+    assert ex.value.status_code == 403 
     assert ex.value.reason == "Forbidden"
