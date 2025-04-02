@@ -137,7 +137,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   const sdkContext = await createPythonSdkContext(context);
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
-  addDefaultOptions(sdkContext);  
+  addDefaultOptions(sdkContext);
   const yamlMap = emitCodeModel(sdkContext);
   if (yamlMap.clients.length === 0) {
     reportDiagnostic(program, {
