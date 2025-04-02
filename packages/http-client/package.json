@@ -41,11 +41,11 @@
   },
   "scripts": {
     "build-src": "babel src -d dist/src --extensions .ts,.tsx",
-    "build": "tsc -p . && npm run build-src",
+    "build": "tsc -p . && pnpm build-src",
     "clean": "rimraf ./dist",
     "watch-src": "babel src -d dist/src --extensions .ts,.tsx --watch",
     "watch-tsc": "tsc -p . --watch",
-    "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
+    "watch": "concurrently --kill-others \"pnpm watch-tsc\" \"pnpm watch-src\"",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
