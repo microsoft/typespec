@@ -1,4 +1,4 @@
-# only: Should generate as bytes for custom streams
+# Should generate as bytes for custom streams
 
 ## TypeSpec
 

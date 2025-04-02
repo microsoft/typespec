@@ -1,4 +1,4 @@
-# only: Should generate as bytes for sse
+# Should generate as bytes for sse
 
 ## TypeSpec
 

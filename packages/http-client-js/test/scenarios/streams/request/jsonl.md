@@ -43,7 +43,7 @@ export async function get(
 }
 ```
 
-# only: Should generate as bytes for jsonl streams template
+# Should generate as bytes for jsonl streams template
 
 ## TypeSpec
 
@@ -88,7 +88,7 @@ export async function get(
 }
 ```
 
-# only: Should generate as bytes for jsonl streams spread
+# Should generate as bytes for jsonl streams spread
 
 ## TypeSpec
 
