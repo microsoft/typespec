@@ -62,9 +62,9 @@ final class ResponseTypeFactory {
 
             final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
             final IType headersType = Mappers.getSchemaMapper().map(headersSchema);
-            // If the responseBodyType is InputStream it needs to be converted to Flux<ByteBuffer> so
+            // If the responseBodyType is InputStream it needs to be converted to BinaryData so
             // that it is a valid return type for async method.
-            final IType bType = (bodyType == ClassType.INPUT_STREAM) ? GenericType.FLUX_BYTE_BUFFER : bodyType;
+            final IType bType = (bodyType == ClassType.INPUT_STREAM) ? ClassType.BINARY_DATA : bodyType;
             return mono(GenericType.RestResponse(headersType, bType));
         }
 
@@ -136,6 +136,6 @@ final class ResponseTypeFactory {
     }
 
     private static boolean isByteStream(IType type) {
-        return (type == ClassType.INPUT_STREAM) || (type == GenericType.FLUX_BYTE_BUFFER);
+        return (type == ClassType.INPUT_STREAM) || (type == ClassType.BINARY_DATA);
     }
 }

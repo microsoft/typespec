@@ -372,11 +372,6 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     private static List<ProxyMethod> createSyncProxyMethods(List<ProxyMethod> asyncProxyMethods) {
         List<ProxyMethod> syncMethods = new ArrayList<>();
         for (ProxyMethod asyncMethod : asyncProxyMethods) {
-            if (asyncMethod.getParameters()
-                .stream()
-                .anyMatch(param -> param.getClientType() == GenericType.FLUX_BYTE_BUFFER)) {
-                continue;
-            }
             syncMethods.add(asyncMethod.toSync());
         }
         return syncMethods;

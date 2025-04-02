@@ -38,6 +38,8 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.LocalVariable;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
+import org.slf4j.Logger;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -47,7 +49,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
 
 public class FluentUtils {
 
@@ -373,7 +374,7 @@ public class FluentUtils {
         } else if (SimpleResponse.class.getSimpleName().equals(type.getName())) {
             bodyType = type.getTypeArguments()[0];
         } else if (StreamResponse.class.getSimpleName().equals(type.getName())) {
-            bodyType = GenericType.FLUX_BYTE_BUFFER;
+            bodyType = ClassType.BINARY_DATA;
         } else {
             log("Unable to determine value type for Response subtype: %s, fallback to typeArguments[0].", type);
             bodyType = type.getTypeArguments()[0];
@@ -404,7 +405,7 @@ public class FluentUtils {
         // for now, avoid binary as response body
 
         IType responseBodyType = clientMethod.getProxyMethod().getResponseBodyType();
-        return !(responseBodyType == ClassType.BINARY_DATA || responseBodyType == GenericType.FLUX_BYTE_BUFFER);
+        return !(responseBodyType == ClassType.BINARY_DATA);
     }
 
     public static boolean requiresExample(ClientMethod clientMethod) {

@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ public class ResponseTemplate implements IJavaTemplate<ClientResponse, JavaFile>
         IType restResponseType = GenericType.RestResponse(response.getHeadersType(), response.getBodyType());
         restResponseType.addImportsTo(imports, true);
 
-        boolean isStreamResponse = response.getBodyType().equals(GenericType.FLUX_BYTE_BUFFER);
+        boolean isStreamResponse = response.getBodyType().equals(ClassType.BINARY_DATA);
 
         // Stream responses implement Closeable to offer a way for the Flux<ByteBuffer> response to be drained
         // if it isn't consumed.
@@ -72,7 +73,7 @@ public class ResponseTemplate implements IJavaTemplate<ClientResponse, JavaFile>
                 ctorBlock -> ctorBlock.line("super(request, statusCode, rawHeaders, value, headers);"));
 
             if (!response.getBodyType().asNullable().equals(ClassType.VOID)) {
-                if (response.getBodyType().equals(GenericType.FLUX_BYTE_BUFFER)) {
+                if (response.getBodyType().equals(ClassType.BINARY_DATA)) {
                     classBlock.javadocComment(javadoc -> {
                         javadoc.description("Gets the response content stream.");
                         javadoc.methodReturns("the response content stream");

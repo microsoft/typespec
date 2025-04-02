@@ -298,7 +298,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
                 valueRequired, valueRequired, false);
             commentBlock.line(indent + "}");
         } else {
-            String javadoc = convertToBodySchemaJavadoc(type);
+            String javadoc = type.toString();
             if (name != null) {
                 commentBlock.line(indent + name + ": " + javadoc
                     + appendOptionalOrRequiredAttribute(isRequired, isRequiredForCreate, isRootSchema));
@@ -307,18 +307,6 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
                     + appendOptionalOrRequiredAttribute(isRequired, isRequiredForCreate, isRootSchema));
             }
         }
-    }
-
-    /*
-     * Converts raw type into type to display in javadoc as body schema type.
-     * 1. converts Flux<ByteBuffer> to BinaryData (applies to request body schema, since DPG response type can't be
-     * Flux<ByteBuffer>)
-     */
-    private static String convertToBodySchemaJavadoc(IType type) {
-        if (GenericType.FLUX_BYTE_BUFFER.equals(type)) {
-            return ClassType.BINARY_DATA.toString();
-        }
-        return type.toString();
     }
 
     private static void traverseProperties(ClientModel model, Map<String, ClientModelProperty> properties) {
