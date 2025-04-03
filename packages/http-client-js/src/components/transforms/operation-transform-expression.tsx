@@ -2,7 +2,7 @@ import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { HasName, TransformNamePolicyContext } from "@typespec/emitter-framework";
-import { ClientOperation } from "@typespec/http-client";
+import { HttpOperation } from "@typespec/http";
 import { reportDiagnostic } from "../../lib.js";
 import { ContentTypeEncodingProvider } from "./content-type-encoding-provider.jsx";
 import { JsonTransform } from "./json/json-transform.jsx";
@@ -10,11 +10,11 @@ import { MultipartTransform } from "./multipart/multipart-transform.jsx";
 import { defaultTransportNameGetter } from "./transform-name-policy.js";
 
 export interface OperationTransformToTransportExpression {
-  operation: ClientOperation;
+  httpOperation: HttpOperation;
 }
 
 export function OperationTransformExpression(props: OperationTransformToTransportExpression) {
-  const body = props.operation.httpOperation.parameters.body;
+  const body = props.httpOperation.parameters.body;
 
   if (!body) {
     return;
