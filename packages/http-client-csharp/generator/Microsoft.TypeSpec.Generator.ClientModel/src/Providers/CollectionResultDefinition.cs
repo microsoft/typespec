@@ -118,6 +118,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
+        protected override string BuildNamespace() => _client.Type.Namespace;
+
         protected override string BuildName()
             => $"{_client.Type.Name}{_operation.Name.ToCleanName()}{(_isAsync ? "Async" : "")}CollectionResult{(_itemModelType == null ? "" : "OfT")}";
 
