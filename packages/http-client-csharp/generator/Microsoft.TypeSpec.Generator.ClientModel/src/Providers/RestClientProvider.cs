@@ -532,8 +532,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             int required = 100;
             int bodyRequired = 200;
             int bodyOptional = 300;
-            int contentType = 400;
-            int optional = 500;
+            int optional = 400;
 
             foreach (InputParameter inputParam in operation.Parameters)
             {
@@ -595,11 +594,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
-                        if (inputParam.IsContentType)
-                        {
-                            sortedParams.Add(contentType++, parameter);
-                        }
-                        else if (parameter.Validation != ParameterValidationType.None)
+                        if (parameter.DefaultValue == null)
                         {
                             sortedParams.Add(required++, parameter);
                         }

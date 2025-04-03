@@ -46,8 +46,10 @@ import { createRekeyableMap } from "@typespec/compiler/utils";
 import {
   HttpOperation,
   HttpOperationResponse,
+  getHeaderFieldName,
   getHttpOperation,
   getHttpPart,
+  isHeader,
   isStatusCode,
 } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
@@ -77,11 +79,12 @@ import {
   getBusinessLogicImplementations,
   getScaffoldingHelpers,
 } from "./scaffolding.js";
-import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
+import { getEnumType, getRecordType, isKnownReferenceType } from "./type-helpers.js";
 import {
   CSharpOperationHelpers,
   EmittedTypeInfo,
   HttpMetadata,
+  ModelInfo,
   UnknownType,
   coalesceTypes,
   coalesceUnionTypes,
@@ -102,6 +105,7 @@ import {
   getModelInstantiationName,
   getOpenApiConfig,
   getOperationVerbDecorator,
+  getStatusCode,
   isEmptyResponseModel,
   isValueType,
 } from "./utils.js";
@@ -182,6 +186,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     enumDeclaration(en: Enum, name: string): EmitterOutput<string> {
+      if (getEnumType(en) === "double") return "";
       const program = this.emitter.getProgram();
       const enumName = ensureCSharpIdentifier(program, en, name);
       const namespace = this.emitter.getContext().namespace;
@@ -208,26 +213,36 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     enumDeclarationContext(en: Enum): Context {
+      if (getEnumType(en) === "double") return this.emitter.getContext();
       const enumName = ensureCSharpIdentifier(this.emitter.getProgram(), en, en.name);
-      const enumFile = this.emitter.createSourceFile(`models/${enumName}.cs`);
+      const enumFile = this.emitter.createSourceFile(`generated/models/${enumName}.cs`);
       enumFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const enumNamespace = `${this.#getOrSetBaseNamespace(en)}.Models`;
       return this.#createEnumContext(enumNamespace, enumFile, enumName);
     }
 
     enumMembers(en: Enum): EmitterOutput<string> {
+      const enumType = getEnumType(en);
       const result = new StringBuilder();
       let i = 0;
       for (const [name, member] of en.members) {
         i++;
         const memberName: string = ensureCSharpIdentifier(this.emitter.getProgram(), member, name);
         this.#metadateMap.set(member, { name: memberName });
-        result.push(
-          code`
+        if (enumType === "string") {
+          result.push(
+            code`
           [JsonStringEnumMemberName("${member.value ? (member.value as string) : name}")]
           ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)}`,
-        );
-        if (i < en.members.size) result.pushLiteralSegment(",\n");
+          );
+          if (i < en.members.size) result.pushLiteralSegment(",\n");
+        } else if (member.value !== undefined) {
+          result.push(
+            code`
+          ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)} = ${member.value.toString()}`,
+          );
+          if (i < en.members.size) result.pushLiteralSegment(",\n");
+        }
       }
 
       return this.emitter.result.rawCode(result.reduce());
@@ -268,23 +283,30 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         parts.forEach((p) => this.emitter.emitType(p));
         return "";
       }
-      const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
+      const isErrorType = isErrorModel(this.emitter.getProgram(), model);
+      const baseModelRef = model.baseModel
+        ? code`: ${this.emitter.emitTypeReference(model.baseModel)}`
+        : "";
+      const baseClass = baseModelRef || (isErrorType ? ": HttpServiceException" : "");
+
       const namespace = this.emitter.getContext().namespace;
+      const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const doc = getDoc(this.emitter.getProgram(), model);
       const attributes = getModelAttributes(this.emitter.getProgram(), model, className);
+      const exceptionConstructor = isErrorType
+        ? this.getModelExceptionConstructor(this.emitter.getProgram(), model, name, className)
+        : "";
+
       this.#metadateMap.set(model, new CSharpType({ name: className, namespace: namespace }));
       const decl = this.emitter.result.declaration(
         className,
         code`${this.#generatedFileHeader}
 
       ${this.#emitUsings()}
-      
       namespace ${namespace} {
 
-      ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public partial class ${className} ${
-        model.baseModel ? code`: ${this.emitter.emitTypeReference(model.baseModel)}` : ""
-      } {
-      ${this.emitter.emitModelProperties(model)}
+      ${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public partial class ${className} ${baseClass} {
+      ${exceptionConstructor ? `${exceptionConstructor}\n` : ""}${this.emitter.emitModelProperties(model)}
     }
    } `,
       );
@@ -292,10 +314,96 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return decl;
     }
 
+    getModelExceptionConstructor(
+      program: Program,
+      model: Model,
+      modelName: string,
+      className: string,
+    ): string | undefined {
+      if (!isErrorModel(program, model)) return undefined;
+      const constructor = this.getExceptionConstructorData(program, model, modelName);
+      const isParent = !!model.derivedModels?.length;
+      return `public ${className}(${constructor.properties}) : base(${constructor.statusCode?.value ?? `400`}${constructor.header ? `, \n\t\t headers: new(){${constructor.header}}` : ""}${constructor.value ? `, \n\t\t value: new{${constructor.value}}` : ""}) 
+        { ${constructor.body ? `\n${constructor.body}` : ""}\n\t}${isParent ? `\npublic ${className}(int statusCode, object? value = null, Dictionary<string, string>? headers = default): base(statusCode, value, headers) {}\n` : ""}`;
+    }
+
+    isDuplicateExceptionName(name: string): boolean {
+      const exceptionPropertyNames: string[] = [
+        "value",
+        "headers",
+        "stacktrace",
+        "source",
+        "message",
+        "innerexception",
+        "hresult",
+        "data",
+        "targetsite",
+        "helplink",
+      ];
+      return exceptionPropertyNames.includes(name.toLowerCase());
+    }
+
+    getExceptionConstructorData(program: Program, model: Model, modelName: string) {
+      const allProperties = new ModelInfo().getAllProperties(program, model) ?? [];
+      const propertiesWithDefaults = allProperties.map((prop) => {
+        const { defaultValue: typeDefault } = this.#findPropertyType(prop);
+        const defaultValue = prop.defaultValue
+          ? code`${JSON.stringify(serializeValueAsJson(program, prop.defaultValue, prop))}`
+          : typeDefault;
+        return { prop, defaultValue };
+      });
+
+      const sortedProperties = propertiesWithDefaults
+        .filter(({ prop }) => !isStatusCode(program, prop))
+        .sort(({ prop: a, defaultValue: aDefault }, { prop: b, defaultValue: bDefault }) => {
+          if (!a.optional && !aDefault && (b.optional || bDefault)) return -1;
+          if (!b.optional && !bDefault && (a.optional || aDefault)) return 1;
+          return 0;
+        });
+
+      const properties: string[] = [];
+      const body: string[] = [];
+      const header: string[] = [];
+      const value: string[] = [];
+
+      const statusCode = getStatusCode(program, model);
+      if (statusCode?.requiresConstructorArgument) {
+        properties.push(`int ${statusCode.value}`);
+      }
+
+      for (const { prop, defaultValue } of sortedProperties) {
+        let propertyName = ensureCSharpIdentifier(program, prop, prop.name);
+        if (modelName === propertyName || this.isDuplicateExceptionName(propertyName)) {
+          propertyName = `${propertyName}Prop`;
+        }
+
+        const type = getCSharpType(program, prop.type);
+        properties.push(
+          `${type?.type.name} ${prop.name}${defaultValue ? ` = ${defaultValue}` : `${prop.optional ? " = default" : ""}`}`,
+        );
+        body.push(`\t\t${propertyName} = ${prop.name};`);
+
+        if (isHeader(program, prop)) {
+          const headerName = getHeaderFieldName(program, prop);
+          header.push(`{"${headerName}", ${prop.name}}`);
+        } else {
+          value.push(`${prop.name} = ${prop.name}`);
+        }
+      }
+
+      return {
+        properties: properties.join(", "),
+        body: body.join("\n"),
+        header: header.join(", "),
+        value: value.join(","),
+        statusCode: statusCode,
+      };
+    }
+
     modelDeclarationContext(model: Model, name: string): Context {
       if (this.#isMultipartModel(model)) return {};
       const modelName = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
-      const modelFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
+      const modelFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
       return this.#createModelContext(modelNamespace, modelFile, modelName);
@@ -308,7 +416,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         model,
         model.name,
       );
-      const sourceFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
+      const sourceFile = this.emitter.createSourceFile(`generated/models/${modelName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
       const context = this.#createModelContext(modelNamespace, sourceFile, model.name);
@@ -406,7 +514,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const doc = getDoc(this.emitter.getProgram(), property);
       const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
       const modelName: string | undefined = this.emitter.getContext()["name"];
-      if (modelName === propertyName) {
+      if (
+        modelName === propertyName ||
+        (this.isDuplicateExceptionName(propertyName) &&
+          property.model &&
+          isErrorModel(this.emitter.getProgram(), property.model))
+      ) {
         propertyName = `${propertyName}Prop`;
         attributes.push(
           getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!,
@@ -485,7 +598,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     interfaceDeclarationContext(iface: Interface, name: string): Context {
       // set up interfaces file for declaration
       const ifaceName: string = `I${ensureCSharpIdentifier(this.emitter.getProgram(), iface, name, NameCasingType.Class)}`;
-      const sourceFile = this.emitter.createSourceFile(`operations/${ifaceName}.cs`);
+      const sourceFile = this.emitter.createSourceFile(`generated/operations/${ifaceName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Interface;
       const ifaceNamespace = this.#getOrSetBaseNamespace(iface);
       const modelNamespace = `${ifaceNamespace}.Models`;
@@ -834,7 +947,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           union,
           union.name || "Union",
         );
-        const unionFile = this.emitter.createSourceFile(`models/${unionName}.cs`);
+        const unionFile = this.emitter.createSourceFile(`generated/models/${unionName}.cs`);
         unionFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
         const unionNamespace = `${this.#getOrSetBaseNamespace(union)}.Models`;
         return {
@@ -897,6 +1010,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       context.file.imports.set("TypeSpec.Helpers.JsonConverters", [
         "TypeSpec.Helpers.JsonConverters",
       ]);
+      context.file.imports.set("TypeSpec.Helpers", ["TypeSpec.Helpers"]);
       return context;
     }
 
@@ -928,7 +1042,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       let context: ControllerContext | undefined = controllers.get(name);
       if (context !== undefined) return context;
       const sourceFile: SourceFile<string> = this.emitter.createSourceFile(
-        `controllers/${name}Controller.cs`,
+        `generated/controllers/${name}Controller.cs`,
       );
 
       const namespace = this.#getOrSetBaseNamespace(operation);
@@ -1239,7 +1353,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
   processNameSpace(context.program, ns);
   if (!doNotEmit) {
-    await ensureCleanDirectory(context.program, options.emitterOutputDir);
+    const outputDir = options.emitterOutputDir;
+    const generatedDir = path.join(outputDir, "generated");
+    await ensureCleanDirectory(context.program, generatedDir);
 
     function normalizeSlashes(path: string) {
       return path.replaceAll("\\", "/");
@@ -1248,7 +1364,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     async function getOpenApiPath(): Promise<string> {
       if (options["openapi-path"]) return options["openapi-path"];
       const openApiSettings = await getOpenApiConfig(context.program);
-      const projectDir = resolvePath(context.program.projectRoot, options.emitterOutputDir, "..");
+      const projectDir = resolvePath(context.program.projectRoot, outputDir);
       if (openApiSettings.outputDir) {
         const openApiPath = resolvePath(
           openApiSettings.outputDir,
@@ -1292,19 +1408,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     await emitter.writeOutput();
-    const projectDir = normalizeSlashes(
-      path.relative(process.cwd(), resolvePath(options.emitterOutputDir, "..")),
-    );
-    const traceId = "http-server-csharp";
+    const projectDir = normalizeSlashes(path.relative(process.cwd(), resolvePath(outputDir)));
+    function trace(message: string) {
+      context.program.trace("http-server-csharp", `hscs-msg: ${message}`);
+    }
 
-    context.program.trace(traceId, `Your project was successfully created at "${projectDir}"`);
-    context.program.trace(
-      traceId,
-      `You can build and start the project using 'dotnet run --project "${projectDir}"'`,
-    );
+    trace(`Your project was successfully created at "${projectDir}"`);
+    trace(`You can build and start the project using 'dotnet run --project "${projectDir}"'`);
     if (options["use-swaggerui"] === true && httpsPort) {
-      context.program.trace(
-        traceId,
+      trace(
         `You can browse the swagger UI to test your service using 'start https://localhost:${httpsPort}/swagger/' `,
       );
     }
@@ -1313,7 +1425,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       await execFile("dotnet", [
         "format",
         "whitespace",
-        emitter.getOptions().emitterOutputDir,
+        outputDir,
         "--include-generated",
         "--folder",
       ]);

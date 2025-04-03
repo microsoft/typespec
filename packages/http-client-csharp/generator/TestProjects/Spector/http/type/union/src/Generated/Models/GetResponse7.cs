@@ -6,6 +6,6 @@ namespace _Type.Union
 {
     public partial class GetResponse7
     {
-        public StringExtensibleNamedUnion Prop => throw null;
+        public StringAndArrayCases Prop => throw null;
     }
 }

@@ -82,15 +82,25 @@ it("emit diagnostic when there are multiple @body param", async () => {
   ]);
 });
 
-it("emit error if using multipart/form-data contentType parameter with a body not being a model", async () => {
+it("emit error if using multipart/form-data contentType parameter with a body not marked with @multipartBody", async () => {
   const [_, diagnostics] = await compileOperations(`
-      #suppress "deprecated" "For testing to migrate for 1.0-rc"
-      @get op get(@header contentType: "multipart/form-data", @body body: string | int32): string;
+      op get(@header contentType: "multipart/form-data", @body body: {name: string, avatar: bytes}): void;
     `);
 
   expectDiagnostics(diagnostics, {
-    code: "@typespec/http/multipart-model",
-    message: "Multipart request body must be a model.",
+    code: "@typespec/http/no-implicit-multipart",
+    message: "Using multipart payloads requires the use of @multipartBody and HttpPart<T> models.",
+  });
+});
+
+it("emit error if using multipart/form-data in list of options of contentType parameter with a body not marked with @multipartBody", async () => {
+  const [_, diagnostics] = await compileOperations(`
+      op get(@header contentType: "multipart/form-data" | "application/json", @body body: {name: string, avatar: bytes}): void;
+    `);
+
+  expectDiagnostics(diagnostics, {
+    code: "@typespec/http/no-implicit-multipart",
+    message: "Using multipart payloads requires the use of @multipartBody and HttpPart<T> models.",
   });
 });
 

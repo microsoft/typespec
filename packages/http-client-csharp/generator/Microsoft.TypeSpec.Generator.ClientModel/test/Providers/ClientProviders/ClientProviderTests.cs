@@ -27,9 +27,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         private const string OAuth2Category = "WithOAuth2";
         private const string OnlyUnsupportedAuthCategory = "WithOnlyUnsupportedAuth";
         private const string TestClientName = "TestClient";
-        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: TestClientName);
-        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient.Name);
-        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient.Name);
+        private static readonly InputClient _testClient = InputFactory.Client(TestClientName);
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: _testClient);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -55,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             _hasOnlyUnsupportedAuth = categories?.Contains(OnlyUnsupportedAuthCategory) ?? false;
 
             Func<IReadOnlyList<InputClient>>? clients = _containsSubClients ?
-                () => [_animalClient, _dogClient, _huskyClient] :
+                () => [_testClient] :
                 null;
             InputApiKeyAuth? apiKeyAuth = _hasKeyAuth ? new InputApiKeyAuth("mock", null) : null;
             InputOAuth2Auth? oauth2Auth = _hasOAuth2 ? new InputOAuth2Auth(["mock"]) : null;
@@ -67,6 +68,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 clients: clients,
                 clientPipelineApi: TestClientPipelineApi.Instance,
                 auth: auth);
+        }
+
+        [Test]
+        public void TestNullRootClientWithChildren()
+        {
+            var plugin = MockHelpers.LoadMockGenerator(
+                clients: () => [_testClient],
+                clientPipelineApi: TestClientPipelineApi.Instance,
+                createClientCore: FilterOutClient
+                );
+
+            ClientProvider? FilterOutClient(InputClient client)
+            {
+                if (client == _testClient)
+                {
+                    return null;
+                }
+                return new ClientProvider(client);
+            }
+
+            var clients = plugin.Object.OutputLibrary.TypeProviders.Where(p => p is ClientProvider).ToList();
+            Assert.AreEqual(3, clients.Count);
         }
 
         [Test]
@@ -510,13 +533,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCase(false)]
         public void TestGetClientOptions(bool isSubClient)
         {
-            string? parentClientName = null;
+            InputClient? parentClient = null;
             if (isSubClient)
             {
-                parentClientName = "parent";
+                parentClient = InputFactory.Client("parent");
             }
 
-            var client = InputFactory.Client(TestClientName, parent: parentClientName);
+            var client = InputFactory.Client(TestClientName, parent: parentClient);
             var clientProvider = new ClientProvider(client);
             Assert.IsNotNull(clientProvider);
 
@@ -1017,7 +1040,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             get
             {
-                yield return new TestCaseData(InputFactory.Client(TestClientName), new List<ExpectedFieldProvider>
+                yield return new TestCaseData(_testClient, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
                     new(FieldModifiers.Private, new ExpectedCSharpType("Animal", "Sample", false), "_cachedAnimal"),
@@ -1066,7 +1089,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             get
             {
-                yield return new TestCaseData(InputFactory.Client(TestClientName), true);
+                yield return new TestCaseData(_testClient, true);
                 yield return new TestCaseData(_animalClient, true);
                 yield return new TestCaseData(_dogClient, true);
                 yield return new TestCaseData(_huskyClient, false);

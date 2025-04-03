@@ -5,8 +5,7 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { getOperationVerb } from "./decorators.js";
-import { createDiagnostic } from "./lib.js";
+import { getOperationVerb, getPathOptions } from "./decorators.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
@@ -74,6 +73,17 @@ function getOperationParametersForVerb(
           isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === param.name);
 
         if (!uriParam) {
+          const pathOptions = getPathOptions(program, param);
+          if (pathOptions && param.optional) {
+            return {
+              type: "path",
+              name: pathOptions.name,
+              explode: false,
+              allowReserved: false,
+              style: operatorToStyle["/"],
+            };
+          }
+
           return undefined;
         }
 
@@ -115,20 +125,11 @@ function getOperationParametersForVerb(
         });
         break;
       case "path":
-        if (item.property.optional) {
-          diagnostics.add(
-            createDiagnostic({
-              code: "optional-path-param",
-              format: { paramName: item.property.name },
-              target: item.property,
-            }),
-          );
-        }
-      // eslint-disable-next-line no-fallthrough
       case "query":
       case "cookie":
       case "header":
         parameters.push({
+          type: item.kind as any, // TODO: why is this not passing
           ...item.options,
           param: item.property,
         });

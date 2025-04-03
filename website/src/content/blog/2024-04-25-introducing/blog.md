@@ -4,6 +4,10 @@ title: "Introducing TypeSpec: A New Language for API-Centric Development"
 image: ./intro.png
 description: Over last few years, we've been hard at work on https://typespec.io/, a modern API definition language. This language is designed to meet the evolving needs of API developers, architects, and managers in an environment where the delivery of consistently high-quality APIs and related experiences is becoming increasingly complex and critical.
 publishDate: 2024-04-25
+authors:
+  - name: The TypeSpec Team
+    title: The TypeSpec Team @ Microsoft
+    avatar: assets/img/authors/default.png
 ---
 
 Over last few years, we've been hard at work on https://typespec.io/, a modern API definition language. This language is designed to meet the evolving needs of API developers, architects, and managers in an environment where the delivery of consistently high-quality APIs and related experiences is becoming increasingly complex and critical.
@@ -67,5 +71,5 @@ TypeSpec is more than just a language; it's a community. We believe in the power
 
 TypeSpec is a powerful tool that can revolutionize the way you approach API development. By facilitating an "API First" approach, it allows you to define your APIs upfront, leading to more efficient development and higher quality end products. Its support for a variety of protocols, combined with its extensibility and robust ecosystem, make it a versatile tool that can adapt to a wide range of development scenarios.
 We encourage you to try out TypeSpec and experience its benefits firsthand. Whether you're developing an OpenAPI specification, a JSON RPC interface, or simply looking to improve data validation and type consistency, TypeSpec has the capabilities to meet your needs.
-Check out our [getting started guide](https://typespec.io/docs), try out TypeSpec in your own projects or in the [TypeSpec Playground](https://typespec.io/playground), and give us feedback on [Github](https://github.com/microsoft/typespec)!
+Check out our [getting started guide](https://typespec.io/docs), try out TypeSpec in your own projects or in the [TypeSpec Playground](https://typespec.io/playground), and give us feedback on [GitHub](https://github.com/microsoft/typespec)!
 We're super excited to work with the community on making TypeSpec awesome as we start our march toward a stable release.

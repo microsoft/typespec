@@ -1482,7 +1482,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     // identifier. We want to parse `@ model Foo` as invalid decorator
     // `@<missing identifier>` applied to `model Foo`, and not as `@model`
     // applied to invalid statement `Foo`.
-    const target = parseIdentifierOrMemberExpression({ allowReservedIdentifierInMember: true });
+    const target = parseIdentifierOrMemberExpression({
+      allowReservedIdentifier: true,
+      allowReservedIdentifierInMember: true,
+    });
     const { items: args } = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
     if (args.length === 0) {
       error({ code: "augment-decorator-target" });
@@ -2100,7 +2103,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseFunctionParameter(): FunctionParameterNode {
     const pos = tokenPos();
     const rest = parseOptional(Token.Ellipsis);
-    const id = parseIdentifier({ message: "property" });
+    const id = parseIdentifier({ message: "property", allowReservedIdentifier: true });
 
     const optional = parseOptional(Token.Question);
     let type;

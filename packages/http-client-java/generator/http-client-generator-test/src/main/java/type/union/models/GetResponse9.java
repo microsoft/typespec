@@ -21,7 +21,7 @@ public final class GetResponse9 implements JsonSerializable<GetResponse9> {
      * The prop property.
      */
     @Generated
-    private final GetResponseProp4 prop;
+    private final MixedTypesCases prop;
 
     /**
      * Creates an instance of GetResponse9 class.
@@ -29,7 +29,7 @@ public final class GetResponse9 implements JsonSerializable<GetResponse9> {
      * @param prop the prop value to set.
      */
     @Generated
-    private GetResponse9(GetResponseProp4 prop) {
+    private GetResponse9(MixedTypesCases prop) {
         this.prop = prop;
     }
 
@@ -39,7 +39,7 @@ public final class GetResponse9 implements JsonSerializable<GetResponse9> {
      * @return the prop value.
      */
     @Generated
-    public GetResponseProp4 getProp() {
+    public MixedTypesCases getProp() {
         return this.prop;
     }
 
@@ -50,7 +50,7 @@ public final class GetResponse9 implements JsonSerializable<GetResponse9> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("prop", this.prop == null ? null : this.prop.toString());
+        jsonWriter.writeJsonField("prop", this.prop);
         return jsonWriter.writeEndObject();
     }
 
@@ -66,13 +66,13 @@ public final class GetResponse9 implements JsonSerializable<GetResponse9> {
     @Generated
     public static GetResponse9 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            GetResponseProp4 prop = null;
+            MixedTypesCases prop = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("prop".equals(fieldName)) {
-                    prop = GetResponseProp4.fromString(reader.getString());
+                    prop = MixedTypesCases.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }

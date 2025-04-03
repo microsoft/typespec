@@ -146,15 +146,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("requiredQuery", methodParameters[1].Name);
             Assert.AreEqual("requiredHeader", methodParameters[2].Name);
             Assert.AreEqual("body", methodParameters[3].Name);
-            Assert.AreEqual("contentType", methodParameters[4].Name);
-            Assert.AreEqual("optionalQuery", methodParameters[5].Name);
-            Assert.AreEqual("optionalHeader", methodParameters[6].Name);
+            Assert.AreEqual("optionalQuery", methodParameters[4].Name);
+            Assert.AreEqual("optionalHeader", methodParameters[5].Name);
+            Assert.AreEqual("optionalContentType", methodParameters[6].Name);
 
             var orderedPathParams = RestClientProvider.GetMethodParameters(OperationWithOnlyPathParams, RestClientProvider.MethodType.Convenience);
             Assert.AreEqual(OperationWithOnlyPathParams.Parameters.Count, orderedPathParams.Count);
             Assert.AreEqual("c", orderedPathParams[0].Name);
             Assert.AreEqual("a", orderedPathParams[1].Name);
             Assert.AreEqual("b", orderedPathParams[2].Name);
+        }
+
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        public void HeaderParameterOptionality(bool isRequired, bool isValueType)
+        {
+            var testOperation = InputFactory.Operation("TestOperation",
+                parameters:
+                [
+                    InputFactory.Parameter(
+                        "header",
+                        isValueType ? InputFactory.Enum("header", InputPrimitiveType.String) : InputPrimitiveType.String,
+                        location: InputRequestLocation.Header,
+                        isRequired: isRequired),
+                    InputFactory.Parameter(
+                        "requiredParam",
+                        InputPrimitiveType.String,
+                        location: InputRequestLocation.Header,
+                        isRequired: true)
+                ]);
+            var client = InputFactory.Client(
+                "TestClient",
+                operations: [testOperation]);
+            var clientProvider = new ClientProvider(client);
+            var parameters = RestClientProvider.GetMethodParameters(testOperation, RestClientProvider.MethodType.Convenience);
+            Assert.IsNotNull(parameters);
+
+            if (isRequired)
+            {
+                Assert.AreEqual("header", parameters[0].Name);
+            }
+            else
+            {
+                Assert.AreEqual("header", parameters[1].Name);
+            }
         }
 
         [TestCaseSource(nameof(GetSpreadParameterModelTestCases))]
@@ -514,7 +551,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     kind: InputOperationParameterKind.Method),
                 // content type param
                 InputFactory.Parameter(
-                    "contentType",
+                    "optionalContentType",
                     InputPrimitiveType.String,
                     location: InputRequestLocation.Header,
                     isContentType: true,

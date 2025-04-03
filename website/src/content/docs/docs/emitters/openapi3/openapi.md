@@ -1,107 +1,354 @@
 ---
-title: Emitter operation
+title: OpenAPI v3 emitter
 ---
 
-The OpenAPI emitter is designed to translate TypeSpec language elements into their corresponding OpenAPI expressions. Here's how it works:
+The OpenAPI emitter translates TypeSpec language elements into their equivalent OpenAPI expressions. This guide explains how TypeSpec constructs are mapped to OpenAPI components.
+
+**Note**: The below documentation generally refers to the behavior of the OpenAPI v3 emitter when using OpenAPI version 3.0. Emitter output for version 3.1 may be slightly different according to additional features supported in 3.1 but not in 3.0.
 
 ## Server Details
 
-If the TypeSpec file includes an [(Http) `@server` decorator](../../libraries/http/reference/decorators.md#@TypeSpec.Http.server), the OpenAPI emitter will create a `servers` object. This object will contain the server URL, description, and variables as defined in the decorator.
+When your TypeSpec file includes an [(HTTP) `@server` decorator](../../libraries/http/reference/decorators.md#@TypeSpec.Http.server), the OpenAPI emitter will generate a `servers` object in the resulting OpenAPI document. This object contains the server URL, description, and any variables defined in the decorator.
 
-You can use multiple `@server` decorators to generate multiple entries in the `servers` object.
+You can apply multiple `@server` decorators to create multiple entries in the `servers` array:
+
+```typespec
+@server("https://api.example.com/v1", "Primary production endpoint")
+@server("https://api-dev.example.com/v1", "Development endpoint")
+namespace MyService;
+```
 
 ## Operations
 
-Every TypeSpec operation is converted into an OpenAPI operation by the emitter.
+Each TypeSpec operation is converted into an OpenAPI operation.
 
-The HTTP method for the operation can be explicitly defined using an [(Http) `@get`, `@post`, `@put`, `@patch`, or `@delete` decorator][http-verb-decorators] on the operation. If not explicitly defined, the HTTP method is inferred from the operation name and signature.
+### HTTP Method
 
-The operation's path is derived from the [(Http) `@route` decorator][http-route-decorator] on the operation. The `@route` decorator can also be applied to a namespace and/or an interface (a group of operations). If specified, the route for the enclosing namespace(s) and interface are prefixed to the operation route.
+You can explicitly specify the HTTP method using one of the [(HTTP) decorators][http-verb-decorators]:
+
+- `@get`
+- `@post`
+- `@put`
+- `@patch`
+- `@delete`
+
+If you don't specify a method, the emitter will infer it from the operation name and signature.
+
+```typespec
+// Explicitly declared as GET /{id}
+@get
+op getUser(@path id: string): User;
+
+// Explicitly declared as POST /
+@post
+op createUser(user: User): User;
+
+// Automatically detected as GET /{id}
+op getUser(@path id: string): User;
+
+// Automatically detected as POST /
+op createUser(user: User): User;
+```
+
+### Operation Path
+
+The path for an operation comes from the [(HTTP) `@route` decorator][http-route-decorator]. You can apply `@route` to:
+
+- Individual operations
+- Interfaces (groups of operations)
+- Namespaces
+
+When you apply routes to multiple levels, they're combined to form the complete path:
+
+```typespec
+@route("/api")
+namespace MyService {
+  @route("/users")
+  interface Users {
+    // Results in GET /api/users/{id}
+    @route("/{id}")
+    @get
+    getUser(@path id: string): User;
+  }
+}
+```
 
 [http-verb-decorators]: ../../libraries/http/reference/decorators.md
 [http-route-decorator]: ../../libraries/http/reference/decorators.md#@TypeSpec.Http.route
 
-The [OpenAPI Operation object][] fields are set as described below.
+The [OpenAPI Operation object][openapi-operation-object] fields are populated as described in the following sections.
 
-[openapi operation object]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#operationObject
+[openapi-operation-object]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#operationObject
 
 ### Description
 
-The description field is populated from the [(built-in) `@doc` decorator][doc-decorator] on the TypeSpec operation. If `@doc` is not present, the description field is omitted.
+The operation's description comes from the documentation of the TypeSpec operation.
+
+Documentation is provided either by a documentation comment or by the [(built-in) `@doc` decorator][doc-decorator] (the two are equivalent):
+
+```typespec
+/**
+ * Retrieves a user by their unique identifier.
+ */
+op getUser(@path id: string): User;
+
+@doc("Retrieves a user by their unique identifier.")
+op getUser(@path id: string): User;
+```
+
+If no documentation is provided, the description field is omitted.
 
 [doc-decorator]: ../../standard-library/built-in-decorators.md#@doc
 
 ### Summary
 
-The summary field is populated from the [(built-in) `@summary` decorator][summary-decorator] on the TypeSpec operation. If `@summary` is not present, the summary field is omitted.
+The operation's summary comes from the [(built-in) `@summary` decorator][summary-decorator]:
+
+```typespec
+/**
+ * Retrieves a user by their unique identifier.
+ */
+@summary("Get a User by ID.")
+op getUser(@path id: string): User;
+```
+
+If no `@summary` is provided, the summary field is omitted.
 
 [summary-decorator]: ../../standard-library/built-in-decorators.md#@summary
 
 ### Operation ID
 
-The operation ID can be explicitly defined using the (OpenAPI) `@operationId` decorator. If not explicitly defined, the operation ID is simply the operation name, prefixed with "<interface*name>*" when the operation is within an interface.
+The operation ID can be explicitly set using the [(OpenAPI) `@operationId` decorator][openapi-operation-decorator]:
+
+```typespec
+@operationId("getUserById")
+op getUser(id: string): User;
+```
+
+If not explicitly defined, the operation ID defaults to:
+
+- The operation name (when the operation is not in an interface)
+- The interface name followed by the operation name (when in an interface)
+
+[openapi-operation-decorator]: ../../libraries/openapi/reference/decorators.md#@TypeSpec.OpenAPI.operationId
 
 ### Parameters and Request Body
 
-The parameters of the TypeSpec operation are translated into the parameter list and request body for the OpenAPI operation.
+TypeSpec operation parameters map to OpenAPI parameters and request body.
 
-The `in` field of a parameter is defined using an [(Http) `@query`, `@header`, or `@path` decorator][http-parameter-decorators]. A parameter without one of these decorators is assumed to be passed in the request body.
+#### Parameter Location
 
-The request body parameter can also be explicitly defined with an [(Http) `@body` decorator][http-body-decorator]. If `@body` is not explicitly defined, the set of parameters that are not marked `@header`, `@query`, or `@path` form the request body, which is defined as required. If the request body should be optional, it must be declared as an optional property with the `@body` decorator.
+You specify where a parameter appears using these [(HTTP) decorators][http-parameter-decorators]:
+
+- `@query` - Query parameter in the URL
+- `@header` - HTTP header parameter
+- `@path` - Path parameter in the URL
+
+Parameters without these decorators are assumed to be in the request body.
+
+```typespec
+op createUser(
+  // The parameter name is transformed to look like an HTTP header, so the parameter `contentType` maps
+  // to the `content-type` header
+  @header contentType: string,
+
+  @query include: string,
+  @path id: string,
+
+  // The request body will be a JSON object `{ "user": <User> }`
+  user: User, // This goes in the request body
+): User;
+```
+
+#### Request Body
+
+You can explicitly mark a parameter as the request body using the [(HTTP) `@body` decorator][http-body-decorator]:
+
+```typespec
+// The request body will be a JSON object that _only_ contains the User at the top level.
+op createUser(@body user: User): User;
+```
+
+If `@body` is not used, all parameters not marked with `@header`, `@query`, or `@path` form the request body, which is marked as required. To make the request body optional, declare it with an optional property and the `@body` decorator:
+
+```typespec
+op updateUser(@path id: string, @body user?: User): User;
+```
 
 [http-parameter-decorators]: ../../libraries/http/reference/decorators.md
 [http-body-decorator]: ../../libraries/http/reference/decorators.md#@TypeSpec.Http.body
 
-The content of a (built-in) `@doc` decorator on a parameter will be set in the description.
+Parameter descriptions, like operation descriptions, come from the parameters' documentation and are included in the OpenAPI definition:
 
-The TypeSpec parameter type will be translated into an appropriate OpenAPI schema for the parameter.
+```typespec
+/**
+ * Retrieves the User by their unique identifier.
+ *
+ * @param id The user's unique identifier.
+ */
+op getUser(@path id: string): User;
+```
 
-Similarly, the type of the body parameter(s) will be translated into an appropriate OpenAPI schema for the request body. The request body will use a content type determined by the [default content type resolution logic](../../libraries/http/content-types.md#default-behavior) unless the body model includes an explicit `content-type` header.
+The content type for request bodies follows the [default content-type resolution logic](../../libraries/http/content-types.md#default-behavior) unless the `content-type` header is explicitly specified.
 
-For more advanced details, see [metadata](../../libraries/http/operations.md#metadata).
+For more advanced parameter configuration, see the complete documentation of [HTTP operation metadata](../../libraries/http/operations.md#metadata).
 
 ### Responses
 
-The return type(s) of the TypeSpec operation are translated into responses for the OpenAPI operation. The status code for a response can be defined as a property in the return type model with the [(Http) `@statusCode` decorator][http-statuscode-decorator] (the property name is ignored). If the [(built-in) `@error` decorator][error-decorator] is specified on a return type, this return type becomes the "default" response for the operation. The media type for a response will be determined by the [default content type resolution logic](../../libraries/http/content-types.md#default-behavior) unless the return type model includes an explicit `content-type` header. Models with different status codes and/or media types can be combined to describe complex response designs.
+The operation's return type(s) translate into OpenAPI responses.
 
-When a return type model has a property explicitly decorated with an [(Http) `@body` decorator][http-body-decorator], this is considered as the response body. In the absence of an explicit `@body`, the properties that are not marked `@statusCode` or `@header` form the response body.
+#### Status Codes
+
+You can specify a status code using the [(HTTP) `@statusCode` decorator][http-statuscode-decorator] on a property in the return type:
+
+```typespec
+model UserResponse {
+  @statusCode
+  code: 200;
+
+  body: User;
+}
+
+op getUser(@path id: string): UserResponse;
+```
+
+You can define multiple response types to handle different status codes:
+
+```typespec
+model UserResponse {
+  @statusCode
+  code: 200;
+
+  user: User;
+}
+
+model UserNotFoundResponse {
+  @statusCode
+  code: 404;
+
+  message: string;
+}
+
+op getUser(@path id: string): UserResponse | UserNotFoundResponse;
+```
+
+#### Error Responses
+
+Use the [(built-in) `@error` decorator][error-decorator] to indicate an error response, which becomes the "default" response in OpenAPI. To indicate that an operation returns a successful response or an error, simply use the error response type in a union with a non-error type:
+
+```typespec
+@error
+model ErrorResponse {
+  @statusCode
+  code: 404 | 500;
+
+  message: string;
+}
+
+op getUser(@path id: string): User | ErrorResponse;
+```
+
+#### Response Body
+
+The response body can be explicitly marked with the `@body` decorator. Otherwise, any properties not marked with `@statusCode` or `@header` form the response body.
+
+```typespec
+model UserResponse {
+  @statusCode code: 200;
+
+  // If the status code is 200, the body will be just a JSON User at the top level.
+  @body user: User;
+}
+
+model NotFound {
+  @statusCode code: 404;
+
+  // If the status code is 404, the body will be a JSON object `{ "message": <string> }`
+  message: string;
+}
+
+op getUser(@path id: string): UserResponse | NotFound;
+```
 
 [http-statuscode-decorator]: ../../libraries/http/reference/decorators.md#@TypeSpec.Http.statusCode
 [error-decorator]: ../../standard-library/built-in-decorators.md#@error
 
-For more advanced details, see [metadata](../../libraries/http/operations.md#metadata).
+The content type for responses follows the [default content-type resolution logic](../../libraries/http/content-types.md#default-behavior) unless the `content-type` header is explicitly specified.
+
+For more advanced response configuration, see see the complete documentation of [HTTP operation metadata](../../libraries/http/operations.md#metadata).
 
 ### Tags
 
-Any tags specified with the [(built-in) `@tag` decorator][tag-decorator] on the operation, interface, or enclosing namespace(s) are included in the OpenAPI operation's tags array.
+Use the [(built-in) `@tag` decorator][tag-decorator] to apply tag groups to operations that will be represented in the generated OpenAPI and OpenAPI-based documentation tools such as Swagger UI:
+
+```typespec
+@tag("Users")
+op getUser(id: string): User;
+
+// Or at interface/namespace level
+@tag("Users")
+interface UserOperations {
+  getUser(id: string): User;
+  createUser(@body user: User): User;
+}
+```
+
+Tags from operations, interfaces, and enclosing namespaces are combined.
 
 [tag-decorator]: ../../standard-library/built-in-decorators.md#@tag
 
 ### Deprecated
 
-If the [(built-in) `#deprecated` directive][deprecated-decorator] is specified on the operation, then the operation's deprecated field is set to true.
+Mark an operation as deprecated using the (built-in) `#deprecated` directive.
 
-[deprecated-decorator]: ../../standard-library/built-in-decorators.md#@deprecated
+```typespec
+#deprecated "Use getUser instead"
+op fetchUser(id: string): User;
+```
+
+This sets the `deprecated` field to `true` in the OpenAPI operation.
 
 ### External Documentation
 
-If the TypeSpec operation has an [(OpenAPI) `@externalDocs` decorator](../../libraries/openapi/reference/decorators.md#@TypeSpec.OpenAPI.externalDocs), this will generate an externalDocs field in the OpenAPI operation.
+Add external documentation links using the [(OpenAPI) `@externalDocs` decorator](../../libraries/openapi/reference/decorators.md#@TypeSpec.OpenAPI.externalDocs):
+
+```typespec
+@externalDocs("https://example.com/docs/users", "Additional user documentation")
+op getUser(id: string): User;
+```
+
+The external documentation links are specific to the OpenAPI emitter and will not be used by any other emitters unless they are designed to interoperate with OpenAPI.
 
 ### Specification Extensions
 
-Any extensions specified on the TypeSpec operation with the [(OpenAPI) `@extension` decorator](../../libraries/openapi/reference/decorators.md#@TypeSpec.OpenAPI.extension) are included in the emitted OpenAPI operation.
+Add custom OpenAPI extensions for your use cases using the [(OpenAPI) `@extension` decorator][openapi-extension-decorator].
+
+```typespec
+@extension("x-ms-pageable", #{ nextLinkName: "nextLink" })
+op listUsers(): UserList;
+```
+
+The first argument to `@extension` becomes a key in the operation object, and the second argument is any JSON/YAML-like value. This decorator may be used to add arbitrary customization/extension to many OpenAPI constructs including schemas for TypeSpec types, operations, etc.
+
+[openapi-extension-decorator]: ../../libraries/openapi/reference/decorators.md#@TypeSpec.OpenAPI.extension
 
 ## Models and Enums
 
-Models and enums are converted into schemas in the generated OpenAPI definition. Intrinsic types in TypeSpec are represented with a JSON Schema type that closely matches the semantics of the TypeSpec type.
+TypeSpec models and enums convert to OpenAPI schemas.
 
-Inline defined models will result in an inline schema. Explicitly declared models will be defined in the `components/schemas` section with the TypeSpec name qualified by any enclosing namespaces.
+### Schema Location
 
-A special case is an instantiation of a model template, it is treated as an inline model unless the model template has a [(built-in) `@friendlyName` decorator][friendlyname], in which case the schema is defined in `components/schemas` with the friendly-name.
+Models are handled differently based on how they're defined:
+
+- **Named models**: defined in `components/schemas` section.
+- **Inline models**: defined inline where used.
+- **Template instances**: treated as inline unless they have a [(built-in) `@friendlyName` decorator][friendlyname], which causes them to be treated as named models.
 
 [friendlyname]: ../../standard-library/built-in-decorators.md#@friendlyName
 
-The following table shows how TypeSpec types are translated to JSON Schema types:
+### Type Mapping
+
+This table shows how TypeSpec types map to OpenAPI/JSON Schema types:
 
 | TypeSpec type    | OpenAPI `type`/`format`           | Notes                                                                     |
 | ---------------- | --------------------------------- | ------------------------------------------------------------------------- |
@@ -117,46 +364,53 @@ The following table shows how TypeSpec types are translated to JSON Schema types
 | `utcDateTime`    | `type: string, format: date-time` | RFC 3339 date in coordinated universal time (UTC)                         |
 | `offsetDateTime` | `type: string, format: date-time` | RFC 3339 date with timezone offset                                        |
 
-[See encoding and format](#encoding-and-formats) for other ways to encode these types.
+### Data Validation Decorators
 
-There are several decorators that can modify or add metadata to the definitions produced in the generated OpenAPI.
+The tables below show how various built-in decorators add validation constraints to model properties:
 
-For a numeric element (integer or float):
+**For numeric types:**
 
-| Decorator          | Library  | OpenAPI/JSON Schema keyword | Notes |
-| ------------------ | -------- | --------------------------- | ----- |
-| `@minValue(value)` | built-in | `minimum: value`            |       |
-| `@maxValue(value)` | built-in | `maximum: value`            |       |
+| Decorator          | Library  | OpenAPI/JSON Schema keyword | Example                      |
+| ------------------ | -------- | --------------------------- | ---------------------------- |
+| `@minValue(value)` | built-in | `minimum: value`            | `@minValue(0) age: int32;`   |
+| `@maxValue(value)` | built-in | `maximum: value`            | `@maxValue(120) age: int32;` |
 
-For any element defined as a `string` or a type that extends from `string`:
+**For string types:**
 
-| Decorator           | Library  | OpenAPI/JSON Schema keyword | Notes                                                           |
-| ------------------- | -------- | --------------------------- | --------------------------------------------------------------- |
-| `@format(name)`     | built-in | `format: name`              | Used when format is not determined by type or another decorator |
-| `@minLength(value)` | built-in | `minLength: value`          |                                                                 |
-| `@maxLength(value)` | built-in | `maxLength: value`          |                                                                 |
-| `@pattern(regex)`   | built-in | `pattern: regex`            |                                                                 |
-| `@secret`           | built-in | `format: password`          |                                                                 |
+| Decorator           | Library  | OpenAPI/JSON Schema keyword | Example                                 |
+| ------------------- | -------- | --------------------------- | --------------------------------------- |
+| `@format(name)`     | built-in | `format: name`              | `@format("email") email: string;`       |
+| `@minLength(value)` | built-in | `minLength: value`          | `@minLength(8) password: string;`       |
+| `@maxLength(value)` | built-in | `maxLength: value`          | `@maxLength(50) name: string;`          |
+| `@pattern(regex)`   | built-in | `pattern: regex`            | `@pattern("^[A-Z]{2}$") state: string;` |
+| `@secret`           | built-in | `format: password`          | `@secret password: string;`             |
 
-For an array type:
+**For array types:**
 
-| Decorator          | Library  | OpenAPI/JSON Schema keyword | Notes |
-| ------------------ | -------- | --------------------------- | ----- |
-| `@minItems(value)` | built-in | `minItems: value`           |       |
-| `@maxItems(value)` | built-in | `maxItems: value`           |       |
+| Decorator          | Library  | OpenAPI/JSON Schema keyword | Example                         |
+| ------------------ | -------- | --------------------------- | ------------------------------- |
+| `@minItems(value)` | built-in | `minItems: value`           | `@minItems(1) tags: string[];`  |
+| `@maxItems(value)` | built-in | `maxItems: value`           | `@maxItems(10) tags: string[];` |
 
-The OpenAPI emitter provides an [`@useRef` decorator](./reference/decorators.md#@TypeSpec.OpenAPI.useRef) which will replace the TypeSpec model type in emitter output with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
+### Using External References
 
-Example:
+The [`@useRef` decorator](./reference/decorators.md#@TypeSpec.OpenAPI.useRef) configures a TypeSpec model with a reference to an external schema that will be used in place of references to that model's schema:
 
 ```typespec
+// Whenever the OpenAPI emitter would try to reference the Sku model's schema, it will reference the below
+// external schema instead.
 @useRef("common.json#/components/schemas/Sku")
 model Sku {
-...
+  name: string;
+  tier: string;
 }
 ```
 
-Enums can be defined in TypeSpec with the [`enum` statement](../../language-basics/enums.md), e.g.:
+### Enums
+
+TypeSpec enums and unions convert to OpenAPI enum schemas. You can define enums in two ways:
+
+**TypeSpec enum declaration:**
 
 ```typespec
 enum Color {
@@ -166,100 +420,178 @@ enum Color {
 }
 ```
 
-The union operator can also be used to define the enum values inline, e.g.:
+**Union of literal values:**
 
 ```typespec
-status: "Running" | "Stopped" | "Failed"
-```
-
-The OpenAPI emitter converts both of these into a schema definition containing an "enum" with the list of defined values.
-
-### Model Composition
-
-TypeSpec provides several mechanisms for model composition and extension. The following describes how these are handled in the OpenAPI emitter.
-
-#### Spread
-
-The spread operator does not convey any semantic relationship between the source and target models, so the OpenAPI emitter treats this as if the properties of the source model were explicitly included in the target model at the position where the spread appears.
-
-#### Extends
-
-When one model extends another model, this is intended to convey an inheritance relationship. While OpenAPI has no formal construct for inheritance, the OpenAPI emitter represents this form of composition with an `allOf` in the schema of the child model that references the schema for the parent model.
-
-##### Extends with Discriminator
-
-The OpenAPI emitter supports the `@discriminator(propertyName)` decorator on a `model`. This will produce a `discriminator` object with the named property in the schema for this model.
-
-Models that extend this model must define this property with a literal string value, and these values must be distinct across all the models that extend this model. These values are used to construct a `mapping` for the discriminator.
-
-The `@discriminator` decorator can be used to create multi-level discriminated inheritance but must use a different discriminated property at each level.
-
-#### Is
-
-The `is` keyword provides a form of composition similar to the spread operator, where no semantic relationship is conveyed between the source and target models. The OpenAPI emitter represents this form of composition with an independent schema that contains all the same properties as the model named by the `is` keyword, plus any properties defined directly on the model.
-
-#### Union
-
-Unions are another form of model composition.
-
-Unions can be defined in two different ways in TypeSpec. One way is with [the union type operator](../../language-basics/unions.md#union-expressions), `|`:
-
-```typespec
-alias GoodBreed = Beagle | GermanShepherd | GoldenRetriever;
-```
-
-The second way is with [the `union` statement](../../language-basics/unions.md#named-unions) which not only declares the variant models but also assigns a name for each.
-
-```typespec
-union GoodBreed {
-  beagle: Beagle,
-  shepherd: GermanShepherd,
-  retriever: GoldenRetriever,
+model Settings {
+  // `status` can be any of the following strings.
+  status: "Running" | "Stopped" | "Failed";
 }
 ```
 
-The OpenAPI emitter represents either form of union with an `anyOf` with an element for each option of the union. The OpenAPI emitter ignores the "names" for variants in named unions.
+Both approaches result in an OpenAPI schema with a type of `string` and an `enum` array containing the specified values.
 
-The OpenAPI emitter also defines the[`@oneOf` decorator](./reference/decorators.md#@TypeSpec.OpenAPI.oneOf) which can be specified on a `union` statement to indicate that a union should be emitted as a `oneOf` rather than `anyOf`.
+## Model Composition
+
+TypeSpec offers several ways to compose models.
+
+### Spread Operator
+
+The spread operator copies properties from one model to another without creating a semantic relationship:
+
+```typespec
+model Address {
+  street: string;
+  city: string;
+  state: string;
+}
+
+model UserProfile {
+  name: string;
+
+  // Copy all the properties of Address into this model as if they were declared here.
+  ...Address;
+
+  email: string;
+}
+```
+
+In OpenAPI, the result is a flat schema named `UserProfile` with the properties of `Address` declared inline.
+
+### Extends Keyword
+
+The `extends` keyword creates an inheritance relationship:
+
+```typespec
+model Pet {
+  name: string;
+  age: int32;
+}
+
+model Dog extends Pet {
+  breed: string;
+}
+```
+
+In OpenAPI, this creates a schema `Dog` that references the schema `Pet` using `allOf`.
+
+#### Discriminated Union with Extends
+
+You can create discriminated type hierarchies using the `@discriminator` decorator:
+
+```typespec
+@discriminator("kind")
+model Pet {
+  name: string;
+  kind: string;
+}
+
+model Dog extends Pet {
+  kind: "dog"; // Must be a literal string value
+  breed: string;
+}
+
+model Cat extends Pet {
+  kind: "cat"; // Must be a literal string value
+  whiskerCount: int32;
+}
+```
+
+This creates a discriminator object in the OpenAPI schema with a mapping from discriminator values to schemas.
+
+### Is Keyword
+
+The `is` keyword creates a new model with the same shape as another model:
+
+```typespec
+model Address {
+  street: string;
+  city: string;
+}
+
+model ShippingDetails is Address {
+  zipCode: string; // Additional property
+}
+```
+
+In OpenAPI, `ShippingDetails` is an independent schema with all properties from `Address` plus `zipCode`.
+
+### Unions
+
+Unions represent values that could be one of several types:
+
+**Union type alias:**
+
+```typespec
+alias PetType = Dog | Cat | Hamster;
+```
+
+**Named union declaration:**
+
+```typespec
+union PetType {
+  dog: Dog,
+  cat: Cat,
+  hamster: Hamster,
+}
+```
+
+By default, unions emit as `anyOf` in OpenAPI. You can use the [`@oneOf` decorator](./reference/decorators.md#@TypeSpec.OpenAPI.oneOf) on a named union declaration to emit it as `oneOf` instead:
+
+```typespec
+@oneOf
+union PetType {
+  dog: Dog,
+  cat: Cat,
+  hamster: Hamster,
+}
+```
 
 ## Encoding and Formats
 
-When working with the `@encode` decorator, the rule is as follows. Given the 3 values `encoding`, `encodeAs`, and `realType` where `@encode(encoding, encodeAs) _: realType`:
+The `@encode` decorator lets you control how TypeSpec types are serialized. The general pattern is:
 
-1. If `realType` is `utcDateTime` or `offsetDateTime`:
-   - `encoding` of `rfc3339` will produce `type: string, format: date-time`
-   - `encoding` of `rfc7231` will produce `type: string, format: http-date`
-2. If `realType` is `utcDateTime` and `encoding` is `unixTimestamp`:
-   - `encodeAs` of any integer type will produce `type: integer, format: unixtime`
-3. If the schema of `encodeAs` produces a `format`, use it (e.g., encoding as `int32` will produce `type: integer, format: integer`)
-4. Otherwise, use the `encoding` as the format
+```typespec
+@encode("<encoding name>", encodingTargetType) property: trueType;
+```
 
-**Summary Table**
+Where:
 
-| encoding                                         | OpenAPI 3                         | Swagger 2.0 (autorest)            |
-| ------------------------------------------------ | --------------------------------- | --------------------------------- |
-| `@encode("seconds", int32) _: duration`          | `type: integer, format: int32`    | `type: integer, format: int32`    |
-| `@encode("seconds", float32) _: duration`        | `type: number, format: float32`   | `type: number, format: float32`   |
-| `@encode("ISO8601") _: duration`                 | `type: number, format: duration`  | `type: number, format: duration`  |
-| `@encode("unixTimestamp", int32) _: utcDateTime` | `type: integer, format: unixtime` | `type: integer, format: unixtime` |
-| `@encode("unixTimestamp", int64) _: utcDateTime` | `type: integer, format: unixtime` | `type: integer, format: unixtime` |
-| `@encode("rfc3339") _: utcDateTime`              | `type: string, format: date-time` | `type: string, format: date-time` |
-| `@encode("rfc7231") _: utcDateTime`              | `type: string, format: http-date` | `type: string, format: http-date` |
-| `@encode("http-date") _: utcDateTime`            | `type: string, format: http-date` | `type: string, format: http-date` |
+- `"<encoding name>"`: The format or method of encoding (e.g., `"base64"`, `"rfc3339"`, `"unixTimestamp"`)
+- `encodingTargetType`: The type to encode to and decode from (e.g., `int32`, `string`)
+- `trueType`: The "true" semantic data type of the property (e.g., `duration`, `utcDateTime`)
+
+The emitter follows these rules to determine the OpenAPI format:
+
+1. For date/time types:
+
+   - `@encode("rfc3339", string) _: utcDateTime` → `type: string, format: date-time`
+   - `@encode("rfc7231", string) _: utcDateTime` → `type: string, format: http-date`
+   - `@encode("unixTimestamp", int32) _: utcDateTime` → `type: integer, format: unixtime`
+
+2. For other types, the format comes from either the encoding name or the `encodingTargetType`'s format.
+
+This table summarizes common encodings:
+
+| TypeSpec with encoding                           | OpenAPI 3 result                  |
+| ------------------------------------------------ | --------------------------------- |
+| `@encode("seconds", int32) _: duration`          | `type: integer, format: int32`    |
+| `@encode("ISO8601") _: duration`                 | `type: number, format: duration`  |
+| `@encode("unixTimestamp", int64) _: utcDateTime` | `type: integer, format: unixtime` |
+| `@encode("rfc3339") _: utcDateTime`              | `type: string, format: date-time` |
 
 ## Security Definitions
 
-The OpenAPI emitter uses the [(http) `@useAuth` decorator](../../libraries/http/reference/decorators.md#@TypeSpec.Http.useAuth) to handle security definitions.
+Use the [(HTTP) `@useAuth` decorator][http-useauth-decorator] to define authentication and security schemes for your API.
 
-### Examples
-
-The following example shows how to define a security scheme for Azure Active Directory authentication:
+For example, to define an authentication/authorization scheme based on Microsoft Entra ID:
 
 ```typespec
-@useAuth(AADToken)
+@useAuth(EntraIDToken)
 namespace Contoso.WidgetManager;
-/** The Azure Active Directory OAuth2 Flow */
-model AADToken
+
+/** Microsoft Entra ID OAuth2 Flow */
+model EntraIDToken
   is OAuth2Auth<[
     {
       type: OAuth2FlowType.authorizationCode;
@@ -269,3 +601,7 @@ model AADToken
     }
   ]>;
 ```
+
+Authentication/authorization is a complex and highly configurable feature. See the [`@useAuth` decorator documentation for more information][http-useauth-decorator].
+
+[http-useauth-decorator]: ../../libraries/http/reference/decorators.md#@TypeSpec.Http.useAuth

@@ -18,9 +18,9 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import type.union.implementation.EnumsOnliesImpl;
-import type.union.implementation.models.SendRequest3;
+import type.union.implementation.models.SendRequest6;
 import type.union.models.EnumsOnlyCases;
-import type.union.models.GetResponse3;
+import type.union.models.GetResponse6;
 
 /**
  * Initializes a new instance of the asynchronous UnionClient type.
@@ -83,7 +83,7 @@ public final class EnumsOnlyAsyncClient {
      * }
      * </pre>
      * 
-     * @param sendRequest3 The sendRequest3 parameter.
+     * @param sendRequest6 The sendRequest6 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -93,8 +93,8 @@ public final class EnumsOnlyAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest3, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponseAsync(sendRequest3, requestOptions);
+    public Mono<Response<Void>> sendWithResponse(BinaryData sendRequest6, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponseAsync(sendRequest6, requestOptions);
     }
 
     /**
@@ -109,11 +109,11 @@ public final class EnumsOnlyAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<GetResponse3> get() {
+    public Mono<GetResponse6> get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse3.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(GetResponse6.class));
     }
 
     /**
@@ -133,8 +133,8 @@ public final class EnumsOnlyAsyncClient {
     public Mono<Void> send(EnumsOnlyCases prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest3 sendRequest3Obj = new SendRequest3(prop);
-        BinaryData sendRequest3 = BinaryData.fromObject(sendRequest3Obj);
-        return sendWithResponse(sendRequest3, requestOptions).flatMap(FluxUtil::toMono);
+        SendRequest6 sendRequest6Obj = new SendRequest6(prop);
+        BinaryData sendRequest6 = BinaryData.fromObject(sendRequest6Obj);
+        return sendWithResponse(sendRequest6, requestOptions).flatMap(FluxUtil::toMono);
     }
 }

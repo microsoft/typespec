@@ -13,6 +13,7 @@ from .client import Client
 from .request_builder import RequestBuilder, OverloadedRequestBuilder
 from .operation_group import OperationGroup
 from .utils import NamespaceType
+from .._utils import DEFAULT_HEADER_TEXT, DEFAULT_LICENSE_DESCRIPTION
 
 
 def _is_legacy(options) -> bool:
@@ -406,3 +407,35 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     @property
     def is_tsp(self) -> bool:
         return self.options.get("tsp_file") is not None
+
+    @property
+    def license_header(self) -> str:
+        if self.yaml_data.get("licenseInfo") or not self.is_azure_flavor:
+            # typespec unbranded case and azure case with custom license
+            license_header = self.yaml_data.get("licenseInfo", {}).get("header", "")
+        else:
+            # typespec azure case without custom license and swagger case
+            license_header = self.options.get("header_text") or DEFAULT_HEADER_TEXT
+        if license_header:
+            license_header = license_header.replace("\n", "\n# ")
+            license_header = (
+                "# --------------------------------------------------------------------------\n# " + license_header
+            )
+            license_header += "\n# --------------------------------------------------------------------------"
+        return license_header
+
+    @property
+    def license_description(self) -> str:
+        if self.yaml_data.get("licenseInfo") or not self.is_azure_flavor:
+            # typespec unbranded case and azure case with custom license
+            return self.yaml_data.get("licenseInfo", {}).get("description", "")
+        # typespec azure case without custom license and swagger case
+        return DEFAULT_LICENSE_DESCRIPTION
+
+    @property
+    def company_name(self) -> str:
+        if self.yaml_data.get("licenseInfo") or not self.is_azure_flavor:
+            # typespec unbranded case and azure case with custom license
+            return self.yaml_data.get("licenseInfo", {}).get("company", "")
+        # typespec azure case without custom license and swagger case
+        return "Microsoft Corporation"

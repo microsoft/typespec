@@ -13,6 +13,8 @@ import {
   Type,
   Union,
   getFriendlyName,
+  getMinValue,
+  isErrorModel,
   isNullType,
   isNumericType,
   isTemplateInstance,
@@ -54,6 +56,7 @@ import {
   StringValue,
 } from "./interfaces.js";
 import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
+import { getDoubleType, getEnumType } from "./type-helpers.js";
 
 const _scalars: Map<Scalar, CSharpType> = new Map<Scalar, CSharpType>();
 export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharpType {
@@ -144,6 +147,7 @@ export function getCSharpType(
         }),
       };
     case "Enum":
+      if (getEnumType(type) === "double") return { type: getDoubleType() };
       return {
         type: new CSharpType({
           name: ensureCSharpIdentifier(program, type, type.name, NameCasingType.Class),
@@ -262,7 +266,7 @@ export function getCSharpTypeForIntrinsic(
   return undefined;
 }
 
-type ExtendedIntrinsicScalarName = IntrinsicScalarName | "unixTimestamp32";
+export type ExtendedIntrinsicScalarName = IntrinsicScalarName | "unixTimestamp32";
 const standardScalars: Map<ExtendedIntrinsicScalarName, CSharpType> = new Map<
   ExtendedIntrinsicScalarName,
   CSharpType
@@ -395,6 +399,7 @@ const standardScalars: Map<ExtendedIntrinsicScalarName, CSharpType> = new Map<
     new CSharpType({ name: "decimal", namespace: "System", isBuiltIn: true, isValueType: true }),
   ],
 ]);
+
 export function getCSharpTypeForStdScalars(
   program: Program,
   scalar: Scalar & { name: ExtendedIntrinsicScalarName },
@@ -817,7 +822,12 @@ export function getCSharpStatusCode(entry: HttpStatusCodesEntry): string | undef
 export function isEmptyResponseModel(program: Program, model: Type): boolean {
   if (model.kind !== "Model") return false;
   if (model.properties.size === 0) return true;
-  return model.properties.size === 1 && isStatusCode(program, [...model.properties.values()][0]);
+
+  return (
+    model.properties.size === 1 &&
+    isStatusCode(program, [...model.properties.values()][0]) &&
+    !isErrorModel(program, model)
+  );
 }
 
 export function isContentTypeHeader(program: Program, parameter: ModelProperty): boolean {
@@ -1304,6 +1314,8 @@ export class CSharpOperationHelpers {
       case "ModelProperty":
         return this.getTypeInfo(program, tsType.type);
       case "Enum":
+        if (getEnumType(tsType) === "double")
+          return { typeReference: getDoubleType().getTypeReference(), nullableType: false };
         return {
           typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
           nullableType: false,
@@ -1511,4 +1523,28 @@ export async function getOpenApiConfig(program: Program): Promise<OpenApiConfig>
     fileName: oaiOptions?.["output-file"],
     options: oaiOptions,
   };
+}
+
+export function getStatusCode(program: Program, model: Model) {
+  const statusCodeProperty = new ModelInfo().filterAllProperties(program, model, (p) =>
+    isStatusCode(program, p),
+  );
+
+  if (!statusCodeProperty) return undefined;
+
+  const { type } = statusCodeProperty;
+  switch (type.kind) {
+    case "Union":
+      return {
+        name: statusCodeProperty.name,
+        value: statusCodeProperty.name,
+        requiresConstructorArgument: true,
+      };
+    case "Number":
+      return {
+        value: type.value,
+      };
+    default:
+      return { value: getMinValue(program, statusCodeProperty) ?? `default` };
+  }
 }

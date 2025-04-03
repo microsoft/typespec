@@ -339,6 +339,7 @@
  "clients": [
   {
    "$id": "42",
+   "kind": "client",
    "name": "RemovedClient",
    "namespace": "Versioning.Removed",
    "doc": "Test for the `@removed` decorator.",
@@ -599,7 +600,12 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Versioning.Removed"
+   "crossLanguageDefinitionId": "Versioning.Removed",
+   "apiVersions": [
+    "v1",
+    "v2preview",
+    "v2"
+   ]
   }
  ]
 }

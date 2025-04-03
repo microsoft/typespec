@@ -6,8 +6,8 @@
   {
    "$id": "2",
    "kind": "enum",
-   "name": "EnumsOnlyCasesLr",
-   "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.lr.anonymous",
+   "name": "GetResponseProp",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
    "valueType": {
     "$id": "3",
     "kind": "string",
@@ -19,8 +19,8 @@
     {
      "$id": "4",
      "kind": "enumvalue",
-     "name": "left",
-     "value": "left",
+     "name": "a",
+     "value": "a",
      "valueType": {
       "$id": "5",
       "kind": "string",
@@ -36,8 +36,8 @@
     {
      "$id": "6",
      "kind": "enumvalue",
-     "name": "right",
-     "value": "right",
+     "name": "b",
+     "value": "b",
      "valueType": {
       "$id": "7",
       "kind": "string",
@@ -53,8 +53,8 @@
     {
      "$id": "8",
      "kind": "enumvalue",
-     "name": "up",
-     "value": "up",
+     "name": "c",
+     "value": "c",
      "valueType": {
       "$id": "9",
       "kind": "string",
@@ -66,23 +66,6 @@
       "$ref": "2"
      },
      "decorators": []
-    },
-    {
-     "$id": "10",
-     "kind": "enumvalue",
-     "name": "down",
-     "value": "down",
-     "valueType": {
-      "$id": "11",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "2"
-     },
-     "decorators": []
     }
    ],
    "namespace": "",
@@ -92,12 +75,12 @@
    "decorators": []
   },
   {
-   "$id": "12",
+   "$id": "10",
    "kind": "enum",
-   "name": "EnumsOnlyCasesUd",
-   "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.ud.anonymous",
+   "name": "GetResponseProp1",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
    "valueType": {
-    "$id": "13",
+    "$id": "11",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -105,10 +88,27 @@
    },
    "values": [
     {
+     "$id": "12",
+     "kind": "enumvalue",
+     "name": "b",
+     "value": "b",
+     "valueType": {
+      "$id": "13",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "10"
+     },
+     "decorators": []
+    },
+    {
      "$id": "14",
      "kind": "enumvalue",
-     "name": "up",
-     "value": "up",
+     "name": "c",
+     "value": "c",
      "valueType": {
       "$id": "15",
       "kind": "string",
@@ -117,183 +117,24 @@
       "decorators": []
      },
      "enumType": {
-      "$ref": "12"
-     },
-     "decorators": []
-    },
-    {
-     "$id": "16",
-     "kind": "enumvalue",
-     "name": "down",
-     "value": "down",
-     "valueType": {
-      "$id": "17",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "12"
+      "$ref": "10"
      },
      "decorators": []
     }
    ],
    "namespace": "",
-   "isFixed": true,
+   "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
    "decorators": []
   },
   {
-   "$id": "18",
-   "kind": "enum",
-   "name": "GetResponseProp1",
-   "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
-   "valueType": {
-    "$id": "19",
-    "kind": "float32",
-    "name": "float32",
-    "crossLanguageDefinitionId": "TypeSpec.float32",
-    "decorators": []
-   },
-   "values": [
-    {
-     "$id": "20",
-     "kind": "enumvalue",
-     "name": "1.1",
-     "value": 1.1,
-     "valueType": {
-      "$id": "21",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "18"
-     },
-     "decorators": []
-    },
-    {
-     "$id": "22",
-     "kind": "enumvalue",
-     "name": "2.2",
-     "value": 2.2,
-     "valueType": {
-      "$id": "23",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "18"
-     },
-     "decorators": []
-    },
-    {
-     "$id": "24",
-     "kind": "enumvalue",
-     "name": "3.3",
-     "value": 3.3,
-     "valueType": {
-      "$id": "25",
-      "kind": "float32",
-      "name": "float32",
-      "crossLanguageDefinitionId": "TypeSpec.float32",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "18"
-     },
-     "decorators": []
-    }
-   ],
-   "namespace": "",
-   "isFixed": true,
-   "isFlags": false,
-   "usage": "Input,Output,Json",
-   "decorators": []
-  },
-  {
-   "$id": "26",
-   "kind": "enum",
-   "name": "GetResponseProp2",
-   "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
-   "valueType": {
-    "$id": "27",
-    "kind": "int32",
-    "name": "int32",
-    "crossLanguageDefinitionId": "TypeSpec.int32",
-    "decorators": []
-   },
-   "values": [
-    {
-     "$id": "28",
-     "kind": "enumvalue",
-     "name": "1",
-     "value": 1,
-     "valueType": {
-      "$id": "29",
-      "kind": "int32",
-      "name": "int32",
-      "crossLanguageDefinitionId": "TypeSpec.int32",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "26"
-     },
-     "decorators": []
-    },
-    {
-     "$id": "30",
-     "kind": "enumvalue",
-     "name": "2",
-     "value": 2,
-     "valueType": {
-      "$id": "31",
-      "kind": "int32",
-      "name": "int32",
-      "crossLanguageDefinitionId": "TypeSpec.int32",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "26"
-     },
-     "decorators": []
-    },
-    {
-     "$id": "32",
-     "kind": "enumvalue",
-     "name": "3",
-     "value": 3,
-     "valueType": {
-      "$id": "33",
-      "kind": "int32",
-      "name": "int32",
-      "crossLanguageDefinitionId": "TypeSpec.int32",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "26"
-     },
-     "decorators": []
-    }
-   ],
-   "namespace": "",
-   "isFixed": true,
-   "isFlags": false,
-   "usage": "Input,Output,Json",
-   "decorators": []
-  },
-  {
-   "$id": "34",
+   "$id": "16",
    "kind": "enum",
    "name": "StringExtensibleNamedUnion",
    "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamedUnion",
    "valueType": {
-    "$id": "35",
+    "$id": "17",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -301,36 +142,36 @@
    },
    "values": [
     {
-     "$id": "36",
+     "$id": "18",
      "kind": "enumvalue",
      "name": "OptionB",
      "value": "b",
      "valueType": {
-      "$id": "37",
+      "$id": "19",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
       "decorators": []
      },
      "enumType": {
-      "$ref": "34"
+      "$ref": "16"
      },
      "decorators": []
     },
     {
-     "$id": "38",
+     "$id": "20",
      "kind": "enumvalue",
      "name": "c",
      "value": "c",
      "valueType": {
-      "$id": "39",
+      "$id": "21",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
       "decorators": []
      },
      "enumType": {
-      "$ref": "34"
+      "$ref": "16"
      },
      "decorators": []
     }
@@ -342,12 +183,154 @@
    "decorators": []
   },
   {
-   "$id": "40",
+   "$id": "22",
+   "kind": "enum",
+   "name": "GetResponseProp2",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
+   "valueType": {
+    "$id": "23",
+    "kind": "int32",
+    "name": "int32",
+    "crossLanguageDefinitionId": "TypeSpec.int32",
+    "decorators": []
+   },
+   "values": [
+    {
+     "$id": "24",
+     "kind": "enumvalue",
+     "name": "1",
+     "value": 1,
+     "valueType": {
+      "$id": "25",
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "22"
+     },
+     "decorators": []
+    },
+    {
+     "$id": "26",
+     "kind": "enumvalue",
+     "name": "2",
+     "value": 2,
+     "valueType": {
+      "$id": "27",
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "22"
+     },
+     "decorators": []
+    },
+    {
+     "$id": "28",
+     "kind": "enumvalue",
+     "name": "3",
+     "value": 3,
+     "valueType": {
+      "$id": "29",
+      "kind": "int32",
+      "name": "int32",
+      "crossLanguageDefinitionId": "TypeSpec.int32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "22"
+     },
+     "decorators": []
+    }
+   ],
+   "namespace": "",
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
+  },
+  {
+   "$id": "30",
    "kind": "enum",
    "name": "GetResponseProp3",
    "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
    "valueType": {
-    "$id": "41",
+    "$id": "31",
+    "kind": "float32",
+    "name": "float32",
+    "crossLanguageDefinitionId": "TypeSpec.float32",
+    "decorators": []
+   },
+   "values": [
+    {
+     "$id": "32",
+     "kind": "enumvalue",
+     "name": "1.1",
+     "value": 1.1,
+     "valueType": {
+      "$id": "33",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "30"
+     },
+     "decorators": []
+    },
+    {
+     "$id": "34",
+     "kind": "enumvalue",
+     "name": "2.2",
+     "value": 2.2,
+     "valueType": {
+      "$id": "35",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "30"
+     },
+     "decorators": []
+    },
+    {
+     "$id": "36",
+     "kind": "enumvalue",
+     "name": "3.3",
+     "value": 3.3,
+     "valueType": {
+      "$id": "37",
+      "kind": "float32",
+      "name": "float32",
+      "crossLanguageDefinitionId": "TypeSpec.float32",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "30"
+     },
+     "decorators": []
+    }
+   ],
+   "namespace": "",
+   "isFixed": true,
+   "isFlags": false,
+   "usage": "Input,Output,Json",
+   "decorators": []
+  },
+  {
+   "$id": "38",
+   "kind": "enum",
+   "name": "EnumsOnlyCasesLr",
+   "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.lr.anonymous",
+   "valueType": {
+    "$id": "39",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -355,10 +338,27 @@
    },
    "values": [
     {
+     "$id": "40",
+     "kind": "enumvalue",
+     "name": "left",
+     "value": "left",
+     "valueType": {
+      "$id": "41",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "38"
+     },
+     "decorators": []
+    },
+    {
      "$id": "42",
      "kind": "enumvalue",
-     "name": "b",
-     "value": "b",
+     "name": "right",
+     "value": "right",
      "valueType": {
       "$id": "43",
       "kind": "string",
@@ -367,15 +367,15 @@
       "decorators": []
      },
      "enumType": {
-      "$ref": "40"
+      "$ref": "38"
      },
      "decorators": []
     },
     {
      "$id": "44",
      "kind": "enumvalue",
-     "name": "c",
-     "value": "c",
+     "name": "up",
+     "value": "up",
      "valueType": {
       "$id": "45",
       "kind": "string",
@@ -384,24 +384,41 @@
       "decorators": []
      },
      "enumType": {
-      "$ref": "40"
+      "$ref": "38"
+     },
+     "decorators": []
+    },
+    {
+     "$id": "46",
+     "kind": "enumvalue",
+     "name": "down",
+     "value": "down",
+     "valueType": {
+      "$id": "47",
+      "kind": "string",
+      "name": "string",
+      "crossLanguageDefinitionId": "TypeSpec.string",
+      "decorators": []
+     },
+     "enumType": {
+      "$ref": "38"
      },
      "decorators": []
     }
    ],
    "namespace": "",
-   "isFixed": false,
+   "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
    "decorators": []
   },
   {
-   "$id": "46",
+   "$id": "48",
    "kind": "enum",
-   "name": "GetResponseProp4",
-   "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
+   "name": "EnumsOnlyCasesUd",
+   "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.ud.anonymous",
    "valueType": {
-    "$id": "47",
+    "$id": "49",
     "kind": "string",
     "name": "string",
     "crossLanguageDefinitionId": "TypeSpec.string",
@@ -409,27 +426,10 @@
    },
    "values": [
     {
-     "$id": "48",
-     "kind": "enumvalue",
-     "name": "a",
-     "value": "a",
-     "valueType": {
-      "$id": "49",
-      "kind": "string",
-      "name": "string",
-      "crossLanguageDefinitionId": "TypeSpec.string",
-      "decorators": []
-     },
-     "enumType": {
-      "$ref": "46"
-     },
-     "decorators": []
-    },
-    {
      "$id": "50",
      "kind": "enumvalue",
-     "name": "b",
-     "value": "b",
+     "name": "up",
+     "value": "up",
      "valueType": {
       "$id": "51",
       "kind": "string",
@@ -438,15 +438,15 @@
       "decorators": []
      },
      "enumType": {
-      "$ref": "46"
+      "$ref": "48"
      },
      "decorators": []
     },
     {
      "$id": "52",
      "kind": "enumvalue",
-     "name": "c",
-     "value": "c",
+     "name": "down",
+     "value": "down",
      "valueType": {
       "$id": "53",
       "kind": "string",
@@ -455,7 +455,7 @@
       "decorators": []
      },
      "enumType": {
-      "$ref": "46"
+      "$ref": "48"
      },
      "decorators": []
     }
@@ -483,207 +483,7 @@
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "56",
-      "kind": "model",
-      "name": "MixedTypesCases",
-      "namespace": "Type.Union",
-      "crossLanguageDefinitionId": "Type.Union.MixedTypesCases",
-      "usage": "Input,Output,Json",
-      "decorators": [],
-      "properties": [
-       {
-        "$id": "57",
-        "kind": "property",
-        "name": "model",
-        "serializedName": "model",
-        "doc": "This should be receive/send the Cat variant",
-        "type": {
-         "$id": "58",
-         "kind": "union",
-         "name": "MixedTypesCasesModel",
-         "variantTypes": [
-          {
-           "$id": "59",
-           "kind": "model",
-           "name": "Cat",
-           "namespace": "Type.Union",
-           "crossLanguageDefinitionId": "Type.Union.Cat",
-           "usage": "Input,Output,Json",
-           "decorators": [],
-           "properties": [
-            {
-             "$id": "60",
-             "kind": "property",
-             "name": "name",
-             "serializedName": "name",
-             "type": {
-              "$id": "61",
-              "kind": "string",
-              "name": "string",
-              "crossLanguageDefinitionId": "TypeSpec.string",
-              "decorators": []
-             },
-             "optional": false,
-             "readOnly": false,
-             "discriminator": false,
-             "flatten": false,
-             "decorators": [],
-             "crossLanguageDefinitionId": "Type.Union.Cat.name",
-             "serializationOptions": {
-              "$id": "62",
-              "json": {
-               "$id": "63",
-               "name": "name"
-              }
-             }
-            }
-           ]
-          },
-          {
-           "$id": "64",
-           "kind": "constant",
-           "valueType": {
-            "$id": "65",
-            "kind": "string",
-            "name": "string",
-            "crossLanguageDefinitionId": "TypeSpec.string",
-            "decorators": []
-           },
-           "value": "a",
-           "decorators": []
-          },
-          {
-           "$id": "66",
-           "kind": "int32",
-           "name": "int32",
-           "crossLanguageDefinitionId": "TypeSpec.int32",
-           "decorators": []
-          },
-          {
-           "$id": "67",
-           "kind": "boolean",
-           "name": "boolean",
-           "crossLanguageDefinitionId": "TypeSpec.boolean",
-           "decorators": []
-          }
-         ],
-         "namespace": "",
-         "decorators": []
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.model",
-        "serializationOptions": {
-         "$id": "68",
-         "json": {
-          "$id": "69",
-          "name": "model"
-         }
-        }
-       },
-       {
-        "$id": "70",
-        "kind": "property",
-        "name": "literal",
-        "serializedName": "literal",
-        "doc": "This should be receive/send the \"a\" variant",
-        "type": {
-         "$ref": "58"
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.literal",
-        "serializationOptions": {
-         "$id": "71",
-         "json": {
-          "$id": "72",
-          "name": "literal"
-         }
-        }
-       },
-       {
-        "$id": "73",
-        "kind": "property",
-        "name": "int",
-        "serializedName": "int",
-        "doc": "This should be receive/send the int variant",
-        "type": {
-         "$ref": "58"
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.int",
-        "serializationOptions": {
-         "$id": "74",
-         "json": {
-          "$id": "75",
-          "name": "int"
-         }
-        }
-       },
-       {
-        "$id": "76",
-        "kind": "property",
-        "name": "boolean",
-        "serializedName": "boolean",
-        "doc": "This should be receive/send the boolean variant",
-        "type": {
-         "$ref": "58"
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.boolean",
-        "serializationOptions": {
-         "$id": "77",
-         "json": {
-          "$id": "78",
-          "name": "boolean"
-         }
-        }
-       },
-       {
-        "$id": "79",
-        "kind": "property",
-        "name": "array",
-        "serializedName": "array",
-        "doc": "This should be receive/send 4 element with Cat, \"a\", int, and boolean",
-        "type": {
-         "$id": "80",
-         "kind": "array",
-         "name": "Array",
-         "valueType": {
-          "$ref": "58"
-         },
-         "crossLanguageDefinitionId": "TypeSpec.Array",
-         "decorators": []
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.array",
-        "serializationOptions": {
-         "$id": "81",
-         "json": {
-          "$id": "82",
-          "name": "array"
-         }
-        }
-       }
-      ]
+      "$ref": "2"
      },
      "optional": false,
      "readOnly": false,
@@ -692,9 +492,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
      "serializationOptions": {
-      "$id": "83",
+      "$id": "56",
       "json": {
-       "$id": "84",
+       "$id": "57",
        "name": "prop"
       }
      }
@@ -702,13 +502,7 @@
    ]
   },
   {
-   "$ref": "56"
-  },
-  {
-   "$ref": "59"
-  },
-  {
-   "$id": "85",
+   "$id": "58",
    "kind": "model",
    "name": "SendRequest",
    "namespace": "Type.Union",
@@ -717,23 +511,23 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "86",
+     "$id": "59",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$ref": "56"
+      "$ref": "2"
      },
      "optional": false,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.MixedTypes.send.prop",
+     "crossLanguageDefinitionId": "Type.Union.StringsOnly.send.prop",
      "serializationOptions": {
-      "$id": "87",
+      "$id": "60",
       "json": {
-       "$id": "88",
+       "$id": "61",
        "name": "prop"
       }
      }
@@ -741,7 +535,7 @@
    ]
   },
   {
-   "$id": "89",
+   "$id": "62",
    "kind": "model",
    "name": "GetResponse1",
    "namespace": "Type.Union",
@@ -750,166 +544,478 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "90",
+     "$id": "63",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "91",
+      "$ref": "10"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "64",
+      "json": {
+       "$id": "65",
+       "name": "prop"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "66",
+   "kind": "model",
+   "name": "SendRequest1",
+   "namespace": "Type.Union",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "67",
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
+      "$ref": "10"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.StringExtensible.send.prop",
+     "serializationOptions": {
+      "$id": "68",
+      "json": {
+       "$id": "69",
+       "name": "prop"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "70",
+   "kind": "model",
+   "name": "GetResponse2",
+   "namespace": "Type.Union",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "71",
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
+      "$ref": "16"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "72",
+      "json": {
+       "$id": "73",
+       "name": "prop"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "74",
+   "kind": "model",
+   "name": "SendRequest2",
+   "namespace": "Type.Union",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "75",
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
+      "$ref": "16"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed.send.prop",
+     "serializationOptions": {
+      "$id": "76",
+      "json": {
+       "$id": "77",
+       "name": "prop"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "78",
+   "kind": "model",
+   "name": "GetResponse3",
+   "namespace": "Type.Union",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "79",
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
+      "$ref": "22"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "80",
+      "json": {
+       "$id": "81",
+       "name": "prop"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "82",
+   "kind": "model",
+   "name": "SendRequest3",
+   "namespace": "Type.Union",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "83",
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
+      "$ref": "22"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.IntsOnly.send.prop",
+     "serializationOptions": {
+      "$id": "84",
+      "json": {
+       "$id": "85",
+       "name": "prop"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "86",
+   "kind": "model",
+   "name": "GetResponse4",
+   "namespace": "Type.Union",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "87",
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
+      "$ref": "30"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "88",
+      "json": {
+       "$id": "89",
+       "name": "prop"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "90",
+   "kind": "model",
+   "name": "SendRequest4",
+   "namespace": "Type.Union",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "91",
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
+      "$ref": "30"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.FloatsOnly.send.prop",
+     "serializationOptions": {
+      "$id": "92",
+      "json": {
+       "$id": "93",
+       "name": "prop"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "94",
+   "kind": "model",
+   "name": "GetResponse5",
+   "namespace": "Type.Union",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "95",
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
+      "$id": "96",
+      "kind": "union",
+      "name": "GetResponseProp4",
+      "variantTypes": [
+       {
+        "$id": "97",
+        "kind": "model",
+        "name": "Cat",
+        "namespace": "Type.Union",
+        "crossLanguageDefinitionId": "Type.Union.Cat",
+        "usage": "Input,Output,Json",
+        "decorators": [],
+        "properties": [
+         {
+          "$id": "98",
+          "kind": "property",
+          "name": "name",
+          "serializedName": "name",
+          "type": {
+           "$id": "99",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "Type.Union.Cat.name",
+          "serializationOptions": {
+           "$id": "100",
+           "json": {
+            "$id": "101",
+            "name": "name"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "$id": "102",
+        "kind": "model",
+        "name": "Dog",
+        "namespace": "Type.Union",
+        "crossLanguageDefinitionId": "Type.Union.Dog",
+        "usage": "Input,Output,Json",
+        "decorators": [],
+        "properties": [
+         {
+          "$id": "103",
+          "kind": "property",
+          "name": "bark",
+          "serializedName": "bark",
+          "type": {
+           "$id": "104",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "Type.Union.Dog.bark",
+          "serializationOptions": {
+           "$id": "105",
+           "json": {
+            "$id": "106",
+            "name": "bark"
+           }
+          }
+         }
+        ]
+       }
+      ],
+      "namespace": "",
+      "decorators": []
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "107",
+      "json": {
+       "$id": "108",
+       "name": "prop"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$ref": "97"
+  },
+  {
+   "$ref": "102"
+  },
+  {
+   "$id": "109",
+   "kind": "model",
+   "name": "SendRequest5",
+   "namespace": "Type.Union",
+   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
+   "usage": "Spread,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "110",
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
+      "$ref": "96"
+     },
+     "optional": false,
+     "readOnly": false,
+     "discriminator": false,
+     "flatten": false,
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.ModelsOnly.send.prop",
+     "serializationOptions": {
+      "$id": "111",
+      "json": {
+       "$id": "112",
+       "name": "prop"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "$id": "113",
+   "kind": "model",
+   "name": "GetResponse6",
+   "namespace": "Type.Union",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
+   "usage": "Output,Json",
+   "decorators": [],
+   "properties": [
+    {
+     "$id": "114",
+     "kind": "property",
+     "name": "prop",
+     "serializedName": "prop",
+     "type": {
+      "$id": "115",
       "kind": "model",
-      "name": "MixedLiteralsCases",
+      "name": "EnumsOnlyCases",
       "namespace": "Type.Union",
-      "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases",
+      "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases",
       "usage": "Input,Output,Json",
       "decorators": [],
       "properties": [
        {
-        "$id": "92",
+        "$id": "116",
         "kind": "property",
-        "name": "stringLiteral",
-        "serializedName": "stringLiteral",
-        "doc": "This should be receive/send the \"a\" variant",
+        "name": "lr",
+        "serializedName": "lr",
+        "doc": "This should be receive/send the left variant",
         "type": {
-         "$id": "93",
-         "kind": "union",
-         "name": "MixedLiteralsCasesStringLiteral1",
-         "variantTypes": [
-          {
-           "$id": "94",
-           "kind": "constant",
-           "valueType": {
-            "$id": "95",
-            "kind": "string",
-            "name": "string",
-            "crossLanguageDefinitionId": "TypeSpec.string",
-            "decorators": []
-           },
-           "value": "a",
-           "decorators": []
-          },
-          {
-           "$id": "96",
-           "kind": "constant",
-           "valueType": {
-            "$id": "97",
-            "kind": "int32",
-            "name": "int32",
-            "crossLanguageDefinitionId": "TypeSpec.int32",
-            "decorators": []
-           },
-           "value": 2,
-           "decorators": []
-          },
-          {
-           "$id": "98",
-           "kind": "constant",
-           "valueType": {
-            "$id": "99",
-            "kind": "float32",
-            "name": "float32",
-            "crossLanguageDefinitionId": "TypeSpec.float32",
-            "decorators": []
-           },
-           "value": 3.3,
-           "decorators": []
-          },
-          {
-           "$id": "100",
-           "kind": "constant",
-           "valueType": {
-            "$id": "101",
-            "kind": "boolean",
-            "name": "boolean",
-            "crossLanguageDefinitionId": "TypeSpec.boolean",
-            "decorators": []
-           },
-           "value": true,
-           "decorators": []
-          }
-         ],
-         "namespace": "",
-         "decorators": []
+         "$ref": "38"
         },
         "optional": false,
         "readOnly": false,
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.stringLiteral",
+        "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.lr",
         "serializationOptions": {
-         "$id": "102",
+         "$id": "117",
          "json": {
-          "$id": "103",
-          "name": "stringLiteral"
+          "$id": "118",
+          "name": "lr"
          }
         }
        },
        {
-        "$id": "104",
+        "$id": "119",
         "kind": "property",
-        "name": "intLiteral",
-        "serializedName": "intLiteral",
-        "doc": "This should be receive/send the 2 variant",
+        "name": "ud",
+        "serializedName": "ud",
+        "doc": "This should be receive/send the up variant",
         "type": {
-         "$ref": "93"
+         "$ref": "48"
         },
         "optional": false,
         "readOnly": false,
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.intLiteral",
+        "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.ud",
         "serializationOptions": {
-         "$id": "105",
+         "$id": "120",
          "json": {
-          "$id": "106",
-          "name": "intLiteral"
-         }
-        }
-       },
-       {
-        "$id": "107",
-        "kind": "property",
-        "name": "floatLiteral",
-        "serializedName": "floatLiteral",
-        "doc": "This should be receive/send the 3.3 variant",
-        "type": {
-         "$ref": "93"
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.floatLiteral",
-        "serializationOptions": {
-         "$id": "108",
-         "json": {
-          "$id": "109",
-          "name": "floatLiteral"
-         }
-        }
-       },
-       {
-        "$id": "110",
-        "kind": "property",
-        "name": "booleanLiteral",
-        "serializedName": "booleanLiteral",
-        "doc": "This should be receive/send the true variant",
-        "type": {
-         "$ref": "93"
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.booleanLiteral",
-        "serializationOptions": {
-         "$id": "111",
-         "json": {
-          "$id": "112",
-          "name": "booleanLiteral"
+          "$id": "121",
+          "name": "ud"
          }
         }
        }
@@ -922,9 +1028,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
      "serializationOptions": {
-      "$id": "113",
+      "$id": "122",
       "json": {
-       "$id": "114",
+       "$id": "123",
        "name": "prop"
       }
      }
@@ -932,35 +1038,35 @@
    ]
   },
   {
-   "$ref": "91"
+   "$ref": "115"
   },
   {
-   "$id": "115",
+   "$id": "124",
    "kind": "model",
-   "name": "SendRequest1",
+   "name": "SendRequest6",
    "namespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
    "properties": [
     {
-     "$id": "116",
+     "$id": "125",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$ref": "91"
+      "$ref": "115"
      },
      "optional": false,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.MixedLiterals.send.prop",
+     "crossLanguageDefinitionId": "Type.Union.EnumsOnly.send.prop",
      "serializationOptions": {
-      "$id": "117",
+      "$id": "126",
       "json": {
-       "$id": "118",
+       "$id": "127",
        "name": "prop"
       }
      }
@@ -968,21 +1074,21 @@
    ]
   },
   {
-   "$id": "119",
+   "$id": "128",
    "kind": "model",
-   "name": "GetResponse2",
+   "name": "GetResponse7",
    "namespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
    "properties": [
     {
-     "$id": "120",
+     "$id": "129",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "121",
+      "$id": "130",
       "kind": "model",
       "name": "StringAndArrayCases",
       "namespace": "Type.Union",
@@ -991,29 +1097,29 @@
       "decorators": [],
       "properties": [
        {
-        "$id": "122",
+        "$id": "131",
         "kind": "property",
         "name": "string",
         "serializedName": "string",
         "doc": "This should be receive/send the string variant",
         "type": {
-         "$id": "123",
+         "$id": "132",
          "kind": "union",
          "name": "StringAndArrayCasesString",
          "variantTypes": [
           {
-           "$id": "124",
+           "$id": "133",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
            "decorators": []
           },
           {
-           "$id": "125",
+           "$id": "134",
            "kind": "array",
            "name": "Array",
            "valueType": {
-            "$id": "126",
+            "$id": "135",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1033,37 +1139,37 @@
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases.string",
         "serializationOptions": {
-         "$id": "127",
+         "$id": "136",
          "json": {
-          "$id": "128",
+          "$id": "137",
           "name": "string"
          }
         }
        },
        {
-        "$id": "129",
+        "$id": "138",
         "kind": "property",
         "name": "array",
         "serializedName": "array",
         "doc": "This should be receive/send the array variant",
         "type": {
-         "$id": "130",
+         "$id": "139",
          "kind": "union",
          "name": "StringAndArrayCasesArray",
          "variantTypes": [
           {
-           "$id": "131",
+           "$id": "140",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
            "decorators": []
           },
           {
-           "$id": "132",
+           "$id": "141",
            "kind": "array",
            "name": "Array",
            "valueType": {
-            "$id": "133",
+            "$id": "142",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1083,9 +1189,9 @@
         "decorators": [],
         "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases.array",
         "serializationOptions": {
-         "$id": "134",
+         "$id": "143",
          "json": {
-          "$id": "135",
+          "$id": "144",
           "name": "array"
          }
         }
@@ -1099,9 +1205,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
      "serializationOptions": {
-      "$id": "136",
+      "$id": "145",
       "json": {
-       "$id": "137",
+       "$id": "146",
        "name": "prop"
       }
      }
@@ -1109,24 +1215,24 @@
    ]
   },
   {
-   "$ref": "121"
+   "$ref": "130"
   },
   {
-   "$id": "138",
+   "$id": "147",
    "kind": "model",
-   "name": "SendRequest2",
+   "name": "SendRequest7",
    "namespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
    "properties": [
     {
-     "$id": "139",
+     "$id": "148",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$ref": "121"
+      "$ref": "130"
      },
      "optional": false,
      "readOnly": false,
@@ -1135,9 +1241,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.StringAndArray.send.prop",
      "serializationOptions": {
-      "$id": "140",
+      "$id": "149",
       "json": {
-       "$id": "141",
+       "$id": "150",
        "name": "prop"
       }
      }
@@ -1145,71 +1251,175 @@
    ]
   },
   {
-   "$id": "142",
+   "$id": "151",
    "kind": "model",
-   "name": "GetResponse3",
+   "name": "GetResponse8",
    "namespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
    "properties": [
     {
-     "$id": "143",
+     "$id": "152",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "144",
+      "$id": "153",
       "kind": "model",
-      "name": "EnumsOnlyCases",
+      "name": "MixedLiteralsCases",
       "namespace": "Type.Union",
-      "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases",
+      "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases",
       "usage": "Input,Output,Json",
       "decorators": [],
       "properties": [
        {
-        "$id": "145",
+        "$id": "154",
         "kind": "property",
-        "name": "lr",
-        "serializedName": "lr",
-        "doc": "This should be receive/send the left variant",
+        "name": "stringLiteral",
+        "serializedName": "stringLiteral",
+        "doc": "This should be receive/send the \"a\" variant",
         "type": {
-         "$ref": "2"
+         "$id": "155",
+         "kind": "union",
+         "name": "MixedLiteralsCasesStringLiteral",
+         "variantTypes": [
+          {
+           "$id": "156",
+           "kind": "constant",
+           "valueType": {
+            "$id": "157",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+           },
+           "value": "a",
+           "decorators": []
+          },
+          {
+           "$id": "158",
+           "kind": "constant",
+           "valueType": {
+            "$id": "159",
+            "kind": "int32",
+            "name": "int32",
+            "crossLanguageDefinitionId": "TypeSpec.int32",
+            "decorators": []
+           },
+           "value": 2,
+           "decorators": []
+          },
+          {
+           "$id": "160",
+           "kind": "constant",
+           "valueType": {
+            "$id": "161",
+            "kind": "float32",
+            "name": "float32",
+            "crossLanguageDefinitionId": "TypeSpec.float32",
+            "decorators": []
+           },
+           "value": 3.3,
+           "decorators": []
+          },
+          {
+           "$id": "162",
+           "kind": "constant",
+           "valueType": {
+            "$id": "163",
+            "kind": "boolean",
+            "name": "boolean",
+            "crossLanguageDefinitionId": "TypeSpec.boolean",
+            "decorators": []
+           },
+           "value": true,
+           "decorators": []
+          }
+         ],
+         "namespace": "",
+         "decorators": []
         },
         "optional": false,
         "readOnly": false,
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.lr",
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.stringLiteral",
         "serializationOptions": {
-         "$id": "146",
+         "$id": "164",
          "json": {
-          "$id": "147",
-          "name": "lr"
+          "$id": "165",
+          "name": "stringLiteral"
          }
         }
        },
        {
-        "$id": "148",
+        "$id": "166",
         "kind": "property",
-        "name": "ud",
-        "serializedName": "ud",
-        "doc": "This should be receive/send the up variant",
+        "name": "intLiteral",
+        "serializedName": "intLiteral",
+        "doc": "This should be receive/send the 2 variant",
         "type": {
-         "$ref": "12"
+         "$ref": "155"
         },
         "optional": false,
         "readOnly": false,
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.ud",
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.intLiteral",
         "serializationOptions": {
-         "$id": "149",
+         "$id": "167",
          "json": {
-          "$id": "150",
-          "name": "ud"
+          "$id": "168",
+          "name": "intLiteral"
+         }
+        }
+       },
+       {
+        "$id": "169",
+        "kind": "property",
+        "name": "floatLiteral",
+        "serializedName": "floatLiteral",
+        "doc": "This should be receive/send the 3.3 variant",
+        "type": {
+         "$ref": "155"
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.floatLiteral",
+        "serializationOptions": {
+         "$id": "170",
+         "json": {
+          "$id": "171",
+          "name": "floatLiteral"
+         }
+        }
+       },
+       {
+        "$id": "172",
+        "kind": "property",
+        "name": "booleanLiteral",
+        "serializedName": "booleanLiteral",
+        "doc": "This should be receive/send the true variant",
+        "type": {
+         "$ref": "155"
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.booleanLiteral",
+        "serializationOptions": {
+         "$id": "173",
+         "json": {
+          "$id": "174",
+          "name": "booleanLiteral"
          }
         }
        }
@@ -1222,9 +1432,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
      "serializationOptions": {
-      "$id": "151",
+      "$id": "175",
       "json": {
-       "$id": "152",
+       "$id": "176",
        "name": "prop"
       }
      }
@@ -1232,389 +1442,10 @@
    ]
   },
   {
-   "$ref": "144"
+   "$ref": "153"
   },
   {
-   "$id": "153",
-   "kind": "model",
-   "name": "SendRequest3",
-   "namespace": "Type.Union",
-   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "usage": "Spread,Json",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "154",
-     "kind": "property",
-     "name": "prop",
-     "serializedName": "prop",
-     "type": {
-      "$ref": "144"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.EnumsOnly.send.prop",
-     "serializationOptions": {
-      "$id": "155",
-      "json": {
-       "$id": "156",
-       "name": "prop"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "157",
-   "kind": "model",
-   "name": "GetResponse4",
-   "namespace": "Type.Union",
-   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "usage": "Output,Json",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "158",
-     "kind": "property",
-     "name": "prop",
-     "serializedName": "prop",
-     "type": {
-      "$id": "159",
-      "kind": "union",
-      "name": "GetResponseProp",
-      "variantTypes": [
-       {
-        "$ref": "59"
-       },
-       {
-        "$id": "160",
-        "kind": "model",
-        "name": "Dog",
-        "namespace": "Type.Union",
-        "crossLanguageDefinitionId": "Type.Union.Dog",
-        "usage": "Input,Output,Json",
-        "decorators": [],
-        "properties": [
-         {
-          "$id": "161",
-          "kind": "property",
-          "name": "bark",
-          "serializedName": "bark",
-          "type": {
-           "$id": "162",
-           "kind": "string",
-           "name": "string",
-           "crossLanguageDefinitionId": "TypeSpec.string",
-           "decorators": []
-          },
-          "optional": false,
-          "readOnly": false,
-          "discriminator": false,
-          "flatten": false,
-          "decorators": [],
-          "crossLanguageDefinitionId": "Type.Union.Dog.bark",
-          "serializationOptions": {
-           "$id": "163",
-           "json": {
-            "$id": "164",
-            "name": "bark"
-           }
-          }
-         }
-        ]
-       }
-      ],
-      "namespace": "",
-      "decorators": []
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
-     "serializationOptions": {
-      "$id": "165",
-      "json": {
-       "$id": "166",
-       "name": "prop"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$ref": "160"
-  },
-  {
-   "$id": "167",
-   "kind": "model",
-   "name": "SendRequest4",
-   "namespace": "Type.Union",
-   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "usage": "Spread,Json",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "168",
-     "kind": "property",
-     "name": "prop",
-     "serializedName": "prop",
-     "type": {
-      "$ref": "159"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.ModelsOnly.send.prop",
-     "serializationOptions": {
-      "$id": "169",
-      "json": {
-       "$id": "170",
-       "name": "prop"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "171",
-   "kind": "model",
-   "name": "GetResponse5",
-   "namespace": "Type.Union",
-   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "usage": "Output,Json",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "172",
-     "kind": "property",
-     "name": "prop",
-     "serializedName": "prop",
-     "type": {
-      "$ref": "18"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
-     "serializationOptions": {
-      "$id": "173",
-      "json": {
-       "$id": "174",
-       "name": "prop"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "175",
-   "kind": "model",
-   "name": "SendRequest5",
-   "namespace": "Type.Union",
-   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "usage": "Spread,Json",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "176",
-     "kind": "property",
-     "name": "prop",
-     "serializedName": "prop",
-     "type": {
-      "$ref": "18"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.FloatsOnly.send.prop",
-     "serializationOptions": {
-      "$id": "177",
-      "json": {
-       "$id": "178",
-       "name": "prop"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "179",
-   "kind": "model",
-   "name": "GetResponse6",
-   "namespace": "Type.Union",
-   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "usage": "Output,Json",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "180",
-     "kind": "property",
-     "name": "prop",
-     "serializedName": "prop",
-     "type": {
-      "$ref": "26"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
-     "serializationOptions": {
-      "$id": "181",
-      "json": {
-       "$id": "182",
-       "name": "prop"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "183",
-   "kind": "model",
-   "name": "SendRequest6",
-   "namespace": "Type.Union",
-   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "usage": "Spread,Json",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "184",
-     "kind": "property",
-     "name": "prop",
-     "serializedName": "prop",
-     "type": {
-      "$ref": "26"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.IntsOnly.send.prop",
-     "serializationOptions": {
-      "$id": "185",
-      "json": {
-       "$id": "186",
-       "name": "prop"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "187",
-   "kind": "model",
-   "name": "GetResponse7",
-   "namespace": "Type.Union",
-   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "usage": "Output,Json",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "188",
-     "kind": "property",
-     "name": "prop",
-     "serializedName": "prop",
-     "type": {
-      "$ref": "34"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
-     "serializationOptions": {
-      "$id": "189",
-      "json": {
-       "$id": "190",
-       "name": "prop"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "191",
-   "kind": "model",
-   "name": "SendRequest7",
-   "namespace": "Type.Union",
-   "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
-   "usage": "Spread,Json",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "192",
-     "kind": "property",
-     "name": "prop",
-     "serializedName": "prop",
-     "type": {
-      "$ref": "34"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed.send.prop",
-     "serializationOptions": {
-      "$id": "193",
-      "json": {
-       "$id": "194",
-       "name": "prop"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "195",
-   "kind": "model",
-   "name": "GetResponse8",
-   "namespace": "Type.Union",
-   "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
-   "usage": "Output,Json",
-   "decorators": [],
-   "properties": [
-    {
-     "$id": "196",
-     "kind": "property",
-     "name": "prop",
-     "serializedName": "prop",
-     "type": {
-      "$ref": "40"
-     },
-     "optional": false,
-     "readOnly": false,
-     "discriminator": false,
-     "flatten": false,
-     "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
-     "serializationOptions": {
-      "$id": "197",
-      "json": {
-       "$id": "198",
-       "name": "prop"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "$id": "199",
+   "$id": "177",
    "kind": "model",
    "name": "SendRequest8",
    "namespace": "Type.Union",
@@ -1623,23 +1454,23 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "200",
+     "$id": "178",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$ref": "40"
+      "$ref": "153"
      },
      "optional": false,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.StringExtensible.send.prop",
+     "crossLanguageDefinitionId": "Type.Union.MixedLiterals.send.prop",
      "serializationOptions": {
-      "$id": "201",
+      "$id": "179",
       "json": {
-       "$id": "202",
+       "$id": "180",
        "name": "prop"
       }
      }
@@ -1647,7 +1478,7 @@
    ]
   },
   {
-   "$id": "203",
+   "$id": "181",
    "kind": "model",
    "name": "GetResponse9",
    "namespace": "Type.Union",
@@ -1656,12 +1487,178 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "204",
+     "$id": "182",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$ref": "46"
+      "$id": "183",
+      "kind": "model",
+      "name": "MixedTypesCases",
+      "namespace": "Type.Union",
+      "crossLanguageDefinitionId": "Type.Union.MixedTypesCases",
+      "usage": "Input,Output,Json",
+      "decorators": [],
+      "properties": [
+       {
+        "$id": "184",
+        "kind": "property",
+        "name": "model",
+        "serializedName": "model",
+        "doc": "This should be receive/send the Cat variant",
+        "type": {
+         "$id": "185",
+         "kind": "union",
+         "name": "MixedTypesCasesModel",
+         "variantTypes": [
+          {
+           "$ref": "97"
+          },
+          {
+           "$id": "186",
+           "kind": "constant",
+           "valueType": {
+            "$id": "187",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+           },
+           "value": "a",
+           "decorators": []
+          },
+          {
+           "$id": "188",
+           "kind": "int32",
+           "name": "int32",
+           "crossLanguageDefinitionId": "TypeSpec.int32",
+           "decorators": []
+          },
+          {
+           "$id": "189",
+           "kind": "boolean",
+           "name": "boolean",
+           "crossLanguageDefinitionId": "TypeSpec.boolean",
+           "decorators": []
+          }
+         ],
+         "namespace": "",
+         "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.model",
+        "serializationOptions": {
+         "$id": "190",
+         "json": {
+          "$id": "191",
+          "name": "model"
+         }
+        }
+       },
+       {
+        "$id": "192",
+        "kind": "property",
+        "name": "literal",
+        "serializedName": "literal",
+        "doc": "This should be receive/send the \"a\" variant",
+        "type": {
+         "$ref": "185"
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.literal",
+        "serializationOptions": {
+         "$id": "193",
+         "json": {
+          "$id": "194",
+          "name": "literal"
+         }
+        }
+       },
+       {
+        "$id": "195",
+        "kind": "property",
+        "name": "int",
+        "serializedName": "int",
+        "doc": "This should be receive/send the int variant",
+        "type": {
+         "$ref": "185"
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.int",
+        "serializationOptions": {
+         "$id": "196",
+         "json": {
+          "$id": "197",
+          "name": "int"
+         }
+        }
+       },
+       {
+        "$id": "198",
+        "kind": "property",
+        "name": "boolean",
+        "serializedName": "boolean",
+        "doc": "This should be receive/send the boolean variant",
+        "type": {
+         "$ref": "185"
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.boolean",
+        "serializationOptions": {
+         "$id": "199",
+         "json": {
+          "$id": "200",
+          "name": "boolean"
+         }
+        }
+       },
+       {
+        "$id": "201",
+        "kind": "property",
+        "name": "array",
+        "serializedName": "array",
+        "doc": "This should be receive/send 4 element with Cat, \"a\", int, and boolean",
+        "type": {
+         "$id": "202",
+         "kind": "array",
+         "name": "Array1",
+         "valueType": {
+          "$ref": "185"
+         },
+         "crossLanguageDefinitionId": "TypeSpec.Array",
+         "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.array",
+        "serializationOptions": {
+         "$id": "203",
+         "json": {
+          "$id": "204",
+          "name": "array"
+         }
+        }
+       }
+      ]
      },
      "optional": false,
      "readOnly": false,
@@ -1680,6 +1677,9 @@
    ]
   },
   {
+   "$ref": "183"
+  },
+  {
    "$id": "207",
    "kind": "model",
    "name": "SendRequest9",
@@ -1694,14 +1694,14 @@
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$ref": "46"
+      "$ref": "183"
      },
      "optional": false,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.StringsOnly.send.prop",
+     "crossLanguageDefinitionId": "Type.Union.MixedTypes.send.prop",
      "serializationOptions": {
       "$id": "209",
       "json": {
@@ -1716,6 +1716,7 @@
  "clients": [
   {
    "$id": "211",
+   "kind": "client",
    "name": "UnionClient",
    "namespace": "Type.Union",
    "doc": "Describe scenarios for various combinations of unions.",
@@ -1753,1767 +1754,1810 @@
     }
    ],
    "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union"
-  },
-  {
-   "$id": "216",
-   "name": "StringsOnly",
-   "namespace": "Type.Union",
-   "doc": "Describe union of string \"a\" | \"b\" | \"c\"",
-   "operations": [
+   "crossLanguageDefinitionId": "Type.Union",
+   "apiVersions": [],
+   "children": [
     {
-     "$id": "217",
-     "name": "get",
-     "resourceName": "StringsOnly",
-     "accessibility": "public",
+     "$id": "216",
+     "kind": "client",
+     "name": "StringsOnly",
+     "namespace": "Type.Union",
+     "doc": "Describe union of string \"a\" | \"b\" | \"c\"",
+     "operations": [
+      {
+       "$id": "217",
+       "name": "get",
+       "resourceName": "StringsOnly",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "218",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "219",
+          "kind": "constant",
+          "valueType": {
+           "$id": "220",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "221",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "54"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/type/union/strings-only",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.StringsOnly.get",
+       "decorators": []
+      },
+      {
+       "$id": "222",
+       "name": "send",
+       "resourceName": "StringsOnly",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "223",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "224",
+          "kind": "constant",
+          "valueType": {
+           "$id": "225",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        },
+        {
+         "$id": "226",
+         "name": "sendRequest",
+         "nameInRequest": "sendRequest",
+         "type": {
+          "$ref": "58"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Spread",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "227",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/type/union/strings-only",
+       "requestMediaTypes": [
+        "application/json"
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.StringsOnly.send",
+       "decorators": []
+      }
+     ],
      "parameters": [
       {
-       "$id": "218",
-       "name": "accept",
-       "nameInRequest": "Accept",
+       "$id": "228",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
        "type": {
-        "$id": "219",
-        "kind": "constant",
-        "valueType": {
-         "$id": "220",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
+        "$id": "229",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
-       "location": "Header",
+       "location": "Uri",
        "isApiVersion": false,
        "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
        "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "230",
+        "type": {
+         "$id": "231",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
       }
      ],
-     "responses": [
-      {
-       "$id": "221",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "203"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/union/strings-only",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.StringsOnly.get",
-     "decorators": []
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.StringsOnly",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "211"
+     }
     },
     {
-     "$id": "222",
-     "name": "send",
-     "resourceName": "StringsOnly",
-     "accessibility": "public",
-     "parameters": [
+     "$id": "232",
+     "kind": "client",
+     "name": "StringExtensible",
+     "namespace": "Type.Union",
+     "doc": "Describe union of string string | \"b\" | \"c\"",
+     "operations": [
       {
-       "$id": "223",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$id": "224",
-        "kind": "constant",
-        "valueType": {
-         "$id": "225",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "$id": "233",
+       "name": "get",
+       "resourceName": "StringExtensible",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "234",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "235",
+          "kind": "constant",
+          "valueType": {
+           "$id": "236",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "237",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "62"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/type/union/string-extensible",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.StringExtensible.get",
+       "decorators": []
       },
       {
-       "$id": "226",
-       "name": "sendRequest9",
-       "nameInRequest": "sendRequest9",
-       "type": {
-        "$ref": "207"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "227",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/union/strings-only",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.StringsOnly.send",
-     "decorators": []
-    }
-   ],
-   "parent": "UnionClient",
-   "parameters": [
-    {
-     "$id": "228",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "229",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "230",
-      "type": {
-       "$id": "231",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union.StringsOnly"
-  },
-  {
-   "$id": "232",
-   "name": "StringExtensible",
-   "namespace": "Type.Union",
-   "doc": "Describe union of string string | \"b\" | \"c\"",
-   "operations": [
-    {
-     "$id": "233",
-     "name": "get",
-     "resourceName": "StringExtensible",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "234",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "235",
-        "kind": "constant",
-        "valueType": {
-         "$id": "236",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "238",
+       "name": "send",
+       "resourceName": "StringExtensible",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "239",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "240",
+          "kind": "constant",
+          "valueType": {
+           "$id": "241",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "237",
-       "statusCodes": [
-        200
+        {
+         "$id": "242",
+         "name": "sendRequest1",
+         "nameInRequest": "sendRequest1",
+         "type": {
+          "$ref": "66"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Spread",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "bodyType": {
-        "$ref": "195"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
+       "responses": [
+        {
+         "$id": "243",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/type/union/string-extensible",
+       "requestMediaTypes": [
         "application/json"
-       ]
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.StringExtensible.send",
+       "decorators": []
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/union/string-extensible",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.StringExtensible.get",
-     "decorators": []
+     "parameters": [
+      {
+       "$id": "244",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "245",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "246",
+        "type": {
+         "$id": "247",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.StringExtensible",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "211"
+     }
     },
     {
-     "$id": "238",
-     "name": "send",
-     "resourceName": "StringExtensible",
-     "accessibility": "public",
-     "parameters": [
+     "$id": "248",
+     "kind": "client",
+     "name": "StringExtensibleNamed",
+     "namespace": "Type.Union",
+     "doc": "Describe union of string string | \"b\" | \"c\" but where the union is named and some of the variants are named",
+     "operations": [
       {
-       "$id": "239",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$id": "240",
-        "kind": "constant",
-        "valueType": {
-         "$id": "241",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "$id": "249",
+       "name": "get",
+       "resourceName": "StringExtensibleNamed",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "250",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "251",
+          "kind": "constant",
+          "valueType": {
+           "$id": "252",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "253",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "70"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/type/union/string-extensible-named",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed.get",
+       "decorators": []
       },
       {
-       "$id": "242",
-       "name": "sendRequest8",
-       "nameInRequest": "sendRequest8",
-       "type": {
-        "$ref": "199"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "243",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/union/string-extensible",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.StringExtensible.send",
-     "decorators": []
-    }
-   ],
-   "parent": "UnionClient",
-   "parameters": [
-    {
-     "$id": "244",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "245",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "246",
-      "type": {
-       "$id": "247",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union.StringExtensible"
-  },
-  {
-   "$id": "248",
-   "name": "StringExtensibleNamed",
-   "namespace": "Type.Union",
-   "doc": "Describe union of string string | \"b\" | \"c\" but where the union is named and some of the variants are named",
-   "operations": [
-    {
-     "$id": "249",
-     "name": "get",
-     "resourceName": "StringExtensibleNamed",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "250",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "251",
-        "kind": "constant",
-        "valueType": {
-         "$id": "252",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "254",
+       "name": "send",
+       "resourceName": "StringExtensibleNamed",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "255",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "256",
+          "kind": "constant",
+          "valueType": {
+           "$id": "257",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "253",
-       "statusCodes": [
-        200
+        {
+         "$id": "258",
+         "name": "sendRequest2",
+         "nameInRequest": "sendRequest2",
+         "type": {
+          "$ref": "74"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Spread",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "bodyType": {
-        "$ref": "187"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
+       "responses": [
+        {
+         "$id": "259",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/type/union/string-extensible-named",
+       "requestMediaTypes": [
         "application/json"
-       ]
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed.send",
+       "decorators": []
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/union/string-extensible-named",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed.get",
-     "decorators": []
+     "parameters": [
+      {
+       "$id": "260",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "261",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "262",
+        "type": {
+         "$id": "263",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "211"
+     }
     },
     {
-     "$id": "254",
-     "name": "send",
-     "resourceName": "StringExtensibleNamed",
-     "accessibility": "public",
-     "parameters": [
+     "$id": "264",
+     "kind": "client",
+     "name": "IntsOnly",
+     "namespace": "Type.Union",
+     "doc": "Describe union of integer 1 | 2 | 3",
+     "operations": [
       {
-       "$id": "255",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$id": "256",
-        "kind": "constant",
-        "valueType": {
-         "$id": "257",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "$id": "265",
+       "name": "get",
+       "resourceName": "IntsOnly",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "266",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "267",
+          "kind": "constant",
+          "valueType": {
+           "$id": "268",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "269",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "78"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/type/union/ints-only",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.IntsOnly.get",
+       "decorators": []
       },
       {
-       "$id": "258",
-       "name": "sendRequest7",
-       "nameInRequest": "sendRequest7",
-       "type": {
-        "$ref": "191"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "259",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/union/string-extensible-named",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed.send",
-     "decorators": []
-    }
-   ],
-   "parent": "UnionClient",
-   "parameters": [
-    {
-     "$id": "260",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "261",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "262",
-      "type": {
-       "$id": "263",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed"
-  },
-  {
-   "$id": "264",
-   "name": "IntsOnly",
-   "namespace": "Type.Union",
-   "doc": "Describe union of integer 1 | 2 | 3",
-   "operations": [
-    {
-     "$id": "265",
-     "name": "get",
-     "resourceName": "IntsOnly",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "266",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "267",
-        "kind": "constant",
-        "valueType": {
-         "$id": "268",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "270",
+       "name": "send",
+       "resourceName": "IntsOnly",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "271",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "272",
+          "kind": "constant",
+          "valueType": {
+           "$id": "273",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "269",
-       "statusCodes": [
-        200
+        {
+         "$id": "274",
+         "name": "sendRequest3",
+         "nameInRequest": "sendRequest3",
+         "type": {
+          "$ref": "82"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Spread",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "bodyType": {
-        "$ref": "179"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
+       "responses": [
+        {
+         "$id": "275",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/type/union/ints-only",
+       "requestMediaTypes": [
         "application/json"
-       ]
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.IntsOnly.send",
+       "decorators": []
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/union/ints-only",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.IntsOnly.get",
-     "decorators": []
+     "parameters": [
+      {
+       "$id": "276",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "277",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "278",
+        "type": {
+         "$id": "279",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.IntsOnly",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "211"
+     }
     },
     {
-     "$id": "270",
-     "name": "send",
-     "resourceName": "IntsOnly",
-     "accessibility": "public",
-     "parameters": [
+     "$id": "280",
+     "kind": "client",
+     "name": "FloatsOnly",
+     "namespace": "Type.Union",
+     "doc": "Describe union of floats 1.1 | 2.2 | 3.3",
+     "operations": [
       {
-       "$id": "271",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$id": "272",
-        "kind": "constant",
-        "valueType": {
-         "$id": "273",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "$id": "281",
+       "name": "get",
+       "resourceName": "FloatsOnly",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "282",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "283",
+          "kind": "constant",
+          "valueType": {
+           "$id": "284",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "285",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "86"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/type/union/floats-only",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.FloatsOnly.get",
+       "decorators": []
       },
       {
-       "$id": "274",
-       "name": "sendRequest6",
-       "nameInRequest": "sendRequest6",
-       "type": {
-        "$ref": "183"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "275",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/union/ints-only",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.IntsOnly.send",
-     "decorators": []
-    }
-   ],
-   "parent": "UnionClient",
-   "parameters": [
-    {
-     "$id": "276",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "277",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "278",
-      "type": {
-       "$id": "279",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union.IntsOnly"
-  },
-  {
-   "$id": "280",
-   "name": "FloatsOnly",
-   "namespace": "Type.Union",
-   "doc": "Describe union of floats 1.1 | 2.2 | 3.3",
-   "operations": [
-    {
-     "$id": "281",
-     "name": "get",
-     "resourceName": "FloatsOnly",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "282",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "283",
-        "kind": "constant",
-        "valueType": {
-         "$id": "284",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "286",
+       "name": "send",
+       "resourceName": "FloatsOnly",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "287",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "288",
+          "kind": "constant",
+          "valueType": {
+           "$id": "289",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "285",
-       "statusCodes": [
-        200
+        {
+         "$id": "290",
+         "name": "sendRequest4",
+         "nameInRequest": "sendRequest4",
+         "type": {
+          "$ref": "90"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Spread",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "bodyType": {
-        "$ref": "171"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
+       "responses": [
+        {
+         "$id": "291",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/type/union/floats-only",
+       "requestMediaTypes": [
         "application/json"
-       ]
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.FloatsOnly.send",
+       "decorators": []
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/union/floats-only",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.FloatsOnly.get",
-     "decorators": []
+     "parameters": [
+      {
+       "$id": "292",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "293",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "294",
+        "type": {
+         "$id": "295",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.FloatsOnly",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "211"
+     }
     },
     {
-     "$id": "286",
-     "name": "send",
-     "resourceName": "FloatsOnly",
-     "accessibility": "public",
-     "parameters": [
+     "$id": "296",
+     "kind": "client",
+     "name": "ModelsOnly",
+     "namespace": "Type.Union",
+     "doc": "Describe union of models",
+     "operations": [
       {
-       "$id": "287",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$id": "288",
-        "kind": "constant",
-        "valueType": {
-         "$id": "289",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "$id": "297",
+       "name": "get",
+       "resourceName": "ModelsOnly",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "298",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "299",
+          "kind": "constant",
+          "valueType": {
+           "$id": "300",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "301",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "94"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/type/union/models-only",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.ModelsOnly.get",
+       "decorators": []
       },
       {
-       "$id": "290",
-       "name": "sendRequest5",
-       "nameInRequest": "sendRequest5",
-       "type": {
-        "$ref": "175"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "291",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/union/floats-only",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.FloatsOnly.send",
-     "decorators": []
-    }
-   ],
-   "parent": "UnionClient",
-   "parameters": [
-    {
-     "$id": "292",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "293",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "294",
-      "type": {
-       "$id": "295",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union.FloatsOnly"
-  },
-  {
-   "$id": "296",
-   "name": "ModelsOnly",
-   "namespace": "Type.Union",
-   "doc": "Describe union of models",
-   "operations": [
-    {
-     "$id": "297",
-     "name": "get",
-     "resourceName": "ModelsOnly",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "298",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "299",
-        "kind": "constant",
-        "valueType": {
-         "$id": "300",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "302",
+       "name": "send",
+       "resourceName": "ModelsOnly",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "303",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "304",
+          "kind": "constant",
+          "valueType": {
+           "$id": "305",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "301",
-       "statusCodes": [
-        200
+        {
+         "$id": "306",
+         "name": "sendRequest5",
+         "nameInRequest": "sendRequest5",
+         "type": {
+          "$ref": "109"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Spread",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "bodyType": {
-        "$ref": "157"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
+       "responses": [
+        {
+         "$id": "307",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/type/union/models-only",
+       "requestMediaTypes": [
         "application/json"
-       ]
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.ModelsOnly.send",
+       "decorators": []
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/union/models-only",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.ModelsOnly.get",
-     "decorators": []
+     "parameters": [
+      {
+       "$id": "308",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "309",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "310",
+        "type": {
+         "$id": "311",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.ModelsOnly",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "211"
+     }
     },
     {
-     "$id": "302",
-     "name": "send",
-     "resourceName": "ModelsOnly",
-     "accessibility": "public",
-     "parameters": [
+     "$id": "312",
+     "kind": "client",
+     "name": "EnumsOnly",
+     "namespace": "Type.Union",
+     "doc": "Describe union of 2 different enums",
+     "operations": [
       {
-       "$id": "303",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$id": "304",
-        "kind": "constant",
-        "valueType": {
-         "$id": "305",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "$id": "313",
+       "name": "get",
+       "resourceName": "EnumsOnly",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "314",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "315",
+          "kind": "constant",
+          "valueType": {
+           "$id": "316",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "317",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "113"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/type/union/enums-only",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.EnumsOnly.get",
+       "decorators": []
       },
       {
-       "$id": "306",
-       "name": "sendRequest4",
-       "nameInRequest": "sendRequest4",
-       "type": {
-        "$ref": "167"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "307",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/union/models-only",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.ModelsOnly.send",
-     "decorators": []
-    }
-   ],
-   "parent": "UnionClient",
-   "parameters": [
-    {
-     "$id": "308",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "309",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "310",
-      "type": {
-       "$id": "311",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union.ModelsOnly"
-  },
-  {
-   "$id": "312",
-   "name": "EnumsOnly",
-   "namespace": "Type.Union",
-   "doc": "Describe union of 2 different enums",
-   "operations": [
-    {
-     "$id": "313",
-     "name": "get",
-     "resourceName": "EnumsOnly",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "314",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "315",
-        "kind": "constant",
-        "valueType": {
-         "$id": "316",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "318",
+       "name": "send",
+       "resourceName": "EnumsOnly",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "319",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "320",
+          "kind": "constant",
+          "valueType": {
+           "$id": "321",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "317",
-       "statusCodes": [
-        200
+        {
+         "$id": "322",
+         "name": "sendRequest6",
+         "nameInRequest": "sendRequest6",
+         "type": {
+          "$ref": "124"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Spread",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "bodyType": {
-        "$ref": "142"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
+       "responses": [
+        {
+         "$id": "323",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/type/union/enums-only",
+       "requestMediaTypes": [
         "application/json"
-       ]
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.EnumsOnly.send",
+       "decorators": []
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/union/enums-only",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.EnumsOnly.get",
-     "decorators": []
+     "parameters": [
+      {
+       "$id": "324",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "325",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "326",
+        "type": {
+         "$id": "327",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.EnumsOnly",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "211"
+     }
     },
     {
-     "$id": "318",
-     "name": "send",
-     "resourceName": "EnumsOnly",
-     "accessibility": "public",
-     "parameters": [
+     "$id": "328",
+     "kind": "client",
+     "name": "StringAndArray",
+     "namespace": "Type.Union",
+     "doc": "Describe union of a string and an array of strings",
+     "operations": [
       {
-       "$id": "319",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$id": "320",
-        "kind": "constant",
-        "valueType": {
-         "$id": "321",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "$id": "329",
+       "name": "get",
+       "resourceName": "StringAndArray",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "330",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "331",
+          "kind": "constant",
+          "valueType": {
+           "$id": "332",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "333",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "128"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/type/union/string-and-array",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.StringAndArray.get",
+       "decorators": []
       },
       {
-       "$id": "322",
-       "name": "sendRequest3",
-       "nameInRequest": "sendRequest3",
-       "type": {
-        "$ref": "153"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "323",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/union/enums-only",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.EnumsOnly.send",
-     "decorators": []
-    }
-   ],
-   "parent": "UnionClient",
-   "parameters": [
-    {
-     "$id": "324",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "325",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "326",
-      "type": {
-       "$id": "327",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union.EnumsOnly"
-  },
-  {
-   "$id": "328",
-   "name": "StringAndArray",
-   "namespace": "Type.Union",
-   "doc": "Describe union of a string and an array of strings",
-   "operations": [
-    {
-     "$id": "329",
-     "name": "get",
-     "resourceName": "StringAndArray",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "330",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "331",
-        "kind": "constant",
-        "valueType": {
-         "$id": "332",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "334",
+       "name": "send",
+       "resourceName": "StringAndArray",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "335",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "336",
+          "kind": "constant",
+          "valueType": {
+           "$id": "337",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "333",
-       "statusCodes": [
-        200
+        {
+         "$id": "338",
+         "name": "sendRequest7",
+         "nameInRequest": "sendRequest7",
+         "type": {
+          "$ref": "147"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Spread",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "bodyType": {
-        "$ref": "119"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
+       "responses": [
+        {
+         "$id": "339",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/type/union/string-and-array",
+       "requestMediaTypes": [
         "application/json"
-       ]
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.StringAndArray.send",
+       "decorators": []
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/union/string-and-array",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.StringAndArray.get",
-     "decorators": []
+     "parameters": [
+      {
+       "$id": "340",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "341",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "342",
+        "type": {
+         "$id": "343",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.StringAndArray",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "211"
+     }
     },
     {
-     "$id": "334",
-     "name": "send",
-     "resourceName": "StringAndArray",
-     "accessibility": "public",
-     "parameters": [
+     "$id": "344",
+     "kind": "client",
+     "name": "MixedLiterals",
+     "namespace": "Type.Union",
+     "doc": "Describe union of floats \"a\" | 2 | 3.3",
+     "operations": [
       {
-       "$id": "335",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$id": "336",
-        "kind": "constant",
-        "valueType": {
-         "$id": "337",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "$id": "345",
+       "name": "get",
+       "resourceName": "MixedLiterals",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "346",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "347",
+          "kind": "constant",
+          "valueType": {
+           "$id": "348",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "349",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "151"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/type/union/mixed-literals",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.MixedLiterals.get",
+       "decorators": []
       },
       {
-       "$id": "338",
-       "name": "sendRequest2",
-       "nameInRequest": "sendRequest2",
-       "type": {
-        "$ref": "138"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "339",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/union/string-and-array",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.StringAndArray.send",
-     "decorators": []
-    }
-   ],
-   "parent": "UnionClient",
-   "parameters": [
-    {
-     "$id": "340",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "341",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "342",
-      "type": {
-       "$id": "343",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union.StringAndArray"
-  },
-  {
-   "$id": "344",
-   "name": "MixedLiterals",
-   "namespace": "Type.Union",
-   "doc": "Describe union of floats \"a\" | 2 | 3.3",
-   "operations": [
-    {
-     "$id": "345",
-     "name": "get",
-     "resourceName": "MixedLiterals",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "346",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "347",
-        "kind": "constant",
-        "valueType": {
-         "$id": "348",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "350",
+       "name": "send",
+       "resourceName": "MixedLiterals",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "351",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "352",
+          "kind": "constant",
+          "valueType": {
+           "$id": "353",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "349",
-       "statusCodes": [
-        200
+        {
+         "$id": "354",
+         "name": "sendRequest8",
+         "nameInRequest": "sendRequest8",
+         "type": {
+          "$ref": "177"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Spread",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "bodyType": {
-        "$ref": "89"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
+       "responses": [
+        {
+         "$id": "355",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/type/union/mixed-literals",
+       "requestMediaTypes": [
         "application/json"
-       ]
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.MixedLiterals.send",
+       "decorators": []
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/union/mixed-literals",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.MixedLiterals.get",
-     "decorators": []
+     "parameters": [
+      {
+       "$id": "356",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
+       "type": {
+        "$id": "357",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
+       },
+       "location": "Uri",
+       "isApiVersion": false,
+       "isContentType": false,
+       "isRequired": true,
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "358",
+        "type": {
+         "$id": "359",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
+      }
+     ],
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.MixedLiterals",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "211"
+     }
     },
     {
-     "$id": "350",
-     "name": "send",
-     "resourceName": "MixedLiterals",
-     "accessibility": "public",
-     "parameters": [
+     "$id": "360",
+     "kind": "client",
+     "name": "MixedTypes",
+     "namespace": "Type.Union",
+     "doc": "Describe union of floats \"a\" | 2 | 3.3",
+     "operations": [
       {
-       "$id": "351",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$id": "352",
-        "kind": "constant",
-        "valueType": {
-         "$id": "353",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "$id": "361",
+       "name": "get",
+       "resourceName": "MixedTypes",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "362",
+         "name": "accept",
+         "nameInRequest": "Accept",
+         "type": {
+          "$id": "363",
+          "kind": "constant",
+          "valueType": {
+           "$id": "364",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
+       ],
+       "responses": [
+        {
+         "$id": "365",
+         "statusCodes": [
+          200
+         ],
+         "bodyType": {
+          "$ref": "181"
+         },
+         "headers": [],
+         "isErrorResponse": false,
+         "contentTypes": [
+          "application/json"
+         ]
+        }
+       ],
+       "httpMethod": "GET",
+       "uri": "{endpoint}",
+       "path": "/type/union/mixed-types",
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.MixedTypes.get",
+       "decorators": []
       },
       {
-       "$id": "354",
-       "name": "sendRequest1",
-       "nameInRequest": "sendRequest1",
-       "type": {
-        "$ref": "115"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "355",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/union/mixed-literals",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.MixedLiterals.send",
-     "decorators": []
-    }
-   ],
-   "parent": "UnionClient",
-   "parameters": [
-    {
-     "$id": "356",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "357",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "358",
-      "type": {
-       "$id": "359",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
-    }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union.MixedLiterals"
-  },
-  {
-   "$id": "360",
-   "name": "MixedTypes",
-   "namespace": "Type.Union",
-   "doc": "Describe union of floats \"a\" | 2 | 3.3",
-   "operations": [
-    {
-     "$id": "361",
-     "name": "get",
-     "resourceName": "MixedTypes",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "362",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "363",
-        "kind": "constant",
-        "valueType": {
-         "$id": "364",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
+       "$id": "366",
+       "name": "send",
+       "resourceName": "MixedTypes",
+       "accessibility": "public",
+       "parameters": [
+        {
+         "$id": "367",
+         "name": "contentType",
+         "nameInRequest": "Content-Type",
+         "doc": "Body parameter's content type. Known values are application/json",
+         "type": {
+          "$id": "368",
+          "kind": "constant",
+          "valueType": {
+           "$id": "369",
+           "kind": "string",
+           "name": "string",
+           "crossLanguageDefinitionId": "TypeSpec.string",
+           "decorators": []
+          },
+          "value": "application/json",
+          "decorators": []
+         },
+         "location": "Header",
+         "isApiVersion": false,
+         "isContentType": true,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Constant",
+         "decorators": [],
+         "skipUrlEncoding": false
         },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "365",
-       "statusCodes": [
-        200
+        {
+         "$id": "370",
+         "name": "sendRequest9",
+         "nameInRequest": "sendRequest9",
+         "type": {
+          "$ref": "207"
+         },
+         "location": "Body",
+         "isApiVersion": false,
+         "isContentType": false,
+         "isEndpoint": false,
+         "explode": false,
+         "isRequired": true,
+         "kind": "Spread",
+         "decorators": [],
+         "skipUrlEncoding": false
+        }
        ],
-       "bodyType": {
-        "$ref": "54"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
+       "responses": [
+        {
+         "$id": "371",
+         "statusCodes": [
+          204
+         ],
+         "headers": [],
+         "isErrorResponse": false
+        }
+       ],
+       "httpMethod": "POST",
+       "uri": "{endpoint}",
+       "path": "/type/union/mixed-types",
+       "requestMediaTypes": [
         "application/json"
-       ]
+       ],
+       "bufferResponse": true,
+       "generateProtocolMethod": true,
+       "generateConvenienceMethod": true,
+       "crossLanguageDefinitionId": "Type.Union.MixedTypes.send",
+       "decorators": []
       }
      ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/union/mixed-types",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.MixedTypes.get",
-     "decorators": []
-    },
-    {
-     "$id": "366",
-     "name": "send",
-     "resourceName": "MixedTypes",
-     "accessibility": "public",
      "parameters": [
       {
-       "$id": "367",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
+       "$id": "372",
+       "name": "endpoint",
+       "nameInRequest": "endpoint",
+       "doc": "Service host",
        "type": {
-        "$id": "368",
-        "kind": "constant",
-        "valueType": {
-         "$id": "369",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
+        "$id": "373",
+        "kind": "url",
+        "name": "url",
+        "crossLanguageDefinitionId": "TypeSpec.url"
        },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "370",
-       "name": "sendRequest",
-       "nameInRequest": "sendRequest",
-       "type": {
-        "$ref": "85"
-       },
-       "location": "Body",
+       "location": "Uri",
        "isApiVersion": false,
        "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
        "isRequired": true,
-       "kind": "Spread",
-       "decorators": [],
-       "skipUrlEncoding": false
+       "isEndpoint": true,
+       "skipUrlEncoding": false,
+       "explode": false,
+       "kind": "Client",
+       "defaultValue": {
+        "$id": "374",
+        "type": {
+         "$id": "375",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string"
+        },
+        "value": "http://localhost:3000"
+       }
       }
      ],
-     "responses": [
-      {
-       "$id": "371",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/union/mixed-types",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Union.MixedTypes.send",
-     "decorators": []
-    }
-   ],
-   "parent": "UnionClient",
-   "parameters": [
-    {
-     "$id": "372",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "373",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "374",
-      "type": {
-       "$id": "375",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
+     "decorators": [],
+     "crossLanguageDefinitionId": "Type.Union.MixedTypes",
+     "apiVersions": [],
+     "parent": {
+      "$ref": "211"
      }
     }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Union.MixedTypes"
+   ]
   }
  ]
 }
