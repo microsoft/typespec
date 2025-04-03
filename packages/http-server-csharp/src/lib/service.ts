@@ -132,8 +132,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #sourceTypeKey: string = "sourceType";
     #nsKey = "ResolvedNamespace";
     #namespaces: Map<Namespace, string> = new Map<Namespace, string>();
-
-    //#baseNamespace: string | undefined = undefined;
     #emitterOutputType = context.options["output-type"];
     #emitMocks: string | undefined = context.options["emit-mocks"];
     #useSwagger: boolean = context.options["use-swaggerui"] || false;
@@ -1299,26 +1297,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
       return super.writeOutput(emittedSourceFiles);
     }
-
-    // #getOrSetBaseNamespace(type: Type & { namespace?: Namespace }): string {
-    //   if (this.#baseNamespace === undefined) {
-    //     if (type.namespace !== undefined) {
-    //       this.#baseNamespace = `${
-    //         type.namespace
-    //           ? ensureCSharpIdentifier(
-    //               this.emitter.getProgram(),
-    //               type.namespace,
-    //               getNamespaceFullName(type.namespace),
-    //               NameCasingType.Namespace,
-    //             )
-    //           : "TypeSpec"
-    //       }.Service`;
-    //     } else {
-    //       this.#baseNamespace = "TypeSpec.Service";
-    //     }
-    //   }
-    //   return this.#baseNamespace;
-    // }
   }
 
   function processNameSpace(program: Program, target: Namespace, service?: Service | undefined) {
