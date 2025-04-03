@@ -37,7 +37,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
 /**
  * Path that should trigger every CI build.
  */
-const all = ["eng/common/", "vitest.config.ts"];
+const all = ["eng/common/", "vitest.config.ts", "tsconfig.base.json"];
 
 /**
  * Path that should trigger all isolated emitter builds

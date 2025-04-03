@@ -1,5 +1,16 @@
 # Change Log - @typespec/prettier-plugin-typespec
 
+## 0.68.0
+
+### Features
+
+- [#6678](https://github.com/microsoft/typespec/pull/6678) Migrate to ESM. This shouldn't be breaking as we didn't support prettier < 3.
+
+### Bump dependencies
+
+- [#6595](https://github.com/microsoft/typespec/pull/6595) Upgrade dependencies
+
+
 ## 0.67.0
 
 ### Bump dependencies

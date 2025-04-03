@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.67.1",
+  "version": "0.68.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -241,7 +241,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run compile && npm run copy-templates && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
+    "build": "pnpm compile && pnpm copy-templates && pnpm copy-tmlanguage && pnpm generate-language-configuration && pnpm generate-third-party-notices && pnpm package-vsix",
     "compile": "rollup --config rollup.config.ts --configPlugin typescript --failAfterWarnings 2>&1",
     "watch": "rollup --config rollup.config.ts --configPlugin typescript --watch",
     "dogfood": "node scripts/dogfood.js",
