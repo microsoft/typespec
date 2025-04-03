@@ -153,8 +153,6 @@ interface OAuth2FlowProps {
 }
 
 function OAuth2Flow(props: OAuth2FlowProps) {
-  const { $ } = useTypekit();
-
   // rename type to kind and clean up the scopes
   const { type, ...rewrittenFlow } = {
     kind: props.flow.type,
