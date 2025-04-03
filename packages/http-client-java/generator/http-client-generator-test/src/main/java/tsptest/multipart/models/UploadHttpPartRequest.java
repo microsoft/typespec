@@ -19,7 +19,7 @@ public final class UploadHttpPartRequest {
     private final InheritFileData fileData1;
 
     /*
-     * The fileData2 property.
+     * The file_data2 property.
      */
     @Generated
     private final FileDetails fileData2;
@@ -55,7 +55,7 @@ public final class UploadHttpPartRequest {
     }
 
     /**
-     * Get the fileData2 property: The fileData2 property.
+     * Get the fileData2 property: The file_data2 property.
      * 
      * @return the fileData2 value.
      */

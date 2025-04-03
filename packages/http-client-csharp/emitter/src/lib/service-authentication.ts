@@ -18,7 +18,7 @@ export function processServiceAuthentication(
 ): InputAuth | undefined {
   let authClientParameter: SdkCredentialParameter | undefined = undefined;
   for (const client of sdkPackage.clients) {
-    for (const parameter of client.initialization.properties) {
+    for (const parameter of client.clientInitialization.parameters) {
       if (parameter.kind === "credential") {
         authClientParameter = parameter;
         break;

@@ -11,7 +11,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
-import type.union.models.GetResponseProp3;
+import type.union.models.MixedLiteralsCases;
 
 /**
  * The SendRequest8 model.
@@ -22,7 +22,7 @@ public final class SendRequest8 implements JsonSerializable<SendRequest8> {
      * The prop property.
      */
     @Generated
-    private final GetResponseProp3 prop;
+    private final MixedLiteralsCases prop;
 
     /**
      * Creates an instance of SendRequest8 class.
@@ -30,7 +30,7 @@ public final class SendRequest8 implements JsonSerializable<SendRequest8> {
      * @param prop the prop value to set.
      */
     @Generated
-    public SendRequest8(GetResponseProp3 prop) {
+    public SendRequest8(MixedLiteralsCases prop) {
         this.prop = prop;
     }
 
@@ -40,7 +40,7 @@ public final class SendRequest8 implements JsonSerializable<SendRequest8> {
      * @return the prop value.
      */
     @Generated
-    public GetResponseProp3 getProp() {
+    public MixedLiteralsCases getProp() {
         return this.prop;
     }
 
@@ -51,7 +51,7 @@ public final class SendRequest8 implements JsonSerializable<SendRequest8> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("prop", this.prop == null ? null : this.prop.toString());
+        jsonWriter.writeJsonField("prop", this.prop);
         return jsonWriter.writeEndObject();
     }
 
@@ -67,13 +67,13 @@ public final class SendRequest8 implements JsonSerializable<SendRequest8> {
     @Generated
     public static SendRequest8 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            GetResponseProp3 prop = null;
+            MixedLiteralsCases prop = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("prop".equals(fieldName)) {
-                    prop = GetResponseProp3.fromString(reader.getString());
+                    prop = MixedLiteralsCases.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }

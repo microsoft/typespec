@@ -342,7 +342,7 @@ public final class ResponseBodiesImpl {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * Base64Url
      * }
      * </pre>
      * 
@@ -366,7 +366,7 @@ public final class ResponseBodiesImpl {
      * 
      * <pre>
      * {@code
-     * byte[]
+     * Base64Url
      * }
      * </pre>
      * 

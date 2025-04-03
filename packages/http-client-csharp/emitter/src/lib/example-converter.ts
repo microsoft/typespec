@@ -54,7 +54,7 @@ export function fromSdkHttpExamples(
     return {
       kind: "http",
       name: example.name,
-      description: example.description,
+      description: example.doc,
       filePath: example.filePath,
       parameters: example.parameters.map((p) => fromSdkParameterExample(p)),
       responses: example.responses.map((r) => fromSdkOperationResponse(r)),
