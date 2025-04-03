@@ -1,12 +1,10 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { MANIFEST } from "@typespec/compiler";
+import { mkdir, writeFile } from "fs/promises";
 import { resolve } from "pathe";
+// @ts-ignore
 import type { InitTemplate } from "../../compiler/src/init/init-template.js";
 import { localDir, packageRoot } from "./helpers.js";
-
-const pkgJson = JSON.parse(
-  (await readFile(resolve(packageRoot, "package.json"))).toString("utf-8"),
-);
-const minCompilerVersion = pkgJson.version;
+const minCompilerVersion = MANIFEST.version;
 
 const builtInTemplates: Record<string, InitTemplate> = {
   rest: {

@@ -27,7 +27,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsx ./.scripts/build-init-templates.ts",
+    "build": "tsx ./scripts/build.ts",
     "test": "pnpm test:e2e",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "lint": "eslint . --ext .ts --max-warnings=0",
