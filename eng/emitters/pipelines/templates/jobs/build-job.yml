@@ -50,6 +50,10 @@ parameters:
     type: string
     default: ""
 
+  - name: PythonVersion
+    type: string
+    default: "3.12"
+
 jobs:
   - job: Build_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:
@@ -73,6 +77,7 @@ jobs:
           LanguageShortName: ${{ parameters.LanguageShortName }}
           PackagePath: ${{ parameters.PackagePath }}
           NodeVersion: ${{ parameters.NodeVersion }}
+          PythonVersion: ${{ parameters.PythonVersion }}
     ${{ if parameters.EmitArtifacts }}:
       templateContext:
         outputs:

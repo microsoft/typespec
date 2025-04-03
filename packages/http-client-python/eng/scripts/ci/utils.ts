@@ -20,7 +20,7 @@ const argv = parseArgs({
 export async function executeCommand(command: string, args: string[]) {
   const execFileAsync = promisify(execFile);
   try {
-    await execFileAsync(command, args);
+    await execFileAsync(command, args, { shell: true });
     console.log(chalk.green(`${command} passed`));
   } catch (err) {
     console.error(chalk.red(`Error executing ${command}: ${err}`));

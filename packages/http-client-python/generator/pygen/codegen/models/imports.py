@@ -169,22 +169,12 @@ class FileImport:
 
     def add_mutable_mapping_import(self) -> None:
         self.add_import("sys", ImportType.STDLIB)
-        self.add_submodule_import(
-            "typing",
-            "MutableMapping",
-            ImportType.BY_VERSION,
-            TypingSection.REGULAR,
-            None,
-            (((3, 9), "collections.abc", None),),
-        )
+        self.add_submodule_import("collections.abc", "MutableMapping", ImportType.STDLIB)
 
     def define_mutable_mapping_type(self) -> None:
         """Helper function for defining the mutable mapping type"""
         self.add_mutable_mapping_import()
-        self.define_mypy_type(
-            "JSON",
-            "MutableMapping[str, Any] # pylint: disable=unsubscriptable-object",
-        )
+        self.define_mypy_type("JSON", "MutableMapping[str, Any]")
         self.add_submodule_import("typing", "Any", ImportType.STDLIB)
 
     def to_dict(

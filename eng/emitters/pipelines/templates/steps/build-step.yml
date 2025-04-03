@@ -38,6 +38,10 @@ parameters:
   - name: LanguageShortName
     type: string
 
+  - name: PythonVersion
+    type: string
+    default: "3.12"
+
 steps:
   - ${{ if notIn(parameters.Publish, 'none', 'internal', 'public') }}:
       - script: |
@@ -60,6 +64,11 @@ steps:
     retryCountOnTaskFailure: 3
     inputs:
       versionSpec: ${{ parameters.NodeVersion }}
+
+  - task: UsePythonVersion@0
+    displayName: "Use Python ${{ parameters.PythonVersion }}"
+    inputs:
+      versionSpec: ${{ parameters.PythonVersion }}
 
   - ${{ parameters.AdditionalInitializeSteps }}
 

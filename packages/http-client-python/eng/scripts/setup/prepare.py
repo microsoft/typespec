@@ -9,9 +9,9 @@ import sys
 import os
 import argparse
 
-if not sys.version_info >= (3, 8, 0):
+if not sys.version_info >= (3, 9, 0):
     raise Warning(
-        "Autorest for Python extension requires Python 3.8 at least. We will run your code with Pyodide since your Python version isn't adequate."
+        "Autorest for Python extension requires Python 3.9 at least. We will run your code with Pyodide since your Python version isn't adequate."
     )
 
 from pathlib import Path
