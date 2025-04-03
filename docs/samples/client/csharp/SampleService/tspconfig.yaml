@@ -3,4 +3,4 @@ emit:
 options:
   "@typespec/http-client-csharp":
     new-project: true
-    emitter-output-dir: "{project-root}/src/Generated"
+    emitter-output-dir: "{project-root}"

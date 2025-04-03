@@ -34,27 +34,53 @@ if (-not $LaunchOnly) {
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }
+
+        Write-Host "Generating UnbrandedTypeSpec as library using plugins" -ForegroundColor Cyan
+        $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
+  
+        Invoke "tsp compile ." $sampleDir
+
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+          exit $LASTEXITCODE
+        }
+  
+        Write-Host "Building UnbrandedTypeSpec plugin library" -ForegroundColor Cyan
+        Invoke "dotnet build $sampleDir/src/UnbrandedTypeSpec.csproj"
+  
+        # exit if the generation failed
+        if ($LASTEXITCODE -ne 0) {
+          exit $LASTEXITCODE
+        }
     }
 
-    if ($null -eq $filter -or $filter -eq "Sample-Service") {
-      Write-Host "Generating SampleService" -ForegroundColor Cyan
-      $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
-      $emitterDir = Join-Path $sampleDir 'node_modules' '@typespec' 'http-client-csharp'
-      Invoke (Get-TspCommand "$sampleDir/main.tsp" $sampleDir -emitterDir $emitterDir)
+    # if ($null -eq $filter -or $filter -eq "Sample-Service") {
+    #   Write-Host "Generating SampleService" -ForegroundColor Cyan
+    #   $sampleDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'SampleService'
 
-      # exit if the generation failed
-      if ($LASTEXITCODE -ne 0) {
-        exit $LASTEXITCODE
-      }
+    #   # switch to the sample directory
+    #   try {
+    #     Push-Location $sampleDir
+    #     Invoke "tsp compile ." $sampleDir
+    #   }
+    #   finally {
+    #     Pop-Location
+    #   }
+      
 
-      Write-Host "Building SampleService" -ForegroundColor Cyan
-      Invoke "dotnet build $sampleDir/src/SampleService.csproj"
+    #   # exit if the generation failed
+    #   if ($LASTEXITCODE -ne 0) {
+    #     exit $LASTEXITCODE
+    #   }
 
-      # exit if the generation failed
-      if ($LASTEXITCODE -ne 0) {
-        exit $LASTEXITCODE
-      }
-    }
+    #   Write-Host "Building SampleService" -ForegroundColor Cyan
+    #   Invoke "dotnet build $sampleDir/src/SampleService.csproj"
+
+    #   # exit if the generation failed
+    #   if ($LASTEXITCODE -ne 0) {
+    #     exit $LASTEXITCODE
+    #   }
+    # }
 }
 
 $specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"

@@ -5,7 +5,7 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 
-namespace SampleService
+namespace UnbrandedTypeSpec
 {
     internal partial class ErrorResult<T> : ClientResult<T>
     {

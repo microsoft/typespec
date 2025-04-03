@@ -4,7 +4,7 @@
 
 using System;
 
-namespace SampleService
+namespace UnbrandedTypeSpec
 {
     [AttributeUsage((AttributeTargets.Property | AttributeTargets.Field))]
     internal partial class CodeGenMemberAttribute : CodeGenTypeAttribute
