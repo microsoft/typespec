@@ -1,14 +1,12 @@
 // @ts-check
-import {
-  bundleAndUploadPackages,
-  getPackageVersion,
-} from "../../../packages/bundle-uploader/dist/src/index.js";
+import { bundleAndUploadPackages } from "../../../packages/bundle-uploader/dist/src/index.js";
 import { repoRoot } from "../../common/scripts/helpers.js";
 
 await bundleAndUploadPackages({
   repoRoot: repoRoot,
   indexName: "typespec",
-  indexVersion: await getPackageVersion(repoRoot, "@typespec/compiler"),
+  // indexVersion: await getPackageVersion(repoRoot, "@typespec/compiler"),
+  indexVersion: "1.0.0-rc.0", // During RC we can't use the 1.0.x version scheme
   packages: [
     "@typespec/compiler",
     "@typespec/http",

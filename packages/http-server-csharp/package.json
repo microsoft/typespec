@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-csharp",
-  "version": "0.58.0-alpha.12",
+  "version": "0.58.0-alpha.13",
   "author": "Microsoft Corporation",
   "description": "TypeSpec service code generator for c-sharp",
   "homepage": "https://typespec.io",
@@ -20,7 +20,7 @@
   ],
   "type": "module",
   "bin": {
-    "hscs": "./cmd/hscs.js"
+    "hscs-scaffold": "./cmd/hscs.js"
   },
   "main": "dist/src/lib/index.js",
   "exports": {
@@ -46,7 +46,7 @@
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "regen-docs": "echo No doc generation for alpha version",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/servers/http-server-csharp/reference --skip-js",
     "emit:scenarios": "tsx eng/scripts/emit-scenarios.js --build true",
     "test:scenarios": "vitest run --config ./vitest.config.scenarios.js"
   },

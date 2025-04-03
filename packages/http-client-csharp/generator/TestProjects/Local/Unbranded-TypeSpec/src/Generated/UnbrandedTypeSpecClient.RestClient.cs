@@ -392,7 +392,7 @@ namespace UnbrandedTypeSpec
             return message;
         }
 
-        internal PipelineMessage CreateListWithoutPagingRequest(RequestOptions options)
+        internal PipelineMessage CreateListWithPagingRequest(RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -400,7 +400,7 @@ namespace UnbrandedTypeSpec
             request.Method = "GET";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendPath("/list/noPaging", false);
+            uri.AppendPath("/list/paging", false);
             request.Uri = uri.ToUri();
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);

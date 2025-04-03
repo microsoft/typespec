@@ -49,7 +49,7 @@ describe("compiler: resolve compiler options", () => {
         options: {
           description: {
             name: "Testing name: Sphere",
-            details: { one: "Type: Bar", two: { "two-one": "Default: Metadata default" } },
+            details: { one: "Type: Microsoft", two: { "two-one": "Default: Microsoft" } },
           },
         },
         outputDir: tspOutputPath,
