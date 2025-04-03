@@ -9,29 +9,30 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace UnbrandedTypeSpec
 {
-    internal partial class ListWithNextLinkCollectionResult : CollectionResult
+    internal partial class UnbrandedTypeSpecClientListWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly UnbrandedTypeSpecClient _client;
         private readonly Uri _nextPage;
         private readonly RequestOptions _options;
 
-        public ListWithNextLinkCollectionResult(UnbrandedTypeSpecClient client, Uri nextPage, RequestOptions options)
+        public UnbrandedTypeSpecClientListWithNextLinkAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, Uri nextPage, RequestOptions options)
         {
             _client = client;
             _nextPage = nextPage;
             _options = options;
         }
 
-        public override IEnumerable<ClientResult> GetRawPages()
+        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateListWithNextLinkRequest(_nextPage, _options);
             Uri nextPageUri = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
                 nextPageUri = ((ListWithNextLinkResponse)result).Next;
@@ -53,6 +54,15 @@ namespace UnbrandedTypeSpec
             else
             {
                 return null;
+            }
+        }
+
+        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
+        {
+            foreach (Thing item in ((ListWithNextLinkResponse)page).Things)
+            {
+                yield return item;
+                await Task.Yield();
             }
         }
     }
