@@ -49,6 +49,7 @@
     "dist/generator/**"
   ],
   "dependencies": {
+    "@azure-tools/ts-genapi": "^2.0.3",
     "json-serialize-refs": "0.1.0-0"
   },
   "peerDependencies": {
