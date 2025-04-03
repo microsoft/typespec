@@ -133,28 +133,32 @@ export async function installCompilerWithUi(
 
       const TYPESPEC_COMPILER = "@typespec/compiler";
       const cmd = "npm";
-      let cmdArgs =
-        pathToInstall === globalPath
-          ? ["install", "-g", TYPESPEC_COMPILER]
-          : ["install", TYPESPEC_COMPILER];
-      // if @typespec/compiler has already been defined in the package.json, it may be updated by 'npm install @typespec/compiler' which is not wanted.
-      // so we will check if the @typespec/compiler is already defined in the package.json in localPath, if so, just run 'npm install'
-      const packageJsonPath = joinPaths(pathToInstall, "package.json");
-      if (await isFile(packageJsonPath)) {
-        const data = await loadPackageJsonFile(packageJsonPath);
-        if (
-          data?.devDependencies?.[TYPESPEC_COMPILER] ||
-          data?.dependencies?.[TYPESPEC_COMPILER] ||
-          data?.peerDependencies?.[TYPESPEC_COMPILER]
-        ) {
-          logger.info(
-            `${TYPESPEC_COMPILER} is already defined in package.json, run 'npm install' to install it.`,
-          );
-          cmdArgs = ["install"];
+      let cmdArgs = ["install", TYPESPEC_COMPILER];
+      if (pathToInstall === globalPath) {
+        cmdArgs = ["install", "-g", TYPESPEC_COMPILER];
+        pathToInstall = process.cwd();
+      } else {
+        // if @typespec/compiler has already been defined in the package.json, it may be updated by 'npm install @typespec/compiler' which is not wanted.
+        // so we will check if the @typespec/compiler is already defined in the package.json in localPath, if so, just run 'npm install'
+        const packageJsonPath = joinPaths(pathToInstall, "package.json");
+        if (await isFile(packageJsonPath)) {
+          const data = await loadPackageJsonFile(packageJsonPath);
+          if (
+            data?.devDependencies?.[TYPESPEC_COMPILER] ||
+            data?.dependencies?.[TYPESPEC_COMPILER] ||
+            data?.peerDependencies?.[TYPESPEC_COMPILER]
+          ) {
+            logger.info(
+              `${TYPESPEC_COMPILER} is already defined in package.json, run 'npm install' to install it.`,
+            );
+            cmdArgs = ["install"];
+          }
         }
       }
 
-      logger.debug(`Installing TypeSpec Compiler/CLI with command: ${cmd} ${cmdArgs.join(" ")}`);
+      logger.debug(
+        `Installing TypeSpec Compiler/CLI with command: ${cmd} ${cmdArgs.join(" ")} at ${pathToInstall}`,
+      );
       await spawnExecutionAndLogToOutput(cmd, cmdArgs, pathToInstall);
     },
   );
