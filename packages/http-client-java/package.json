@@ -48,18 +48,18 @@
     "generator/http-client-generator/target/emitter.jar"
   ],
   "peerDependencies": {
-    "@azure-tools/typespec-autorest": ">=0.53.0 <1.0.0",
-    "@azure-tools/typespec-azure-core": ">=0.53.0 <1.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.53.0 <1.0.0",
+    "@azure-tools/typespec-autorest": ">=0.54.0 <1.0.0",
+    "@azure-tools/typespec-azure-core": ">=0.54.0 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.54.0 <1.0.0",
     "@typespec/compiler": "^1.0.0-0",
     "@typespec/http": "^1.0.0-0",
     "@typespec/openapi": "^1.0.0-0",
-    "@typespec/rest": "0.68.0 <1.0.0",
-    "@typespec/versioning": "0.68.0 <1.0.0",
-    "@typespec/xml": "0.68.0 <1.0.0",
-    "@typespec/events": "0.68.0 <1.0.0",
-    "@typespec/sse": "0.68.0 <1.0.0",
-    "@typespec/streams": "0.68.0 <1.0.0"
+    "@typespec/rest": ">=0.68.0 <1.0.0",
+    "@typespec/versioning": ">=0.68.0 <1.0.0",
+    "@typespec/xml": ">=0.68.0 <1.0.0",
+    "@typespec/events": ">=0.68.0 <1.0.0",
+    "@typespec/sse": ">=0.68.0 <1.0.0",
+    "@typespec/streams": ">=0.68.0 <1.0.0"
   },
   "dependencies": {
     "@autorest/codemodel": "~4.20.0",

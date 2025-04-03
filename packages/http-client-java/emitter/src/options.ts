@@ -22,6 +22,7 @@ export interface License {
 }
 
 export interface EmitterOptions {
+  license?: License;
   "dev-options"?: DevOptions;
 }
 
