@@ -94,6 +94,7 @@ export function findJavaVersion(output: string): string | undefined {
 export function getJavaMajorVersion(version: string): number {
   let matches = version.match(/(\d+)\.(\d+).*/);
   if (matches && matches.length > 2) {
+    // match pattern "major.minor*"
     if (matches[1] === "1") {
       // "javac 1.8.0_422" -> 8
       return +matches[2];
@@ -102,8 +103,10 @@ export function getJavaMajorVersion(version: string): number {
       return +matches[1];
     }
   } else {
+    // match pattern "major*"
     matches = version.match(/(\d+).*/);
     if (matches && matches.length > 1) {
+      // "javac 24" -> 24
       return +matches[1];
     }
   }
