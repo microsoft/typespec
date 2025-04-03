@@ -366,12 +366,6 @@ public class ProxyMethod {
                         return GenericType.Response(ClassType.BINARY_DATA);
                     }
                 }
-
-                if (genericType.getTypeArguments()[0] == ClassType.STREAM_RESPONSE) {
-                    return JavaSettings.getInstance().isInputStreamForBinary()
-                        ? GenericType.Response(ClassType.INPUT_STREAM)
-                        : GenericType.Response(ClassType.BINARY_DATA);
-                }
                 return genericType.getTypeArguments()[0];
             }
             if (genericType.getName().equals("PagedFlux")) {

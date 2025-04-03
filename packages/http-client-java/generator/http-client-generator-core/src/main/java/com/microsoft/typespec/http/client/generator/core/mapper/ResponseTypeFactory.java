@@ -57,7 +57,9 @@ final class ResponseTypeFactory {
 
             final boolean typedHeadersDisallowed = ignoreTypedHeaders || settings.isDisableTypedHeadersMethods();
             if (typedHeadersDisallowed) {
-                return isByteStream(bodyType) ? mono(ClassType.STREAM_RESPONSE) : mono(GenericType.Response(bodyType));
+                return isByteStream(bodyType)
+                    ? mono(GenericType.Response(ClassType.BINARY_DATA))
+                    : mono(GenericType.Response(bodyType));
             }
 
             final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
@@ -69,14 +71,14 @@ final class ResponseTypeFactory {
         }
 
         if (bodyType.equals(ClassType.INPUT_STREAM)) {
-            return mono(ClassType.STREAM_RESPONSE);
+            return mono(GenericType.Response(ClassType.BINARY_DATA));
         }
 
         if (bodyType.equals(ClassType.BINARY_DATA)) {
             final boolean useInputStream
                 = settings.isInputStreamForBinary() && !settings.isDataPlaneClient() && !settings.isSyncStackEnabled();
             if (useInputStream) {
-                return mono(ClassType.STREAM_RESPONSE);
+                return mono(GenericType.Response(ClassType.BINARY_DATA));
             }
         }
 
