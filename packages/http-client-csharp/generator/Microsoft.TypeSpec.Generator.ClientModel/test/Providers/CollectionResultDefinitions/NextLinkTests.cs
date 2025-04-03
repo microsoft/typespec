@@ -154,7 +154,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         }
 
 
-        private static void CreatePagingOperation(InputResponseLocation responseLocation, string clientName = "catClient", string clientNamespace = "Sample")
+        private static void CreatePagingOperation(InputResponseLocation responseLocation)
         {
             var inputModel = InputFactory.Model("cat", properties:
             [
