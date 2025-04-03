@@ -1,4 +1,4 @@
-# Should generate as bytes for jsonl content type with httpstream template
+# only: Should generate as bytes for jsonl content type with httpstream template
 
 ## TypeSpec
 
@@ -19,7 +19,10 @@ model Thing {
 The test expects a TypeScript operation that treats the model Thing as bytes.
 
 ```ts src/api/clientOperations.ts function get
-export async function get(client: ClientContext, options?: GetOptions): Promise<Uint8Array> {
+export async function get(
+  client: ClientContext,
+  options?: GetOptions,
+): Promise<Uint8Array> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {},
@@ -29,7 +32,10 @@ export async function get(client: ClientContext, options?: GetOptions): Promise<
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (+response.status === 200 && response.headers["content-type"]?.includes("application/jsonl")) {
+  if (
+    +response.status === 200 &&
+    response.headers["content-type"]?.includes("application/jsonl")
+  ) {
     return decodeBase64(response.body)!!;
   }
   throw createRestError(response);
@@ -57,7 +63,10 @@ model Thing {
 The test expects a TypeScript operation that treats the model Thing as bytes.
 
 ```ts src/api/clientOperations.ts function get
-export async function get(client: ClientContext, options?: GetOptions): Promise<Uint8Array> {
+export async function get(
+  client: ClientContext,
+  options?: GetOptions,
+): Promise<Uint8Array> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {},
@@ -67,7 +76,10 @@ export async function get(client: ClientContext, options?: GetOptions): Promise<
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (+response.status === 200 && response.headers["content-type"]?.includes("application/jsonl")) {
+  if (
+    +response.status === 200 &&
+    response.headers["content-type"]?.includes("application/jsonl")
+  ) {
     return decodeBase64(response.body)!!;
   }
   throw createRestError(response);
@@ -97,7 +109,10 @@ model Thing {
 The test expects a TypeScript operation that treats the model Thing as bytes.
 
 ```ts src/api/clientOperations.ts function get
-export async function get(client: ClientContext, options?: GetOptions): Promise<Uint8Array> {
+export async function get(
+  client: ClientContext,
+  options?: GetOptions,
+): Promise<Uint8Array> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {},
@@ -107,7 +122,10 @@ export async function get(client: ClientContext, options?: GetOptions): Promise<
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (+response.status === 204 && response.headers["content-type"]?.includes("application/jsonl")) {
+  if (
+    +response.status === 204 &&
+    response.headers["content-type"]?.includes("application/jsonl")
+  ) {
     return decodeBase64(response.body)!!;
   }
   throw createRestError(response);

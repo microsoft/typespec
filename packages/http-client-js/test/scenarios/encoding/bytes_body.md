@@ -43,7 +43,7 @@ export async function foo(
 }
 ```
 
-# Should encode a bytes data when the body is bytes and encoding is base64
+# only: Should encode a bytes data when the body is bytes and encoding is base64
 
 ## TypeSpec
 
@@ -52,8 +52,8 @@ export async function foo(
 namespace Test;
 
 @route("/default")
-op foo(@header contentType: "application/json", @body value: bytes): {
-  @header contentType: "application/octet-stream";
+op foo(@header contentType: "application/jsonl", @body value: bytes): {
+  @header contentType: "application/jsonl";
   @body value: bytes;
 };
 ```
@@ -69,7 +69,7 @@ export async function foo(
   const path = parse("/default").expand({});
   const httpRequestOptions = {
     headers: {
-      "content-type": options?.contentType ?? "application/json",
+      "content-type": options?.contentType ?? "application/jsonl",
     },
     body: encodeUint8Array(value, "base64")!,
   };
@@ -80,9 +80,9 @@ export async function foo(
   }
   if (
     +response.status === 200 &&
-    response.headers["content-type"]?.includes("application/octet-stream")
+    response.headers["content-type"]?.includes("application/jsonl")
   ) {
-    return response.body!;
+    return decodeBase64(response.body)!!;
   }
   throw createRestError(response);
 }

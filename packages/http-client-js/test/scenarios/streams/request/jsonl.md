@@ -1,4 +1,4 @@
-# Should generate as bytes for jsonl content type with httpstream template
+# only: Should generate as bytes for jsonl content type with httpstream template
 
 ## TypeSpec
 

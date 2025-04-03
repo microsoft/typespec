@@ -190,8 +190,9 @@ defineKit<TypekitExtension>({
             if (streamMetadata && bytes && responseContent.body?.bodyKind === "single") {
               (responseContent.body as any).type = bytes;
             }
-            return response;
+            return responseContent;
           });
+          return response;
         });
         return httpOperation;
       });
