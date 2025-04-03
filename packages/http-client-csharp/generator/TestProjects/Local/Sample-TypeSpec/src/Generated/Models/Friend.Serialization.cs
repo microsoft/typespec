@@ -10,8 +10,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using SampleTypeSpec;
 
-namespace SampleTypeSpec
+namespace SampleTypeSpec.Models.Custom
 {
     /// <summary></summary>
     public partial class Friend : IJsonModel<Friend>

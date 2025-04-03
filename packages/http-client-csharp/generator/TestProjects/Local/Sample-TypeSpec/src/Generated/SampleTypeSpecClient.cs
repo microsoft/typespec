@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SampleTypeSpec.Models.Custom;
 
 namespace SampleTypeSpec
 {
@@ -644,7 +645,6 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
-                name,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -659,6 +659,7 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                null,
                 null);
             ClientResult result = AnonymousBody(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
@@ -690,7 +691,6 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
-                name,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -705,6 +705,7 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                null,
                 null);
             ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
@@ -877,13 +878,13 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<RenamedModel> ProjectedNameModel(string name, CancellationToken cancellationToken = default)
+        public virtual ClientResult<RenamedModelCustom> ProjectedNameModel(string name, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            RenamedModel spreadModel = new RenamedModel(name, null);
+            RenamedModelCustom spreadModel = new RenamedModelCustom(name, null);
             ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((RenamedModel)result, result.GetRawResponse());
+            return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -891,13 +892,13 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<RenamedModel>> ProjectedNameModelAsync(string name, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<RenamedModelCustom>> ProjectedNameModelAsync(string name, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            RenamedModel spreadModel = new RenamedModel(name, null);
+            RenamedModelCustom spreadModel = new RenamedModelCustom(name, null);
             ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((RenamedModel)result, result.GetRawResponse());
+            return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary>

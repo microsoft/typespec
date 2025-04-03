@@ -11,17 +11,17 @@ using System.Collections.Generic;
 namespace SampleTypeSpec
 {
     /// <summary> this is a model with a client name. </summary>
-    public partial class RenamedModel
+    public partial class RenamedModelCustom
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        internal RenamedModel(string name)
+        internal RenamedModelCustom(string name)
         {
             Name = name;
         }
 
-        internal RenamedModel(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal RenamedModelCustom(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;

@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SampleTypeSpec.Models.Custom;
 
 namespace SampleTypeSpec
 {
@@ -15,7 +16,6 @@ namespace SampleTypeSpec
     public static partial class SampleTypeSpecModelFactory
     {
         /// <summary> A model with a few properties of literal types. </summary>
-        /// <param name="name"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredLiteralString"> required literal string. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
@@ -30,14 +30,14 @@ namespace SampleTypeSpec
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="rename"></param>
         /// <returns> A new <see cref="SampleTypeSpec.Thing"/> instance for mocking. </returns>
-        public static Thing Thing(string name = default, BinaryData requiredUnion = default, ThingRequiredLiteralString requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, ThingRequiredLiteralInt requiredLiteralInt = default, ThingRequiredLiteralFloat requiredLiteralFloat = default, bool requiredLiteralBool = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default)
+        public static Thing Thing(BinaryData requiredUnion = default, ThingRequiredLiteralString requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, ThingRequiredLiteralInt requiredLiteralInt = default, ThingRequiredLiteralFloat requiredLiteralFloat = default, bool requiredLiteralBool = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string rename = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
             requiredNullableList ??= new ChangeTrackingList<int>();
 
             return new Thing(
-                name,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -52,6 +52,7 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList(),
                 requiredNullableList?.ToList(),
+                rename,
                 additionalBinaryDataProperties: null);
         }
 
@@ -135,7 +136,7 @@ namespace SampleTypeSpec
 
         /// <summary> this is not a friendly model but with a friendly name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.Friend"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="Models.Custom.Friend"/> instance for mocking. </returns>
         public static Friend Friend(string name = default)
         {
 
@@ -144,11 +145,11 @@ namespace SampleTypeSpec
 
         /// <summary> this is a model with a client name. </summary>
         /// <param name="name"> name of the ModelWithClientName. </param>
-        /// <returns> A new <see cref="SampleTypeSpec.RenamedModel"/> instance for mocking. </returns>
-        public static RenamedModel RenamedModel(string name = default)
+        /// <returns> A new <see cref="SampleTypeSpec.RenamedModelCustom"/> instance for mocking. </returns>
+        public static RenamedModelCustom RenamedModelCustom(string name = default)
         {
 
-            return new RenamedModel(name, additionalBinaryDataProperties: null);
+            return new RenamedModelCustom(name, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>
