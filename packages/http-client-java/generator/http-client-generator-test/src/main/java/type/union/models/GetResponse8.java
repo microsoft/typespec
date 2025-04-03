@@ -21,7 +21,7 @@ public final class GetResponse8 implements JsonSerializable<GetResponse8> {
      * The prop property.
      */
     @Generated
-    private final GetResponseProp3 prop;
+    private final MixedLiteralsCases prop;
 
     /**
      * Creates an instance of GetResponse8 class.
@@ -29,7 +29,7 @@ public final class GetResponse8 implements JsonSerializable<GetResponse8> {
      * @param prop the prop value to set.
      */
     @Generated
-    private GetResponse8(GetResponseProp3 prop) {
+    private GetResponse8(MixedLiteralsCases prop) {
         this.prop = prop;
     }
 
@@ -39,7 +39,7 @@ public final class GetResponse8 implements JsonSerializable<GetResponse8> {
      * @return the prop value.
      */
     @Generated
-    public GetResponseProp3 getProp() {
+    public MixedLiteralsCases getProp() {
         return this.prop;
     }
 
@@ -50,7 +50,7 @@ public final class GetResponse8 implements JsonSerializable<GetResponse8> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("prop", this.prop == null ? null : this.prop.toString());
+        jsonWriter.writeJsonField("prop", this.prop);
         return jsonWriter.writeEndObject();
     }
 
@@ -66,13 +66,13 @@ public final class GetResponse8 implements JsonSerializable<GetResponse8> {
     @Generated
     public static GetResponse8 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            GetResponseProp3 prop = null;
+            MixedLiteralsCases prop = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("prop".equals(fieldName)) {
-                    prop = GetResponseProp3.fromString(reader.getString());
+                    prop = MixedLiteralsCases.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }

@@ -16,8 +16,8 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import type.union.implementation.MixedLiteralsImpl;
-import type.union.implementation.models.SendRequest1;
-import type.union.models.GetResponse1;
+import type.union.implementation.models.SendRequest8;
+import type.union.models.GetResponse8;
 import type.union.models.MixedLiteralsCases;
 
 /**
@@ -85,7 +85,7 @@ public final class MixedLiteralsClient {
      * }
      * </pre>
      * 
-     * @param sendRequest1 The sendRequest1 parameter.
+     * @param sendRequest8 The sendRequest8 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -95,8 +95,8 @@ public final class MixedLiteralsClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(BinaryData sendRequest1, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponse(sendRequest1, requestOptions);
+    public Response<Void> sendWithResponse(BinaryData sendRequest8, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponse(sendRequest8, requestOptions);
     }
 
     /**
@@ -111,10 +111,10 @@ public final class MixedLiteralsClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse1 get() {
+    public GetResponse8 get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(GetResponse1.class);
+        return getWithResponse(requestOptions).getValue().toObject(GetResponse8.class);
     }
 
     /**
@@ -133,8 +133,8 @@ public final class MixedLiteralsClient {
     public void send(MixedLiteralsCases prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest1 sendRequest1Obj = new SendRequest1(prop);
-        BinaryData sendRequest1 = BinaryData.fromObject(sendRequest1Obj);
-        sendWithResponse(sendRequest1, requestOptions).getValue();
+        SendRequest8 sendRequest8Obj = new SendRequest8(prop);
+        BinaryData sendRequest8 = BinaryData.fromObject(sendRequest8Obj);
+        sendWithResponse(sendRequest8, requestOptions).getValue();
     }
 }

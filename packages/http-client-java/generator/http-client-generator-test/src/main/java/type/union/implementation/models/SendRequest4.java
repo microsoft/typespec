@@ -6,12 +6,12 @@ package type.union.implementation.models;
 
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
-import com.azure.core.util.BinaryData;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
+import type.union.models.GetResponseProp3;
 
 /**
  * The SendRequest4 model.
@@ -22,7 +22,7 @@ public final class SendRequest4 implements JsonSerializable<SendRequest4> {
      * The prop property.
      */
     @Generated
-    private final BinaryData prop;
+    private final GetResponseProp3 prop;
 
     /**
      * Creates an instance of SendRequest4 class.
@@ -30,7 +30,7 @@ public final class SendRequest4 implements JsonSerializable<SendRequest4> {
      * @param prop the prop value to set.
      */
     @Generated
-    public SendRequest4(BinaryData prop) {
+    public SendRequest4(GetResponseProp3 prop) {
         this.prop = prop;
     }
 
@@ -40,7 +40,7 @@ public final class SendRequest4 implements JsonSerializable<SendRequest4> {
      * @return the prop value.
      */
     @Generated
-    public BinaryData getProp() {
+    public GetResponseProp3 getProp() {
         return this.prop;
     }
 
@@ -51,8 +51,7 @@ public final class SendRequest4 implements JsonSerializable<SendRequest4> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeFieldName("prop");
-        this.prop.writeTo(jsonWriter);
+        jsonWriter.writeNumberField("prop", this.prop == null ? null : this.prop.toDouble());
         return jsonWriter.writeEndObject();
     }
 
@@ -68,13 +67,13 @@ public final class SendRequest4 implements JsonSerializable<SendRequest4> {
     @Generated
     public static SendRequest4 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            BinaryData prop = null;
+            GetResponseProp3 prop = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("prop".equals(fieldName)) {
-                    prop = reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()));
+                    prop = GetResponseProp3.fromDouble(reader.getDouble());
                 } else {
                     reader.skipChildren();
                 }
