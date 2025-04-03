@@ -124,8 +124,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public void NextLinkInBodyMultipleClients()
+        {
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var paging = InputFactory.NextLinkOperationPaging("cats", "nextCat", InputResponseLocation.Body);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel)), InputFactory.Property("nextCat", InputPrimitiveType.Url)]));
+            var operation = InputFactory.Operation("getCats", paging: paging, responses: [response]);
+            var catClient = InputFactory.Client("catClient", operations: [operation], clientNamespace: "Sample");
+            var felineClient = InputFactory.Client("felineClient", operations: [operation], clientNamespace: "Cats");
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [catClient, felineClient]);
 
-        private static void CreatePagingOperation(InputResponseLocation responseLocation)
+            var catClientCollectionResult = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
+            Assert.IsNotNull(catClientCollectionResult);
+            Assert.AreEqual("Sample", catClientCollectionResult!.Type.Namespace);
+
+            var felineClientCollectionResult = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "FelineClientGetCatsCollectionResult");
+            Assert.IsNotNull(felineClientCollectionResult);
+            Assert.AreEqual("Cats", felineClientCollectionResult!.Type.Namespace);
+        }
+
+
+        private static void CreatePagingOperation(InputResponseLocation responseLocation, string clientName = "catClient", string clientNamespace = "Sample")
         {
             var inputModel = InputFactory.Model("cat", properties:
             [
