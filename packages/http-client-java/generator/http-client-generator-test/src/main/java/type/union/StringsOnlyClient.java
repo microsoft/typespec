@@ -16,9 +16,9 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import type.union.implementation.StringsOnliesImpl;
-import type.union.implementation.models.SendRequest9;
-import type.union.models.GetResponse9;
-import type.union.models.GetResponseProp4;
+import type.union.implementation.models.SendRequest;
+import type.union.models.GetResponse;
+import type.union.models.GetResponseProp;
 
 /**
  * Initializes a new instance of the synchronous UnionClient type.
@@ -75,7 +75,7 @@ public final class StringsOnlyClient {
      * }
      * </pre>
      * 
-     * @param sendRequest9 The sendRequest9 parameter.
+     * @param sendRequest The sendRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -85,8 +85,8 @@ public final class StringsOnlyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendWithResponse(BinaryData sendRequest9, RequestOptions requestOptions) {
-        return this.serviceClient.sendWithResponse(sendRequest9, requestOptions);
+    public Response<Void> sendWithResponse(BinaryData sendRequest, RequestOptions requestOptions) {
+        return this.serviceClient.sendWithResponse(sendRequest, requestOptions);
     }
 
     /**
@@ -101,10 +101,10 @@ public final class StringsOnlyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public GetResponse9 get() {
+    public GetResponse get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(GetResponse9.class);
+        return getWithResponse(requestOptions).getValue().toObject(GetResponse.class);
     }
 
     /**
@@ -120,11 +120,11 @@ public final class StringsOnlyClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void send(GetResponseProp4 prop) {
+    public void send(GetResponseProp prop) {
         // Generated convenience method for sendWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        SendRequest9 sendRequest9Obj = new SendRequest9(prop);
-        BinaryData sendRequest9 = BinaryData.fromObject(sendRequest9Obj);
-        sendWithResponse(sendRequest9, requestOptions).getValue();
+        SendRequest sendRequestObj = new SendRequest(prop);
+        BinaryData sendRequest = BinaryData.fromObject(sendRequestObj);
+        sendWithResponse(sendRequest, requestOptions).getValue();
     }
 }
