@@ -12,30 +12,26 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResultOfT : CollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-<<<<<<<< HEAD:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/ListWithContinuationTokenHeaderResponseCollectionResultOfT.cs
-        public ListWithContinuationTokenHeaderResponseCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
-========
-        public UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResultOfT(UnbrandedTypeSpecClient client, string token, RequestOptions options)
->>>>>>>> upstream/main:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/UnbrandedTypeSpecClientListWithContinuationTokenHeaderResponseCollectionResultOfT.cs
+        public SampleTypeSpecClientListWithContinuationTokenHeaderResponseAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
             _options = options;
         }
 
-        public override IEnumerable<ClientResult> GetRawPages()
+        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateListWithContinuationTokenHeaderResponseRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
                 if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value))
@@ -60,11 +56,6 @@ namespace SampleTypeSpec
             {
                 return null;
             }
-        }
-
-        protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
-        {
-            return ((ListWithContinuationTokenHeaderResponseResponse)page).Things;
         }
     }
 }

@@ -12,17 +12,13 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnbrandedTypeSpecClientListWithContinuationTokenCollectionResultOfT : CollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithContinuationTokenCollectionResultOfT : CollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-<<<<<<<< HEAD:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/ListWithContinuationTokenCollectionResultOfT.cs
-        public ListWithContinuationTokenCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
-========
-        public UnbrandedTypeSpecClientListWithContinuationTokenCollectionResultOfT(UnbrandedTypeSpecClient client, string token, RequestOptions options)
->>>>>>>> upstream/main:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/UnbrandedTypeSpecClientListWithContinuationTokenCollectionResultOfT.cs
+        public SampleTypeSpecClientListWithContinuationTokenCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;

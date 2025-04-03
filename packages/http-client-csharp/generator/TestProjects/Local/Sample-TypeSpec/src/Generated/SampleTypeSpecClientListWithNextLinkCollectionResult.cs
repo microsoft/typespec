@@ -12,30 +12,26 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnbrandedTypeSpecClientListWithNextLinkAsyncCollectionResult : AsyncCollectionResult
+    internal partial class SampleTypeSpecClientListWithNextLinkCollectionResult : CollectionResult
     {
         private readonly SampleTypeSpecClient _client;
         private readonly Uri _nextPage;
         private readonly RequestOptions _options;
 
-<<<<<<<< HEAD:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/ListWithNextLinkAsyncCollectionResult.cs
-        public ListWithNextLinkAsyncCollectionResult(SampleTypeSpecClient client, Uri nextPage, RequestOptions options)
-========
-        public UnbrandedTypeSpecClientListWithNextLinkAsyncCollectionResult(UnbrandedTypeSpecClient client, Uri nextPage, RequestOptions options)
->>>>>>>> upstream/main:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/UnbrandedTypeSpecClientListWithNextLinkAsyncCollectionResult.cs
+        public SampleTypeSpecClientListWithNextLinkCollectionResult(SampleTypeSpecClient client, Uri nextPage, RequestOptions options)
         {
             _client = client;
             _nextPage = nextPage;
             _options = options;
         }
 
-        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateListWithNextLinkRequest(_nextPage, _options);
             Uri nextPageUri = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
                 nextPageUri = ((ListWithNextLinkResponse)result).Next;

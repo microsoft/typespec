@@ -9,33 +9,30 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnbrandedTypeSpecClientListWithContinuationTokenCollectionResultOfT : CollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithContinuationTokenAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-<<<<<<<< HEAD:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/ListWithContinuationTokenCollectionResultOfT.cs
-        public ListWithContinuationTokenCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
-========
-        public UnbrandedTypeSpecClientListWithContinuationTokenCollectionResultOfT(UnbrandedTypeSpecClient client, string token, RequestOptions options)
->>>>>>>> upstream/main:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/UnbrandedTypeSpecClientListWithContinuationTokenCollectionResultOfT.cs
+        public SampleTypeSpecClientListWithContinuationTokenAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
             _options = options;
         }
 
-        public override IEnumerable<ClientResult> GetRawPages()
+        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateListWithContinuationTokenRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
                 yield return result;
 
                 nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
@@ -60,9 +57,13 @@ namespace SampleTypeSpec
             }
         }
 
-        protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
+        protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            return ((ListWithContinuationTokenResponse)page).Things;
+            foreach (Thing item in ((ListWithContinuationTokenResponse)page).Things)
+            {
+                yield return item;
+                await Task.Yield();
+            }
         }
     }
 }

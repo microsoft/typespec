@@ -11,16 +11,12 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnbrandedTypeSpecClientListWithPagingAsyncCollectionResult : AsyncCollectionResult
+    internal partial class SampleTypeSpecClientListWithPagingAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-<<<<<<<< HEAD:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/ListWithPagingAsyncCollectionResult.cs
-        public ListWithPagingAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
-========
-        public UnbrandedTypeSpecClientListWithPagingAsyncCollectionResult(UnbrandedTypeSpecClient client, RequestOptions options)
->>>>>>>> upstream/main:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/UnbrandedTypeSpecClientListWithPagingAsyncCollectionResult.cs
+        public SampleTypeSpecClientListWithPagingAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;

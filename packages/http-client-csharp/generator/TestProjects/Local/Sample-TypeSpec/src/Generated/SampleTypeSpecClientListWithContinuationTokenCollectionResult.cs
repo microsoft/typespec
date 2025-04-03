@@ -12,30 +12,26 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnbrandedTypeSpecClientListWithContinuationTokenAsyncCollectionResult : AsyncCollectionResult
+    internal partial class SampleTypeSpecClientListWithContinuationTokenCollectionResult : CollectionResult
     {
         private readonly SampleTypeSpecClient _client;
         private readonly string _token;
         private readonly RequestOptions _options;
 
-<<<<<<<< HEAD:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/ListWithContinuationTokenAsyncCollectionResult.cs
-        public ListWithContinuationTokenAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
-========
-        public UnbrandedTypeSpecClientListWithContinuationTokenAsyncCollectionResult(UnbrandedTypeSpecClient client, string token, RequestOptions options)
->>>>>>>> upstream/main:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/UnbrandedTypeSpecClientListWithContinuationTokenAsyncCollectionResult.cs
+        public SampleTypeSpecClientListWithContinuationTokenCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
             _token = token;
             _options = options;
         }
 
-        public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
+        public override IEnumerable<ClientResult> GetRawPages()
         {
             PipelineMessage message = _client.CreateListWithContinuationTokenRequest(_token, _options);
             string nextToken = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                ClientResult result = ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
                 yield return result;
 
                 nextToken = ((ListWithContinuationTokenResponse)result).NextToken;

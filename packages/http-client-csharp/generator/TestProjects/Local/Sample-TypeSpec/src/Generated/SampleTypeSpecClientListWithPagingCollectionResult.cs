@@ -11,16 +11,12 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnbrandedTypeSpecClientListWithPagingCollectionResultOfT : CollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithPagingCollectionResult : CollectionResult
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-<<<<<<<< HEAD:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/ListWithPagingCollectionResultOfT.cs
-        public ListWithPagingCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
-========
-        public UnbrandedTypeSpecClientListWithPagingCollectionResultOfT(UnbrandedTypeSpecClient client, RequestOptions options)
->>>>>>>> upstream/main:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/UnbrandedTypeSpecClientListWithPagingCollectionResultOfT.cs
+        public SampleTypeSpecClientListWithPagingCollectionResult(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
@@ -35,11 +31,6 @@ namespace SampleTypeSpec
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             return null;
-        }
-
-        protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
-        {
-            return ((PageThing)page).Items;
         }
     }
 }

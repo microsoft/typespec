@@ -12,16 +12,12 @@ using System.Threading.Tasks;
 
 namespace SampleTypeSpec
 {
-    internal partial class UnbrandedTypeSpecClientListWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+    internal partial class SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
         private readonly RequestOptions _options;
 
-<<<<<<<< HEAD:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/ListWithPagingAsyncCollectionResultOfT.cs
-        public ListWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
-========
-        public UnbrandedTypeSpecClientListWithPagingAsyncCollectionResultOfT(UnbrandedTypeSpecClient client, RequestOptions options)
->>>>>>>> upstream/main:packages/http-client-csharp/generator/TestProjects/Local/Sample-TypeSpec/src/Generated/UnbrandedTypeSpecClientListWithPagingAsyncCollectionResultOfT.cs
+        public SampleTypeSpecClientListWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
             _options = options;
