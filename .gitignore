@@ -216,6 +216,9 @@ packages/*/etc/
 packages/http-client-csharp/generator/artifacts/
 BenchmarkDotnet.Artifacts/
 
+# csharp sample 
+!docs/samples/client/csharp/SampleService/package-lock.json
+
 # java emitter
 !packages/http-client-java/package-lock.json
 
